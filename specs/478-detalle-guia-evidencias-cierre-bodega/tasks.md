@@ -6,17 +6,19 @@
 
 ## T0 — Medir antes de tocar (sin código de producción)
 
-- [ ] **T0.1 [P] — Captura del «antes».** Con Playwright, login como maestro, `/cierres-admin` →
+- [x] **T0.1 [P] — Captura del «antes».** Con Playwright, login como maestro, `/cierres-admin` →
   cierres de bodega → «Ver / decidir» de un cierre con gestiones. Capturar el bloque de un
   mensajero sin desplazar en horizontal y la sección Entregadas.
   *Hecho:* capturas en `progress/impl_478.md` con la ruta usada y una línea de qué se ve (qué
   columnas quedan a la vista; si hay o no «Ver evidencia» en Entregadas).
-- [ ] **T0.2 [P] — Cuántas evidencias hay por resultado.** SELECT de solo lectura, en local y en
+- [x] **T0.2 [P] — Cuántas evidencias hay por resultado.** SELECT de solo lectura, en local y en
   producción (MCP `supabase`, confirmando el ref con `get_project_url` antes): gestiones con
   `cierre_id` en un `cierre_dia` con `cierre_bodega_id IS NOT NULL`, agrupadas por `resultado`, con
   y sin `evidencia_storage_path`.
   *Hecho:* tabla de conteos en `progress/impl_478.md`; si en local no hay ninguna entregada con
   evidencia en un cierre de bodega, anotar cómo se creará para T6 (responde a Q1).
+  *Nota 478:* hecho en local (0 cierres de bodega; datos sembrados para T6 y borrados). Producción
+  NO medida: el MCP `supabase` no estaba disponible para el agente. Ver `progress/impl_478.md`.
 
 ## T1 — Caracterizar el dato (backend, test-only)
 
@@ -75,7 +77,7 @@
 
 ## T5 — Gate y registro
 
-- [ ] **T5 — Gate y mapa de trazabilidad.** `./init.sh --rapido` con `INIT_EXIT=$?` escrito dentro
+- [x] **T5 — Gate y mapa de trazabilidad.** `./init.sh --rapido` con `INIT_EXIT=$?` escrito dentro
   del log (`progress/gate_478.log`); mirar `skipped`, no solo el exit. Mapa R → test en
   `progress/impl_478.md`.
   *Hecho:* gate verde con el log commiteado; las 19 R mapeadas a un test existente y verde.
@@ -83,7 +85,7 @@
 
 ## T6 — Verlo en la app (Playwright)
 
-- [ ] **T6 — Recorrido.** Dev server propio (no levantar otro si ya hay uno de otro agente).
+- [x] **T6 — Recorrido.** Dev server propio (no levantar otro si ya hay uno de otro agente).
   Login como maestro (y repetir con admin): `/cierres-admin` → cierres de bodega → abrir un cierre
   con gestiones (el de T0.2 o el creado por el flujo). Por un mensajero: (1) ver las cinco pestañas
   con conteo; (2) desplegar una entregada y comprobar dirección, ubicación, recibido con método,
