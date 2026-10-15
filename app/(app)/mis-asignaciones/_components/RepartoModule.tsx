@@ -180,7 +180,14 @@ export function RepartoModule({
   // El texto del aviso, compuesto UNA vez: lo pinta el panel y lo dice el toast de la guarda
   // suave. Dos llamadas darían dos cadenas idénticas, pero también dos sitios donde cambiar
   // `conCta` a medias.
-  const avisoDeBloqueo = avisoBloqueo(bloqueo, { conCta: true });
+  //
+  // FICHA 479: el aviso cuenta las órdenes EN CORRECCIÓN (ficha 477) que el mensajero tiene en
+  // pantalla, para no decir «no puedes entregar» encima de una tarjeta que sí se gestiona. Se
+  // cuentan por id sobre las dos listas que pinta este módulo; sin ninguna, el texto no cambia.
+  const ordenesEnCorreccion = new Set(
+    [...porGestionar, ...conAyuda].filter((o) => o.enCorreccion === true).map((o) => o.id),
+  ).size;
+  const avisoDeBloqueo = avisoBloqueo(bloqueo, { conCta: true, ordenesEnCorreccion });
   // FICHA 477 (R27, design D4/D8): la exención va POR OBJETO, no por mensajero. Con el bloqueo
   // puesto, la orden EN CORRECCIÓN de un cierre rechazado propio sigue gestionable (el servidor
   // aplica la misma exención en `escogerParaGestion`/`gestionar`, R12); todas las demás, no (R13).

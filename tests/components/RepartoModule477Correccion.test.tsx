@@ -212,3 +212,44 @@ describe("477 — Entregas con el mensajero bloqueado (R27)", () => {
     expect(botonGestionar("REM-G3")).toBeEnabled();
   });
 });
+
+// FICHA 479 — el aviso de bloqueo de Entregas ya no dice «no puedes entregar» a secas cuando hay
+// órdenes en corrección que SÍ se gestionan. Los textos son LITERALES a propósito: son el contrato
+// de lo que lee el mensajero (no se comparan contra la función que los compone).
+describe("479 — aviso de bloqueo en Entregas con órdenes en corrección", () => {
+  function textoDelAviso(): string {
+    const avisos = screen
+      .getAllByRole("alert")
+      .map((a) => a.textContent ?? "")
+      .filter((t) => t.startsWith("Tienes "));
+    expect(avisos).toHaveLength(1);
+    return avisos[0];
+  }
+
+  it("sin órdenes en corrección, el aviso no cambia", () => {
+    renderModule({ bloqueo: bloqueoConRechazado(), porGestionar: tresOrdenes(false) });
+
+    expect(textoDelAviso()).toBe(
+      "Tienes un cierre sin enviar a aprobación. Mientras tanto no puedes entregar, cobrar ni recibir trabajo nuevo. Ve a «Cierre del día» para enviarlo a aprobación.",
+    );
+  });
+
+  it("con una orden en corrección, dice que esa sí se puede volver a gestionar", () => {
+    renderModule({ bloqueo: bloqueoConRechazado(), porGestionar: tresOrdenes(true) });
+
+    expect(textoDelAviso()).toBe(
+      "Tienes un cierre sin enviar a aprobación. Mientras tanto no puedes entregar, cobrar ni recibir trabajo nuevo; solo puedes volver a gestionar la orden de tu cierre rechazado. Ve a «Cierre del día» para enviarlo a aprobación.",
+    );
+  });
+
+  it("con varias órdenes en corrección, dice cuántas", () => {
+    const ordenes = tresOrdenes(true).map((o) =>
+      o.id === "g2" ? { ...o, enCorreccion: true } : o,
+    );
+    renderModule({ bloqueo: bloqueoConRechazado(), porGestionar: ordenes });
+
+    expect(textoDelAviso()).toBe(
+      "Tienes un cierre sin enviar a aprobación. Mientras tanto no puedes entregar, cobrar ni recibir trabajo nuevo; solo puedes volver a gestionar las 2 órdenes de tu cierre rechazado. Ve a «Cierre del día» para enviarlo a aprobación.",
+    );
+  });
+});
