@@ -3,25 +3,15 @@
 import type { ReactNode } from "react";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { InfoEstado } from "@/components/shared/EstadoInfo";
 import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/shared/Modal";
-import {
-  DataTable,
-  type Column,
-  type DataTableDescarga,
-} from "@/components/shared/DataTable";
-import { filasLocales } from "@/components/shared/descarga-resultado";
+import type { Column } from "@/components/shared/DataTable";
 import { money, moneyTope } from "@/lib/config/moneda";
 import { cn } from "@/lib/utils";
-import type { DescargaFila } from "@/lib/types/descarga";
 import type {
   CierreDetalleGestion,
-  CierreGrupos,
   CierreResultado,
   CierreTotales,
-  IngresoOrdenexDTO,
   TotalesIngresoOrdenex,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreEstado } from "@/lib/types/cierre";
@@ -48,8 +38,6 @@ import {
   INGRESO_TOTAL_COL,
   CAUSA_INCIDENTE_COL,
   INDEMNIZACION_COL,
-  METODO_LABEL,
-  FULFILLMENT_COL,
   // Feature 393 (C1) — los trece rotulos de las DOS CASCADAS del cierre de bodega. Se importan
   // aqui SOLO para re-exportarlos: este archivo es la puerta por la que los modulos de cierre
   // piden sus etiquetas desde la tanda E de la 170, y `CascadaDinero` / `CierresBodegaAdminModule`
@@ -92,33 +80,19 @@ import {
   GESTION_TIENDA_BADGE_LABEL,
   GESTION_TIENDA_BADGE_NOTA,
 } from "./cierre-labels";
-// Feature 213 (T6/T7): el desglose de pago vive en UN solo sitio (R25). De ahí salen también
-// el orden de los medios y el monto de cada uno, que es lo que estas tablas pintan por columna.
-import { CLAVE_MEDIO_PAGO, MEDIOS_PAGO, montoPorMetodo } from "./desglose-pago";
-import {
-  AMBITO_DESCARGA_GESTIONES_DEVUELTAS,
-  AMBITO_DESCARGA_GESTIONES_ENTREGADAS,
-  AMBITO_DESCARGA_GESTIONES_INCIDENTES,
-  AMBITO_DESCARGA_GESTIONES_RECHAZADAS,
-  AMBITO_DESCARGA_GESTIONES_REPROGRAMADAS,
-  COLUMNAS_DESCARGA_GESTIONES_DEVUELTAS,
-  COLUMNAS_DESCARGA_GESTIONES_ENTREGADAS,
-  COLUMNAS_DESCARGA_GESTIONES_INCIDENTES,
-  COLUMNAS_DESCARGA_GESTIONES_RECHAZADAS,
-  COLUMNAS_DESCARGA_GESTIONES_REPROGRAMADAS,
-  filaDescargaGestionDevuelta,
-  filaDescargaGestionEntregada,
-  filaDescargaGestionIncidente,
-  filaDescargaGestionRechazada,
-  filaDescargaGestionReprogramada,
-} from "./cierre-gestiones-descarga-columnas";
 
 // Feature 40 (T8) — helpers y componentes compartidos del detalle de cierre entre
 // el módulo de cierres de mensajero (feature 38, `CierresAdminModule`) y los nuevos
 // módulos de cierre de bodega (adminSatelite `ConsolidacionBodegaModule` / maestro
 // `CierresBodegaAdminModule`). Extraídos verbatim del `CierresAdminModule` original
-// para NO duplicar: money-safe (R13), etiquetas i18n-ready, columnas por resultado
-// con evidencia firmada (R12) y el visor de evidencia. Sin lógica de dominio propia.
+// para NO duplicar: money-safe (R13), etiquetas i18n-ready y el visor de evidencia. Sin
+// lógica de dominio propia.
+//
+// FICHA 482 (2026-10-15) — aquí vivían también las TABLAS por resultado del detalle
+// (`DetalleSecciones`, `columnasPara` y sus columnas, con una descarga por sección). La 478 las
+// sustituyó en el detalle de bodega por la lista en pestañas de `cierre-factura`
+// (`GestionesPorResultado`), que ya era la del comprobante de mensajero, y se quedaron sin
+// montaje; se borraron con lo que solo las servía. Lo que queda aquí lo leen pantallas vivas.
 
 // --- Etiquetas i18n-ready (texto separado de la lógica) ---
 //
@@ -853,49 +827,6 @@ export function renderPagoMensajero(g: CierreDetalleGestion): ReactNode {
   );
 }
 
-/** Columna del pago al mensajero por orden (R16/R20), reutilizable por sección. */
-export const COLUMNA_PAGO_MENSAJERO: Column<CierreDetalleGestion> = {
-  id: "pagoMensajero",
-  value: PAGO_MENSAJERO_COL,
-  render: renderPagoMensajero,
-};
-
-/**
- * Feature 56 (R12): columna del ingreso de bodega por rechazos por orden. Solo aplica a
- * la sección `rechazada`; money-safe (el monto llega como STRING, `null` → "—" vía
- * `money()`, NUNCA se parsea a número). Concepto separado del pago al mensajero.
- */
-export const COLUMNA_INGRESO_BODEGA_RECHAZOS: Column<CierreDetalleGestion> = {
-  id: "ingresoBodegaRechazo",
-  value: INGRESO_BODEGA_RECHAZOS_COL,
-  render: (g) => money(g.ingresoBodegaRechazo),
-};
-
-/**
- * Feature 102 (R9): marca por fila del ORIGEN de un rechazo — `SLA` (escalado por el cron 99)
- * o `Manual` (rechazo del mensajero), según `g.esRechazoSla`. El badge trae su nota accesible
- * (`title`/`aria-label`) para que el origen de cada ingreso de bodega sea auditable.
- */
-export function renderRechazoOrigen(g: CierreDetalleGestion): ReactNode {
-  return g.esRechazoSla ? (
-    <Badge
-      variant="secondary"
-      title={RECHAZO_SLA_BADGE_NOTA}
-      aria-label={RECHAZO_SLA_BADGE_NOTA}
-    >
-      {RECHAZO_SLA_BADGE_LABEL}
-    </Badge>
-  ) : (
-    <Badge
-      variant="outline"
-      title={RECHAZO_MANUAL_BADGE_NOTA}
-      aria-label={RECHAZO_MANUAL_BADGE_NOTA}
-    >
-      {RECHAZO_MANUAL_BADGE_LABEL}
-    </Badge>
-  );
-}
-
 /**
  * Marca del ORIGEN de un flete cuando NO es el normal. Devuelve `null` para `"normal"`: la
  * inmensa mayoría de las filas lo son y un badge en todas no señalaría nada.
@@ -925,16 +856,6 @@ export function renderFleteOrigen(origen: OrigenFlete): ReactNode {
   }
   return null;
 }
-
-/**
- * Feature 102 (R9): columna del origen del rechazo. Solo aplica a la sección `rechazada`.
- * Marca cada fila como SLA o manual, sin exponer ningún subtotal (el desglose vive en el panel).
- */
-export const COLUMNA_RECHAZO_ORIGEN: Column<CierreDetalleGestion> = {
-  id: "rechazoOrigen",
-  value: RECHAZO_ORIGEN_COL,
-  render: renderRechazoOrigen,
-};
 
 /**
  * Un renglón del desglose desplegable: etiqueta a la izquierda, valor a la derecha. `hint`
@@ -1202,94 +1123,6 @@ export function desgloseAriaLabel(g: CierreDetalleGestion): string {
 }
 
 /**
- * UNA COLUMNA POR MEDIO DE PAGO en las dos tablas del detalle (cierres de mensajero y de bodega
- * comparten esta declaración), en lugar de la celda única «Método» que llevaba el desglose
- * concatenado (feature 213, T7/R21).
- *
- * Cada columna enseña SOLO el monto que entró por ese medio, formateado con `money()` —moneda
- * de configuración, nunca un símbolo incrustado—; el medio sin línea pinta el MISMO marcador de
- * ausencia de siempre (R22), que es lo que `money(null)` ya hace. El monto sale del DESGLOSE del
- * DTO, nunca del campo escalar (R23), y el orden de las columnas es el del enum, uno para todos
- * los consumidores, en `desglose-pago.ts`.
- */
-const COLUMNAS_MEDIO_PAGO: Column<CierreDetalleGestion>[] = MEDIOS_PAGO.map((metodo) => ({
-  id: CLAVE_MEDIO_PAGO[metodo],
-  value: METODO_LABEL[metodo],
-  render: (g) => money(montoPorMetodo(g.pagos)[metodo]),
-}));
-
-// --- Columnas de dinero derivado por orden (solo el detalle admin las puebla) ---
-const COLUMNA_MONTO_COBRAR: Column<CierreDetalleGestion> = {
-  id: "montoCobrar",
-  value: MONTO_COBRAR_COL,
-  render: (g) => money(g.ingresoOrdenex?.montoCobrar ?? null),
-};
-
-/**
- * Monto FIJO de fulfillment, leído de la tarifa CONGELADA del cierre (2026-08-19).
- *
- * NO es un concepto derivado y por eso no sale de `columnaConcepto`: `derivarIngresoOrden` no
- * lo calcula, no entra en el «Total Ordenex» y no mueve wallets. Es un dato de la tarifa que el
- * cierre recuerda, y se pinta junto a «A cobrar» porque se lee con él.
- *
- * Vacío ("—") en dos casos que se ven igual y significan cosas distintas: la tienda no tenía
- * tarifa vigente al solicitar (gap R9), o el cierre es anterior a la columna
- * `cierre_detail.tarifa_fulfillment` (sin backfill: no hay valor correcto que inventar).
- */
-const COLUMNA_FULFILLMENT: Column<CierreDetalleGestion> = {
-  id: "fulfillment",
-  value: FULFILLMENT_COL,
-  render: (g) => money(g.ingresoOrdenex?.tarifa?.fulfillment ?? null),
-};
-
-/**
- * Columna de un flete (entrega o devolución) CON la marca de su origen al lado. Es la misma
- * celda de siempre —el monto formateado con `money()`, `null` → "—"— más el badge de
- * `renderFleteOrigen`, que sólo aparece cuando el flete no salió de la tabla normal.
- *
- * Va aparte de `columnaConcepto` porque el badge depende de un campo del DTO que el `pick` de
- * aquélla no ve: cada flete tiene SU origen (`fleteOrigen` / `fleteDevolucionOrigen`) y
- * mezclarlos pintaría la marca en la fila equivocada.
- */
-function columnaFlete(
-  id: string,
-  value: string,
-  monto: (i: IngresoOrdenexDTO) => string | null,
-  origen: (i: IngresoOrdenexDTO) => OrigenFlete,
-): Column<CierreDetalleGestion> {
-  return {
-    id,
-    value,
-    render: (g) => {
-      const ing = g.ingresoOrdenex;
-      if (!ing) return money(null);
-      const marca = renderFleteOrigen(origen(ing));
-      return marca === null ? (
-        money(monto(ing))
-      ) : (
-        <span className="inline-flex items-center gap-1.5">
-          {money(monto(ing))}
-          {marca}
-        </span>
-      );
-    },
-  };
-}
-
-/** Columna de un concepto derivado; `null` (no aplica a este resultado) → "—" vía `money`. */
-function columnaConcepto(
-  id: string,
-  value: string,
-  pick: (i: IngresoOrdenexDTO) => string | null,
-): Column<CierreDetalleGestion> {
-  return {
-    id,
-    value,
-    render: (g) => money(g.ingresoOrdenex ? pick(g.ingresoOrdenex) : null),
-  };
-}
-
-/**
  * Feature 158 (R9/R34): columna de la CAUSA tipificada del incidente. La etiqueta sale de
  * `CAUSA_INCIDENTE_LABEL` (derivada del SEED): nunca el slug crudo del enum. `null` sólo
  * podría verse si un resultado que no es `incidente` cayera en esta sección, y ahí "—" es la
@@ -1300,216 +1133,6 @@ export const COLUMNA_CAUSA_INCIDENTE: Column<CierreDetalleGestion> = {
   value: CAUSA_INCIDENTE_COL,
   render: (g) => (g.causaIncidente ? CAUSA_INCIDENTE_LABEL[g.causaIncidente] : "—"),
 };
-
-/**
- * Feature 158 (R19/R22/R34): columna del MONTO de la indemnización. Money-safe: el monto llega
- * como STRING y se muestra tal cual con `money()`, sin `parseFloat`. `null` → "—" CON su nota:
- * el cierre todavía no se aprobó y el monto aún no existe (ver `INDEMNIZACION_PENDIENTE_NOTA`).
- */
-export const COLUMNA_INDEMNIZACION: Column<CierreDetalleGestion> = {
-  id: "indemnizacion",
-  value: INDEMNIZACION_COL,
-  render: (g) =>
-    g.indemnizacion === null ? (
-      <span title={INDEMNIZACION_PENDIENTE_NOTA} aria-label={INDEMNIZACION_PENDIENTE_NOTA}>
-        —
-      </span>
-    ) : (
-      money(g.indemnizacion)
-    ),
-};
-
-/**
- * Columna de la evidencia FIRMADA (R12), compartida por `rechazada` e `incidente`
- * (feature 158/R18): abre el visor con la URL que ya llega firmada del servidor, nunca el
- * `storage_path` crudo. Se extrajo para no duplicar el render en dos ramas.
- */
-const COLUMNA_EVIDENCIA = (
-  verEvidencia: (url: string) => void,
-): Column<CierreDetalleGestion> => ({
-  id: "evidencia",
-  value: "Evidencia",
-  render: (g) =>
-    g.evidenciaUrl ? (
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        onClick={() => verEvidencia(g.evidenciaUrl as string)}
-      >
-        Ver evidencia
-      </Button>
-    ) : (
-      "—"
-    ),
-});
-
-const COLUMNA_INGRESO_TOTAL: Column<CierreDetalleGestion> = {
-  id: "ingresoTotal",
-  value: INGRESO_TOTAL_COL,
-  render: (g) =>
-    g.ingresoOrdenex ? (
-      <span className="font-medium">{money(g.ingresoOrdenex.total)}</span>
-    ) : (
-      "—"
-    ),
-};
-
-// --- Columnas comunes a las 4 secciones del detalle (R11, reuso de la 37) ---
-export const COLUMNAS_COMUNES: Column<CierreDetalleGestion>[] = [
-  {
-    // El número de guía es el dato con el que se busca la orden fuera de la app: se le
-    // da ancho propio (2.5× el que pedía su contenido) para que no quede espichado
-    // entre columnas más anchas ni se parta en dos líneas.
-    id: "numGuia",
-    value: "Nº Guía",
-    render: (g) => <span className="font-semibold">{g.numGuia ?? "—"}</span>,
-    minWidth: "250px",
-  },
-  { id: "numRemision", value: "Nº Remisión", minWidth: "120px" },
-  { id: "destinatario", value: "Destinatario" },
-  {
-    id: "direccion",
-    value: "Dirección",
-    render: (g) => g.direccion ?? "—",
-    minWidth: "200px",
-  },
-  { id: "ubicacion", value: "Ubicación", render: (g) => ubicacion(g) || "—" },
-  { id: "producto", value: "Producto", minWidth: "300px" },
-  { id: "tiendaNombre", value: "Tienda" },
-];
-
-/**
- * Construye las columnas de una sección del detalle: las comunes (R11) + las
- * específicas del resultado (monto + una columna por medio de pago si entregada R13; fecha+motivo si
- * reprogramada; motivo si devuelta; motivo+evidencia firmada si rechazada, R12).
- */
-export function columnasPara(
-  resultado: CierreResultado,
-  verEvidencia: (url: string) => void,
-): Column<CierreDetalleGestion>[] {
-  // Feature 158 (R17/R18/R34): el `incidente` NO deriva ningún concepto de ingreso de Ordenex
-  // (ni flete, ni comisión, ni sus IVA), NO paga al mensajero y NO genera ingreso de bodega:
-  // esas columnas serían "—" en todas las filas. Lo que SÍ lleva es el rastro del reporte
-  // (causa + motivo + evidencia firmada) y el ÚNICO dinero que le corresponde: la
-  // indemnización, que se captura al aprobar y hasta entonces es "—" (no es cero).
-  if (resultado === "incidente") {
-    return [
-      ...COLUMNAS_COMUNES,
-      COLUMNA_MONTO_COBRAR,
-      COLUMNA_FULFILLMENT,
-      COLUMNA_CAUSA_INCIDENTE,
-      {
-        id: "motivo",
-        value: "Motivo",
-        // FICHA 408: el motivo del cron de plazos vencidos se pinta en castellano. `esRechazoSla`
-        // es el MISMO booleano que decide el marcador «Automático» de la columna «Origen»: aquí
-        // esa columna existe, así que la celda no repite lo que el marcador ya dice.
-        render: (g) => motivoGestionLegible(g.motivo, g.esRechazoSla) ?? "—",
-      },
-      COLUMNA_EVIDENCIA(verEvidencia),
-      COLUMNA_INDEMNIZACION,
-    ];
-  }
-  if (resultado === "entregado") {
-    return [
-      ...COLUMNAS_COMUNES,
-      COLUMNA_MONTO_COBRAR,
-      COLUMNA_FULFILLMENT,
-      { id: "monto", value: "Recibido", render: (g) => money(g.montoRecibido) },
-      ...COLUMNAS_MEDIO_PAGO,
-      // Conceptos que aplican a una ENTREGA, cada uno CON su IVA (los de devolución no se
-      // listan acá: serían una columna de "—" en todas las filas). El split flete/IVA vive
-      // en la fila desplegable.
-      columnaFlete(
-        "fleteConIva",
-        FLETE_CON_IVA_LABEL,
-        (i) => i.fleteConIva,
-        (i) => i.fleteOrigen,
-      ),
-      columnaConcepto("comisionConIva", COMISION_CON_IVA_LABEL, (i) => i.comisionConIva),
-      COLUMNA_INGRESO_TOTAL,
-      // Feature 39/R16: pago al mensajero snapshot por orden (separado del dinero recibido).
-      COLUMNA_PAGO_MENSAJERO,
-    ];
-  }
-  if (resultado === "reprogramado") {
-    // Una reprogramación no aporta a ningún concepto (la fórmula devuelve vacío): no se
-    // pintan columnas de ingreso que serían "—" en todas las filas.
-    return [
-      ...COLUMNAS_COMUNES,
-      COLUMNA_MONTO_COBRAR,
-      COLUMNA_FULFILLMENT,
-      {
-        id: "fechaReprogramacion",
-        value: "Nueva fecha",
-        render: (g) => g.fechaReprogramacion ?? "—",
-      },
-      {
-        id: "motivo",
-        value: "Motivo",
-        // FICHA 408: el motivo del cron de plazos vencidos se pinta en castellano. `esRechazoSla`
-        // es el MISMO booleano que decide el marcador «Automático» de la columna «Origen»: aquí
-        // esa columna existe, así que la celda no repite lo que el marcador ya dice.
-        render: (g) => motivoGestionLegible(g.motivo, g.esRechazoSla) ?? "—",
-      },
-      COLUMNA_PAGO_MENSAJERO,
-    ];
-  }
-  if (resultado === "novedad") {
-    return [
-      ...COLUMNAS_COMUNES,
-      COLUMNA_MONTO_COBRAR,
-      COLUMNA_FULFILLMENT,
-      {
-        id: "motivo",
-        value: "Motivo",
-        // FICHA 408: el motivo del cron de plazos vencidos se pinta en castellano. `esRechazoSla`
-        // es el MISMO booleano que decide el marcador «Automático» de la columna «Origen»: aquí
-        // esa columna existe, así que la celda no repite lo que el marcador ya dice.
-        render: (g) => motivoGestionLegible(g.motivo, g.esRechazoSla) ?? "—",
-      },
-      // 2026-08-19: el flete de devolución se pinta AGRUPADO con su IVA, igual que en la
-      // sección de rechazadas. El par partido (flete / IVA por separado) se retiró: son dos
-      // columnas para un importe que siempre se lee sumado, y el split sigue disponible en la
-      // fila desplegable del desglose.
-      columnaFlete(
-        "fleteDevolucionConIva",
-        FLETE_DEV_CON_IVA_LABEL,
-        (i) => i.fleteDevolucionConIva,
-        (i) => i.fleteDevolucionOrigen,
-      ),
-      COLUMNA_INGRESO_TOTAL,
-      COLUMNA_PAGO_MENSAJERO,
-    ];
-  }
-  // rechazada: origen SLA/manual (102/R9) + motivo + evidencia firmada (R12) + ingreso de bodega
-  // por rechazos (56/R12). Un rechazo deriva los MISMOS conceptos que una devolución (flete + IVA).
-  return [
-    ...COLUMNAS_COMUNES,
-    COLUMNA_RECHAZO_ORIGEN,
-    COLUMNA_MONTO_COBRAR,
-    COLUMNA_FULFILLMENT,
-    {
-      id: "motivo",
-      value: "Motivo",
-      // FICHA 408: la sección donde MÁS importa. Es la única que lleva `COLUMNA_RECHAZO_ORIGEN`
-      // al lado, así que aquí `esRechazoSla` resuelve a la variante corta justo en las filas en
-      // las que el marcador «Automático» ya cuenta el resto de la historia.
-      render: (g) => motivoGestionLegible(g.motivo, g.esRechazoSla) ?? "—",
-    },
-    COLUMNA_EVIDENCIA(verEvidencia),
-    columnaFlete(
-      "fleteDevolucionConIva",
-      FLETE_DEV_CON_IVA_LABEL,
-      (i) => i.fleteDevolucionConIva,
-      (i) => i.fleteDevolucionOrigen,
-    ),
-    COLUMNA_INGRESO_TOTAL,
-    COLUMNA_PAGO_MENSAJERO,
-    COLUMNA_INGRESO_BODEGA_RECHAZOS,
-  ];
-}
 
 /**
  * Totales por concepto del cierre completo, sumados desde el MISMO desglose por orden que
@@ -1540,159 +1163,6 @@ export function TotalesIngresoPanel({
         </CardContent>
       </Card>
     </section>
-  );
-}
-
-/**
- * Feature 170 (T E.5) — columnas y proyección de export POR RESULTADO. Vive aquí y no en el
- * módulo de columnas porque un `Record` exportado desde un `*-descarga-columnas.ts` se le
- * escaparía a la guardia de datos sensibles, que solo reconoce arrays de columnas y
- * funciones de proyección. Allí están las cinco declaraciones sueltas —vigiladas una a una—
- * y aquí, el mapa que elige cuál toca.
- */
-const DESCARGA_POR_RESULTADO: Record<
-  CierreResultado,
-  /**
-   * Ficha 314 — las dos propiedades se toman del CONTRATO de la descarga en vez de reescribir
-   * sus tipos: `Required` las deja obligatorias, así que un resultado nuevo no puede nacer sin
-   * ámbito. Y de paso evita escribir la anotación `ambitoColumnas: string`, que
-   * `ambito-columnas.guardia` —que lee el árbol como TEXTO— confundiría con la declaración de
-   * un ámbito que no sabe resolver.
-   */
-  Required<Pick<DataTableDescarga, "columnas" | "ambitoColumnas">> & {
-    fila: (g: CierreDetalleGestion) => DescargaFila;
-  }
-> = {
-  entregado: {
-    columnas: COLUMNAS_DESCARGA_GESTIONES_ENTREGADAS,
-    fila: filaDescargaGestionEntregada,
-    ambitoColumnas: AMBITO_DESCARGA_GESTIONES_ENTREGADAS,
-  },
-  reprogramado: {
-    columnas: COLUMNAS_DESCARGA_GESTIONES_REPROGRAMADAS,
-    fila: filaDescargaGestionReprogramada,
-    ambitoColumnas: AMBITO_DESCARGA_GESTIONES_REPROGRAMADAS,
-  },
-  novedad: {
-    columnas: COLUMNAS_DESCARGA_GESTIONES_DEVUELTAS,
-    fila: filaDescargaGestionDevuelta,
-    ambitoColumnas: AMBITO_DESCARGA_GESTIONES_DEVUELTAS,
-  },
-  devolucion_a_origen_por_rechazo: {
-    columnas: COLUMNAS_DESCARGA_GESTIONES_RECHAZADAS,
-    fila: filaDescargaGestionRechazada,
-    ambitoColumnas: AMBITO_DESCARGA_GESTIONES_RECHAZADAS,
-  },
-  incidente: {
-    columnas: COLUMNAS_DESCARGA_GESTIONES_INCIDENTES,
-    fila: filaDescargaGestionIncidente,
-    ambitoColumnas: AMBITO_DESCARGA_GESTIONES_INCIDENTES,
-  },
-};
-
-/**
- * Las 4 secciones por resultado de un cierre (reuso del render de la 37/38, R11):
- * entregadas / reprogramadas / devueltas / rechazadas, cada una como `region`
- * accesible. La evidencia (R12) se abre por `onVerEvidencia` con la URL firmada.
- */
-export function DetalleSecciones({
-  grupos,
-  onVerEvidencia,
-  contexto,
-}: {
-  grupos: CierreGrupos;
-  onVerEvidencia: (url: string) => void;
-  /**
-   * Feature 170 (T E.5): de QUIÉN son estas secciones (hoy, el nombre del mensajero del
-   * `cierre_dia`). Se anexa al nombre de la descarga.
-   *
-   * No es cosmética: el detalle de un cierre de BODEGA monta estas secciones una vez POR
-   * mensajero incluido, así que sin el contexto habría tres botones llamados «Descargar
-   * Entregadas» en el mismo modal y ninguno diría de quién (R13). También hace que el
-   * archivo se llame `entregadas-<mensajero>-<fecha>.xlsx` en vez de `entregadas-…`.
-   */
-  contexto?: string;
-}) {
-  return (
-    <>
-      {ORDEN_RESULTADOS.map((resultado) => {
-        const filas = grupos[resultado] ?? [];
-        // Pedido: no mostrar las secciones sin registros (p. ej. reprogramadas con 0).
-        if (filas.length === 0) return null;
-        // Se desestructura para poder pasar el ámbito con la forma ABREVIADA de abajo. Escribir
-        // `ambitoColumnas: descarga.ambitoColumnas` compilaría igual, pero dejaría en el árbol
-        // una declaración de ámbito que la guardia no sabe resolver y que por tanto pondría roja
-        // su comprobación de «todo ámbito se resuelve». La declaración vive en el mapa.
-        const { columnas, fila, ambitoColumnas } = DESCARGA_POR_RESULTADO[resultado];
-        const tituloDescarga = contexto
-          ? `${RESULTADO_LABEL[resultado]} · ${contexto}`
-          : RESULTADO_LABEL[resultado];
-        // Título de la sección (recuento, con su cifra al lado); su botón va FUERA del `<h4>`.
-        const nombreSeccion = RESULTADO_LABEL[resultado];
-        return (
-          <section
-            key={resultado}
-            aria-label={RESULTADO_LABEL[resultado]}
-            className="flex flex-col gap-3"
-          >
-            {/* FICHA 456 (T3.4, R10): las filas de la sección no repiten el resultado, así que su
-                explicación va junto al título, FUERA del `<h4>` (su nombre accesible no cambia). */}
-            <div className="flex items-center gap-1">
-              <h4 className="text-sm font-semibold">
-                {nombreSeccion}{" "}
-                <span className="text-xs font-normal text-muted-foreground">
-                  ({filas.length})
-                </span>
-              </h4>
-              <InfoEstado codigo={resultado} />
-            </div>
-            <div className="overflow-x-auto">
-              <DataTable
-                columns={columnasPara(resultado, onVerEvidencia)}
-                data={filas}
-                rowKey="gestionId"
-                ariaLabel={RESULTADO_LABEL[resultado]}
-                emptyMessage={RESULTADO_VACIO[resultado]}
-                /**
-                 * Feature 170 (T E.5, R1/R8/R11/R22/R26/R30/R37) — UNA DESCARGA POR SECCIÓN
-                 * (decisión del humano, P2 ratificada): cada resultado tiene sus columnas y
-                 * su botón, y no hay un archivo único del cierre.
-                 *
-                 * Familia B: `filas` es el grupo COMPLETO que ya llegó con el detalle, así
-                 * que el archivo sale de lo que la tabla pinta, en su mismo orden y sin
-                 * releer. Descargar no toca el estado del modal ni la fila desplegada (R37):
-                 * el control vive fuera del `<table>` y no llama a ningún setter.
-                 *
-                 * La URL FIRMADA de la evidencia NO viaja al archivo: la columna
-                 * correspondiente es un «Sí/No» (R22).
-                 */
-                descarga={{
-                  titulo: tituloDescarga,
-                  columnas,
-                  obtenerFilas: () => filasLocales(filas, fila),
-                  /**
-                   * Ficha 314 — el selector de columnas de esta sección. El ámbito va POR
-                   * RESULTADO y no por montaje: este modal pinta las mismas cinco secciones una
-                   * vez por mensajero incluido, así que un ámbito con el `contexto` dentro daría
-                   * una preferencia distinta por mensajero para el MISMO juego de columnas. El
-                   * `contexto` sigue distinguiendo el NOMBRE del control y el del archivo (R13),
-                   * que es para lo que está.
-                   */
-                  ambitoColumnas,
-                }}
-                // Solo el detalle de admin trae `ingresoOrdenex`. Sin él se devuelve `null`
-                // (y no un componente que renderiza vacío): así la tabla no pinta el botón
-                // de desplegar sobre una fila que no tiene nada que mostrar.
-                renderExpanded={(g) =>
-                  g.ingresoOrdenex ? <DesgloseIngresoOrdenex g={g} /> : null
-                }
-                expandAriaLabel={desgloseAriaLabel}
-              />
-            </div>
-          </section>
-        );
-      })}
-    </>
   );
 }
 

@@ -150,7 +150,7 @@ import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
 import { RankingModule } from "@/app/(app)/ranking/_components/RankingModule";
 import { RANKING_LABELS } from "@/app/(app)/ranking/_components/ranking-labels";
 import { CierreDiaModule } from "@/app/(app)/cierre-dia/_components/CierreDiaModule";
-import { DetalleSecciones } from "@/app/(app)/cierres-admin/_components/cierre-detalle-shared";
+import { GestionesPorResultado } from "@/app/(app)/cierres-admin/_components/cierre-factura";
 import {
   CierresAdminModule,
   PAGINACION_PENDIENTES_LABEL,
@@ -414,6 +414,13 @@ interface ListadoSinPaginar {
   ruta: string;
   /** Por qué paginarlo lo rompe (requirements.md, Anexo IV). Obligatorio: sin motivo es olvido. */
   motivo: string;
+  /**
+   * FICHA 482 — por qué este listado NO tiene descarga, si no la tiene. Ausente = la tiene, y
+   * entonces se exige que salga del array que pinta (`filasLocales(`). Presente = se exige lo
+   * contrario: que su archivo no monte ninguna, para que la excepción no sobreviva a una
+   * descarga nueva sin que alguien vuelva aquí a decidir de dónde sale.
+   */
+  sinDescarga?: string;
 }
 
 /** Los TRES listados que el Anexo IV declara SIN paginar, con su motivo. */
@@ -435,11 +442,17 @@ const ANEXO_IV: ListadoSinPaginar[] = [
       "Acotada por la jornada de UN mensajero.",
   },
   {
+    // FICHA 482: el listado es el mismo; cambió el archivo que lo pinta. Hasta la 478 eran las
+    // tablas de `cierre-detalle-shared.tsx` (`DetalleSecciones`, borrado en la 482); hoy es la
+    // lista en pestañas `GestionesPorResultado`, la del comprobante.
     listado: "Gestiones de un cierre por resultado (detalle del admin)",
-    ruta: "app/(app)/cierres-admin/_components/cierre-detalle-shared.tsx",
+    ruta: "app/(app)/cierres-admin/_components/cierre-factura.tsx",
     motivo:
-      "mismo problema agrupado, dentro de un MODAL de detalle de UN cierre. Acotado por la " +
-      "jornada de UN mensajero.",
+      "mismo problema agrupado, dentro de un MODAL de detalle de UN cierre: cada pestaña lleva " +
+      "el conteo de SU grupo. Acotado por la jornada de UN mensajero.",
+    sinDescarga:
+      "478/P3: la lista en pestañas no lleva descarga por sección; la global de la pantalla " +
+      "(nivel detallado) cubre las mismas gestiones",
   },
 ];
 
@@ -845,35 +858,48 @@ describe("T M.1 · R53 — los 3 listados del Anexo IV siguen completos, sin con
     ).toBeInTheDocument();
   });
 
-  it("las secciones del detalle del admin entregan cada grupo entero, sin control", () => {
-    envolver(
-      <DetalleSecciones grupos={gruposCon(FILAS_ANEXO_IV)} onVerEvidencia={() => {}} />,
-    );
+  it("las gestiones del detalle del admin entregan cada grupo entero, sin control", () => {
+    // FICHA 482: reapuntado de `DetalleSecciones` (borrado) a la lista en pestañas que lo
+    // sustituyó en la 478. Lo que paginar rompería es lo mismo: las filas del grupo y su conteo.
+    envolver(<GestionesPorResultado grupos={gruposCon(FILAS_ANEXO_IV)} />);
 
-    const seccion = screen.getByRole("region", { name: "Entregado" });
-    expect(within(seccion).getAllByRole("row")).toHaveLength(FILAS_ANEXO_IV + 1);
-    expect(seccion).toHaveTextContent(`(${FILAS_ANEXO_IV})`);
+    const panel = screen.getByRole("region", { name: "Entregado" });
+    // Una fila es un botón desplegable; el panel no monta ningún otro botón cerrado.
+    expect(within(panel).getAllByRole("button")).toHaveLength(FILAS_ANEXO_IV);
+    // El conteo de la pestaña es el del GRUPO, no el de una página.
+    expect(screen.getByRole("tab", { name: /Entregado/ })).toHaveTextContent(`${FILAS_ANEXO_IV}`);
     expect(screen.queryAllByRole("navigation")).toHaveLength(0);
 
-    // Las secciones con el grupo VACÍO no se pintan: es la otra mitad de lo que paginar rompe
-    // (con páginas, una sección vacía podría ser sólo «esta página no trae ninguna»).
-    expect(screen.queryByRole("region", { name: "Devolución a origen por rechazo" })).not.toBeInTheDocument();
+    // Y el grupo VACÍO cuenta cero, que con páginas podría ser sólo «esta página no trae
+    // ninguna»: es la otra mitad de lo que paginar rompe.
+    expect(
+      screen.getByRole("tab", { name: /Devolución a origen por rechazo/ }),
+    ).toHaveTextContent("0");
   });
 
   it("el censo del Anexo IV son TRES, con motivo, y su descarga no relee nada (R30)", () => {
     // (a) los tres que `requirements.md` declara, ni uno más ni uno menos, cada uno con su
     //     motivo escrito. Un cuarto listado que dejara de paginarse tendría que pasar por aquí.
     expect(ANEXO_IV).toHaveLength(3);
-    for (const { listado, ruta, motivo } of ANEXO_IV) {
+    for (const { listado, ruta, motivo, sinDescarga } of ANEXO_IV) {
       expect(existsSync(path.join(RAIZ, ruta)), `${listado}: ${ruta} no existe`).toBe(true);
       expect(motivo.length, `${listado}: sin motivo declarado`).toBeGreaterThan(40);
 
       // (b) su archivo proyecta el array que YA tiene, sin releer: es Familia B pura y releer
       //     sería una consulta de más por descarga sobre un dataset que ya está en el cliente.
+      //     FICHA 482: salvo el listado que declara NO tener descarga, y entonces se exige que
+      //     de verdad no la tenga (ni control ni proyección en su archivo).
       const fuente = fuenteDe(ruta);
-      expect(fuente, `${listado}: su descarga debe salir del array que la tabla pinta`).toMatch(
-        /filasLocales\(/,
-      );
+      if (sinDescarga === undefined) {
+        expect(fuente, `${listado}: su descarga debe salir del array que la tabla pinta`).toMatch(
+          /filasLocales\(/,
+        );
+      } else {
+        expect(sinDescarga.length, `${listado}: sin motivo de no descargar`).toBeGreaterThan(40);
+        expect(fuente, `${listado}: declara no descargar y monta descarga`).not.toMatch(
+          /filasLocales\(|descarga=\{|DescargarDatasetButton/,
+        );
+      }
     }
 
     // (c) y ninguno figura en el Anexo III: las dos listas son disjuntas por listado. El único
