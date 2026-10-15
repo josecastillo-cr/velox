@@ -182,3 +182,46 @@ produccion, sin MCP `supabase` en este agente) y T5 (frontend).
 - Cierres `rechazado` hoy: **0**.
 - Gestiones vivas en cierres rechazados: **0**; legadas (sin evento `gestion_registrada`): **0**.
 - Sin legadas en rechazados: R10 no deja a nadie sin corrección hoy. Nada que avisar.
+
+## T5 — Frontend (frontend_dev, 2026-10-15)
+
+Busqueda: MCP `codebase-memory` disponible pero NO usado en este paso (desviacion de la regla 7);
+`grep`/`Read` sobre el archivo real.
+
+Archivos:
+- `app/(app)/cierre-dia/_components/CierreDiaModule.tsx` — prop `correcciones?`; panel
+  `PanelCorreccion` por cada cierre rechazado (motivo, gestiones vigentes con el MISMO «Devolver a
+  gestión» —boton extraido a `botonDeshacer`, compartido con las tablas del dia—, ordenes en
+  correccion con estado y enlace «Ir a Entregas» a `/mis-asignaciones/reparto`, aviso del corte
+  nocturno de la Pregunta 1). R28: `RECHAZADO_CONFIRM_DETALLE` sin «No se recalculan» y
+  `rechazadoConfirmSinRehacer(n)` con las ordenes sin rehacer del cierre `aReenviarPrimero`.
+- `app/(app)/cierre-dia/page.tsx` — pasa `result.correcciones ?? []`.
+- `app/(app)/mis-asignaciones/_components/RepartoModule.tsx` — `bloqueadaPara(orden) =
+  bloqueado && !orden.enCorreccion` sustituye a `bloqueado` en card, boton «Gestionar», seleccionar,
+  guarda de `gestionarPedido`, panel inline y modo foco. Aviso de bloqueo intacto. La card de
+  «Con ayuda solicitada» no cambia (una orden con ayuda abierta no es gestionable, R12).
+
+Desviaciones:
+- Las gestiones del panel van en una LISTA, no en otra `<DataTable>` (design D8 decia «mismas
+  columnas»): una tabla nueva entra en el censo de descargas de la 170 sin aportar nada. Muestra
+  guia, remision, destinatario, marca «La tienda», resultado, monto y ganancia.
+- El panel es una seccion propia justo debajo del CTA «Cierre rechazado», no anidada dentro: hay un
+  panel por cada rechazado (R25) y el CTA solo nombra el re-solicitable mas viejo.
+
+Tests (T5.4): `tests/components/CierreDiaModule477Correccion.test.tsx` (R25, R26, R28; 11 casos) y
+`tests/components/RepartoModule477Correccion.test.tsx` (R27; 5 casos). Literales escritos en el test,
+no importados. Contraprueba: con `bloqueadaPara = bloqueado` y la descripcion fija de antes, 5 rojos
+en los dos archivos; restaurado.
+
+T5.5 (verlo en la app): NO HECHO en este paso — sin datos locales de un cierre rechazado sembrados
+ni dev server propio (memoria «dos dev servers se pisan»). Pendiente para el leader.
+
+Mapa R -> test (pantalla): R25, R26, R28 -> `CierreDiaModule477Correccion.test.tsx`;
+R27 -> `RepartoModule477Correccion.test.tsx`.
+
+Gate T5.6 (`./init.sh --rapido`, AMPLIADO; log `progress/gate_477_frontend.log`): `INIT_EXIT=1`.
+Relacionados 3 failed | 8605 passed | 26 skipped (8634); guardias 1 failed | 3763 passed; integration/db
+1 failed | 4165 passed (4166), 0 skipped. Rojos: `estado-con-info.guardia` MIO, corregido y verde aislado;
+`pago-mensajero-liquidacion` verde aislado (intermitente); `wallet-page` y `TarifasPage.cobertura` rojos
+aislados por timeout de 20 s y verdes con `--testTimeout=120000` (16/16): carga de la maquina, ajenos a la 477.
+No se repitio el gate entero (regla 5).
