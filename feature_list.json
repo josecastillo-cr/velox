@@ -5696,6 +5696,18 @@
       "depends_on": null,
       "status_note": "Aprobada por el humano el 2026-10-05. Solo tests. (c3, m1/m2 de la 464: DESCARTADA, sin registro escrito y la 468 retiro ese Excel.) || YA RESUELTA por la 470 (aeca9298, 2026-10-03): hoyISO usa fechaCalendarioCR y un caso fija el reloj en 00:00-01:00. Nada que hacer.",
       "branch": null
+    },
+    {
+      "id": 477,
+      "title": "corregir las gestiones de un cierre rechazado",
+      "description": "Con el cierre rechazado, el mensajero no puede corregir las gestiones que lo motivaron: solo re-solicitarlo igual.",
+      "zone": "fullstack",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "media",
+      "depends_on": null,
+      "status_note": "PEDIDA POR EL HUMANO el 2026-10-14 tras corregir por SQL dos gestiones (progress/correccion_gestion_2026-10-14.md). Corrige SOLO el mensajero. Minimo: deshacer y volver a gestionar mientras su cierre este rechazado; la re-solicitud recalcula cierre_detail. Abierto: si el bloqueo N/V frena antes el deshacer; si la aprobacion lee gestiones vivas o solo el snapshot.",
+      "branch": "feature/477-corregir-gestiones-cierre-rechazado"
     }
   ]
 }
