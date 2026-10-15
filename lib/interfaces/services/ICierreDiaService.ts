@@ -276,8 +276,38 @@ export type ListarCierreDiaServiceResult =
       // Habilita el MISMO CTA de re-solicitud que el `vencido` (111/R13). SIEMPRE poblado;
       // opcional por retrocompat.
       tieneRechazado?: boolean;
+      // FICHA 477 (design §5.2, R25/R26): por cada cierre `rechazado` propio, lo que hace falta para
+      // corregirlo. `[]` sin rechazados. El service SIEMPRE lo puebla; opcional por retrocompat de
+      // los dobles, como `tieneRechazado`.
+      correcciones?: CorreccionCierreDTO[];
     }
   | { status: "forbidden" };
+
+/**
+ * FICHA 477 (R26) — una orden EN CORRECCION de un cierre rechazado: tenia gestion en el cierre, el
+ * mensajero la deshizo y todavia no hay una vinculada. Descriptivos CONGELADOS en `cierre_detail`.
+ * `regestionada` = ya tiene una gestion nueva sin cierre, que la re-solicitud se llevara; si sigue
+ * en `false` al re-solicitar, la orden sale del cierre (R18).
+ */
+export interface OrdenEnCorreccionDTO {
+  ordenId: string;
+  numGuia: number | null;
+  numRemision: string;
+  destinatario: string;
+  regestionada: boolean;
+}
+
+/**
+ * FICHA 477 (R25/R26) — un cierre `rechazado` propio: el motivo del rechazo, sus gestiones VIGENTES
+ * (con el snapshot congelado y `desdeAyudaTienda` para deshabilitar el «Deshacer» de las que
+ * registro la tienda) y sus ordenes en correccion.
+ */
+export interface CorreccionCierreDTO {
+  cierreId: string;
+  motivoRechazo: string | null;
+  gestiones: CierreDetalleGestion[];
+  ordenesEnCorreccion: OrdenEnCorreccionDTO[];
+}
 
 /**
  * Detalle de UN cierre YA SOLICITADO del propio mensajero (pedido humano: poder "ver" un

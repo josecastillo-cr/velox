@@ -51,6 +51,8 @@ const GESTION_DESHACIBLE: GestionDeshacerRow = {
   orden: { deletedAt: null, estatusId: "s-entregada", estatusValue: "entregado" },
   desdeAyudaTienda: false, // feature 237 (D3): la registro el mensajero, no la tienda
   registradaComoPendiente: false, // ficha 454 (T1.11): rama LEGADA del deshacer
+  cierreEstado: null, // ficha 477: sin cierre
+  cierreMensajeroId: null,
 };
 
 // Repo en memoria: findGestionesPendientes solo devuelve las NO vinculadas;
@@ -73,6 +75,10 @@ function inMemoryRepo(seed: CierreGestionPendienteRow[]): ICierreDiaRepository {
     anularGestionYDevolverAGestion: vi.fn(async () => true),
     // FICHA 454 (T1.11): la rama NUEVA del deshacer (gestion pendiente, sin transicion).
     anularGestionPendiente: vi.fn(async () => true),
+    // FICHA 477: re-solicitud del rechazado, deshacer en cierre rechazado y correcciones.
+    resolicitarCierreRechazado: vi.fn(async () => true),
+    anularGestionDeCierreRechazado: vi.fn(async () => true),
+    findCorreccionesPendientes: vi.fn(async () => []),
     crearCierre: vi.fn(async (input: CrearCierreInput) => {
       const id = `c-${cierres.length + 1}`;
       cierres.push({
@@ -116,6 +122,7 @@ function realService(repo: ICierreDiaRepository): ICierreDiaService {
     findUsuarioZonaId: vi.fn(async () => "z-satelite"),
     findUsuarioVehiculoId: vi.fn(async () => null), // feature 39
     findEstatusIdByValue: vi.fn(async () => "s-reparto"), // feature 67/R18
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO), // feature 111/R5
   } as unknown as IOrdenRepository;
   // Feature 39: tarifa por defecto (cobroEntregado 5.00); resuelve el pago en vivo/snapshot.

@@ -135,9 +135,11 @@ export class MisAsignacionesService implements IMisAsignacionesService {
     // que decir POR QUE esta bloqueado y QUE hacer para salir (R27), y eso exige contar cuantos
     // cierres arrastra y cual toca primero. VUELVE a ser el MISMO predicado que consulta la
     // asignacion —la 271 revierte esa mitad de la 241—, solo que alli basta el booleano.
+    // FICHA 477 (D4, R12/R13/R27): + `findOrdenesEnCorreccion`, la exencion POR OBJETO del bloqueo
+    // para volver a gestionar una orden de un cierre rechazado propio.
     private readonly ordenRepo: Pick<
       IOrdenRepository,
-      "findEstatusIdByValue" | "findBloqueoDetalle"
+      "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"
     >,
     private readonly storage: IFileStorage,
     private readonly signedUrls: ISignedUrlProvider,
@@ -215,6 +217,19 @@ export class MisAsignacionesService implements IMisAsignacionesService {
   }
 
   /**
+   * FICHA 477 (design D4, R12/R13) — el bloqueo, con la EXENCION POR OBJETO de la orden en
+   * correccion. `null` = puede seguir: o no esta bloqueado, o esta bloqueado pero ESTA orden esta en
+   * correccion de un cierre `rechazado` suyo (y entonces le esperan todas las demas guardas de hoy,
+   * intactas). Cualquier otra orden recibe el motivo de bloqueo de hoy, sin efectos.
+   */
+  private async motivoBloqueoParaOrden(usuarioId: string, ordenId: string): Promise<string | null> {
+    const motivo = await this.motivoBloqueo(usuarioId);
+    if (motivo === null) return null;
+    const enCorreccion = await this.ordenRepo.findOrdenesEnCorreccion(usuarioId, [ordenId]);
+    return enCorreccion.has(ordenId) ? null : motivo;
+  }
+
+  /**
    * Feature 246 (T5.1, R25/R26): `now` es el reloj INYECTABLE con el que se decide que ordenes
    * estan reservadas para mañana. Con default para que el borde siga llamando sin argumentos; los
    * tests lo pasan, porque «al llegar el dia la etiqueta desaparece sola» solo se puede probar
@@ -280,9 +295,16 @@ export class MisAsignacionesService implements IMisAsignacionesService {
     // de confirmar (ya gestionadas: NO se listan, ni en el mapa ni como parada) y cuales tienen una
     // ayuda ABIERTA (grupo «con ayuda», sin posicion de ruta). Una consulta, sobre las ya acotadas al
     // mensajero actor. Los predicados son los UNICOS (`gestion-pendiente.ts`, `ayuda-abierta.ts`).
-    const { conGestionPendiente, conAyudaAbierta } = await this.repo.findPendientesYAyudas(
-      rows.filter((r) => r.estatusValue === ESTADO_EN_REPARTO).map((r) => r.id),
-    );
+    const enRepartoIds = rows.filter((r) => r.estatusValue === ESTADO_EN_REPARTO).map((r) => r.id);
+    const { conGestionPendiente, conAyudaAbierta } =
+      await this.repo.findPendientesYAyudas(enRepartoIds);
+    // FICHA 477 (R27): cuales de las ordenes en reparto estan EN CORRECCION de un rechazado propio.
+    // Solo importa si el mensajero esta bloqueado (libre, todas las tarjetas estan habilitadas): sin
+    // bloqueo, `false` para todas y ni una consulta mas; con bloqueo, UNA en lote.
+    const bloqueo = await this.ordenRepo.findBloqueoDetalle(actor.usuarioId);
+    const enCorreccion = bloqueo.bloqueado
+      ? await this.ordenRepo.findOrdenesEnCorreccion(actor.usuarioId, enRepartoIds)
+      : new Set<string>();
 
     const porRecoger: MiAsignacionDTO[] = [];
     const porGestionar: MiAsignacionDTO[] = [];
@@ -317,6 +339,8 @@ export class MisAsignacionesService implements IMisAsignacionesService {
         // exactamente la puerta que R14 cierra. `null` = la orden no tiene dia de reparto.
         fechaRepartoISO:
           row.fechaReparto != null ? fechaRepartoComoTexto(row.fechaReparto) : null,
+        // FICHA 477 (R27): la tarjeta de una orden en correccion no se deshabilita por el bloqueo.
+        enCorreccion: enCorreccion.has(row.id),
       };
       if (row.estatusValue === ORIGEN_RECOGER) {
         // R29: "Por recoger" no se toca. Sus ordenes no son paradas de ninguna ruta.
@@ -520,7 +544,8 @@ export class MisAsignacionesService implements IMisAsignacionesService {
 
     // Feature 111/R4 (Q3): bloqueo total — mensajero con cierre pendiente no puede ESCOGER una
     // orden para gestión. Guarda al inicio, ANTES de fijar el puntero (sin efectos parciales).
-    const motivo = await this.motivoBloqueo(actor.usuarioId);
+    // FICHA 477 (R12/R13): salvo la orden EN CORRECCION de un rechazado propio.
+    const motivo = await this.motivoBloqueoParaOrden(actor.usuarioId, ordenId);
     if (motivo !== null) {
       return { status: "conflict", motivo };
     }
@@ -560,7 +585,13 @@ export class MisAsignacionesService implements IMisAsignacionesService {
     // pudiera seguir cobrando con un cierre sin resolver, el dinero del día nuevo se acumularía
     // sin cierre al que ir y el admin estaría cuadrando una caja que ya no es todo lo que él
     // tiene en la mano. Que ASIGNARLE órdenes no se bloquee es otra cosa: recibirlas no cobra.
-    const motivo = await this.motivoBloqueo(actor.usuarioId);
+    //
+    // FICHA 477 (D4, R12/R13): LA EXENCION ES POR OBJETO. Con un cierre `rechazado` el mensajero
+    // esta SIEMPRE bloqueado (V = 1), y corregirlo exige volver a gestionar las ordenes cuya gestion
+    // deshizo. Solo ESAS pasan; el resto sigue rechazado con el motivo de hoy, y la orden exenta
+    // sigue sujeta a todas las guardas de abajo (suya, en reparto, sin pendiente ni ayuda, reserva
+    // de dia, tope de intentos, una activa a la vez, cuadre del monto).
+    const motivo = await this.motivoBloqueoParaOrden(actor.usuarioId, input.ordenId);
     if (motivo !== null) {
       return { status: "conflict", motivo };
     }
@@ -832,6 +863,8 @@ export function toDTO(row: MiAsignacionRow): MiAsignacionDTO {
     // Feature 115 (R17): default `false`; el llamador lo sobreescribe con la marca real del
     // actor (`marcadasLuego.has(row.id)`). Aqui SIEMPRE nace un boolean concreto.
     marcarLuego: false,
+    // FICHA 477 (R27): default `false`; `listarMisAsignaciones` lo sobreescribe con el predicado.
+    enCorreccion: false,
     // Feature 235 (T6.1, R40): aqui se emitia `ayuda: row.ayuda ?? false`. Se retira con la
     // columna: `estatusValue` -que ya viaja arriba- dice si hay una solicitud de ayuda viva.
     // Feature 227 (R21): aqui nacia `notaPrivada: null` (feature 116). El campo ya no existe en

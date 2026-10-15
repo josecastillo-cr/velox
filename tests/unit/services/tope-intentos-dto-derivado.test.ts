@@ -93,8 +93,9 @@ function panel(rows: MiAsignacionRow[], intentos: Record<string, number>) {
     repoAsignaciones(rows),
     {
       findEstatusIdByValue: vi.fn(async () => "x"),
+      findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
       findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
-    } as unknown as Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle">,
+    } as unknown as Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion">,
     {} as IFileStorage,
     {} as ISignedUrlProvider,
     {
@@ -168,8 +169,9 @@ describe("276/R8/R10 — `MiAsignacionDTO.enElTope` sale ya decidido del servido
         repoAsignaciones([filaAsignacion({ id: "o1" })]),
         {
           findEstatusIdByValue: vi.fn(async () => "x"),
+          findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
           findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
-        } as unknown as Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle">,
+        } as unknown as Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion">,
         {} as IFileStorage,
         {} as ISignedUrlProvider,
         {

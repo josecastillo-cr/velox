@@ -158,6 +158,8 @@ function cierreRepo(overrides: Record<string, unknown> = {}) {
     // FEATURE 271 (R18): la re-solicitud elige por EDAD, no por estado: UN metodo, no cuatro.
     findCierreResolicitableMasViejo: vi.fn().mockResolvedValue(null),
     transicionarASolicitado: vi.fn().mockResolvedValue(true),
+    // FICHA 477 (D5): la re-solicitud de un `rechazado` va por su propia transaccion.
+    resolicitarCierreRechazado: vi.fn().mockResolvedValue(true),
     contarOrdenesPendientesGestion: vi.fn().mockResolvedValue(0),
     findGestionesPendientes: vi.fn().mockResolvedValue([GESTION_PENDIENTE]),
     crearCierre: vi.fn().mockResolvedValue("c-1"),
@@ -212,7 +214,9 @@ describe("R24 — los DOS caminos de exito de solicitar cierre avisan", () => {
     async (estado) => {
       const notificar = vi.fn().mockResolvedValue(undefined);
       const repo = cierreRepo({
-        findCierreResolicitableMasViejo: vi.fn().mockResolvedValue({ id: "c-1", estado }),
+        findCierreResolicitableMasViejo: vi
+          .fn()
+          .mockResolvedValue({ id: "c-1", estado, destinoZonaId: "zona-1" }),
       });
 
       const r = await cierreService(repo, notificar).solicitarCierre(MENSAJERO);
