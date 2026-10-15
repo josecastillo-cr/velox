@@ -191,6 +191,8 @@ function montar() {
       pendientes={paginaInicial(PENDIENTES)}
       historico={paginaInicial(RESUELTOS)}
       catalogoFiltros={CATALOGO}
+      // FICHA 481: estos montajes son de la CENTRAL; sin audiencia la pantalla falla cerrado.
+      audiencia="admin"
     />,
   );
 }

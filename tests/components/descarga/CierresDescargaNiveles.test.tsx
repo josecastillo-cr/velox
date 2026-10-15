@@ -257,7 +257,7 @@ function envolver(ui: ReactElement) {
   );
 }
 
-function montarCierresAdmin() {
+function montarCierresAdmin(audiencia: "admin" | "satelite" = "admin") {
   vi.mocked(listarPendientesCierresAdminPaginado).mockResolvedValue({
     status: "ok",
     page: 1,
@@ -289,6 +289,8 @@ function montarCierresAdmin() {
       historico={paginaInicial(HISTORICO)}
       sinZona={false}
       catalogoFiltros={CATALOGO}
+      // FICHA 481: por defecto, la CENTRAL; sin audiencia la pantalla falla cerrado.
+      audiencia={audiencia}
     />,
   );
 }
@@ -324,6 +326,8 @@ function montarCierresBodega() {
       pendientes={paginaInicial(BODEGA_PENDIENTES)}
       historico={paginaInicial(BODEGA_RESUELTOS)}
       catalogoFiltros={CATALOGO}
+      // FICHA 481: estos montajes son de la CENTRAL; sin audiencia la pantalla falla cerrado.
+      audiencia="admin"
     />,
   );
 }
@@ -800,5 +804,44 @@ describe("Cierres · un solo botón de descarga con nivel de detalle", () => {
     await elegirNivel(user, NIVEL_DETALLE_LABEL);
     await cerrarSelector(user);
     expect(screen.getByRole("button", { name: BOTON_DETALLE })).toBeInTheDocument();
+  });
+});
+
+// FICHA 481 (2026-10-15) — «Fulfillment» es dato de la CENTRAL. La `adminSatelite` ve la misma
+// pantalla de cierres del día, y su «Detalle» sale SIN esa columna: ni en el selector ni en la
+// cabecera del archivo. La central, idéntica a la de siempre (columna y orden).
+describe("Cierres · «Fulfillment» del Detalle solo para la central (ficha 481)", () => {
+  async function cabeceraDelDetalle(audiencia: "admin" | "satelite") {
+    const user = userEvent.setup();
+    montarCierresAdmin(audiencia);
+    await screen.findByRole("button", { name: "Descargar Cierres pendientes de decisión" });
+    await abrirSelector(user);
+    await elegirNivel(user, NIVEL_DETALLE_LABEL);
+    const selector = columnasEnElSelector();
+    await cerrarSelector(user);
+    await user.click(screen.getByRole("button", { name: BOTON_DETALLE }));
+    await user.click(await screen.findByRole("button", { name: BOTON_DETALLE_ARCHIVO }));
+    await waitFor(() => expect(buildXlsxRowsMock).toHaveBeenCalledTimes(1));
+    return { selector, archivo: encabezadosDelArchivo() };
+  }
+
+  it("la adminSatelite no ve «Fulfillment» en el selector ni en la cabecera del archivo", async () => {
+    const { selector, archivo } = await cabeceraDelDetalle("satelite");
+    // El literal, no la constante: lo que se afirma es lo que el usuario leería.
+    expect(selector).not.toContain("Fulfillment");
+    expect(archivo).not.toContain("Fulfillment");
+    // Y no se llevó nada más por delante: la hoja de la central, menos esa sola columna.
+    const esperado = encabezadosDe(COLUMNAS_DESCARGA_GESTIONES_FUNDIDA).filter(
+      (encabezado) => encabezado !== "Fulfillment",
+    );
+    expect(archivo).toEqual(esperado);
+    expect(archivo).toHaveLength(COLUMNAS_DESCARGA_GESTIONES_FUNDIDA.length - 1);
+  });
+
+  it("la central sigue viendo «Fulfillment», en su sitio de siempre", async () => {
+    const { selector, archivo } = await cabeceraDelDetalle("admin");
+    expect(selector).toContain("Fulfillment");
+    expect(archivo).toEqual(encabezadosDe(COLUMNAS_DESCARGA_GESTIONES_FUNDIDA));
+    expect(archivo.indexOf("Fulfillment")).toBe(archivo.indexOf("A cobrar") + 1);
   });
 });

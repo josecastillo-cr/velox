@@ -188,6 +188,8 @@ export default async function CierresAdminPage() {
              para que el dia que la cola se abra a un rol que mira y no concilia los botones
              desaparezcan solos. Mismo criterio, palabra por palabra, que `/wallet/satelites`. */
           puedeConciliar={esAccesoTotal(actor.rol)}
+          /* FICHA 481 — el «Detalle» del Excel lleva «Fulfillment» solo para la central. */
+          audiencia={esAccesoTotal(actor.rol) ? "admin" : "satelite"}
         />
       ) : null}
           </>

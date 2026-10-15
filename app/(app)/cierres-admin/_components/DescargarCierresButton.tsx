@@ -18,6 +18,8 @@ import {
 import {
   AMBITO_DESCARGA_GESTIONES_FUNDIDA,
   COLUMNAS_DESCARGA_GESTIONES_FUNDIDA,
+  columnasDescargaGestionesFundidaPara,
+  type AudienciaDescargaGestionesFundida,
 } from "./cierres-gestiones-fundida-descarga-columnas";
 
 /**
@@ -122,8 +124,21 @@ const OPCIONES_NIVEL: readonly RadioGroupOption[] = [
  * pantallas sin que la guardia lo lea como un duplicado.
  */
 const DETALLE_GESTIONES = {
-  columnas: COLUMNAS_DESCARGA_GESTIONES_FUNDIDA,
   ambitoColumnas: AMBITO_DESCARGA_GESTIONES_FUNDIDA,
+};
+
+/**
+ * FICHA 481 (2026-10-15) — las columnas del «Detalle» POR AUDIENCIA. La central (`admin`)
+ * recibe la declaración entera, la misma de siempre; el `adminSatelite` (`satelite`), la misma
+ * sin «Fulfillment», que es dato de la central. Se resuelven UNA vez, a nivel de módulo: son
+ * dependencias del hook de preferencia y un `filter` en el render cambiaría de identidad cada
+ * vez. El ámbito NO se parte: es la misma hoja con una columna menos.
+ */
+const COLUMNAS_DETALLE_POR_AUDIENCIA: Readonly<
+  Record<AudienciaDescargaGestionesFundida, DescargaColumna[]>
+> = {
+  admin: COLUMNAS_DESCARGA_GESTIONES_FUNDIDA,
+  satelite: columnasDescargaGestionesFundidaPara("satelite"),
 };
 
 /**
@@ -150,6 +165,12 @@ export interface DescargarCierresButtonProps {
   accion: AccionGestionesDescarga;
   /** `true` mientras la pantalla tiene una lectura en vuelo. */
   disabled?: boolean;
+  /**
+   * FICHA 481 — para quién es el «Detalle»: `admin` (central) ve la hoja entera; `satelite`
+   * (`adminSatelite`) la ve sin «Fulfillment». La resuelve el Server Component con
+   * `esAccesoTotal`. Obligatoria: cada pantalla tiene que decirla, sin default que la adivine.
+   */
+  audiencia: AudienciaDescargaGestionesFundida;
 }
 
 /**
@@ -169,6 +190,7 @@ export function DescargarCierresButton({
   catalogo,
   accion,
   disabled = false,
+  audiencia,
 }: Readonly<DescargarCierresButtonProps>) {
   const [nivel, setNivel] = useState<Nivel>(NIVEL_RESUMEN);
   const esDetalle = nivel === NIVEL_DETALLE;
@@ -183,7 +205,10 @@ export function DescargarCierresButton({
   // que no sabe resolver — la guardia lo cazó al primer intento y tenía razón, porque un ámbito
   // que no puede leer es un ámbito cuya unicidad no puede comprobar.
   const nivelActivo = esDetalle ? DETALLE_GESTIONES : resumen;
-  const columnas = nivelActivo.columnas;
+  // Falla cerrado: lo que no es `admin` recibe la hoja sin las columnas de la central.
+  const columnas = esDetalle
+    ? COLUMNAS_DETALLE_POR_AUDIENCIA[audiencia === "admin" ? "admin" : "satelite"]
+    : resumen.columnas;
   const clave = claveDeAmbitoDescarga(nivelActivo.ambitoColumnas);
 
   // Las MARCADAS, en el orden efectivo del ámbito. Se resuelven aquí y viajan ya resueltas al

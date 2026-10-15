@@ -1128,6 +1128,7 @@ export function CierresAdminModule({
             catalogo={catalogoFiltros}
             accion={(f) => descargarDatos("listarGestionesCierresAdminCompleto", f)}
             disabled={pendientesCargando || historicoCargando}
+            audiencia={audiencia}
           />
         </div>
       </div>

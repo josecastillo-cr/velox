@@ -79,6 +79,7 @@ import {
   DescargarCierresButton,
   type DescargaResumenCierres,
 } from "./DescargarCierresButton";
+import type { AudienciaDescargaGestionesFundida } from "./cierres-gestiones-fundida-descarga-columnas";
 import { ListaComprobantes } from "./ListaComprobantes";
 import { PanelConmutado } from "./PanelConmutado";
 import {
@@ -182,6 +183,12 @@ export interface CierresBodegaAdminModuleProps {
    * ofrece conciliar nada, que es el unico defecto seguro en una pantalla de dinero.
    */
   puedeConciliar?: boolean;
+  /**
+   * FICHA 481 — para quién es el «Detalle» del Excel: `admin` (central) ve la hoja entera;
+   * `satelite`, sin «Fulfillment». La resuelve el Server Component con `esAccesoTotal`. Default
+   * `satelite`: falla cerrado, igual que `puedeConciliar`.
+   */
+  audiencia?: AudienciaDescargaGestionesFundida;
 }
 
 /**
@@ -375,6 +382,7 @@ export function CierresBodegaAdminModule({
   historico,
   catalogoFiltros = CATALOGO_FILTROS_CIERRES_VACIO,
   puedeConciliar = false,
+  audiencia = "satelite",
 }: Readonly<CierresBodegaAdminModuleProps>) {
   const router = useRouter();
   const toast = useToast();
@@ -583,6 +591,7 @@ export function CierresBodegaAdminModule({
             catalogo={catalogoFiltros}
             accion={(f) => descargarDatos("listarGestionesCierresBodegaCompleto", f)}
             disabled={pendientesCargando}
+            audiencia={audiencia}
           />
         </div>
       </div>

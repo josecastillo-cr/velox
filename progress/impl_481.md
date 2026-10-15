@@ -32,3 +32,39 @@ Nada recalculado.
 typecheck y lint pasan; 1 intermitente ajeno (`WalletLibroCaja458E.test.tsx`, verde aislado).
 
 Veredicto: el fulfillment de la fila ya no sale del servidor hacia la adminSatelite.
+
+---
+
+# impl 481 — parte frontend (Excel «Detalle» sin «Fulfillment» para la satelite)
+
+Merge de `origin/dev` (trae la 482, PR #860) sin conflictos.
+
+## Archivos
+- `app/(app)/cierres-admin/_components/cierres-gestiones-fundida-descarga-columnas.ts` —
+  `AudienciaDescargaGestionesFundida` (`admin` | `satelite`) y
+  `columnasDescargaGestionesFundidaPara(audiencia)`: `admin` devuelve la declaracion entera (mismo
+  array, mismo orden); cualquier otra, la misma sin `fulfillment` (falla cerrado).
+  `COLUMNAS_DESCARGA_GESTIONES_FUNDIDA` intacta.
+- `DescargarCierresButton.tsx` — prop OBLIGATORIA `audiencia`; columnas del «Detalle» resueltas a
+  nivel de modulo por audiencia (identidad estable para el hook de preferencia). Ambito sin cambios.
+- `CierresAdminModule.tsx` — pasa su `audiencia` (ya existente, default `satelite`) al boton.
+- `CierresBodegaAdminModule.tsx` — prop `audiencia` nueva, default `satelite` (falla cerrado).
+- `page.tsx` — `audiencia={esAccesoTotal(actor.rol) ? "admin" : "satelite"}` tambien a bodega.
+- Tests: `CierresAdminDescargaDetallada`, `CierresBodegaDescargaDetallada`, `CierresDescargaNiveles`
+  montan con `audiencia="admin"` (son de la central); esperados literales SIN tocar.
+  Nuevo describe en `CierresDescargaNiveles.test.tsx`: satelite sin «Fulfillment» (selector y
+  cabecera del archivo = central menos esa columna); central con ella, tras «A cobrar».
+
+## Otras superficies revisadas
+Ninguna otra columna/celda de fulfillment en la pantalla de cierres: los resumenes de cola e
+historico no la llevan; el comprobante ya lo calla con `verFulfillment` (audiencia `satelite`).
+
+## Mutaciones (revertidas)
+1. `columnasDescargaGestionesFundidaPara` devuelve siempre la entera -> 1 rojo (satelite).
+2. `CierresAdminModule` pasa `audiencia="admin"` literal -> 1 rojo (satelite).
+No cubierto por test: el ternario de `page.tsx` (Server Component), mismo patron que la parte servidor.
+
+## Gate
+`./init.sh --rapido` -> `progress/gate_481_c.log`, INIT_EXIT=0 (typecheck, lint y relacionados verdes; sin rojos).
+
+Veredicto: la adminSatelite descarga el «Detalle» sin «Fulfillment»; la central, igual que antes.
