@@ -5762,11 +5762,11 @@
       "title": "retirar DetalleSecciones sin uso",
       "description": "Tras la 478, las tablas viejas del detalle de cierre (DetalleSecciones) quedan sin uso: borrarlas junto con lo que solo las sirve.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
-      "status_note": "PEDIDA POR EL HUMANO el 2026-10-15 (P4 de la 478). Ojo: censos y tests de descarga la nombran; no perder la red de otras features al borrar sus tests.",
+      "status_note": "HECHA en dev (PR #860, 2026-10-15), SIN DESPLEGAR. -2.267 lineas (DetalleSecciones, 5 descargas por seccion, medios-pago-descarga-columnas); 2 tests borrados, 7 reapuntados; mapa en progress/impl_482.md. Revision OK (progress/review_482.md). Menores: comentarios que aun citan el modulo borrado (ICierresAdminService.ts:196, cierre-labels.ts:542); montoPorMetodo sin test unitario; 234/R3 sin marcar superada en requirements.",
       "branch": "chore/482-retirar-detalle-secciones"
     }
   ]

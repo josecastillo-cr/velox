@@ -5767,3 +5767,7 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - El modal del cierre de bodega (maestro/admin) monta por mensajero la lista en pestañas con la fila desplegable del comprobante de mensajero: dirección, recibido, flete, comisión, pago, «Ver evidencia» en los cinco resultados, desglose y cobros. Solo lectura (P1), sin descarga por sección (P3); la fila suma causa, indemnización y fulfillment (P2). Sin cambios de servidor ni migración.
 - R1–R19; mapa en `progress/impl_478.md`; mutaciones del reviewer muertas. T6 con capturas en `progress/478_t6/`. PR #858.
 - Deuda: `DetalleSecciones` sin uso (ficha de limpieza por registrar); design §2.1 no recoge el nombre «<resultado> · <mensajero>»; fulfillment ahora visible también a la adminSatelite (por confirmar).
+
+## 482 — Retirar DetalleSecciones sin uso (2026-10-15)
+- Tras la 478, borradas las tablas viejas del detalle de cierre, las cinco descargas por sección y `medios-pago-descarga-columnas.ts` (columnas mudadas sin cambio a la hoja fundida). −2.267 líneas, sin cambio visible.
+- Tests: 2 borrados (solo vigilaban lo borrado), 7 reapuntados a la lista en pestañas de la 478 o al cierre del día; 234/R3 y R52 anotados `@test-desaparecido`. Revisión OK con mutaciones propias. PR #860.
