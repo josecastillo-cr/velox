@@ -1,0 +1,50 @@
+
+ RUN  v4.1.10 R:/job/singularis/projects/ordenex/.claude/worktrees/wt-478
+
+ ❯ tests/components/descarga/CierresDescargaColumnas.test.tsx (10 tests | 1 failed) 56592ms
+     × cada superficie ofrece su selector, y abrirlo no descarga nada 20465ms
+ ❯ tests/components/CierreBodegaDesglosePorTienda.test.tsx (33 tests | 1 failed) 20324ms
+     × ninguna región del detalle se anuncia igual que otra 493ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/components/CierreBodegaDesglosePorTienda.test.tsx > 396 · D3 — los nombres accesibles son ÚNICOS dentro del modal > ninguna región del detalle se anuncia igual que otra
+AssertionError: hay regiones que se anuncian igual: Entregado: expected [ 'Entregado' ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "Entregado",
++ ]
+
+ ❯ tests/components/CierreBodegaDesglosePorTienda.test.tsx:937:87
+    935|       .map((region) => region.getAttribute("aria-label") ?? "");
+    936|     const repetidos = nombres.filter((nombre, i) => nombres.indexOf(no…
+    937|     expect(repetidos, `hay regiones que se anuncian igual: ${repetidos…
+       |                                                                                       ^
+    938|   });
+    939|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/components/descarga/CierresDescargaColumnas.test.tsx > Cierres · elección de columnas de la descarga > cada superficie ofrece su selector, y abrirlo no descarga nada
+Error: Test timed out in 20000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/components/descarga/CierresDescargaColumnas.test.tsx:885:3
+    883|   });
+    884|
+    885|   it("cada superficie ofrece su selector, y abrirlo no descarga nada",…
+       |   ^
+    886|     for (const superficie of SUPERFICIES) {
+    887|       const user = userEvent.setup();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 38 passed (40)
+      Tests  2 failed | 767 passed (769)
+   Start at  11:46:49
+   Duration  204.62s (transform 223.48s, setup 30.50s, import 838.63s, tests 480.88s, environment 205.69s)
+

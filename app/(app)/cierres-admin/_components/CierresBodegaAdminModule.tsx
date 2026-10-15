@@ -43,7 +43,6 @@ import type { TotalesIngresoOrdenex } from "@/lib/interfaces/services/ICierreDia
 // se borra al compilar y no arrastra ni `Prisma` ni una linea de servidor al navegador.
 import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
 import {
-  DetalleSecciones,
   TotalesIngresoPanel,
   TotalesPanel,
   TOTAL_GENERAL_LABEL,
@@ -75,7 +74,7 @@ import { CascadaDinero, type LineaCascada } from "./CascadaDinero";
 // (R22). No es una copia ni un gemelo: es el archivo que la tanda de bodega sacó de aquella
 // pantalla justo para que las tres superficies no puedan decir cosas distintas de la misma plata.
 import { DesglosePorTienda, marcaDeVariasTiendas } from "./DesglosePorTienda";
-import { CierreBodegaFacturaResumen } from "./cierre-factura";
+import { CierreBodegaFacturaResumen, GestionesPorResultado } from "./cierre-factura";
 import {
   DescargarCierresButton,
   type DescargaResumenCierres,
@@ -818,10 +817,13 @@ export function CierresBodegaAdminModule({
                   totales={cierreDia.totalesIngreso}
                   ariaLabel={`Ingreso de Ordenex · ${cierreDia.mensajeroNombre}`}
                 />
-                {/* Feature 170 (T E.5/R13): el `contexto` da nombre ÚNICO a la descarga de
-                    cada sección — este modal monta las mismas cinco secciones una vez por
-                    mensajero incluido, y sin él todos los controles se llamarían igual. */}
-                <DetalleSecciones
+                {/* FICHA 478 (T3) — las gestiones de ESTE mensajero en pestañas con fila
+                    desplegable: la MISMA lista que el comprobante del cierre de mensajero, con
+                    «Ver evidencia» en cualquier resultado (R10/R12). Solo lectura (P1/R14): sin
+                    callbacks de corrección, la fila no ofrece los botones. El `contexto` da a la
+                    región un nombre único por mensajero (R17). La descarga por sección de la
+                    tabla vieja se retira del modal (P3); queda la global de la pantalla. */}
+                <GestionesPorResultado
                   grupos={cierreDia.grupos}
                   onVerEvidencia={setEvidencia}
                   contexto={cierreDia.mensajeroNombre}
