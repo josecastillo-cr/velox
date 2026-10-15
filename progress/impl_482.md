@@ -116,7 +116,18 @@ cabecera literal de 29 columnas) pasa sin tocar un esperado.
 
 ## 5. Gate
 
-`./init.sh --rapido` → `progress/gate_482.log` (resultado en la última línea, `INIT_EXIT=`).
+Corrido con `DATABASE_URL` del `.env` raíz (se amplió solo con `tests/integration/db`).
+
+- **1.ª pasada** (`progress/gate_482_a.log`, `INIT_EXIT=1`): un rojo PROPIO,
+  `test-citado-desaparecido.guardia` — la 234 citaba (R3, R52) los dos tests borrados. Arreglado
+  anotando en `specs/234-.../tasks.md` `@test-desaparecido` con el motivo (la guardia lo admite como
+  tercera salida; la primera, repuntar, no aplica a R52 —sin objeto— y para R3 se dice dónde vive la
+  mitad que sigue). Tres rojos AJENOS, repetidos AISLADOS y verdes → intermitentes:
+  `BajoRiesgoPaginacion.test.tsx` (5/5), `integration/db/cobro-tienda-461.test.ts` (5/5),
+  `integration/db/454/caracterizacion/corte-concurrencia.test.ts` (2/2).
+- **2.ª pasada** (`progress/gate_482.log`): **`INIT_EXIT=0`**. Unit/componentes 63/63 y 273/273
+  archivos; `integration/db` 444/446 con dos rojos de carga (454 C02 concurrencia y 401/T5 down de
+  migración) que el propio gate repitió y pasaron (2/2).
 
 ## 6. Observaciones (fuera de alcance, no tocadas)
 
