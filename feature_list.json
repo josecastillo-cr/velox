@@ -5726,24 +5726,24 @@
       "title": "aviso de bloqueo de Entregas con orden en correccion",
       "description": "Con una orden en correccion, el aviso de bloqueo de Entregas dice que no se puede entregar aunque esa orden si se puede gestionar.",
       "zone": "frontend",
-      "status": "pending",
+      "status": "in_progress",
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
       "status_note": "Hallada en el recorrido T5.5 de la 477 (progress/impl_477.md). Pedida por el humano el 2026-10-15.",
-      "branch": null
+      "branch": "fix/479-aviso-bloqueo-entregas"
     },
     {
       "id": 480,
       "title": "motivo de rechazo en un cierre ya reenviado",
       "description": "Un cierre reenviado (Solicitado) sigue mostrando el motivo del rechazo anterior.",
       "zone": "frontend",
-      "status": "pending",
+      "status": "in_progress",
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
       "status_note": "Hallada en el recorrido T5.5 de la 477. Origen: cierre-factura.tsx:951 pinta motivoRechazo sin mirar el estado. Pedida por el humano el 2026-10-15.",
-      "branch": null
+      "branch": "fix/480-motivo-rechazo-reenviado"
     }
   ]
 }
