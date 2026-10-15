@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 R:/job/singularis/projects/ordenex/.claude/worktrees/wt-478
+
+
+ Test Files  2 passed (2)
+      Tests  43 passed (43)
+   Start at  11:52:02
+   Duration  76.80s (transform 19.07s, setup 2.03s, import 55.32s, tests 52.71s, environment 15.98s)
+

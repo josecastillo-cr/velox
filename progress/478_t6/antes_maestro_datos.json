@@ -1,0 +1,50 @@
+[
+  {
+    "k": "aviso_al_entrar",
+    "v": "Confirmá el SINPE de GAM\n\nHa ta ahora tu bodega cobraba en el número de la central. Confirmá el tuyo para que la plata de tu  cliente  llegue a donde tiene que llegar.\n\nNúmero SINPE*\n\n8 dígito , empie"
+  },
+  {
+    "k": "bloque_rita_texto_final",
+    "v": "54 #14\tTania\tManual\t₡12.000\t₡800\tResuelto por la tienda (recorrido 454)\tVer evidencia\t₡0\t₡0\t₡0\t₡1.000 | \t20447061\tR454-12\tCliente Recorrido 12\tMultiplaza Escazú, 200 m sur\tGAM · San José · Escazú · San Rafael\tProducto prueba 454 #12\tTania\tManual\t₡11.000\t₡800\tCliente no quiso el producto (recorrido 454)\tVer evidencia\t₡0\t₡0\t₡0\t₡1.000 | \t82916953\tR454-11\tCliente Recorrido 11\tUniversidad Nacional, entrada principal\tGAM · Heredia · Heredia · Heredia\tProducto prueba 454 #11\tTania\tManual\t₡10.500\t₡800\tCliente no quiso el producto (recorrido 454)\tVer evidencia\t₡0\t₡0\t₡0\t₡1.000 | \t28296862\tR454-10\tCliente Recorrido 10\tTeatro Nacional, 50 m este\tGAM · San José · San José · Catedral\tProducto prueba 454 #10\tTania\tManual\t₡10.000\t₡800\tCliente no quiso el producto (recorrido 454)\tVer evidencia\t₡0\t₡0\t₡0\t₡1.000 | Incidente (1) | Descargar | Desglose | \tNº Guía\tNº Remisión\tDestinatario\tDirección\tUbicación\tProducto\tTienda\tA cobrar\tFulfillment\tCausa\tMotivo\tEvidencia\tIndemnización | \t13761058\tR454-13\tCliente Recorrido 13\tUniversidad de Costa Rica, Facultad de Derecho\tGAM · San José · Montes de Oca · Mercedes\tProducto prueba 454 #13\tTania\t₡11.500\t₡800\tPaquete dañado\tPaquete danado (recorrido 454)\tVer evidencia\t₡3.000"
+  },
+  {
+    "k": "ver_evidencia_en_bloque_rita",
+    "v": 5
+  },
+  {
+    "k": "descargas_en_bloque_rita",
+    "v": 5
+  },
+  {
+    "k": "mensajero_tabs",
+    "v": [
+      "Entregado\n7",
+      "Reprogramado\n3",
+      "Novedad\n3",
+      "Devolución a origen por rechazo\n2",
+      "Incidente\n1"
+    ]
+  },
+  {
+    "k": "mensajero_entregado_texto",
+    "v": "Entregado | 7 | Reprogramado | 3 | Novedad | 3 | Devolución a origen por rechazo | 2 | Incidente | 1 | Guía | Destinatario | Cobrado | Total Ordenex | 990015 | Carolina Vega | QA-R-0015 · Termo acero | ₡6.500 | ₡2.517,08 | Tres Ríos, La Unión | GAM · Cartago · La Unión · Tres Ríos | Recibido: | ₡6.500 · Efectivo | Tienda: | Tania | Flete + IVA: | ₡2.260 | Comisión + IVA: | ₡257,08 | Pago al mensajero: | ₡1.700 | Ver evidencia | Corregir métodos de pago | Corregir el resultado | Desglose de ingreso | Monto a cobrar | ₡6.500 | Flete | tarifa GAM: ₡2.000 | ₡2.000 | IVA flete | 13.00 % de ₡2.000 | ₡260 | Comisión COD | 3.50 % de ₡6.500 | ₡227,50 | IVA comisión | 13.00 % de ₡227,50 | ₡29,58 | Total Ordenex | ₡2.517,08 | Cobros de esta gestión | Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró. | Valor flete | ₡0 | Valor flete GAM | ₡2.000 | Flete por devolución a origen | ₡0 | Flete por devolución a origen GAM | ₡0 | IVA flete | ₡260 | IVA del flete por devolución a origen | ₡0 | Comisión COD | ₡227,50 | IVA comisión | ₡29,58 | Total cobrado | ₡2.517,08 | — | Roger Francisco Maradiaga paiz | 111136 · 1 * TURKESTERONE. | ₡17.700 | ₡2.960,04 | La Uruca del puente juan Pablo segundo la Uruca ala par dela empresa binbo la em | GAM · San José · Curridabat · Curridabat | Tienda: | Tania | Flete + IVA: | ₡2.260 | Comisión + IVA: | ₡700,04 | Pago al mensajero: | ₡1.700 | Corregir el resultado | Desglose de ingreso | Monto a cobrar | ₡17.700 | Flete | tarifa GAM: ₡2.000 | ₡2.000 | IVA flete | 13.00 % de ₡2.000 | ₡260 | Comisión COD | 3.50 % de ₡17.700 | ₡619,50 | IVA comisión | 13.00 % de ₡619,50 | ₡80,54 | Total Ordenex | ₡2.960,04 | Cobros de esta gestión | Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró. | Valor flete | ₡0 | Valor flete GAM | ₡2.000 | Flete por devolución a origen | ₡0 | Flete por devolución a origen GAM | ₡0 | IVA flete | ₡260 | IVA del flete por devolución a origen | ₡0 | Comisión COD | ₡619,50 | IVA comisión | ₡80,54 | Total cobrado | ₡2.960,04 | — | Gustavo - | 111128 · 1 * BATANA. | ₡17.700 | ₡2.960,04 | Universidad de Costa Rica San Pedro - | GAM · San José · Montes de Oca · Mercedes | Tienda: | Tania | Flete + IVA: | ₡2.260 | Comisión + IVA: | ₡700,04 | Pago al mensajero: | ₡1.700 | Corregir el resultado | Desglose de ingreso | Monto a cobrar | ₡17.700 | Flete | tarifa GAM: ₡2.000 | ₡2.000 | IVA flete | 13.00 % de ₡2.000 | ₡260 | Comisión COD | 3.50 % de ₡17.700 | ₡619,50 | IVA comisión | 13.00 % de ₡619,50 | ₡80,54 | Total Ordenex | ₡2.960,04 | Cobros de esta gestión | Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró. | Valor flete | ₡0 | Valor flete GAM | ₡2.000 | Flete por devolución a origen | ₡0 | Flete por devolución a origen GAM | ₡0 | IVA flete | ₡260 | IVA del flete por devolución a origen | ₡0 | Comisión COD | ₡619,50 | IVA comisión | ₡80,54 | Total cobrado | ₡2.960,04 | — | Alejandra - | 111120 · 1 * TURKESTERONE. | ₡17.739 | ₡2.961,58 | San Rafael San Rafael Arriba - | GAM · San José · Desamparados · San Rafael Arriba | Tienda: | Tania | Flete + IVA: | ₡2.260 | Comisión + IVA: | ₡701,58 | Pago al mensajero: | ₡1.700 | Corregir el resultado | Desglose de ingreso | Monto a cobrar | ₡17.739 | Flete | tarifa GAM: ₡2.000 | ₡2.000 | IVA flete | 13.00 % de ₡2.000 | ₡260 | Comisión COD | 3.50 % de ₡17.739 | ₡620,87 | IVA comisión | 13.00 % de ₡620,87 | ₡80,71 | Total Ordenex | ₡2.961,58 | Cobros de esta gestión | Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró. | Valor flete | ₡0 | Valor flete GAM | ₡2.000 | Flete por devolución a origen | ₡0 | Flete por devolución a origen GAM | ₡0 | IVA flete | ₡260 | IVA del flete por devolución a origen | ₡0 | Comisión COD | ₡620,87 | IVA comisión | ₡80,71 | Total cobrado | ₡2.961,58 | — | Carolina Vega | 111127 · 1 * Spray Herbal para Hemorroides l Alivio Natural. | ₡12.900 | ₡2.770,20 | Residencial Lomas de San Antonio San Antonio - | GAM · San José · Desamparados · Desamparados | Tienda: | Tania | Flete + IVA: | ₡2.260 | Comisión + IVA: | ₡510,20 | Pago al mensajero: | ₡1.700 | Corregir el resultado | Desglose de ingreso | Monto a cobrar | ₡12.900 | Flete | tarifa GAM: ₡2.000 | ₡2.000 | IVA flete | 13.00 % de ₡2.000 | ₡260 | Comisión COD | 3.50 % de ₡12.900 | ₡451,50 | IVA comisión | 13.00 % de ₡451,50 | ₡58,70 | Total Ordenex | ₡2.770,20 | Cobros de esta gestión | Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró. | Valor flete | ₡0 | Valor flete GAM | ₡2.000 | Flete por devolución a origen | ₡0 | Flete por devolución a origen GAM | ₡0 | IVA flete | ₡260 | IVA del flete por devolución a origen | ₡0 | Comisión COD | ₡451,50 | IVA comisión | ₡58,70 | Total cobrado | ₡2.770,20 | — | Gina Montero | 111132 · 1 * Polvo Destapador de Cañerias Mágico. | ₡10.900 | ₡2.691,10 | De taco bell san pedro 400 oeste 25 norte condominio antea #9 San Pedro - | GAM · San José · Montes de Oca · Mercedes | Tienda: | Tania | Flete + IVA: | ₡2.260 | Comisión + IVA: | ₡431,10 | Pago al mensajero: | ₡1.700 | Corregir el resultado | Desglose de ingreso | Monto a cobrar | ₡10.900 | Flete | tarifa GAM: ₡2.000 | ₡2.000 | IVA flete | 13.00 % de ₡2.000 | ₡260 | Comisión COD | 3.50 % de ₡10.900 | ₡381,50 | IVA comisión | 13.00 % de ₡381,50 | ₡49,60 | Total Ordenex | ₡2.691,10 | Cobros de esta gestión | Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró. | Valor flete | ₡0 | Valor flete GAM | ₡2.000 | Flete por devolución a origen | ₡0 | Flete por devolución a origen GAM | ₡0 | IVA flete | ₡260 | IVA del flete por devolución a origen | ₡0 | Comisión COD | ₡381,50 | IVA comisión | ₡49,60 | Total cobrado | ₡2.691,10 | — | Juan jose suarez trejos | 111118 · 1 * AND. | ₡12.900 | ₡2.770,20 | Contigo acondomlnlo real guayabos Granadilla - | GAM · San José · Curridabat · Curridabat | Tienda: | Tania | Flete + IVA: | ₡2.260 | Comisión + IVA: | ₡510,20 | Pago al mensajero: | ₡1.700 | Corregir el resultado | Desglose de ingreso | Monto a cobrar | ₡12.900 | Flete | tarifa GAM: ₡2.000 | ₡2.000 | IVA flete | 13.00 % de ₡2.000 | ₡260 | Comisión COD | 3.50 % de ₡12.900 | ₡451,50 | IVA comisión | 13.00 % de ₡451,50 | ₡58,70 | Total Ordenex | ₡2.770,20 | Cobros de esta gestión | Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró. | Valor flete | ₡0 | Valor flete GAM | ₡2.000 | Flete por devolución a origen | ₡0 | Flete por devolución a origen GAM | ₡0 | IVA flete | ₡260 | IVA del flete por devolución a origen | ₡0 | Comisión COD | ₡451,50 | IVA comisión | ₡58,70 | Total cobrado | ₡2.770,20"
+  },
+  {
+    "k": "mensajero_botones_corregir_ver",
+    "v": [
+      "Ver evidencia de la orden QA-R-0015 · Carolina Vega",
+      "Corregir métodos de pago de la orden QA-R-0015 · Carolina Vega",
+      "Corregir el resultado de la orden QA-R-0015 · Carolina Vega",
+      "Corregir el resultado de la orden 111136 · Roger Francisco Maradiaga paiz",
+      "Corregir el resultado de la orden 111128 · Gustavo -",
+      "Corregir el resultado de la orden 111120 · Alejandra -",
+      "Corregir el resultado de la orden 111127 · Carolina Vega",
+      "Corregir el resultado de la orden 111132 · Gina Montero",
+      "Corregir el resultado de la orden 111118 · Juan jose suarez trejos"
+    ]
+  },
+  {
+    "k": "errores_pagina",
+    "v": []
+  }
+]

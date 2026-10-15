@@ -126,7 +126,16 @@ import {
   // y lo que hace que las dos superficies digan lo mismo es que LEEN DEL MISMO SITIO.
   GESTION_TIENDA_BADGE_LABEL,
   GESTION_TIENDA_BADGE_NOTA,
+  // FICHA 478 (P2/R19) — los rótulos de causa e indemnización del incidente, los MISMOS que
+  // encabezan esas columnas en la tabla vieja del detalle de bodega, y la nota del pendiente.
+  CAUSA_INCIDENTE_COL,
+  INDEMNIZACION_COL,
+  INDEMNIZACION_PENDIENTE_NOTA,
 } from "./cierre-detalle-shared";
+// FICHA 478 (P2/R19) — la etiqueta de la causa sale del SEED (nunca el slug), la misma fuente
+// que `COLUMNA_CAUSA_INCIDENTE`; y el rótulo de fulfillment, del módulo puro donde vive.
+import { CAUSA_INCIDENTE_LABEL } from "@/app/(app)/mis-asignaciones/_components/causa-incidente-options";
+import { FULFILLMENT_COL } from "./cierre-labels";
 // Feature 213 (T6/T7): el desglose de pago se formatea en UN solo sitio (R25).
 import { desglosePantalla } from "./desglose-pago";
 import type { OrigenFlete } from "@/lib/utils/ingreso-ordenex";
@@ -1596,6 +1605,24 @@ function TabResultado({
   );
 }
 
+/**
+ * FICHA 478 (P2/R19) — la indemnización de un incidente en la fila desplegada: el monto, o el
+ * marcador de pendiente con su nota mientras no exista (misma lectura que
+ * `COLUMNA_INDEMNIZACION`: `null` no es «cero», es «todavía no se capturó»). Fuera de un
+ * incidente no aplica: `null`, y la fila no pinta nada.
+ */
+function indemnizacionDeFila(g: CierreDetalleGestion): ReactNode {
+  if (g.resultado !== "incidente") return null;
+  if (g.indemnizacion === null) {
+    return (
+      <span title={INDEMNIZACION_PENDIENTE_NOTA} aria-label={INDEMNIZACION_PENDIENTE_NOTA}>
+        —
+      </span>
+    );
+  }
+  return money(g.indemnizacion);
+}
+
 /** Un dato del desplegable de una fila: rótulo + valor, o nada si el valor no aplica. */
 function DatoFila({
   label,
@@ -1774,6 +1801,31 @@ function FilaGestion({
               // Para el admin la expresión resuelve a lo mismo de hoy, carácter por carácter.
               value={motivoGestionLegible(g.motivo, !esMensajero && g.esRechazoSla)}
             />
+            {/* FICHA 478 (P2/R19) — lo que la tabla vieja del detalle de bodega enseñaba y esta
+                fila no: causa e indemnización del incidente y fulfillment de la tarifa
+                congelada. Solo aparecen con valor (`DatoFila` con `null` no pinta nada). La
+                indemnización y el fulfillment son datos de la empresa: fuera de la vista del
+                mensajero (design §2.3). */}
+            <DatoFila
+              label={CAUSA_INCIDENTE_COL}
+              value={
+                g.resultado === "incidente" && g.causaIncidente
+                  ? CAUSA_INCIDENTE_LABEL[g.causaIncidente]
+                  : null
+              }
+            />
+            <DatoFila
+              label={INDEMNIZACION_COL}
+              value={esMensajero ? null : indemnizacionDeFila(g)}
+            />
+            <DatoFila
+              label={FULFILLMENT_COL}
+              value={
+                !esMensajero && ing?.tarifa?.fulfillment
+                  ? money(ing.tarifa.fulfillment)
+                  : null
+              }
+            />
             {/* FICHA 414 (R7) — LA MARCA «La tienda», la misma que la tabla en vivo del mensajero
                 pinta desde la 237/R41. Dos detalles que parecen de forma y no lo son:
 
@@ -1899,6 +1951,111 @@ function FilaGestion({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** FICHA 478 (design §2.1) — contrato de la lista de gestiones en pestañas. Solo presentación. */
+export interface GestionesPorResultadoProps {
+  grupos: CierreGrupos;
+  /** Vista del mensajero: las dos cifras de la fila son lo RECIBIDO y SU pago. */
+  esMensajero?: boolean;
+  onVerEvidencia?: (url: string) => void;
+  /** Ausente = no se ofrece (478/R14). */
+  onCorregirPagos?: (g: CierreDetalleGestion) => void;
+  /** Ausente = no se ofrece (478/R14). */
+  onCorregirResultado?: (g: CierreDetalleGestion) => void;
+  /**
+   * De quién son estas gestiones. Ausente = el nombre accesible de siempre
+   * (`FACTURA_ORDENES_TITULO`), el del comprobante de mensajero (478/R18). Presente =
+   * `${FACTURA_ORDENES_TITULO} · ${contexto}`, para que N bloques del mismo modal no se llamen
+   * igual (478/R17).
+   */
+  contexto?: string;
+}
+
+/**
+ * FICHA 478 (T2.1) — las órdenes del cierre en pestañas por resultado, cada fila desplegable.
+ * EXTRAÍDO tal cual de `CierreFacturaDetalle` (no reescrito) para montarlo también en el detalle
+ * del cierre de bodega, una vez por mensajero. El estado de la pestaña vive AQUÍ, uno por
+ * instancia: es lo que hace que cambiar de pestaña en un mensajero no mueva la de otro (R4).
+ */
+export function GestionesPorResultado({
+  grupos,
+  esMensajero = false,
+  onVerEvidencia,
+  onCorregirPagos,
+  onCorregirResultado,
+  contexto,
+}: Readonly<GestionesPorResultadoProps>) {
+  // Arranca en la primera sección CON órdenes: abrir en una pestaña vacía no dice nada.
+  const [tab, setTab] = useState<CierreResultado>(
+    ORDEN_RESULTADOS.find((r) => (grupos[r]?.length ?? 0) > 0) ?? "entregado",
+  );
+  const filas = grupos[tab] ?? [];
+  // Los dos nombres accesibles. Sin `contexto`, los de siempre (R18). Con él (el detalle de bodega
+  // monta N listas en el mismo modal), llevan además el mensajero, o N regiones «Órdenes del
+  // cierre» / «Entregado» se anunciarían igual (396/D3, 478/R17).
+  const nombreOrdenes = contexto
+    ? `${FACTURA_ORDENES_TITULO} · ${contexto}`
+    : FACTURA_ORDENES_TITULO;
+  const nombrePanelActivo = contexto
+    ? `${RESULTADO_LABEL[tab]} · ${contexto}`
+    : RESULTADO_LABEL[tab];
+
+  return (
+    <section aria-label={nombreOrdenes} className="flex flex-col">
+      <div role="tablist" className="flex gap-1.5 border-b border-border">
+        {ORDEN_RESULTADOS.map((resultado) => (
+          <TabResultado
+            key={resultado}
+            resultado={resultado}
+            count={grupos[resultado]?.length ?? 0}
+            active={tab === resultado}
+            onSelect={() => setTab(resultado)}
+          />
+        ))}
+      </div>
+
+      {/* La sección activa conserva el nombre accesible que tenía su tabla
+          ("Entregadas", "Rechazadas"…): es como la localizan los tests y el E2E. FICHA 478:
+          con `contexto`, además el mensajero (ver `nombrePanelActivo`). */}
+      <section aria-label={nombrePanelActivo} className="pt-2">
+        {/* Misma plantilla que la fila, servida por la MISMA constante: son dos rejillas
+            independientes y es lo único que las mantiene alineadas (R10). */}
+        <div
+          className={cn(
+            "grid gap-2 px-2 py-1 text-[11px] text-muted-foreground",
+            FILA_GRID_COLS,
+          )}
+        >
+          <span className={FILA_GUIA_CELDA}>{FILA_GUIA_COL}</span>
+          <span className="min-w-0 truncate">{FILA_DESTINATARIO_COL}</span>
+          <span className="text-right">
+            {esMensajero ? FILA_RECIBIDO_LABEL : FILA_COBRADO_COL}
+          </span>
+          <span className="text-right">
+            {esMensajero ? GANANCIA_MENSAJERO_LABEL : INGRESO_TOTAL_LABEL}
+          </span>
+          <span />
+        </div>
+        {filas.length === 0 ? (
+          <p className="px-2 py-3 text-sm text-muted-foreground">
+            {RESULTADO_VACIO[tab]}
+          </p>
+        ) : (
+          filas.map((g) => (
+            <FilaGestion
+              key={g.gestionId}
+              g={g}
+              esMensajero={esMensajero}
+              onVerEvidencia={onVerEvidencia}
+              onCorregirPagos={onCorregirPagos}
+              onCorregirResultado={onCorregirResultado}
+            />
+          ))
+        )}
+      </section>
+    </section>
   );
 }
 
@@ -2321,12 +2478,6 @@ export function CierreFacturaDetalle({
     (total, resultado) => total + (grupos[resultado]?.length ?? 0),
     0,
   );
-  // Arranca en la primera sección CON órdenes: abrir en una pestaña vacía no dice nada.
-  const [tab, setTab] = useState<CierreResultado>(
-    ORDEN_RESULTADOS.find((r) => (grupos[r]?.length ?? 0) > 0) ?? "entregado",
-  );
-  const filas = grupos[tab] ?? [];
-
   return (
     <HojaFactura
       ariaLabel={
@@ -2532,59 +2683,16 @@ export function CierreFacturaDetalle({
         />
       )}
 
-      {/* Órdenes en pestañas por resultado, cada fila desplegable. */}
-      <section aria-label={FACTURA_ORDENES_TITULO} className="flex flex-col">
-        <div role="tablist" className="flex gap-1.5 border-b border-border">
-          {ORDEN_RESULTADOS.map((resultado) => (
-            <TabResultado
-              key={resultado}
-              resultado={resultado}
-              count={grupos[resultado]?.length ?? 0}
-              active={tab === resultado}
-              onSelect={() => setTab(resultado)}
-            />
-          ))}
-        </div>
-
-        {/* La sección activa conserva el nombre accesible que tenía su tabla
-            ("Entregadas", "Rechazadas"…): es como la localizan los tests y el E2E. */}
-        <section aria-label={RESULTADO_LABEL[tab]} className="pt-2">
-          {/* Misma plantilla que la fila, servida por la MISMA constante: son dos rejillas
-              independientes y es lo único que las mantiene alineadas (R10). */}
-          <div
-            className={cn(
-              "grid gap-2 px-2 py-1 text-[11px] text-muted-foreground",
-              FILA_GRID_COLS,
-            )}
-          >
-            <span className={FILA_GUIA_CELDA}>{FILA_GUIA_COL}</span>
-            <span className="min-w-0 truncate">{FILA_DESTINATARIO_COL}</span>
-            <span className="text-right">
-              {esMensajero ? FILA_RECIBIDO_LABEL : FILA_COBRADO_COL}
-            </span>
-            <span className="text-right">
-              {esMensajero ? GANANCIA_MENSAJERO_LABEL : INGRESO_TOTAL_LABEL}
-            </span>
-            <span />
-          </div>
-          {filas.length === 0 ? (
-            <p className="px-2 py-3 text-sm text-muted-foreground">
-              {RESULTADO_VACIO[tab]}
-            </p>
-          ) : (
-            filas.map((g) => (
-              <FilaGestion
-                key={g.gestionId}
-                g={g}
-                esMensajero={esMensajero}
-                onVerEvidencia={onVerEvidencia}
-                onCorregirPagos={onCorregirPagos}
-                onCorregirResultado={onCorregirResultado}
-              />
-            ))
-          )}
-        </section>
-      </section>
+      {/* Órdenes en pestañas por resultado, cada fila desplegable. FICHA 478 (T2.1): el bloque
+          se extrajo a `GestionesPorResultado` para montarlo también en el detalle del cierre de
+          bodega. Aquí se monta SIN `contexto`: el nombre accesible queda como antes (R18). */}
+      <GestionesPorResultado
+        grupos={grupos}
+        esMensajero={esMensajero}
+        onVerEvidencia={onVerEvidencia}
+        onCorregirPagos={onCorregirPagos}
+        onCorregirResultado={onCorregirResultado}
+      />
 
       {/* Feature 264 (R13) — las órdenes que el corte cerró SIN gestión: sección HERMANA de la
           de pestañas, después de ella y ANTES del pie. No entra en ningún total: el pie y los
