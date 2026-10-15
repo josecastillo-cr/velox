@@ -78,6 +78,27 @@ export interface OpcionesAvisoBloqueo {
    * decirle a donde ir. `false` en «Cierre del día»: el boton lo tiene debajo.
    */
   conCta: boolean;
+  /**
+   * FICHA 479 — cuantas ordenes EN CORRECCION de un cierre rechazado propio tiene el mensajero en
+   * pantalla (`MiAsignacionDTO.enCorreccion`, ficha 477). Son la exencion POR OBJETO del bloqueo:
+   * esas SI se gestionan. Con `0` (o ausente) el aviso no cambia ni una coma. Solo «Entregas» lo
+   * pasa: es la unica pantalla que pinta esas ordenes.
+   */
+  ordenesEnCorreccion?: number;
+}
+
+/**
+ * FICHA 479 — la frase de la consecuencia, con la exencion de la 477 cuando la hay. Antes el aviso
+ * decia «no puedes entregar» encima de una tarjeta que SI se podia gestionar: dos mensajes que se
+ * contradicen en la misma pantalla. Sin ordenes en correccion devuelve `NO_PUEDES` intacta.
+ */
+function consecuenciaDelBloqueo(ordenesEnCorreccion: number): string {
+  if (ordenesEnCorreccion <= 0) return NO_PUEDES;
+  const cuales =
+    ordenesEnCorreccion === 1
+      ? "la orden de tu cierre rechazado"
+      : `las ${ordenesEnCorreccion} órdenes de tu cierre rechazado`;
+  return `Mientras tanto no puedes entregar, cobrar ni recibir trabajo nuevo; solo puedes volver a gestionar ${cuales}.`;
 }
 
 /**
@@ -95,6 +116,8 @@ export interface OpcionesAvisoBloqueo {
  */
 export function avisoBloqueo(d: BloqueoDetalle, opciones: OpcionesAvisoBloqueo): string {
   if (!d.bloqueado) return "";
+
+  const consecuencia = consecuenciaDelBloqueo(opciones.ordenesEnCorreccion ?? 0);
 
   const n = d.cierresAbiertos;
   const v = d.cierresPorReenviar;
@@ -121,7 +144,7 @@ export function avisoBloqueo(d: BloqueoDetalle, opciones: OpcionesAvisoBloqueo):
     if (v === n) {
       const cuantos = `Tienes ${n} cierres sin resolver y ninguno se ha enviado a aprobación.`;
       const salida = `Envíalos a aprobación, empezando por el más antiguo${aposicion}.`;
-      return unir(cuantos, NO_PUEDES, salida, cta);
+      return unir(cuantos, consecuencia, salida, cta);
     }
 
     // La primera frase es la MISMA en las dos ramas mixtas: cuantos arrastra y cuantos son suyos.
@@ -161,7 +184,7 @@ export function avisoBloqueo(d: BloqueoDetalle, opciones: OpcionesAvisoBloqueo):
           : `${enviaSinFecha}, ${v === 1 ? "el del" : "empezando por el del"} ${dia},`;
       return unir(
         cuantos,
-        NO_PUEDES,
+        consecuencia,
         `${envia} y después espera a que la bodega apruebe el resto.`,
         cta,
       );
@@ -172,13 +195,13 @@ export function avisoBloqueo(d: BloqueoDetalle, opciones: OpcionesAvisoBloqueo):
     // cuelga de el, que es el cierre que la bodega tiene. Texto verificado byte a byte: no se toca.
     const envia = v === 1 ? "Envía el que falta" : "Envía los que faltan";
     const salida = `${envia} y espera a que la bodega apruebe el más antiguo${aposicion}.`;
-    return unir(cuantos, NO_PUEDES, salida, cta);
+    return unir(cuantos, consecuencia, salida, cta);
   }
 
   // CASO 2 — algo que reenviar y nada mas (V >= 1, N = 1).
   if (v >= 1) {
     const cta = opciones.conCta ? IR_A_CIERRE : "Envíalo a aprobación con el botón de abajo.";
-    return unir("Tienes un cierre sin enviar a aprobación.", NO_PUEDES, cta);
+    return unir("Tienes un cierre sin enviar a aprobación.", consecuencia, cta);
   }
 
   // CASO 1 — bloqueado por ACUMULAR (N >= 2, V = 0). El mensajero no tiene NADA que hacer, y por
@@ -186,7 +209,7 @@ export function avisoBloqueo(d: BloqueoDetalle, opciones: OpcionesAvisoBloqueo):
   // inventarle uno seria mandarlo a buscar un boton que no existe (R43).
   return unir(
     `Tienes ${n} cierres esperando aprobación.`,
-    NO_PUEDES,
+    consecuencia,
     `Se desbloquea cuando la bodega apruebe el más antiguo${aposicion}.`,
   );
 }

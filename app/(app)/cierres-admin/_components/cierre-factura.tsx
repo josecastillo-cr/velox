@@ -251,6 +251,18 @@ const FACTURA_LIQUIDACION_TITULO = "Liquidación";
 const FACTURA_ORDENES_TITULO = "Órdenes del cierre";
 const FACTURA_TOTAL_GENERAL_LABEL = "Total general";
 const FACTURA_MOTIVO_RECHAZO_LABEL = "Motivo de rechazo";
+
+/**
+ * FICHA 480: el motivo de rechazo solo se muestra mientras el cierre ESTA `rechazado`. Al
+ * reenviarlo (feature 477) el cierre vuelve a `solicitado` y la columna `motivo_rechazo`
+ * conserva el texto del rechazo anterior; pintarlo junto a «Solicitado» contradice el estado.
+ */
+export function motivoRechazoVisible(
+  estado: CierreAdminResumen["estado"],
+  motivoRechazo: string | null | undefined,
+): string | null {
+  return estado === "rechazado" && motivoRechazo ? motivoRechazo : null;
+}
 /**
  * Feature 264 (Q4/R21) — ESTE KPI CUENTA GESTIONES, Y AHORA LO DICE.
  *
@@ -731,7 +743,7 @@ export function CierreFacturaResumen({
       totalIngresoBodegaRechazos={cierre.totalIngresoBodegaRechazos}
       solicitadoAt={cierre.solicitadoAt}
       resueltoAt={cierre.resueltoAt}
-      motivoRechazo={cierre.motivoRechazo}
+      motivoRechazo={motivoRechazoVisible(cierre.estado, cierre.motivoRechazo)}
     />
   );
 }
@@ -1186,7 +1198,7 @@ export function CierreFacturaResumenPropio({
       totalIngresoBodegaRechazos={cierre.totalIngresoBodegaRechazos}
       solicitadoAt={cierre.solicitadoAt}
       resueltoAt={cierre.resueltoAt ?? null}
-      motivoRechazo={cierre.motivoRechazo ?? null}
+      motivoRechazo={motivoRechazoVisible(cierre.estado, cierre.motivoRechazo)}
       audiencia="mensajero"
     />
   );
@@ -2702,7 +2714,7 @@ export function CierreFacturaDetalle({
           </b>{" "}
           · {grupos.entregado?.length ?? 0} {FOOTER_ENTREGAS_LABEL}
         </span>
-        {cierre.motivoRechazo ? (
+        {motivoRechazoVisible(cierre.estado, cierre.motivoRechazo) ? (
           <span className="text-xs text-muted-foreground">
             <span className="font-medium text-foreground">
               {FACTURA_MOTIVO_RECHAZO_LABEL}:{" "}

@@ -5756,3 +5756,9 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - Con el cierre rechazado, el mensajero devuelve a gestión una orden (anula + desvincula + recalcula bajo candado) y la vuelve a gestionar aunque tenga el bloqueo; la re-solicitud vincula solo las órdenes en corrección, congela tarifa y recalcula `cierre_detail`. Panel en «Cierre del día» y Entregas habilita solo las órdenes en corrección. Sin migración.
 - R1–R28; mapa en `progress/impl_477.md`; mutaciones muertas contra Postgres. Revisión: rechazo solo de proceso, cerrado. Recorrido T5.5 con capturas en `progress/477_t55/`. PR #855.
 - Fichas candidatas (no registradas): aviso de bloqueo de Entregas que contradice la corrección; «Motivo de rechazo» visible en cierre ya Solicitado (`cierre-factura.tsx:951`).
+
+## 479 — Aviso de bloqueo de Entregas con orden en corrección (2026-10-15)
+- `avisoBloqueo` recibe `ordenesEnCorreccion` (dato `enCorreccion` de la 477): con N>0 dice que solo puede volver a gestionar la(s) N orden(es) del cierre rechazado; con 0, texto de siempre. PR #857, revisión APROBADA, mutaciones muertas.
+
+## 480 — Motivo de rechazo en un cierre ya reenviado (2026-10-15)
+- `motivoRechazoVisible(estado, motivo)` en `cierre-factura.tsx`: el motivo solo se pinta con el cierre `rechazado`, en resumen admin, resumen propio y pie del detalle. PR #856, gate ampliado verde, revisión APROBADA.
