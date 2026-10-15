@@ -86,15 +86,12 @@ const CENSO_CONTADORES: ContadorCensado[] = [
       "mensajero. Este contador sigue siendo correcto aunque el modulo pagine su OTRA tabla " +
       "(«Cierres solicitados», tanda I).",
   },
-  {
-    ruta: "app/(app)/cierres-admin/_components/cierre-detalle-shared.tsx",
-    identificador: "filas",
-    listado: "Gestiones de un cierre por resultado (detalle del admin)",
-    estado: "sin_paginar",
-    nota:
-      "Anexo IV: mismo problema agrupado, dentro de un MODAL de detalle de UN cierre. " +
-      "Acotado por la jornada de UN mensajero.",
-  },
+  // FICHA 482 (2026-10-15): aquí estaba `cierre-detalle-shared.tsx :: ({filas.length})`, el
+  // conteo por sección de `DetalleSecciones` («Gestiones de un cierre por resultado (detalle del
+  // admin)»). Se borró con su componente. El listado sigue vivo en `cierre-factura.tsx`
+  // (`GestionesPorResultado`), cuya pestaña cuenta su grupo con `count={grupos[r]?.length ?? 0}`
+  // —forma que este detector no mira— y que sigue censado sin paginar en el Anexo IV de
+  // `paginacion-transversal.test.tsx`, que es quien afirma que el conteo es el del grupo entero.
 ];
 
 /**
@@ -349,7 +346,9 @@ describe("guardia de contadores de cabecera (T H.3, R42)", () => {
     }
 
     // Eran 6 hasta T J.2; las 4 colas de riesgo MEDIO dejaron de contar su array.
-    expect(enArbol).toHaveLength(2);
+    // FICHA 482: 2 -> 1. El de `cierre-detalle-shared.tsx` se fue con el código que lo pintaba
+    // (`DetalleSecciones`, borrado), no porque dejara de registrarse.
+    expect(enArbol).toHaveLength(1);
   });
 
   it("las cuatro colas de la tanda J muestran el total del servidor, y su pantalla se vigila", () => {

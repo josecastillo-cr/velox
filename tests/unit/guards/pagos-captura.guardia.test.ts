@@ -265,20 +265,20 @@ describe("R19 — el bundle del panel no arrastra runtime de servidor", () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────────────────────
-// R23 — los tres sitios de presentación derivan del DESGLOSE, no del escalar
+// R23 — los sitios de presentación derivan del DESGLOSE, no del escalar
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 
 /**
- * Los tres sitios, cada uno con el ANCLA que prueba que se está leyendo el archivo que se cree
+ * Los sitios, cada uno con el ANCLA que prueba que se está leyendo el archivo que se cree
  * (y no uno vacío, movido o renombrado). El ancla es además la afirmación POSITIVA de R23: no
  * basta con que no lean el escalar, tienen que leer el desglose.
  */
 const SITIOS_DE_PRESENTACION: { ruta: string; ancla: string }[] = [
   { ruta: "app/(app)/cierre-dia/_components/CierreDiaModule.tsx", ancla: "desglosePantalla" },
-  // 2026-08-19: las dos tablas del detalle ya no pintan la celda concatenada, sino una columna
-  // por medio de pago. El ancla cambia con ella: lo que R23 vigila es que el dato salga del
-  // DESGLOSE y no del campo escalar, y `montoPorMetodo` es la puerta por la que sale ahora.
-  { ruta: "app/(app)/cierres-admin/_components/cierre-detalle-shared.tsx", ancla: "montoPorMetodo" },
+  // FICHA 482 (2026-10-15): aquí estaba `cierre-detalle-shared.tsx` (ancla `montoPorMetodo`),
+  // por las tablas del detalle con una columna por medio de pago. Esas tablas (`DetalleSecciones`)
+  // se borraron: el archivo ya no pinta ningún pago y el detalle de admin lo pinta
+  // `cierre-factura`, que sigue en la lista. Quedan DOS sitios, y los dos se vigilan igual.
   { ruta: "app/(app)/cierres-admin/_components/cierre-factura.tsx", ancla: "desglosePantalla" },
 ];
 
@@ -286,7 +286,8 @@ const SITIOS_DE_PRESENTACION: { ruta: string; ancla: string }[] = [
 const CAMPO_ESCALAR = "metodoPago";
 
 describe("R23 — la presentación no lee `metodoPago` de la gestión", () => {
-  it("CONTROL DE NO-VACUIDAD: los tres existen, tienen cuerpo y pintan el desglose", () => {
+  it("CONTROL DE NO-VACUIDAD: los dos existen, tienen cuerpo y pintan el desglose", () => {
+    expect(SITIOS_DE_PRESENTACION).toHaveLength(2);
     for (const { ruta, ancla } of SITIOS_DE_PRESENTACION) {
       const texto = fuente(ruta);
       expect(texto.length, `${ruta} está vacío`).toBeGreaterThan(1000);
@@ -301,7 +302,7 @@ describe("R23 — la presentación no lee `metodoPago` de la gestión", () => {
     });
   }
 
-  it("CONTRAPRUEBA: una lectura del escalar inyectada se caza en los tres", () => {
+  it("CONTRAPRUEBA: una lectura del escalar inyectada se caza en los dos", () => {
     for (const { ruta } of SITIOS_DE_PRESENTACION) {
       const real = quitarComentarios(fuente(ruta));
       const mutado = `${real}\nconst metodo = g.${CAMPO_ESCALAR} ?? "—";`;
@@ -318,25 +319,22 @@ describe("R23 — la presentación no lee `metodoPago` de la gestión", () => {
 
 const MODULO_DE_CAPTURA = "app/(app)/mis-asignaciones/_components/desglose-captura.ts";
 // El ancla es POR MÓDULO desde 2026-08-19: el cierre del día del mensajero sigue con la celda
-// concatenada (`desgloseDescarga`), y las descargas del admin pasaron a una columna por medio
-// de pago (`celdasMediosPago`, que declara y puebla `medios-pago-descarga-columnas.ts`). Un
-// ancla única obligaría a que los dos caminos formatearan igual, que es justo lo que dejó de
-// ser cierto.
+// concatenada (`desgloseDescarga`), y la descarga del admin pasó a una columna por medio de pago
+// (`montoPorMetodo`). Un ancla única obligaría a que los dos caminos formatearan igual, que es
+// justo lo que dejó de ser cierto.
+//
+// FICHA 482 (2026-10-15): salen dos módulos que se borraron, no dos que dejaran de ser
+// money-safe: `cierre-gestiones-descarga-columnas.ts` (las cinco descargas por sección del
+// detalle de un cierre, retiradas con `DetalleSecciones`) y `medios-pago-descarga-columnas.ts`
+// (su declaración de columnas por medio, mudada a la hoja fundida, su único consumidor; la
+// proyección `celdasMediosPago` solo la llamaban las cinco).
 const MODULOS_DE_DESCARGA: { ruta: string; ancla: string }[] = [
   {
     ruta: "app/(app)/cierre-dia/_components/cierre-dia-descarga-columnas.ts",
     ancla: "desgloseDescarga(",
   },
   {
-    ruta: "app/(app)/cierres-admin/_components/cierre-gestiones-descarga-columnas.ts",
-    ancla: "celdasMediosPago(",
-  },
-  {
     ruta: "app/(app)/cierres-admin/_components/cierres-gestiones-fundida-descarga-columnas.ts",
-    ancla: "montoPorMetodo(",
-  },
-  {
-    ruta: "app/(app)/cierres-admin/_components/medios-pago-descarga-columnas.ts",
     ancla: "montoPorMetodo(",
   },
 ];

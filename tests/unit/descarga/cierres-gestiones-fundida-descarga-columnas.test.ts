@@ -4,12 +4,16 @@
 // Cubre R3 (las constantes de la marca de evidencia siguen vivas), R5, R7, R8, R9, R10, R12,
 // R40, R43, R45, R46 y R47.
 //
-// ⚠️ OJO AL VECINO. Este archivo NO es
-// `tests/unit/descarga/cierre-gestiones-descarga-columnas.test.ts`, que fija las CINCO
-// declaraciones por sección del detalle de UN cierre. Aquélla es la salida estrecha de un
-// cierre abierto y NO se retira (D4/R3); ésta es la hoja única que cruza cierres (D3). Copiar un
-// esperado de un archivo al otro da un listado plausible y falso: la fundida lleva tres columnas
-// que allí no existen (mensajero, fecha del cierre, resultado) y NO lleva la de evidencia.
+// ⚠️ OJO AL VECINO. Este archivo NO es `tests/unit/descarga/cierre-dia-descarga-columnas.test.ts`,
+// que fija las CINCO declaraciones por sección del cierre del día. Aquélla es la salida estrecha
+// de un cierre abierto; ésta es la hoja única que cruza cierres (D3). Copiar un esperado de un
+// archivo al otro da un listado plausible y falso: la fundida lleva columnas que allí no existen
+// (mensajero, fecha del cierre, resultado) y NO lleva la de evidencia.
+//
+// FICHA 482 (2026-10-15): hasta hoy el vecino citado aquí era el de las cinco descargas por
+// sección del DETALLE del admin (`cierre-gestiones-descarga-columnas`, la 170). La 478 las retiró
+// de la pantalla (P3) y la 482 las borró con `DetalleSecciones`; R3 se afirma ahora sobre las
+// descargas por sección que quedan, las del cierre del día.
 //
 // El esperado se escribe LITERAL, nunca derivado de la constante ni de `CLAVES_ESPECIFICAS`: los
 // encabezados que vienen de `cierre-labels` se fijan por su TEXTO, que es lo que acaba en la
@@ -34,8 +38,8 @@ import {
   TIENE_EVIDENCIA_COL,
   TIENE_EVIDENCIA_SI,
   TIENE_EVIDENCIA_NO,
-  COLUMNAS_DESCARGA_GESTIONES_RECHAZADAS,
-} from "@/app/(app)/cierres-admin/_components/cierre-gestiones-descarga-columnas";
+  COLUMNAS_DESCARGA_DIA_RECHAZADAS,
+} from "@/app/(app)/cierre-dia/_components/cierre-dia-descarga-columnas";
 import type {
   CierreResultado,
   IngresoOrdenexDTO,
@@ -833,13 +837,14 @@ describe("la hoja fundida no tiene NADA de evidencia (T3.4, R40/R41)", () => {
   });
 
   it("las constantes de la marca de evidencia siguen exportadas y sin cambios (R3)", () => {
-    // D8 retiró la COLUMNA de la fundida, no el mecanismo: `TIENE_EVIDENCIA_*` y el helper
-    // siguen sirviendo a las cinco descargas por sección, que no se retiran (D4/R3).
+    // D8 retiró la COLUMNA de la fundida, no el mecanismo: `TIENE_EVIDENCIA_*` siguen sirviendo
+    // a las descargas por sección. FICHA 482: las del detalle del admin se borraron (478/P3); las
+    // que quedan son las del cierre del día, y es ahí donde se comprueba que la marca vive.
     expect(TIENE_EVIDENCIA_COL).toBe("Tiene evidencia");
     expect(TIENE_EVIDENCIA_SI).toBe("Sí");
     expect(TIENE_EVIDENCIA_NO).toBe("No");
     expect(
-      COLUMNAS_DESCARGA_GESTIONES_RECHAZADAS.map((c) => c.encabezado),
+      COLUMNAS_DESCARGA_DIA_RECHAZADAS.map((c) => c.encabezado),
     ).toContain(TIENE_EVIDENCIA_COL);
   });
 });
