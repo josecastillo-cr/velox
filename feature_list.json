@@ -5744,6 +5744,30 @@
       "depends_on": null,
       "status_note": "HECHA en dev (PR #856, 2026-10-15), SIN DESPLEGAR. Gate --rapido ampliado verde (446 integration/db). Revision APROBADA. Menor: CierresBodegaAdminModule.tsx:740 pinta el motivo sin mirar estado (hoy inocuo: el cierre de bodega no se reenvia).",
       "branch": "fix/480-motivo-rechazo-reenviado"
+    },
+    {
+      "id": 481,
+      "title": "fulfillment solo para la central en el detalle de cierre",
+      "description": "El fulfillment de la fila del cierre de mensajero lo ve tambien la adminSatelite; solo debe verlo la central (maestro/admin).",
+      "zone": "frontend",
+      "status": "in_progress",
+      "sdd": false,
+      "complexity": "baja",
+      "depends_on": null,
+      "status_note": "PEDIDA POR EL HUMANO el 2026-10-15 (m2 de la revision de la 478). Ajuste en la condicion de audiencia de la fila, no en la fila.",
+      "branch": "fix/481-fulfillment-solo-central"
+    },
+    {
+      "id": 482,
+      "title": "retirar DetalleSecciones sin uso",
+      "description": "Tras la 478, las tablas viejas del detalle de cierre (DetalleSecciones) quedan sin uso: borrarlas junto con lo que solo las sirve.",
+      "zone": "frontend",
+      "status": "in_progress",
+      "sdd": false,
+      "complexity": "baja",
+      "depends_on": null,
+      "status_note": "PEDIDA POR EL HUMANO el 2026-10-15 (P4 de la 478). Ojo: censos y tests de descarga la nombran; no perder la red de otras features al borrar sus tests.",
+      "branch": "chore/482-retirar-detalle-secciones"
     }
   ]
 }
