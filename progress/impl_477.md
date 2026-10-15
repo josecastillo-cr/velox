@@ -213,8 +213,7 @@ Tests (T5.4): `tests/components/CierreDiaModule477Correccion.test.tsx` (R25, R26
 no importados. Contraprueba: con `bloqueadaPara = bloqueado` y la descripcion fija de antes, 5 rojos
 en los dos archivos; restaurado.
 
-T5.5 (verlo en la app): NO HECHO en este paso — sin datos locales de un cierre rechazado sembrados
-ni dev server propio (memoria «dos dev servers se pisan»). Pendiente para el leader.
+T5.5 (verlo en la app): HECHO el 2026-10-15 — ver la seccion «T5.5 — Recorrido en la app» al final.
 
 Mapa R -> test (pantalla): R25, R26, R28 -> `CierreDiaModule477Correccion.test.tsx`;
 R27 -> `RepartoModule477Correccion.test.tsx`.
@@ -225,3 +224,40 @@ Relacionados 3 failed | 8605 passed | 26 skipped (8634); guardias 1 failed | 376
 `pago-mensajero-liquidacion` verde aislado (intermitente); `wallet-page` y `TarifasPage.cobertura` rojos
 aislados por timeout de 20 s y verdes con `--testTimeout=120000` (16/16): carga de la maquina, ajenos a la 477.
 No se repitio el gate entero (regla 5).
+
+## T5.5 — Recorrido en la app (frontend_dev, 2026-10-15)
+
+Base LOCAL (`localhost:5432/ordenex`, confirmado con `prisma migrate status`), UN dev server desde el
+worktree, Playwright headless como el mensajero (login + OTP leido del log). Siembra COMPROMETIDA con
+`sembrarComprometido` de `tests/integration/db/454/_escenario.ts` y los servicios reales: 3 ordenes
+en_reparto (₡5.000 entregada efectivo 2.000 + SINPE 3.000; ₡3.000 entregada efectivo; ₡7.000
+rechazada), cierre solicitado y rechazado («No cuadra»); mas una 4.a orden en_reparto fuera del
+cierre para ver el bloqueo. Todo borrado al terminar (0 usuarios, 0 ordenes, 0 zona). Capturas en
+`progress/477_t55/` (01..12).
+
+| Paso | Resultado |
+|---|---|
+| Cierre del dia: aviso de rechazado + panel «Corregir el cierre rechazado» (motivo, 3 gestiones con «Devolver a gestión») | ok (01) |
+| Devolver a gestion la entregada de ₡5.000 (modal -> confirmar) | ok (02, 03): pasa a «Órdenes por volver a gestionar · Falta volver a gestionarla · Ir a Entregas»; TOTAL de la fila ₡8.000 -> ₡3.000 |
+| Entregas: la orden en correccion con «Gestionar» habilitado; la otra en_reparto deshabilitada | ok (04, 05) |
+| Gestionar de nuevo (guia -> escoger `ok` -> Rechazar con foto y motivo -> Guardar) | ok (06-09): gestion nueva vigente, sin cierre hasta el reenvio |
+| Cierre del dia: la orden figura «Ya la volviste a gestionar» | ok (10) |
+| Reenviar (modal R28 sin «No se recalculan los montos») | ok (11, 12): `{status:"ok", via:"resolicitado"}`, cierre `solicitado` |
+
+Totales del cierre (base; efectivo / SINPE / transferencia / general / pago mensajero / ingreso bodega):
+
+- tras el rechazo: 5000.00 / 3000.00 / 0.00 / 8000.00 / 3000.00 / 164.00
+- tras devolver a gestion: 3000.00 / 0.00 / 0.00 / 3000.00 / 1500.00 / 164.00
+- tras regestionar como rechazo y reenviar: 3000.00 / 0.00 / 0.00 / 3000.00 / 1500.00 / 328.00 (`solicitado`)
+
+La pantalla es coherente: el TOTAL de la fila del cierre muestra 8.000 -> 3.000 -> 3.000 y el panel lista
+las gestiones vigentes con su monto y su ganancia. Sin errores de consola, sin 5xx ni textos rotos.
+
+Observaciones (no son defectos de la 477, no se tocaron):
+- El aviso de bloqueo de Entregas sigue diciendo «no puedes entregar, cobrar ni recibir trabajo nuevo»
+  aun cuando hay una orden en correccion que si se puede gestionar. Copia de antes; candidato a ficha de texto.
+- Tras reenviar, la fila del cierre `Solicitado` sigue mostrando «Motivo de rechazo: No cuadra»
+  (`app/(app)/cierres-admin/_components/cierre-factura.tsx:951`, pinta si hay `motivoRechazo`, sin mirar
+  el estado). Fuera del diff de la 477.
+- No se vio el caso R28 «con ordenes sin rehacer» (todas se rehicieron); lo cubre el test de componente.
+

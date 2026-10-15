@@ -139,7 +139,7 @@
 - [x] **T5.4 — Tests de componente** `tests/components/CierreDiaModule477Correccion.test.tsx`
       (R25, R26, R28) y `tests/components/RepartoModule477Correccion.test.tsx` (R27).
       **Hecho cuando:** verdes. *Depende de:* T5.1-T5.3.
-- [ ] **T5.5 — Verlo en la app** (memoria «ver la app encuentra lo que la suite no»): con datos
+- [x] **T5.5 — Verlo en la app** (memoria «ver la app encuentra lo que la suite no»): con datos
       locales sembrados, recorrer rechazo → deshacer → Entregas → gestionar → re-enviar, y anotar en
       `progress/impl_477.md` qué se vio (capturas o descripción) y los totales antes/después.
       **Hecho cuando:** anotado. *Depende de:* T5.4.
