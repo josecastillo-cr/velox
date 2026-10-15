@@ -5750,11 +5750,11 @@
       "title": "fulfillment solo para la central en el detalle de cierre",
       "description": "El fulfillment de la fila del cierre de mensajero lo ve tambien la adminSatelite; solo debe verlo la central (maestro/admin).",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
-      "status_note": "PEDIDA POR EL HUMANO el 2026-10-15 (m2 de la revision de la 478). Ajuste en la condicion de audiencia de la fila, no en la fila.",
+      "status_note": "HECHA en dev (PR #859, 2026-10-15), SIN DESPLEGAR. Ampliada por el humano a servidor y Excel: comprobante (audiencia satelite), ocultarFulfillmentSiNoCentral en CierresAdminService (detalle y listado completo -> fulfillment null), columnasDescargaGestionesFundidaPara sin Fulfillment para la satelite. Ningun total cambia. Revision OK, gate ampliado verde. Menores: union CierresAdminModule->comprobante y page.tsx sin test.",
       "branch": "fix/481-fulfillment-solo-central"
     },
     {

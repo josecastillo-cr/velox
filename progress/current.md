@@ -1,3 +1,8 @@
+# ESTADO 2026-10-15 (tarde) — 477-482 HECHAS en `dev`, SIN DESPLEGAR; in_progress = 0
+
+- En `dev` sin desplegar: 477 (#855), 478 (#858), 479 (#857), 480 (#856), 481 (#859), 482 (#860). Ninguna migración. Antes de prod: gate completo.
+- Prod 2026-10-15: orden 57708849 asignada por SQL a Henry Mauricio (tope de intentos; progress/correccion_asignacion_2026-10-15.md). Sin decidir: ficha «reiniciar intentos».
+
 # ESTADO 2026-10-15 — 477 HECHA en `dev` (PR #855), SIN DESPLEGAR; in_progress = 0
 
 - 477 (corregir gestiones de un cierre rechazado): merge #855 en `dev`. Gate post-merge: `progress/gate_dev_tras_855.log`. Sin migración. Al desplegar: verlo en prod con un cierre rechazado real (hoy hay 0).

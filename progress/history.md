@@ -5771,3 +5771,7 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 ## 482 — Retirar DetalleSecciones sin uso (2026-10-15)
 - Tras la 478, borradas las tablas viejas del detalle de cierre, las cinco descargas por sección y `medios-pago-descarga-columnas.ts` (columnas mudadas sin cambio a la hoja fundida). −2.267 líneas, sin cambio visible.
 - Tests: 2 borrados (solo vigilaban lo borrado), 7 reapuntados a la lista en pestañas de la 478 o al cierre del día; 234/R3 y R52 anotados `@test-desaparecido`. Revisión OK con mutaciones propias. PR #860.
+
+## 481 — Fulfillment solo para la central (2026-10-15)
+- La adminSatelite (y el mensajero) dejan de ver el fulfillment por las tres vías: comprobante (audiencia `satelite`), payload del servidor (`ocultarFulfillmentSiNoCentral` en `CierresAdminService`: detalle y listado completo, `tarifa.fulfillment = null`) y Excel «Detalle» (`columnasDescargaGestionesFundidaPara`). Maestro/admin sin cambios; ningún total incluía fulfillment.
+- Revisión OK con 8 mutaciones (7 rojas; sobrevive el cableado módulo→comprobante, cubierto por el `null` del servidor). Gate ampliado verde. PR #859.
