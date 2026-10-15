@@ -25,7 +25,10 @@ import type { IOrdenRepository } from "@/lib/interfaces/repositories/IOrdenRepos
 import type { IZonaRepository } from "@/lib/interfaces/repositories/IZonaRepository";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import type { IReprogramadasRetenidasService } from "@/lib/interfaces/services/IReprogramadasRetenidasService";
-import type { CierreGrupos } from "@/lib/interfaces/services/ICierreDiaService";
+import type {
+  CierreGrupos,
+  IngresoOrdenexDTO,
+} from "@/lib/interfaces/services/ICierreDiaService";
 import type {
   ActualizarPagosGestionInput,
   CorregirResultadoGestionInput,
@@ -94,6 +97,30 @@ import {
 // Roles autorizados en el modulo (R1): acceso total (maestro/admin -> bodega central) y el
 // adminSatelite (su bodega). Cualquier otro -> forbidden.
 const ROL_ADMIN_SATELITE = "adminSatelite";
+
+/**
+ * FICHA 481 (2026-10-15, «solo lo debe ver la central») — el fulfillment congelado de la fila
+ * (`ingresoOrdenex.tarifa.fulfillment`) es dato de la CENTRAL: es el servicio de su bodega, no
+ * de la satelite. Para un actor sin acceso total sale ANULADO (`null`), no omitido: el tipo
+ * (`TarifaSnapshotDTO.fulfillment: string | null`) no admite la ausencia, y `null` es su
+ * «no hay dato que mostrar». Nunca "0.00": eso afirmaria que no se cobro.
+ *
+ * Falla CERRADO: el criterio es «NO es acceso total», no «es adminSatelite», asi que un rol que
+ * un dia llegue aqui sin estar previsto tampoco lo recibe. Solo toca la tarifa: ningun total se
+ * recalcula (el fulfillment no entra en `ingresoOrdenex.total`, ver `TarifaSnapshotDTO`).
+ */
+function ocultarFulfillmentSiNoCentral<T extends { ingresoOrdenex?: IngresoOrdenexDTO | null }>(
+  fila: T,
+  actor: Actor,
+): T {
+  if (esAccesoTotal(actor.rol)) return fila;
+  const ingreso = fila.ingresoOrdenex;
+  if (ingreso === undefined || ingreso === null || ingreso.tarifa === null) return fila;
+  return {
+    ...fila,
+    ingresoOrdenex: { ...ingreso, tarifa: { ...ingreso.tarifa, fulfillment: null } },
+  };
+}
 
 // Mensaje accionable cuando falta el motivo de rechazo (R11).
 const MSG_MOTIVO_REQUERIDO = "El motivo de rechazo es obligatorio.";
@@ -719,7 +746,9 @@ export class CierresAdminService implements ICierresAdminService {
       return { status: "limite_excedido", total: conjunto.length, limite };
     }
 
-    return { status: "ok", items: conjunto, total: conjunto.length };
+    // FICHA 481: la hoja «Detalle» de la satelite no lleva el fulfillment de la central.
+    const items = conjunto.map((fila) => ocultarFulfillmentSiNoCentral(fila, actor));
+    return { status: "ok", items, total: conjunto.length };
   }
 
   /**
@@ -790,7 +819,8 @@ export class CierresAdminService implements ICierresAdminService {
       incidente: [],
     };
     for (const g of found.gestiones) {
-      grupos[g.resultado].push(toDetalleDTO(g, urlByPath));
+      // FICHA 481: el fulfillment de la fila solo viaja a la central.
+      grupos[g.resultado].push(ocultarFulfillmentSiNoCentral(toDetalleDTO(g, urlByPath), actor));
     }
 
     // Totales por concepto del cierre: se suman desde el MISMO desglose por orden que ve el
