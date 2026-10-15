@@ -5714,11 +5714,11 @@
       "title": "detalle por guia y evidencias en el cierre de bodega",
       "description": "En el detalle del cierre de una satelite, admin y maestro ven las gestiones de cada mensajero sin el detalle por guia ni la evidencia que si se ve en un cierre de mensajero de la central.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "media",
       "depends_on": null,
-      "status_note": "PEDIDA POR EL HUMANO el 2026-10-15 con captura. Referencia: fila expandible del detalle de cierre de mensajero de la central (direccion, recibido, flete, pago, Ver evidencia, desglose de ingreso, cobros). La satelite si ve todo eso en sus cierres. El servicio ya firma evidencias (CierresBodegaAdminService.ts:277): medir que falta, si datos o pantalla. Por defecto solo lectura: sin botones de corregir en el cierre de bodega. || SPEC APROBADO por el humano el 2026-10-15 con P1-P4 por defecto (solo lectura; P2 anade causa/indemnizacion/fulfillment a la fila; P3 sin descarga por seccion; P4 DetalleSecciones sin borrar). Frontend; choca con la 480 en cierre-factura.tsx.",
+      "status_note": "HECHA en dev (PR #858, 2026-10-15), SIN DESPLEGAR. 19 R, solo pantalla, sin migracion; mapa en progress/impl_478.md, T6 en progress/478_t6/. Revision OK. Pendiente: confirmar con el humano fulfillment visible a la adminSatelite (m2); design §2.1 sin actualizar (m1); T0.2 en prod sin medir; ficha de limpieza de DetalleSecciones sin registrar (P4).",
       "branch": "feature/478-detalle-guia-evidencias-cierre-bodega"
     },
     {

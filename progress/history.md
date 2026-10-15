@@ -5762,3 +5762,8 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 
 ## 480 — Motivo de rechazo en un cierre ya reenviado (2026-10-15)
 - `motivoRechazoVisible(estado, motivo)` en `cierre-factura.tsx`: el motivo solo se pinta con el cierre `rechazado`, en resumen admin, resumen propio y pie del detalle. PR #856, gate ampliado verde, revisión APROBADA.
+
+## 478 — Detalle por guía y evidencias en el cierre de bodega (2026-10-15)
+- El modal del cierre de bodega (maestro/admin) monta por mensajero la lista en pestañas con la fila desplegable del comprobante de mensajero: dirección, recibido, flete, comisión, pago, «Ver evidencia» en los cinco resultados, desglose y cobros. Solo lectura (P1), sin descarga por sección (P3); la fila suma causa, indemnización y fulfillment (P2). Sin cambios de servidor ni migración.
+- R1–R19; mapa en `progress/impl_478.md`; mutaciones del reviewer muertas. T6 con capturas en `progress/478_t6/`. PR #858.
+- Deuda: `DetalleSecciones` sin uso (ficha de limpieza por registrar); design §2.1 no recoge el nombre «<resultado> · <mensajero>»; fulfillment ahora visible también a la adminSatelite (por confirmar).
