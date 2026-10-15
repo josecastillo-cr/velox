@@ -121,3 +121,13 @@ ampliado (274 archivos, 3.764 tests, 0 saltados). Un intermitente de la base com
 `tests/integration/db/traspaso-mensajero.int.test.ts` (rojo en paralelo, verde aislado). El primer
 gate (`progress/gate_478_a.log`, INIT_EXIT=1) se puso rojo por `impresion-flujo.guardia.test.ts`
 (ancla de texto), arreglado en `582015cf`.
+
+### Gate final, después de mergear `origin/dev` (480, PR #856)
+
+Merge limpio (`9d31f43f`, sin conflictos: la 480 tocó `motivoRechazoVisible` y sus usos; la 478, la
+lista de gestiones). Gate con `DATABASE_URL` exportada desde el `.env` raíz sin copiarlo
+(autorización del humano vía coordinador); la copia de `.env` que se hizo antes en el worktree se
+borró. `progress/gate_478.log`: **INIT_EXIT=0**, `integration/db` ampliado (446 archivos). Tres
+intermitentes de la base compartida, rojos en paralelo y verdes aislados:
+`cierre-bloqueo-nv-sql-real`, `liquidacion-reparto-migration`, `ranking-snapshot-migration`. 9
+`skipped` en `liquidacion-reparto-migration.test.ts`, ajenos a la 478.
