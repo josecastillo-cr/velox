@@ -126,8 +126,12 @@ describe("R5/R31 — la categoria nueva esta clasificada en la wallet", () => {
       /incidente:\s*textoResultadoVacio\("incidente"\)/,
     );
 
+    // FICHA 482 (2026-10-15): el detalle del ADMIN ya no lo pinta `cierre-detalle-shared.tsx`
+    // (sus tablas, `DetalleSecciones`, se borraron; el archivo solo RE-EXPORTA las etiquetas y
+    // seguir mirándolo dejaría verde este caso sin que nadie pintara nada). Se sigue al detalle
+    // a su sitio: la lista en pestañas de `cierre-factura.tsx`, que sustituyó a la tabla en la 478.
     for (const archivo of [
-      path.join(APP, "(app)", "cierres-admin", "_components", "cierre-detalle-shared.tsx"),
+      path.join(APP, "(app)", "cierres-admin", "_components", "cierre-factura.tsx"),
       path.join(APP, "(app)", "cierre-dia", "_components", "CierreDiaModule.tsx"),
     ]) {
       const src = fs.readFileSync(archivo, "utf8");

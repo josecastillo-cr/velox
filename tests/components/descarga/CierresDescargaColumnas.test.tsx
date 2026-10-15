@@ -9,10 +9,9 @@ import {
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SWRConfig } from "swr";
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 
 import { ToastProvider } from "@/providers/ToastProvider";
-import { Modal } from "@/components/shared/Modal";
 import { descargarBlob } from "@/components/shared/descargar-blob";
 import { buildXlsxRows } from "@/lib/utils/xlsx-template";
 import type { DescargaColumna } from "@/lib/types/descarga";
@@ -48,15 +47,11 @@ import type {
 // NINGÚN caso escribe a mano una lista de encabezados ni afirma un total de columnas: todo se
 // DERIVA del catálogo de cada superficie. Publicar una columna nueva no debe tocar este archivo.
 //
-// Los dos ejes que este archivo vigila y que el de órdenes no podía ver:
-//
-//  · EL ÁMBITO DEL DETALLE NO DEPENDE DEL MENSAJERO. `DetalleSecciones` monta las mismas cinco
-//    secciones una vez POR mensajero incluido en un cierre de bodega, y su título lleva el
-//    nombre de quien la firma. Un ámbito derivado del título daría una preferencia distinta por
-//    mensajero para el MISMO juego de columnas.
-//  · EL SELECTOR DENTRO DE UN MODAL. Las secciones del detalle viven en un `Modal` (focus trap
-//    de Base UI) y el popover se rinde en un portal fuera de él. Que abra, que se pueda marcar y
-//    que NO cierre el modal se comprueba montando los dos juntos, no razonándolo.
+// FICHA 482 (2026-10-15): este archivo vigilaba además dos ejes del DETALLE de un cierre
+// (`DetalleSecciones`): que su ámbito no dependiera del mensajero del título y que el selector
+// funcionara dentro del `Modal` del detalle de bodega. Ese detalle dejó de tener descarga por
+// sección en la 478 (P3) y se borró en la 482, con sus cinco superficies; ninguna superficie
+// viva monta hoy un selector de columnas dentro de un modal ni repite secciones por mensajero.
 // ---------------------------------------------------------------------------
 
 vi.mock("@/lib/actions/cierres-admin", () => ({
@@ -151,7 +146,6 @@ import { SIN_BLOQUEO } from "@/lib/utils/bloqueo-cierre";
 import { CierresAdminModule } from "@/app/(app)/cierres-admin/_components/CierresAdminModule";
 import { CierresBodegaAdminModule } from "@/app/(app)/cierres-admin/_components/CierresBodegaAdminModule";
 import { ConsolidacionBodegaModule } from "@/app/(app)/cierres-admin/_components/ConsolidacionBodegaModule";
-import { DetalleSecciones } from "@/app/(app)/cierres-admin/_components/cierre-detalle-shared";
 import { CierreDiaModule } from "@/app/(app)/cierre-dia/_components/CierreDiaModule";
 import { DescargarGestionesDialog } from "@/app/(app)/cierres-admin/_components/DescargarGestionesDialog";
 import { SELECTOR_DISPARADOR } from "@/app/(app)/cierres-admin/_components/DescargarCierresButton";
@@ -173,18 +167,6 @@ import {
   COLUMNAS_DESCARGA_BODEGA_SOLICITADOS,
   COLUMNAS_DESCARGA_CONSOLIDABLES,
 } from "@/app/(app)/cierres-admin/_components/cierres-bodega-descarga-columnas";
-import {
-  AMBITO_DESCARGA_GESTIONES_DEVUELTAS,
-  AMBITO_DESCARGA_GESTIONES_ENTREGADAS,
-  AMBITO_DESCARGA_GESTIONES_INCIDENTES,
-  AMBITO_DESCARGA_GESTIONES_RECHAZADAS,
-  AMBITO_DESCARGA_GESTIONES_REPROGRAMADAS,
-  COLUMNAS_DESCARGA_GESTIONES_DEVUELTAS,
-  COLUMNAS_DESCARGA_GESTIONES_ENTREGADAS,
-  COLUMNAS_DESCARGA_GESTIONES_INCIDENTES,
-  COLUMNAS_DESCARGA_GESTIONES_RECHAZADAS,
-  COLUMNAS_DESCARGA_GESTIONES_REPROGRAMADAS,
-} from "@/app/(app)/cierres-admin/_components/cierre-gestiones-descarga-columnas";
 import {
   AMBITO_DESCARGA_DIA_CIERRES_PASADOS,
   AMBITO_DESCARGA_DIA_DEVUELTAS,
@@ -594,44 +576,6 @@ function renderCierreDia() {
   );
 }
 
-/** El nombre del mensajero que el detalle anexa al título de cada sección (R13 de la 170). */
-const MENSAJERO_DETALLE = "Ana Mensajera";
-
-function renderDetalle(contexto: string | undefined = MENSAJERO_DETALLE) {
-  envolver(
-    <DetalleSecciones
-      grupos={gruposCompletos()}
-      onVerEvidencia={() => {}}
-      contexto={contexto}
-    />,
-  );
-}
-
-/**
- * El detalle DENTRO de su `Modal`, que es donde vive de verdad (`CierresBodegaAdminModule`).
- * Se monta con el mismo componente de producto —no una imitación— porque lo que se prueba es
- * justamente la convivencia del focus-trap del diálogo con el portal del popover.
- */
-function DetalleEnModal() {
-  const [abierto, setAbierto] = useState(true);
-  return (
-    <Modal
-      open={abierto}
-      onOpenChange={setAbierto}
-      title="Detalle del cierre de bodega"
-      confirmLabel="Cerrar"
-      hideCancel
-      onConfirm={() => setAbierto(false)}
-    >
-      <DetalleSecciones
-        grupos={gruposCompletos()}
-        onVerEvidencia={() => {}}
-        contexto={MENSAJERO_DETALLE}
-      />
-    </Modal>
-  );
-}
-
 // --- El registro de superficies -------------------------------------------
 
 interface Superficie {
@@ -654,7 +598,7 @@ interface Superficie {
    *
    * Lo estrenan las cuatro superficies que la unificación de la descarga de cierres metió bajo
    * UN solo botón: allí el popover no elige solo columnas, elige antes el NIVEL DE DETALLE, y
-   * el disparador lo dice. Las otras trece siguen con el suyo.
+   * el disparador lo dice. Las otras ocho siguen con el suyo.
    */
   readonly disparador?: string;
 }
@@ -709,42 +653,6 @@ const SUPERFICIES: readonly Superficie[] = [
     columnas: COLUMNAS_DESCARGA_DIA_CIERRES_PASADOS,
     montar: renderCierreDia,
     region: "Cierres solicitados",
-  },
-  // Las CINCO secciones del detalle del admin. El título lleva el mensajero; el ámbito NO.
-  {
-    control: `Entregado · ${MENSAJERO_DETALLE}`,
-    ambito: AMBITO_DESCARGA_GESTIONES_ENTREGADAS,
-    columnas: COLUMNAS_DESCARGA_GESTIONES_ENTREGADAS,
-    montar: renderDetalle,
-    region: "Entregado",
-  },
-  {
-    control: `Reprogramado · ${MENSAJERO_DETALLE}`,
-    ambito: AMBITO_DESCARGA_GESTIONES_REPROGRAMADAS,
-    columnas: COLUMNAS_DESCARGA_GESTIONES_REPROGRAMADAS,
-    montar: renderDetalle,
-    region: "Reprogramado",
-  },
-  {
-    control: `Novedad · ${MENSAJERO_DETALLE}`,
-    ambito: AMBITO_DESCARGA_GESTIONES_DEVUELTAS,
-    columnas: COLUMNAS_DESCARGA_GESTIONES_DEVUELTAS,
-    montar: renderDetalle,
-    region: "Novedad",
-  },
-  {
-    control: `Devolución a origen por rechazo · ${MENSAJERO_DETALLE}`,
-    ambito: AMBITO_DESCARGA_GESTIONES_RECHAZADAS,
-    columnas: COLUMNAS_DESCARGA_GESTIONES_RECHAZADAS,
-    montar: renderDetalle,
-    region: "Devolución a origen por rechazo",
-  },
-  {
-    control: `Incidente · ${MENSAJERO_DETALLE}`,
-    ambito: AMBITO_DESCARGA_GESTIONES_INCIDENTES,
-    columnas: COLUMNAS_DESCARGA_GESTIONES_INCIDENTES,
-    montar: renderDetalle,
-    region: "Incidente",
   },
   // Las CINCO secciones de `/cierre-dia`. Mismo resultado, OTRO catálogo (el mensajero ve
   // menos), y por eso otro ámbito.
@@ -837,7 +745,7 @@ function encabezadosDe(superficie: Superficie): string[] {
 
 /**
  * La columna que cada caso oculta: la ÚLTIMA del catálogo. Se elige por posición y no por
- * nombre para que valga igual en las diecisiete superficies, y la última porque ninguna de
+ * nombre para que valga igual en las doce superficies, y la última porque ninguna de
  * ellas la comparte con la primera —que es la que se afirma que SIGUE saliendo—.
  */
 function columnaAOcultar(superficie: Superficie): DescargaColumna {
@@ -863,13 +771,15 @@ afterEach(() => {
 });
 
 describe("Cierres · elección de columnas de la descarga", () => {
-  it("el registro cubre las diecisiete superficies y ninguna repite ámbito", () => {
+  it("el registro cubre las doce superficies y ninguna repite ámbito", () => {
     // Anti-vacuidad del propio archivo: si una superficie se cayera del registro, los casos de
     // abajo —que iteran sobre él— pasarían verdes sin haberla mirado. Y los ámbitos se
     // comparan aquí además de en la guardia porque aquí se sabe QUÉ superficie es cada uno.
     const ambitos = SUPERFICIES.map((s) => s.ambito);
     expect(new Set(ambitos).size).toBe(ambitos.length);
-    expect(ambitos).toHaveLength(17);
+    // FICHA 482: 17 -> 12. Salen las cinco secciones del detalle del admin (`DetalleSecciones`,
+    // borrado); sus ámbitos `cierre-gestiones-*` ya no existen en el árbol.
+    expect(ambitos).toHaveLength(12);
     for (const superficie of SUPERFICIES) {
       expect(
         superficie.ambito,
@@ -1022,79 +932,6 @@ describe("Cierres · elección de columnas de la descarga", () => {
 
     expect(encabezadosDelArchivo()).toEqual(encabezadosDe(historico));
     expect(window.localStorage.getItem(claveDe(historico.ambito))).toBeNull();
-  });
-
-  it("en el detalle, el ámbito NO depende del mensajero del título", async () => {
-    // El detalle de un cierre de BODEGA monta estas mismas secciones una vez por mensajero, y
-    // el título lleva su nombre. Si el ámbito se hubiera derivado del título, lo que se oculta
-    // en la sección de un mensajero volvería a salir en la del siguiente.
-    const seccion = SUPERFICIES.find(
-      (s) => s.ambito === AMBITO_DESCARGA_GESTIONES_ENTREGADAS,
-    )!;
-    const oculta = columnaAOcultar(seccion);
-    guardarPreferencia(seccion.ambito, { ocultas: [oculta.clave] });
-
-    const user = userEvent.setup();
-    renderDetalle("Zoraida Mensajera"); // OTRO mensajero, otro título, MISMO juego de columnas
-    await user.click(
-      within(screen.getByRole("region", { name: "Entregado" })).getByRole(
-        "button",
-        { name: "Descargar Entregado · Zoraida Mensajera" },
-      ),
-    );
-    await waitFor(() => expect(buildXlsxRowsMock).toHaveBeenCalledTimes(1));
-
-    expect(encabezadosDelArchivo()).not.toContain(oculta.encabezado);
-    expect(encabezadosDelArchivo()).toEqual(
-      encabezadosDe(seccion).filter((e) => e !== oculta.encabezado),
-    );
-  });
-
-  it("dentro del modal del detalle el selector abre, marca y no cierra el diálogo", async () => {
-    // El popover se rinde en un PORTAL, fuera del `Dialog.Popup` que atrapa el foco. Si Base UI
-    // no encadenara los dos flotantes, el clic dentro del popover contaría como «clic fuera»
-    // del diálogo y lo cerraría — dejando al usuario sin el detalle que estaba mirando.
-    const user = userEvent.setup();
-    envolver(<DetalleEnModal />);
-
-    const seccion = SUPERFICIES.find(
-      (s) => s.ambito === AMBITO_DESCARGA_GESTIONES_ENTREGADAS,
-    )!;
-    const oculta = columnaAOcultar(seccion);
-    const region = () => screen.getByRole("region", { name: "Entregado" });
-
-    await user.click(
-      within(region()).getByRole("button", { name: DISPARADOR_SELECTOR }),
-    );
-    // Abre de verdad: el encabezado del popup y las casillas del catálogo están en el DOM.
-    expect(await screen.findByText("Columnas del archivo")).toBeVisible();
-    const casilla = screen.getByRole("checkbox", { name: oculta.encabezado });
-    expect(casilla).toHaveAttribute("aria-checked", "true");
-
-    await user.click(casilla);
-
-    // El diálogo NO se cerró: su título sigue ahí y la sección también.
-    expect(screen.getByText("Detalle del cierre de bodega")).toBeVisible();
-    expect(region()).toBeInTheDocument();
-    // Y el clic surtió efecto en la preferencia del ámbito.
-    await waitFor(() => {
-      expect(
-        window.localStorage.getItem(claveDe(seccion.ambito)),
-      ).not.toBeNull();
-    });
-    expect(casilla).toHaveAttribute("aria-checked", "false");
-
-    // Y el archivo que sale del modal ya no lleva esa columna.
-    await user.keyboard("{Escape}");
-    await user.click(
-      within(region()).getByRole("button", {
-        name: `Descargar ${seccion.control}`,
-      }),
-    );
-    await waitFor(() => expect(buildXlsxRowsMock).toHaveBeenCalledTimes(1));
-    expect(encabezadosDelArchivo()).not.toContain(oculta.encabezado);
-    // El modal sigue abierto tras descargar (el Escape cerró el popover, no el diálogo).
-    expect(screen.getByText("Detalle del cierre de bodega")).toBeVisible();
   });
 
   it("con preferencia guardada NO cambian ni el nombre de la hoja ni las filas", async () => {

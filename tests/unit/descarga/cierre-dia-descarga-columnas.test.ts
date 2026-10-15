@@ -30,6 +30,8 @@ import type { CierreDetalleGestion } from "@/lib/interfaces/services/ICierreDiaS
 // MENOS a propósito: el mensajero no ve el ingreso de Ordenex (flete, comisión, IVA, «Total
 // Ordenex») ni la indemnización de un incidente, porque ese dinero no es suyo (R24). Copiar
 // un esperado del archivo del admin da un listado plausible y falso.
+// (FICHA 482, 2026-10-15: la gemela del admin se borró con `DetalleSecciones`; el aviso queda
+// para quien la busque en el historial o copie de la hoja fundida, que tampoco es esta.)
 //
 // «Total» y no «Total general», y «Ganancia» y no «Pago mensajero»: esta pantalla es la del
 // MENSAJERO y usa sus palabras. El esperado se escribe a mano con el texto que de verdad

@@ -3,6 +3,8 @@
 // cierres del día (admin), cola e histórico de cierres de bodega (maestro), consolidables e
 // histórico de la bodega satélite, gestiones e histórico del mensajero, y las secciones por
 // resultado del detalle compartido. Cubre R1, R8, R11, R14, R20, R22, R26, R30, R32 y R37.
+// FICHA 482: el detalle compartido (`DetalleSecciones`) se borró; sus casos se reapuntaron a
+// las secciones del cierre del día y, R37, a la primitiva `DataTable` (ver `renderCierreDia`).
 //
 // Lo que más se vigila aquí es R22. Estas pantallas son las ÚNICAS del rollout cuyo dato de
 // origen trae URL FIRMADAS de evidencia: un `xlsx` con una de ellas dentro, reenviado por
@@ -160,7 +162,8 @@ import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
 import { CierresAdminModule } from "@/app/(app)/cierres-admin/_components/CierresAdminModule";
 import { CierresBodegaAdminModule } from "@/app/(app)/cierres-admin/_components/CierresBodegaAdminModule";
 import { ConsolidacionBodegaModule } from "@/app/(app)/cierres-admin/_components/ConsolidacionBodegaModule";
-import { DetalleSecciones } from "@/app/(app)/cierres-admin/_components/cierre-detalle-shared";
+import { DataTable, type Column } from "@/components/shared/DataTable";
+import { filasLocales } from "@/components/shared/descarga-resultado";
 import { CierreDiaModule } from "@/app/(app)/cierre-dia/_components/CierreDiaModule";
 import { SIN_BLOQUEO } from "@/lib/utils/bloqueo-cierre";
 
@@ -562,11 +565,15 @@ function renderCierreDia() {
   );
 }
 
-function renderDetalle() {
-  return envolver(
-    <DetalleSecciones grupos={gruposConEvidencia()} onVerEvidencia={() => {}} />,
-  );
-}
+/**
+ * FICHA 482 (2026-10-15) — aquí estaba `renderDetalle`, que montaba `DetalleSecciones` (las
+ * cinco tablas del detalle de un cierre, con una descarga por sección). La 478 las sustituyó en
+ * el detalle de bodega por la lista en pestañas, SIN descarga por sección (decisión P3), y la
+ * 482 las borró. Lo que sus casos vigilaban se reparte así: las secciones del cierre del día
+ * (`CierreDiaModule`, las otras tablas de gestiones por resultado con evidencia firmada)
+ * heredan R1/R11/R22/R8; R37 se afirma sobre la primitiva `DataTable` con fila desplegable y
+ * descarga, que es la combinación viva en `ProductosTabla` y `WalletLedger`.
+ */
 
 /** Las NUEVE tablas de cierres, con el nombre de su control y cuántas filas debe traer. */
 // `pestana`: pedido humano del 2026-08-16 — cuál hay que abrir para que el listado sea el
@@ -595,9 +602,10 @@ const TABLAS = [
     pestana: /^Solicitados/,
   },
   { control: "Cierres solicitados", montar: renderCierreDia, filas: 2 },
-  // El detalle compartido: UNA descarga por sección (P2 ratificada), no un archivo único.
-  { control: "Entregado", montar: renderDetalle, filas: 1 },
-  { control: "Devolución a origen por rechazo", montar: renderDetalle, filas: 1 },
+  // Las secciones del cierre del día: UNA descarga por sección (P2 de la 170). Hasta la 482
+  // estas dos filas montaban el detalle del admin (`DetalleSecciones`, borrado).
+  { control: "Entregado", montar: renderCierreDia, filas: 1 },
+  { control: "Devolución a origen por rechazo", montar: renderCierreDia, filas: 1 },
 ] as const;
 
 beforeEach(() => {
@@ -675,11 +683,12 @@ describe("Cierres · descarga", () => {
   });
 
   it("ninguna URL firmada ni ruta de almacenamiento llega al archivo", async () => {
-    // R22. El detalle y el cierre del día son las dos superficies con evidencia FIRMADA.
-    // Se descargan las secciones que la tienen y se revisa CADA celda: ni el enlace, ni el
-    // token, ni la ruta de almacenamiento. Lo que sí viaja es el «Sí» de que existe.
+    // R22. El cierre del día es la superficie con evidencia FIRMADA que sigue descargando por
+    // sección (la del detalle del admin se retiró en la 478/P3 y se borró en la 482). Se
+    // descargan las secciones que la tienen y se revisa CADA celda: ni el enlace, ni el token,
+    // ni la ruta de almacenamiento. Lo que sí viaja es el «Sí» de que existe.
     const user = userEvent.setup();
-    renderDetalle();
+    renderCierreDia();
 
     for (const seccion of ["Devolución a origen por rechazo", "Incidente"]) {
       await user.click(screen.getByRole("button", { name: `Descargar ${seccion}` }));
@@ -719,20 +728,16 @@ describe("Cierres · descarga", () => {
     vi.clearAllMocks();
     buildXlsxRowsMock.mockResolvedValue(new ArrayBuffer(8));
 
-    // La causa del incidente y el origen del rechazo, en el detalle.
+    // La causa del incidente, en la sección del cierre del día. FICHA 482: hasta hoy se miraba
+    // en el detalle del admin, que además afirmaba la indemnización y el origen del rechazo; esas
+    // dos columnas solo existían en las descargas por sección de ese detalle (borradas) y hoy
+    // las vigila la hoja fundida (`cierres-gestiones-fundida-descarga-columnas.test.ts`).
     const user2 = userEvent.setup();
-    renderDetalle();
+    renderCierreDia();
     await user2.click(screen.getByRole("button", { name: "Descargar Incidente" }));
     await waitFor(() => expect(buildXlsxRowsMock).toHaveBeenCalledTimes(1));
     const [, filasIncidente] = buildXlsxRowsMock.mock.calls[0];
     expect(filasIncidente[0].causa).toBe("Paquete robado");
-    // La indemnización, money-safe: el STRING tal cual, sin símbolo.
-    expect(filasIncidente[0].indemnizacion).toBe("2500.00");
-
-    await user2.click(screen.getByRole("button", { name: "Descargar Devolución a origen por rechazo" }));
-    await waitFor(() => expect(buildXlsxRowsMock).toHaveBeenCalledTimes(2));
-    const [, filasRechazo] = buildXlsxRowsMock.mock.calls[1];
-    expect(filasRechazo[0].origenRechazo).toBe("Automático");
   });
 
   it("el archivo del adminSatelite solo trae los cierres de su zona", async () => {
@@ -1623,8 +1628,32 @@ describe("Cierres · descarga", () => {
   it("descargar no cambia la fila expandida ni el modal abierto", async () => {
     // R37. El control vive FUERA del `<table>` y no llama a ningún setter de la tabla; se
     // comprueba con el estado más frágil de estas pantallas: una fila desplegada.
+    //
+    // FICHA 482: la única tabla de cierres con fila desplegable Y descarga era la del detalle
+    // del admin, y se borró. La propiedad es de la primitiva y sigue viva en otras pantallas
+    // (`ProductosTabla`, `WalletLedger`), así que se monta la primitiva con las mismas piezas:
+    // las gestiones de un cierre, una fila desplegable y su descarga por `filasLocales`.
     const user = userEvent.setup();
-    renderDetalle();
+    const filas = gruposConEvidencia().entregado;
+    const columnas: Column<(typeof filas)[number]>[] = [
+      { id: "numRemision", value: "Nº Remisión" },
+      { id: "destinatario", value: "Destinatario" },
+    ];
+    envolver(
+      <DataTable
+        columns={columnas}
+        data={filas}
+        rowKey="gestionId"
+        ariaLabel="Entregado"
+        descarga={{
+          titulo: "Entregado",
+          columnas: [{ clave: "numRemision", encabezado: "Nº Remisión" }],
+          obtenerFilas: () => filasLocales(filas, (g) => ({ numRemision: g.numRemision })),
+        }}
+        renderExpanded={(g) => <p>Desglose de {g.numRemision}</p>}
+        expandAriaLabel={(g) => `Desglose de ingreso de la orden ${g.numRemision}`}
+      />,
+    );
 
     const tabla = screen.getByRole("table", { name: "Entregado" });
     const expandir = within(tabla).getAllByRole("button", { name: /Desglose de ingreso/ })[0];
