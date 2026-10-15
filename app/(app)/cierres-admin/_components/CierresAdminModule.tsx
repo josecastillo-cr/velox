@@ -75,6 +75,7 @@ import { CascadasCierreMensajero } from "./CascadasCierreMensajero";
 import {
   CierreFacturaResumen,
   CierreFacturaDetalle,
+  type CierreFacturaAudiencia,
 } from "./cierre-factura";
 import {
   DescargarCierresButton,
@@ -199,6 +200,14 @@ export interface CierresAdminModuleProps {
    * pantalla sigue funcionando sin filtrar— en vez de romperse.
    */
   catalogoFiltros?: CatalogoFiltrosCierresDTO;
+  /**
+   * FICHA 481 — para quién se pinta el comprobante del detalle: `admin` es la central (maestro y
+   * admin), `satelite` el `adminSatelite`. Hoy solo cambia una cosa: el fulfillment de la fila
+   * desplegada, que es dato de la central. Lo resuelve el Server Component padre con
+   * `esAccesoTotal`. Default `satelite` — FALLA CERRADO: un montaje que se olvide de pasarla no
+   * enseña el fulfillment a nadie.
+   */
+  audiencia?: Exclude<CierreFacturaAudiencia, "mensajero">;
 }
 
 /**
@@ -428,6 +437,7 @@ export function CierresAdminModule({
   puedeCorregirPagos = false,
   puedeCorregirResultado = false,
   catalogoFiltros = CATALOGO_FILTROS_CIERRES_VACIO,
+  audiencia = "satelite",
 }: Readonly<CierresAdminModuleProps>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -1260,6 +1270,8 @@ export function CierresAdminModule({
               }
               ganancia={detalle.ganancia}
               pagoTienda={detalle.pagoTienda}
+              // FICHA 481: `satelite` no ve el fulfillment de la fila; todo lo demás, igual.
+              audiencia={audiencia}
               // Feature 264 (R30): las MISMAS dos props que pasa el módulo del mensajero. El
               // componente es uno; que pintara la sección en una superficie y la callara en la
               // otra es el arreglo a medias que se corrigió en la 263.
