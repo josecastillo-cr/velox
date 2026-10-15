@@ -104,6 +104,19 @@ export interface MiAsignacionDTO {
    */
   enElTope?: boolean;
   /**
+   * FICHA 477 (design §5.2, R27) — `true` si la orden esta EN CORRECCION de un cierre `rechazado` del
+   * propio mensajero (tenia gestion en el cierre y el mensajero la deshizo). Es la exencion POR
+   * OBJETO del bloqueo: con el mensajero bloqueado, Entregas deja habilitada SOLO esta tarjeta.
+   *
+   * La decide el servidor con el predicado unico (`correccion-cierre.ts`), una consulta en lote y
+   * solo si el mensajero esta bloqueado. Y NO SUSTITUYE A LA GUARDA: escoger y gestionar la
+   * re-comprueban.
+   *
+   * Opcional (`?`) por el mismo patron aditivo que `enElTope?`: no rompe los fixtures que construyen
+   * `MiAsignacionDTO` sin el. El servicio SIEMPRE lo envia (`toDTO` nace en `false`).
+   */
+  enCorreccion?: boolean;
+  /**
    * Feature 157 (R15): telefono de la TIENDA dueña de la orden, para que el mensajero pueda
    * llamarla o escribirle antes de ir a recolectar. Distinto de `telefonoDest` (el del
    * destinatario final). El modelo no tiene direccion de la tienda, asi que el contacto es lo

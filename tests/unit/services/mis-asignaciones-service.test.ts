@@ -115,11 +115,12 @@ function fakeRepo(overrides: Partial<IGestionOrdenRepository> = {}): IGestionOrd
 
 function fakeOrdenRepo(
   bloqueados: string[] = [],
-): Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle"> {
+): Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"> {
   return {
     findEstatusIdByValue: vi.fn(async (v: string) => ESTATUS_ID_BY_VALUE[v] ?? null),
     // Feature 111/R1-R4 -> 271: detalle del bloqueo (default = NO bloqueado). Un mensajero en
     // `bloqueados` se modela con el caso 5 de la tabla de verdad: un cierre `vencido` (N=1, V=1).
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () =>
       bloqueados.length > 0 ? bloqueoConVencido() : SIN_BLOQUEO,
     ),
@@ -985,6 +986,7 @@ describe("gestionar — DEVUELTA queda en el PRE-ESTADO, sin seguimiento (featur
       });
       const ordenRepo = {
         findEstatusIdByValue: vi.fn(async (v: string) => ESTATUS_ID_BY_VALUE[v] ?? null),
+        findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
         findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO), // feature 111
       };
       const service = new MisAsignacionesService(
@@ -1022,6 +1024,7 @@ describe("gestionar — DEVUELTA queda en el PRE-ESTADO, sin seguimiento (featur
     const repo = fakeRepo();
     const ordenRepo = {
       findEstatusIdByValue: vi.fn(async (v: string) => ESTATUS_ID_BY_VALUE[v] ?? null),
+      findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
       findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO), // feature 111
     };
     const service = new MisAsignacionesService(
@@ -1045,6 +1048,7 @@ describe("gestionar — DEVUELTA queda en el PRE-ESTADO, sin seguimiento (featur
     const repo = fakeRepo();
     const ordenRepo = {
       findEstatusIdByValue: vi.fn(async () => null),
+      findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
       findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO), // feature 111
     };
     const service = new MisAsignacionesService(

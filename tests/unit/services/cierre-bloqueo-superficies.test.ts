@@ -108,6 +108,9 @@ function repoConCierres(cierres: readonly CierreEstado[]): IOrdenRepository {
     // esta de baja: este archivo mide la regla de CIERRES, y un doble que bloqueara por estado
     // haria pasar sus casos por el motivo equivocado.
     usuario: { findMany: vi.fn(async () => []) },
+    // FICHA 477 (D2): el predicado de «orden en correccion» es SQL crudo. Aqui NINGUNA orden esta en
+    // correccion, asi que la exencion por objeto no aplica y estos casos siguen midiendo la regla N/V.
+    $queryRaw: vi.fn(async () => []),
   };
   return new OrdenRepository(prisma as unknown as PrismaClient);
 }
@@ -263,14 +266,22 @@ describe("271 · familia A — GESTIONAR y COBRAR", () => {
   );
 
   it.each(BLOQUEADOS.map((c) => [c.nombre, c.cierres] as const))(
-    "A-bloqueado · %s: deshacer -> conflict sin tocar la gestion",
+    "A-bloqueado · %s: deshacer -> conflict de bloqueo, sin escribir nada",
     async (_n, cierres) => {
       const { service, findGestionParaDeshacer } = servicioDeDeshacer(cierres);
 
       const r = await service.deshacerGestion("00000000-0000-4000-8000-000000000000", MENSAJERO);
 
       expect(r.status).toBe("conflict");
-      expect(findGestionParaDeshacer).not.toHaveBeenCalled();
+      if (r.status === "conflict") {
+        // FICHA 477 (R5): el MISMO motivo de bloqueo para una gestion inexistente que para una no
+        // corregible — no revela si existe.
+        expect(r.motivo).toMatch(/no puedes entregar, cobrar ni recibir trabajo nuevo/i);
+      }
+      // FICHA 477 (D4): la exencion es POR OBJETO, asi que con el bloqueo puesto la gestion se LEE
+      // para saber si es corregible. Lo que no ocurre es ninguna escritura: el doble solo trae la
+      // lectura, y cualquier llamada a un metodo de anulacion lanzaria.
+      expect(findGestionParaDeshacer).toHaveBeenCalledTimes(1);
     },
   );
 });

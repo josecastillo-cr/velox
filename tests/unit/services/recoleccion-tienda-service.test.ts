@@ -493,6 +493,9 @@ describe("listarRecoleccion — «Por recolectar» (R21/R38)", () => {
         secuenciaRuta: null,
         marcarLuego: false,
         intentosEntrega: 0,
+        // FICHA 477 (T3.2): `toDTO` nace con `enCorreccion: false`; solo el listado de Entregas lo
+        // sobreescribe. Una orden por recolectar nunca esta en correccion de un cierre.
+        enCorreccion: false,
         // Feature 235 (T6.1, 2026-08-19): aqui viajaba `ayuda: false`, heredado de `toDTO`. La
         // columna se retiro y con ella el campo. Lo que aquel caso afirmaba -que las dos pantallas
         // hermanas transportan los MISMOS campos- lo sigue afirmando esta igualdad literal entera:

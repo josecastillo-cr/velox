@@ -1,12 +1,15 @@
-import { Prisma, type PrismaClient } from "@prisma/client";
+import { Prisma, type GestionResultado, type PrismaClient } from "@prisma/client";
 import type {
+  AnularGestionDeCierreRechazadoInput,
   AnularGestionInput,
   CierreGestionPendienteRow,
   CierreSinGestionRow,
   CierreSolicitadoInfo,
+  CorreccionCierreRow,
   CrearCierreInput,
   GestionDeshacerRow,
   ICierreDiaRepository,
+  ResolicitarCierreRechazadoInput,
 } from "@/lib/interfaces/repositories/ICierreDiaRepository";
 import type {
   ITarifaVigenteRepository,
@@ -46,6 +49,13 @@ import {
   toRechazoDeTienda,
 } from "@/lib/utils/cierre-rechazo-tienda";
 import { toLineasPago } from "@/lib/utils/lineas-pago";
+// FICHA 477 (D2/D3/D5): el predicado unico de «orden en correccion», el recalculo de los seis
+// totales por SUMA DE SNAPSHOTS (el mismo de la 398) y el congelado del pago/ingreso por resultado
+// (el mismo de la 39/56) para las gestiones que la re-solicitud vincula.
+import { ordenesEnCorreccion } from "@/lib/repositories/correccion-cierre";
+import { computeTotales, sumarSnapshotsCongelados } from "@/lib/utils/cierre-totales";
+import { pagoPorResultado } from "@/lib/utils/pago-mensajero";
+import { ingresoBodegaPorResultado } from "@/lib/utils/ingreso-bodega";
 // Feature 246 (T3.4, R8): las vias que reasignan SIN ofrecer la eleccion de dia estampan el dia de
 // Costa Rica EN CURSO, en la convencion `@db.Date` de `fecha_reparto`.
 //
@@ -109,6 +119,86 @@ class SinGestionesVinculadas extends Error {}
 // SIN efectos parciales (R22). NO es un error real: no se propaga.
 class NoAnulable extends Error {}
 
+// FICHA 477 (D5, R22): sentinela de la re-solicitud de un `rechazado`. El cierre ya no estaba en el
+// estado leido (otra re-solicitud, la valvula del admin) -> rollback, `false`, sin efectos.
+class CierreYaNoRechazado extends Error {}
+
+/**
+ * FICHA 477 (D3/D5, R3/R19) — LOS SEIS TOTALES DEL CIERRE, sobre las gestiones VIGENTES que le
+ * quedan vinculadas, leidas DENTRO de la tx que acaba de cambiar ese conjunto.
+ *
+ * Es EL MISMO calculo que la correccion de admin de la 398 (`CierresAdminRepository`): los cuatro
+ * del recaudo con `computeTotales` (la funcion que los congelo al solicitar) y los dos por gestion
+ * SUMANDO los snapshots ya congelados (`sumarSnapshotsCongelados`), jamas `derivarPagos`, que
+ * re-derivaria con la tarifa de HOY el pago de gestiones que nadie toco.
+ *
+ * La escritura va guardada por `estadoEsperado`: `false` = el cierre se movio, y quien llama revierte.
+ * Lectura de UNA relacion (`pagos`) dentro de la tx: una cadena, no hermanas concurrentes (450).
+ */
+async function recalcularTotalesDelCierre(
+  tx: Prisma.TransactionClient,
+  cierreId: string,
+  estadoEsperado: CierreEstado,
+): Promise<boolean> {
+  const gestiones = await tx.gestionOrden.findMany({
+    where: { cierreId, anuladaAt: null },
+    select: {
+      resultado: true,
+      pagoMensajero: true,
+      ingresoBodegaRechazo: true,
+      pagos: { select: { metodo: true, monto: true } },
+    },
+  });
+  const totales = computeTotales(
+    gestiones.map((g) => ({ resultado: g.resultado, pagos: toLineasPago(g.pagos) })),
+  );
+  const totalPagoMensajero = sumarSnapshotsCongelados(gestiones.map((g) => g.pagoMensajero));
+  const totalIngresoBodegaRechazos = sumarSnapshotsCongelados(
+    gestiones.map((g) => g.ingresoBodegaRechazo),
+  );
+  const { count } = await tx.cierreDia.updateMany({
+    where: { id: cierreId, estado: estadoEsperado },
+    data: {
+      totalEfectivo: new Prisma.Decimal(totales.efectivo),
+      totalSimpe: new Prisma.Decimal(totales.simpe),
+      totalTransferencia: new Prisma.Decimal(totales.transferencia),
+      totalGeneral: new Prisma.Decimal(totales.general),
+      totalPagoMensajero: new Prisma.Decimal(totalPagoMensajero),
+      totalIngresoBodegaRechazos: new Prisma.Decimal(totalIngresoBodegaRechazos),
+    },
+  });
+  return count === 1;
+}
+
+/**
+ * FICHA 454 (R15) + FICHA 477 (R2) — el RASTRO de una anulacion de calle: evento `gestion_anulada`
+ * con el resultado de la gestion y su webhook, en la tx de quien anula. Una sola escritura para
+ * las dos vias que anulan (sin cierre y en cierre rechazado), para que no puedan contar distinto.
+ */
+async function registrarGestionAnulada(
+  tx: Prisma.TransactionClient,
+  input: { gestionId: string; ordenId: string; mensajeroId: string; actorUsuarioId: string },
+): Promise<void> {
+  const { gestionId, ordenId, mensajeroId, actorUsuarioId } = input;
+  const gestion = await tx.gestionOrden.findUniqueOrThrow({
+    where: { id: gestionId },
+    select: { resultado: true },
+  });
+  const evento = await tx.ordenEvento.create({
+    data: {
+      ordenId,
+      tipo: "gestion_anulada",
+      gestionOrdenId: gestionId,
+      resultado: gestion.resultado,
+      mensajeroId,
+      actorUsuarioId,
+      actorRol: "mensajero",
+    },
+    select: { id: true },
+  });
+  await encolarWebhookEvento(tx as unknown as JobTxClient, { ordenEventoId: evento.id, ordenId });
+}
+
 // Feature 69/T10: `cierreDetail` (el snapshot que se puebla en la tx de `crearCierre`) y
 // `tarifa` (el resolver batch corre DENTRO de esa misma tx, design §3.1).
 type CierrePrismaClient = Pick<
@@ -129,6 +219,8 @@ type CierrePrismaClient = Pick<
   // por el choke point (`appendCambioEstado`).
   | "ordenHistorialEstado"
   | "$transaction"
+  // FICHA 477 (D2): el predicado de «orden en correccion» es SQL crudo (`findCorreccionesPendientes`).
+  | "$queryRaw"
 >;
 
 // Feature 69 (design §3, paso 5) — proyeccion del snapshot: TODO lo que `cierre_detail`
@@ -804,11 +896,13 @@ export class CierreDiaRepository implements ICierreDiaRepository {
    */
   async findCierreResolicitableMasViejo(
     mensajeroId: string,
-  ): Promise<{ id: string; estado: CierreEstado } | null> {
+  ): Promise<{ id: string; estado: CierreEstado; destinoZonaId: string } | null> {
     const fila = await this.prisma.cierreDia.findFirst({
       where: { mensajeroId, estado: { in: [...CIERRE_ESTADOS_RESOLICITABLES] } },
       orderBy: [{ solicitadoAt: "asc" }, { id: "asc" }],
-      select: { id: true, estado: true },
+      // FICHA 477 (R17): + la zona destino, con la que el servicio resuelve la tarifa de pago de las
+      // gestiones que la re-solicitud de un `rechazado` vincula.
+      select: { id: true, estado: true, destinoZonaId: true },
     });
     return fila ?? null;
   }
@@ -1399,6 +1493,8 @@ export class CierreDiaRepository implements ICierreDiaRepository {
         cierreId: true, // R2
         anuladaAt: true, // R3
         orden: { select: { deletedAt: true, estatusId: true, estatus: { select: { value: true } } } },
+        // FICHA 477 (T2.1): estado y dueño del cierre vinculado, para el caso (a) de «corregible».
+        cierre: { select: { estado: true, mensajeroId: true } },
         // FICHA 454 (T1.11): el evento de registro decide la RAMA — con evento, gestion pendiente
         // del modelo nuevo (anular sin transicion); sin evento, LEGADA (la de siempre).
         ...SELECT_REGISTRO_DE_CALLE,
@@ -1446,6 +1542,8 @@ export class CierreDiaRepository implements ICierreDiaRepository {
           ? registro.familiaAplicacion === "gestion_tienda_ayuda"
           : deLaTienda !== null,
       registradaComoPendiente: registro !== null,
+      cierreEstado: row.cierre?.estado ?? null,
+      cierreMensajeroId: row.cierre?.mensajeroId ?? null,
     };
   }
 
@@ -1479,29 +1577,239 @@ export class CierreDiaRepository implements ICierreDiaRepository {
           data: { anuladaAt: new Date(), anuladaPor: actorUsuarioId },
         });
         if (anulada.count === 0) throw new NoAnulable();
-        const gestion = await tx.gestionOrden.findUniqueOrThrow({
-          where: { id: gestionId },
-          select: { resultado: true },
-        });
-        const evento = await tx.ordenEvento.create({
-          data: {
-            ordenId,
-            tipo: "gestion_anulada",
-            gestionOrdenId: gestionId,
-            resultado: gestion.resultado,
-            mensajeroId,
-            actorUsuarioId,
-            actorRol: "mensajero",
-          },
-          select: { id: true },
-        });
-        await encolarWebhookEvento(tx as unknown as JobTxClient, { ordenEventoId: evento.id, ordenId });
+        await registrarGestionAnulada(tx, { gestionId, ordenId, mensajeroId, actorUsuarioId });
         return true;
       });
     } catch (err) {
       if (err instanceof NoAnulable) return false;
       throw err;
     }
+  }
+
+  /**
+   * FICHA 477 (design §5.1, §4, D1, D3; R1-R3, R11) — DESHACE una gestion vinculada a un cierre
+   * `rechazado` PROPIO (caso (a) de «gestion corregible»).
+   *
+   * ⚠️ ANULAR AQUI ES ANULAR **Y DESVINCULAR** (D1), Y ESO ES LO QUE PROTEGE EL DINERO. Tres feeds de
+   * la aprobacion (`WalletFeedService`, `WalletTiendaFeedService`, `WalletIndemnizacionFeedService`)
+   * leen `gestion_orden WHERE cierre_id = X` SIN filtrar anuladas: confian en el invariante
+   * «`cierre_id` => vigente» que escribe `crearCierre`. Una anulada que conservara su `cierre_id` se
+   * COBRARIA al aprobar. Por eso la escritura pone `cierre_id`, `pago_mensajero` e
+   * `ingreso_bodega_rechazo` a NULL junto con la marca de anulacion, y ningun feed se toca.
+   *
+   * EL ORDEN DE LOS CANDADOS (§4): primero `cierre_dia`, despues `orden`. La re-solicitud
+   * (`resolicitarCierreRechazado`) toma el MISMO candado del cierre, asi que un deshacer y una
+   * re-solicitud del mismo cierre se serializan: o el deshacer ve el cierre todavia `rechazado` y
+   * recalcula ANTES de que la re-solicitud lo lea, o lo ve `solicitado` y no escribe nada (R11).
+   * Sin ese candado el cierre podria quedar `solicitado` con un `total_pago_mensajero` que cuenta
+   * una gestion ya anulada, y `WalletMensajeroFeedService` —que paga desde ese snapshot— la pagaria.
+   *
+   * Y RECALCULA EN LA MISMA TX (D3, R3): el comprobante de un cierre rechazado no muestra nunca
+   * totales de gestiones que ya no tiene, y el dinero cuadra llegue el cierre a `solicitado` por
+   * donde llegue (incluida la valvula del admin, que solo cambia el estado). `false` = una guarda
+   * perdio la carrera; rollback, sin efectos.
+   */
+  async anularGestionDeCierreRechazado(input: AnularGestionDeCierreRechazadoInput): Promise<boolean> {
+    const { gestionId, ordenId, mensajeroId, cierreId, actorUsuarioId, estatusEnRepartoId } = input;
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // (1) Candado del CIERRE y re-lectura: sigue `rechazado` y sigue siendo de este mensajero.
+        await tx.$queryRaw`SELECT "id" FROM "cierre_dia" WHERE "id" = ${cierreId} FOR UPDATE`;
+        const cierreSigue = await tx.cierreDia.count({
+          where: { id: cierreId, mensajeroId, estado: "rechazado" },
+        });
+        if (cierreSigue === 0) throw new NoAnulable(); // R11: se re-solicito entre medias
+        // (2) Candado de la ORDEN: sigue `en_reparto` y no esta borrada (R9).
+        await tx.$queryRaw`SELECT "id" FROM "orden" WHERE "id" = ${ordenId} FOR UPDATE`;
+        const ordenSigue = await tx.orden.count({
+          where: { id: ordenId, estatusId: estatusEnRepartoId, deletedAt: null },
+        });
+        if (ordenSigue === 0) throw new NoAnulable();
+        // (3) Anular + DESVINCULAR (D1), guardado: suya, de ESE cierre, y aun vigente.
+        const anulada = await tx.gestionOrden.updateMany({
+          where: { id: gestionId, ordenId, mensajeroId, cierreId, anuladaAt: null },
+          data: {
+            anuladaAt: new Date(),
+            anuladaPor: actorUsuarioId,
+            cierreId: null,
+            pagoMensajero: null,
+            ingresoBodegaRechazo: null,
+          },
+        });
+        if (anulada.count === 0) throw new NoAnulable();
+        // (4) El rastro (R2): evento `gestion_anulada` + webhook, igual que la anulacion sin cierre.
+        await registrarGestionAnulada(tx, { gestionId, ordenId, mensajeroId, actorUsuarioId });
+        // (5) Los seis totales del cierre, sobre lo que le queda (R3).
+        const recalculado = await recalcularTotalesDelCierre(tx, cierreId, "rechazado");
+        if (!recalculado) throw new NoAnulable();
+        return true;
+      });
+    } catch (err) {
+      if (err instanceof NoAnulable) return false;
+      throw err;
+    }
+  }
+
+  /**
+   * FICHA 477 (design D5, §4; R15-R20, R22) — RE-SOLICITA un cierre `rechazado` del mensajero.
+   *
+   * La re-solicitud de un `vencido` NO pasa por aqui (R21): sigue en `transicionarASolicitado`, que
+   * solo cambia el estado. Un `rechazado` puede llegar CORREGIDO —gestiones deshechas (que ya
+   * salieron del cierre al deshacerlas, D1) y rehechas (que nacen sin cierre, R14)—, y esta
+   * transaccion es la que lo deja coherente. Los seis pasos, en este orden y por esto:
+   *
+   *   1. CANDADO del cierre (el mismo que el deshacer, §4) y LECTURA de sus ordenes en correccion. Se
+   *      leen ANTES de cambiar el estado porque el predicado exige `rechazado` (D2): despues del
+   *      paso 2 ya no las veria.
+   *   2. `rechazado -> solicitado`, guardado por `id`, dueño y estado. 0 filas = carrera (R22).
+   *   3. VINCULAR: el predicado de pertenencia de SIEMPRE (`gestionesDelCierreWhere`, sin tocarlo)
+   *      ESTRECHADO por las ordenes en correccion de ESTE cierre (R15/R16). Ni una gestion de otra
+   *      orden: ni las de otro rechazado, ni el trabajo de hoy, ni las sinteticas.
+   *   4. CONGELAR `pago_mensajero` / `ingreso_bodega_rechazo` de las recien vinculadas con la
+   *      tarifa que el servicio resolvio (zona destino del cierre + vehiculo, R17). Solo esas: las
+   *      demas conservan el snapshot de cuando se solicito por primera vez.
+   *   5. BORRAR de `cierre_detail` las ordenes en correccion que siguen sin gestion (R18). Las demas
+   *      filas no se tocan (D6): la orden rehecha conserva la tarifa de la tienda congelada.
+   *   6. RECALCULAR los seis totales sumando snapshots (R19).
+   *
+   * R20 por construccion: sin correcciones, el paso 1 no encuentra ordenes, los pasos 3-5 no tocan
+   * ninguna fila y el 6 escribe la suma de los snapshots, que es el total que ya estaba congelado.
+   */
+  async resolicitarCierreRechazado(input: ResolicitarCierreRechazadoInput): Promise<boolean> {
+    const { cierreId, mensajeroId, tarifa } = input;
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // (1)
+        await tx.$queryRaw`SELECT "id" FROM "cierre_dia" WHERE "id" = ${cierreId} FOR UPDATE`;
+        const enCorreccion = (await ordenesEnCorreccion(tx, { mensajeroId, cierreId })).map(
+          (f) => f.ordenId,
+        );
+        // (2)
+        const movido = await tx.cierreDia.updateMany({
+          where: { id: cierreId, mensajeroId, estado: "rechazado" },
+          data: { estado: ESTADO_SOLICITADO },
+        });
+        if (movido.count !== 1) throw new CierreYaNoRechazado();
+
+        // (3)
+        let vinculadas: { id: string; ordenId: string; resultado: GestionResultado }[] = [];
+        if (enCorreccion.length > 0) {
+          const candidatas = await tx.gestionOrden.findMany({
+            where: { AND: [gestionesDelCierreWhere(mensajeroId), { ordenId: { in: enCorreccion } }] },
+            select: { id: true },
+          });
+          if (candidatas.length > 0) {
+            const ids = candidatas.map((c) => c.id);
+            await tx.gestionOrden.updateMany({
+              where: { AND: [gestionesDelCierreWhere(mensajeroId), { id: { in: ids } }] },
+              data: { cierreId },
+            });
+            vinculadas = await tx.gestionOrden.findMany({
+              where: { id: { in: ids }, cierreId },
+              select: { id: true, ordenId: true, resultado: true },
+            });
+          }
+        }
+
+        // (4) Agrupado por valor (a lo sumo dos por concepto), como en `crearCierre`.
+        const porPago = new Map<string, string[]>();
+        const porIngreso = new Map<string, string[]>();
+        for (const g of vinculadas) {
+          const pago = pagoPorResultado(g.resultado, tarifa);
+          const ingreso = ingresoBodegaPorResultado(g.resultado, tarifa);
+          porPago.set(pago, [...(porPago.get(pago) ?? []), g.id]);
+          porIngreso.set(ingreso, [...(porIngreso.get(ingreso) ?? []), g.id]);
+        }
+        for (const [pago, ids] of porPago) {
+          await tx.gestionOrden.updateMany({
+            where: { id: { in: ids }, cierreId },
+            data: { pagoMensajero: new Prisma.Decimal(pago) },
+          });
+        }
+        for (const [ingreso, ids] of porIngreso) {
+          await tx.gestionOrden.updateMany({
+            where: { id: { in: ids }, cierreId },
+            data: { ingresoBodegaRechazo: new Prisma.Decimal(ingreso) },
+          });
+        }
+
+        // (5)
+        const rehechas = new Set(vinculadas.map((g) => g.ordenId));
+        const sinRehacer = enCorreccion.filter((ordenId) => !rehechas.has(ordenId));
+        if (sinRehacer.length > 0) {
+          await tx.cierreDetail.deleteMany({ where: { cierreId, ordenId: { in: sinRehacer } } });
+        }
+
+        // (6)
+        const recalculado = await recalcularTotalesDelCierre(tx, cierreId, ESTADO_SOLICITADO);
+        if (!recalculado) throw new CierreYaNoRechazado();
+        return true;
+      });
+    } catch (err) {
+      if (err instanceof CierreYaNoRechazado) return false;
+      throw err;
+    }
+  }
+
+  /**
+   * FICHA 477 (design §5.1, R25/R26) — los cierres `rechazado` del mensajero, del mas viejo al mas
+   * nuevo, con su motivo y sus ordenes en correccion (predicado unico, D2). Los descriptivos salen
+   * de `cierre_detail` —lo CONGELADO al solicitar, lo mismo que muestra el comprobante— y
+   * `regestionada` con el MISMO predicado con el que la re-solicitud vinculara (R15): la pantalla no
+   * puede decir «ya la volviste a gestionar» de una gestion que el cierre no se llevaria.
+   *
+   * Sin rechazados: una consulta y `[]`.
+   */
+  async findCorreccionesPendientes(mensajeroId: string): Promise<CorreccionCierreRow[]> {
+    const rechazados = await this.prisma.cierreDia.findMany({
+      where: { mensajeroId, estado: "rechazado" },
+      orderBy: [{ solicitadoAt: "asc" }, { id: "asc" }],
+      select: { id: true, motivoRechazo: true },
+    });
+    if (rechazados.length === 0) return [];
+
+    const enCorreccion = await ordenesEnCorreccion(this.prisma, { mensajeroId });
+    const ordenIds = [...new Set(enCorreccion.map((f) => f.ordenId))];
+    const detalles =
+      ordenIds.length === 0
+        ? []
+        : await this.prisma.cierreDetail.findMany({
+            where: { cierreId: { in: rechazados.map((c) => c.id) }, ordenId: { in: ordenIds } },
+            orderBy: [{ numGuia: "asc" }, { ordenId: "asc" }],
+            select: {
+              cierreId: true,
+              ordenId: true,
+              numGuia: true,
+              numRemision: true,
+              destinatario: true,
+            },
+          });
+    const regestionadas =
+      ordenIds.length === 0
+        ? new Set<string>()
+        : new Set(
+            (
+              await this.prisma.gestionOrden.findMany({
+                where: { AND: [gestionesDelCierreWhere(mensajeroId), { ordenId: { in: ordenIds } }] },
+                select: { ordenId: true },
+              })
+            ).map((g) => g.ordenId),
+          );
+    const enCorreccionDe = new Set(enCorreccion.map((f) => `${f.cierreId}:${f.ordenId}`));
+
+    return rechazados.map((c) => ({
+      cierreId: c.id,
+      motivoRechazo: c.motivoRechazo,
+      ordenesEnCorreccion: detalles
+        .filter((d) => d.cierreId === c.id && enCorreccionDe.has(`${d.cierreId}:${d.ordenId}`))
+        .map((d) => ({
+          ordenId: d.ordenId,
+          numGuia: d.numGuia,
+          numRemision: d.numRemision,
+          destinatario: d.destinatario,
+          regestionada: regestionadas.has(d.ordenId),
+        })),
+    }));
   }
 
   /** Feature 67/R4: id de la gestion NO anulada mas reciente de la orden (o null). */

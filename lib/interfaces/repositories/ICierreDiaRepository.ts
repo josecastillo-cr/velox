@@ -9,6 +9,7 @@ import type {
   IngresoOrdenexDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { PaginaRepositorio, RangoPagina } from "@/lib/utils/rango-pagina";
+import type { PagoTarifa } from "@/lib/interfaces/repositories/ITarifaZonaMensajeroRepository";
 
 // Feature 37 — contrato del repositorio del cierre del dia. Solo queries Prisma;
 // sin logica de negocio (esa vive en CierreDiaService). Money-safe: los Decimal se
@@ -280,6 +281,56 @@ export interface GestionDeshacerRow {
    * registrarse): se deshace por el camino de siempre (#31/#32/#33/#53).
    */
   registradaComoPendiente: boolean;
+  /**
+   * FICHA 477 (design §5.1, T2.1) — el ESTADO y el DUEÑO del cierre al que esta vinculada la
+   * gestion (`null` los dos si no tiene cierre). Deciden el caso (a) de «gestion corregible»: una
+   * gestion vinculada a un cierre `rechazado` del propio mensajero se puede deshacer aunque el
+   * mensajero este bloqueado. La fila no juzga: las guardias viven en el servicio.
+   */
+  cierreEstado: CierreEstado | null;
+  cierreMensajeroId: string | null;
+}
+
+/**
+ * FICHA 477 (design §5.1) — input del deshacer de una gestion vinculada a un cierre `rechazado`
+ * propio (caso (a)). `cierreId` es el cierre LEIDO: la escritura re-comprueba bajo candado que siga
+ * `rechazado` y siga siendo de `mensajeroId`.
+ */
+export interface AnularGestionDeCierreRechazadoInput {
+  gestionId: string;
+  ordenId: string;
+  mensajeroId: string;
+  cierreId: string;
+  actorUsuarioId: string;
+  estatusEnRepartoId: string;
+}
+
+/**
+ * FICHA 477 (design §5.1, R15-R20) — input de la re-solicitud de un cierre `rechazado`. `tarifa`
+ * es la de pago resuelta por el SERVICIO para la zona destino del cierre y el vehiculo del
+ * mensajero (R17); `null` = sin tarifa -> pago e ingreso 0.00, como en la creacion (39/R8).
+ */
+export interface ResolicitarCierreRechazadoInput {
+  cierreId: string;
+  mensajeroId: string;
+  tarifa: PagoTarifa | null;
+}
+
+/** FICHA 477 (R26) — una orden en correccion de un cierre rechazado, con sus descriptivos CONGELADOS. */
+export interface OrdenEnCorreccionRow {
+  ordenId: string;
+  numGuia: number | null;
+  numRemision: string;
+  destinatario: string;
+  /** `true` = ya tiene una gestion vigente sin cierre que la re-solicitud se llevara (R15). */
+  regestionada: boolean;
+}
+
+/** FICHA 477 (R25/R26) — un cierre `rechazado` propio y sus ordenes en correccion. */
+export interface CorreccionCierreRow {
+  cierreId: string;
+  motivoRechazo: string | null;
+  ordenesEnCorreccion: OrdenEnCorreccionRow[];
 }
 
 // Feature 67/R11/R18/R19/R20/R22 — input de la UNICA escritura del deshacer. `estatusEsperadoId`
@@ -378,7 +429,34 @@ export interface ICierreDiaRepository {
    */
   findCierreResolicitableMasViejo(
     mensajeroId: string,
-  ): Promise<{ id: string; estado: CierreEstado } | null>;
+  ): Promise<{ id: string; estado: CierreEstado; destinoZonaId: string } | null>;
+  /**
+   * FICHA 477 (design D5, R15-R20, R22) — re-solicita un cierre `rechazado` del mensajero, en UNA
+   * transaccion bajo el candado de la fila de `cierre_dia`:
+   *   1. lee las ordenes en correccion de ESE cierre (predicado unico, `correccion-cierre.ts`);
+   *   2. `rechazado -> solicitado`, guardado por `id` + `estado` (0 filas -> `false`, sin efectos);
+   *   3. vincula las gestiones sin cierre del mensajero de ESAS ordenes, con el predicado de
+   *      pertenencia de siempre (`gestionesDelCierreWhere`) estrechado por esas ordenes (R15/R16);
+   *   4. congela `pago_mensajero` / `ingreso_bodega_rechazo` de las recien vinculadas con `tarifa`;
+   *   5. borra las filas de `cierre_detail` de las ordenes en correccion que siguen sin gestion (R18);
+   *   6. recalcula los seis totales sumando los snapshots por gestion (R19).
+   * Sin correcciones, los pasos 3-5 no tocan filas y el 6 escribe los mismos valores (R20).
+   */
+  resolicitarCierreRechazado(input: ResolicitarCierreRechazadoInput): Promise<boolean>;
+  /**
+   * FICHA 477 (design §5.1, R1-R3, R11) — deshace una gestion vinculada a un cierre `rechazado`
+   * propio: candado del cierre, re-lectura (`rechazado` + dueño), candado de la orden (`en_reparto`,
+   * no borrada), anulacion guardada que ademas DESVINCULA (`cierre_id`, `pago_mensajero` e
+   * `ingreso_bodega_rechazo` a NULL, D1), evento `gestion_anulada` + webhook, y recalculo de los seis
+   * totales del cierre (D3). `false` = perdio una carrera, sin efectos.
+   */
+  anularGestionDeCierreRechazado(input: AnularGestionDeCierreRechazadoInput): Promise<boolean>;
+  /**
+   * FICHA 477 (design §5.1, R26) — por cada cierre `rechazado` propio (del mas viejo al mas nuevo):
+   * su motivo y sus ordenes en correccion, con los descriptivos congelados en `cierre_detail` y si ya
+   * se volvieron a gestionar. `[]` si no tiene ningun rechazado.
+   */
+  findCorreccionesPendientes(mensajeroId: string): Promise<CorreccionCierreRow[]>;
   /**
    * FEATURE 271 (R19/R20) — transiciona ESE cierre a `solicitado`, con el `id` EN EL `where` y la
    * guarda anti-TOCTOU por `estadoEsperado`. `true` si afecto exactamente 1 fila; `false` si 0

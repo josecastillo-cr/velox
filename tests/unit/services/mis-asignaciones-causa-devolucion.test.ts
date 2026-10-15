@@ -76,9 +76,10 @@ function fakeRepo(overrides: Partial<IGestionOrdenRepository> = {}): IGestionOrd
 function newService(repo: IGestionOrdenRepository) {
   const ordenRepo: Pick<
     IOrdenRepository,
-    "findEstatusIdByValue" | "findBloqueoDetalle"
+    "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"
   > = {
     findEstatusIdByValue: vi.fn(async (v: string) => ESTATUS_ID_BY_VALUE[v] ?? null),
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO), // feature 111
   };
   const storage: IFileStorage = {

@@ -390,10 +390,11 @@ describeSiHayBase("262/B13 — las ausencias y las consecuencias, contra Postgre
     } as unknown as IGestionOrdenRepository;
     const ordenRepo = {
       findEstatusIdByValue: vi.fn(async (v: string) => `os-${v}`),
+      findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
       findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
     } as unknown as Pick<
       IOrdenRepository,
-      "findEstatusIdByValue" | "findBloqueoDetalle"
+      "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"
     >;
     const storage = {
       upload: vi.fn(async (input: { path: string }) => input.path),
@@ -692,10 +693,11 @@ describeSiHayBase("262/B13 — las ausencias y las consecuencias, contra Postgre
   async function listarPortal(tx: PrismaClient, mensajeroId: string) {
     const ordenRepo = {
       findEstatusIdByValue: vi.fn(async (v: string) => `os-${v}`),
+      findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
       findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
     } as unknown as Pick<
       IOrdenRepository,
-      "findEstatusIdByValue" | "findBloqueoDetalle"
+      "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"
     >;
     const storage = {
       upload: vi.fn(async (input: { path: string }) => input.path),

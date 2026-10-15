@@ -309,7 +309,8 @@ describeSiHayBase("271 · la regla N/V contra Postgres real", () => {
       );
       const elegido = await repo.findCierreResolicitableMasViejo(m.id);
 
-      expect(elegido).toEqual({ id: rechazadoViejo.id, estado: "rechazado" });
+      // FICHA 477 (R17): la fila trae ademas la zona destino del cierre (tarifa de la re-solicitud).
+      expect(elegido).toMatchObject({ id: rechazadoViejo.id, estado: "rechazado" });
     });
   });
 

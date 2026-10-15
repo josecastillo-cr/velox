@@ -78,8 +78,9 @@ function newService(
   repo: IGestionOrdenRepository,
   opts: { bloqueados?: string[]; storage?: IFileStorage } = {},
 ) {
-  const ordenRepo: Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle"> = {
+  const ordenRepo: Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"> = {
     findEstatusIdByValue: vi.fn(async (v: string) => ESTATUS_ID_BY_VALUE[v] ?? null),
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () =>
       (opts.bloqueados ?? []).length > 0 ? bloqueoConVencido() : SIN_BLOQUEO,
     ),
@@ -167,8 +168,9 @@ describe("Feature 158 · R6 — la gestion y la transicion viajan en UNA sola tr
   // APROBACION del cierre, que falla cerrada. Se afirma ahora que el registro no lo consulta.
   it("R6: registrar un incidente NO consulta el catalogo de estados (no transiciona, R1)", async () => {
     const repo = fakeRepo();
-    const ordenRepo: Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle"> = {
+    const ordenRepo: Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"> = {
       findEstatusIdByValue: vi.fn(async () => null),
+      findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
       findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
     };
     const storage: IFileStorage = {

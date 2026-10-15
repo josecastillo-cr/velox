@@ -138,10 +138,11 @@ function fakeSignedUrls(): ISignedUrlProvider {
 
 function fakeOrdenRepo(): Pick<
   IOrdenRepository,
-  "findEstatusIdByValue" | "findBloqueoDetalle"
+  "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"
 > {
   return {
     findEstatusIdByValue: vi.fn(async (v: string) => ESTATUS_ID_BY_VALUE[v] ?? null),
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
   };
 }

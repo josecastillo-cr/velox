@@ -98,6 +98,10 @@ function fakeRepo(gestiones: CierreGestionPendienteRow[]) {
     anularGestionYDevolverAGestion: vi.fn(async () => true),
     // FICHA 454 (T1.11): la rama NUEVA del deshacer (gestion pendiente, sin transicion).
     anularGestionPendiente: vi.fn(async () => true),
+    // FICHA 477: re-solicitud del rechazado, deshacer en cierre rechazado y correcciones.
+    resolicitarCierreRechazado: vi.fn(async () => true),
+    anularGestionDeCierreRechazado: vi.fn(async () => true),
+    findCorreccionesPendientes: vi.fn(async () => []),
   };
   return { repo, crearCierre };
 }
@@ -110,6 +114,7 @@ function newService(repo: ICierreDiaRepository) {
     findUsuarioZonaId: vi.fn(async () => "z-cartago"),
     findUsuarioVehiculoId: vi.fn(async () => null),
     findEstatusIdByValue: vi.fn(async () => "s-reparto"),
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
   } as unknown as IOrdenRepository;
   const tarifaZonaRepo: ITarifaZonaMensajeroRepository = {

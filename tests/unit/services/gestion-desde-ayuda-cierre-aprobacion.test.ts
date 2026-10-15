@@ -38,13 +38,15 @@ function repoParaSolicitar(over: {
   // FEATURE 271 (R18): la re-solicitud ya no elige por ESTADO sino por EDAD, asi que el doble
   // devuelve EL cierre re-solicitable mas viejo en vez de dos booleanos.
   const resolicitable = over.vencido
-    ? { id: "c-viejo", estado: "vencido" as const }
+    ? { id: "c-viejo", estado: "vencido" as const, destinoZonaId: "z1" }
     : over.rechazado
-      ? { id: "c-viejo", estado: "rechazado" as const }
+      ? { id: "c-viejo", estado: "rechazado" as const, destinoZonaId: "z1" }
       : null;
   return {
     findCierreResolicitableMasViejo: vi.fn(async () => resolicitable),
     transicionarASolicitado: vi.fn(async () => true),
+    // FICHA 477 (D5): el `rechazado` se re-solicita por su propia transaccion.
+    resolicitarCierreRechazado: vi.fn(async () => true),
     contarOrdenesPendientesGestion: vi.fn(async () => 0),
     findGestionesPendientes: vi.fn(async () => []),
     crearCierre: vi.fn(async () => "c-nuevo"),
@@ -61,9 +63,18 @@ function servicioSolicitar(repo: ICierreDiaRepository) {
   const service = new CierreDiaService(
     repo,
     ordenRepo as never,
-    { createSignedUrls: vi.fn(async () => ({})), createSignedUrl: vi.fn(async () => "") } as never,
+    // FICHA 477 (R17): la re-solicitud de un `rechazado` resuelve la tarifa de pago (vehiculo del
+    // mensajero + zona destino del cierre) ANTES de escribir. Sin vehiculo ni tarifa: pago 0.00.
+    {
+      createSignedUrls: vi.fn(async () => ({})),
+      createSignedUrl: vi.fn(async () => ""),
+      findUsuarioVehiculoId: vi.fn(async () => null),
+    } as never,
     { resolveTarifaPorTienda: vi.fn(async () => null) } as never,
-    { emitirCierrePorAprobar: vi.fn(async () => {}) } as never,
+    {
+      emitirCierrePorAprobar: vi.fn(async () => {}),
+      resolvePagoTarifa: vi.fn(async () => null),
+    } as never,
   );
   return { service, repo, ordenRepo };
 }
@@ -80,7 +91,10 @@ describe("💰 R32/D1 — la gestion de la tienda posterior a una RE-SOLICITUD c
       ruta: "rechazado -> solicitado",
       repo: () => repoParaSolicitar({ rechazado: true }),
       via: "resolicitado",
-      metodo: "transicionarASolicitado" as const,
+      // FICHA 477 (D5): el rechazado ya no es «solo estado»: vincula las gestiones de SUS ordenes en
+      // correccion (R15), y NINGUNA otra (R16) — la gestion de la tienda sobre otra orden sigue
+      // cayendo en el cierre siguiente, que es lo que este caso vigila.
+      metodo: "resolicitarCierreRechazado" as const,
     },
   ])(
     "la ruta EXENTA `$ruta` NO consulta pendientes, asi que una orden en ayuda no la bloquea",
