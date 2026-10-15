@@ -981,17 +981,21 @@ describe("feature 223 — que NO se parte, y donde NO se aplica (R19, R20)", () 
   it.each([
     ["la `<Card>` de la hoja del detalle", () => APERTURAS_CARD[0]!],
     ["la `<Card>` de la hoja compacta", () => APERTURAS_CARD[1]!],
+    // FICHA 478: las dos secciones viven ahora en `GestionesPorResultado` (extraído del detalle
+    // para montarlo también en el cierre de bodega) y su nombre accesible sale de una constante
+    // que añade el mensajero cuando hay `contexto`. Cambia el ANCLA, no el criterio: las dos
+    // aperturas siguen sin poder recibir `break-inside-avoid`.
     [
       "la seccion de ordenes",
       () => {
-        const i = hoja.indexOf("aria-label={FACTURA_ORDENES_TITULO}");
+        const i = hoja.indexOf("aria-label={nombreOrdenes}");
         return hoja.slice(i, hoja.indexOf(">", i));
       },
     ],
     [
       "el panel de la pestaña activa",
       () => {
-        const i = hoja.indexOf("aria-label={RESULTADO_LABEL[tab]}");
+        const i = hoja.indexOf("aria-label={nombrePanelActivo}");
         return hoja.slice(i, hoja.indexOf(">", i));
       },
     ],

@@ -20,7 +20,7 @@
 
 ## T1 — Caracterizar el dato (backend, test-only)
 
-- [ ] **T1 [P] — R13, R16.** En `tests/unit/services/cierres-bodega-admin-service.test.ts`, caso
+- [x] **T1 [P] — R13, R16.** En `tests/unit/services/cierres-bodega-admin-service.test.ts`, caso
   nuevo: el doble del repo devuelve un `cierre_dia` con una gestión por resultado (las cinco), cada
   una con `evidenciaStoragePath`; el firmador se llama con las cinco rutas y cada DTO trae su URL
   firmada y no la ruta. Revisar el caso existente `:199`: si no afirma que `createSignedUrls` no se
@@ -31,7 +31,7 @@
 
 ## T2 — Extraer la lista de gestiones del comprobante (frontend)
 
-- [ ] **T2.1 — `GestionesPorResultado`.** En `cierre-factura.tsx`, extraer el estado de pestaña
+- [x] **T2.1 — `GestionesPorResultado`.** En `cierre-factura.tsx`, extraer el estado de pestaña
   (`:2312-2316`) y el bloque de pestañas + filas (`:2523-2575`) a un componente exportado con el
   contrato de `design.md §2.1` (incluida la prop `contexto`). `CierreFacturaDetalle` lo monta con
   las props que hoy pasa a `FilaGestion` y SIN `contexto`.
@@ -39,7 +39,7 @@
   `CierreFacturaSinGestionar.test.tsx`, `CierreRechazosDeTienda.test.tsx`,
   `CierreDetalleIncidente.test.tsx` y `cierre-detalle-superficies.guardia.test.ts` verdes **sin
   editar ni una aserción** (R18). Si hay que editar alguna, parar y anotarlo.
-- [ ] **T2.2 — P2 en `FilaGestion` (solo si P2 queda en su valor por defecto).** Añadir los tres
+- [x] **T2.2 — P2 en `FilaGestion` (solo si P2 queda en su valor por defecto).** Añadir los tres
   `DatoFila` de `design.md §2.3` (causa, indemnización con marcador pendiente, fulfillment), fuera
   de la vista `esMensajero` para indemnización y fulfillment.
   Test nuevo `tests/components/CierreFacturaFilaIncidente.test.tsx` (R19) con fixture literal
@@ -49,7 +49,7 @@
 
 ## T3 — Montar en el detalle de bodega (frontend)
 
-- [ ] **T3 — Sustituir `DetalleSecciones` por `GestionesPorResultado`.** En
+- [x] **T3 — Sustituir `DetalleSecciones` por `GestionesPorResultado`.** En
   `CierresBodegaAdminModule.tsx:824-828`, montar `GestionesPorResultado` con
   `grupos={cierreDia.grupos}`, `onVerEvidencia={setEvidencia}` y
   `contexto={cierreDia.mensajeroNombre}`; sin callbacks de corrección; quitar el import de
@@ -61,7 +61,7 @@
 
 ## T4 — Tests del detalle de bodega (frontend)
 
-- [ ] **T4 — `tests/components/CierreBodegaDetalleGestiones.test.tsx`** (R1-R12, R14, R15, R17).
+- [x] **T4 — `tests/components/CierreBodegaDetalleGestiones.test.tsx`** (R1-R12, R14, R15, R17).
   Monta `CierresBodegaAdminModule` con `verCierreBodegaDetalle` doblado devolviendo DOS mensajeros:
   uno con gestiones en los cinco resultados (entregada con pagos y evidencia, reprogramada con
   evidencia, novedad, devolución por rechazo automática con evidencia, incidente) y otro con solo

@@ -1980,14 +1980,18 @@ export function GestionesPorResultado({
     ORDEN_RESULTADOS.find((r) => (grupos[r]?.length ?? 0) > 0) ?? "entregado",
   );
   const filas = grupos[tab] ?? [];
+  // Los dos nombres accesibles. Sin `contexto`, los de siempre (R18). Con él (el detalle de bodega
+  // monta N listas en el mismo modal), llevan además el mensajero, o N regiones «Órdenes del
+  // cierre» / «Entregado» se anunciarían igual (396/D3, 478/R17).
+  const nombreOrdenes = contexto
+    ? `${FACTURA_ORDENES_TITULO} · ${contexto}`
+    : FACTURA_ORDENES_TITULO;
+  const nombrePanelActivo = contexto
+    ? `${RESULTADO_LABEL[tab]} · ${contexto}`
+    : RESULTADO_LABEL[tab];
 
   return (
-    <section
-      aria-label={
-        contexto ? `${FACTURA_ORDENES_TITULO} · ${contexto}` : FACTURA_ORDENES_TITULO
-      }
-      className="flex flex-col"
-    >
+    <section aria-label={nombreOrdenes} className="flex flex-col">
       <div role="tablist" className="flex gap-1.5 border-b border-border">
         {ORDEN_RESULTADOS.map((resultado) => (
           <TabResultado
@@ -2002,15 +2006,8 @@ export function GestionesPorResultado({
 
       {/* La sección activa conserva el nombre accesible que tenía su tabla
           ("Entregadas", "Rechazadas"…): es como la localizan los tests y el E2E. FICHA 478:
-          con `contexto` (el detalle de bodega monta N listas en el mismo modal) lleva además el
-          mensajero, o N regiones «Entregado» se anunciarían igual (396/D3, 478/R17). Sin
-          `contexto`, el nombre de siempre (R18). */}
-      <section
-        aria-label={
-          contexto ? `${RESULTADO_LABEL[tab]} · ${contexto}` : RESULTADO_LABEL[tab]
-        }
-        className="pt-2"
-      >
+          con `contexto`, además el mensajero (ver `nombrePanelActivo`). */}
+      <section aria-label={nombrePanelActivo} className="pt-2">
         {/* Misma plantilla que la fila, servida por la MISMA constante: son dos rejillas
             independientes y es lo único que las mantiene alineadas (R10). */}
         <div
