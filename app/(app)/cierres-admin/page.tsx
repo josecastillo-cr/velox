@@ -188,6 +188,8 @@ export default async function CierresAdminPage() {
              para que el dia que la cola se abra a un rol que mira y no concilia los botones
              desaparezcan solos. Mismo criterio, palabra por palabra, que `/wallet/satelites`. */
           puedeConciliar={esAccesoTotal(actor.rol)}
+          /* FICHA 481 — el «Detalle» del Excel lleva «Fulfillment» solo para la central. */
+          audiencia={esAccesoTotal(actor.rol) ? "admin" : "satelite"}
         />
       ) : null}
           </>
@@ -228,6 +230,9 @@ export default async function CierresAdminPage() {
          * la caja. El servicio le responde `forbidden` aunque alguien invoque la acción a mano.
          */
         puedeCorregirPagos={esAccesoTotal(actor.rol)}
+        /* FICHA 481 — el fulfillment de la fila desplegada es dato de la CENTRAL: el
+           `adminSatelite` ve el comprobante con audiencia `satelite`, que solo lo calla a él. */
+        audiencia={esAccesoTotal(actor.rol) ? "admin" : "satelite"}
         /**
          * FICHA 398 (R16) — el permiso de CORREGIR EL RESULTADO de una gestión, resuelto
          * server-side con el MISMO predicado que exige `CierresAdminService.corregirResultadoGestion`

@@ -1270,8 +1270,12 @@ export interface CierreFacturaCabecera {
  * Ordenex, la liquidación, el pago a la tienda y el ingreso de bodega por rechazos —plata de
  * la empresa, no del mensajero (design §7.2)—, y los renglones muestran lo recibido y su pago
  * en vez de lo facturado.
+ *
+ * FICHA 481 — `satelite` es el `adminSatelite` mirando el cierre de un mensajero de su zona.
+ * Ve EXACTAMENTE lo mismo que `admin` salvo el fulfillment de la fila desplegada, que es dato
+ * de la central (pedido humano). Por eso no toca `esMensajero`: solo cambia `verFulfillment`.
  */
-export type CierreFacturaAudiencia = "admin" | "mensajero";
+export type CierreFacturaAudiencia = "admin" | "satelite" | "mensajero";
 
 /**
  * Cómo se llama ESE monto según quién lo lea: para la empresa es "Pago al mensajero" (un
@@ -1648,6 +1652,7 @@ function DatoFila({
 function FilaGestion({
   g,
   esMensajero = false,
+  verFulfillment = false,
   onVerEvidencia,
   onCorregirPagos,
   onCorregirResultado,
@@ -1667,6 +1672,11 @@ function FilaGestion({
    * de arriba — el permiso y el estado del cierre no se deciden aquí, se reciben.
    */
   onCorregirResultado?: (g: CierreDetalleGestion) => void;
+  /**
+   * FICHA 481 — el fulfillment de la tarifa congelada es dato de la CENTRAL: ni el mensajero ni
+   * el `adminSatelite` lo ven. Default `false`: FALLA CERRADO, quien no lo pase no lo enseña.
+   */
+  verFulfillment?: boolean;
 }>) {
   const [open, setOpen] = useState(false);
   const ing = g.ingresoOrdenex ?? null;
@@ -1805,7 +1815,8 @@ function FilaGestion({
                 fila no: causa e indemnización del incidente y fulfillment de la tarifa
                 congelada. Solo aparecen con valor (`DatoFila` con `null` no pinta nada). La
                 indemnización y el fulfillment son datos de la empresa: fuera de la vista del
-                mensajero (design §2.3). */}
+                mensajero (design §2.3). FICHA 481: el fulfillment, además, fuera de la del
+                `adminSatelite` —solo la central lo ve— vía `verFulfillment`. */}
             <DatoFila
               label={CAUSA_INCIDENTE_COL}
               value={
@@ -1821,7 +1832,7 @@ function FilaGestion({
             <DatoFila
               label={FULFILLMENT_COL}
               value={
-                !esMensajero && ing?.tarifa?.fulfillment
+                verFulfillment && ing?.tarifa?.fulfillment
                   ? money(ing.tarifa.fulfillment)
                   : null
               }
@@ -1959,6 +1970,12 @@ export interface GestionesPorResultadoProps {
   grupos: CierreGrupos;
   /** Vista del mensajero: las dos cifras de la fila son lo RECIBIDO y SU pago. */
   esMensajero?: boolean;
+  /**
+   * FICHA 481 — si la fila desplegada enseña el fulfillment (dato de la central). Ausente =
+   * `!esMensajero`, lo de la 478: el detalle de bodega, que solo monta la central, no cambia.
+   * El comprobante del cierre de mensajero lo pasa SIEMPRE, desde su `audiencia`.
+   */
+  verFulfillment?: boolean;
   onVerEvidencia?: (url: string) => void;
   /** Ausente = no se ofrece (478/R14). */
   onCorregirPagos?: (g: CierreDetalleGestion) => void;
@@ -1982,6 +1999,7 @@ export interface GestionesPorResultadoProps {
 export function GestionesPorResultado({
   grupos,
   esMensajero = false,
+  verFulfillment = !esMensajero,
   onVerEvidencia,
   onCorregirPagos,
   onCorregirResultado,
@@ -2048,6 +2066,7 @@ export function GestionesPorResultado({
               key={g.gestionId}
               g={g}
               esMensajero={esMensajero}
+              verFulfillment={verFulfillment}
               onVerEvidencia={onVerEvidencia}
               onCorregirPagos={onCorregirPagos}
               onCorregirResultado={onCorregirResultado}
@@ -2689,6 +2708,8 @@ export function CierreFacturaDetalle({
       <GestionesPorResultado
         grupos={grupos}
         esMensajero={esMensajero}
+        // FICHA 481 — fulfillment SOLO para la central: ni `satelite` ni `mensajero` lo ven.
+        verFulfillment={audiencia === "admin"}
         onVerEvidencia={onVerEvidencia}
         onCorregirPagos={onCorregirPagos}
         onCorregirResultado={onCorregirResultado}

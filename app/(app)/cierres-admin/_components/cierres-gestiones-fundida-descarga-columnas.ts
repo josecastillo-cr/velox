@@ -296,6 +296,35 @@ export const COLUMNAS_DESCARGA_GESTIONES_FUNDIDA: DescargaColumna[] = [
 ];
 
 /**
+ * FICHA 481 (2026-10-15) — para quién se arma la hoja: `admin` es la CENTRAL (maestro y admin),
+ * `satelite` el `adminSatelite`. Mismo par que la audiencia del comprobante, declarado aquí como
+ * literal propio para que este módulo siga PURO (sin importar nada de React).
+ */
+export type AudienciaDescargaGestionesFundida = "admin" | "satelite";
+
+/**
+ * Columnas que son dato de la CENTRAL y no salen en la hoja del `adminSatelite`. Hoy solo el
+ * fulfillment congelado de la tarifa: el servidor ya se lo manda en `null`
+ * (`ocultarFulfillmentSiNoCentral`), y aquí se retira además la COLUMNA, para que no quede un
+ * encabezado «Fulfillment» vacío en su archivo ni una casilla en su selector.
+ */
+const CLAVES_SOLO_CENTRAL: ReadonlySet<string> = new Set(["fulfillment"]);
+
+/**
+ * Las columnas de la hoja fundida para una audiencia. La central recibe la declaración ENTERA,
+ * mismo array y mismo orden; cualquier otra audiencia, la misma MENOS las de la central — falla
+ * cerrado: lo que no es `admin` no ve el fulfillment.
+ */
+export function columnasDescargaGestionesFundidaPara(
+  audiencia: AudienciaDescargaGestionesFundida,
+): DescargaColumna[] {
+  if (audiencia === "admin") return COLUMNAS_DESCARGA_GESTIONES_FUNDIDA;
+  return COLUMNAS_DESCARGA_GESTIONES_FUNDIDA.filter(
+    (columna) => !CLAVES_SOLO_CENTRAL.has(columna.clave),
+  );
+}
+
+/**
  * Las diecisiete claves ESPECÍFICAS, en el orden en que se declaran arriba. Es la lista de la que
  * sale el «todas vacías» de partida: cada resultado enciende las suyas y las demás quedan
  * vacías, en vez de que cada rama tenga que acordarse de apagar dieciséis.

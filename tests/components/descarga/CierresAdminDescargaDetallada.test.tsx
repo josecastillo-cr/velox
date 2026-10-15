@@ -210,6 +210,8 @@ function montar() {
       historico={paginaInicial(HISTORICO)}
       sinZona={false}
       catalogoFiltros={CATALOGO}
+      // FICHA 481: estos montajes son de la CENTRAL; sin audiencia la pantalla falla cerrado.
+      audiencia="admin"
     />,
   );
 }

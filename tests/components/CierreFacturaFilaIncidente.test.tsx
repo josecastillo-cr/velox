@@ -62,7 +62,10 @@ const INCIDENTE_INDEMNIZADO = gestion478({
 
 const NOTA_PENDIENTE = "Se captura al aprobar el cierre; todavía no se indemnizó.";
 
-function pintar(grupos: CierreGrupos, audiencia: "admin" | "mensajero" = "admin") {
+function pintar(
+  grupos: CierreGrupos,
+  audiencia: "admin" | "satelite" | "mensajero" = "admin",
+) {
   render(<CierreFacturaDetalle cierre={CABECERA} grupos={grupos} audiencia={audiencia} />);
   return screen.getByRole("region", { name: "Órdenes del cierre" });
 }
@@ -165,5 +168,40 @@ describe("478/R19 — causa, indemnización y fulfillment en la fila desplegada"
     );
     expect(incidente).toHaveTextContent("Causa: Paquete perdido");
     expect(incidente).not.toHaveTextContent("Indemnización:");
+  });
+});
+
+/**
+ * FICHA 481 — el fulfillment de la fila desplegada es dato de la CENTRAL (pedido humano): lo ve
+ * la audiencia `admin` (maestro/admin) y NO lo ven ni el `adminSatelite` (`satelite`) ni el
+ * mensajero. Lo demás de la fila no cambia para la satélite: se afirma el pago al mensajero y la
+ * cifra «Total Ordenex» de la fila para que un recorte de más también se ponga rojo.
+ */
+describe("481 — fulfillment solo para la central", () => {
+  const BOTON = "Desglose de ingreso de la orden REM-E1 · Carla Entregada";
+
+  it("central (admin): la fila desplegada enseña «Fulfillment: ₡350,50»", async () => {
+    const fila = await desplegar(pintar(grupos478({ entregado: [ENTREGA_478] }), "admin"), BOTON);
+    expect(fila).toHaveTextContent("Fulfillment: ₡350,50");
+  });
+
+  it("adminSatelite (satelite): la fila desplegada NO enseña fulfillment, y el resto sigue igual", async () => {
+    const fila = await desplegar(
+      pintar(grupos478({ entregado: [ENTREGA_478] }), "satelite"),
+      BOTON,
+    );
+    expect(fila).not.toHaveTextContent("Fulfillment");
+    expect(fila).not.toHaveTextContent("₡350,50");
+    expect(fila).toHaveTextContent("Pago al mensajero: ₡1.200,40");
+    expect(fila).toHaveTextContent("Flete + IVA: ₡2.260");
+  });
+
+  it("mensajero: la fila desplegada NO enseña fulfillment", async () => {
+    const fila = await desplegar(
+      pintar(grupos478({ entregado: [ENTREGA_478] }), "mensajero"),
+      BOTON,
+    );
+    expect(fila).not.toHaveTextContent("Fulfillment");
+    expect(fila).not.toHaveTextContent("₡350,50");
   });
 });
