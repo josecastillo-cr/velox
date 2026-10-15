@@ -177,3 +177,8 @@ copiado al worktree, borrado al terminar). Log: `progress/gate_477_backend.log`.
 
 Backend de la 477 (T1-T4) implementado y verde en el gate rapido ampliado; pendiente T0.2 (medir en
 produccion, sin MCP `supabase` en este agente) y T5 (frontend).
+
+## T0.2 — Medición en producción (2026-10-15, MCP `supabase`, ref scfnwxqbsgkzwsdntdvd, solo lectura)
+- Cierres `rechazado` hoy: **0**.
+- Gestiones vivas en cierres rechazados: **0**; legadas (sin evento `gestion_registrada`): **0**.
+- Sin legadas en rechazados: R10 no deja a nadie sin corrección hoy. Nada que avisar.
