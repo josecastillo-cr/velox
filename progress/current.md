@@ -1,3 +1,8 @@
+# ESTADO 2026-10-15 — 477 HECHA en `dev` (PR #855), SIN DESPLEGAR; in_progress = 0
+
+- 477 (corregir gestiones de un cierre rechazado): merge #855 en `dev`. Gate post-merge: `progress/gate_dev_tras_855.log`. Sin migración. Al desplegar: verlo en prod con un cierre rechazado real (hoy hay 0).
+- Candidatas a ficha (sin registrar): aviso de bloqueo de Entregas que contradice la corrección; «Motivo de rechazo» en cierre Solicitado (`cierre-factura.tsx:951`).
+
 # ESTADO 2026-10-06 (madrugada) — RELEASE DESPLEGADA (PR #854, c0acf469, dpl_7dSqmdrVqpLHatwdZFN5x8kvqgG1)
 
 - En prod: 471, 473, 474 (+#849), validaciones en español, 475, 476. Migraciones 20261005120000/120100/120200 aplicadas 06:29 UTC; job `whatsapp_envio_mantenimiento` sembrado (pending). Runtime: 0 errores, 47×200 en la primera hora. `prod` devuelto a `dev`.

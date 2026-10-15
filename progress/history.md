@@ -5751,3 +5751,8 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - Rama `{tipo:"error"}` en el motor; `detalleDeCausa` saneado en picking y tránsito. Bug P2028 (caché del repo) hallado contra Postgres y corregido en ambos informes.
 - R1–R30; mapa en `progress/impl_476.md`; todas las mutaciones muertas. Revisión APROBADA; m2–m5 arreglados. PR #852.
 - Pendiente de release: T5.2 (verlo) en `docs/release.md`.
+
+## 477 — Corregir las gestiones de un cierre rechazado (2026-10-15)
+- Con el cierre rechazado, el mensajero devuelve a gestión una orden (anula + desvincula + recalcula bajo candado) y la vuelve a gestionar aunque tenga el bloqueo; la re-solicitud vincula solo las órdenes en corrección, congela tarifa y recalcula `cierre_detail`. Panel en «Cierre del día» y Entregas habilita solo las órdenes en corrección. Sin migración.
+- R1–R28; mapa en `progress/impl_477.md`; mutaciones muertas contra Postgres. Revisión: rechazo solo de proceso, cerrado. Recorrido T5.5 con capturas en `progress/477_t55/`. PR #855.
+- Fichas candidatas (no registradas): aviso de bloqueo de Entregas que contradice la corrección; «Motivo de rechazo» visible en cierre ya Solicitado (`cierre-factura.tsx:951`).
