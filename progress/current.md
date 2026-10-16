@@ -3,7 +3,7 @@
 - En prod: 477 (#855), 478 (#858), 479 (#857), 480 (#856), 481 (#859), 482 (#860), 483 (#861). Sin migraciones.
 - Gate completo: 1.º rojo (progress/gate_release_477_482.log): guardia 69/R10 vs deleteMany de la 477/R18 -> 483 (excepcion acotada, autorizada por el humano); FiltrosOperativos intermitente (verde aislado). 2.º verde sobre 9222aa54 (progress/gate_release_477_483.log, 33.870 verdes, 26 skipped).
 - Post-release: build Vercel success, 0 runtime errors 1h, /login 200. `prod` devuelta a `dev` (ff, dev..prod = 0).
-- Pendiente de verlo en prod: 477 con un cierre rechazado real (hoy 0); 478 detalle de bodega como admin/maestro.
+- Verificado en prod por el humano (2026-10-16): 477-481 OK. Nota: el cierre de bodega ff257537 (FGAM San Ramon) trae 18 rechazos con la MISMA foto (mismo eTag) subida por el mensajero; decision del humano, no del sistema.
 - Sin decidir: ficha «reiniciar intentos».
 
 # ESTADO 2026-10-15 (tarde) — 477-482 HECHAS en `dev`, SIN DESPLEGAR; in_progress = 0
