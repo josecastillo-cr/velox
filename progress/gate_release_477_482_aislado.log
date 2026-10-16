@@ -1,0 +1,36 @@
+
+ RUN  v4.1.10 R:/job/singularis/projects/ordenex
+
+ ❯ tests/unit/repositories/cierre-detail-inmutable.test.ts (3 tests | 1 failed) 213ms
+     × ningun modulo de lib/ emite update/updateMany/delete/deleteMany/upsert sobre cierreDetail 110ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/repositories/cierre-detail-inmutable.test.ts > Feature 69/R10 — cierre_detail es INMUTABLE > ningun modulo de lib/ emite update/updateMany/delete/deleteMany/upsert sobre cierreDetail
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "repositories\\CierreDiaRepository.ts: cierreDetail.deleteMany()",
++ ]
+
+ ❯ tests/unit/repositories/cierre-detail-inmutable.test.ts:49:26
+     47|       }
+     48|     }
+     49|     expect(infracciones).toEqual([]);
+       |                          ^
+     50|   });
+     51|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 25 passed (26)
+   Start at  00:09:21
+   Duration  7.92s (transform 522ms, setup 372ms, import 4.40s, tests 1.88s, environment 1.26s)
+
+EXIT=1

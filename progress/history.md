@@ -5775,3 +5775,7 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 ## 481 — Fulfillment solo para la central (2026-10-15)
 - La adminSatelite (y el mensajero) dejan de ver el fulfillment por las tres vías: comprobante (audiencia `satelite`), payload del servidor (`ocultarFulfillmentSiNoCentral` en `CierresAdminService`: detalle y listado completo, `tarifa.fulfillment = null`) y Excel «Detalle» (`columnasDescargaGestionesFundidaPara`). Maestro/admin sin cambios; ningún total incluía fulfillment.
 - Revisión OK con 8 mutaciones (7 rojas; sobrevive el cableado módulo→comprobante, cubierto por el `null` del servidor). Gate ampliado verde. PR #859.
+
+## 2026-10-16 — 483 + release 477-483 a prod
+- 483: la guardia 69/R10 (`cierre-detail-inmutable.test.ts`) fallaba en el gate de release por el `cierreDetail.deleteMany` intencional de la 477/R18 (cierre rechazado). El --rapido de la 477 no lo vio (test no relacionado por el grafo). Excepcion acotada a 1 ocurrencia en CierreDiaRepository.ts, mutaciones rojas, revision OK. PR #861.
+- Release #862 (merge commit, 2 padres, b784b8f2): 477-483, sin migraciones. Gate completo verde sobre 9222aa54. Despliegue de produccion success, 0 errores runtime. dev = prod.

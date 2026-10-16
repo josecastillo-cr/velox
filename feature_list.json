@@ -5706,7 +5706,7 @@
       "sdd": true,
       "complexity": "media",
       "depends_on": null,
-      "status_note": "HECHA en dev (PR #855, 2026-10-15), SIN DESPLEGAR. 28 R sin migracion; mapa en progress/impl_477.md. Revision: solo bloqueantes de proceso, cerrados (tasks marcadas, T5.5 recorrido en progress/477_t55/). Observaciones fuera de alcance: aviso de bloqueo en Entregas y motivo de rechazo visible en cierre Solicitado (cierre-factura.tsx:951).",
+      "status_note": "HECHA en dev (PR #855, 2026-10-15), DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). 28 R sin migracion; mapa en progress/impl_477.md. Revision: solo bloqueantes de proceso, cerrados (tasks marcadas, T5.5 recorrido en progress/477_t55/). Observaciones fuera de alcance: aviso de bloqueo en Entregas y motivo de rechazo visible en cierre Solicitado (cierre-factura.tsx:951).",
       "branch": "feature/477-corregir-gestiones-cierre-rechazado"
     },
     {
@@ -5718,7 +5718,7 @@
       "sdd": true,
       "complexity": "media",
       "depends_on": null,
-      "status_note": "HECHA en dev (PR #858, 2026-10-15), SIN DESPLEGAR. 19 R, solo pantalla, sin migracion; mapa en progress/impl_478.md, T6 en progress/478_t6/. Revision OK. Pendiente: confirmar con el humano fulfillment visible a la adminSatelite (m2); design §2.1 sin actualizar (m1); T0.2 en prod sin medir; ficha de limpieza de DetalleSecciones sin registrar (P4).",
+      "status_note": "HECHA en dev (PR #858, 2026-10-15), DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). 19 R, solo pantalla, sin migracion; mapa en progress/impl_478.md, T6 en progress/478_t6/. Revision OK. Pendiente: confirmar con el humano fulfillment visible a la adminSatelite (m2); design §2.1 sin actualizar (m1); T0.2 en prod sin medir; ficha de limpieza de DetalleSecciones sin registrar (P4).",
       "branch": "feature/478-detalle-guia-evidencias-cierre-bodega"
     },
     {
@@ -5730,7 +5730,7 @@
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
-      "status_note": "HECHA en dev (PR #857, 2026-10-15), SIN DESPLEGAR. Revision APROBADA. Menor: con varios cierres por reenviar dice «tu cierre rechazado» en singular.",
+      "status_note": "HECHA en dev (PR #857, 2026-10-15), DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). Revision APROBADA. Menor: con varios cierres por reenviar dice «tu cierre rechazado» en singular.",
       "branch": "fix/479-aviso-bloqueo-entregas"
     },
     {
@@ -5742,7 +5742,7 @@
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
-      "status_note": "HECHA en dev (PR #856, 2026-10-15), SIN DESPLEGAR. Gate --rapido ampliado verde (446 integration/db). Revision APROBADA. Menor: CierresBodegaAdminModule.tsx:740 pinta el motivo sin mirar estado (hoy inocuo: el cierre de bodega no se reenvia).",
+      "status_note": "HECHA en dev (PR #856, 2026-10-15), DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). Gate --rapido ampliado verde (446 integration/db). Revision APROBADA. Menor: CierresBodegaAdminModule.tsx:740 pinta el motivo sin mirar estado (hoy inocuo: el cierre de bodega no se reenvia).",
       "branch": "fix/480-motivo-rechazo-reenviado"
     },
     {
@@ -5754,7 +5754,7 @@
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
-      "status_note": "HECHA en dev (PR #859, 2026-10-15), SIN DESPLEGAR. Ampliada por el humano a servidor y Excel: comprobante (audiencia satelite), ocultarFulfillmentSiNoCentral en CierresAdminService (detalle y listado completo -> fulfillment null), columnasDescargaGestionesFundidaPara sin Fulfillment para la satelite. Ningun total cambia. Revision OK, gate ampliado verde. Menores: union CierresAdminModule->comprobante y page.tsx sin test.",
+      "status_note": "HECHA en dev (PR #859, 2026-10-15), DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). Ampliada por el humano a servidor y Excel: comprobante (audiencia satelite), ocultarFulfillmentSiNoCentral en CierresAdminService (detalle y listado completo -> fulfillment null), columnasDescargaGestionesFundidaPara sin Fulfillment para la satelite. Ningun total cambia. Revision OK, gate ampliado verde. Menores: union CierresAdminModule->comprobante y page.tsx sin test.",
       "branch": "fix/481-fulfillment-solo-central"
     },
     {
@@ -5766,8 +5766,20 @@
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
-      "status_note": "HECHA en dev (PR #860, 2026-10-15), SIN DESPLEGAR. -2.267 lineas (DetalleSecciones, 5 descargas por seccion, medios-pago-descarga-columnas); 2 tests borrados, 7 reapuntados; mapa en progress/impl_482.md. Revision OK (progress/review_482.md). Menores: comentarios que aun citan el modulo borrado (ICierresAdminService.ts:196, cierre-labels.ts:542); montoPorMetodo sin test unitario; 234/R3 sin marcar superada en requirements.",
+      "status_note": "HECHA en dev (PR #860, 2026-10-15), DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). -2.267 lineas (DetalleSecciones, 5 descargas por seccion, medios-pago-descarga-columnas); 2 tests borrados, 7 reapuntados; mapa en progress/impl_482.md. Revision OK (progress/review_482.md). Menores: comentarios que aun citan el modulo borrado (ICierresAdminService.ts:196, cierre-labels.ts:542); montoPorMetodo sin test unitario; 234/R3 sin marcar superada en requirements.",
       "branch": "chore/482-retirar-detalle-secciones"
+    },
+    {
+      "id": 483,
+      "title": "guardia 69/R10 admite el deleteMany de la 477/R18",
+      "description": "La guardia de inmutabilidad de cierre_detail admite solo el borrado de filas de un cierre rechazado que hace la 477.",
+      "zone": "backend",
+      "status": "done",
+      "sdd": false,
+      "complexity": "baja",
+      "depends_on": 477,
+      "status_note": "DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). PR #861. Excepcion acotada: 1 deleteMany en CierreDiaRepository.ts; mutaciones rojas. Revision OK (progress/review_483.md). Menores: cuenta texto (un comentario contaria), acotada a archivo no a metodo.",
+      "branch": "fix/483-guardia-cierre-detail-477"
     }
   ]
 }
