@@ -159,6 +159,11 @@ existentes:
 `cierre_detail` no tiene FKs entrantes (medido en `db/schema.prisma`: solo relaciones salientes a
 cierre/orden/zona/tienda/tarifa), así que el `deleteMany` no arrastra nada.
 
+La guardia estructural de la Feature 69/R10 (`tests/unit/repositories/cierre-detail-inmutable.test.ts`)
+lleva una excepción acotada para este borrado (483): exactamente UNA ocurrencia de
+`cierreDetail.deleteMany(` en `lib/repositories/CierreDiaRepository.ts`; cualquier otra mutación
+de `cierre_detail` sigue en rojo.
+
 ## 4. Concurrencia
 
 El deshacer (D1) y la re-solicitud (D5) compiten por el mismo cierre. Sin orden, el deshacer

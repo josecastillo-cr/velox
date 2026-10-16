@@ -33,20 +33,44 @@ const archivos = tsFiles(LIB_DIR);
 // es justo lo que `crearCierre` debe hacer (R3).
 const MUTACIONES = ["update", "updateMany", "delete", "deleteMany", "upsert"] as const;
 
+// UNICA excepcion, acotada por archivo, operacion y NUMERO de ocurrencias.
+// Feature 477/R18 (specs/477-corregir-gestiones-cierre-rechazado/design.md, paso 5 y tabla de
+// escrituras): `resolicitarCierreRechazado` borra las filas de `cierre_detail` de las ordenes
+// sin gestion vigente de un cierre `rechazado`. Ese cierre NUNCA fue aprobado: su snapshot aun
+// no alimento ningun feed de dinero, asi que retirar filas huerfanas no reabre el bug de la 69.
+// Cualquier OTRA mutacion (segundo deleteMany en ese archivo, otra op en ese archivo, o
+// cualquier mutacion en otro archivo) sigue siendo infraccion.
+const EXCEPCIONES: Record<string, Partial<Record<(typeof MUTACIONES)[number], number>>> = {
+  "repositories/CierreDiaRepository.ts": { deleteMany: 1 },
+};
+
 describe("Feature 69/R10 — cierre_detail es INMUTABLE", () => {
-  it("ningun modulo de lib/ emite update/updateMany/delete/deleteMany/upsert sobre cierreDetail", () => {
+  it("ningun modulo de lib/ emite update/updateMany/delete/deleteMany/upsert sobre cierreDetail (salvo la excepcion 477/R18)", () => {
     const infracciones: string[] = [];
     for (const file of archivos) {
       const src = fs.readFileSync(file, "utf8");
+      const rel = path.relative(LIB_DIR, file).replace(/\\/g, "/");
       for (const op of MUTACIONES) {
         // Cubre `prisma.cierreDetail.update(`, `tx.cierreDetail.delete(`, etc.
         const re = new RegExp(`cierreDetail\\s*\\.\\s*${op}\\s*\\(`, "g");
-        if (re.test(src)) {
-          infracciones.push(`${path.relative(LIB_DIR, file)}: cierreDetail.${op}()`);
+        const n = (src.match(re) ?? []).length;
+        const permitidas = EXCEPCIONES[rel]?.[op] ?? 0;
+        if (n > permitidas) {
+          infracciones.push(`${rel}: cierreDetail.${op}() x${n} (permitidas: ${permitidas})`);
         }
       }
     }
     expect(infracciones).toEqual([]);
+  });
+
+  it("la excepcion 477/R18 sigue en uso (si el deleteMany desaparece, se retira la excepcion)", () => {
+    for (const [rel, ops] of Object.entries(EXCEPCIONES)) {
+      const src = fs.readFileSync(path.join(LIB_DIR, rel), "utf8");
+      for (const [op, permitidas] of Object.entries(ops)) {
+        const re = new RegExp(`cierreDetail\\s*\\.\\s*${op}\\s*\\(`, "g");
+        expect((src.match(re) ?? []).length).toBe(permitidas);
+      }
+    }
   });
 
   it("el unico camino de escritura del snapshot es el createMany de crearCierre", () => {
