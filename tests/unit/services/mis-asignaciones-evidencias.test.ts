@@ -62,7 +62,7 @@ function fakeRepo(overrides: Partial<IGestionOrdenRepository> = {}): IGestionOrd
   };
 }
 
-function fakeOrdenRepo(): Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle"> {
+function fakeOrdenRepo(): Pick<IOrdenRepository, "findEstatusIdByValue" | "findBloqueoDetalle" | "findOrdenesEnCorreccion"> {
   const ids: Record<string, string> = {
     en_reparto: "os-reparto",
     entregado: "os-entregada",
@@ -72,6 +72,7 @@ function fakeOrdenRepo(): Pick<IOrdenRepository, "findEstatusIdByValue" | "findB
   };
   return {
     findEstatusIdByValue: vi.fn(async (v: string) => ids[v] ?? null),
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
   };
 }

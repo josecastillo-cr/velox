@@ -1,0 +1,73 @@
+Entregado
+1
+Reprogramado
+0
+Novedad
+0
+Devolución a origen por rechazo
+1
+Incidente
+0
+Guía
+Destinatario
+Cobrado
+Total Ordenex
+38589325
+Cliente Quepos 2
+Q454-02 · Producto prueba 454 #2
+₡6.000
+₡3.627,30
+Parque central de Quepos
+QUEPOS · Puntarenas · Quepos · Quepos
+Recibido:
+₡6.000 · Efectivo
+Tienda:
+Tania
+Flete + IVA:
+₡3.390
+Comisión + IVA:
+₡237,30
+Pago al mensajero:
+₡0
+Fulfillment:
+₡800
+Ver evidencia
+Desglose de ingreso
+Monto a cobrar
+₡6.000
+Flete
+tarifa no GAM: ₡3.000
+₡3.000
+IVA flete
+13.00 % de ₡3.000
+₡390
+Comisión COD
+3.50 % de ₡6.000
+₡210
+IVA comisión
+13.00 % de ₡210
+₡27,30
+Total Ordenex
+₡3.627,30
+Cobros de esta gestión
+
+Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ₡0 es un concepto que no se cobró.
+
+Valor flete
+₡3.000
+Valor flete GAM
+₡0
+Flete por devolución a origen
+₡0
+Flete por devolución a origen GAM
+₡0
+IVA flete
+₡390
+IVA del flete por devolución a origen
+₡0
+Comisión COD
+₡210
+IVA comisión
+₡27,30
+Total cobrado
+₡3.627,30

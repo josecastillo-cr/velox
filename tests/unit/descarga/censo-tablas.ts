@@ -274,12 +274,12 @@ export const CENSO_DATATABLE: ArchivoCensado[] = [
       { nombre: "Gestiones del cierre del día por resultado", estado: "con_descarga" },
     ],
   },
-  {
-    ruta: "app/(app)/cierres-admin/_components/cierre-detalle-shared.tsx",
-    tablas: [
-      { nombre: "Gestiones de un cierre por resultado (detalle)", estado: "con_descarga" },
-    ],
-  },
+  // FICHA 482 (2026-10-15) — BAJA de una tabla, `con_descarga`: «Gestiones de un cierre por
+  // resultado (detalle)», que montaba `cierre-detalle-shared.tsx` (`DetalleSecciones`). La 478 la
+  // sustituyó en el detalle de bodega por la lista en pestañas de `cierre-factura`, que no es un
+  // `<DataTable>` y no lleva descarga por sección (P3); la 482 la borró. Se pierde la descarga
+  // por sección DENTRO del modal; las mismas gestiones siguen saliendo por la descarga global
+  // detallada de la pantalla (hoja fundida), que no es una tabla de este censo.
   {
     ruta: "app/(app)/configuracion/_components/UsuariosModule.tsx",
     tablas: [{ nombre: "Usuarios", estado: "con_descarga" }],

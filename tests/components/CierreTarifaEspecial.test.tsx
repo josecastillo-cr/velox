@@ -13,7 +13,9 @@
 //                              sólo se ve por esta marca.
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
+import { GestionesPorResultado } from "@/app/(app)/cierres-admin/_components/cierre-factura";
 import {
   DesgloseIngresoOrdenex,
   ESPECIAL_BADGE_LABEL,
@@ -26,7 +28,7 @@ import {
   VALOR_FLETE_LABEL,
   FLETE_RECHAZO_LABEL,
   FLETE_RECHAZO_GAM_LABEL,
-  columnasPara,
+  FLETE_CON_IVA_LABEL,
 } from "@/app/(app)/cierres-admin/_components/cierre-detalle-shared";
 import { money } from "@/lib/config/moneda";
 import type {
@@ -108,15 +110,34 @@ function gestion(ing: IngresoOrdenexDTO): CierreDetalleGestion {
   };
 }
 
-/** Celda de la columna de flete + IVA de una gestión, tal como la pinta la tabla. */
-function celdaFlete(ing: IngresoOrdenexDTO) {
-  const columna = columnasPara("entregado", () => {}).find((c) => c.id === "fleteConIva");
-  // `render` es opcional y puede ser una clave del DTO: acá tiene que ser la función, porque
-  // la marca de origen se pinta dentro de ella.
-  if (typeof columna?.render !== "function") {
-    throw new Error("la columna fleteConIva no declara un render propio");
-  }
-  return render(<>{columna.render(gestion(ing))}</>);
+/**
+ * El renglón «Flete + IVA» de la fila DESPLEGADA de una gestión, en la lista del detalle de
+ * admin (`GestionesPorResultado`).
+ *
+ * FICHA 482 (2026-10-15) — REAPUNTADO. Antes era la celda de la columna `fleteConIva` de
+ * `columnasPara`, la tabla del detalle de bodega que la 478 retiró y la 482 borró. La marca de
+ * origen sigue pintándose junto al monto del flete en la superficie que la sustituyó, y es esa la
+ * que se mira ahora. Se acota al RENGLÓN y no a la fila entera porque, desplegada, la fila monta
+ * también el desglose de ingreso, que repite la marca en su encabezado.
+ */
+async function celdaFlete(ing: IngresoOrdenexDTO): Promise<HTMLElement> {
+  const user = userEvent.setup();
+  render(
+    <GestionesPorResultado
+      grupos={{
+        entregado: [gestion(ing)],
+        reprogramado: [],
+        novedad: [],
+        devolucion_a_origen_por_rechazo: [],
+        incidente: [],
+      }}
+    />,
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Desglose de ingreso de la orden REM-001 · Beto Ruiz" }),
+  );
+  const rotulo = screen.getByText(`${FLETE_CON_IVA_LABEL}:`);
+  return rotulo.parentElement as HTMLElement;
 }
 
 /**
@@ -134,31 +155,35 @@ const CERO = money("0.00");
 
 afterEach(cleanup);
 
-describe("Marca del origen del flete en la tabla del detalle", () => {
-  it("una tarifa normal NO lleva marca", () => {
-    celdaFlete(ingreso());
-    expect(screen.queryByText(ESPECIAL_BADGE_LABEL)).toBeNull();
-    expect(screen.queryByText(ESPECIAL_SIN_PACTO_BADGE_LABEL)).toBeNull();
+describe("Marca del origen del flete en la fila del detalle", () => {
+  it("una tarifa normal NO lleva marca", async () => {
+    const celda = await celdaFlete(ingreso());
+    // No-vacuidad: el renglón existe y lleva su monto; lo que falta es SOLO la marca.
+    expect(celda).toHaveTextContent(money("1130.00"));
+    expect(within(celda).queryByText(ESPECIAL_BADGE_LABEL)).toBeNull();
+    expect(within(celda).queryByText(ESPECIAL_SIN_PACTO_BADGE_LABEL)).toBeNull();
   });
 
-  it("un flete cobrado del pacto especial se resalta, con su nota accesible", () => {
-    celdaFlete(
+  it("un flete cobrado del pacto especial se resalta, con su nota accesible", async () => {
+    const celda = await celdaFlete(
       ingreso({
         esZonaEspecial: true,
         fleteOrigen: "especial",
         tarifa: tarifa({ tarifaEspecial: "2500.00" }),
       }),
     );
-    const badge = screen.getByText(ESPECIAL_BADGE_LABEL);
+    const badge = within(celda).getByText(ESPECIAL_BADGE_LABEL);
     expect(badge).toHaveAttribute("aria-label", ESPECIAL_BADGE_NOTA);
   });
 
-  it("un distrito especial SIN pacto se advierte aparte: cobró la tarifa normal", () => {
-    celdaFlete(ingreso({ esZonaEspecial: true, fleteOrigen: "especial_sin_pacto" }));
-    const badge = screen.getByText(ESPECIAL_SIN_PACTO_BADGE_LABEL);
+  it("un distrito especial SIN pacto se advierte aparte: cobró la tarifa normal", async () => {
+    const celda = await celdaFlete(
+      ingreso({ esZonaEspecial: true, fleteOrigen: "especial_sin_pacto" }),
+    );
+    const badge = within(celda).getByText(ESPECIAL_SIN_PACTO_BADGE_LABEL);
     expect(badge).toHaveAttribute("aria-label", ESPECIAL_SIN_PACTO_BADGE_NOTA);
     // Y NO se confunde con el caso en que sí se cobró el pacto.
-    expect(screen.queryByText(ESPECIAL_BADGE_LABEL)).toBeNull();
+    expect(within(celda).queryByText(ESPECIAL_BADGE_LABEL)).toBeNull();
   });
 });
 

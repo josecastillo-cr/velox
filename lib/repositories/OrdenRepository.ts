@@ -13,6 +13,8 @@ import {
   type ClienteSqlAyuda,
 } from "@/lib/repositories/ayuda-abierta";
 import { sqlExisteGestionPendiente } from "@/lib/repositories/gestion-pendiente";
+// FICHA 477 (D2): el predicado unico de «orden en correccion de un cierre rechazado».
+import { ordenesEnCorreccion } from "@/lib/repositories/correccion-cierre";
 import { encolarWebhookEvento } from "@/lib/services/jobs/webhook-evento-encolado";
 import {
   Prisma,
@@ -5107,6 +5109,17 @@ export class OrdenRepository implements IOrdenRepository {
               aResolverPrimero
             : await this.aCierreAResolver(reenviable),
     };
+  }
+
+  /**
+   * FICHA 477 (design D2, T1.2) — de `ordenIds`, las que estan EN CORRECCION de un cierre
+   * `rechazado` del propio mensajero. El predicado es el UNICO (`correccion-cierre.ts`); aqui solo
+   * se ejecuta en lote. Lista vacia -> ni una consulta.
+   */
+  async findOrdenesEnCorreccion(mensajeroId: string, ordenIds: string[]): Promise<Set<string>> {
+    if (ordenIds.length === 0) return new Set();
+    const filas = await ordenesEnCorreccion(this.prisma, { mensajeroId, ordenIds });
+    return new Set(filas.map((f) => f.ordenId));
   }
 
   /**

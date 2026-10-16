@@ -59,6 +59,8 @@ export default async function CierreDiaPage() {
           pageSize: pasadosResult.pageSize,
         }}
         bloqueo={bloqueo}
+        // FICHA 477 (R25/R26): lo que hace falta para corregir cada cierre rechazado propio.
+        correcciones={result.correcciones ?? []}
       />
     </AppPage>
   );

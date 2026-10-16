@@ -109,6 +109,9 @@ function repoEnMemoria(filas: FilaConDueno[] = ALMACEN) {
     crearCierre: vi.fn(async () => "c-nuevo"),
     findGestionParaDeshacer: vi.fn(async () => null),
     anularGestionYDevolverAGestion: vi.fn(async () => true),
+    // FICHA 477 (R25/R26): con un `rechazado` en el historico, `listarCierreDia` pide sus
+    // correcciones. Aqui ninguna: no es lo que este archivo mide.
+    findCorreccionesPendientes: vi.fn(async () => []),
   } as unknown as ICierreDiaRepository;
 
   return { repo, llamadas, findCierresByMensajeroPaginado };

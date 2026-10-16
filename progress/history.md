@@ -5751,3 +5751,27 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - Rama `{tipo:"error"}` en el motor; `detalleDeCausa` saneado en picking y tránsito. Bug P2028 (caché del repo) hallado contra Postgres y corregido en ambos informes.
 - R1–R30; mapa en `progress/impl_476.md`; todas las mutaciones muertas. Revisión APROBADA; m2–m5 arreglados. PR #852.
 - Pendiente de release: T5.2 (verlo) en `docs/release.md`.
+
+## 477 — Corregir las gestiones de un cierre rechazado (2026-10-15)
+- Con el cierre rechazado, el mensajero devuelve a gestión una orden (anula + desvincula + recalcula bajo candado) y la vuelve a gestionar aunque tenga el bloqueo; la re-solicitud vincula solo las órdenes en corrección, congela tarifa y recalcula `cierre_detail`. Panel en «Cierre del día» y Entregas habilita solo las órdenes en corrección. Sin migración.
+- R1–R28; mapa en `progress/impl_477.md`; mutaciones muertas contra Postgres. Revisión: rechazo solo de proceso, cerrado. Recorrido T5.5 con capturas en `progress/477_t55/`. PR #855.
+- Fichas candidatas (no registradas): aviso de bloqueo de Entregas que contradice la corrección; «Motivo de rechazo» visible en cierre ya Solicitado (`cierre-factura.tsx:951`).
+
+## 479 — Aviso de bloqueo de Entregas con orden en corrección (2026-10-15)
+- `avisoBloqueo` recibe `ordenesEnCorreccion` (dato `enCorreccion` de la 477): con N>0 dice que solo puede volver a gestionar la(s) N orden(es) del cierre rechazado; con 0, texto de siempre. PR #857, revisión APROBADA, mutaciones muertas.
+
+## 480 — Motivo de rechazo en un cierre ya reenviado (2026-10-15)
+- `motivoRechazoVisible(estado, motivo)` en `cierre-factura.tsx`: el motivo solo se pinta con el cierre `rechazado`, en resumen admin, resumen propio y pie del detalle. PR #856, gate ampliado verde, revisión APROBADA.
+
+## 478 — Detalle por guía y evidencias en el cierre de bodega (2026-10-15)
+- El modal del cierre de bodega (maestro/admin) monta por mensajero la lista en pestañas con la fila desplegable del comprobante de mensajero: dirección, recibido, flete, comisión, pago, «Ver evidencia» en los cinco resultados, desglose y cobros. Solo lectura (P1), sin descarga por sección (P3); la fila suma causa, indemnización y fulfillment (P2). Sin cambios de servidor ni migración.
+- R1–R19; mapa en `progress/impl_478.md`; mutaciones del reviewer muertas. T6 con capturas en `progress/478_t6/`. PR #858.
+- Deuda: `DetalleSecciones` sin uso (ficha de limpieza por registrar); design §2.1 no recoge el nombre «<resultado> · <mensajero>»; fulfillment ahora visible también a la adminSatelite (por confirmar).
+
+## 482 — Retirar DetalleSecciones sin uso (2026-10-15)
+- Tras la 478, borradas las tablas viejas del detalle de cierre, las cinco descargas por sección y `medios-pago-descarga-columnas.ts` (columnas mudadas sin cambio a la hoja fundida). −2.267 líneas, sin cambio visible.
+- Tests: 2 borrados (solo vigilaban lo borrado), 7 reapuntados a la lista en pestañas de la 478 o al cierre del día; 234/R3 y R52 anotados `@test-desaparecido`. Revisión OK con mutaciones propias. PR #860.
+
+## 481 — Fulfillment solo para la central (2026-10-15)
+- La adminSatelite (y el mensajero) dejan de ver el fulfillment por las tres vías: comprobante (audiencia `satelite`), payload del servidor (`ocultarFulfillmentSiNoCentral` en `CierresAdminService`: detalle y listado completo, `tarifa.fulfillment = null`) y Excel «Detalle» (`columnasDescargaGestionesFundidaPara`). Maestro/admin sin cambios; ningún total incluía fulfillment.
+- Revisión OK con 8 mutaciones (7 rojas; sobrevive el cableado módulo→comprobante, cubierto por el `null` del servidor). Gate ampliado verde. PR #859.

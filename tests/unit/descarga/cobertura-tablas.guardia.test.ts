@@ -219,8 +219,15 @@ const ARBOLES_UI = ["app", "components"] as const;
 // es ahora el estado de cuenta compartido, que gana su cuarto montaje (`MiEstadoCuenta`). Dentro de
 // alcance 24 -> 23; exclusiones intactas. Esta guardia se vio fallar PRIMERO con «expected 36 to be 37»
 // y «expected 37 to be 38» antes de tocar estos numeros. Censo total: 37 = 36 `<DataTable>` + 1 cruda.
-const TOTAL_ARCHIVOS_CON_DATATABLE = 36;
-const TOTAL_INSTANCIAS_DATATABLE = 36;
+//
+// ⭑ FICHA 482 (2026-10-15): 36 -> 35 archivos y 36 -> 35 instancias. Sale `cierre-detalle-shared.tsx`
+// («Gestiones de un cierre por resultado (detalle)», `con_descarga`): sus tablas (`DetalleSecciones`)
+// las sustituyó la 478 por la lista en pestañas de `cierre-factura`, que no es `<DataTable>`, y la
+// 482 las borró. Dentro de alcance 23 -> 22; exclusiones intactas. Esta guardia se vio fallar
+// PRIMERO con «expected 35 to be 36», «expected 36 to be 37» y «length of 23 but got 22» antes de
+// tocar estos numeros. Censo total: 36 = 35 `<DataTable>` + 1 cruda.
+const TOTAL_ARCHIVOS_CON_DATATABLE = 35;
+const TOTAL_INSTANCIAS_DATATABLE = 35;
 
 function listarTsx(dir: string, acc: string[] = []): string[] {
   for (const entrada of readdirSync(dir, { withFileTypes: true })) {
@@ -425,7 +432,9 @@ describe("guardia de cobertura del censo de tablas", () => {
     // extracto compartido del estado de cuenta. Las 14 exclusiones NO se mueven.
     // ⭑ FICHA 458-D (T D.5, cierre de pantalla): 38 → 37. Sale el libro de `/mi-wallet`
     // (`DesgloseTiendaLedger`): la tienda ve el extracto compartido. Las 14 exclusiones NO se mueven.
-    expect(totalCensado).toBe(37);
+    // ⭑ FICHA 482: 37 → 36. Salen las tablas del detalle de un cierre (`DetalleSecciones`), que la
+    // 478 sustituyó por la lista en pestañas. Las 14 exclusiones NO se mueven.
+    expect(totalCensado).toBe(36);
   });
 
   it("la FASE 1 del export queda cerrada: ninguna tabla del censo sigue pendiente", () => {
@@ -537,7 +546,9 @@ describe("guardia de cobertura del censo de tablas", () => {
     // ⭑ FICHA 458-D (T D.8): 25 → 24 dentro de alcance —salen dos desplegables `con_descarga` y entra
     // uno, el extracto del estado de cuenta, también `con_descarga`—; las 14 exclusiones INTACTAS.
     // ⭑ FICHA 458-D (T D.5, cierre de pantalla): 24 → 23 —sale el libro de `/mi-wallet`, `con_descarga`—.
-    expect(censadas.filter((t) => t.estado === "con_descarga")).toHaveLength(23);
+    // ⭑ FICHA 482: 23 → 22 —salen las tablas del detalle de un cierre (`DetalleSecciones`),
+    // `con_descarga`; la 478 retiró su descarga por sección (P3) y la 482 las borró—.
+    expect(censadas.filter((t) => t.estado === "con_descarga")).toHaveLength(22);
     expect(censadas.filter((t) => t.estado === "fuera")).toHaveLength(14);
   });
 

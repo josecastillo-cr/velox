@@ -136,12 +136,29 @@ import {
   RECHAZO_ORIGEN_COL,
   RECHAZO_SLA_BADGE_LABEL,
   RESULTADO_FILA_LABEL,
+  METODO_LABEL,
   // FICHA 408: mismo criterio que R45 —«SIEMPRE la etiqueta legible, JAMÁS el value del
   // enum»—, aplicado al motivo que compone el cron de plazos vencidos.
   motivoGestionLegible,
 } from "./cierre-labels";
-import { CLAVE_MEDIO_PAGO, montoPorMetodo } from "./desglose-pago";
-import { COLUMNAS_MEDIOS_PAGO } from "./medios-pago-descarga-columnas";
+import { CLAVE_MEDIO_PAGO, MEDIOS_PAGO, montoPorMetodo } from "./desglose-pago";
+
+/**
+ * UNA COLUMNA POR MEDIO DE PAGO (2026-08-19), en el orden de `MEDIOS_PAGO` —el de declaración
+ * del enum, que es el mismo que el servidor garantiza en `pagos` (R24)—. El encabezado es la
+ * ETIQUETA LEGIBLE del medio (R8), nunca el value del enum. Sustituyó a la celda única «Método»,
+ * que llevaba el desglose CONCATENADO («Efectivo 100 + SINPE 50»): una hoja de cálculo no puede
+ * sumar eso.
+ *
+ * FICHA 482 (2026-10-15): vivía en `medios-pago-descarga-columnas.ts` para que la compartieran
+ * esta hoja y las cinco descargas por sección del detalle de un cierre. Aquéllas se borraron con
+ * `DetalleSecciones` (478/P3) y esta hoja quedó como su ÚNICO consumidor, así que la declaración
+ * se muda aquí, tal cual: mismas claves, mismos encabezados, mismo orden.
+ */
+const COLUMNAS_MEDIOS_PAGO: DescargaColumna[] = MEDIOS_PAGO.map((metodo) => ({
+  clave: CLAVE_MEDIO_PAGO[metodo],
+  encabezado: METODO_LABEL[metodo],
+}));
 
 // --- Encabezados propios de la fundida (texto separado de la lógica, i18n-ready) ---
 //
@@ -277,6 +294,35 @@ export const COLUMNAS_DESCARGA_GESTIONES_FUNDIDA: DescargaColumna[] = [
   { clave: "ingresoBodega", encabezado: INGRESO_BODEGA_RECHAZOS_COL },
   { clave: "indemnizacion", encabezado: INDEMNIZACION_COL },
 ];
+
+/**
+ * FICHA 481 (2026-10-15) — para quién se arma la hoja: `admin` es la CENTRAL (maestro y admin),
+ * `satelite` el `adminSatelite`. Mismo par que la audiencia del comprobante, declarado aquí como
+ * literal propio para que este módulo siga PURO (sin importar nada de React).
+ */
+export type AudienciaDescargaGestionesFundida = "admin" | "satelite";
+
+/**
+ * Columnas que son dato de la CENTRAL y no salen en la hoja del `adminSatelite`. Hoy solo el
+ * fulfillment congelado de la tarifa: el servidor ya se lo manda en `null`
+ * (`ocultarFulfillmentSiNoCentral`), y aquí se retira además la COLUMNA, para que no quede un
+ * encabezado «Fulfillment» vacío en su archivo ni una casilla en su selector.
+ */
+const CLAVES_SOLO_CENTRAL: ReadonlySet<string> = new Set(["fulfillment"]);
+
+/**
+ * Las columnas de la hoja fundida para una audiencia. La central recibe la declaración ENTERA,
+ * mismo array y mismo orden; cualquier otra audiencia, la misma MENOS las de la central — falla
+ * cerrado: lo que no es `admin` no ve el fulfillment.
+ */
+export function columnasDescargaGestionesFundidaPara(
+  audiencia: AudienciaDescargaGestionesFundida,
+): DescargaColumna[] {
+  if (audiencia === "admin") return COLUMNAS_DESCARGA_GESTIONES_FUNDIDA;
+  return COLUMNAS_DESCARGA_GESTIONES_FUNDIDA.filter(
+    (columna) => !CLAVES_SOLO_CENTRAL.has(columna.clave),
+  );
+}
 
 /**
  * Las diecisiete claves ESPECÍFICAS, en el orden en que se declaran arriba. Es la lista de la que

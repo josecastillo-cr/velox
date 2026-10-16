@@ -45,6 +45,8 @@ function gestionDeshacer(over: Partial<GestionDeshacerRow> = {}): GestionDeshace
     orden: { deletedAt: null, estatusId: "s-entregada", estatusValue: "entregado" },
     desdeAyudaTienda: false,
     registradaComoPendiente: false, // ficha 454 (T1.11): rama LEGADA del deshacer
+    cierreEstado: null, // ficha 477: sin cierre
+    cierreMensajeroId: null,
     ...over,
   };
 }
@@ -67,6 +69,10 @@ function fakeRepo(over: Partial<Repo> = {}): Repo {
     anularGestionYDevolverAGestion: vi.fn(async () => true),
     // FICHA 454 (T1.11): la rama NUEVA del deshacer (gestion pendiente, sin transicion).
     anularGestionPendiente: vi.fn(async () => true),
+    // FICHA 477: re-solicitud del rechazado, deshacer en cierre rechazado y correcciones.
+    resolicitarCierreRechazado: vi.fn(async () => true),
+    anularGestionDeCierreRechazado: vi.fn(async () => true),
+    findCorreccionesPendientes: vi.fn(async () => []),
     ...over,
   } as Repo;
 }
@@ -77,6 +83,7 @@ function montar(repo: Repo = fakeRepo()) {
     findUsuarioZonaId: vi.fn(async () => "z1"),
     findUsuarioVehiculoId: vi.fn(async () => null),
     findEstatusIdByValue: vi.fn(async () => "s-reparto"),
+    findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()), // ficha 477
     findBloqueoDetalle: vi.fn(async () => SIN_BLOQUEO),
   } as unknown as IOrdenRepository;
   const signedUrls: ISignedUrlProvider = {

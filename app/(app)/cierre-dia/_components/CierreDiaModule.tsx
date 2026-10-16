@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { InfoEstado } from "@/components/shared/EstadoInfo";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { EstadoConInfo, InfoEstado } from "@/components/shared/EstadoInfo";
 import { Modal } from "@/components/shared/Modal";
 import {
   DataTable,
@@ -33,6 +35,7 @@ import type {
   CierreTotales,
   CierrePasadoDTO,
   CierreResultado,
+  CorreccionCierreDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreDestinoTipo } from "@/lib/types/cierre";
 // FEATURE 271 (T9.1): la copia local del aviso desapareció. El texto sale del formateador
@@ -162,6 +165,12 @@ export interface CierreDiaModuleProps {
    * caso 6 de la tabla de verdad son cierres DISTINTOS—.
    */
   bloqueo: BloqueoDetalle;
+  /**
+   * FICHA 477 (R25/R26): por cada cierre `rechazado` propio, su motivo, sus gestiones vigentes y
+   * sus órdenes en corrección (`listarCierreDia.correcciones`). Opcional: `[]` = no hay nada que
+   * corregir y no se pinta ningún panel.
+   */
+  correcciones?: CorreccionCierreDTO[];
 }
 
 // =================================================================================================
@@ -214,9 +223,54 @@ const RECHAZADO_AVISO =
   "Tu cierre fue rechazado, pero no queda cerrado. Vuelve a enviarlo a aprobación con el botón de abajo.";
 const RECHAZADO_CTA_LABEL = "Solicitar aprobación del cierre rechazado";
 const RECHAZADO_CONFIRM_TITULO = "Solicitar aprobación del cierre rechazado";
-const RECHAZADO_CONFIRM_DETALLE =
-  "Se enviará de nuevo tu cierre rechazado a tu bodega para aprobación. No se recalculan los montos ya registrados.";
+// FICHA 477 (R28): la confirmación ya NO dice «No se recalculan los montos ya registrados». Desde
+// la 477 es falso para un `rechazado`: al reenviarlo, el servidor vincula las gestiones rehechas,
+// poda las órdenes que se quedaron sin gestión y recalcula los seis totales (design D5). El
+// `vencido` conserva su frase: su re-solicitud sigue cambiando solo el estado (R21).
+export const RECHAZADO_CONFIRM_DETALLE =
+  "Se enviará de nuevo tu cierre rechazado a tu bodega para aprobación, con los totales de las gestiones que tenga al enviarlo.";
+/**
+ * FICHA 477 (R28): cuántas órdenes en corrección de ESE cierre siguen sin volver a gestionarse.
+ * Salen del cierre al reenviarlo (R18, Pregunta abierta 3 por defecto): se dice ANTES de confirmar.
+ */
+export function rechazadoConfirmSinRehacer(n: number): string {
+  return n === 1
+    ? "Hay 1 orden que deshiciste y no volviste a gestionar: saldrá del cierre al enviarlo."
+    : `Hay ${n} órdenes que deshiciste y no volviste a gestionar: saldrán del cierre al enviarlo.`;
+}
 const RECHAZADO_OK = "Cierre rechazado enviado a aprobación.";
+
+// =================================================================================================
+// FICHA 477 (R25/R26, design D8) — PANEL «CORREGIR EL CIERRE RECHAZADO».
+// =================================================================================================
+//
+// Un panel por cada cierre `rechazado` propio, debajo del CTA de re-envío: el motivo del rechazo,
+// sus gestiones VIGENTES con el MISMO «Devolver a gestión» (mismo modal, misma action
+// `deshacerGestion`; la exención por objeto la decide el servidor, D4) y las órdenes que ya se
+// deshicieron, con su estado y el camino a Entregas para volver a gestionarlas.
+//
+// Las gestiones van en una LISTA y no en otra `<DataTable>`: son las pocas de UN cierre, no un
+// listado a descargar, y una tabla nueva entraría en el censo de descargas (170) sin aportar nada.
+export const CORRECCION_TITULO = "Corregir el cierre rechazado";
+export const CORRECCION_MOTIVO_LABEL = "Motivo del rechazo:";
+export const CORRECCION_SIN_MOTIVO = "La bodega no indicó un motivo.";
+export const CORRECCION_EXPLICACION =
+  "Si una gestión quedó mal, devuélvela a gestión: sale de este cierre, sus totales se recalculan y la orden vuelve a Entregas para que la gestiones de nuevo. Cuando termines, vuelve a enviar el cierre a aprobación.";
+// Pregunta abierta 1 (por defecto: se acepta y se avisa en pantalla).
+export const CORRECCION_AVISO_CORTE =
+  "Envíalo hoy: si el corte de la noche llega antes, lo que corregiste pasa a un cierre nuevo.";
+export const CORRECCION_GESTIONES_TITULO = "Gestiones del cierre";
+export const CORRECCION_GESTIONES_VACIO = "Este cierre ya no tiene gestiones.";
+export const CORRECCION_ORDENES_TITULO = "Órdenes por volver a gestionar";
+export const CORRECCION_REGESTIONADA = "Ya la volviste a gestionar";
+export const CORRECCION_PENDIENTE = "Falta volver a gestionarla";
+export const CORRECCION_IR_ENTREGAS = "Ir a Entregas";
+const RUTA_ENTREGAS = "/mis-asignaciones/reparto";
+
+/** Nombre de la región de un panel de corrección: numerado solo si hay más de un rechazado. */
+function correccionRegion(i: number, total: number): string {
+  return total > 1 ? `${CORRECCION_TITULO} (${i + 1} de ${total})` : CORRECCION_TITULO;
+}
 
 // ⚠️ FEATURE 271 — AQUÍ VIVIÓ UN TERCER CTA «NEUTRO», Y HOY SE BORRA POR LA RAZÓN POR LA QUE NACIÓ.
 //
@@ -438,6 +492,7 @@ export function CierreDiaModule({
   motivoBloqueo,
   cierresPasados,
   bloqueo,
+  correcciones = [],
 }: CierreDiaModuleProps) {
   const router = useRouter();
   const toast = useToast();
@@ -467,6 +522,18 @@ export function CierreDiaModule({
   const reenviable = bloqueo.aReenviarPrimero;
   const tieneVencido = reenviable?.estado === "vencido";
   const tieneRechazado = reenviable?.estado === "rechazado";
+
+  // FICHA 477 (R28): las órdenes en corrección del cierre que ESTE botón reenvía (el mismo
+  // `aReenviarPrimero` que transiciona el servidor) que aún no se volvieron a gestionar.
+  const sinRehacerDelReenviable = tieneRechazado
+    ? (correcciones
+        .find((c) => c.cierreId === reenviable?.cierreId)
+        ?.ordenesEnCorreccion.filter((o) => !o.regestionada).length ?? 0)
+    : 0;
+  const rechazadoConfirmDetalle =
+    sinRehacerDelReenviable > 0
+      ? `${RECHAZADO_CONFIRM_DETALLE} ${rechazadoConfirmSinRehacer(sinRehacerDelReenviable)}`
+      : RECHAZADO_CONFIRM_DETALLE;
 
   // Confirmación de "Solicitar cierre"; true = modal abierto.
   const [confirmar, setConfirmar] = useState(false);
@@ -699,6 +766,17 @@ export function CierreDiaModule({
         </section>
       ) : null}
 
+      {/* ---------- FICHA 477 (R25/R26): corregir las gestiones de cada cierre rechazado ---------- */}
+      {correcciones.map((c, i) => (
+        <PanelCorreccion
+          key={c.cierreId}
+          correccion={c}
+          region={correccionRegion(i, correcciones.length)}
+          pedirDeshacer={setDeshacerFila}
+          deshaciendo={deshaciendo}
+        />
+      ))}
+
       {/* ---------- Panel de totales por método de pago (R7) ---------- */}
       <section aria-label="Totales del día" className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">Totales del día</h2>
@@ -909,7 +987,7 @@ export function CierreDiaModule({
         open={confirmarRechazado}
         onOpenChange={setConfirmarRechazado}
         title={RECHAZADO_CONFIRM_TITULO}
-        description={RECHAZADO_CONFIRM_DETALLE}
+        description={rechazadoConfirmDetalle}
         confirmLabel="Solicitar aprobación"
         onConfirm={() => confirmarSolicitud(RECHAZADO_OK)}
         closeOnConfirm={false}
@@ -1161,29 +1239,7 @@ function columnasPara(
   const columnaAcciones: Column<CierreDetalleGestion> = {
     id: "acciones",
     value: DESHACER_COL,
-    render: (g) => {
-      // Feature 237 (D3/R38): la gestion que registro LA TIENDA no la puede deshacer el mensajero.
-      // El servidor lo rechaza igual (guardia 3-bis) — esto no es la defensa, es no ofrecer una
-      // accion que solo puede acabar en error, y decir por que.
-      const bloqueadaPorTienda = g.desdeAyudaTienda;
-      return (
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          aria-label={
-            bloqueadaPorTienda
-              ? `${deshacerAriaLabel(g)} — no disponible: ${DESHACER_BLOQUEO_TIENDA}`
-              : deshacerAriaLabel(g)
-          }
-          title={bloqueadaPorTienda ? DESHACER_BLOQUEO_TIENDA : undefined}
-          disabled={bloqueadaPorTienda || deshaciendo === g.gestionId}
-          onClick={() => pedirDeshacer(g)}
-        >
-          {DESHACER_LABEL}
-        </Button>
-      );
-    },
+    render: (g) => botonDeshacer(g, pedirDeshacer, deshaciendo),
   };
   if (resultado === "entregado") {
     return [
@@ -1285,6 +1341,145 @@ function columnasPara(
     columnaPago,
     columnaAcciones,
   ];
+}
+
+/**
+ * El «Devolver a gestión» de UNA gestión. Lo comparten la columna de acciones de las tablas del día
+ * (67/R35) y el panel de corrección del cierre rechazado (477/R25): misma regla, mismo texto.
+ *
+ * Feature 237 (D3/R38): la gestion que registro LA TIENDA no la puede deshacer el mensajero. El
+ * servidor lo rechaza igual (guardia 3-bis; en la 477, R7) — esto no es la defensa, es no ofrecer
+ * una accion que solo puede acabar en error, y decir por que.
+ */
+function botonDeshacer(
+  g: CierreDetalleGestion,
+  pedirDeshacer: (g: CierreDetalleGestion) => void,
+  deshaciendo: string | null,
+) {
+  const bloqueadaPorTienda = g.desdeAyudaTienda;
+  return (
+    <Button
+      type="button"
+      size="sm"
+      variant="outline"
+      aria-label={
+        bloqueadaPorTienda
+          ? `${deshacerAriaLabel(g)} — no disponible: ${DESHACER_BLOQUEO_TIENDA}`
+          : deshacerAriaLabel(g)
+      }
+      title={bloqueadaPorTienda ? DESHACER_BLOQUEO_TIENDA : undefined}
+      disabled={bloqueadaPorTienda || deshaciendo === g.gestionId}
+      onClick={() => pedirDeshacer(g)}
+    >
+      {DESHACER_LABEL}
+    </Button>
+  );
+}
+
+/**
+ * FICHA 477 (R25/R26) — el panel de UN cierre rechazado propio. Solo pinta: el deshacer lo abre el
+ * modal compartido del módulo (`pedirDeshacer`) y la decisión de si se puede la toma el servidor.
+ */
+function PanelCorreccion({
+  correccion,
+  region,
+  pedirDeshacer,
+  deshaciendo,
+}: {
+  correccion: CorreccionCierreDTO;
+  region: string;
+  pedirDeshacer: (g: CierreDetalleGestion) => void;
+  deshaciendo: string | null;
+}) {
+  const { gestiones, ordenesEnCorreccion, motivoRechazo } = correccion;
+  return (
+    <section aria-label={region} className="flex flex-col gap-3">
+      <h2 className="text-lg font-semibold">{CORRECCION_TITULO}</h2>
+      <Card>
+        <CardContent className="flex flex-col gap-4 pt-6">
+          <p className="text-sm">
+            <span className="font-medium">{CORRECCION_MOTIVO_LABEL}</span>{" "}
+            {motivoRechazo?.trim() ? motivoRechazo : CORRECCION_SIN_MOTIVO}
+          </p>
+          <p className="text-sm text-muted-foreground">{CORRECCION_EXPLICACION}</p>
+          <p role="note" className="text-sm text-muted-foreground">
+            {CORRECCION_AVISO_CORTE}
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold">{CORRECCION_GESTIONES_TITULO}</h3>
+            {gestiones.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{CORRECCION_GESTIONES_VACIO}</p>
+            ) : (
+              <ul aria-label={CORRECCION_GESTIONES_TITULO} className="flex flex-col divide-y rounded-md border">
+                {gestiones.map((g) => (
+                  <li
+                    key={g.gestionId}
+                    className="flex flex-wrap items-center justify-between gap-3 px-3 py-2"
+                  >
+                    <div className="flex min-w-0 flex-col gap-0.5 text-sm">
+                      <span className="inline-flex flex-wrap items-center gap-2">
+                        <span className="font-semibold">{g.numGuia ?? "—"}</span>
+                        <span>{g.numRemision}</span>
+                        <span className="text-muted-foreground">· {g.destinatario}</span>
+                        {g.desdeAyudaTienda ? (
+                          <Badge
+                            variant="secondary"
+                            title={GESTION_TIENDA_BADGE_NOTA}
+                            aria-label={GESTION_TIENDA_BADGE_NOTA}
+                          >
+                            {GESTION_TIENDA_BADGE_LABEL}
+                          </Badge>
+                        ) : null}
+                      </span>
+                      <span className="inline-flex flex-wrap items-center gap-1 text-muted-foreground">
+                        {/* FICHA 456 (R18): el nombre del resultado se pinta con su botón de información. */}
+                        <EstadoConInfo codigo={g.resultado} />
+                        {g.montoRecibido !== null ? ` · ${money(g.montoRecibido)}` : ""}
+                        {g.pagoMensajero !== null
+                          ? ` · ${PAGO_MENSAJERO_COL}: ${money(g.pagoMensajero)}`
+                          : ""}
+                      </span>
+                    </div>
+                    {botonDeshacer(g, pedirDeshacer, deshaciendo)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {ordenesEnCorreccion.length > 0 ? (
+            <div className="flex flex-col gap-2">
+              <h3 className="text-sm font-semibold">{CORRECCION_ORDENES_TITULO}</h3>
+              <ul aria-label={CORRECCION_ORDENES_TITULO} className="flex flex-col divide-y rounded-md border">
+                {ordenesEnCorreccion.map((o) => (
+                  <li
+                    key={o.ordenId}
+                    className="flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-sm"
+                  >
+                    <span className="inline-flex flex-wrap items-center gap-2">
+                      <span className="font-semibold">{o.numGuia ?? "—"}</span>
+                      <span>{o.numRemision}</span>
+                      <span className="text-muted-foreground">· {o.destinatario}</span>
+                    </span>
+                    <Badge variant={o.regestionada ? "success" : "warning"}>
+                      {o.regestionada ? CORRECCION_REGESTIONADA : CORRECCION_PENDIENTE}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={RUTA_ENTREGAS}
+                className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-fit")}
+              >
+                {CORRECCION_IR_ENTREGAS}
+              </Link>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+    </section>
+  );
 }
 
 /**

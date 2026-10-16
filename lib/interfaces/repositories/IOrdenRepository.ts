@@ -2337,6 +2337,15 @@ export interface IOrdenRepository {
    */
   findBloqueoDetalle(mensajeroId: string): Promise<BloqueoDetalle>;
   /**
+   * FICHA 477 (design D2/§5.1, T1.2) — de `ordenIds`, las que estan EN CORRECCION de un cierre
+   * `rechazado` del propio `mensajeroId`: con fila en `cierre_detail` de ese cierre y sin ninguna
+   * gestion vigente vinculada a el. El predicado vive UNA vez en `lib/repositories/correccion-cierre.ts`.
+   *
+   * Es la exencion POR OBJETO del bloqueo N/V: el mensajero sigue bloqueado, y solo estas ordenes se
+   * le abren para escoger, gestionar y deshacer su gestion rehecha. `ordenIds` vacio -> ni una consulta.
+   */
+  findOrdenesEnCorreccion(mensajeroId: string, ordenIds: string[]): Promise<Set<string>>;
+  /**
    * FICHA 412 (T5.1, R11) — la JORNADA que cierra UN cierre concreto, en fecha calendario de Costa
    * Rica (`YYYY-MM-DD`), o `null` si no hay ninguna fiable. Una sola consulta, y el resultado pasa
    * por `derivarJornada` (`lib/utils/jornada-cierre.ts`), que es el UNICO derivador (271/R61).

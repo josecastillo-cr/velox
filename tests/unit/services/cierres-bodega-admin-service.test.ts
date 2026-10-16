@@ -209,6 +209,30 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
     }
   });
 
+  it("478/R16: sin acceso total, verCierreBodegaDetalle no lee el cierre NI firma ninguna evidencia", async () => {
+    for (const actor of [ADMIN_SATELITE, MENSAJERO]) {
+      // El repo SÍ tiene un cierre con evidencia: si el corte de rol se moviera detrás de la
+      // lectura, el firmador se llamaría con esta ruta.
+      const repo = fakeRepo({
+        findCierreBodegaConDetalle: vi.fn(async () => ({
+          cierre: bodegaResumenRow(),
+          cierresDia: [
+            {
+              resumen: detalleCierreRow(),
+              gestiones: [gestionRow({ evidenciaStoragePath: "o1/e.jpg" })],
+            },
+          ],
+        })),
+      });
+      const signedUrls = fakeSignedUrls();
+      const { service } = newService({ repo, signedUrls });
+      expect((await service.verCierreBodegaDetalle("cb1", actor)).status).toBe("forbidden");
+      expect(repo.findCierreBodegaConDetalle).not.toHaveBeenCalled();
+      expect(signedUrls.createSignedUrls).not.toHaveBeenCalled();
+      expect(signedUrls.createSignedUrl).not.toHaveBeenCalled();
+    }
+  });
+
   it("feature 94: admin tiene paridad con maestro en las 4 operaciones", async () => {
     const repo = fakeRepo({
       findCierresBodega: vi.fn(async () => [bodegaResumenRow()]),
@@ -472,6 +496,51 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
     expect(g1.evidenciaUrl).toBe("https://signed/o1/r.jpg");
     expect(g1).not.toHaveProperty("evidenciaStoragePath");
     expect(r.cierres[1].grupos.entregado[0].evidenciaUrl).toBe("https://signed/o2/e.jpg");
+  });
+
+  it("478/R13: firma la evidencia de una ENTREGADA, una REPROGRAMADA y una NOVEDAD, no solo de rechazos", async () => {
+    const repo = fakeRepo({
+      findCierreBodegaConDetalle: vi.fn(async () => ({
+        cierre: bodegaResumenRow(),
+        cierresDia: [
+          {
+            resumen: detalleCierreRow({ cierreDiaId: "cd1" }),
+            gestiones: [
+              gestionRow({ gestionId: "ge", resultado: "entregado", evidenciaStoragePath: "o1/ent.jpg" }),
+              gestionRow({ gestionId: "gr", resultado: "reprogramado", montoRecibido: null, metodoPago: null, fechaReprogramacion: "2026-07-12", evidenciaStoragePath: "o2/rep.jpg" }),
+              gestionRow({ gestionId: "gn", resultado: "novedad", montoRecibido: null, metodoPago: null, motivo: "cliente_ausente", evidenciaStoragePath: "o3/nov.jpg" }),
+              gestionRow({ gestionId: "gd", resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o4/rch.jpg" }),
+              gestionRow({ gestionId: "gi", resultado: "incidente", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o5/inc.jpg" }),
+            ],
+          },
+        ],
+      })),
+    });
+    const signedUrls = fakeSignedUrls();
+    const { service } = newService({ repo, signedUrls });
+    const r = await service.verCierreBodegaDetalle("cb1", MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+
+    // Las CINCO rutas, en una sola llamada en lote.
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledTimes(1);
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledWith(
+      ["o1/ent.jpg", "o2/rep.jpg", "o3/nov.jpg", "o4/rch.jpg", "o5/inc.jpg"],
+      expect.any(Number),
+    );
+    const grupos = r.cierres[0].grupos;
+    const esperado = [
+      [grupos.entregado[0], "https://signed/o1/ent.jpg"],
+      [grupos.reprogramado[0], "https://signed/o2/rep.jpg"],
+      [grupos.novedad[0], "https://signed/o3/nov.jpg"],
+      [grupos.devolucion_a_origen_por_rechazo[0], "https://signed/o4/rch.jpg"],
+      [grupos.incidente[0], "https://signed/o5/inc.jpg"],
+    ] as const;
+    for (const [dto, url] of esperado) {
+      expect(dto.evidenciaUrl).toBe(url);
+      // Solo la URL firmada: la ruta de almacenamiento no viaja en ningún campo del DTO.
+      expect(dto).not.toHaveProperty("evidenciaStoragePath");
+      expect(JSON.stringify(dto)).not.toContain(`"${url.replace("https://signed/", "")}"`);
+    }
   });
 
   it("R20: el detalle expone el pago al mensajero snapshoteado por cierre_dia, por gestion y el agregado", async () => {

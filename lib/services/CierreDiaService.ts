@@ -14,6 +14,7 @@ import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import type {
   CierreDetalleGestion,
   CierreGrupos,
+  CorreccionCierreDTO,
   DeshacerGestionServiceResult,
   ICierreDiaService,
   ListarCierreDiaServiceResult,
@@ -165,9 +166,15 @@ type ZonaRepo = Pick<IZonaRepository, "findCentralZonaId">;
 //   · el GATE de creacion de `solicitarCierre` (271/R15), que antes era `existeCierreSolicitado`.
 // Se pide el DETALLE y no el `Set` porque los dos sitios componen un motivo que CUENTA cuantos
 // cierres arrastra y cual toca primero (R27/R43), no un «estas bloqueado» a secas.
+// FICHA 477 (D4): + `findOrdenesEnCorreccion`, la exencion POR OBJETO del bloqueo en el deshacer
+// caso (b): la gestion rehecha de una orden en correccion se puede deshacer con el bloqueo puesto.
 type OrdenRepo = Pick<
   IOrdenRepository,
-  "findUsuarioZonaId" | "findUsuarioVehiculoId" | "findEstatusIdByValue" | "findBloqueoDetalle"
+  | "findUsuarioZonaId"
+  | "findUsuarioVehiculoId"
+  | "findEstatusIdByValue"
+  | "findBloqueoDetalle"
+  | "findOrdenesEnCorreccion"
 >;
 
 /**
@@ -362,6 +369,10 @@ export class CierreDiaService implements ICierreDiaService {
     // (111/R13): un `rechazado` NO es terminal (bloquea hasta re-solicitar + aprobar).
     const tieneRechazado = cierresPasados.some((c) => c.estado === "rechazado");
 
+    // FICHA 477 (R25/R26): sin rechazados, `[]` y NI UNA consulta mas (la pantalla mas caliente del
+    // mensajero no paga nada por una feature que casi nunca aplica).
+    const correcciones = tieneRechazado ? await this.correccionesDe(actor.usuarioId) : [];
+
     return {
       status: "ok",
       grupos,
@@ -373,7 +384,52 @@ export class CierreDiaService implements ICierreDiaService {
       cierresPasados,
       tieneVencido, // feature 111/R13
       tieneRechazado, // feature 109/R31
+      correcciones, // ficha 477/R25/R26
     };
+  }
+
+  /**
+   * FICHA 477 (design §5.2, R25/R26) — por cada cierre `rechazado` propio: su motivo, sus gestiones
+   * VIGENTES (las que el mensajero puede deshacer, con el snapshot congelado: no se re-derivan con
+   * la tarifa de hoy, igual que `verCierrePasado`) y sus ordenes en correccion.
+   *
+   * Las evidencias se firman en BEST-EFFORT, como en `verCierrePasado`: es una vista de consulta y
+   * las fotos la ilustran; un storage caido no puede dejar al mensajero sin la lista que corrige.
+   */
+  private async correccionesDe(mensajeroId: string): Promise<CorreccionCierreDTO[]> {
+    const pendientes = await this.repo.findCorreccionesPendientes(mensajeroId);
+    const salida: CorreccionCierreDTO[] = [];
+    for (const c of pendientes) {
+      const propio = await this.repo.findCierrePropioConGestiones(c.cierreId, mensajeroId);
+      const gestiones = propio?.gestiones ?? [];
+      const paths = gestiones
+        .map((g) => g.evidenciaStoragePath)
+        .filter((p): p is string => p !== null);
+      let urlByPath: Record<string, string> = {};
+      if (paths.length > 0) {
+        try {
+          urlByPath = await this.signedUrls.createSignedUrls(
+            paths,
+            cierreConfig.SIGNED_URL_TTL_SECONDS,
+          );
+        } catch {
+          urlByPath = {};
+        }
+      }
+      salida.push({
+        cierreId: c.cierreId,
+        motivoRechazo: c.motivoRechazo,
+        gestiones: gestiones.map((g) => toDetalleDTO(g, urlByPath)),
+        ordenesEnCorreccion: c.ordenesEnCorreccion.map((o) => ({
+          ordenId: o.ordenId,
+          numGuia: o.numGuia,
+          numRemision: o.numRemision,
+          destinatario: o.destinatario,
+          regestionada: o.regestionada,
+        })),
+      });
+    }
+    return salida;
   }
 
   /**
@@ -554,10 +610,31 @@ export class CierreDiaService implements ICierreDiaService {
     // viejo al mas nuevo». Con un solo cierre abierto daba igual; derogado ese invariante (R9), no.
     const resolicitable = await this.repo.findCierreResolicitableMasViejo(actor.usuarioId);
     if (resolicitable !== null) {
-      const ok = await this.repo.transicionarASolicitado(
-        resolicitable.id,
-        resolicitable.estado, // anti-TOCTOU: solo si SIGUE en el estado que leimos
-      );
+      // FICHA 477 (D5, R15-R22) — EL `rechazado` YA NO SOLO CAMBIA DE ESTADO. Puede llegar
+      // CORREGIDO (gestiones deshechas y rehechas), y su re-solicitud vincula las rehechas, congela
+      // su pago con la tarifa de la zona destino del cierre y el vehiculo del mensajero (R17), saca
+      // del cierre las ordenes que siguen sin gestion (R18) y recalcula los seis totales (R19), todo
+      // en una transaccion. Sin correcciones deja el cierre identico (R20).
+      //
+      // El `vencido` sigue por `transicionarASolicitado` EXACTAMENTE como hoy (R21): solo estado.
+      let ok: boolean;
+      if (resolicitable.estado === "rechazado") {
+        const vehiculoId = await this.ordenRepo.findUsuarioVehiculoId(actor.usuarioId);
+        const tarifa = await this.tarifaZonaRepo.resolvePagoTarifa(
+          resolicitable.destinoZonaId,
+          vehiculoId,
+        );
+        ok = await this.repo.resolicitarCierreRechazado({
+          cierreId: resolicitable.id,
+          mensajeroId: actor.usuarioId,
+          tarifa,
+        });
+      } else {
+        ok = await this.repo.transicionarASolicitado(
+          resolicitable.id,
+          resolicitable.estado, // anti-TOCTOU: solo si SIGUE en el estado que leimos
+        );
+      }
       // R19: con el `id` en el `where`, `false` significa 0 filas — carrera, SIN efectos. Ya no
       // puede significar «movi dos y te digo que no» (M2).
       if (!ok) return { status: "conflict", motivo: MSG_DUPLICADO };
@@ -685,14 +762,49 @@ export class CierreDiaService implements ICierreDiaService {
     //
     // R27: el motivo lo compone el formateador, así que dice POR QUÉ está bloqueado y QUÉ tiene que
     // hacer para salir — no un «no se puede» a secas. Y sin efectos: la guarda va la primera.
+    //
+    // ⚠️ FICHA 477 (D4, R4/R5) — LA EXENCION ES POR OBJETO, NO POR MENSAJERO. Un cierre `rechazado`
+    // da V = 1, asi que quien tiene uno esta SIEMPRE bloqueado, y la unica forma de corregirlo es
+    // deshacer sus gestiones. Con el bloqueo puesto se lee la gestion y SOLO se sigue si es
+    // CORREGIBLE: (a) vinculada a un cierre `rechazado` del propio mensajero, o (b) sin cierre, del
+    // modelo 454, y de una orden EN CORRECCION de un rechazado propio (la gestion «vuelta a hacer»).
+    // Todo lo demas —inexistente, ajena, sin cierre fuera de correccion, de un cierre que no es
+    // rechazado propio— recibe EXACTAMENTE el `conflict` de bloqueo de hoy (R5): la misma
+    // respuesta para las cuatro, asi que no revela si la gestion existe. Sigue sin efectos: la
+    // lectura previa no escribe nada.
     const bloqueo = await this.ordenRepo.findBloqueoDetalle(actor.usuarioId);
+    const gestion = await this.repo.findGestionParaDeshacer(gestionId);
+    // Caso (a): la gestion es del actor y su cierre es un `rechazado` del actor.
+    const enCierreRechazadoPropio =
+      gestion !== null &&
+      gestion.mensajeroId === actor.usuarioId &&
+      gestion.cierreId !== null &&
+      gestion.cierreEstado === "rechazado" &&
+      gestion.cierreMensajeroId === actor.usuarioId;
     if (bloqueo.bloqueado) {
-      return { status: "conflict", motivo: avisoBloqueo(bloqueo, { conCta: true }) };
+      const conflictoBloqueo = {
+        status: "conflict" as const,
+        motivo: avisoBloqueo(bloqueo, { conCta: true }),
+      };
+      if (gestion === null || gestion.mensajeroId !== actor.usuarioId) return conflictoBloqueo;
+      let corregible = enCierreRechazadoPropio;
+      if (
+        !corregible &&
+        gestion.cierreId === null &&
+        gestion.anuladaAt === null &&
+        gestion.registradaComoPendiente
+      ) {
+        // Caso (b): la orden esta en correccion de un rechazado propio (predicado unico, D2).
+        const enCorreccion = await this.ordenRepo.findOrdenesEnCorreccion(actor.usuarioId, [
+          gestion.ordenId,
+        ]);
+        corregible = enCorreccion.has(gestion.ordenId);
+      }
+      if (!corregible) return conflictoBloqueo;
     }
 
     // 2) R9: inexistente -> forbidden (NO se distingue de ajena, patron 36/R31: no revela que
     // la gestion existe).
-    const gestion = await this.repo.findGestionParaDeshacer(gestionId);
     if (gestion === null) return { status: "forbidden" };
 
     // 3) R9: gestion de OTRO mensajero -> forbidden, sin exponer ningun dato suyo.
@@ -748,7 +860,16 @@ export class CierreDiaService implements ICierreDiaService {
 
     // 4) R2 (decision 1 del humano): la VENTANA es `cierre_id IS NULL`. Ya vinculada a un
     // cierre = sus totales estan snapshoteados y la wallet la cobrara al aprobar -> conflict.
-    if (gestion.cierreId !== null) return { status: "conflict", motivo: MSG_YA_EN_CIERRE };
+    //
+    // FICHA 477 (R6/R10): la ventana se abre UNICAMENTE para el caso (a) —cierre `rechazado` del
+    // propio mensajero— y solo con una gestion del modelo 454. Un cierre `solicitado`/`aprobado`
+    // sigue cerrado (R6), y una gestion LEGADA en un rechazado tambien (R10, D7): su orden ya
+    // transiciono al registrarse y deshacerla exigiria las aristas de la rama legada.
+    if (gestion.cierreId !== null) {
+      if (!enCierreRechazadoPropio || !gestion.registradaComoPendiente) {
+        return { status: "conflict", motivo: MSG_YA_EN_CIERRE };
+      }
+    }
 
     // 5) R3: ya anulada -> conflict. Un segundo envio NO vuelve a transicionar la orden.
     if (gestion.anuladaAt !== null) return { status: "conflict", motivo: MSG_YA_DESHECHA };
@@ -786,6 +907,23 @@ export class CierreDiaService implements ICierreDiaService {
     if (gestion.registradaComoPendiente) {
       if (gestion.orden.estatusValue !== ESTADO_EN_REPARTO) {
         return { status: "conflict", motivo: MSG_ORDEN_MOVIDA };
+      }
+      // FICHA 477 (R1-R3, R11) — caso (a): anular Y DESVINCULAR del cierre rechazado, con el
+      // recalculo de sus seis totales, en una sola transaccion bajo el candado del cierre. `false`
+      // = el cierre dejo de estar `rechazado` (se re-solicito entre medias) o la orden se movio:
+      // sin efectos. El motivo es el de «ya en un cierre solicitado», que es la carrera que esta
+      // via añade; la de la orden movida ya la filtro la guarda de justo arriba.
+      if (gestion.cierreId !== null) {
+        const anuladaEnCierre = await this.repo.anularGestionDeCierreRechazado({
+          gestionId: gestion.gestionId,
+          ordenId: gestion.ordenId,
+          mensajeroId: gestion.mensajeroId,
+          cierreId: gestion.cierreId,
+          actorUsuarioId: actor.usuarioId,
+          estatusEnRepartoId,
+        });
+        if (!anuladaEnCierre) return { status: "conflict", motivo: MSG_YA_EN_CIERRE };
+        return { status: "ok", ordenId: gestion.ordenId };
       }
       const anulada = await this.repo.anularGestionPendiente({
         gestionId: gestion.gestionId,

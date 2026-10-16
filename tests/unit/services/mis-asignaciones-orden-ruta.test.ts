@@ -104,7 +104,12 @@ function build(rows: MiAsignacionRow[], rutaPrevia: RutaOptimizadaDTO | null) {
 
   return new MisAsignacionesService(
     repo,
-    { findEstatusIdByValue: vi.fn(async () => "x") } as unknown as IOrdenRepository,
+    {
+      findEstatusIdByValue: vi.fn(async () => "x"),
+      // FICHA 477 (R27): el listado pregunta por el bloqueo para decidir `enCorreccion`. Libre aqui.
+      findBloqueoDetalle: vi.fn(async () => ({ bloqueado: false })),
+      findOrdenesEnCorreccion: vi.fn(async () => new Set<string>()),
+    } as unknown as IOrdenRepository,
     {} as IFileStorage,
     {} as ISignedUrlProvider,
     rutaRepo,

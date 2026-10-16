@@ -180,7 +180,20 @@ export function RepartoModule({
   // El texto del aviso, compuesto UNA vez: lo pinta el panel y lo dice el toast de la guarda
   // suave. Dos llamadas darían dos cadenas idénticas, pero también dos sitios donde cambiar
   // `conCta` a medias.
-  const avisoDeBloqueo = avisoBloqueo(bloqueo, { conCta: true });
+  //
+  // FICHA 479: el aviso cuenta las órdenes EN CORRECCIÓN (ficha 477) que el mensajero tiene en
+  // pantalla, para no decir «no puedes entregar» encima de una tarjeta que sí se gestiona. Se
+  // cuentan por id sobre las dos listas que pinta este módulo; sin ninguna, el texto no cambia.
+  const ordenesEnCorreccion = new Set(
+    [...porGestionar, ...conAyuda].filter((o) => o.enCorreccion === true).map((o) => o.id),
+  ).size;
+  const avisoDeBloqueo = avisoBloqueo(bloqueo, { conCta: true, ordenesEnCorreccion });
+  // FICHA 477 (R27, design D4/D8): la exención va POR OBJETO, no por mensajero. Con el bloqueo
+  // puesto, la orden EN CORRECCIÓN de un cierre rechazado propio sigue gestionable (el servidor
+  // aplica la misma exención en `escogerParaGestion`/`gestionar`, R12); todas las demás, no (R13).
+  // Libre, `enCorreccion` no cambia nada: la expresión se reduce a `false`.
+  const bloqueadaPara = (orden: MiAsignacionDTO | null): boolean =>
+    bloqueado && !(orden?.enCorreccion ?? false);
 
   // Feature 97: última ubicación GPS capturada por el botón de sincronización. Se usa como
   // punto de partida del mapa. Sobrevive a `router.refresh()` (estado de cliente), así que el
@@ -407,14 +420,17 @@ export function RepartoModule({
   // bloqueo, la vista colapsa a SOLO el panel de la orden activa (R5–R9). Al volver el
   // puntero a `null` tras `router.refresh()` deja de cumplirse y se restaura la vista
   // completa (R10) sin estado extra. `bloqueado` tiene precedencia: anula el foco (R12).
+  // FICHA 477 (R27): con el bloqueo puesto, el foco solo se abre sobre una orden en corrección.
   const modoFoco =
-    !bloqueado && ordenEnGestionId !== null && detalleOrden !== null;
+    !bloqueadaPara(detalleOrden) &&
+    ordenEnGestionId !== null &&
+    detalleOrden !== null;
 
   // Seleccionar una card la lleva al panel de detalle. Bloqueada si hay otra
   // gestión activa (R19/R20): no se puede cambiar la orden del panel. Feature
   // 111/R14: si el mensajero está BLOQUEADO no se puede escoger (defensa suave).
   function seleccionar(orden: MiAsignacionDTO) {
-    if (bloqueado) return;
+    if (bloqueadaPara(orden)) return;
     // Feature 261 (F3, R12): la orden RESERVADA para un día posterior no se lleva al panel de
     // gestión. Misma defensa suave que la de arriba —silenciosa, porque a esta función sólo se
     // llega desde un control que ya está deshabilitado— y con la misma defensa real detrás: el
@@ -431,7 +447,7 @@ export function RepartoModule({
     if (!detalleOrden) return false;
     // Feature 111/R14: guarda suave. El mensajero bloqueado no puede escoger para
     // gestión; se le remite a resolver su cierre. El backend (R1/R4) rechaza igual.
-    if (bloqueado) {
+    if (bloqueadaPara(detalleOrden)) {
       toast.error(avisoDeBloqueo);
       return false;
     }
@@ -511,7 +527,7 @@ export function RepartoModule({
         total={porGestionar.length}
         esActiva={ordenEnGestionId === orden.id}
         esDetalle={detalleOrden?.id === orden.id}
-        bloqueado={bloqueado}
+        bloqueado={bloqueadaPara(orden)}
         // Pedido humano (ux): la card ya NO selecciona al tocarla. Cambiar la orden del panel
         // pasa por el botón "Gestionar" del pie, que además pide confirmación.
         acciones={
@@ -538,7 +554,7 @@ export function RepartoModule({
             <GestionarOrdenCardButton
               numRemision={orden.numRemision}
               disabled={
-                bloqueado ||
+                bloqueadaPara(orden) ||
                 Boolean(orden.esParaManana) ||
                 ordenEnGestionId !== null ||
                 // La que YA está en el panel: es la que se está gestionando ahora mismo, así
@@ -804,7 +820,7 @@ export function RepartoModule({
                 renderiza el panel (debe resolver su cierre antes de operar con las guías).
                 Pedido humano (rama ux): el detalle va PRIMERO y la lista de cards debajo,
                 así el mensajero ve la orden con la que está trabajando sin desplazarse. */}
-            {detalleOrden && !bloqueado ? (
+            {detalleOrden && !bloqueadaPara(detalleOrden) ? (
               <GestionarOrdenPanel
                 key={detalleOrden.id}
                 orden={detalleOrden}

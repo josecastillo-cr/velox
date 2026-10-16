@@ -1121,6 +1121,9 @@ describe("Feature 67 — findGestionParaDeshacer / findUltimaGestionNoAnuladaId 
       desdeAyudaTienda: false, // feature 237 (D3/R38): la registro el mensajero, no la tienda
       // FICHA 454 (T1.12, R56): sin evento `gestion_registrada` -> rama LEGADA del deshacer.
       registradaComoPendiente: false,
+      // FICHA 477 (T2.1): sin cierre vinculado, estado y dueño del cierre en `null`.
+      cierreEstado: null,
+      cierreMensajeroId: null,
     });
   });
 

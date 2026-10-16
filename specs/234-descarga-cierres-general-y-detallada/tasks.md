@@ -257,6 +257,21 @@
 | R51 | `CierresAdminDescargaDetallada.test.tsx` › `los controles de la pantalla tienen nombres accesibles distintos y el archivo se llama distinto` |
 | R52 | `cierre-gestiones-cabecera.guardia.test.ts` › `la cabecera ya no afirma que no existe un archivo único y conserva la razón de la P2` |
 
+<!-- @test-desaparecido tests/unit/descarga/cierre-gestiones-descarga-columnas.test.ts: la ficha
+     482 (2026-10-15) borró el módulo que fijaba, `cierre-gestiones-descarga-columnas.ts` (las cinco
+     descargas POR SECCIÓN del detalle de un cierre, feature 170 T E.5), junto con `DetalleSecciones`,
+     su único consumidor. Antes la 478 (P3, aprobada por el humano) las había retirado de la pantalla:
+     la lista en pestañas que sustituyó a esas tablas no lleva descarga por sección. Lo que R3 afirmaba
+     («las cinco no se retiran») dejó de ser cierto por esa decisión, no por un olvido. La otra mitad de
+     R3 sigue con test: `cierres-gestiones-fundida-descarga-columnas.test.ts` › `las constantes de la
+     marca de evidencia siguen exportadas y sin cambios`, reapuntada a las descargas por sección que
+     quedan (las del cierre del día). Detalle en `progress/impl_482.md`. -->
+<!-- @test-desaparecido tests/unit/descarga/cierre-gestiones-cabecera.guardia.test.ts: vigilaba la
+     PROSA de la cabecera de `cierre-gestiones-descarga-columnas.ts`, y ese archivo lo borró la ficha
+     482 (2026-10-15) con `DetalleSecciones` (las cinco descargas por sección del detalle ya las había
+     retirado de la pantalla la 478/P3). Sin el archivo no hay cabecera que pueda volver a afirmar que
+     no existe un archivo único: R52 se queda sin objeto, no sin prueba. -->
+
 ---
 
 ## Orden de ejecución y paralelismo
