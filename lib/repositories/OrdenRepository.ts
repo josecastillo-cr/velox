@@ -4923,6 +4923,16 @@ export class OrdenRepository implements IOrdenRepository {
       // asi que un lote abortado no deja NI UNA conversacion movida NI UNA fila de rastro.
       if (perdedoras.length > 0) throw new TraspasoMensajeroConflictoError(perdedoras);
 
+      // 3-bis. FICHA 484 (R6/R7) — EL PUNTERO «ORDEN EN GESTION» DEL ORIGEN. La orden ya no es
+      //    suya: si la seguia apuntando, su Reparto quedaria bloqueado como en el incidente
+      //    BLST-765. Solo el ORIGEN (`id = mensajeroOrigenId`): el destino no puede apuntarla y su
+      //    puntero no es asunto de este traspaso. Va DESPUES del `throw` de perdedoras: un lote
+      //    revertido no suelta nada.
+      await tx.usuario.updateMany({
+        where: { id: mensajeroOrigenId, ordenEnGestionId: { in: ids } },
+        data: { ordenEnGestionId: null },
+      });
+
       // 4. LAS CONVERSACIONES (R18/R19), en la MISMA tx. Sin esto el hilo queda inalcanzable para
       //    los dos mensajeros: es el defecto que el arreglo manual del 2026-09-14 pago.
       const conversaciones = await traspasarConversaciones(tx, ids, mensajeroDestinoId);

@@ -97,6 +97,22 @@ function estaReservadaParaOtroDia(fechaReparto: Date | null, diaEnCurso: Date): 
   return fechaReparto !== null && fechaReparto.getTime() > diaEnCurso.getTime();
 }
 
+/**
+ * FICHA 484 (R9, design §4.2) — el puntero «orden en gestion» que se publica: el leido SOLO si su
+ * orden esta en `porGestionar` o `conAyuda` de la misma respuesta; si no, `null`. Garantiza por
+ * construccion el contrato de la pantalla aunque las dos lecturas del `Promise.all` vean
+ * instantes distintos.
+ */
+function publicarOrdenEnGestion(
+  puntero: string | null,
+  porGestionar: readonly { id: string }[],
+  conAyuda: readonly { id: string }[],
+): string | null {
+  if (puntero === null) return null;
+  const enLista = (o: { id: string }) => o.id === puntero;
+  return porGestionar.some(enLista) || conAyuda.some(enLista) ? puntero : null;
+}
+
 // Estado de origen de "Recoger" (feature 17) y destino tras recoger (feature 36).
 const ORIGEN_RECOGER: EstadoRepartoMensajero = "mensajero_recogiendo_en_bodega";
 const ESTADO_EN_REPARTO: EstadoRepartoMensajero = "en_reparto";
@@ -418,7 +434,11 @@ export class MisAsignacionesService implements IMisAsignacionesService {
       porGestionar,
       // R18: el cliente recibe las tres listas ya separadas y NO vuelve a decidir el corte.
       conAyuda,
-      ordenEnGestionId,
+      // FICHA 484 (R9) — EL CONTRATO DEL QUE DEPENDE LA PANTALLA: el puntero solo se publica si su
+      // orden esta en `porGestionar` o `conAyuda` de ESTA respuesta. Un puntero colgado haria
+      // entrar Reparto en modo foco sobre una orden que no es suya (incidente BLST-765). En
+      // memoria, sin consulta ni escritura (R10).
+      ordenEnGestionId: publicarOrdenEnGestion(ordenEnGestionId, porGestionar, conAyuda),
       kpis,
       // Feature 92 (R27/R30): sin ruta persistida el estado es `vigente` con
       // `calculadaAt: null` — "nunca se calculo" NO es "esta desactualizada"; la UI

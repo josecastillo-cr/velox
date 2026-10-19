@@ -2096,6 +2096,16 @@ export class CierresAdminRepository implements ICierresAdminRepository {
                     },
                   ]);
                 }
+                // FICHA 484 (R4/R8) — la orden termina: el puntero «orden en gestion» que la apunte
+                // queda colgado y se suelta aqui. Guarda de destino: solo las que este `updateMany`
+                // movio. Una sola columna en `data`.
+                await tx.usuario.updateMany({
+                  where: {
+                    ordenEnGestionId: { in: ids },
+                    ordenEnGestion: { estatusId: rechazadaEstatusId },
+                  },
+                  data: { ordenEnGestionId: null },
+                });
               }
             }
 
@@ -2135,6 +2145,16 @@ export class CierresAdminRepository implements ICierresAdminRepository {
                       origenTipo: "liberacion_sin_gestionar", // R18
                     })),
                   );
+                  // FICHA 484 (R3/R8) — la orden vuelve a bodega sin mensajero: el puntero «orden en
+                  // gestion» que la apunte queda colgado (incidente BLST-765) y se suelta aqui, en
+                  // esta misma tx. Guarda de destino: solo las que este `updateMany` movio.
+                  await tx.usuario.updateMany({
+                    where: {
+                      ordenEnGestionId: { in: ids },
+                      ordenEnGestion: { estatusId: destinoEstatusId },
+                    },
+                    data: { ordenEnGestionId: null },
+                  });
                 }
               }
             }
