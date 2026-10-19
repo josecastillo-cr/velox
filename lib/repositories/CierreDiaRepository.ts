@@ -1129,6 +1129,17 @@ export class CierreDiaRepository implements ICierreDiaRepository {
                 })),
                 skipDuplicates: true,
               });
+              // FICHA 484 (R1/R2/R8) — EL PUNTERO «ORDEN EN GESTION» SE SUELTA AQUI. La orden deja
+              // la mano del mensajero; un puntero que la siga apuntando bloquea su Reparto (incidente
+              // BLST-765). La guarda de destino deja fuera las que el `updateMany` no movio. Una sola
+              // columna en `data`: ni historial, ni dinero.
+              await tx.usuario.updateMany({
+                where: {
+                  ordenEnGestionId: { in: ids },
+                  ordenEnGestion: { estatusId: sinGestionarEstatusId },
+                },
+                data: { ordenEnGestionId: null },
+              });
             }
           }
         }

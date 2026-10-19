@@ -581,6 +581,8 @@ describe("CierreDiaRepository.crearCierre — corteSinGestionar (feature 109/R4/
       // Feature 264 (B3): el vinculo se escribe en ESTA tx, en la misma vuelta del bucle.
       cierreSinGestion: { createMany: vi.fn() },
       ordenHistorialEstado: { createMany: vi.fn() },
+      // FICHA 484 (R1): el corte suelta el puntero `orden_en_gestion` en la MISMA tx.
+      usuario: { updateMany: vi.fn(async () => ({ count: 0 })) },
     };
     tx.cierreDia.create.mockResolvedValue({ id: "cv1" });
     tx.orden.findMany.mockImplementation(async () => enReparto.map(ordenBarridaProyectada));
@@ -2368,6 +2370,8 @@ describe("246/R11-R15 — el corte NO barre lo reservado para un dia que aun no 
       // Feature 264 (B3): el vinculo se escribe en la misma vuelta del bucle que barre.
       cierreSinGestion: { createMany: vi.fn(async () => ({ count: 0 })) },
       ordenHistorialEstado: { createMany: vi.fn(async () => ({ count: 0 })) },
+      // FICHA 484 (R1): el corte suelta el puntero `orden_en_gestion` en la MISMA tx.
+      usuario: { updateMany: vi.fn(async () => ({ count: 0 })) },
     };
     return { tx, escritas };
   }
@@ -2708,6 +2712,8 @@ describe("264/B3 — crearCierre PERSISTE el vinculo de las ordenes barridas", (
         }),
       },
       ordenHistorialEstado: { createMany: vi.fn(async () => ({ count: 0 })) },
+      // FICHA 484 (R1): el corte suelta el puntero `orden_en_gestion` en la MISMA tx.
+      usuario: { updateMany: vi.fn(async () => ({ count: 0 })) },
     };
 
     const $transaction = vi.fn(async (cb: (t: typeof tx) => unknown) => {

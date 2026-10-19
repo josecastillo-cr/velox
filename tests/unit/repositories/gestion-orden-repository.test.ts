@@ -419,21 +419,26 @@ describe("GestionOrdenRepository.recogerLote (R15 · feature 49/#8)", () => {
 describe("GestionOrdenRepository.setOrdenEnGestion (R19-R21)", () => {
   it("fija el puntero cuando estaba libre (count>0 -> true)", async () => {
     const updateMany = vi.fn(async () => ({ count: 1 }));
-    const findUnique = vi.fn();
+    const findFirst = vi.fn();
     const repo = new GestionOrdenRepository({
-      usuario: { updateMany, findUnique },
+      usuario: { updateMany, findFirst },
     } as never);
 
     expect(await repo.setOrdenEnGestion("m1", "o1")).toBe(true);
     const arg = (updateMany.mock.calls[0] as unknown[])[0] as { where: { OR: unknown } };
-    expect(arg.where.OR).toEqual([{ ordenEnGestionId: null }, { ordenEnGestionId: "o1" }]);
+    // FICHA 484 (R11): tercera rama, «el puntero actual NO es vigente». Su SQL lo mide
+    // `tests/integration/db/484-puntero-vigente-sql-real.test.ts` contra Postgres.
+    const or = arg.where.OR as unknown[];
+    expect(or.slice(0, 2)).toEqual([{ ordenEnGestionId: null }, { ordenEnGestionId: "o1" }]);
+    expect(or).toHaveLength(3);
+    expect(or[2]).toHaveProperty("NOT.ordenEnGestion.is.mensajeroAsignadoId", "m1");
   });
 
   it("R21: con OTRA orden activa (count 0 y puntero distinto) -> false", async () => {
     const updateMany = vi.fn(async () => ({ count: 0 }));
-    const findUnique = vi.fn(async () => ({ ordenEnGestionId: "o-otra" }));
+    const findFirst = vi.fn(async () => ({ ordenEnGestionId: "o-otra" }));
     const repo = new GestionOrdenRepository({
-      usuario: { updateMany, findUnique },
+      usuario: { updateMany, findFirst },
     } as never);
 
     expect(await repo.setOrdenEnGestion("m1", "o1")).toBe(false);
@@ -441,9 +446,9 @@ describe("GestionOrdenRepository.setOrdenEnGestion (R19-R21)", () => {
 
   it("idempotente: count 0 pero ya apuntaba a la misma orden -> true", async () => {
     const updateMany = vi.fn(async () => ({ count: 0 }));
-    const findUnique = vi.fn(async () => ({ ordenEnGestionId: "o1" }));
+    const findFirst = vi.fn(async () => ({ ordenEnGestionId: "o1" }));
     const repo = new GestionOrdenRepository({
-      usuario: { updateMany, findUnique },
+      usuario: { updateMany, findFirst },
     } as never);
 
     expect(await repo.setOrdenEnGestion("m1", "o1")).toBe(true);

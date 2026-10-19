@@ -162,6 +162,8 @@ function buildPrisma(overrides: Record<string, unknown> = {}) {
       findUnique: vi
         .fn()
         .mockResolvedValue({ nombre: "Admin", primerApellido: "Uno", rol: { value: "admin" } }),
+      // FICHA 484 (R3/R4): la aprobacion suelta el puntero `orden_en_gestion` en la MISMA tx.
+      updateMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
     // Feature 239 (T2.2): al APROBAR, la misma tx corre ademas el bloque de ANCLAJE, que empieza
     // leyendo las gestiones `devuelta` de ESTE cierre. Sin devoluciones el bloque es no-op —que
@@ -1233,6 +1235,8 @@ describe("CierresAdminRepository.resolverCierre — liberación de `novedad_inte
         findUnique: vi
           .fn()
           .mockResolvedValue({ nombre: "Admin", primerApellido: "Uno", rol: { value: "admin" } }),
+        // FICHA 484 (R3/R4): la aprobacion suelta el puntero `orden_en_gestion` en la MISMA tx.
+        updateMany: vi.fn().mockResolvedValue({ count: 0 }),
       },
     };
     prisma.cierreDia.findUnique.mockResolvedValue(
