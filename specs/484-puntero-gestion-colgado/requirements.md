@@ -55,7 +55,7 @@
   DEBE quedar modificado.
   *Test previsto:* `tests/integration/db/484-puntero-traspaso-sql-real.test.ts`.
 - **R8** — Cuando el sistema limpia un puntero por R1, R3, R4 o R6, NO DEBE modificar ninguna otra
-  columna de `usuario`, ni añadir filas a `orden_historial_estado`, ni escribir en ningún libro de
+  columna de `usuario` (salvo `updated_at`, que Prisma actualiza como en los escritores previos del puntero), ni añadir filas a `orden_historial_estado`, ni escribir en ningún libro de
   dinero ni en los totales del cierre, más allá de lo que esos caminos ya escribían.
   *Test previsto:* `tests/integration/db/484-puntero-corte-sql-real.test.ts` y
   `tests/integration/db/484-puntero-aprobacion-sql-real.test.ts` (aserciones de neutralidad).
