@@ -54,7 +54,7 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
       // Ya en los estados DESTINO de cada rama, pero de fuera de este cierre: sus punteros los
       // protege `ordenEnGestionId IN ids`, no la guarda de destino.
       const oBodegaAjena = await e.sembrarOrden({ estatus: "en_bodega_central", mensajeroId: null });
-      const oRechazadaAjena = await e.sembrarOrden({
+      const oDevolucionAjena = await e.sembrarOrden({
         estatus: "devolucion_a_origen_por_rechazo",
         mensajeroId: e.mensajero2Id,
       });
@@ -73,7 +73,7 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
         res: await e.crearUsuario("mensajero", e.zonaSateliteId),
         vieja: await e.crearUsuario("mensajero", e.zonaSateliteId),
         bodega: await e.crearUsuario("mensajero", e.zonaSateliteId),
-        rechazada: await e.crearUsuario("mensajero", e.zonaSateliteId),
+        devolucion: await e.crearUsuario("mensajero", e.zonaSateliteId),
       };
       if (modo !== "sin_punteros") {
         await plantarPuntero(e, m, oLib.ordenId);
@@ -82,7 +82,7 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
         await plantarPuntero(e, testigos.res, oRes.ordenId);
         await plantarPuntero(e, testigos.vieja, oVieja.ordenId);
         await plantarPuntero(e, testigos.bodega, oBodegaAjena.ordenId);
-        await plantarPuntero(e, testigos.rechazada, oRechazadaAjena.ordenId);
+        await plantarPuntero(e, testigos.devolucion, oDevolucionAjena.ordenId);
       }
 
       const resolicitud = await e.solicitarCierre();
@@ -144,7 +144,7 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
           res: await punteroDe(e, testigos.res),
           vieja: await punteroDe(e, testigos.vieja),
           bodega: await punteroDe(e, testigos.bodega),
-          rechazada: await punteroDe(e, testigos.rechazada),
+          devolucion: await punteroDe(e, testigos.devolucion),
         },
         esperados: {
           lib: oLib.ordenId,
@@ -152,11 +152,11 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
           res: oRes.ordenId,
           vieja: oVieja.ordenId,
           bodega: oBodegaAjena.ordenId,
-          rechazada: oRechazadaAjena.ordenId,
+          devolucion: oDevolucionAjena.ordenId,
         },
         estadosAjenas: {
           bodega: await e.estadoDe(oBodegaAjena.ordenId),
-          rechazada: await e.estadoDe(oRechazadaAjena.ordenId),
+          devolucion: await e.estadoDe(oDevolucionAjena.ordenId),
         },
         filaM: await filaUsuario(e, m),
         filasTestigo: {
@@ -208,10 +208,10 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
     // Y los que apuntan a ordenes AJENAS que ya estaban en el destino de cada rama.
     expect(r.aprobar.estadosAjenas).toEqual({
       bodega: "en_bodega_central",
-      rechazada: "devolucion_a_origen_por_rechazo",
+      devolucion: "devolucion_a_origen_por_rechazo",
     });
     expect(r.aprobar.punteros.bodega).toBe(r.aprobar.esperados.bodega);
-    expect(r.aprobar.punteros.rechazada).toBe(r.aprobar.esperados.rechazada);
+    expect(r.aprobar.punteros.devolucion).toBe(r.aprobar.esperados.devolucion);
     expect(r.aprobar.filasTestigo).toEqual(r.aprobar.antes.filasTestigo);
   });
 
@@ -228,7 +228,7 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
       res: esperados.res,
       vieja: esperados.vieja,
       bodega: esperados.bodega,
-      rechazada: esperados.rechazada,
+      devolucion: esperados.devolucion,
     });
   });
 
