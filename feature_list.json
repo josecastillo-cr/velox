@@ -5780,6 +5780,16 @@
       "depends_on": 477,
       "status_note": "DESPLEGADA en prod (release #862, b784b8f2, 2026-10-16). PR #861. Excepcion acotada: 1 deleteMany en CierreDiaRepository.ts; mutaciones rojas. Revision OK (progress/review_483.md). Menores: cuenta texto (un comentario contaria), acotada a archivo no a metodo.",
       "branch": "fix/483-guardia-cierre-detail-477"
+    },
+    {
+      "id": 484,
+      "title": "puntero orden_en_gestion colgado tras corte o liberación",
+      "description": "El corte sin gestionar y la liberación limpian el puntero de gestión del mensajero, y Reparto ignora un puntero a una orden que ya no está en su lista.",
+      "zone": "backend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "media",
+      "status_note": "Prod 2026-10-19: Andres Aguero quedó en modo foco con 1 de 40 órdenes y sin poder gestionar ni cancelar; puntero a BLST-765 (corte 17/10 + liberación 19/10). Desbloqueado a mano. Escriben el estado sin limpiar puntero: CierreDiaRepository.ts:1108 (corte) y CierresAdminRepository.ts:2135 (liberación). MisAsignacionesService.ts:261 devuelve el puntero sin validar."
     }
   ]
 }
