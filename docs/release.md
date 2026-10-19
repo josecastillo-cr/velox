@@ -205,6 +205,17 @@ sino «por qué seguimos esperando».
 
 ---
 
+## Release del 2026-10-19 — la 484, el puntero de gestión colgado
+
+- PR #864 (`dev` → `prod`, merge commit), `358ae461`, despliegue `dpl_96ZfptpB3nhsQFL4JqcksLiDVMDg` READY.
+- Gate completo sobre `179545c1`: `INIT_EXIT=0`, 2489 archivos, 33.925 tests, 26 `it.skip` previos de Analítica; integration/db ejecutada (`progress/gate_release_484.log`).
+- Sin migraciones ni variables de entorno.
+- Runtime errors 30 min tras el despliegue: 0.
+- T10 (R16): 0 punteros colgados antes y después.
+- Abiertos de la revisión, no bloquean: guardas de estado destino en la aprobación sin medir con concurrencia (m3), consulta T10 sin «gestión pendiente» (m4), rama satélite sin test propio (m5), atomicidad de `setOrdenEnGestion` en Prisma sin medir (m6).
+
+---
+
 ## Release del 2026-10-03 — la 470, descargas sin tope de filas
 
 - **PR #846** (`dev` → `prod`, merge commit), `prod` = `ebc375ce`, build `dpl_CVwSKejGK2o4aV48MkbGmt3HNmf3` READY a las 11:12 CR, alias `ordenex.co` con `aliasError: null`. Autorización del humano: «sácalo lo más rápido que podás a producción».
