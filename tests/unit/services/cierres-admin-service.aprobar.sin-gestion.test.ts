@@ -131,6 +131,8 @@ function buildTx(
         primerApellido: "Uno",
         rol: { value: "admin" },
       })),
+      // FICHA 484 (R3/R4): la aprobacion suelta el puntero `orden_en_gestion` en la MISMA tx.
+      updateMany: vi.fn(async () => ({ count: 0 })),
     },
     gestionOrden: {
       // FICHA 454 (T1.7): la aplicacion al aprobar pide solo gestiones de CALLE con evento de registro (`where.eventos`); las de este corpus son LEGADAS, asi que no encuentra ninguna y la suite sigue midiendo lo suyo.
