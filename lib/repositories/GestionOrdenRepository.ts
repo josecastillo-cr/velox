@@ -26,6 +26,7 @@ import { loadRouteOptimizationConfig } from "@/lib/config/route-optimization";
 import {
   sqlExisteGestionPendiente,
   whereOrdenConGestionPendiente,
+  whereOrdenSinGestionPendiente,
 } from "@/lib/repositories/gestion-pendiente";
 import { conAyudaAbiertaDe, sqlAyudaAbierta } from "@/lib/repositories/ayuda-abierta";
 import { encolarWebhookEvento } from "@/lib/services/jobs/webhook-evento-encolado";
@@ -50,6 +51,22 @@ const ESTADO_EN_REPARTO = "en_reparto";
 // sumando es `porGestionar ∪ conAyuda` (en mano, SIN gestion pendiente) y este, lo que no esta en
 // mano MAS lo pendiente de confirmar (`whereOrdenConGestionPendiente`).
 const ESTADOS_EN_MANO_DEL_MENSAJERO = [ESTADO_EN_REPARTO];
+
+/**
+ * FICHA 484 (design §4.1) — EL PREDICADO UNICO DE «PUNTERO VIGENTE», nivel ORDEN: la orden
+ * apuntada esta `en_reparto`, asignada a ESE mensajero, no borrada y SIN gestion pendiente de
+ * confirmar. Es exactamente la condicion para que aparezca en su «por gestionar» o «con ayuda»
+ * (`findMisAsignaciones` + el descarte de `conGestionPendiente` en `listarMisAsignaciones`).
+ * Lo usan la lectura del puntero y la tercera rama del `where` de `setOrdenEnGestion`.
+ */
+function whereOrdenEnGestionVigente(mensajeroId: string): Prisma.OrdenWhereInput {
+  return {
+    estatus: { value: ESTADO_EN_REPARTO },
+    mensajeroAsignadoId: mensajeroId,
+    deletedAt: null,
+    ...whereOrdenSinGestionPendiente(),
+  };
+}
 
 // Feature 100 — `resultado` de la gestion que ancla la ventana en `devuelta` (R5: de ahi se deriva
 // el mensajero de la gestion sintetica) y `resultado` de la gestion sintetica de reprogramacion
@@ -595,10 +612,14 @@ export class GestionOrdenRepository implements IGestionOrdenRepository {
     return ayuda.has(ordenId) ? "ayuda_abierta" : null;
   }
 
-  /** R20: puntero de bloqueo 1-a-1 del mensajero. */
+  /**
+   * R20 + FICHA 484 (R9/R13): puntero de bloqueo 1-a-1 del mensajero, SOLO si es VIGENTE
+   * (`whereOrdenEnGestionVigente`). Un puntero colgado se lee como `null`: no bloquea ni el modo
+   * foco de Reparto ni la guarda R21 de `gestionar`. Sigue siendo una lectura pura.
+   */
   async getOrdenEnGestion(mensajeroId: string): Promise<string | null> {
-    const row = await this.prisma.usuario.findUnique({
-      where: { id: mensajeroId },
+    const row = await this.prisma.usuario.findFirst({
+      where: { id: mensajeroId, ordenEnGestion: { is: whereOrdenEnGestionVigente(mensajeroId) } },
       select: { ordenEnGestionId: true },
     });
     return row?.ordenEnGestionId ?? null;
@@ -606,15 +627,20 @@ export class GestionOrdenRepository implements IGestionOrdenRepository {
 
   /**
    * R19-R21: fija el puntero de forma condicional e idempotente. El WHERE exige
-   * que el puntero este NULL o ya apunte a `ordenId`; si apunta a otra, `count`
-   * sera 0 (una fila que no cumple el filtro no se actualiza). Se distingue de
-   * "el puntero ya apuntaba a ordenId" releyendo la fila.
+   * que el puntero este NULL, ya apunte a `ordenId` o —FICHA 484 (R11/R12)— este COLGADO (no
+   * vigente); si apunta a otra orden vigente, `count` sera 0 (una fila que no cumple el filtro no
+   * se actualiza). Se distingue de "el puntero ya apuntaba a ordenId" releyendo la fila.
    */
   async setOrdenEnGestion(mensajeroId: string, ordenId: string): Promise<boolean> {
     const result = await this.prisma.usuario.updateMany({
       where: {
         id: mensajeroId,
-        OR: [{ ordenEnGestionId: null }, { ordenEnGestionId: ordenId }],
+        OR: [
+          { ordenEnGestionId: null },
+          { ordenEnGestionId: ordenId },
+          // FICHA 484 (R11): un puntero colgado se SUSTITUYE en esta misma sentencia condicional.
+          { NOT: { ordenEnGestion: { is: whereOrdenEnGestionVigente(mensajeroId) } } },
+        ],
       },
       data: { ordenEnGestionId: ordenId },
     });

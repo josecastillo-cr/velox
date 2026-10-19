@@ -418,14 +418,19 @@ export interface IGestionOrdenRepository {
     conAyudaAbierta: Set<string>;
   }>;
 
-  /** R20: la orden activa en gestion del mensajero (`orden_en_gestion_id`) o null. */
+  /**
+   * R20: la orden activa en gestion del mensajero (`orden_en_gestion_id`) o null.
+   * FICHA 484 (R9/R13): SOLO si el puntero es VIGENTE —la orden esta `en_reparto`, asignada a
+   * este mensajero, no borrada y sin gestion pendiente—; un puntero colgado devuelve `null`.
+   */
   getOrdenEnGestion(mensajeroId: string): Promise<string | null>;
 
   /**
    * R19-R21: fija `usuario.orden_en_gestion_id = ordenId` de forma condicional e
-   * idempotente: solo si el puntero estaba NULL o ya apuntaba a esa orden.
+   * idempotente: solo si el puntero estaba NULL, ya apuntaba a esa orden o —FICHA 484
+   * (R11)— estaba COLGADO (no vigente).
    * Devuelve `true` si tras la operacion el puntero apunta a `ordenId`; `false` si
-   * el mensajero ya tenia OTRA orden activa (conflicto, sin efectos).
+   * el mensajero ya tenia OTRA orden activa y vigente (conflicto, sin efectos; R12).
    */
   setOrdenEnGestion(mensajeroId: string, ordenId: string): Promise<boolean>;
 
