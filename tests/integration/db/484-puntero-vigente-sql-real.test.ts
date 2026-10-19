@@ -21,7 +21,14 @@ import { plantarPuntero, punteroDe } from "./_puntero-484";
 
 const describeSiHayBase = HAY_BASE_DE_DATOS ? describe : describe.skip;
 
-type Causa = "vigente" | "con_ayuda" | "estado" | "otro_mensajero" | "borrada" | "pendiente";
+type Causa =
+  | "vigente"
+  | "con_ayuda"
+  | "estado"
+  | "barrida"
+  | "otro_mensajero"
+  | "borrada"
+  | "pendiente";
 
 /** Siembra la orden a la que apuntara el puntero de M, en la condicion pedida. */
 async function apuntada(e: Escenario, causa: Causa): Promise<string> {
@@ -36,6 +43,10 @@ async function apuntada(e: Escenario, causa: Causa): Promise<string> {
     }
     case "estado":
       return (await e.sembrarOrden({ estatus: "en_bodega_central", mensajeroId: null })).ordenId;
+    case "barrida":
+      // El estado intermedio del incidente: el corte la paso a `sin_gestionar` CONSERVANDO el
+      // mensajero. Solo la condicion de estado la distingue de una vigente.
+      return (await e.sembrarOrden({ estatus: "novedad_interna" })).ordenId;
     case "otro_mensajero":
       return (await e.sembrarOrden({ estatus: "en_reparto", mensajeroId: e.mensajero2Id })).ordenId;
     case "borrada": {
@@ -51,8 +62,8 @@ async function apuntada(e: Escenario, causa: Causa): Promise<string> {
   }
 }
 
-const CAUSAS: Causa[] = ["vigente", "con_ayuda", "estado", "otro_mensajero", "borrada", "pendiente"];
-const COLGADAS: Causa[] = ["estado", "otro_mensajero", "borrada", "pendiente"];
+const COLGADAS: Causa[] = ["estado", "barrida", "otro_mensajero", "borrada", "pendiente"];
+const CAUSAS: Causa[] = ["vigente", "con_ayuda", ...COLGADAS];
 
 describeSiHayBase("484/T7a — el puntero vigente en el repositorio (Postgres real)", () => {
   let mundo: Mundo;
