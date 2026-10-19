@@ -94,7 +94,7 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
           vieja: await filaUsuario(e, testigos.vieja),
         },
         historial: await e.tx.ordenHistorialEstado.count({ where: { ordenId: { in: ids } } }),
-        libros: await librosDeDinero(e),
+        libros: await librosDeDinero(e, ids),
       };
 
       let aprobacion: unknown;
@@ -165,7 +165,7 @@ describeSiHayBase("484/T2 — la aprobacion suelta el puntero de lo que libera o
         },
         deltaHistorial:
           (await e.tx.ordenHistorialEstado.count({ where: { ordenId: { in: ids } } })) - antes.historial,
-        librosDespues: await librosDeDinero(e),
+        librosDespues: await librosDeDinero(e, ids),
       };
     });
   }

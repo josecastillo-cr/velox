@@ -71,7 +71,7 @@ describeSiHayBase("484/T1 — el corte suelta el puntero de la orden que barre (
           vieja: await filaUsuario(e, testigos.vieja),
         },
         historial: await e.tx.ordenHistorialEstado.count({ where: { ordenId: { in: ids } } }),
-        libros: await librosDeDinero(e),
+        libros: await librosDeDinero(e, ids),
       };
 
       const corte = await e.correrCorte(new Date(), [m]);
@@ -116,7 +116,7 @@ describeSiHayBase("484/T1 — el corte suelta el puntero de la orden que barre (
         },
         deltaHistorial:
           (await e.tx.ordenHistorialEstado.count({ where: { ordenId: { in: ids } } })) - antes.historial,
-        librosDespues: await librosDeDinero(e),
+        librosDespues: await librosDeDinero(e, ids),
         barridas: vencido
           ? await e.tx.cierreSinGestion.count({ where: { cierreId: vencido.id } })
           : null,

@@ -37,11 +37,27 @@ export function sinPunteroNiSello(fila: Record<string, unknown>): Record<string,
   return resto;
 }
 
-/** Recuentos GLOBALES de los tres libros de dinero, para medir deltas dentro de la tx (R8). */
-export async function librosDeDinero(e: Escenario) {
+/**
+ * Recuentos de los tres libros de dinero ACOTADOS A ESTE ESCENARIO, para medir deltas dentro de la
+ * tx (R8): la tienda y el mensajero son personas creadas por el escenario, y la caja se cuenta por
+ * origen (los cierres del mensajero y las gestiones de las ordenes del corpus).
+ *
+ * ⚠️ NO recuentos globales: la gate corre `tests/integration/db` en paralelo y otras suites
+ * confirman y borran filas de estos libros fuera del candado de aviso. Medido: un `count()` global
+ * dio `tienda: -1` en la corrida en paralelo de `--rapido` y verde aislado.
+ */
+export async function librosDeDinero(e: Escenario, ordenIds: string[]) {
+  const cierres = (
+    await e.tx.cierreDia.findMany({ where: { mensajeroId: e.mensajeroId }, select: { id: true } })
+  ).map((c) => c.id);
+  const gestiones = (
+    await e.tx.gestionOrden.findMany({ where: { ordenId: { in: ordenIds } }, select: { id: true } })
+  ).map((g) => g.id);
   return {
-    caja: await e.tx.walletMovimiento.count(),
-    tienda: await e.tx.walletTiendaMovimiento.count(),
-    mensajero: await e.tx.pagoMensajeroMovimiento.count(),
+    caja: await e.tx.walletMovimiento.count({
+      where: { origenId: { in: [...cierres, ...gestiones, ...ordenIds] } },
+    }),
+    tienda: await e.tx.walletTiendaMovimiento.count({ where: { tiendaId: e.tiendaId } }),
+    mensajero: await e.tx.pagoMensajeroMovimiento.count({ where: { mensajeroId: e.mensajeroId } }),
   };
 }
