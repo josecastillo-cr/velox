@@ -134,6 +134,17 @@ const ESCRITURAS_DE_LA_APROBACION = [
       "tests/unit/services/cierres-admin-service.aprobar.sin-gestion.test.ts",
     ],
   },
+  {
+    // FICHA 484 (T5, R3/R4/R8) — EL PUNTERO «ORDEN EN GESTION» de las ordenes barridas que la
+    // aprobacion libera a bodega o termina por tope. Escritura NUEVA de la transaccion: dos
+    // sentencias, una por rama, ambas guardadas por `ordenEnGestionId IN ids` + el estado de
+    // destino de su rama, y `data` con una sola clave. Sin dinero ni historial.
+    escritura: "tx.usuario.updateMany",
+    que:
+      "suelta `usuario.orden_en_gestion_id` de las ordenes que la aprobacion saca de la mano del " +
+      "mensajero (rama `aBodega` y rama `enElTope`); incidente BLST-765.",
+    cubiertaPor: ["tests/integration/db/484-puntero-aprobacion-sql-real.test.ts"],
+  },
 ] as const;
 
 /**
