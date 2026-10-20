@@ -5791,6 +5791,18 @@
       "sdd": true,
       "complexity": "media",
       "status_note": "DESPLEGADA en prod (release #864, 358ae461, 2026-10-19). PR #863. Limpieza del puntero en corte, aprobacion (bodega/tope) y traspaso; puntero vigente en get/set + servicio. Gate completo verde (33.925 tests). T10: 0 colgados antes y despues. Revision OK, 6 menores (progress/review_484.md); abiertos m3-m6."
+    },
+    {
+      "id": 485,
+      "title": "columna Producto en el detalle por guía de la caja",
+      "description": "La hoja «Detalle por guía» del libro de movimientos de la caja (/wallet) añade una columna Producto, desmarcable, al lado de Remisión.",
+      "zone": "fullstack",
+      "status": "in_progress",
+      "sdd": false,
+      "complexity": "baja",
+      "depends_on": null,
+      "branch": "feat/485-producto-detalle-guia-caja",
+      "status_note": "Producto congelado en cierre_detail.producto (misma foto que la remisión); sin migración. Solo la caja: mi-wallet y estados de cuenta NO (decisión del humano, 2026-10-20)."
     }
   ]
 }
