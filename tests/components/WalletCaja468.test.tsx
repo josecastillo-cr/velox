@@ -362,6 +362,7 @@ describe("468 R1/R5/R8/R22/R23/R26/R29/R44/R45/R47 — el archivo con detalle", 
     expect(hojas[1].filas[0]).toEqual([
       "Guía",
       "Remisión",
+      "Producto",
       "Destinatario",
       "Tienda",
       "Mensajero",
@@ -398,7 +399,7 @@ describe("468 R1/R5/R8/R22/R23/R26/R29/R44/R45/R47 — el archivo con detalle", 
     const user = pintar();
     await descargar(user);
     const [movs, guias] = await archivo();
-    const conceptoDe = (f: unknown[]) => f[7];
+    const conceptoDe = (f: unknown[]) => f[8];
     expect(guias.filas.slice(1).map(conceptoDe)).toEqual([
       null,
       movs.filas[2][1],
@@ -412,7 +413,10 @@ describe("468 R1/R5/R8/R22/R23/R26/R29/R44/R45/R47 — el archivo con detalle", 
       "Diferencia sin repartir",
       "TOTAL GENERAL",
     ]);
-    expect(guias.filas[1].slice(0, 7)).toEqual(["1001", "R-1", "Ana", "Tienda Uno", "Mario Mensajero", "2026-09-20", expect.any(String)]);
+    expect(guias.filas[1].slice(0, 8)).toEqual(["1001", "R-1", "Camisa", "Ana", "Tienda Uno", "Mario Mensajero", "2026-09-20", expect.any(String)]);
+    // 485: el producto solo en la cabecera; la fila de concepto lo deja vacío, como la remisión.
+    expect(guias.filas[2][2]).toBeNull();
+    expect(guias.filas[5][2]).toBe("Gorra");
     expect(guias.filas[5][0]).toBe("Sin guía · remisión R-2");
     const total = (f: unknown[]) => f.slice(-3);
     expect(total(guias.filas.at(-1)!)).toEqual(total(movs.filas.at(-1)!.slice(5, 8)));

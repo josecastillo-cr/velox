@@ -52,21 +52,25 @@ import {
   AMBITO_DESCARGA_WALLET_TIENDA_DETALLE,
   COLUMNAS_DESCARGA_DETALLE_GUIA_TIENDA,
   DETALLE_DESCARGA_WALLET_TIENDA,
+  filaCabeceraGuiaTienda,
 } from "@/app/(app)/wallet/tiendas/_components/estado-cuenta-tienda-descarga-columnas";
 import {
   AMBITO_DESCARGA_WALLET_MENSAJERO_DETALLE,
   COLUMNAS_DESCARGA_DETALLE_GUIA_MENSAJERO,
   DETALLE_DESCARGA_WALLET_MENSAJERO,
+  filaCabeceraGuiaMensajero,
 } from "@/app/(app)/wallet/mensajeros/_components/estado-cuenta-mensajero-descarga-columnas";
 import {
   AMBITO_DESCARGA_MI_WALLET_DETALLE,
   COLUMNAS_DESCARGA_DETALLE_GUIA_MI_WALLET,
   DETALLE_DESCARGA_MI_WALLET,
+  filaCabeceraGuiaMiWallet,
 } from "@/app/(app)/mi-wallet/_components/mi-estado-cuenta-descarga-columnas";
 import { AMBITO_DESCARGA_SALDOS_TIENDAS } from "@/app/(app)/wallet/tiendas/_components/saldos-tiendas-descarga-columnas";
 import { AMBITO_DESCARGA_CUENTAS_POR_PAGAR } from "@/app/(app)/wallet/mensajeros/_components/cuentas-por-pagar-descarga-columnas";
 import { AMBITO_DESCARGA_SALDOS_SATELITES } from "@/app/(app)/wallet/satelites/_components/saldos-satelites-descarga-columnas";
 import { resultadosTexto } from "@/app/(app)/wallet/_components/detalle-movimiento-labels";
+import { clavesVisiblesEnOrden } from "@/lib/columnas/preferencia-columnas";
 import type { DescargaColumna, DescargaFila } from "@/lib/types/descarga";
 import type { DetallePorGuiaDTO, KardexDTO } from "@/lib/types/libro-kardex";
 import type { WalletMovimientoDTO } from "@/lib/types/wallet";
@@ -283,6 +287,7 @@ describe("468 R33–R47 — la hoja «Detalle por guía» agrupada", () => {
     expect(filas[0]).toEqual({
       guia: "9",
       remision: "REM-9",
+      producto: "Camisa",
       destinatario: "Ana",
       tienda: "Tienda Uno",
       mensajero: "Mario Mensajero",
@@ -435,6 +440,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(encabezados(COLUMNAS_DESCARGA_DETALLE_GUIA_CAJA)).toEqual([
       "Guía",
       "Remisión",
+      "Producto",
       "Destinatario",
       "Tienda",
       "Mensajero",
@@ -496,6 +502,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(COLUMNAS_DESCARGA_DETALLE_GUIA_CAJA.map((c) => c.clave)).toEqual([
       "guia",
       "remision",
+      "producto",
       "destinatario",
       "tienda",
       "mensajero",
@@ -668,5 +675,68 @@ describe("468 R19/R24/R60 — los textos, en español claro, sin siglas ni jerga
       "El detalle por guía tendría 6200 filas y la descarga admite hasta 5000. Acota el periodo, o elige «Solo los movimientos» y vuelve a intentarlo.",
     );
     expect(m).not.toBe(mensajeLimite(6200, 5000));
+  });
+});
+
+describe("485 — «Producto» en la hoja «Detalle por guía», SOLO en la caja", () => {
+  it("ninguna otra superficie declara la columna (ni por clave ni por encabezado)", () => {
+    for (const cat of [
+      COLUMNAS_DESCARGA_DETALLE_GUIA_TIENDA,
+      COLUMNAS_DESCARGA_DETALLE_GUIA_MENSAJERO,
+      COLUMNAS_DESCARGA_DETALLE_GUIA_MI_WALLET,
+      COLUMNAS_DESCARGA_WALLET_CAJA,
+      COLUMNAS_DESCARGA_ESTADO_CUENTA,
+      COLUMNAS_DESCARGA_MI_ESTADO_CUENTA,
+    ]) {
+      expect(cat.map((c) => c.clave)).not.toContain("producto");
+      expect(encabezados(cat)).not.toContain("Producto");
+    }
+  });
+
+  it("la cabecera de cada guía de la caja lleva el producto de SU bloque; las filas de concepto, vacío", () => {
+    const { filas } = hojaGuiasCaja();
+    expect(filas[0].producto).toBe("Camisa");
+    expect(filas[4].producto).toBe("Gorra");
+    // Las filas de concepto y el «Total de la guía» no lo repiten, igual que la remisión.
+    for (const i of [1, 2, 3]) expect(filas[i].producto).toBeUndefined();
+  });
+
+  it("las cabeceras de las otras superficies NO emiten el producto", () => {
+    const bloque = POR_GUIA.bloques[0];
+    for (const cabecera of [filaCabeceraGuiaTienda, filaCabeceraGuiaMensajero, filaCabeceraGuiaMiWallet]) {
+      expect(cabecera(bloque)).not.toHaveProperty("producto");
+    }
+  });
+
+  it("es desmarcable: no está entre las fijas de la hoja de la caja", () => {
+    expect(DETALLE_DESCARGA_WALLET_CAJA.columnas.map((c) => c.clave)).toContain("producto");
+    expect(DETALLE_DESCARGA_WALLET_CAJA.columnasFijas).not.toContain("producto");
+  });
+
+  it("sale MARCADA, tras «Remisión», también con una preferencia guardada antes de existir", () => {
+    const publicadas = DETALLE_DESCARGA_WALLET_CAJA.columnas.map((c) => c.clave);
+    // Sin preferencia.
+    expect(clavesVisiblesEnOrden(null, publicadas)).toContain("producto");
+    // Preferencia escrita a mano con el catálogo de antes de la 485 (sin «producto»), una oculta.
+    const vieja = JSON.stringify({
+      ocultas: ["destinatario"],
+      orden: [
+        "guia",
+        "remision",
+        "destinatario",
+        "tienda",
+        "mensajero",
+        "cierre",
+        "resultado",
+        "concepto",
+        "detalle",
+        "entra",
+        "sale",
+        "cobradoATiendas",
+      ],
+    });
+    const visibles = clavesVisiblesEnOrden(vieja, publicadas);
+    expect(visibles.slice(0, 3)).toEqual(["guia", "remision", "producto"]);
+    expect(visibles).not.toContain("destinatario");
   });
 });
