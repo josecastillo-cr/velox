@@ -72,3 +72,60 @@ preexistentes ajenos).
 ## Veredicto
 
 OK: `BloqueDeGuiaDTO.producto` llega congelado del cierre más reciente (misma fuente que la remisión), con unit + integración matados por mutación y gate `--rapido` en verde (1 intermitente ajeno anotado).
+
+---
+
+# Ficha 485 · parte FRONTEND
+
+Búsqueda: el MCP `codebase-memory` no se usó en esta parte; los puntos de entrada venían dados y se
+leyeron con `grep`/lectura directa de los archivos.
+
+## Qué cambia
+
+- `components/shared/wallet/libro-kardex-labels.ts` — `COLUMNA_LIBRO.producto` (`"Producto"`). Solo la
+  declara la caja; añadirla al catálogo compartido no cambia ninguna otra lista.
+- `app/(app)/wallet/_components/wallet-ledger-descarga-columnas.ts` —
+  `COLUMNAS_DESCARGA_DETALLE_GUIA_CAJA` gana `COLUMNA_LIBRO.producto` justo tras `remision`.
+  `filaCabeceraGuiaCaja` añade `producto: bloque.producto` SOBRE la cabecera compartida
+  (`filaCabeceraDeGuia` NO se toca): las cabeceras de tienda, mensajero y mi-wallet quedan idénticas.
+  Las filas de concepto y el «Total de la guía» no llevan la clave ⇒ celda vacía, igual que la remisión.
+- `FIJAS_DETALLE_POR_GUIA` sin cambios ⇒ «Producto» es desmarcable.
+- Preferencia (`lib/columnas/preferencia-columnas.ts`): es lista de EXCLUSIÓN (`ocultas`); una clave
+  nueva sale marcada y `ordenEfectivo` la ancla tras su vecina de catálogo (`remision`). Vale también
+  para una preferencia guardada antes de este cambio (test con el JSON viejo escrito a mano).
+
+Hoja «Detalle por guía» de la caja: Guía · Remisión · Producto · Destinatario · Tienda · Mensajero ·
+Cierre · Resultado · Concepto · Detalle · Entra · Sale · Cobrado a tiendas.
+
+## Tests (`tests/unit/descarga/libro-kardex-468.test.ts`)
+
+- Contratos R29 (encabezados y claves de la caja) con «Producto»/`producto` tras «Remisión», a mano.
+- R34: la cabecera de la caja incluye `producto: "Camisa"`.
+- Bloque «485» nuevo: ninguna otra lista (detalle de tienda/mensajero/mi-wallet, hojas «Movimientos»)
+  lleva `producto`; la cabecera de la caja trae el producto de SU bloque y las filas de concepto no;
+  las cabeceras de tienda/mensajero/mi-wallet no emiten `producto`; no está en `columnasFijas`; sale
+  marcada tras «Remisión» sin preferencia y con una preferencia vieja.
+
+Mutaciones (todas ROJAS y deshechas): quitar la columna de la caja (4 rojos); meter `producto` en las
+fijas (2); quitarlo de `filaCabeceraGuiaCaja` (2); añadirlo a `filaCabeceraDeGuia` compartida (1);
+añadir la columna a la hoja de tienda (3); rellenarlo en las filas de concepto (1).
+
+Además, `tests/components/WalletCaja468.test.tsx` (archivo real de la caja, Excel leído): encabezados de
+la hoja 2 con «Producto», índice de Concepto 7→8, la cabecera del bloque con `"Camisa"`, la fila de
+concepto con la celda de producto vacía y la cabecera del bloque sin guía con `"Gorra"`.
+
+## Gate
+
+`./init.sh --rapido` → `progress/gate_485_frontend.log` (`INIT_EXIT=0`, «== init OK ==»).
+- Primera corrida (`progress/gate_485_frontend_1.log`, `INIT_EXIT=1`): rojo PROPIO en
+  `WalletCaja468.test.tsx` (contrato de columnas del archivo sin «Producto»), arreglado arriba.
+- Corrida final: typecheck y lint sin errores (235 warnings preexistentes). Relacionados 237 archivos /
+  3039 passed y 273 / 3755 passed, 0 failed. `tests/integration/db` (ampliado por el diff
+  de backend de la rama, `lib/types/`): 451 archivos, 4204 passed, 9 skipped,
+  1 archivo rojo `liquidacion-reparto-migration.test.ts` (205 bloque B, restricciones de Postgres; ajeno
+  al diff). Repetido AISLADO por el gate: 24/24 passed ⇒ INTERMITENTE (base compartida).
+
+## Veredicto frontend
+
+OK: «Producto» tras «Remisión» solo en la hoja «Detalle por guía» de la caja, desmarcable y marcado
+por defecto (también con preferencias viejas); las otras superficies sin cambios.
