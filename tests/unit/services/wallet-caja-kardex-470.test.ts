@@ -29,6 +29,7 @@ function orden(n: number): OrdenAporteEnLoteRow {
     numGuia: 100_000 + n,
     numRemision: `REM-${n}`,
     destinatario: `Dest ${n}`,
+    producto: `Prod ${n}`,
     tiendaNombre: "Tienda A",
     orden: { esCentral: false, esZonaEspecial: false, montoCobrar: "1000.00", cobraComision: false, tarifa: null },
     gestiones: [{ resultado: "entregado", montoRecibido: "1000.00", pagoMensajero: null, indemnizacion: null }],

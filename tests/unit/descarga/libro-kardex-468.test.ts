@@ -123,6 +123,7 @@ const POR_GUIA: DetallePorGuiaDTO = {
       guia: "9",
       remision: "REM-9",
       destinatario: "Ana",
+      producto: "Camisa",
       tiendaNombre: "Tienda Uno",
       mensajeroNombre: "Mario Mensajero",
       // 2026-09-21T03:00Z son las 21:00 del 20 en Costa Rica.
@@ -138,6 +139,7 @@ const POR_GUIA: DetallePorGuiaDTO = {
       guia: null,
       remision: "REM-77",
       destinatario: "Beto",
+      producto: "Gorra",
       tiendaNombre: "Tienda Dos",
       mensajeroNombre: "Mario Mensajero",
       cierres: ["2026-09-19T20:00:00.000Z"],

@@ -45,6 +45,7 @@ interface CierreDelBloque {
   resultados: GestionResultado[];
   remision: string;
   destinatario: string;
+  producto: string;
   tiendaNombre: string | null;
   mensajeroNombre: string | null;
 }
@@ -112,6 +113,7 @@ export function agruparPorGuia({ movimientos, detalle, totalesHoja1 }: Entrada):
           resultados: o.resultados,
           remision: o.remision,
           destinatario: o.destinatario,
+          producto: o.producto,
           tiendaNombre: o.tiendaNombre,
           mensajeroNombre: d.cierre.mensajeroNombre,
         });
@@ -145,6 +147,7 @@ export function agruparPorGuia({ movimientos, detalle, totalesHoja1 }: Entrada):
       guia: b.guia,
       remision: reciente.remision,
       destinatario: reciente.destinatario,
+      producto: reciente.producto,
       tiendaNombre: reciente.tiendaNombre,
       mensajeroNombre: reciente.mensajeroNombre,
       cierres: cierres.map((c) => c.fecha),
