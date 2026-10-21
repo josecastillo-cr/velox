@@ -138,6 +138,76 @@ drift) → `prisma generate` OK.
   `unauthenticated`).
 - Borrar los dos `@sin-superficie` de `lib/actions/devolucion-tienda.ts` al montarlas.
 
+## Bloque F — frontend
+
+Busqueda de codigo: grafo `codebase-memory` para localizar `accionesDe`, `EvidenciasField` y
+`HistorialOrdenSheet`; cada simbolo confirmado leyendo el archivo real.
+
+Creados:
+- `app/(app)/ordenes/_components/ConfirmarEntregaTiendaModal.tsx` — modal del lote: tienda derivada
+  de la seleccion; bloqueo nombrando las tiendas si hay mas de una (R18); bloqueo por encima de
+  `TOPE_ORDENES_POR_LOTE`; `EvidenciasField` obligatorio con «Es obligatorio» en la ayuda y el boton
+  deshabilitado sin foto (R19); una sola llamada a `confirmarEntregaTienda(FormData)`; resumen «N
+  ordenes pasaron a «Devuelta a tienda»» + lista «Guia X: motivo» de las que no (R20); `onSuccess` =
+  `revalidarTablas` (el modal queda abierto con el resumen). Errores (`comprobante_no_guardado`,
+  `forbidden`, `unauthenticated`, `validation_error`) y promesa rechazada se dicen DENTRO del modal
+  (y por toast la rechazada): nunca mudos.
+- `app/(app)/ordenes/_components/ComprobanteEntregaTienda.tsx` — «Ver comprobante de entrega» (R22):
+  pide las URLs firmadas al pulsar (import perezoso de la action), quien/cuando confirmo y una
+  miniatura enlazada (pestaña nueva) por foto; `no_encontrado` en lenguaje claro; fallo con reintento.
+- Tests: `tests/components/ConfirmarEntregaTiendaModal.test.tsx` (12),
+  `tests/components/OrdenesListado.confirmar-entrega-419.test.tsx` (3),
+  `tests/components/ComprobanteEntregaTienda.test.tsx` (7).
+
+Modificados:
+- `OrdenesListado.tsx` — `case "devolviendo_a_tienda"` en `accionesDe` (hereda `accionesLote` y el
+  conteo de seleccion mixta), `abrirConfirmarEntrega`, `modalAbierto` «confirmar-entrega-tienda»,
+  montaje del modal; prop `puedeVerComprobanteEntrega` pasada a `OrdenesModule`.
+- `OrdenesModule.tsx` — prop `puedeVerComprobanteEntrega`; el drawer la recibe solo en filas
+  `devuelta_a_tienda`.
+- `HistorialOrdenSheet.tsx` — props `ofrecerComprobanteEntrega` (default `false`) y `verComprobante`
+  (inyectable).
+- `app/(app)/ordenes/page.tsx` — `puedeVerComprobanteEntrega = esAccesoTotal(rol)`.
+- `lib/actions/devolucion-tienda.ts` — borradas las dos anotaciones `@sin-superficie` (ya alcanzables).
+- `tests/components/TraspasarMensajeroListado.test.tsx` — el caso 427 «NO se ofrece en
+  `devolviendo_a_tienda`» afirmaba ademas que esa fila no tenia casilla; desde la 419 la tiene (R17).
+  Se reescribe sobre la fila sola marcada: ofrece «Confirmar entrega a la tienda» y NO el traspaso.
+- `tests/unit/guards/estado-con-info.guardia.test.ts` — `USOS_PERMITIDOS` gana el modal (clase
+  frase: el motivo «su estado actual es «X»» del resumen). Rojo REAL del primer gate.
+
+### Mapa R → test (frontend)
+
+| R | Test |
+|---|---|
+| R17 | `OrdenesListado.confirmar-entrega-419.test.tsx` «R17» (accion presente; seleccion mixta → «Confirmar entrega a la tienda (2)» y el modal recibe solo las 2 `devolviendo_a_tienda`) |
+| R18 | `ConfirmarEntregaTiendaModal.test.tsx` «R18» (alerta literal + lista «Tienda Alfa», «Tienda Beta»; boton deshabilitado con foto; action no llamada) + tope 301 |
+| R19 | mismo archivo «R19» (sin foto: deshabilitado + textos literales; con foto: habilitado; quitarla: deshabilitado) |
+| R20 | mismo archivo «R20» (FormData: `tiendaId`, 6 `ordenId`, 2 `evidencia`; resumen y 4 motivos LITERALES; singular; `ninguna_devuelta`; `onSuccess` llamado) + «fallos» (no_guardado, forbidden, rechazo → generico visible y toast, validation_error nombrado) |
+| R21 | `OrdenesListado.confirmar-entrega-419.test.tsx` «R21» (`accionesLote=false`: sin casilla ni accion). `adminSatelite`/mensajero: `notFound` de la pagina (sin cambio) |
+| R22 (UI) | `ComprobanteEntregaTienda.test.tsx` (boton solo con la prop; pide al pulsar con el id; enlaces a las URLs firmadas en pestaña nueva; `no_encontrado`; reintento) + `OrdenesModule`: con permiso solo en `devuelta_a_tienda`, sin permiso nunca; llama a la action real con `{ ordenId }` |
+
+Mutaciones (revertidas): quitar `!sinComprobante` de `puedeConfirmar` → 2 rojos (R19); quitar
+`&& row.estatusValue === "devuelta_a_tienda"` en `OrdenesModule` → 1 rojo (R22); quitar
+`!variasTiendas` → SOBREVIVIA porque `tiendaId !== null` lo hacia redundante (logica muerta): se
+quito la redundancia y la mutacion pasa a 1 rojo (R18).
+
+### Gate frontend
+
+1. Primera corrida (`progress/gate_419_frontend_1.log`, no commiteado): `INIT_EXIT=1` por un rojo
+   REAL nuevo, `estado-con-info.guardia` (el modal usa `estatusLabel` sin excepcion declarada) →
+   clasificado; aislado: 17/17. Rojos de integracion `notificacion-evento-webhook-suscripcion-migration`
+   y `454/caracterizacion/corte-concurrencia`: verdes aislados (intermitentes).
+2. Segunda corrida (`progress/gate_419_frontend.log`, no commiteado): **`INIT_EXIT=0`**. Relacionados
+   11526 passed | 26 skipped (1 rojo en paralelo); guardias 273/3757 passed; `tests/integration/db`
+   4227 passed | 2 failed; los 3 archivos rojos (`eliminar-orden-api-frontera-tienda`,
+   `cobro-tienda-461-completar-migration`, `usuarios-filtro-busqueda`) verdes AISLADOS por el propio
+   gate → intermitentes; «sin rojos nuevos».
+
+Pendiente (F4, del leader): verificacion visual en la app con un solo dev server.
+
 ## Veredicto
+
+Bloque F de la 419 hecho: R17–R21 y la UI de R22 con test de componente (textos literales, 3
+mutaciones rojas), gate `--rapido` en verde. Falta solo la verificacion visual (F4).
 
 Bloque B de la 419 hecho: R1–R16 y R22–R24 con test (integracion contra Postgres para el WHERE, RLS-sin-policies por migracion, R8, R14, R15; 8 mutaciones rojas), gate `--rapido` ampliado en verde.

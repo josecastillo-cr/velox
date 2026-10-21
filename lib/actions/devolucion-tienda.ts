@@ -67,9 +67,6 @@ interface FileLike {
 }
 
 /**
- * @sin-superficie FICHA 419 (bloque B, backend): la pantalla llega en el bloque F de la MISMA ficha (modal «Confirmar entrega a la tienda» en `/ordenes` y «Ver comprobante de entrega» en el historial). Quien la monte DEBE borrar esta anotacion (la guardia exige quitarla en cuanto sea alcanzable). Hasta entonces la ejercitan `tests/unit/actions/devolucion-tienda-action.test.ts`, `tests/unit/actions/ver-comprobante-devolucion-tienda.test.ts` y `tests/integration/db/419/`.
- */
-/**
  * R1-R15 — confirma la entrega a la tienda de un lote de ordenes, con comprobante obligatorio.
  * FormData: `tiendaId`, una entrada `ordenId` por orden y una entrada `evidencia` por archivo.
  */
@@ -94,9 +91,6 @@ export async function confirmarEntregaTienda(
   return isAppErrorShape(r) ? toDevolucionTiendaActionError(r) : r;
 }
 
-/**
- * @sin-superficie FICHA 419 (bloque B, backend): la pantalla llega en el bloque F de la MISMA ficha (modal «Confirmar entrega a la tienda» en `/ordenes` y «Ver comprobante de entrega» en el historial). Quien la monte DEBE borrar esta anotacion (la guardia exige quitarla en cuanto sea alcanzable). Hasta entonces la ejercitan `tests/unit/actions/devolucion-tienda-action.test.ts`, `tests/unit/actions/ver-comprobante-devolucion-tienda.test.ts` y `tests/integration/db/419/`.
- */
 /** R22/R23 — URLs firmadas del comprobante de entrega de una orden (solo maestro/admin). */
 export async function verComprobanteDevolucionTienda(
   input: unknown,
