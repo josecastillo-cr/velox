@@ -244,7 +244,7 @@ async function sembrar(tx: TxDeTest, cat: Catalogo459): Promise<Escenario> {
         zonaId: cat.centralZonaId,
         provinciaId: cat.fks.provinciaId,
         cantonId: cat.fks.cantonId,
-        producto: "Caja",
+        producto: "Caja viva", // 485: la orden VIVA dice otro producto que el snapshot
         cobraComision: o.presencias[0].cobraComision,
       },
     });
@@ -271,7 +271,7 @@ async function sembrar(tx: TxDeTest, cat: Catalogo459): Promise<Escenario> {
           numGuia: p.numGuia,
           numRemision: remision,
           destinatario: `Destinatario ${o.clave}`,
-          producto: "Caja",
+          producto: `Producto ${o.clave}`,
           tiendaNombre: nombreTienda[o.tienda],
           zonaNombre: "Zona 464",
           provinciaNombre: "Provincia 464",
@@ -561,6 +561,8 @@ describeSiHayBase("464 — detalle por orden en lote (Postgres real)", () => {
       for (const o of ordenes) {
         expect(o.remision).toMatch(/^REM-464-/);
         expect(o.destinatario).toMatch(/^Destinatario o\d$/);
+        // 485: el producto sale de la MISMA foto del cierre que la remision, no de la orden viva.
+        expect(o.producto).toMatch(/^Producto o\d$/);
       }
       const pago = conDetalle.detalle.find((d) => d.modo === "sin_reparto");
       expect(pago).toMatchObject({ modo: "sin_reparto", motivo: "no_nace_de_un_cierre" }); // 468: antes snapshot_del_cierre

@@ -110,6 +110,7 @@ function ordenAporte(cierreId: string, n: number, numGuia: number | null): Orden
     numGuia,
     numRemision: `REM-${cierreId}-${n}`,
     destinatario: `Destinatario «${n}» con "comillas"`,
+    producto: `Producto ${n}`,
     tiendaNombre: n % 2 === 0 ? "Tienda Ñandú" : "Tienda B",
     orden: { esCentral: false, esZonaEspecial: false, montoCobrar: "1000.00", cobraComision: false, tarifa: null },
     gestiones: [{ resultado: "entregado", montoRecibido: "1000.00", pagoMensajero: null, indemnizacion: null }],

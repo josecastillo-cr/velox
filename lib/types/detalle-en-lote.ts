@@ -28,6 +28,8 @@ export interface OrdenDelLoteDTO {
   remision: string;
   /** `cierre_detail.destinatario` congelado. */
   destinatario: string;
+  /** Ficha 485 — `cierre_detail.producto` congelado. */
+  producto: string;
   /** `cierre_detail.tienda_nombre` congelado. `null` en las vistas de UNA tienda (oficina y /mi-wallet). */
   tiendaNombre: string | null;
   /** Los resultados de TODAS sus gestiones en ese cierre, en el orden del detalle de la fila (R20). */

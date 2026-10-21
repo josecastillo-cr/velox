@@ -45,6 +45,7 @@ function orden(cierreId: string, n: number, valorFlete = "1000.00"): OrdenAporte
     numGuia: n,
     numRemision: `REM-${n}`,
     destinatario: `Dest ${n}`,
+    producto: `Prod ${n}`,
     tiendaNombre: "Tienda A",
     orden: {
       esCentral: false,
@@ -381,6 +382,7 @@ describe("464 — R18/R20/R24: forma y orden de la salida", () => {
       guia: null,
       remision: "REM-1",
       destinatario: "Dest 1",
+      producto: "Prod 1", // 485: viaja del repositorio al DTO tal cual
       tiendaNombre: "Tienda A",
       resultados: ["entregado"],
       aporte: "1000.00",

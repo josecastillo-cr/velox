@@ -64,6 +64,8 @@ export interface OrdenAporteRow {
   numGuia: number | null;
   numRemision: string;
   destinatario: string;
+  /** Ficha 485 — `cierre_detail.producto` congelado (la hoja «Detalle por guía» de la caja). */
+  producto: string;
   tiendaNombre: string;
   orden: OrdenCongelada;
   gestiones: GestionDelCierre[];

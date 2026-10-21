@@ -46,6 +46,7 @@ function fila(over: Partial<OrdenAporteRow> = {}): OrdenAporteRow {
     numGuia: 501,
     numRemision: "REM-1",
     destinatario: "Ana",
+    producto: "Camisa",
     tiendaNombre: "Tienda A",
     orden: {
       esCentral: false,

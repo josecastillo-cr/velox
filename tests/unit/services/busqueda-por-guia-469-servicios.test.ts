@@ -133,6 +133,7 @@ describe("469 — DetalleMovimientoService con `resaltar`", () => {
       numGuia,
       numRemision: `REM-${ordenId}`,
       destinatario: "Ana",
+      producto: "Camisa",
       tiendaNombre: "Tienda A",
       orden: {
         esCentral: false,

@@ -180,6 +180,7 @@ export class DetalleEnLoteService implements IDetalleEnLoteService {
             guia: fila.numGuia === null ? null : String(fila.numGuia),
             remision: fila.numRemision,
             destinatario: fila.destinatario,
+            producto: fila.producto,
             tiendaNombre: conTienda ? fila.tiendaNombre : null,
             resultados: fila.gestiones.map((g) => g.resultado),
             aporte: aporte.toFixed(2),

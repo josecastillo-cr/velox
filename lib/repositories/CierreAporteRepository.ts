@@ -103,6 +103,8 @@ const SELECT_DE_APORTE = {
   numGuia: true,
   numRemision: true,
   destinatario: true,
+  // Ficha 485: la foto del producto en el cierre, como la remision y el destinatario.
+  producto: true,
   tiendaNombre: true,
 } as const;
 
@@ -120,6 +122,7 @@ function aFilaDeAporte(
     numGuia: number | null;
     numRemision: string;
     destinatario: string;
+    producto: string;
     tiendaNombre: string;
   },
   gestiones: ReadonlyArray<{
@@ -134,6 +137,7 @@ function aFilaDeAporte(
     numGuia: d.numGuia,
     numRemision: d.numRemision,
     destinatario: d.destinatario,
+    producto: d.producto,
     tiendaNombre: d.tiendaNombre,
     orden: {
       esCentral: d.esCentral,
