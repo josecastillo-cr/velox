@@ -290,7 +290,7 @@ function gestionEntregada(
     pagos,
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: "1500.00",
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

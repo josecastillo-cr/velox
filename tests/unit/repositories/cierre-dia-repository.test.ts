@@ -46,6 +46,7 @@ function detalleRow(overrides: Record<string, unknown> = {}) {
     motivo: null,
     fechaReprogramacion: null,
     evidenciaStoragePath: "o1/entregada-1.jpg",
+    evidencias: [], // feature 486: sin hijas -> la portada es el fallback (R5)
     // Feature 212/R21: las lineas del desglose tal como las lee WITH_DETALLE (Decimal).
     pagos: [{ metodo: "efectivo", monto: new Prisma.Decimal("12.50") }],
     pagoMensajero: null, // feature 39: snapshot (null salvo override)
@@ -339,6 +340,7 @@ describe("CierreDiaRepository.findGestionesPendientes (R2/R3)", () => {
       zonaNombre: "Cartago",
       tiendaNombre: "Tienda X",
       evidenciaStoragePath: "o1/entregada-1.jpg",
+      evidenciaStoragePaths: ["o1/entregada-1.jpg"], // feature 486/R5: sin hijas, la portada
       pagoMensajero: "5.00", // feature 39/R23: snapshot Decimal->string
       ingresoBodegaRechazo: "3.00", // feature 56/R22: snapshot Decimal->string
     });

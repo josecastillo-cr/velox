@@ -72,7 +72,7 @@ export function gestion478(
     pagos: [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,
@@ -116,7 +116,7 @@ export const ENTREGA_478 = gestion478({
     { metodo: "SINPE", monto: "3000.25" },
   ],
   pagoMensajero: "1200.40",
-  evidenciaUrl: "https://signed.example/ent.jpg?token=e1",
+  evidenciaUrl: "https://signed.example/ent.jpg?token=e1", evidenciaUrls: ["https://signed.example/ent.jpg?token=e1"],
   ingresoOrdenex: ingreso478({
     montoCobrar: "8000.50",
     flete: "2000.00",

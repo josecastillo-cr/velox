@@ -78,6 +78,7 @@ import { NOMBRE_ESTADO } from "@/lib/types/order-status";
 // FEATURE 271 (R48/R10): la regla del bloqueo se CONSULTA, no se re-deriva aqui.
 import { SIN_CIERRES_ABIERTOS, estaBloqueadoPorCierres } from "@/lib/utils/bloqueo-cierre";
 import type { BloqueoDetalle } from "@/lib/utils/bloqueo-cierre";
+import { rutasAFirmar } from "@/lib/utils/evidencias-gestion";
 // FEATURE 271 (T6.6, R42/R47): el aviso de «quedaste BLOQUEADO» que emite el RECHAZO. Mismo
 // mecanismo que sus hermanos de la 146: notificador INYECTADO con default no-op + best-effort.
 import {
@@ -788,9 +789,8 @@ export class CierresAdminService implements ICierresAdminService {
     if (found === null) return { status: "no_encontrada" };
 
     // R7: firma en lote las evidencias (path crudo -> URL firmada de TTL acotado).
-    const paths = found.gestiones
-      .map((g) => g.evidenciaStoragePath)
-      .filter((p): p is string => p !== null);
+    // Feature 486 (R1/R3/R8): TODAS las fotos de todas las gestiones, en UNA sola firma.
+    const paths = rutasAFirmar(found.gestiones);
     // Best-effort DELIBERADO: si el storage no responde (credencial ausente, servicio
     // caido), el detalle se sirve SIN evidencias en vez de no servirse. Las evidencias
     // ilustran la decision; no son la decision. Bloquear el comprobante entero por ellas

@@ -92,7 +92,7 @@ function makeGestion(
     pagos: [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,
@@ -117,7 +117,7 @@ function unIncidente(over: Partial<CierreDetalleGestion> = {}): CierreDetalleGes
     resultado: "incidente",
     numRemision: "REM-INC",
     motivo: "Paquete robado en la parada",
-    evidenciaUrl: "https://signed.example/inc.jpg?token=abc",
+    evidenciaUrl: "https://signed.example/inc.jpg?token=abc", evidenciaUrls: ["https://signed.example/inc.jpg?token=abc"],
     ...over,
   });
 }

@@ -47,6 +47,7 @@ import { avisoBloqueo } from "@/lib/constants/bloqueo-mensajero";
 // helper de la convencion `@db.Date` de `fecha_reparto`; `inicioDelDiaCREnUtc` es la de las
 // columnas `timestamp` y aqui desplazaria el dia seis horas (ficha 166).
 import { startOfDayCR } from "@/lib/utils/fecha-cr";
+import { rutasAFirmar, urlsEvidenciaFirmadas } from "@/lib/utils/evidencias-gestion";
 
 // Solo el rol autorizado en el modulo (R1/R2): el mensajero, SIEMPRE acotado a su
 // propio `usuario.id` (el filtro por mensajero vive en el repo, en el WHERE).
@@ -316,9 +317,8 @@ export class CierreDiaService implements ICierreDiaService {
     const tarifaFaltante = tarifa === null;
 
     // R5: firma en lote las evidencias (path crudo -> URL firmada de TTL acotado).
-    const paths = gestiones
-      .map((g) => g.evidenciaStoragePath)
-      .filter((p): p is string => p !== null);
+    // Feature 486 (R3/R8): TODAS las fotos de todas las gestiones, en UNA sola firma.
+    const paths = rutasAFirmar(gestiones);
     const urlByPath =
       paths.length > 0
         ? await this.signedUrls.createSignedUrls(paths, cierreConfig.SIGNED_URL_TTL_SECONDS)
@@ -402,9 +402,8 @@ export class CierreDiaService implements ICierreDiaService {
     for (const c of pendientes) {
       const propio = await this.repo.findCierrePropioConGestiones(c.cierreId, mensajeroId);
       const gestiones = propio?.gestiones ?? [];
-      const paths = gestiones
-        .map((g) => g.evidenciaStoragePath)
-        .filter((p): p is string => p !== null);
+      // Feature 486 (R3/R8): todas las fotos del cierre rechazado, en UNA sola firma.
+      const paths = rutasAFirmar(gestiones);
       let urlByPath: Record<string, string> = {};
       if (paths.length > 0) {
         try {
@@ -455,9 +454,8 @@ export class CierreDiaService implements ICierreDiaService {
     // R5: evidencias SOLO firmadas. Best-effort DELIBERADO (mismo criterio que el detalle del
     // admin): si el storage no responde, el comprobante se sirve SIN sus fotos en vez de no
     // servirse — es una vista de consulta, las fotos la ilustran.
-    const paths = found.gestiones
-      .map((g) => g.evidenciaStoragePath)
-      .filter((p): p is string => p !== null);
+    // Feature 486 (R1/R3/R8): TODAS las fotos de todas las gestiones, en UNA sola firma.
+    const paths = rutasAFirmar(found.gestiones);
     let urlByPath: Record<string, string> = {};
     if (paths.length > 0) {
       try {
@@ -987,6 +985,7 @@ export function toDetalleDTO(
   ingresoBodegaRechazo?: string | null,
   tarifaFaltante = false,
 ): CierreDetalleGestion {
+  const evidenciaUrls = urlsEvidenciaFirmadas(g.evidenciaStoragePaths, urlByPath);
   return {
     gestionId: g.gestionId,
     ordenId: g.ordenId,
@@ -1013,7 +1012,10 @@ export function toDetalleDTO(
     pagos: g.pagos,
     motivo: g.motivo,
     fechaReprogramacion: g.fechaReprogramacion,
-    evidenciaUrl: g.evidenciaStoragePath ? (urlByPath[g.evidenciaStoragePath] ?? null) : null,
+    // Feature 486 (R4/R7/R9): la LISTA firmada, en orden de indice, omitiendo lo no firmado; y la
+    // portada DERIVADA de ella (una sola fuente) para los consumidores de una foto (descarga R18).
+    evidenciaUrl: evidenciaUrls[0] ?? null,
+    evidenciaUrls,
     pagoMensajero: pagoMensajero !== undefined ? pagoMensajero : g.pagoMensajero,
     ingresoBodegaRechazo:
       ingresoBodegaRechazo !== undefined ? ingresoBodegaRechazo : g.ingresoBodegaRechazo,

@@ -114,7 +114,7 @@ function makeGestion(
     pagos: [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: null, // feature 39
     ingresoBodegaRechazo: null, // feature 56
     tarifaFaltante: false, // feature 56/R23
@@ -273,7 +273,7 @@ describe("CierreDiaModule", () => {
         resultado: "devolucion_a_origen_por_rechazo",
         numRemision: "REM-REC",
         motivo: "Dirección inexistente",
-        evidenciaUrl: "https://signed.example/evidencia.jpg?token=abc",
+        evidenciaUrl: "https://signed.example/evidencia.jpg?token=abc", evidenciaUrls: ["https://signed.example/evidencia.jpg?token=abc"],
       }),
     ];
     renderModule({ grupos });

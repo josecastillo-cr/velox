@@ -66,7 +66,7 @@ function gestion(over: Partial<CierreDetalleGestion> = {}): CierreDetalleGestion
     pagos: [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: "1200.00",
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

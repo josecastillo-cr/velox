@@ -63,7 +63,7 @@ function entregaMixta(): CierreGestionPendienteRow {
       metodoPago: null,
       motivo: null,
       fechaReprogramacion: null,
-      evidenciaStoragePath: null,
+      evidenciaStoragePath: null, evidenciaStoragePaths: [],
       pagoMensajero: null,
       ingresoBodegaRechazo: null,
       esRechazoSla: false,

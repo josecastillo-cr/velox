@@ -79,6 +79,7 @@ import { NOMBRE_USUARIO_SELECT, nombreCompletoUsuario } from "@/lib/utils/nombre
 // no decide ningun dia de reparto ni lee el reloj del proceso — convierte un instante que ya
 // existe en la fila. `now` no se usa nunca sin argumento.
 import { fechaCalendarioCR } from "@/lib/utils/fecha-cr";
+import { rutasEvidenciaGestion } from "@/lib/utils/evidencias-gestion";
 
 // El estado que representa una solicitud viva de cierre (R12) y el que crea la 37 por
 // defecto (R13). Feature 41/C1: `crearCierre` acepta ademas `vencido` (corte diario).
@@ -431,7 +432,11 @@ export const WITH_DETALLE = {
     metodoPago: true,
     motivo: true,
     fechaReprogramacion: true,
-    evidenciaStoragePath: true,
+    evidenciaStoragePath: true, // portada: fallback de la 486 (R5) si no hay hijas
+    // Feature 486 (R3/R4): el CONJUNTO de fotos, por `indice`. Una consulta por nivel
+    // (`WHERE gestion_id IN (...)`), no una por gestion (R8). El `orderBy` es el orden que ve el
+    // usuario: el mapper no reordena.
+    evidencias: { select: { storagePath: true }, orderBy: { indice: "asc" } },
     pagoMensajero: true, // feature 39: snapshot del pago al mensajero (reuso 38/40)
     ingresoBodegaRechazo: true, // feature 56: snapshot del ingreso de bodega por rechazo (reuso 38/40)
     causaIncidente: true, // feature 158/R9: causa tipificada del incidente (null en el resto)
@@ -511,6 +516,7 @@ export function toPendienteRow(
       ? row.fechaReprogramacion.toISOString().slice(0, 10)
       : null,
     evidenciaStoragePath: row.evidenciaStoragePath,
+    evidenciaStoragePaths: rutasEvidenciaGestion(row.evidencias, row.evidenciaStoragePath),
     // Feature 39: snapshot del pago al mensajero (Decimal->string; null si aun sin cerrar
     // o cierre pre-migracion, R22). En la vista EN VIVO (37) el service lo DERIVA aparte.
     pagoMensajero: decimalToString(row.pagoMensajero),

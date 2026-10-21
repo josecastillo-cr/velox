@@ -42,7 +42,7 @@ function gestion(overrides: Partial<CierreGestionPendienteRow>): CierreGestionPe
     metodoPago: null,
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     esRechazoSla: false, // feature 102

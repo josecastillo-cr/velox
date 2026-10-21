@@ -564,7 +564,7 @@ function gestion(i: number, resultado: CierreResultado): CierreDetalleGestion {
       resultado === "entregado" ? [{ metodo: "SINPE" as const, monto: "1000.10" }] : [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

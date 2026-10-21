@@ -128,7 +128,7 @@ function gestion(over: Partial<CierreDetalleGestion> = {}): CierreDetalleGestion
     pagos: [{ metodo: "efectivo", monto: "8000.00" }],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: "1500.00",
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

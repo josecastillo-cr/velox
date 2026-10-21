@@ -122,6 +122,13 @@ export interface CierreGestionPendienteRow {
   motivo: string | null;
   fechaReprogramacion: string | null; // ISO date (YYYY-MM-DD)
   evidenciaStoragePath: string | null;
+  /**
+   * Feature 486 (R1-R6): TODAS las rutas de evidencia de la gestion, por `indice` asc (las hijas
+   * de `gestion_orden_evidencia`; sin hijas, la portada sola; sin nada, `[]`). OBLIGATORIO a
+   * proposito: un productor que lo olvide no compila, en vez de volver a una foto en silencio.
+   * Paths CRUDOS: el service los firma y NUNCA los emite al cliente (R7).
+   */
+  evidenciaStoragePaths: string[];
   // Feature 39: pago al mensajero SNAPSHOTEADO de la gestion (money-safe STRING). `null`
   // en gestiones aun sin cerrar / cierres pre-migracion (R22). En la vista EN VIVO (37)
   // el service lo DERIVA; en el detalle admin (38/40) es el snapshot leido de la columna.

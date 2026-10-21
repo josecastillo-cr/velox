@@ -65,6 +65,12 @@ export interface CierreDetalleGestion {
   motivo: string | null; // reprogramada/devuelta/rechazada (R4)
   fechaReprogramacion: string | null; // ISO date (YYYY-MM-DD); solo reprogramada (R4)
   evidenciaUrl: string | null; // URL FIRMADA (R5), nunca el storage_path
+  /**
+   * Feature 486 (R1-R9): TODAS las evidencias de la gestion como URLs FIRMADAS de TTL acotado,
+   * en orden de `indice` asc; omite la que el storage no pudo firmar; `[]` si no hay ninguna.
+   * `evidenciaUrl` es DERIVADO de esta lista (`evidenciaUrls[0] ?? null`): una sola fuente.
+   */
+  evidenciaUrls: string[];
   // Feature 39/R10/R16: pago al mensajero (money-safe STRING). En la vista EN VIVO (37)
   // es DERIVADO por resultado+tarifa; en el detalle admin (38/40) es el snapshot leido.
   // `null` en cierres pre-migracion (R22). Concepto INDEPENDIENTE de montoRecibido (R21).
