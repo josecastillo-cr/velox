@@ -5797,12 +5797,12 @@
       "title": "columna Producto en el detalle por guía de la caja",
       "description": "La hoja «Detalle por guía» del libro de movimientos de la caja (/wallet) añade una columna Producto, desmarcable, al lado de Remisión.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "baja",
       "depends_on": null,
       "branch": "feat/485-producto-detalle-guia-caja",
-      "status_note": "Producto congelado en cierre_detail.producto (misma foto que la remisión); sin migración. Solo la caja: mi-wallet y estados de cuenta NO (decisión del humano, 2026-10-20)."
+      "status_note": "HECHA en dev (PR #865, 61196b94, 2026-10-20), SIN desplegar a prod. Producto de cierre_detail.producto (SELECT_DE_APORTE), mismo cierre que la remision; columna desmarcable tras Remision solo en la caja. Gate --rapido verde en rama y en dev (3755 tests). Revision OK, 3 menores (progress/review_485.md)."
     }
   ]
 }
