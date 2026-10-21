@@ -102,3 +102,69 @@ A mano (antes del gate): `cierres-admin-gestiones-where`, `cierres-bodega-gestio
 
 Backend de la 486 hecho (R1-R11 y la parte de repositorio de R17 cubiertas y probadas contra
 Postgres); el DTO ya entrega `evidenciaUrls`. Falta el frontend (R12-R16, R18 y la parte de componente de R17).
+
+---
+
+# FRONTEND (T6-T8, T10)
+
+Búsqueda: grafo `codebase-memory` + confirmación en el archivo real (lectura entera antes de editar).
+
+## Archivos
+
+- `app/(app)/cierres-admin/_components/botones-evidencia.tsx` (nuevo): `BotonesEvidencia({ urls, onVer, etiqueta?, ariaSufijo? })`.
+  0 → nada; 1 → «Ver evidencia» con el `aria-label` de siempre; N → «Ver evidencia 1..N», `aria-label`
+  «Ver evidencia k de N <sufijo>», en un `role="group"`. Usa el `Button` de shadcn; el visor no cambia.
+- `cierre-factura.tsx` `FilaGestion`: monta `BotonesEvidencia` con `g.evidenciaUrls` (S1, S2 y cierre pasado de S3).
+- `CierreDiaModule.tsx` `columnaEvidencia`: `BotonesEvidencia`; sin fotos, «—» (tablas de rechazo e incidente en vivo).
+- `cierre-dia-descarga-columnas.ts` `tieneEvidencia`: «Sí» si `evidenciaUrls.length > 0` (R18; equivalente a
+  `evidenciaUrl` por contrato, pero dice lo que exige el requisito).
+- Tests: `tests/components/CierreEvidenciasVarias486.test.tsx` (nuevo, 10), bloque «FICHA 486 (R17)» en
+  `tests/components/descarga/CierresDescarga.test.tsx`, bloque «FICHA 486 (R18)» en
+  `tests/unit/descarga/cierre-dia-descarga-columnas.test.ts`. Ninguna aserción existente de «Ver evidencia»
+  con una foto se tocó (los 10 archivos de componente/guardia que la mencionan: 265/265 verdes).
+
+**Hallazgo (R16):** el panel de corrección del cierre rechazado (477) NO ofrece «Ver evidencia» hoy (lista sin
+columna de evidencia). R16 dice «donde hoy se ofrece», así que ahí no se añadió nada; si se quiere, es ficha aparte.
+
+## Mapa R → test (frontend)
+
+| R | Test |
+| --- | --- |
+| R12 | `CierreEvidenciasVarias486.test.tsx` «R12: una evidencia → un único botón…» + S1 «1 foto → Ver evidencia» + S3 en vivo (`REM-UNA`) |
+| R13 | idem «R13: tres evidencias → Ver evidencia 1, 2 y 3…» (texto y `aria-label` literales) |
+| R14 | idem «R14: pulsar Ver evidencia 2 entrega la URL 2»; S1/S2 (callback con URL 2/3); S3 pasado y en vivo (src del visor real = URL 2/3) |
+| R15 | idem «R15: sin evidencias no pinta ningún botón» + S1 `REM-NADA` + S3 en vivo celda «—» |
+| R16 | idem: S1 `CierreFacturaDetalle` admin; S2 `GestionesPorResultado` con `contexto` (lo que monta `CierresBodegaAdminModule`); S3 cierre pasado (flujo real de `CierreDiaModule` + visor) y tablas de rechazo e incidente en vivo |
+| R17 (componente) | `CierresDescarga.test.tsx` «FICHA 486 (R17): con 3 fotos firmadas por gestión, ninguna de las 3 URLs llega al archivo» (anti-vacuidad: la pantalla pinta «Ver evidencia 3») |
+| R18 | `cierre-dia-descarga-columnas.test.ts` «FICHA 486 (R18)»: rechazo e incidente, «Sí» con 3, «Sí» con 1, «No» con 0, ninguna URL en celdas |
+
+## Mutaciones
+
+- M4 `BotonesEvidencia` con `urls.length >= 1` (solo la primera) → 9 rojos en `CierreEvidenciasVarias486` + `CierresDescarga`. Restaurada.
+- M5 `tieneEvidencia` con `length > 1` → sobrevivía a la primera versión del test (3 y 0); se añadió el caso «una sola → Sí»
+  y pasa a 2 rojos. Restaurada.
+
+## T10 — ver la app: BLOQUEADO (no hecho)
+
+- Dato local encontrado: cierre `70ebf5e2-…` (aprobado, central) con la gestión `05d95559-…` (incidente) con 2 hijas
+  (`qa-seed/entregada-…-0.jpg`, `-1.jpg`). No hizo falta sembrar.
+- Dev server levantado (puerto 3486), compiló y sirvió `/login`. **El login de `admin.qa@ordenex.test` con el
+  `QA_PASSWORD` del `.env` falla** («Correo o contraseña inválidos»): la clave local fue rotada por otra sesión.
+  Correr el seed de QA estaba vetado; crear una cuenta admin local propia lo denegó el clasificador de permisos
+  (la fila que llegó a insertarse se BORRÓ en el acto: `DELETE 1`). Sin credencial no hay capturas.
+- Dev server parado; `.next/dev` borrado. `progress/486_t10/` no se creó.
+- Para cerrarlo: una credencial de admin local válida (o permiso para rotar QA), y repetir: `/cierres-admin?cierre=70ebf5e2-8f69-4bb5-9367-814f73545e29`, pestaña Incidente, desplegar la fila, esperar «Ver evidencia 1/2» y dos `src` distintos en el visor.
+  Ojo: la firma va contra el Supabase del `.env` local; si esas rutas `qa-seed/` no existen en ese bucket, R9 las omite y no saldría ningún botón (sería dato, no código).
+
+## Gate
+
+`./init.sh --rapido` (ampliado con `integration/db`), log `progress/gate_486_frontend.log` (no commiteado):
+- Pasada 1: INIT_EXIT=1. Rojo PROPIO: `censo-order-status-rename` cazó el literal `"rechazada"` (código retirado
+  por la 455) como nombre de caso en el test de R18; renombrado a «devolución por rechazo». Rojo ajeno:
+  `pago-por-cuenta-tienda.test.ts` (deadlock) verde aislado → intermitente.
+- Pasada 2: **INIT_EXIT=0, «init OK»**. Relacionados 4865/4865, guardias 3755/3755, integración 4219/4219 (+49 al
+  repetir); `ranking-snapshot-migration.test.ts` rojo en paralelo y verde aislado → intermitente. 0 `skipped`.
+
+## Veredicto frontend
+
+R12-R18 cubiertas y verdes; T10 pendiente por credencial de admin local.

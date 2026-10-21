@@ -384,6 +384,30 @@ function gruposConEvidencia(): CierreGrupos {
   };
 }
 
+/**
+ * FICHA 486 (R17): las mismas secciones, pero cada gestión con evidencia trae sus TRES fotos
+ * firmadas —lo que el servidor entrega desde la 486—. Ninguna de las tres puede llegar al archivo.
+ */
+const TRES_EVIDENCIAS_FIRMADAS = [
+  "https://storage.example/storage/v1/evidencias/foto-0.jpg?token=secreto-0",
+  "https://storage.example/storage/v1/evidencias/foto-1.jpg?token=secreto-1",
+  "https://storage.example/storage/v1/evidencias/foto-2.jpg?token=secreto-2",
+];
+
+function gruposConTresEvidencias(): CierreGrupos {
+  const base = gruposConEvidencia();
+  const conTres = (g: CierreDetalleGestion): CierreDetalleGestion => ({
+    ...g,
+    evidenciaUrl: TRES_EVIDENCIAS_FIRMADAS[0],
+    evidenciaUrls: [...TRES_EVIDENCIAS_FIRMADAS],
+  });
+  return {
+    ...base,
+    devolucion_a_origen_por_rechazo: base.devolucion_a_origen_por_rechazo.map(conTres),
+    incidente: base.incidente.map(conTres),
+  };
+}
+
 const CIERRES_PASADOS = [cierrePasado(1), cierrePasado(2)];
 
 function envolver(ui: ReactElement) {
@@ -527,7 +551,7 @@ function renderConsolidacion() {
   );
 }
 
-function renderCierreDia() {
+function renderCierreDia(grupos: () => CierreGrupos = gruposConEvidencia) {
   vi.mocked(listarCierresPasadosPaginado).mockResolvedValue({
     status: "ok",
     page: 1,
@@ -542,7 +566,7 @@ function renderCierreDia() {
   });
   vi.mocked(listarCierreDia).mockResolvedValue({
     status: "ok",
-    grupos: gruposConEvidencia(),
+    grupos: grupos(),
     totales: TOTALES,
     totalPagoMensajero: "100.10",
     totalIngresoBodegaRechazos: "5.00",
@@ -554,7 +578,7 @@ function renderCierreDia() {
   });
   return envolver(
     <CierreDiaModule
-      grupos={gruposConEvidencia()}
+      grupos={grupos()}
       totales={TOTALES}
       totalPagoMensajero="100.10"
       puedesSolicitar
@@ -706,6 +730,35 @@ describe("Cierres · descarga", () => {
       // El dato que SÍ se entrega: hay evidencia, sin regalar el acceso.
       expect(columnas.map((c) => c.header)).toContain("Tiene evidencia");
       expect(filas[0].tieneEvidencia).toBe("Sí");
+    }
+  });
+
+  it("FICHA 486 (R17): con 3 fotos firmadas por gestión, ninguna de las 3 URLs llega al archivo", async () => {
+    // Mismo recorrido que el caso anterior, con la forma del DTO desde la 486: cada gestión con
+    // evidencia trae `evidenciaUrls` de TRES. Se buscan las tres literalmente en cada celda.
+    const user = userEvent.setup();
+    renderCierreDia(gruposConTresEvidencias);
+
+    // Anti-vacuidad: la pantalla SÍ recibió las tres (pinta un botón por foto).
+    expect(screen.getAllByRole("button", { name: "Ver evidencia 3" }).length).toBeGreaterThan(0);
+
+    for (const seccion of ["Devolución a origen por rechazo", "Incidente"]) {
+      buildXlsxRowsMock.mockClear();
+      await user.click(screen.getByRole("button", { name: `Descargar ${seccion}` }));
+      await waitFor(() => expect(buildXlsxRowsMock).toHaveBeenCalled());
+
+      const [, filas] = buildXlsxRowsMock.mock.calls.at(-1)!;
+      expect(filas.length).toBeGreaterThan(0);
+      for (const fila of filas) {
+        for (const celda of Object.values(fila)) {
+          const texto = String(celda ?? "");
+          for (const url of TRES_EVIDENCIAS_FIRMADAS) {
+            expect(texto, `${seccion}: celda con una URL firmada`).not.toContain(url);
+          }
+          expect(texto).not.toContain("token=");
+        }
+        expect(fila.tieneEvidencia).toBe("Sí");
+      }
     }
   });
 

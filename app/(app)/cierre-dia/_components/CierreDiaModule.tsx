@@ -56,6 +56,7 @@ import {
 // la tira de comprobantes que usan las demás pantallas de cierres. Mismo envoltorio, mismos
 // cuatro estados de listado.
 import { ListaComprobantes } from "@/app/(app)/cierres-admin/_components/ListaComprobantes";
+import { BotonesEvidencia } from "@/app/(app)/cierres-admin/_components/botones-evidencia";
 import { DescargarDatasetButton } from "@/components/shared/DescargarDatasetButton";
 // Feature 170 (T E.4): las etiquetas compartidas salen del módulo PURO (sin React) para que
 // el archivo de la descarga y esta pantalla no puedan decir cosas distintas (R8).
@@ -1492,16 +1493,10 @@ function columnaEvidencia(
   return {
     id: "evidencia",
     value: "Evidencia",
+    // FICHA 486 (R12-R16): un botón por foto; sin ninguna, «—» como siempre.
     render: (g) =>
-      g.evidenciaUrl ? (
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onClick={() => verEvidencia(g.evidenciaUrl as string)}
-        >
-          Ver evidencia
-        </Button>
+      g.evidenciaUrls.length > 0 ? (
+        <BotonesEvidencia urls={g.evidenciaUrls} onVer={verEvidencia} />
       ) : (
         "—"
       ),
