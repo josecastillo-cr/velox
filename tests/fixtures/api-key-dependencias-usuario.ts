@@ -232,6 +232,16 @@ export const CLASIFICACION_FK_USUARIO: Record<string, ClasificacionFk> = {
   // dos acciones son solo de acceso total (R82); las dos FK son `Restrict`.
   "RechazoTiendaCobroAnulacion.anulador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "WalletComprobante.subidor": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
+  // FICHA 419 — el comprobante de entrega CENTRAL a la tienda. Quien lo sube es maestro/admin
+  // (`esAccesoTotal`); la tienda del lote la valida `DevolucionTiendaService` (`esTienda`: rol
+  // `adminTienda`), asi que la cuenta dedicada de una key (rol `apiKey`) no puede ser ninguna de las dos.
+  "DevolucionTiendaComprobante.subidor": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
+  "DevolucionTiendaComprobante.tienda": {
+    categoria: "no_alcanzable",
+    motivo:
+      "419: `DevolucionTiendaService` exige que la tienda del lote tenga rol `adminTienda` " +
+      "(`esTienda`); una cuenta dedicada de API key tiene rol `apiKey` y el lote se rechaza antes de escribir.",
+  },
   "GastoFijoCobro.decisor": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "RechazoTiendaCobro.decisor": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "ApiKey.createdBy": {
