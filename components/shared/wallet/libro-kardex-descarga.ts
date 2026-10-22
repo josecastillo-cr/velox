@@ -121,7 +121,7 @@ export function filasKardex<M>(args: FilasKardexArgs<M>): HojaColocada {
 
 /**
  * R34/R37/R38 — la fila de CABECERA de un bloque de guía: Guía (o «Sin guía · remisión …»), Remisión,
- * Destinatario, Tienda, Mensajero, los días de sus cierres separados por comas y sus resultados; Concepto
+ * Producto (fichas 485/487), Destinatario, Tienda, Mensajero, los días de sus cierres separados por comas y sus resultados; Concepto
  * y las columnas de monto, vacías. Cada superficie la expone en su módulo de columnas
  * (`filaCabeceraGuia*`) con SU etiqueta de resultados; las columnas que la hoja no tiene (Tienda en la
  * de una tienda, Mensajero en la del mensajero y en `/mi-wallet`) no se emiten porque no se declaran.
@@ -133,6 +133,8 @@ export function filaCabeceraDeGuia(
   return {
     guia: bloque.guia ?? LIBRO_KARDEX_TEXTO.sinGuia(bloque.remision),
     remision: bloque.remision,
+    // Fichas 485/487 — el producto, solo en la cabecera; las filas de concepto lo dejan vacío.
+    producto: bloque.producto,
     destinatario: bloque.destinatario,
     tienda: bloque.tiendaNombre,
     mensajero: bloque.mensajeroNombre,

@@ -458,6 +458,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(encabezados(COLUMNAS_DESCARGA_DETALLE_GUIA_TIENDA)).toEqual([
       "Guía",
       "Remisión",
+      "Producto",
       "Destinatario",
       "Mensajero",
       "Cierre",
@@ -473,6 +474,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(encabezados(COLUMNAS_DESCARGA_DETALLE_GUIA_MENSAJERO)).toEqual([
       "Guía",
       "Remisión",
+      "Producto",
       "Destinatario",
       "Tienda",
       "Cierre",
@@ -488,6 +490,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(encabezados(COLUMNAS_DESCARGA_DETALLE_GUIA_MI_WALLET)).toEqual([
       "Guía",
       "Remisión",
+      "Producto",
       "Destinatario",
       "Cierre",
       "Resultado",
@@ -517,6 +520,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(COLUMNAS_DESCARGA_DETALLE_GUIA_TIENDA.map((c) => c.clave)).toEqual([
       "guia",
       "remision",
+      "producto",
       "destinatario",
       "mensajero",
       "cierre",
@@ -529,6 +533,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(COLUMNAS_DESCARGA_DETALLE_GUIA_MENSAJERO.map((c) => c.clave)).toEqual([
       "guia",
       "remision",
+      "producto",
       "destinatario",
       "tienda",
       "cierre",
@@ -541,6 +546,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     expect(COLUMNAS_DESCARGA_DETALLE_GUIA_MI_WALLET.map((c) => c.clave)).toEqual([
       "guia",
       "remision",
+      "producto",
       "destinatario",
       "cierre",
       "resultado",
@@ -678,65 +684,75 @@ describe("468 R19/R24/R60 — los textos, en español claro, sin siglas ni jerga
   });
 });
 
-describe("485 — «Producto» en la hoja «Detalle por guía», SOLO en la caja", () => {
-  it("ninguna otra superficie declara la columna (ni por clave ni por encabezado)", () => {
-    for (const cat of [
-      COLUMNAS_DESCARGA_DETALLE_GUIA_TIENDA,
-      COLUMNAS_DESCARGA_DETALLE_GUIA_MENSAJERO,
-      COLUMNAS_DESCARGA_DETALLE_GUIA_MI_WALLET,
-      COLUMNAS_DESCARGA_WALLET_CAJA,
-      COLUMNAS_DESCARGA_ESTADO_CUENTA,
-      COLUMNAS_DESCARGA_MI_ESTADO_CUENTA,
-    ]) {
+describe("485/487 — «Producto» en la hoja «Detalle por guía» de los cuatro libros", () => {
+  // Las cuatro superficies, con SU cabecera y SU hoja (la caja expone la hoja directa; las demás, `.hoja`).
+  const SUPERFICIES = [
+    { nombre: "caja", cabecera: filaCabeceraGuiaCaja, hoja: DETALLE_DESCARGA_WALLET_CAJA },
+    { nombre: "tienda", cabecera: filaCabeceraGuiaTienda, hoja: DETALLE_DESCARGA_WALLET_TIENDA.hoja },
+    { nombre: "mensajero", cabecera: filaCabeceraGuiaMensajero, hoja: DETALLE_DESCARGA_WALLET_MENSAJERO.hoja },
+    { nombre: "mi-wallet", cabecera: filaCabeceraGuiaMiWallet, hoja: DETALLE_DESCARGA_MI_WALLET.hoja },
+  ] as const;
+
+  function hojaGuiasCon(cabeceraDe: (typeof SUPERFICIES)[number]["cabecera"]) {
+    const ordenes = new Map([A, B, C].map((m, i) => [m.id, KARDEX.filas[i].ordenes]));
+    return filasDetallePorGuia({
+      porGuia: POR_GUIA,
+      cabeceraDe,
+      movimientoPorId: new Map([A, B, C].map((m) => [m.id, m])),
+      conceptoDe: conceptoDeCaja,
+      fechaDe: fechaDeCaja,
+      detalleDe: (m) => detalleDeCaja(m, ordenes.get(m.id) ?? null),
+      resultadosTexto,
+    });
+  }
+
+  it("la hoja principal «Movimientos» de cada libro sigue sin la columna (fuera de alcance)", () => {
+    for (const cat of [COLUMNAS_DESCARGA_WALLET_CAJA, COLUMNAS_DESCARGA_ESTADO_CUENTA, COLUMNAS_DESCARGA_MI_ESTADO_CUENTA]) {
       expect(cat.map((c) => c.clave)).not.toContain("producto");
       expect(encabezados(cat)).not.toContain("Producto");
     }
   });
 
-  it("la cabecera de cada guía de la caja lleva el producto de SU bloque; las filas de concepto, vacío", () => {
-    const { filas } = hojaGuiasCaja();
-    expect(filas[0].producto).toBe("Camisa");
-    expect(filas[4].producto).toBe("Gorra");
-    // Las filas de concepto y el «Total de la guía» no lo repiten, igual que la remisión.
-    for (const i of [1, 2, 3]) expect(filas[i].producto).toBeUndefined();
-  });
-
-  it("las cabeceras de las otras superficies NO emiten el producto", () => {
-    const bloque = POR_GUIA.bloques[0];
-    for (const cabecera of [filaCabeceraGuiaTienda, filaCabeceraGuiaMensajero, filaCabeceraGuiaMiWallet]) {
-      expect(cabecera(bloque)).not.toHaveProperty("producto");
+  it("la cabecera de cada superficie emite el producto de SU bloque", () => {
+    for (const s of SUPERFICIES) {
+      expect(s.cabecera(POR_GUIA.bloques[0]).producto, s.nombre).toBe("Camisa");
+      expect(s.cabecera(POR_GUIA.bloques[1]).producto, s.nombre).toBe("Gorra");
     }
   });
 
-  it("es desmarcable: no está entre las fijas de la hoja de la caja", () => {
-    expect(DETALLE_DESCARGA_WALLET_CAJA.columnas.map((c) => c.clave)).toContain("producto");
-    expect(DETALLE_DESCARGA_WALLET_CAJA.columnasFijas).not.toContain("producto");
+  it("en cada superficie, el producto sale en la cabecera de la guía y las filas de concepto y total lo dejan vacío", () => {
+    for (const s of SUPERFICIES) {
+      const { filas } = hojaGuiasCon(s.cabecera);
+      expect(filas[0].producto, s.nombre).toBe("Camisa");
+      expect(filas[4].producto, s.nombre).toBe("Gorra");
+      // Las filas de concepto y el «Total de la guía» no lo repiten, igual que la remisión.
+      for (const i of [1, 2, 3]) expect(filas[i].producto, `${s.nombre} fila ${i}`).toBeUndefined();
+    }
   });
 
-  it("sale MARCADA, tras «Remisión», también con una preferencia guardada antes de existir", () => {
-    const publicadas = DETALLE_DESCARGA_WALLET_CAJA.columnas.map((c) => c.clave);
-    // Sin preferencia.
-    expect(clavesVisiblesEnOrden(null, publicadas)).toContain("producto");
-    // Preferencia escrita a mano con el catálogo de antes de la 485 (sin «producto»), una oculta.
-    const vieja = JSON.stringify({
-      ocultas: ["destinatario"],
-      orden: [
-        "guia",
-        "remision",
-        "destinatario",
-        "tienda",
-        "mensajero",
-        "cierre",
-        "resultado",
-        "concepto",
-        "detalle",
-        "entra",
-        "sale",
-        "cobradoATiendas",
-      ],
-    });
-    const visibles = clavesVisiblesEnOrden(vieja, publicadas);
-    expect(visibles.slice(0, 3)).toEqual(["guia", "remision", "producto"]);
-    expect(visibles).not.toContain("destinatario");
+  it("es desmarcable en las cuatro: la declaran y no está entre sus fijas", () => {
+    for (const s of SUPERFICIES) {
+      expect(s.hoja.columnas.map((c) => c.clave), s.nombre).toContain("producto");
+      expect(s.hoja.columnasFijas, s.nombre).not.toContain("producto");
+    }
+  });
+
+  it("sale MARCADA, tras «Remisión», también con una preferencia guardada antes de existir, en las cuatro", () => {
+    // Preferencias escritas a mano con el catálogo de cada hoja de antes de la 485/487 (sin «producto»),
+    // con «destinatario» oculta.
+    const ordenViejo: Record<(typeof SUPERFICIES)[number]["nombre"], string[]> = {
+      caja: ["guia", "remision", "destinatario", "tienda", "mensajero", "cierre", "resultado", "concepto", "detalle", "entra", "sale", "cobradoATiendas"],
+      tienda: ["guia", "remision", "destinatario", "mensajero", "cierre", "resultado", "concepto", "detalle", "entra", "sale"],
+      mensajero: ["guia", "remision", "destinatario", "tienda", "cierre", "resultado", "concepto", "detalle", "entra", "sale"],
+      "mi-wallet": ["guia", "remision", "destinatario", "cierre", "resultado", "concepto", "detalle", "entra", "sale"],
+    };
+    for (const s of SUPERFICIES) {
+      const publicadas = s.hoja.columnas.map((c) => c.clave);
+      expect(clavesVisiblesEnOrden(null, publicadas), s.nombre).toContain("producto");
+      const vieja = JSON.stringify({ ocultas: ["destinatario"], orden: ordenViejo[s.nombre] });
+      const visibles = clavesVisiblesEnOrden(vieja, publicadas);
+      expect(visibles.slice(0, 3), s.nombre).toEqual(["guia", "remision", "producto"]);
+      expect(visibles, s.nombre).not.toContain("destinatario");
+    }
   });
 });

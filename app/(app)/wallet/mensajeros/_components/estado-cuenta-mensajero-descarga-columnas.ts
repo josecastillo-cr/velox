@@ -22,10 +22,15 @@ import { resultadosTexto } from "../../_components/detalle-movimiento-labels";
 /** Ámbito PROPIO de la hoja de detalle del estado de cuenta de un mensajero (nuevo en la 468). */
 export const AMBITO_DESCARGA_WALLET_MENSAJERO_DETALLE = "wallet-mensajero-detalle-guia";
 
-/** R31 — la hoja «Detalle por guía» del mensajero, en este orden (CONTRATO, `toEqual` a mano). */
+/**
+ * R31 — la hoja «Detalle por guía» del mensajero, en este orden (CONTRATO, `toEqual` a mano).
+ * Ficha 487 — «Producto» justo tras «Remisión», como en la caja (485); desmarcable (fuera de
+ * `FIJAS_DETALLE_POR_GUIA`) y marcada también para quien ya tenía guardada la preferencia.
+ */
 export const COLUMNAS_DESCARGA_DETALLE_GUIA_MENSAJERO: DescargaColumna[] = [
   COLUMNA_LIBRO.guia,
   COLUMNA_LIBRO.remision,
+  COLUMNA_LIBRO.producto,
   COLUMNA_LIBRO.destinatario,
   COLUMNA_LIBRO.tienda,
   COLUMNA_LIBRO.cierre,
