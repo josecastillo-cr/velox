@@ -251,6 +251,11 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       deTercerosAbsoluto: "4000.00",
       estado: "flujo",
       flujoDesde: null,
+      // Ficha 488 (§5.1): el conjunto agregado no tiene IVA: los cuatro campos nuevos en cero.
+      ivaCobrado: "0.00",
+      ivaPorPagar: "0.00",
+      signoIvaPorPagar: "cero",
+      porcentajeIva: "0.00",
     });
     // Lo que la feature existe para conseguir: los ₡5000 de contra-entrega estan en la caja y
     // NO estan en la ganancia. Si `verResumenCaja` ignorara la naturaleza, serian iguales.
@@ -455,7 +460,10 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       r.composicion.otrosEgresos,
       r.composicion.totalEgresos,
     ];
-    expect(importes.length).toBe(11); // 8 conceptos (ficha 461: + el cobro a una tienda) + 3 totales: ninguno se pierde
+    // 8 conceptos (ficha 461: + el cobro a una tienda) + 3 totales = 11 hasta la 488; la 488 saca los
+    // tres IVA de los ingresos propios (R19): 5 + 3 = 8. Ninguno se pierde.
+    expect(importes.length).toBe(8);
+    expect(Object.keys(r.composicion.ingresos)).not.toContain("ingreso_iva_flete");
     for (const v of importes) {
       expect(typeof v).toBe("string");
       expect(v).toMatch(/^-?\d+\.\d{2}$/); // escala 2 SIEMPRE, tambien en el cero

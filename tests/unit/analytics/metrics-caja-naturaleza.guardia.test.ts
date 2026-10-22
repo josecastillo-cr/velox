@@ -163,7 +163,9 @@ describe("egresos: gana el pago a tienda por diseno, y nada mas", () => {
 
     // Ficha 459 (P13): DIEZ, con `egreso_pago_por_cuenta_tienda` al final. Ficha 461 (R29, P14):
     // SIGUEN siendo diez — el reverso del cobro a una tienda NO entra: no es dinero que salga.
-    expect(categorias).toHaveLength(10);
+    // Ficha 488 (design §7, R32, P6): DOCE — el Pago de IVA (sale de la caja) y su anulacion, que se
+    // descuenta igual que el `ingreso_ajuste` de cualquier otro egreso (regla de la 183).
+    expect(categorias).toHaveLength(12);
     expect(categorias).not.toContain("egreso_reverso_cobro_tienda");
     // Las OCHO historicas, sin que falte ninguna: sustituir una por `ingreso_ajuste` en vez de
     // anadirla —la mutacion que R5 nombra— deja aqui una lista corta.
@@ -177,9 +179,11 @@ describe("egresos: gana el pago a tienda por diseno, y nada mas", () => {
       "egreso_gasto_variable",
       "egreso_indemnizacion",
       "egreso_pago_por_cuenta_tienda", // ficha 459 (P13)
+      "egreso_pago_iva", // ficha 488 (R32)
     ]);
-    // Y la novena, la unica que no es `egreso_*`.
-    expect(categorias.filter((c) => !c.startsWith("egreso_"))).toEqual(["ingreso_ajuste"]);
+    // Y las que no son `egreso_*`: el reverso de la anulacion de un egreso y, desde la 488, el de la
+    // anulacion de un Pago de IVA. Ningun ingreso ajeno mas.
+    expect(categorias.filter((c) => !c.startsWith("egreso_"))).toEqual(["ingreso_ajuste", "ingreso_reverso_pago_iva"]);
     // El reverso del pago a TIENDA sigue fuera: es dinero de terceros y meterlo aqui cambiaria
     // lo que la cifra significa, no solo cuanto vale.
     expect(categorias).not.toContain("ingreso_reverso_pago_tienda");
@@ -451,7 +455,9 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     const declaradas = [...(getMetrica("dinero_en_caja")?.definicion.categorias ?? [])].sort();
     expect(declaradas).toEqual(Object.keys(NATURALEZA_POR_CATEGORIA).sort());
     expect(declaradas).toEqual([...WALLET_MOVIMIENTO_CATEGORIA_SEED].sort());
-    expect(declaradas).toHaveLength(27); // ficha 459: 17 + 4; ficha 461 (R29): + 2; ficha 457 (R52): + 2; ficha 458-B: + 2
+    expect(declaradas).toHaveLength(29); // ficha 459: 17 + 4; ficha 461 (R29): + 2; ficha 457 (R52): + 2; ficha 458-B: + 2; ficha 488: + 2
+    expect(declaradas).toContain("egreso_pago_iva"); // ficha 488 (R32)
+    expect(declaradas).toContain("ingreso_reverso_pago_iva"); // ficha 488 (R32)
     expect(declaradas).toContain("egreso_reverso_flete_devolucion"); // ficha 458-B
     expect(declaradas).toContain("egreso_reverso_iva_flete_devolucion"); // ficha 458-B
     expect(declaradas).toContain("ingreso_cobro_tienda");
@@ -468,9 +474,22 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     const declaradas = [...(getMetrica("ganancia_ordenex")?.definicion.categorias ?? [])].sort();
 
     expect(declaradas).toEqual(propiasDelRecord);
-    expect(declaradas).toHaveLength(18); // ficha 461 (R29): 14 + el cobro a una tienda y su reverso; ficha 458-B: + los dos reversos del cobro por devolución a origen
+    // ficha 461 (R29): 14 + el cobro a una tienda y su reverso; ficha 458-B: + los dos reversos del cobro
+    // por devolución a origen (18). Ficha 488 (design §7, R31): − los tres IVA y el reverso del IVA: CATORCE.
+    expect(declaradas).toHaveLength(14);
     expect(declaradas).toContain("egreso_reverso_flete_devolucion"); // ficha 458-B
-    expect(declaradas).toContain("egreso_reverso_iva_flete_devolucion"); // ficha 458-B
+    // Ficha 488 (R31): ningun movimiento de IVA es ganancia. Mutacion de B.8: volver a poner
+    // `ingreso_iva_flete` en la lista pone rojo este caso (y el `toEqual` con el Record de arriba).
+    for (const iva of [
+      "ingreso_iva_flete",
+      "ingreso_iva_flete_devolucion",
+      "ingreso_iva_comision_cod",
+      "egreso_reverso_iva_flete_devolucion",
+      "egreso_pago_iva",
+      "ingreso_reverso_pago_iva",
+    ]) {
+      expect(declaradas, iva).not.toContain(iva);
+    }
     expect(declaradas).toContain("ingreso_cobro_tienda");
     expect(declaradas).toContain("egreso_reverso_cobro_tienda");
     // Dicho por el otro lado, que es el que rompe la cifra: el contra-entrega y su reverso no
@@ -487,18 +506,54 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     const ganancia = new Set(getMetrica("ganancia_ordenex")?.definicion.categorias ?? []);
     // Ficha 459: + los dos de terceros del pago por cuenta y los dos de CAPITAL, que tampoco son
     // ganancia. Ficha 457 (R52, D11): + el pago de una tienda a Ordenex y su anulacion, que son de
-    // TERCEROS (DH1) y por eso `ganancia_ordenex` no los ve: 9 categorias.
+    // TERCEROS (DH1) y por eso `ganancia_ordenex` no los ve: 9 categorias. Ficha 488 (R31): + las SEIS
+    // de dueño `iva` (los tres IVA, el reverso del IVA, el Pago de IVA y su anulacion): 15.
     expect(enCaja.filter((c) => !ganancia.has(c)).sort()).toEqual([
+      "egreso_pago_iva",
       "egreso_pago_por_cuenta_tienda",
       "egreso_pago_tienda",
       "egreso_reverso_abono_tienda",
       "egreso_reverso_aporte_capital",
+      "egreso_reverso_iva_flete_devolucion",
       "ingreso_abono_tienda",
       "ingreso_aporte_capital",
       "ingreso_cod_recaudado",
+      "ingreso_iva_comision_cod",
+      "ingreso_iva_flete",
+      "ingreso_iva_flete_devolucion",
+      "ingreso_reverso_pago_iva",
       "ingreso_reverso_pago_por_cuenta_tienda",
       "ingreso_reverso_pago_tienda",
     ]);
+  });
+
+  /**
+   * FICHA 488 (R31/R32) — las descripciones DECLARAN el cambio de la 488. El predicado se ejerce en las
+   * dos direcciones (autocomprobacion): verde sobre la descripcion real y rojo sobre la de ANTES de la
+   * 488 (la real sin la frase), para que un predicado que acepte cualquier texto no pase en verde.
+   */
+  const declaraLa488SinIva = (d: string) => /DESDE LA FICHA 488 NO incluye el IVA/.test(d);
+  const declaraLa488PagoDeIva = (d: string) =>
+    /DESDE LA FICHA 488 incluye el PAGO DE IVA/.test(d) && /egreso_pago_iva/.test(d) && /ingreso_reverso_pago_iva/.test(d);
+  it("488 (R31): la descripcion de `ganancia_ordenex` declara que desde la 488 NO incluye el IVA", () => {
+    const d = getMetrica("ganancia_ordenex")?.descripcion ?? "";
+    expect(declaraLa488SinIva(d)).toBe(true);
+    // Autocomprobacion: sin la frase de la 488, el predicado se pone rojo.
+    expect(declaraLa488SinIva(d.replace(/DESDE LA FICHA 488[^.]*\./, ""))).toBe(false);
+  });
+
+  it("488 (R32): la descripcion de `egresos` declara el Pago de IVA y su anulacion; `ingreso_iva` NO cambia", () => {
+    const d = getMetrica("egresos")?.descripcion ?? "";
+    expect(declaraLa488PagoDeIva(d)).toBe(true);
+    expect(declaraLa488PagoDeIva(d.replace(/; DESDE LA FICHA 488[^.]*\./, "."))).toBe(false);
+    // R32: «Ingreso por IVA» no cambia: sus cuatro categorias de la 458-B, ni una mas.
+    expect([...(getMetrica("ingreso_iva")?.definicion.categorias ?? [])]).toEqual([
+      "ingreso_iva_flete",
+      "ingreso_iva_flete_devolucion",
+      "ingreso_iva_comision_cod",
+      "egreso_reverso_iva_flete_devolucion",
+    ]);
+    expect(getMetrica("ingreso_iva")?.descripcion ?? "").not.toContain("488");
   });
 
   it("las dos son financieras del catalogo, `live` y sobre el libro de la caja", () => {

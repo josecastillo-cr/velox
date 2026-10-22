@@ -139,8 +139,11 @@ describe("R16 · la caja principal agrega solo lo que la metrica declara y solo 
       "ingreso_ajuste",
       // FICHA 459 (P13): el pago por cuenta de una tienda sale de la caja.
       "egreso_pago_por_cuenta_tienda",
+      // FICHA 488 (R32): el Pago de IVA sale de la caja y su anulacion se descuenta.
+      "egreso_pago_iva",
+      "ingreso_reverso_pago_iva",
     ]);
-    expect(where.categoria.in).toHaveLength(10);
+    expect(where.categoria.in).toHaveLength(12);
     // FICHA 459: tampoco el reverso del pago por cuenta.
     expect(where.categoria.in).not.toContain("ingreso_reverso_pago_por_cuenta_tienda");
     // Y lo que NO lleva: meter el reverso del pago a tienda cambiaria lo que la cifra significa.
@@ -308,7 +311,12 @@ describe("R57 · las dos metricas de la 173 salen de este repositorio, con sus c
     expect(where.categoria.in).not.toContain("ingreso_cod_recaudado");
     expect(where.categoria.in).not.toContain("egreso_pago_tienda");
     expect(where.categoria.in).not.toContain("ingreso_reverso_pago_tienda");
-    expect(where.categoria.in).toHaveLength(18); // ficha 461 (R29): + el cobro a una tienda y su reverso, los dos propios; ficha 458-B: + los dos reversos del cobro por devolución a origen
+    // ficha 461 (R29): + el cobro a una tienda y su reverso, los dos propios; ficha 458-B: + los dos reversos
+    // del cobro por devolución a origen (18). Ficha 488 (R31): − los tres IVA y el reverso del IVA: 14.
+    expect(where.categoria.in).toHaveLength(14);
+    // FICHA 488 (R31): el IVA no se le pide a la base para la ganancia: lo excluye ya el WHERE.
+    expect(where.categoria.in).not.toContain("ingreso_iva_flete");
+    expect(where.categoria.in).not.toContain("egreso_reverso_iva_flete_devolucion");
   });
 
   it("y la validacion sigue reventando si una de ellas declarara una categoria ajena", async () => {

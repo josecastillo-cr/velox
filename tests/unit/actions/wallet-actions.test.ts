@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { describe, it, expect, afterEach, vi } from "vitest";
 import {
   listarMovimientosAction,
+  listarMovimientosDeFilaAction,
   verResumenCajaAction,
   registrarMovimientoManualAction,
 } from "@/lib/actions/wallet";
@@ -72,6 +73,11 @@ const RESUMEN: CajaResumenDTO = {
   deTercerosAbsoluto: "5000.00",
   estado: "flujo",
   flujoDesde: "2026-08-25",
+  // Ficha 488 (§5.1): sin IVA en este resumen.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero",
+  porcentajeIva: "0.00",
 };
 
 /**
@@ -83,9 +89,7 @@ const COMPOSICION: ComposicionGananciaDTO = {
     ingreso_flete: "1000.00",
     ingreso_flete_devolucion: "0.00",
     ingreso_comision_cod: "0.00",
-    ingreso_iva_flete: "0.00",
-    ingreso_iva_flete_devolucion: "0.00",
-    ingreso_iva_comision_cod: "0.00",
+    // Ficha 488 (R19): los tres IVA ya no son filas de la composicion.
     ingreso_ajuste: "0.00",
     ingreso_cobro_tienda: "0.00", // ficha 461: la exige el `Record` total
   },
@@ -97,7 +101,7 @@ const COMPOSICION: ComposicionGananciaDTO = {
     egreso_ajuste: "0.00",
     egreso_reverso_cobro_tienda: "0.00", // ficha 461: la exige el `Record` total
     egreso_reverso_flete_devolucion: "0.00", // ficha 458-B: la exige el `Record` total
-    egreso_reverso_iva_flete_devolucion: "0.00", // ficha 458-B
+    // Ficha 488 (R19): el reverso del IVA ya no es fila de la composicion.
   },
   otrosEgresos: "300.00",
   totalEgresos: "300.00",
@@ -422,5 +426,33 @@ describe("registrarMovimientoManualAction — la fecha del movimiento (R20/R21)"
     const entrada = (service.registrarMovimientoManual as ReturnType<typeof vi.fn>).mock
       .calls[0][0];
     expect(Object.keys(entrada)).not.toContain("fecha");
+  });
+});
+
+describe("ficha 488 / R20 — el detalle de una fila de IVA de la composicion se rechaza en el borde", () => {
+  it("R20: un token de IVA es `validation_error` SIN leer movimientos; una fila propia, si pasa", async () => {
+    const service = fakeService();
+    for (const fila of [
+      "ingreso_iva_flete",
+      "ingreso_iva_flete_devolucion",
+      "ingreso_iva_comision_cod",
+      "egreso_reverso_iva_flete_devolucion",
+      "egreso_pago_iva",
+      "ingreso_reverso_pago_iva",
+    ]) {
+      const r = await listarMovimientosDeFilaAction(
+        { fila },
+        { service, origenes: ORIGENES_FALSOS, getActor: async () => MAESTRO },
+      );
+      expect(r.status, `fila=${fila}`).toBe("validation_error");
+    }
+    // Ni una lectura: el rechazo es del borde (el `z.enum` del catalogo de filas), no una consulta vacia.
+    expect(service.listarMovimientosDeFila).not.toHaveBeenCalled();
+    // Control de no-vacuidad: una fila de ingreso propio SI pasa.
+    const ok = await listarMovimientosDeFilaAction(
+      { fila: "ingreso_flete" },
+      { service, origenes: ORIGENES_FALSOS, getActor: async () => MAESTRO },
+    );
+    expect(ok.status).toBe("ok");
   });
 });

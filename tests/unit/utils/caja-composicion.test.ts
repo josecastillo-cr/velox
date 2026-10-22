@@ -277,7 +277,8 @@ function importeDe(indice: number): string {
 
 describe("derivarComposicionGanancia — la ganancia concepto por concepto (R23/R26)", () => {
   it("CONTROL DE NO-VACUIDAD: el catalogo tiene categorias propias de los dos tipos", () => {
-    expect(INGRESOS_PROPIOS.length).toBeGreaterThan(5);
+    // Ficha 488: los ingresos propios son CINCO (los tres IVA son dueño `iva`).
+    expect(INGRESOS_PROPIOS.length).toBeGreaterThanOrEqual(5);
     expect(EGRESOS_PROPIOS.length).toBeGreaterThan(5);
     // …y hay dinero de terceros que dejar fuera, que es la mitad del trabajo de esta funcion.
     expect(

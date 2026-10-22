@@ -9,7 +9,7 @@ import type {
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import type { WalletMovimientoCategoria, WalletMovimientoDTO } from "@/lib/types/wallet";
 import type { AnularEgresoCajaInput } from "@/lib/types/wallet-anulacion";
-import { nombreDelEgresoAnulable } from "@/lib/utils/egreso-anulable";
+import { categoriaDelContraAsiento, nombreDelEgresoAnulable } from "@/lib/utils/egreso-anulable";
 
 class YaAnuladoError extends Error {
   constructor() {
@@ -61,6 +61,10 @@ function origenDelContraAsiento(m: WalletMovimientoDTO): { origenTipo: "gasto" |
  *     se responde `ya_anulado`: no hay dos reversos del mismo egreso.
  *
  * Efecto (design §4.3): cifra principal +M, ganancia +M; «De las tiendas» y capital no cambian.
+ *
+ * FICHA 488 (design §4.2, R25): la categoria del contra-asiento la da `categoriaDelContraAsiento`. El
+ * de un Pago de IVA es `ingreso_reverso_pago_iva` (dueño `iva`): cifra principal +M e IVA por pagar +M,
+ * la ganancia NO cambia. Cualquier otro egreso, el `ingreso_ajuste` de siempre.
  */
 export class EgresoCajaAnulacionService implements IEgresoCajaAnulacionService {
   constructor(
@@ -90,10 +94,11 @@ export class EgresoCajaAnulacionService implements IEgresoCajaAnulacionService {
         if (constancia.status === "ya_anulado") throw new YaAnuladoError(); // R66/R67
 
         // R64: el contra-asiento, por el monto DEL EGRESO. R4: la descripcion nunca cae al uuid.
+        // FICHA 488 (R25): su categoria depende del egreso (el Pago de IVA vuelve al IVA por pagar).
         const escritas = await this.walletRepo.crearMovimientos(tx, [
           {
             tipo: "ingreso",
-            categoria: "ingreso_ajuste",
+            categoria: categoriaDelContraAsiento(egreso.categoria as WalletMovimientoCategoria),
             monto: egreso.monto,
             origenTipo: origen.origenTipo,
             origenId: origen.origenId,

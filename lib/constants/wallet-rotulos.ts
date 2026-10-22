@@ -62,6 +62,9 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   egreso_ajuste: "Corrección de caja (resta)",
   ingreso_aporte_capital: "Aporte de dinero a la caja",
   egreso_reverso_aporte_capital: "Aporte de dinero a la caja anulado",
+  // Ficha 488 (design §6): el pago a Hacienda del IVA cobrado a las tiendas, y su anulacion.
+  egreso_pago_iva: "Pago de IVA",
+  ingreso_reverso_pago_iva: "Pago de IVA anulado",
 };
 
 /**

@@ -157,6 +157,67 @@ describe("458-B — EgresoCajaAnulacionService.anular (R63–R67, R82)", () => {
     // La transaccion lanzo (y en la base se revierte, constancia incluida): lo mide el test de integracion.
     await expect(m.runTransaction.mock.results[0].value).rejects.toThrow(/ya anulado/);
   });
+
+  // ── FICHA 488 (T B.6, R25–R27): la anulacion del Pago de IVA vuelve al IVA por pagar ──────────
+  it("488/R25: un Pago de IVA se anula con `ingreso_reverso_pago_iva` (dueño iva), por SU monto, con origen el pago", async () => {
+    // Mutacion m2 (design §13): el contra-asiento del Pago de IVA como `ingreso_ajuste` pone rojo este caso.
+    const m = montaje(mov({ categoria: "egreso_pago_iva", monto: "7800.00", descripcion: "IVA de septiembre" }));
+    expect(await m.servicio.anular(PETICION, MAESTRO)).toEqual({ status: "ok" });
+    expect(m.walletRepo.crearMovimientos).toHaveBeenCalledWith(m.TX, [
+      {
+        tipo: "ingreso",
+        categoria: "ingreso_reverso_pago_iva",
+        monto: "7800.00",
+        origenTipo: "gasto",
+        origenId: "egr-1",
+        descripcion: "Anulación de: IVA de septiembre",
+        registradoPor: MAESTRO.usuarioId,
+        fechaMovimiento: AHORA,
+      },
+    ]);
+    // Y esa categoria es del IVA, no de la ganancia: es lo que hace que la ganancia no suba (R25).
+    expect(NATURALEZA_POR_CATEGORIA.ingreso_reverso_pago_iva).toBe("iva");
+  });
+
+  it("488/R25: sin descripcion, el contra-asiento del Pago de IVA se nombra «Pago de IVA», nunca por su uuid", async () => {
+    const m = montaje(mov({ categoria: "egreso_pago_iva", descripcion: null }));
+    await m.servicio.anular(PETICION, MAESTRO);
+    const filaEscrita = (m.walletRepo.crearMovimientos as unknown as { mock: { calls: [unknown, CrearMovimientoInput[]][] } })
+      .mock.calls[0][1][0];
+    expect(filaEscrita.descripcion).toBe("Anulación de: Pago de IVA");
+  });
+
+  it("488: categoria del contra-asiento POR CONCEPTO — solo el Pago de IVA cambia; los demas siguen con `ingreso_ajuste`", async () => {
+    const porConcepto: Record<string, string> = {};
+    for (const categoria of ["egreso_sueldo", "egreso_gasto_variable", "egreso_gasto_fijo", "egreso_gasto", "egreso_pago_iva"] as const) {
+      const m = montaje(mov({ categoria }));
+      await m.servicio.anular(PETICION, MAESTRO);
+      porConcepto[categoria] = (m.walletRepo.crearMovimientos as unknown as { mock: { calls: [unknown, CrearMovimientoInput[]][] } })
+        .mock.calls[0][1][0].categoria;
+    }
+    expect(porConcepto).toEqual({
+      egreso_sueldo: "ingreso_ajuste",
+      egreso_gasto_variable: "ingreso_ajuste",
+      egreso_gasto_fijo: "ingreso_ajuste",
+      egreso_gasto: "ingreso_ajuste",
+      egreso_pago_iva: "ingreso_reverso_pago_iva",
+    });
+  });
+
+  it("488/R26: un Pago de IVA ya anulado responde `ya_anulado` sin escribir el contra-asiento", async () => {
+    const m = montaje(mov({ categoria: "egreso_pago_iva" }), { constancia: "ya_anulado" });
+    expect(await m.servicio.anular(PETICION, MAESTRO)).toEqual({ status: "ya_anulado" });
+    expect(m.walletRepo.crearMovimientos).not.toHaveBeenCalled();
+  });
+
+  it("488/R27: sin acceso total, anular un Pago de IVA es `forbidden` ANTES de leer nada", async () => {
+    for (const actor of [TIENDA, MENSAJERO, SATELITE]) {
+      const m = montaje(mov({ categoria: "egreso_pago_iva" }));
+      expect(await m.servicio.anular(PETICION, actor)).toEqual({ status: "forbidden" });
+      expect(m.walletRepo.obtenerPorId).not.toHaveBeenCalled();
+      expect(m.runTransaction).not.toHaveBeenCalled();
+    }
+  });
 });
 
 // ── La accion unica: el enrutado ────────────────────────────────────────────────────────────

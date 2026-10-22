@@ -29,6 +29,8 @@ export interface EfectoDeConcepto {
 export const EFECTO_POR_TIPO: Record<ConceptoRegistro, EfectoDeConcepto> = {
   gasto_ordenex: { cuenta: null, caja: [{ tipo: "egreso", categoria: "egreso_gasto_variable" }], enCuenta: null },
   sueldo: { cuenta: null, caja: [{ tipo: "egreso", categoria: "egreso_sueldo" }], enCuenta: null },
+  // FICHA 488 (design §4.3): el Pago de IVA es una salida de la caja, sin cuenta.
+  pago_iva: { cuenta: null, caja: [{ tipo: "egreso", categoria: "egreso_pago_iva" }], enCuenta: null },
   pago_gasto_tienda: {
     cuenta: "tienda",
     caja: [{ tipo: "egreso", categoria: "egreso_pago_por_cuenta_tienda" }],
@@ -122,6 +124,8 @@ export function efectoDeMovimiento(
       ganancia: linea(antes.ganancia, despues.ganancia),
       deTiendas: linea(antes.deTerceros, despues.deTerceros),
       capital: linea(antes.capital, despues.capital),
+      // FICHA 488 (R24): sin derivacion nueva, el campo que `derivarCaja` ya da.
+      ivaPorPagar: linea(antes.ivaPorPagar, despues.ivaPorPagar),
     },
     saldoEnContra,
     ...(superaDisponible === undefined ? {} : { superaDisponible }),

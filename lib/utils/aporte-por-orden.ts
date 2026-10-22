@@ -94,6 +94,9 @@ export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
   // FICHA 458-B (design §2.3): la anulacion de un cobro por rechazo la decide una persona.
   egreso_reverso_flete_devolucion: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   egreso_reverso_iva_flete_devolucion: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
+  // FICHA 488 (design §4.4): el Pago de IVA y su anulacion los decide una persona.
+  egreso_pago_iva: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
+  ingreso_reverso_pago_iva: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
 };
 
 /**

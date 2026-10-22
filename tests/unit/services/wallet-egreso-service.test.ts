@@ -459,9 +459,11 @@ describe("WalletEgresoService.registrarEgreso — la fecha elegida (R22/R23/R28)
     // La regla vive en el catalogo (`TIPO_EGRESO_MANUAL_A_CATEGORIA`) y esta ficha NO la toca.
     // Se afirma sobre el mapa ENTERO y cerrado, no con un `toBeUndefined()` suelto: asi cae
     // igual cualquier concepto nuevo que alguien cuele en el formulario manual.
+    // Ficha 488 (design §4.1): + el Pago de IVA. El gasto fijo sigue fuera.
     expect(TIPO_EGRESO_MANUAL_A_CATEGORIA).toEqual({
       gasto_variable: "egreso_gasto_variable",
       sueldo: "egreso_sueldo",
+      pago_iva: "egreso_pago_iva",
     });
     expect(Object.values(TIPO_EGRESO_MANUAL_A_CATEGORIA)).not.toContain("egreso_gasto_fijo");
   });

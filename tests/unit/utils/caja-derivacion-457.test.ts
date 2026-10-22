@@ -55,7 +55,8 @@ describe("457/T2.2 — R73: sin pagos de una tienda ni sus anulaciones, la deriv
     expect(r.entradas).toBe("29059224.00");
     expect(r.salidas).toBe("38245444.50");
     expect(r.enCaja).toBe("-9186220.50");
-    expect(r.ganancia).toBe("-4405636.53");
+    // FICHA 488: la ganancia sin el IVA de M6 (928 499,43). 459/461: −4 405 636,53.
+    expect(r.ganancia).toBe("-5334135.96");
     expect(r.deTerceros).toBe("-4780583.97");
     expect(r.capital).toBe("0.00");
   });
@@ -88,9 +89,10 @@ describe("457/T2.2 — R19: registrar un pago de M (design §4.1, fila «Registr
   });
 
   it("R23 (R7): cifra principal = ganancia + «De las tiendas» + capital, al centimo, con el pago dentro", () => {
-    expect(suma(r.ganancia, r.deTerceros, r.capital)).toBe(r.enCaja);
-    // Y a mano: −4 405 636,53 − 4 776 583,97 + 0 = −9 182 220,50.
-    expect(suma("-4405636.53", "-4776583.97", "0.00")).toBe("-9182220.50");
+    // FICHA 488: la identidad gana el IVA por pagar.
+    expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar)).toBe(r.enCaja);
+    // Y a mano (488): −5 334 135,96 − 4 776 583,97 + 0 + 928 499,43 = −9 182 220,50.
+    expect(suma("-5334135.96", "-4776583.97", "0.00", "928499.43")).toBe("-9182220.50");
   });
 });
 
@@ -122,7 +124,7 @@ describe("457/T2.2 — R39: el pago y su anulacion (design §4.1, fila «Anularl
   });
 
   it("R23 (R7) al centimo con el pago y su reverso dentro", () => {
-    expect(suma(r.ganancia, r.deTerceros, r.capital)).toBe(r.enCaja);
+    expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar)).toBe(r.enCaja); // 488: + IVA
   });
 });
 
@@ -134,7 +136,7 @@ describe("457/T2.2 — un pago SOLO (la tienda en contra por un cobro): la deuda
     expect(r.enCaja).toBe(M);
     expect(r.ganancia).toBe("10000.00");
     expect(r.deTerceros).toBe("-6000.00");
-    expect(suma(r.ganancia, r.deTerceros, r.capital)).toBe(r.enCaja);
+    expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar)).toBe(r.enCaja); // 488: + IVA
   });
 });
 
@@ -163,14 +165,17 @@ describe("457/T2.2 — R7 por construccion: identidad sobre 500 subconjuntos con
     // Ficha 458-B: los dos reversos de cargo de la anulacion de un cobro por devolución a origen.
     fila("egreso_reverso_flete_devolucion", "1000.00"),
     fila("egreso_reverso_iva_flete_devolucion", "130.00"),
+    // Ficha 488: el Pago de IVA y su anulacion.
+    fila("egreso_pago_iva", "300000.00"),
+    fila("ingreso_reverso_pago_iva", "12345.67"),
   ];
 
-  it("el POOL cubre las 27 categorias del catalogo (anti-vacuidad)", () => {
+  it("el POOL cubre las 29 categorias del catalogo (anti-vacuidad)", () => {
     const cubiertas = new Set(POOL.map((f) => f.categoria));
     for (const c of WALLET_MOVIMIENTO_CATEGORIA_SEED) expect(cubiertas.has(c), c).toBe(true);
   });
 
-  it("cifra principal = ganancia + «De las tiendas» + capital en los 500 subconjuntos", () => {
+  it("cifra principal = ganancia + «De las tiendas» + capital + IVA por pagar (488) en los 500 subconjuntos", () => {
     let semilla = 457;
     const siguiente = () => {
       semilla = (semilla * 48271) % 2147483647;
@@ -182,7 +187,7 @@ describe("457/T2.2 — R7 por construccion: identidad sobre 500 subconjuntos con
       const sub = POOL.filter((_, j) => ((mascara >> (j % 31)) & 1) === 1 || siguiente() % 3 === 0);
       if (sub.some((f) => f.categoria === "ingreso_abono_tienda")) conAbono += 1;
       const r = derivarCaja(sub);
-      expect(suma(r.ganancia, r.deTerceros, r.capital), `subconjunto ${i}`).toBe(r.enCaja);
+      expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar), `subconjunto ${i}`).toBe(r.enCaja);
       expect(resta(r.entradas, r.salidas), `entradas − salidas ${i}`).toBe(r.enCaja);
     }
     // Anti-vacuidad: el pago de una tienda estuvo dentro en una parte sustancial de los subconjuntos.
