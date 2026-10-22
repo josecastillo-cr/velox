@@ -74,8 +74,9 @@
   Comprobar que ningún archivo de `integration/db` sale `skipped` por falta de `.env`.
   *Hecho:* todo verde con los conteos de `skipped` anotados en `progress/impl_484.md`, junto con la
   tabla R → test y las mutaciones.
-- [ ] **T10** (PENDIENTE de release) Release (leader): ejecutar en solo lectura contra producción la consulta de `design.md`
+- [x] **T10** Release (leader): ejecutar en solo lectura contra producción la consulta de `design.md`
   §6 y anotar el número de filas antes y después del despliegue (R16). Esperado: 0.
+  *Hecho 2026-10-19:* host scfnwxqbsgkzwsdntdvd (prod). Antes del despliegue 0 filas; después (358ae461 READY) 0 filas.
   *Hecho:* resultado anotado en `progress/` con fecha y host verificado.
 
 ## Dependencias

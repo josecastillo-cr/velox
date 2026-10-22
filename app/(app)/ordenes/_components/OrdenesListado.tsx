@@ -49,6 +49,11 @@ import { QuitarRecoleccionModal } from "./QuitarRecoleccionModal";
 import { RutearSateliteModal } from "./RutearSateliteModal";
 import { EtiquetasGuiaModal } from "./EtiquetasGuiaModal";
 import { DevolverATiendaModal } from "./DevolverATiendaModal";
+// FICHA 419: la bodega central confirma que la tienda recibio el lote, con comprobante.
+import {
+  CONFIRMAR_ENTREGA_TIENDA_ACCION,
+  ConfirmarEntregaTiendaModal,
+} from "./ConfirmarEntregaTiendaModal";
 import { RecuperarABodegaModal } from "./RecuperarABodegaModal";
 import { DeshacerAsignacionModal } from "./DeshacerAsignacionModal";
 // FICHA 427: traspasar a otro mensajero lo que uno ya lleva encima. El texto de la accion sale del
@@ -102,6 +107,7 @@ type ModalAbierto =
   | "rutear-satelite" // feature 30 (reinstalado el 2026-08-05)
   | "etiquetas"
   | "devolver-tienda"
+  | "confirmar-entrega-tienda" // ficha 419
   | "recuperar-bodega"
   | "deshacer-asignacion"
   | "cambiar-dia-reparto" // feature 262
@@ -259,6 +265,7 @@ export function OrdenesListado({
   permitirDescarga = true,
   puedeReportarIncidente = false,
   puedeCorregirDatos = false,
+  puedeVerComprobanteEntrega = false,
   puedeEliminar = false,
   puedeVerEliminadas = false,
   fechasDiaReparto = SIN_FECHAS_DIA_REPARTO,
@@ -346,6 +353,12 @@ export function OrdenesListado({
    * en cada petición (R25), así que esto decide qué se OFRECE, nunca qué se permite.
    */
   puedeCorregirDatos?: boolean;
+  /**
+   * FICHA 419 (F3, R22): «Ver comprobante de entrega» en el historial de las órdenes
+   * `devuelta_a_tienda`. Se pasa tal cual a `OrdenesModule`. La enciende la página sólo para
+   * maestro/admin; el servidor revalida el rol.
+   */
+  puedeVerComprobanteEntrega?: boolean;
   /**
    * Pedido humano (2026-08-27): ofrece ELIMINAR órdenes.
    *
@@ -474,6 +487,15 @@ export function OrdenesListado({
   function abrirEnviarTienda(seleccionadas: OrdenListItemDTO[]) {
     setOrdenesSeleccionadas(seleccionadas);
     setModalAbierto("devolver-tienda");
+  }
+  // FICHA 419 (F1, R17): «Confirmar entrega a la tienda» desde `devolviendo_a_tienda`
+  // (`devolviendo_a_tienda -> devuelta_a_tienda`), con comprobante obligatorio. SIN filtro por
+  // zona ni por tienda: el snapshot viaja ENTERO y el modal deriva la tienda del lote; si hay más
+  // de una, lo dice nombrándolas y no deja confirmar (R18), en vez de recortar aquí en silencio.
+  // El backend revalida el rol (maestro/admin).
+  function abrirConfirmarEntrega(seleccionadas: OrdenListItemDTO[]) {
+    setOrdenesSeleccionadas(seleccionadas);
+    setModalAbierto("confirmar-entrega-tienda");
   }
   // "Recuperar a bodega" (feature 100) solo aplica a órdenes `devuelta` de la bodega
   // CENTRAL (`zonaEsGam === true`); se filtra antes de abrir (el backend revalida, R15).
@@ -829,6 +851,17 @@ export function OrdenesListado({
             key: "enviar-tienda",
             label: "Enviar a la tienda",
             onRun: abrirEnviarTienda,
+          },
+        ];
+      case "devolviendo_a_tienda":
+        // FICHA 419 (F1, R17/R21): la tienda ya tiene el paquete y nadie lo escaneó en origen. La
+        // central lo cierra en lote con un comprobante. Hereda la puerta `accionesLote` (solo
+        // maestro/admin) y el conteo de la selección mixta de `accionesPara`.
+        return [
+          {
+            key: "confirmar-entrega-tienda",
+            label: CONFIRMAR_ENTREGA_TIENDA_ACCION,
+            onRun: abrirConfirmarEntrega,
           },
         ];
       case "novedad":
@@ -1454,6 +1487,7 @@ export function OrdenesListado({
         permitirDescarga={permitirDescarga}
         puedeReportarIncidente={puedeReportarIncidente}
         puedeCorregirDatos={puedeCorregirDatos}
+        puedeVerComprobanteEntrega={puedeVerComprobanteEntrega}
       />
 
       {/* Modales de acción por lote (solo acceso total). Montados una vez; `open` por
@@ -1526,6 +1560,15 @@ export function OrdenesListado({
             ordenes={ordenesSeleccionadas}
             onOpenChange={cerrarModal}
             onSuccess={handleSuccess}
+          />
+          {/* FICHA 419 (R20) — éxito ⇒ `revalidarTablas` y NO `handleSuccess`: el modal se queda
+              abierto con el resumen por orden (cuántas pasaron y por qué no las demás) y el
+              listado se relee detrás. Lo cierra la persona cuando ha leído el desenlace. */}
+          <ConfirmarEntregaTiendaModal
+            open={modalAbierto === "confirmar-entrega-tienda"}
+            ordenes={ordenesSeleccionadas}
+            onOpenChange={cerrarModal}
+            onSuccess={revalidarTablas}
           />
           <RecuperarABodegaModal
             open={modalAbierto === "recuperar-bodega"}

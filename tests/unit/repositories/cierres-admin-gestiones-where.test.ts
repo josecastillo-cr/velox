@@ -196,7 +196,13 @@ describe("WHERE/orden/proyección de las gestiones de «Cierres del día» (feat
     const delDetalle = new Set(Object.keys(GESTION_ADMIN_SELECT));
     const deLaDescarga = new Set(Object.keys(GESTION_DESCARGA_SELECT));
 
-    expect([...delDetalle].filter((k) => !deLaDescarga.has(k))).toEqual(["evidenciaStoragePath"]);
+    // Ficha 486: el detalle gana `evidencias` (el CONJUNTO de fotos de la gestion) y la descarga,
+    // a sabiendas, NO (R17, y R22/R41 de la 230). Este literal ES el contrato «la descarga es el
+    // detalle menos la evidencia»; se amplia aqui por decision del spec, no por su propia fuente.
+    expect([...delDetalle].filter((k) => !deLaDescarga.has(k))).toEqual([
+      "evidenciaStoragePath",
+      "evidencias",
+    ]);
     // `cierreId` no es una celda (R42): es la clave del join contra `cierre_detail`, cuyo grano
     // es (cierre_id, orden_id). Al cruzar cierres, emparejar sólo por orden cogería la fila
     // congelada del cierre equivocado.

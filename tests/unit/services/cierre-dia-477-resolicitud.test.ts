@@ -160,7 +160,7 @@ function gestionDelCierre(over: Partial<Omit<CierreGestionPendienteRow, "pagos">
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: "1500.00",
     ingresoBodegaRechazo: "0.00",
     esRechazoSla: false,
@@ -197,7 +197,7 @@ describe("477 · T4.7 — listarCierreDia devuelve `correcciones`", () => {
   });
 
   it("R25/R26: con un rechazado, sus gestiones vigentes (snapshot) y sus ordenes en correccion", async () => {
-    const vigente = gestionDelCierre({ evidenciaStoragePath: "ev/g2.jpg", desdeAyudaTienda: true });
+    const vigente = gestionDelCierre({ evidenciaStoragePath: "ev/g2.jpg", evidenciaStoragePaths: ["ev/g2.jpg"], desdeAyudaTienda: true });
     const { service, repo, firmar } = montar({
       cierresPasados: [pasado("rechazado", "c-rech")],
       correcciones: [
@@ -231,7 +231,7 @@ describe("477 · T4.7 — listarCierreDia devuelve `correcciones`", () => {
     expect(c?.gestiones[0]).toMatchObject({
       gestionId: "g2",
       pagoMensajero: "1500.00",
-      evidenciaUrl: "https://f/ev/g2.jpg",
+      evidenciaUrl: "https://f/ev/g2.jpg", evidenciaUrls: ["https://f/ev/g2.jpg"],
       desdeAyudaTienda: true,
     });
   });
@@ -240,7 +240,7 @@ describe("477 · T4.7 — listarCierreDia devuelve `correcciones`", () => {
     const { service, firmar } = montar({
       cierresPasados: [pasado("rechazado", "c-rech")],
       correcciones: [{ cierreId: "c-rech", motivoRechazo: null, ordenesEnCorreccion: [] }],
-      gestionesDelCierre: [gestionDelCierre({ evidenciaStoragePath: "ev/g2.jpg" })],
+      gestionesDelCierre: [gestionDelCierre({ evidenciaStoragePath: "ev/g2.jpg", evidenciaStoragePaths: ["ev/g2.jpg"] })],
     });
     firmar.mockRejectedValueOnce(new Error("storage caido"));
 
@@ -248,5 +248,37 @@ describe("477 · T4.7 — listarCierreDia devuelve `correcciones`", () => {
 
     if (r.status !== "ok") throw new Error("esperaba ok");
     expect(r.correcciones?.[0].gestiones[0].evidenciaUrl).toBeNull();
+    expect(r.correcciones?.[0].gestiones[0].evidenciaUrls).toEqual([]); // 486/R10
+  });
+});
+
+// ==============================================================================================
+// FEATURE 486 (R3/R4/R7/R8) — la correccion de un cierre rechazado entrega TODAS las fotos.
+// ==============================================================================================
+describe("486 · correccion 477 — todas las evidencias de cada gestion", () => {
+  it("R3/R8: una gestion con 3 fotos llega con las 3 URLs, en orden, firmadas en UNA llamada", async () => {
+    const rutas = ["ev/g2-0.jpg", "ev/g2-1.jpg", "ev/g2-2.jpg"];
+    const { service, firmar } = montar({
+      cierresPasados: [pasado("rechazado", "c-rech")],
+      correcciones: [{ cierreId: "c-rech", motivoRechazo: null, ordenesEnCorreccion: [] }],
+      gestionesDelCierre: [
+        gestionDelCierre({ evidenciaStoragePath: rutas[0], evidenciaStoragePaths: rutas }),
+        gestionDelCierre({ gestionId: "g3", ordenId: "o3", evidenciaStoragePath: null, evidenciaStoragePaths: [] }),
+      ],
+    });
+
+    const r = await service.listarCierreDia(MENSAJERO);
+
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(firmar).toHaveBeenCalledTimes(1);
+    expect(firmar).toHaveBeenCalledWith(rutas, expect.any(Number));
+    const gs = r.correcciones?.[0].gestiones ?? [];
+    expect(gs.map((g) => g.evidenciaUrls)).toEqual([
+      ["https://f/ev/g2-0.jpg", "https://f/ev/g2-1.jpg", "https://f/ev/g2-2.jpg"],
+      [],
+    ]);
+    // R7: ninguna ruta cruda en lo que cruza al cliente.
+    const json = JSON.stringify(r.correcciones);
+    for (const ruta of rutas) expect(json).not.toContain(`"${ruta}"`);
   });
 });

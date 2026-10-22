@@ -70,7 +70,7 @@ function gestion(): CierreGestionPendienteRow {
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     esRechazoSla: false,

@@ -125,7 +125,7 @@ function gestion(ing: IngresoOrdenexDTO, resultado: CierreDetalleGestion["result
     pagos: [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

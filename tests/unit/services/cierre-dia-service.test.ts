@@ -62,7 +62,7 @@ function pendiente(overrides: Partial<CierreGestionPendienteRow> = {}): CierreGe
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: null, // feature 39: en vivo el snapshot es null; el service lo DERIVA
     ingresoBodegaRechazo: null, // feature 56: en vivo el snapshot es null; el service lo DERIVA
     esRechazoSla: false, // feature 102/R11: la vista en vivo del mensajero no expone el desglose
@@ -281,8 +281,8 @@ describe("listarCierreDia — evidencia firmada (R5)", () => {
   it("R5: firma las evidencias en lote y expone SOLO la URL firmada, nunca el path crudo", async () => {
     const repo = fakeRepo({
       findGestionesPendientes: vi.fn(async () => [
-        pendiente({ gestionId: "a", resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o1/rechazo.jpg" }),
-        pendiente({ gestionId: "b", resultado: "reprogramado", montoRecibido: null, metodoPago: null, evidenciaStoragePath: null }),
+        pendiente({ gestionId: "a", resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o1/rechazo.jpg", evidenciaStoragePaths: ["o1/rechazo.jpg"] }),
+        pendiente({ gestionId: "b", resultado: "reprogramado", montoRecibido: null, metodoPago: null, evidenciaStoragePath: null, evidenciaStoragePaths: [] }),
       ]),
     });
     const signedUrls = fakeSignedUrls();
@@ -300,7 +300,7 @@ describe("listarCierreDia — evidencia firmada (R5)", () => {
 
   it("R5: sin evidencias no llama al firmador", async () => {
     const repo = fakeRepo({
-      findGestionesPendientes: vi.fn(async () => [pendiente({ evidenciaStoragePath: null })]),
+      findGestionesPendientes: vi.fn(async () => [pendiente({ evidenciaStoragePath: null, evidenciaStoragePaths: [] })]),
     });
     const signedUrls = fakeSignedUrls();
     const { service } = newService({ repo, signedUrls });
@@ -368,7 +368,7 @@ describe("verCierrePasado — detalle de un cierre propio (solo lectura)", () =>
   });
 
   it("firma las evidencias y, si el storage falla, sirve el detalle SIN ellas", async () => {
-    const gestiones = [pendiente({ gestionId: "g1", evidenciaStoragePath: "o1/foto.jpg" })];
+    const gestiones = [pendiente({ gestionId: "g1", evidenciaStoragePath: "o1/foto.jpg", evidenciaStoragePaths: ["o1/foto.jpg"] })];
     const repo = fakeRepo({
       findCierrePropioConGestiones: vi.fn(async () => ({ sinGestion: [], sinGestionRegistrado: true, rechazosDeTienda: [], cierre: CIERRE_PASADO, gestiones })),
     });
@@ -2703,5 +2703,99 @@ describe("425/B11 — verCierrePasado emite `rechazosDeTienda`", () => {
     // Contrapunto: la lista SI llego, asi que las dos igualdades de arriba no son triviales.
     expect(con.rechazosDeTienda).toHaveLength(3);
     expect(sin.rechazosDeTienda).toHaveLength(0);
+  });
+});
+
+// ==============================================================================================
+// FEATURE 486 (S3) — la vista del mensajero entrega TODAS las fotos de cada gestion.
+// ==============================================================================================
+describe("486 · vistas del mensajero — todas las evidencias de cada gestion", () => {
+  const RUTAS = ["o1/foto-0.jpg", "o1/foto-1.jpg", "o1/foto-2.jpg"];
+  const URLS = RUTAS.map((r) => `https://signed/${r}`);
+  const CIERRE = {
+    cierreId: "c1",
+    estado: "aprobado" as const,
+    destinoTipo: "bodega_central" as const,
+    destinoZonaId: "z-central",
+    totales: { efectivo: "10.00", simpe: "0.00", transferencia: "0.00", general: "10.00" },
+    totalPagoMensajero: "5.00",
+    totalIngresoBodegaRechazos: "0.00",
+    solicitadoAt: "2026-07-12T10:00:00.000Z",
+    resueltoAt: "2026-07-13T09:00:00.000Z",
+    motivoRechazo: null,
+  };
+  function gestiones() {
+    return [
+      pendiente({ gestionId: "a", evidenciaStoragePath: RUTAS[0], evidenciaStoragePaths: RUTAS }),
+      pendiente({ gestionId: "b", evidenciaStoragePath: "o2/unica.jpg", evidenciaStoragePaths: ["o2/unica.jpg"] }),
+    ];
+  }
+
+  it("R3/R4/R8: listarCierreDia (en vivo) entrega las 3 URLs en orden, con UNA sola firma", async () => {
+    const repo = fakeRepo({ findGestionesPendientes: vi.fn(async () => gestiones()) });
+    const signedUrls = fakeSignedUrls();
+    const { service } = newService({ repo, signedUrls });
+    const r = await service.listarCierreDia(MENSAJERO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledTimes(1);
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledWith([...RUTAS, "o2/unica.jpg"], expect.any(Number));
+    expect(r.grupos.entregado.map((g) => g.evidenciaUrls)).toEqual([URLS, ["https://signed/o2/unica.jpg"]]);
+    expect(r.grupos.entregado[0].evidenciaUrl).toBe(URLS[0]);
+    // R7: ninguna ruta cruda.
+    const json = JSON.stringify(r.grupos);
+    for (const ruta of RUTAS) expect(json).not.toContain(`"${ruta}"`);
+  });
+
+  it("R3/R9: verCierrePasado entrega las 3 URLs y, si el firmador omite la 2, la 1 y la 3", async () => {
+    const repo = fakeRepo({
+      findCierrePropioConGestiones: vi.fn(async () => ({
+        sinGestion: [],
+        sinGestionRegistrado: true,
+        rechazosDeTienda: [],
+        cierre: CIERRE,
+        gestiones: gestiones(),
+      })),
+    });
+    const completo = await newService({ repo }).service.verCierrePasado("c1", MENSAJERO);
+    if (completo.status !== "ok") throw new Error("esperaba ok");
+    expect(completo.grupos.entregado[0].evidenciaUrls).toEqual(URLS);
+
+    const parcial = fakeSignedUrls({
+      createSignedUrls: vi.fn(async (paths: string[]) =>
+        Object.fromEntries(paths.filter((p) => p !== RUTAS[1]).map((p) => [p, `https://signed/${p}`])),
+      ),
+    });
+    const r = await newService({ repo, signedUrls: parcial }).service.verCierrePasado("c1", MENSAJERO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(r.grupos.entregado[0].evidenciaUrls).toEqual([URLS[0], URLS[2]]);
+  });
+
+  it("R10: verCierrePasado con el storage caido -> ok con listas vacias", async () => {
+    const repo = fakeRepo({
+      findCierrePropioConGestiones: vi.fn(async () => ({
+        sinGestion: [],
+        sinGestionRegistrado: true,
+        rechazosDeTienda: [],
+        cierre: CIERRE,
+        gestiones: gestiones(),
+      })),
+    });
+    const roto = fakeSignedUrls({
+      createSignedUrls: vi.fn(async () => {
+        throw new Error("storage caido");
+      }),
+    });
+    const r = await newService({ repo, signedUrls: roto }).service.verCierrePasado("c1", MENSAJERO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(r.grupos.entregado.map((g) => g.evidenciaUrls)).toEqual([[], []]);
+  });
+
+  it("R11: cierre ajeno o rol sin acceso -> no firma nada", async () => {
+    const signedUrls = fakeSignedUrls();
+    const { service } = newService({ signedUrls }); // el doble devuelve null: ajeno
+    expect((await service.verCierrePasado("c-ajeno", MENSAJERO)).status).toBe("no_encontrada");
+    expect((await service.verCierrePasado("c1", OTRO_ROL)).status).toBe("forbidden");
+    expect((await service.listarCierreDia(OTRO_ROL)).status).toBe("forbidden");
+    expect(signedUrls.createSignedUrls).not.toHaveBeenCalled();
   });
 });

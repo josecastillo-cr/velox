@@ -123,9 +123,12 @@ function celdasComunes(gestion: CierreDetalleGestion): DescargaFila {
   };
 }
 
-/** «Sí»/«No» en vez de la URL firmada (R22). */
+/**
+ * «Sí»/«No» en vez de la URL firmada (R22). FICHA 486 (R18): «Sí» si y solo si la gestión trae al
+ * menos UNA evidencia firmada, sea la primera o cualquiera de las N.
+ */
 function tieneEvidencia(gestion: CierreDetalleGestion): string {
-  return gestion.evidenciaUrl ? TIENE_EVIDENCIA_SI : TIENE_EVIDENCIA_NO;
+  return gestion.evidenciaUrls.length > 0 ? TIENE_EVIDENCIA_SI : TIENE_EVIDENCIA_NO;
 }
 
 // ---------------------------------------------------------------------------

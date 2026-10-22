@@ -189,6 +189,7 @@ export const USOS_PERMITIDOS: Readonly<Record<string, UsoPermitido>> = {
   "app/(app)/novedades/_components/GestionarDesdeAyudaModal.tsx": { clase: F, motivo: "confirmación «La orden quedó en …» y nota del tope de intentos (466 E7 y decisión del leader sobre `GESTION_AYUDA_TOPE_NOTA`): frases con el nombre" },
   "app/(app)/configuracion/tarifas/_components/tarifas-labels.ts": { clase: F, motivo: "rótulo del monto que se paga por gestión en ese resultado (466 C31, `PAGO_ZONA_TEXTO.rechazado`), junto a su hermano «Entregado»: nombra el resultado que cobra, no el estado de una orden concreta" },
   "app/(app)/ordenes/_components/RecuperarABodegaModal.tsx": { clase: F, motivo: "descripción del modal de confirmación" },
+  "app/(app)/ordenes/_components/ConfirmarEntregaTiendaModal.tsx": { clase: F, motivo: "resumen de la confirmación de entrega (419/R20): el motivo de una orden que no pasó, en prosa («… su estado actual es «En bodega central».»)" },
   "app/(app)/novedades/_components/RechazarNovedadModal.tsx": { clase: F, motivo: "textos del modal de rechazo (frases con el nombre)" },
   "app/(app)/novedades/_components/RechazosSlaModule.tsx": { clase: F, motivo: "texto del vacío de la pestaña (frase)" },
   "app/(app)/ordenes/_components/motivo-historial.ts": { clase: F, motivo: "motivo de la migración de retiro, en prosa («Migración: retiro de …»)" },

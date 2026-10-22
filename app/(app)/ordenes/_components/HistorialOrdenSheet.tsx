@@ -20,6 +20,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ObtenerHistorialOrdenResult } from "@/lib/actions/orden-historial";
 
+import {
+  ComprobanteEntregaTienda,
+  type VerComprobanteFn,
+} from "./ComprobanteEntregaTienda";
 import { HistorialOrdenTimeline } from "./HistorialOrdenTimeline";
 import { NotaGestionPendiente } from "./NotaGestionPendiente";
 
@@ -62,6 +66,14 @@ export interface HistorialOrdenSheetProps {
   triggerLabel?: string;
   /** Inyectable para test; por defecto la Server Action real (via import perezoso). */
   obtenerHistorial?: ObtenerHistorialFn;
+  /**
+   * FICHA 419 (F3, R22): ofrece «Ver comprobante de entrega». Lo decide quien monta el drawer
+   * (rol maestro/admin Y orden `devuelta_a_tienda`); por defecto `false`, así que ninguna otra
+   * superficie cambia. El servidor revalida el rol.
+   */
+  ofrecerComprobanteEntrega?: boolean;
+  /** Inyectable para test; por defecto la Server Action real (import perezoso). */
+  verComprobante?: VerComprobanteFn;
 }
 
 export function HistorialOrdenSheet({
@@ -69,6 +81,8 @@ export function HistorialOrdenSheet({
   referencia,
   triggerLabel = "Ver historial",
   obtenerHistorial = obtenerHistorialPorDefecto,
+  ofrecerComprobanteEntrega = false,
+  verComprobante,
 }: HistorialOrdenSheetProps) {
   const [open, setOpen] = useState(false);
   const [estado, setEstado] = useState<CargaState>({ status: "idle" });
@@ -142,7 +156,10 @@ export function HistorialOrdenSheet({
               Cambios de estado y correcciones del día de reparto, en orden cronológico.
             </SheetDescription>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-4 pb-6">
+          <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-4 pb-6">
+            {ofrecerComprobanteEntrega ? (
+              <ComprobanteEntregaTienda ordenId={ordenId} verComprobante={verComprobante} />
+            ) : null}
             <HistorialOrdenBody estado={estado} />
           </div>
         </SheetContent>

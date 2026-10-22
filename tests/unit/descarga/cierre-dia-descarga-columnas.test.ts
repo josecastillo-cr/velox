@@ -11,6 +11,8 @@ import {
   // FICHA 408 — las dos proyecciones que pueden traer el motivo del cron de plazos vencidos.
   filaDescargaDiaRechazada,
   filaDescargaDiaDevuelta,
+  // FICHA 486 (R18) — la otra proyección con columna «Tiene evidencia».
+  filaDescargaDiaIncidente,
 } from "@/app/(app)/cierre-dia/_components/cierre-dia-descarga-columnas";
 import type { CierreDetalleGestion } from "@/lib/interfaces/services/ICierreDiaService";
 
@@ -290,7 +292,7 @@ function gestionEntregada(
     pagos,
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: "1500.00",
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,
@@ -460,4 +462,61 @@ describe("FICHA 408 — el motivo del cron en el archivo del cierre del día", (
     expect(fila.motivo).toBeNull();
     expect(fila.motivo).not.toBe("—");
   });
+});
+
+// ---------------------------------------------------------------------------
+// FICHA 486 (R18) — «Tiene evidencia» con varias fotos
+// ---------------------------------------------------------------------------
+//
+// Desde la 486 una gestión trae TODAS sus fotos firmadas (`evidenciaUrls`, hasta 3). El archivo
+// del mensajero sigue diciendo solo «Sí»/«No» (R22 de la 230): «Sí» si y solo si hay al menos
+// una, y ninguna de las N URLs puede acabar en una celda. Aserciones contra LITERALES.
+describe("FICHA 486 — «Tiene evidencia» del archivo del cierre del día con varias fotos (R18)", () => {
+  const TRES_URLS = [
+    "https://storage.example/firmada/foto-0.jpg?token=uno",
+    "https://storage.example/firmada/foto-1.jpg?token=dos",
+    "https://storage.example/firmada/foto-2.jpg?token=tres",
+  ];
+
+  function gestionConEvidencias(
+    resultado: CierreDetalleGestion["resultado"],
+    urls: string[],
+  ): CierreDetalleGestion {
+    return {
+      ...gestionEntregada([]),
+      resultado,
+      montoRecibido: null,
+      motivo: "Cliente ausente",
+      causaIncidente: resultado === "incidente" ? "robado" : null,
+      evidenciaUrl: urls[0] ?? null,
+      evidenciaUrls: urls,
+    };
+  }
+
+  const PROYECCIONES = [
+    ["devolución por rechazo", "devolucion_a_origen_por_rechazo", filaDescargaDiaRechazada],
+    ["incidente", "incidente", filaDescargaDiaIncidente],
+  ] as const;
+
+  for (const [nombre, resultado, proyectar] of PROYECCIONES) {
+    it(`${nombre}: con 3 evidencias la celda dice «Sí» y ninguna de las 3 URLs sale (R18)`, () => {
+      const fila = proyectar(gestionConEvidencias(resultado, TRES_URLS));
+      expect(fila.tieneEvidencia).toBe("Sí");
+      const celdas = Object.values(fila).map((c) => String(c ?? ""));
+      for (const url of TRES_URLS) {
+        expect(celdas.some((c) => c.includes(url))).toBe(false);
+      }
+      expect(celdas.some((c) => /https?:\/\//i.test(c) || c.includes("token="))).toBe(false);
+    });
+
+    it(`${nombre}: con UNA sola evidencia la celda también dice «Sí» (R18: al menos una)`, () => {
+      const fila = proyectar(gestionConEvidencias(resultado, [TRES_URLS[0]]));
+      expect(fila.tieneEvidencia).toBe("Sí");
+    });
+
+    it(`${nombre}: sin ninguna evidencia la celda dice «No» (R18)`, () => {
+      const fila = proyectar(gestionConEvidencias(resultado, []));
+      expect(fila.tieneEvidencia).toBe("No");
+    });
+  }
 });

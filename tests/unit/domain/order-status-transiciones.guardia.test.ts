@@ -870,3 +870,18 @@ describe("R4/R13 — la guardia trabaja sobre value del catalogo, en O(1)", () =
     expect(JSON.stringify(TRANSICIONES)).toBe(antes);
   });
 });
+
+describe("419/R24 — la arista #28 declara sus DOS actores sin cambiar el grafo", () => {
+  it("`devolviendo_a_tienda -> devuelta_a_tienda` es la unica salida y nombra tienda y central", () => {
+    const salidas = TRANSICIONES.devolviendo_a_tienda;
+    expect(salidas.map((d) => d.to)).toEqual(["devuelta_a_tienda"]);
+    expect(salidas[0].via).toBe("ajuste_estado");
+    expect(salidas[0].rol).toContain("adminTienda");
+    expect(salidas[0].rol).toContain("maestro/admin");
+    expect(() => assertTransicionValida("devolviendo_a_tienda", "devuelta_a_tienda")).not.toThrow();
+  });
+
+  it("`devuelta_a_tienda` sigue siendo terminal", () => {
+    expect(TRANSICIONES.devuelta_a_tienda).toEqual([]);
+  });
+});

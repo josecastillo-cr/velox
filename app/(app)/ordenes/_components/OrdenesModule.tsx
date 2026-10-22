@@ -149,6 +149,7 @@ export function OrdenesModule({
   permitirDescarga = false,
   puedeReportarIncidente = false,
   puedeCorregirDatos = false,
+  puedeVerComprobanteEntrega = false,
   filtros,
   resetSeleccion = 0,
 }: {
@@ -249,6 +250,12 @@ export function OrdenesModule({
    * NO es una acción por LOTE a propósito: un lote no tiene un «destinatario» común.
    */
   puedeCorregirDatos?: boolean;
+  /**
+   * FICHA 419 (F3, R22): el drawer del historial ofrece «Ver comprobante de entrega» en las
+   * filas `devuelta_a_tienda`. Opt-in y por defecto `false`; la página la enciende sólo para
+   * maestro/admin. El servidor revalida el rol y no revela si el comprobante existe.
+   */
+  puedeVerComprobanteEntrega?: boolean;
   /**
    * Barra de filtros de la superficie, que la tabla coloca en la misma línea que el
    * control de descarga. Solo se pasa a través: este módulo tampoco la mira. Quien
@@ -466,7 +473,13 @@ export function OrdenesModule({
           <div className="flex items-center gap-1">
             {mostrarHistorial ? (
               <>
-                <HistorialOrdenSheet ordenId={row.id} referencia={row.numRemision} />
+                <HistorialOrdenSheet
+                  ordenId={row.id}
+                  referencia={row.numRemision}
+                  ofrecerComprobanteEntrega={
+                    puedeVerComprobanteEntrega && row.estatusValue === "devuelta_a_tienda"
+                  }
+                />
                 <EtiquetaOrdenAccion orden={row} />
               </>
             ) : null}
@@ -484,6 +497,7 @@ export function OrdenesModule({
     mostrarHistorial,
     puedeReportarIncidente,
     puedeCorregirDatos,
+    puedeVerComprobanteEntrega,
     haySeleccion,
     seleccionIds,
     bloqueoSeleccion,

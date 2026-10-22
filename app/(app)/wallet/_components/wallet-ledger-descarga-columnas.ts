@@ -90,10 +90,16 @@ export const AMBITO_DESCARGA_WALLET_CAJA = "wallet-caja-libro";
 /** Ámbito PROPIO de la hoja de detalle de la caja (se conserva el de la 464, R52). */
 export const AMBITO_DESCARGA_WALLET_CAJA_DETALLE = "wallet-caja-detalle-orden";
 
-/** R29 — la hoja «Detalle por guía» de la caja, en este orden (CONTRATO, `toEqual` a mano). */
+/**
+ * R29 — la hoja «Detalle por guía» de la caja, en este orden (CONTRATO, `toEqual` a mano).
+ * Ficha 485 — «Producto» justo tras «Remisión», SOLO aquí; no entra en `FIJAS_DETALLE_POR_GUIA`
+ * (desmarcable) y, como la preferencia es una lista de exclusión, sale marcada también para quien ya
+ * tenía guardada la de este ámbito.
+ */
 export const COLUMNAS_DESCARGA_DETALLE_GUIA_CAJA: DescargaColumna[] = [
   COLUMNA_LIBRO.guia,
   COLUMNA_LIBRO.remision,
+  COLUMNA_LIBRO.producto,
   COLUMNA_LIBRO.destinatario,
   COLUMNA_LIBRO.tienda,
   COLUMNA_LIBRO.mensajero,
@@ -106,9 +112,14 @@ export const COLUMNAS_DESCARGA_DETALLE_GUIA_CAJA: DescargaColumna[] = [
   COLUMNA_LIBRO.cobradoATiendas,
 ];
 
-/** R34/R39 — la fila de cabecera de un bloque de guía de la caja (con tienda y mensajero del cierre). */
+/**
+ * R34/R39 — la fila de cabecera de un bloque de guía de la caja (con tienda y mensajero del cierre).
+ * Ficha 485 — más el producto congelado en el cierre más reciente; se añade AQUÍ y no en la cabecera
+ * compartida, para que las filas de las otras superficies no cambien. Las filas de concepto del bloque
+ * lo dejan vacío, igual que la remisión.
+ */
 export function filaCabeceraGuiaCaja(bloque: BloqueDeGuiaDTO): DescargaFila {
-  return filaCabeceraDeGuia(bloque, resultadosTexto);
+  return { ...filaCabeceraDeGuia(bloque, resultadosTexto), producto: bloque.producto };
 }
 
 /** R51 — las columnas de la hoja «Movimientos» que no se pueden desmarcar. */

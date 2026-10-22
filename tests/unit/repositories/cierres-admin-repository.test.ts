@@ -213,6 +213,7 @@ function gestionRow(overrides: Record<string, unknown> = {}) {
     motivo: null,
     fechaReprogramacion: null,
     evidenciaStoragePath: "o1/e.jpg",
+    evidencias: [], // feature 486: sin hijas -> la portada es el fallback (R5)
     pagoMensajero: new Prisma.Decimal("5.00"), // feature 39/R16: snapshot leido
     ingresoBodegaRechazo: new Prisma.Decimal("0.00"), // feature 56/R15: snapshot leido
     // Feature 158/R9/R19: campos POR RAMA del incidente, tal como los lee
@@ -355,6 +356,7 @@ describe("CierresAdminRepository.findCierreByIdEnAlcance (R6/R13)", () => {
       gestionId: "g1",
       montoRecibido: "12.50",
       evidenciaStoragePath: "o1/e.jpg",
+      evidenciaStoragePaths: ["o1/e.jpg"], // feature 486/R5: sin hijas, la portada
       pagoMensajero: "5.00",
       ingresoBodegaRechazo: "0.00",
     });

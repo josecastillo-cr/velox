@@ -128,7 +128,7 @@ function gestion(
     pagos,
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     esRechazoSla: false,

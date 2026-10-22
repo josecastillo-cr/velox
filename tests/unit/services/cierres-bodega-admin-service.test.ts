@@ -125,7 +125,7 @@ function gestionRow(overrides: Partial<CierreGestionPendienteRow> = {}): CierreG
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: "5.00", // feature 39/R20: snapshot del pago de la gestion
     ingresoBodegaRechazo: "0.00", // feature 56/R19: snapshot del ingreso de la gestion
     esRechazoSla: false, // feature 102
@@ -219,7 +219,7 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
           cierresDia: [
             {
               resumen: detalleCierreRow(),
-              gestiones: [gestionRow({ evidenciaStoragePath: "o1/e.jpg" })],
+              gestiones: [gestionRow({ evidenciaStoragePath: "o1/e.jpg", evidenciaStoragePaths: ["o1/e.jpg"] })],
             },
           ],
         })),
@@ -473,13 +473,13 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
           {
             resumen: detalleCierreRow({ cierreDiaId: "cd1" }),
             gestiones: [
-              gestionRow({ gestionId: "g1", resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o1/r.jpg" }),
+              gestionRow({ gestionId: "g1", resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o1/r.jpg", evidenciaStoragePaths: ["o1/r.jpg"] }),
             ],
           },
           {
             resumen: detalleCierreRow({ cierreDiaId: "cd2" }),
             gestiones: [
-              gestionRow({ gestionId: "g2", resultado: "entregado", evidenciaStoragePath: "o2/e.jpg" }),
+              gestionRow({ gestionId: "g2", resultado: "entregado", evidenciaStoragePath: "o2/e.jpg", evidenciaStoragePaths: ["o2/e.jpg"] }),
             ],
           },
         ],
@@ -506,11 +506,11 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
           {
             resumen: detalleCierreRow({ cierreDiaId: "cd1" }),
             gestiones: [
-              gestionRow({ gestionId: "ge", resultado: "entregado", evidenciaStoragePath: "o1/ent.jpg" }),
-              gestionRow({ gestionId: "gr", resultado: "reprogramado", montoRecibido: null, metodoPago: null, fechaReprogramacion: "2026-07-12", evidenciaStoragePath: "o2/rep.jpg" }),
-              gestionRow({ gestionId: "gn", resultado: "novedad", montoRecibido: null, metodoPago: null, motivo: "cliente_ausente", evidenciaStoragePath: "o3/nov.jpg" }),
-              gestionRow({ gestionId: "gd", resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o4/rch.jpg" }),
-              gestionRow({ gestionId: "gi", resultado: "incidente", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o5/inc.jpg" }),
+              gestionRow({ gestionId: "ge", resultado: "entregado", evidenciaStoragePath: "o1/ent.jpg", evidenciaStoragePaths: ["o1/ent.jpg"] }),
+              gestionRow({ gestionId: "gr", resultado: "reprogramado", montoRecibido: null, metodoPago: null, fechaReprogramacion: "2026-07-12", evidenciaStoragePath: "o2/rep.jpg", evidenciaStoragePaths: ["o2/rep.jpg"] }),
+              gestionRow({ gestionId: "gn", resultado: "novedad", montoRecibido: null, metodoPago: null, motivo: "cliente_ausente", evidenciaStoragePath: "o3/nov.jpg", evidenciaStoragePaths: ["o3/nov.jpg"] }),
+              gestionRow({ gestionId: "gd", resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o4/rch.jpg", evidenciaStoragePaths: ["o4/rch.jpg"] }),
+              gestionRow({ gestionId: "gi", resultado: "incidente", montoRecibido: null, metodoPago: null, evidenciaStoragePath: "o5/inc.jpg", evidenciaStoragePaths: ["o5/inc.jpg"] }),
             ],
           },
         ],
@@ -1667,5 +1667,88 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
     expect(r.partesPorTienda[0].pagoTienda).toBe(r.pagoTienda);
     expect(r.partesPorTienda[0].ganaLaTienda).toBe(r.ganaLaTienda);
     expect(r.partesPorTienda[0].recaudado).toBe(r.cierre.totales.general);
+  });
+});
+
+// ==============================================================================================
+// FEATURE 486 — detalle de cierre de bodega (S2): TODAS las fotos de cada gestion.
+// ==============================================================================================
+describe("486 · CierresBodegaAdminService.verCierreBodegaDetalle — todas las evidencias", () => {
+  const RUTAS_G1 = ["o1/foto-0.jpg", "o1/foto-1.jpg", "o1/foto-2.jpg"];
+  function repoConVariasFotos() {
+    return fakeRepo({
+      findCierreBodegaConDetalle: vi.fn(async () => ({
+        cierre: bodegaResumenRow(),
+        cierresDia: [
+          {
+            resumen: detalleCierreRow({ cierreDiaId: "cd1" }),
+            gestiones: [
+              gestionRow({ gestionId: "g1", resultado: "entregado", evidenciaStoragePath: RUTAS_G1[0], evidenciaStoragePaths: RUTAS_G1 }),
+            ],
+          },
+          {
+            resumen: detalleCierreRow({ cierreDiaId: "cd2" }),
+            gestiones: [
+              gestionRow({ gestionId: "g2", resultado: "entregado", evidenciaStoragePath: "o2/e.jpg", evidenciaStoragePaths: ["o2/e.jpg"] }),
+              gestionRow({ gestionId: "g3", resultado: "entregado", evidenciaStoragePath: null, evidenciaStoragePaths: [] }),
+            ],
+          },
+        ],
+      })),
+    });
+  }
+
+  it("R2/R4: entrega las 3 URLs firmadas de una gestion con 3 evidencias, en orden", async () => {
+    const { service } = newService({ repo: repoConVariasFotos() });
+    const r = await service.verCierreBodegaDetalle("cb1", MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(r.cierres[0].grupos.entregado[0].evidenciaUrls).toEqual([
+      "https://signed/o1/foto-0.jpg",
+      "https://signed/o1/foto-1.jpg",
+      "https://signed/o1/foto-2.jpg",
+    ]);
+    expect(r.cierres[1].grupos.entregado.map((g) => g.evidenciaUrls)).toEqual([
+      ["https://signed/o2/e.jpg"],
+      [],
+    ]);
+  });
+
+  it("R8: UNA sola firma con las rutas de todas las gestiones de todos los cierres_dia", async () => {
+    const signedUrls = fakeSignedUrls();
+    const { service } = newService({ repo: repoConVariasFotos(), signedUrls });
+    await service.verCierreBodegaDetalle("cb1", ADMIN);
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledTimes(1);
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledWith([...RUTAS_G1, "o2/e.jpg"], expect.any(Number));
+  });
+
+  it("R7: el DTO no contiene ninguna ruta cruda", async () => {
+    const { service } = newService({ repo: repoConVariasFotos() });
+    const r = await service.verCierreBodegaDetalle("cb1", MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    const json = JSON.stringify(r.cierres);
+    for (const ruta of [...RUTAS_G1, "o2/e.jpg"]) expect(json).not.toContain(`"${ruta}"`);
+  });
+
+  it("R9: si el firmador omite la foto 2, la gestion trae la 1 y la 3", async () => {
+    const signedUrls = fakeSignedUrls({
+      createSignedUrls: vi.fn(async (paths: string[]) =>
+        Object.fromEntries(paths.filter((p) => p !== "o1/foto-1.jpg").map((p) => [p, `https://signed/${p}`])),
+      ),
+    });
+    const { service } = newService({ repo: repoConVariasFotos(), signedUrls });
+    const r = await service.verCierreBodegaDetalle("cb1", MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(r.cierres[0].grupos.entregado[0].evidenciaUrls).toEqual([
+      "https://signed/o1/foto-0.jpg",
+      "https://signed/o1/foto-2.jpg",
+    ]);
+  });
+
+  it("R11: inexistente / rol sin acceso -> no firma nada", async () => {
+    const signedUrls = fakeSignedUrls();
+    const repoNull = fakeRepo({ findCierreBodegaConDetalle: vi.fn(async () => null) });
+    expect((await newService({ repo: repoNull, signedUrls }).service.verCierreBodegaDetalle("cb-x", MAESTRO)).status).toBe("no_encontrada");
+    expect((await newService({ repo: repoConVariasFotos(), signedUrls }).service.verCierreBodegaDetalle("cb1", ADMIN_SATELITE)).status).toBe("forbidden");
+    expect(signedUrls.createSignedUrls).not.toHaveBeenCalled();
   });
 });

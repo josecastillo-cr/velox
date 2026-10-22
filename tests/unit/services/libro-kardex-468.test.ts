@@ -170,8 +170,8 @@ describe("468 — caja: el kardex y su orden", () => {
           modo: "ordenes",
           cierre: { fecha: "2026-09-10T18:00:00.000Z", mensajeroNombre: "Mario" },
           ordenes: [
-            { clave: "o1", guia: "501", remision: "R1", destinatario: "Ana", tiendaNombre: "T", resultados: ["entregado"], aporte: "600.00" },
-            { clave: "o2", guia: "502", remision: "R2", destinatario: "Beto", tiendaNombre: "T", resultados: ["entregado"], aporte: "400.00" },
+            { clave: "o1", guia: "501", remision: "R1", destinatario: "Ana", producto: "Camisa", tiendaNombre: "T", resultados: ["entregado"], aporte: "600.00" },
+            { clave: "o2", guia: "502", remision: "R2", destinatario: "Beto", producto: "Gorra", tiendaNombre: "T", resultados: ["entregado"], aporte: "400.00" },
           ],
           suma: "1000.00",
           cuadra: true,

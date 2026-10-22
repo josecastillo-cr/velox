@@ -80,7 +80,7 @@ const REPROGRAMADA = gestion478({
   numRemision: "REM-R1",
   destinatario: "Raúl Reprogramado",
   fechaReprogramacion: "2026-09-03",
-  evidenciaUrl: "https://signed.example/rep.jpg?token=r1",
+  evidenciaUrl: "https://signed.example/rep.jpg?token=r1", evidenciaUrls: ["https://signed.example/rep.jpg?token=r1"],
 });
 
 const NOVEDAD = gestion478({
@@ -89,7 +89,7 @@ const NOVEDAD = gestion478({
   numGuia: 5003,
   numRemision: "REM-N1",
   destinatario: "Nora Novedad",
-  evidenciaUrl: "https://signed.example/nov.jpg?token=n1",
+  evidenciaUrl: "https://signed.example/nov.jpg?token=n1", evidenciaUrls: ["https://signed.example/nov.jpg?token=n1"],
 });
 
 const RECHAZO = gestion478({
@@ -101,7 +101,7 @@ const RECHAZO = gestion478({
   esRechazoSla: true,
   ingresoBodegaRechazo: "250.25",
   pagoMensajero: "600.10",
-  evidenciaUrl: "https://signed.example/rch.jpg?token=d1",
+  evidenciaUrl: "https://signed.example/rch.jpg?token=d1", evidenciaUrls: ["https://signed.example/rch.jpg?token=d1"],
   ingresoOrdenex: ingreso478({
     montoCobrar: "4000.00",
     fleteDevolucion: "1200.00",
@@ -119,7 +119,7 @@ const INCIDENTE = gestion478({
   destinatario: "Iván Incidente",
   causaIncidente: "robado",
   indemnizacion: null,
-  evidenciaUrl: "https://signed.example/inc.jpg?token=i1",
+  evidenciaUrl: "https://signed.example/inc.jpg?token=i1", evidenciaUrls: ["https://signed.example/inc.jpg?token=i1"],
 });
 
 const BETO_E1 = gestion478({

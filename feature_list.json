@@ -5006,12 +5006,13 @@
       "title": "la bodega central cierra la devolucion con su comprobante, sin depender de que la tienda escanee",
       "description": "El paso final de una devolucion solo lo puede dar la tienda, y ninguna lo ha dado nunca.",
       "zone": "fullstack",
-      "status": "pending",
+      "status": "done",
       "sdd": true,
       "complexity": "media",
-      "branch": null,
+      "branch": "feature/419-central-cierra-devolucion-comprobante",
       "depends_on": null,
-      "status_note": "MEDIDO CONTRA PRODUCCION el 2026-09-11, no supuesto: `devuelta_a_tienda` tiene CERO transiciones EN TODA LA HISTORIA, y hay 305 ordenes paradas en el recorrido (devolviendo_a_tienda 247, rechazada 31, por_devolver 27). || NO FALTA CODIGO: el catalogo declara UNA sola transicion hacia el estado final -`devolviendo_a_tienda` a `devuelta_a_tienda`, via `ajuste_estado`, rol adminTienda (order-status-transiciones.ts:401, transicion #28)- y la pantalla existe (`EscanerRecepcionOrigen.tsx`, un escaner dentro del listado de ordenes). El problema es que depende de que LA TIENDA escanee, y ninguna lo hace. || DECISION DEL HUMANO (2026-09-11), y es el alcance de esta ficha: que el paso lo pueda dar LA BODEGA CENTRAL. Sube un comprobante de que la tienda recibio los paquetes, selecciona las ordenes que correspondan, y con UN boton las pasa de estado en lote. || LO QUE EL SPEC TIENE QUE RESOLVER, no dar por hecho: (a) si el comprobante es obligatorio y donde vive, si reusa el bucket privado de evidencias o necesita uno propio; (b) la transicion nueva hay que declararla en el catalogo con su rol, porque HOY solo la admite adminTienda; (c) si la via del escaner de la tienda SE CONSERVA -no se borra: es la correcta cuando la tienda si participa- o se sustituye; (d) el lote: que pasa si una de las seleccionadas no esta en `devolviendo_a_tienda`, porque una asignacion por lote que aborta entera ya fue un problema en este repo. || EFECTO COLATERAL MEDIDO: esas 305 cuentan como VIVAS en la cohorte de carga de la 411 y hunden la efectividad historica de cada dia. Al desatascarlas, los porcentajes suben solos."
+      "status_note": "HECHA en dev (PR #867, b333d901, 2026-10-21), SIN desplegar a prod. Migracion 20261021120000_devolucion_tienda_comprobante_419 (3 tablas, RLS sin policies). Revision OK, 5 menores (progress/review_419.md en la rama); pendiente: verla en la app (F4) y m3 (validation_error con fieldErrors vacio = aviso mudo). Portada a servi_logistic (c1b051d).",
+      "spec_path": "specs/419-central-cierra-devolucion-con-comprobante"
     },
     {
       "id": 420,
@@ -5786,11 +5787,36 @@
       "title": "puntero orden_en_gestion colgado tras corte o liberación",
       "description": "El corte sin gestionar y la liberación limpian el puntero de gestión del mensajero, y Reparto ignora un puntero a una orden que ya no está en su lista.",
       "zone": "backend",
-      "status": "in_progress",
+      "status": "done",
       "branch": "feat/484-puntero-gestion-colgado",
       "sdd": true,
       "complexity": "media",
-      "status_note": "Prod 2026-10-19: Andres Aguero quedó en modo foco con 1 de 40 órdenes y sin poder gestionar ni cancelar; puntero a BLST-765 (corte 17/10 + liberación 19/10). Desbloqueado a mano. Escriben el estado sin limpiar puntero: CierreDiaRepository.ts:1108 (corte) y CierresAdminRepository.ts:2135 (liberación). MisAsignacionesService.ts:261 devuelve el puntero sin validar."
+      "status_note": "DESPLEGADA en prod (release #864, 358ae461, 2026-10-19). PR #863. Limpieza del puntero en corte, aprobacion (bodega/tope) y traspaso; puntero vigente en get/set + servicio. Gate completo verde (33.925 tests). T10: 0 colgados antes y despues. Revision OK, 6 menores (progress/review_484.md); abiertos m3-m6."
+    },
+    {
+      "id": 485,
+      "title": "columna Producto en el detalle por guía de la caja",
+      "description": "La hoja «Detalle por guía» del libro de movimientos de la caja (/wallet) añade una columna Producto, desmarcable, al lado de Remisión.",
+      "zone": "fullstack",
+      "status": "done",
+      "sdd": false,
+      "complexity": "baja",
+      "depends_on": null,
+      "branch": "feat/485-producto-detalle-guia-caja",
+      "status_note": "HECHA en dev (PR #865, 61196b94, 2026-10-20), SIN desplegar a prod. Producto de cierre_detail.producto (SELECT_DE_APORTE), mismo cierre que la remision; columna desmarcable tras Remision solo en la caja. Gate --rapido verde en rama y en dev (3755 tests). Revision OK, 3 menores (progress/review_485.md)."
+    },
+    {
+      "id": 486,
+      "title": "las evidencias de una gestión con varias fotos solo muestran la primera en los cierres",
+      "description": "En el detalle de los cierres (de mensajero de la central y de bodega satélite), admin y maestro ven una sola foto aunque la gestión tenga hasta 3.",
+      "zone": "fullstack",
+      "status": "done",
+      "sdd": true,
+      "complexity": "baja",
+      "depends_on": null,
+      "branch": "feature/486-evidencias-varias-fotos-cierres",
+      "status_note": "HECHA en dev (PR #866, 221656e7, 2026-10-21), SIN desplegar a prod. Sin migracion. Revision OK (progress/review_486.md en la rama); pendiente: verla en la app (T10, credencial local de admin invalida). Portada a servi_logistic (92649dc).",
+      "spec_path": "specs/486-evidencias-varias-fotos-cierres"
     }
   ]
 }

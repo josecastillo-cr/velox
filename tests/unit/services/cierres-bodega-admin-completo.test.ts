@@ -139,7 +139,7 @@ function gestionConEvidencia(): CierreGestionPendienteRow {
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: "evidencias/g-1.jpg",
+    evidenciaStoragePath: "evidencias/g-1.jpg", evidenciaStoragePaths: ["evidencias/g-1.jpg"],
     pagoMensajero: "5.00",
     ingresoBodegaRechazo: "0.00",
     esRechazoSla: false,

@@ -188,6 +188,9 @@ model Usuario {
   whatsappEnvioDestinos               WhatsappEnvioDestinatario[]        @relation("WhatsappEnvioDestinatarioUsuario")
   whatsappEnvioPruebas                WhatsappEnvioEjecucion[]           @relation("WhatsappEnvioEjecucionSolicitante")
   whatsappEnvioEntregas               WhatsappEnvioEntrega[]             @relation("WhatsappEnvioEntregaUsuario")
+  // FICHA 419 (design §D3): lotes de confirmacion central de entrega a la tienda. FK RESTRICT: quien certifico la entrega, y a que tienda, es evidencia
+  devolucionesTiendaComoTienda        DevolucionTiendaComprobante[]      @relation("DevolucionTiendaComprobanteTienda")
+  devolucionesTiendaSubidas           DevolucionTiendaComprobante[]      @relation("DevolucionTiendaComprobanteSubidoPor")
 
   @@index([tipoIdentificacionId])
   @@index([rolId])
@@ -842,6 +845,8 @@ model Orden {
   // no 1-1: la unicidad es por GESTION, y una orden podria acumular mas de un rechazo a lo
   // largo de su vida (cada uno con su gestion sintetica y su cobro).
   cobrosRechazoTienda        RechazoTiendaCobro[]
+  // Ficha 419 (design §D3): enlace al comprobante del lote central que la paso a `devuelta_a_tienda`. A lo sumo UNO (PK = orden_id)
+  devolucionTiendaEnlace     DevolucionTiendaOrden?             @relation("DevolucionTiendaOrdenOrden")
 
   // UNICIDAD DE `num_remision`: POR TIENDA, NO GLOBAL (migracion 20260825160000).
   //
@@ -4748,4 +4753,54 @@ model WhatsappEnvioEntrega {
   @@unique([ejecucionId, usuarioId], map: "whatsapp_envio_entrega_ejecucion_usuario_key")
   @@index([usuarioId])
   @@map("whatsapp_envio_entrega")
+}
+
+// ════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 419 (design §D3) — la bodega CENTRAL cierra la devolucion a la tienda con un COMPROBANTE.
+// Tres tablas INMUTABLES (sin updated_at ni deleted_at), RLS habilitada sin policies (solo service
+// role, molde `wallet_comprobante`). Migracion `20261021120000_devolucion_tienda_comprobante_419`.
+// Los CHECK de `content_type` e `indice` viven solo en el SQL (Prisma no los expresa).
+
+/// Un LOTE de confirmacion central de entrega a la tienda. Un lote = una tienda.
+model DevolucionTiendaComprobante {
+  id        String   @id @default(uuid())
+  tiendaId  String   @map("tienda_id") // la tienda del lote (rol adminTienda)
+  subidoPor String   @map("subido_por") // maestro/admin que confirmo
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tienda     Usuario                     @relation("DevolucionTiendaComprobanteTienda", fields: [tiendaId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  subidor    Usuario                     @relation("DevolucionTiendaComprobanteSubidoPor", fields: [subidoPor], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  evidencias DevolucionTiendaEvidencia[] @relation("DevolucionTiendaEvidenciaComprobante")
+  ordenes    DevolucionTiendaOrden[]     @relation("DevolucionTiendaOrdenComprobante")
+
+  @@index([tiendaId])
+  @@index([subidoPor])
+  @@map("devolucion_tienda_comprobante")
+}
+
+/// Archivos del comprobante (1..MAX_EVIDENCIAS_POR_GESTION). `storage_path` NUNCA sale al cliente (R23).
+model DevolucionTiendaEvidencia {
+  id            String @id @default(uuid())
+  comprobanteId String @map("comprobante_id")
+  storagePath   String @map("storage_path")
+  contentType   String @map("content_type")
+  indice        Int
+
+  comprobante DevolucionTiendaComprobante @relation("DevolucionTiendaEvidenciaComprobante", fields: [comprobanteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([comprobanteId, indice])
+  @@map("devolucion_tienda_evidencia")
+}
+
+/// Enlace orden <-> comprobante. PK = orden_id: una orden se devuelve a la tienda UNA vez (R8).
+model DevolucionTiendaOrden {
+  ordenId       String   @id @map("orden_id")
+  comprobanteId String   @map("comprobante_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  orden       Orden                       @relation("DevolucionTiendaOrdenOrden", fields: [ordenId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  comprobante DevolucionTiendaComprobante @relation("DevolucionTiendaOrdenComprobante", fields: [comprobanteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([comprobanteId])
+  @@map("devolucion_tienda_orden")
 }

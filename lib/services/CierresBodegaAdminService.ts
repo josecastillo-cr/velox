@@ -27,6 +27,7 @@ import type { ListarGestionesDescargaServiceResult } from "@/lib/interfaces/serv
 import type { FiltrosDescargaGestiones } from "@/lib/types/filtros-cierres";
 import { esColaSolicitado } from "@/lib/utils/colas-cierre";
 import { rangoDePagina } from "@/lib/utils/rango-pagina";
+import { rutasAFirmar } from "@/lib/utils/evidencias-gestion";
 import { toDetalleDTO } from "@/lib/services/CierreDiaService";
 import {
   cobradoSobreRecaudado,
@@ -276,9 +277,8 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
 
     // R12: firma en LOTE las evidencias de TODAS las gestiones de todos los cierre_dia
     // (path crudo -> URL firmada de TTL acotado). Nunca se expone el storage_path.
-    const paths = found.cierresDia
-      .flatMap((cd) => cd.gestiones.map((g) => g.evidenciaStoragePath))
-      .filter((p): p is string => p !== null);
+    // Feature 486 (R2/R8): TODAS las fotos de todas las gestiones de todos los cierres_dia.
+    const paths = found.cierresDia.flatMap((cd) => rutasAFirmar(cd.gestiones));
     const urlByPath =
       paths.length > 0
         ? await this.signedUrls.createSignedUrls(paths, cierreConfig.SIGNED_URL_TTL_SECONDS)

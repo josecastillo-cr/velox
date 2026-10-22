@@ -16,6 +16,7 @@ function orden(clave: string, guia: string | null, aporte: string, over: Partial
     guia,
     remision: `REM-${clave}`,
     destinatario: `Dest ${clave}`,
+    producto: `Prod ${clave}`,
     tiendaNombre: "Tienda Uno",
     resultados: ["entregado"],
     aporte,
@@ -65,6 +66,34 @@ describe("468 — R33–R39: los bloques de guia", () => {
     ]);
     expect(b.total).toEqual({ entra: "0.00", sale: "500.00", cobradoATiendas: "1000.00" }); // R36
     expect(r.sinGuia).toEqual([]);
+  });
+
+  it("485: el producto del bloque es el del cierre MAS RECIENTE, el mismo que da la remision (aunque llegue antes en la hoja)", () => {
+    const movs = [
+      { id: "pago-c2", monto: sale("500.00") },
+      { id: "flete-c1", monto: cobrado("1000.00") },
+    ];
+    const r = agruparPorGuia({
+      movimientos: movs,
+      detalle: [
+        conOrdenes("pago-c2", C2, [orden("o1", "501", "500.00", { remision: "REM-NUEVA", producto: "Producto nuevo" })]),
+        conOrdenes("flete-c1", C1, [orden("o1", "501", "1000.00", { remision: "REM-VIEJA", producto: "Producto viejo" })]),
+      ],
+      totalesHoja1: hoja1(movs),
+    });
+    expect(r.bloques).toHaveLength(1);
+    expect(r.bloques[0]).toMatchObject({ guia: "501", remision: "REM-NUEVA", producto: "Producto nuevo" });
+  });
+
+  it("485: una orden sin guia lleva su producto en su bloque", () => {
+    const movs = [{ id: "m", monto: entra("60.00") }];
+    const r = agruparPorGuia({
+      movimientos: movs,
+      detalle: [conOrdenes("m", C1, [orden("o9", null, "60.00", { producto: "Lampara" })])],
+      totalesHoja1: hoja1(movs),
+    });
+    expect(r.bloques).toHaveLength(1);
+    expect(r.bloques[0]).toMatchObject({ guia: null, remision: "REM-o9", producto: "Lampara" });
   });
 
   it("R37: bloques por guia numerica SIN Number («9» < «10» < «100»), y las sin guia al final por remision", () => {

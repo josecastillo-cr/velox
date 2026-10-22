@@ -352,7 +352,15 @@ export const TRANSICIONES = {
     { to: "devolviendo_a_tienda", via: "ajuste_estado", rol: "maestro/admin (central)" }, // #42 (139)
   ],
   devolviendo_a_tienda: [
-    { to: "devuelta_a_tienda", via: "ajuste_estado", rol: "adminTienda" }, // #28
+    // #28 (419): DOS productores del mismo par, sin arista nueva: el escaner de la tienda y la
+    // confirmacion por lote de la bodega central con comprobante (`DevolucionTiendaService`). La
+    // guardia decide solo por el par; quien lo hizo se lee del actor del historial y del enlace
+    // `devolucion_tienda_orden`.
+    {
+      to: "devuelta_a_tienda",
+      via: "ajuste_estado",
+      rol: "adminTienda (escaner) / maestro/admin (central, con comprobante — 419)",
+    }, // #28
   ],
   // TERMINAL (Q1): la tienda de origen la recibio; sin salida esperada.
   devuelta_a_tienda: [],

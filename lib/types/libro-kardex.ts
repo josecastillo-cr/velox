@@ -89,6 +89,8 @@ export interface BloqueDeGuiaDTO {
   /** R39 — remision, destinatario, tienda y mensajero CONGELADOS en el cierre mas reciente de la guia. */
   remision: string;
   destinatario: string;
+  /** Ficha 485 — el producto CONGELADO en el mismo cierre mas reciente que la remision (R39). */
+  producto: string;
   /** `null` en las superficies de UNA tienda (la columna no existe). */
   tiendaNombre: string | null;
   /** `null` en `/mi-wallet` (R49) y en el estado de cuenta del mensajero (es su propia cuenta). */

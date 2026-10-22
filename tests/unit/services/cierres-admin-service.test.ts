@@ -80,7 +80,7 @@ function gestionRow(overrides: Partial<CierreGestionPendienteRow> = {}): CierreG
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: null, // feature 39: snapshot (override para R16)
     ingresoBodegaRechazo: null, // feature 56: snapshot (override para R15)
     esRechazoSla: false, // feature 102: clasificacion SLA/manual (override para R8/R9)
@@ -857,7 +857,7 @@ describe("CierresAdminService.verCierreDetalle — detalle y evidencia (R6/R7/R9
             resultado: "devolucion_a_origen_por_rechazo",
             montoRecibido: null,
             metodoPago: null,
-            evidenciaStoragePath: "o1/rechazo.jpg",
+            evidenciaStoragePath: "o1/rechazo.jpg", evidenciaStoragePaths: ["o1/rechazo.jpg"],
           }),
         ],
       })),
@@ -1981,7 +1981,7 @@ describe("CierresAdminService.verCierreDetalle — el storage no puede bloquear 
           gestionRow({
             gestionId: "a",
             resultado: "entregado",
-            evidenciaStoragePath: "o1/entregada.jpg",
+            evidenciaStoragePath: "o1/entregada.jpg", evidenciaStoragePaths: ["o1/entregada.jpg"],
           }),
         ],
       })),
@@ -2576,5 +2576,108 @@ describe("425/B11 — verCierreDetalle emite `rechazosDeTienda`", () => {
     // Contrapunto: la lista SI llego.
     expect(a.rechazosDeTienda).toHaveLength(3);
     expect(b.rechazosDeTienda).toHaveLength(0);
+  });
+});
+
+// ==============================================================================================
+// FEATURE 486 — una gestion con VARIAS fotos entrega TODAS en el detalle de cierre (S1).
+// ==============================================================================================
+describe("486 · CierresAdminService.verCierreDetalle — todas las evidencias de cada gestion", () => {
+  const RUTAS_A = ["o1/foto-0.jpg", "o1/foto-1.jpg", "o1/foto-2.jpg"];
+  function repoConVariasFotos() {
+    return fakeRepo({
+      findCierreByIdEnAlcance: vi.fn(async () => ({
+        sinGestion: [],
+        sinGestionRegistrado: true,
+        rechazosDeTienda: [],
+        cierre: resumenRow(),
+        gestiones: [
+          gestionRow({ gestionId: "a", resultado: "entregado", evidenciaStoragePath: RUTAS_A[0], evidenciaStoragePaths: RUTAS_A }),
+          gestionRow({ gestionId: "b", resultado: "entregado", evidenciaStoragePath: "o2/unica.jpg", evidenciaStoragePaths: ["o2/unica.jpg"] }),
+          gestionRow({ gestionId: "c", resultado: "entregado", evidenciaStoragePath: null, evidenciaStoragePaths: [] }),
+        ],
+      })),
+    });
+  }
+
+  it("R1/R4: entrega las 3 URLs firmadas de una gestion con 3 evidencias, en orden de indice", async () => {
+    const { service } = newService({ repo: repoConVariasFotos() });
+    const r = await service.verCierreDetalle("c1", MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    const [a, b, c] = r.grupos.entregado;
+    expect(a!.evidenciaUrls).toEqual([
+      "https://signed/o1/foto-0.jpg",
+      "https://signed/o1/foto-1.jpg",
+      "https://signed/o1/foto-2.jpg",
+    ]);
+    expect(a!.evidenciaUrl).toBe("https://signed/o1/foto-0.jpg"); // portada derivada de la lista
+    expect(b!.evidenciaUrls).toEqual(["https://signed/o2/unica.jpg"]);
+    expect(c!.evidenciaUrls).toEqual([]); // R6
+    expect(c!.evidenciaUrl).toBeNull();
+  });
+
+  it("R8: UNA sola llamada a createSignedUrls con las rutas de TODAS las gestiones", async () => {
+    const signedUrls = fakeSignedUrls();
+    const { service } = newService({ repo: repoConVariasFotos(), signedUrls });
+    await service.verCierreDetalle("c1", ADMIN);
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledTimes(1);
+    expect(signedUrls.createSignedUrls).toHaveBeenCalledWith(
+      ["o1/foto-0.jpg", "o1/foto-1.jpg", "o1/foto-2.jpg", "o2/unica.jpg"],
+      expect.any(Number),
+    );
+  });
+
+  it("R7: el DTO no contiene ninguna ruta cruda", async () => {
+    const { service } = newService({ repo: repoConVariasFotos() });
+    const r = await service.verCierreDetalle("c1", MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    const json = JSON.stringify(r.grupos);
+    for (const ruta of [...RUTAS_A, "o2/unica.jpg"]) {
+      expect(json).not.toContain(`"${ruta}"`);
+    }
+    expect(r.grupos.entregado[0]).not.toHaveProperty("evidenciaStoragePaths");
+  });
+
+  it("R9: si el firmador omite la foto 2, la gestion trae la 1 y la 3", async () => {
+    const signedUrls = fakeSignedUrls({
+      createSignedUrls: vi.fn(async (paths: string[]) =>
+        Object.fromEntries(paths.filter((p) => p !== "o1/foto-1.jpg").map((p) => [p, `https://signed/${p}`])),
+      ),
+    });
+    const { service } = newService({ repo: repoConVariasFotos(), signedUrls });
+    const r = await service.verCierreDetalle("c1", MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(r.grupos.entregado[0]!.evidenciaUrls).toEqual([
+      "https://signed/o1/foto-0.jpg",
+      "https://signed/o1/foto-2.jpg",
+    ]);
+  });
+
+  it("R10: firmador que lanza -> detalle ok con listas vacias", async () => {
+    const signedUrls = fakeSignedUrls({
+      createSignedUrls: vi.fn(async () => {
+        throw new Error("storage caido");
+      }),
+    });
+    const { service } = newService({ repo: repoConVariasFotos(), signedUrls });
+    const r = await service.verCierreDetalle("c1", MAESTRO);
+    expect(r.status).toBe("ok");
+    if (r.status !== "ok") return;
+    expect(r.grupos.entregado.map((g) => g.evidenciaUrls)).toEqual([[], [], []]);
+  });
+
+  it("R11: fuera de alcance / rol invalido / satelite sin zona -> no firma nada", async () => {
+    const fuera = fakeSignedUrls();
+    const repoNull = fakeRepo({ findCierreByIdEnAlcance: vi.fn(async () => null) });
+    const s1 = newService({ repo: repoNull, signedUrls: fuera });
+    expect((await s1.service.verCierreDetalle("c-ajeno", MAESTRO)).status).toBe("no_encontrada");
+
+    const s2 = newService({ repo: repoConVariasFotos(), signedUrls: fuera });
+    expect((await s2.service.verCierreDetalle("c1", MENSAJERO)).status).toBe("forbidden");
+
+    const s3 = newService({ repo: repoConVariasFotos(), signedUrls: fuera, zonaSatelite: null });
+    expect((await s3.service.verCierreDetalle("c1", ADMIN_SATELITE)).status).toBe("no_encontrada");
+
+    expect(fuera.createSignedUrls).not.toHaveBeenCalled();
   });
 });

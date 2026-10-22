@@ -24,6 +24,7 @@ function orden(cierreId: string, n: number, pago: string, tienda = "Tienda A"): 
     numGuia: 500 + n,
     numRemision: `REM-${n}`,
     destinatario: `Dest ${n}`,
+    producto: `Prod ${n}`,
     tiendaNombre: tienda,
     orden: { esCentral: false, esZonaEspecial: false, montoCobrar: null, cobraComision: false, tarifa: null },
     gestiones: [{ resultado: "entregado", montoRecibido: null, pagoMensajero: pago, indemnizacion: null }],
