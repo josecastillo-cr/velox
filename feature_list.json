@@ -5817,6 +5817,17 @@
       "branch": "feature/486-evidencias-varias-fotos-cierres",
       "status_note": "HECHA en dev (PR #866, 221656e7, 2026-10-21), DESPLEGADA en prod (release #868, 9ab23cd2, 2026-10-21). Sin migracion. Revision OK (progress/review_486.md en la rama); pendiente: verla en la app (T10, credencial local de admin invalida). Portada a servi_logistic (92649dc).",
       "spec_path": "specs/486-evidencias-varias-fotos-cierres"
+    },
+    {
+      "id": 487,
+      "title": "columna Producto en el detalle por guía de todos los libros de movimientos",
+      "description": "La hoja «Detalle por guía» de las descargas del libro de tienda, de mensajero y de Mi wallet añade la columna Producto, desmarcable, tras Remisión, como ya tiene la caja (485).",
+      "zone": "frontend",
+      "status": "in_progress",
+      "sdd": false,
+      "complexity": "baja",
+      "depends_on": 485,
+      "branch": "feat/487-producto-detalle-guia-libros"
     }
   ]
 }
