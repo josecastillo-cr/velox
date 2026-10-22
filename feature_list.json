@@ -5823,11 +5823,12 @@
       "title": "columna Producto en el detalle por guía de todos los libros de movimientos",
       "description": "La hoja «Detalle por guía» de las descargas del libro de tienda, de mensajero y de Mi wallet añade la columna Producto, desmarcable, tras Remisión, como ya tiene la caja (485).",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "baja",
       "depends_on": 485,
-      "branch": "feat/487-producto-detalle-guia-libros"
+      "branch": "feat/487-producto-detalle-guia-libros",
+      "status_note": "HECHA en dev (PR #869, 68e012c0, 2026-10-22), sin desplegar. Producto movido a la cabecera compartida filaCabeceraDeGuia; columna desmarcable tras Remision en los 4 libros. Sin backend. Gate --rapido verde en rama (8587, incl. integration/db) y en dev tras merge (INIT_EXIT=0)."
     },
     {
       "id": 488,
