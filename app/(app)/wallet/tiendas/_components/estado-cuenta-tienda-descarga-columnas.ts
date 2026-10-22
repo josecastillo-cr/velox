@@ -22,10 +22,15 @@ import { resultadosTexto } from "../../_components/detalle-movimiento-labels";
 /** Ámbito PROPIO de la hoja de detalle del estado de cuenta de una tienda (se conserva el de la 464, R52). */
 export const AMBITO_DESCARGA_WALLET_TIENDA_DETALLE = "wallet-tienda-detalle-orden";
 
-/** R30 — la hoja «Detalle por guía» de la tienda, en este orden (CONTRATO, `toEqual` a mano). */
+/**
+ * R30 — la hoja «Detalle por guía» de la tienda, en este orden (CONTRATO, `toEqual` a mano).
+ * Ficha 487 — «Producto» justo tras «Remisión», como en la caja (485); desmarcable (fuera de
+ * `FIJAS_DETALLE_POR_GUIA`) y marcada también para quien ya tenía guardada la preferencia.
+ */
 export const COLUMNAS_DESCARGA_DETALLE_GUIA_TIENDA: DescargaColumna[] = [
   COLUMNA_LIBRO.guia,
   COLUMNA_LIBRO.remision,
+  COLUMNA_LIBRO.producto,
   COLUMNA_LIBRO.destinatario,
   COLUMNA_LIBRO.mensajero,
   COLUMNA_LIBRO.cierre,
