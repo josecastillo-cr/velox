@@ -253,9 +253,15 @@ describe("427/R34 — `/ordenes` ofrece el traspaso EXACTAMENTE en los dos estad
     await seleccionarFila(user, "REM-o4b");
     expect(await screen.findByRole("button", { name: ACCION })).toBeInTheDocument();
 
-    // Y la `devolviendo_a_tienda` ni siquiera participa de la selección por lote.
-    expect(screen.getByText("REM-o4")).toBeInTheDocument();
-    expect(screen.queryByRole("checkbox", { name: "Seleccionar orden REM-o4" })).toBeNull();
+    // FICHA 419 (R17): la `devolviendo_a_tienda` YA participa de la selección por lote —su acción
+    // es «Confirmar entrega a la tienda»—, así que lo que este caso protege se afirma ahora sobre
+    // ELLA SOLA marcada: su barra no ofrece el traspaso. (Hasta la 419 la fila no tenía casilla.)
+    await seleccionarFila(user, "REM-o4b"); // desmarca la acompañante
+    await seleccionarFila(user, "REM-o4");
+    expect(
+      await screen.findByRole("button", { name: "Confirmar entrega a la tienda" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: ACCION })).toBeNull();
   });
 
   it("NO se ofrece en `en_bodega_central`: el paquete no está con nadie", async () => {

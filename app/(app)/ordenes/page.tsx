@@ -122,6 +122,12 @@ export default async function OrdenesPage() {
   // igualmente ahi, no aqui.
   const puedeCorregirDatos = rol ? esAccesoTotal(rol) : false;
 
+  // FICHA 419 (F3, R22): «Ver comprobante de entrega» en el historial de una orden
+  // `devuelta_a_tienda`, SOLO para maestro/admin (decisión del humano: la tienda no lo ve). Esto
+  // decide qué se OFRECE; `verComprobanteDevolucionTienda` revalida el rol y responde lo mismo a
+  // un rol ajeno que a una orden sin comprobante.
+  const puedeVerComprobanteEntrega = rol ? esAccesoTotal(rol) : false;
+
   // Pedido humano (2026-08-27): ELIMINAR una orden —y RECUPERAR una eliminada, y verlas
   // siquiera— es SOLO del `maestro`. No es `esAccesoTotal` y no es un descuido que no lo sea:
   // el borrado retira la orden de los listados de la tienda dueña y del mensajero asignado, y
@@ -224,6 +230,7 @@ export default async function OrdenesPage() {
           incluirFiltroSalioAReparto={incluirFiltroSalioAReparto}
           puedeReportarIncidente={puedeReportarIncidente}
           puedeCorregirDatos={puedeCorregirDatos}
+          puedeVerComprobanteEntrega={puedeVerComprobanteEntrega}
           puedeEliminar={puedeEliminar}
           puedeVerEliminadas={puedeVerEliminadas}
           fechasDiaReparto={fechasDiaReparto}

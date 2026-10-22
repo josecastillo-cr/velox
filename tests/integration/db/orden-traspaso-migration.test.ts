@@ -190,6 +190,9 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       "20261005120000_job_tipo_whatsapp_envios",
       "20261005120100_whatsapp_envios",
       "20261005120200_seed_whatsapp_envio_mantenimiento",
+      // Ficha 419 (2026-10-21): las tres tablas del comprobante de entrega central a la tienda. No
+      // toca `orden_traspaso_mensajero`.
+      "20261021120000_devolucion_tienda_comprobante_419",
     ]);
   });
 });
