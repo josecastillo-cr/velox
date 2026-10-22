@@ -205,6 +205,21 @@ sino «por qué seguimos esperando».
 
 ---
 
+## Release del 2026-10-21 — 485, 486 y 419
+
+- PR #868 (`dev` → `prod`, merge commit), `9ab23cd2`, despliegue `dpl_BGkjoy3mr6jCYnPKni4WNNZfoBLP` READY.
+- Gate completo sobre `36e9d7b3`: `INIT_EXIT=1` con 3 rojos ajenos de 34.101 (475/R16, 403/T2 y 454/C02 de concurrencia). Repetidos aislados: 25/25 en verde, así que son intermitentes por carga (`progress/gate_release_485_486_419.log`, `progress/rerun_release_aislado.log`).
+- Migración `20261021120000_devolucion_tienda_comprobante_419` aplicada: 3 tablas vacías, con RLS activa.
+- Datos sin tocar, medidos antes y después: `devolviendo_a_tienda` 591 → 591 y `devuelta_a_tienda` 1509 → 1509.
+- Sin variables de entorno nuevas.
+- Jobs recurrentes: 1 `pending` por tipo (`liberar_reprogramadas` y `analitica_rollup_diario`).
+- Runtime errors desde el despliegue: 0.
+- Comprobaciones que solo existen en prod, todavía sin hacer:
+  - 486: abrir un cierre con una gestión de varias fotos (hay 901 gestiones así) y ver N botones.
+  - 419: confirmar un primer lote. Las 591 órdenes paradas bajan solo cuando admin o maestro las confirman.
+
+---
+
 ## Release del 2026-10-19 — la 484, el puntero de gestión colgado
 
 - PR #864 (`dev` → `prod`, merge commit), `358ae461`, despliegue `dpl_96ZfptpB3nhsQFL4JqcksLiDVMDg` READY.

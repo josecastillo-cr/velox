@@ -5011,7 +5011,7 @@
       "complexity": "media",
       "branch": "feature/419-central-cierra-devolucion-comprobante",
       "depends_on": null,
-      "status_note": "HECHA en dev (PR #867, b333d901, 2026-10-21), SIN desplegar a prod. Migracion 20261021120000_devolucion_tienda_comprobante_419 (3 tablas, RLS sin policies). Revision OK, 5 menores (progress/review_419.md en la rama); pendiente: verla en la app (F4) y m3 (validation_error con fieldErrors vacio = aviso mudo). Portada a servi_logistic (c1b051d).",
+      "status_note": "HECHA en dev (PR #867, b333d901, 2026-10-21), DESPLEGADA en prod (release #868, 9ab23cd2, 2026-10-21). Migracion 20261021120000_devolucion_tienda_comprobante_419 (3 tablas, RLS sin policies). Revision OK, 5 menores (progress/review_419.md en la rama); pendiente: verla en la app (F4) y m3 (validation_error con fieldErrors vacio = aviso mudo). Portada a servi_logistic (c1b051d).",
       "spec_path": "specs/419-central-cierra-devolucion-con-comprobante"
     },
     {
@@ -5803,7 +5803,7 @@
       "complexity": "baja",
       "depends_on": null,
       "branch": "feat/485-producto-detalle-guia-caja",
-      "status_note": "HECHA en dev (PR #865, 61196b94, 2026-10-20), SIN desplegar a prod. Producto de cierre_detail.producto (SELECT_DE_APORTE), mismo cierre que la remision; columna desmarcable tras Remision solo en la caja. Gate --rapido verde en rama y en dev (3755 tests). Revision OK, 3 menores (progress/review_485.md)."
+      "status_note": "HECHA en dev (PR #865, 61196b94, 2026-10-20), DESPLEGADA en prod (release #868, 9ab23cd2, 2026-10-21). Producto de cierre_detail.producto (SELECT_DE_APORTE), mismo cierre que la remision; columna desmarcable tras Remision solo en la caja. Gate --rapido verde en rama y en dev (3755 tests). Revision OK, 3 menores (progress/review_485.md)."
     },
     {
       "id": 486,
@@ -5815,7 +5815,7 @@
       "complexity": "baja",
       "depends_on": null,
       "branch": "feature/486-evidencias-varias-fotos-cierres",
-      "status_note": "HECHA en dev (PR #866, 221656e7, 2026-10-21), SIN desplegar a prod. Sin migracion. Revision OK (progress/review_486.md en la rama); pendiente: verla en la app (T10, credencial local de admin invalida). Portada a servi_logistic (92649dc).",
+      "status_note": "HECHA en dev (PR #866, 221656e7, 2026-10-21), DESPLEGADA en prod (release #868, 9ab23cd2, 2026-10-21). Sin migracion. Revision OK (progress/review_486.md en la rama); pendiente: verla en la app (T10, credencial local de admin invalida). Portada a servi_logistic (92649dc).",
       "spec_path": "specs/486-evidencias-varias-fotos-cierres"
     }
   ]
