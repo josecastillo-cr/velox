@@ -101,7 +101,7 @@ function gestionEntregada(): CierreDetalleGestion {
     pagos: [{ metodo: "efectivo" as const, monto: "10.00" }],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: "0.00",
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

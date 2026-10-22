@@ -141,7 +141,7 @@ function makeGestion(
     pagos: [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

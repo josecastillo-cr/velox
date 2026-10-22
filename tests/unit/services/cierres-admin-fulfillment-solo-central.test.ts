@@ -97,7 +97,7 @@ function gestionRow(): CierreGestionPendienteRow {
       metodoPago: "efectivo",
       motivo: null,
       fechaReprogramacion: null,
-      evidenciaStoragePath: null,
+      evidenciaStoragePath: null, evidenciaStoragePaths: [],
       pagoMensajero: "0.00",
       ingresoBodegaRechazo: "0.00",
       esRechazoSla: false,

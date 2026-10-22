@@ -298,7 +298,7 @@ function gestion(
     pagos: [],
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaUrl: null,
+    evidenciaUrl: null, evidenciaUrls: [],
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: null,
     tarifaFaltante: false,

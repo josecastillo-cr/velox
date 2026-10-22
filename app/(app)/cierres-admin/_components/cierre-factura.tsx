@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { KpiValorAnimado } from "@/components/shared/KpiValorAnimado";
+import { BotonesEvidencia } from "./botones-evidencia";
 import { cn } from "@/lib/utils";
 import type { CierreAdminResumen } from "@/lib/interfaces/services/ICierresAdminService";
 import type {
@@ -1906,17 +1907,15 @@ function FilaGestion({
                 )}
               </>
             ) : null}
-            {g.evidenciaUrl && onVerEvidencia ? (
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="w-fit"
-                aria-label={`${FILA_VER_EVIDENCIA} de la orden ${g.numRemision} · ${g.destinatario}`}
-                onClick={() => onVerEvidencia(g.evidenciaUrl as string)}
-              >
-                {FILA_VER_EVIDENCIA}
-              </Button>
+            {/* FICHA 486 (R12-R16): un botón por foto, en el orden del servidor; con una sola,
+                el «Ver evidencia» de siempre. */}
+            {onVerEvidencia ? (
+              <BotonesEvidencia
+                urls={g.evidenciaUrls}
+                onVer={onVerEvidencia}
+                etiqueta={FILA_VER_EVIDENCIA}
+                ariaSufijo={`de la orden ${g.numRemision} · ${g.destinatario}`}
+              />
             ) : null}
             {/* Solo donde hay algo que repartir: una ENTREGA que cobró. Los otros resultados no
                 tienen desglose, y una entrega sin cobro no reparte cero colones entre métodos

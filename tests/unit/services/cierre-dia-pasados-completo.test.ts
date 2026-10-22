@@ -133,7 +133,7 @@ function gestion(n: number): CierreGestionPendienteRow {
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: `evidencias/g-${n}.jpg`, // el path CRUDO que `listarCierreDia` firma
+    evidenciaStoragePath: `evidencias/g-${n}.jpg`, evidenciaStoragePaths: [`evidencias/g-${n}.jpg`], // el path CRUDO que `listarCierreDia` firma
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     esRechazoSla: false,

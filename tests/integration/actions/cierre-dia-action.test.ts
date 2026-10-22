@@ -158,7 +158,7 @@ function pendiente(overrides: Partial<CierreGestionPendienteRow> = {}): CierreGe
     metodoPago: "efectivo",
     motivo: null,
     fechaReprogramacion: null,
-    evidenciaStoragePath: null,
+    evidenciaStoragePath: null, evidenciaStoragePaths: [],
     pagoMensajero: null, // feature 39: snapshot (derivado en vivo por el service)
     ingresoBodegaRechazo: null, // feature 56: snapshot (derivado en vivo por el service)
     esRechazoSla: false, // feature 102

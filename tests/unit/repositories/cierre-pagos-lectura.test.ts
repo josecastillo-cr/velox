@@ -48,6 +48,7 @@ function filaEnVivo(overrides: Record<string, unknown> = {}) {
     motivo: null,
     fechaReprogramacion: null,
     evidenciaStoragePath: null,
+    evidencias: [], // feature 486: sin hijas -> la portada es el fallback (R5)
     pagoMensajero: null,
     ingresoBodegaRechazo: null,
     causaIncidente: null,
@@ -79,6 +80,7 @@ function filaAdmin(overrides: Record<string, unknown> = {}) {
     motivo: null,
     fechaReprogramacion: null,
     evidenciaStoragePath: null,
+    evidencias: [], // feature 486: sin hijas -> la portada es el fallback (R5)
     pagoMensajero: new Prisma.Decimal("5.00"),
     ingresoBodegaRechazo: new Prisma.Decimal("0.00"),
     causaIncidente: null,

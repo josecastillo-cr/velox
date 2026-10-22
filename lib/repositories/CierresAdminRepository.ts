@@ -95,6 +95,7 @@ export const MOTIVO_RECHAZO_TOPE_INTENTOS =
   `${nombreDeEstado("novedad_interna")} y sin intentos de entrega disponibles`;
 import { resolverDestinoCierre } from "@/lib/utils/bodega-responsable";
 import { toLineasPago } from "@/lib/utils/lineas-pago";
+import { rutasEvidenciaGestion } from "@/lib/utils/evidencias-gestion";
 // FICHA 398: `computeTotales` recalcula los CUATRO totales del recaudo (la MISMA funcion que los
 // congelo al solicitar) y `sumarSnapshotsCongelados` rehace los DOS por gestion SUMANDO lo ya
 // escrito — nunca re-derivando con la tarifa viva, que moveria dinero de las otras gestiones.
@@ -272,7 +273,10 @@ export const GESTION_ADMIN_SELECT = {
   metodoPago: true,
   motivo: true,
   fechaReprogramacion: true,
-  evidenciaStoragePath: true,
+  evidenciaStoragePath: true, // portada: fallback de la 486 (R5) si no hay hijas
+  // Feature 486 (R1/R2/R4): el CONJUNTO de fotos, por `indice`. Una consulta por nivel, no una por
+  // gestion (R8). NO va en `GESTION_DESCARGA_SELECT` (R17): la descarga sigue sin leer evidencia.
+  evidencias: { select: { storagePath: true }, orderBy: { indice: "asc" } },
   pagoMensajero: true, // feature 39: snapshot del pago al mensajero
   ingresoBodegaRechazo: true, // feature 56: snapshot del ingreso de bodega por rechazo
   causaIncidente: true, // feature 158/R9/R34: causa tipificada del incidente
@@ -455,6 +459,7 @@ export function toPendienteRowDesdeSnapshot(
       ? g.fechaReprogramacion.toISOString().slice(0, 10)
       : null,
     evidenciaStoragePath: g.evidenciaStoragePath,
+    evidenciaStoragePaths: rutasEvidenciaGestion(g.evidencias, g.evidenciaStoragePath),
     pagoMensajero: decimalToString(g.pagoMensajero),
     ingresoBodegaRechazo: decimalToString(g.ingresoBodegaRechazo),
     // Feature 102/R1/R9: `true` si la gestion tiene una transicion del cron SLA enlazada
