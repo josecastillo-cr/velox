@@ -5835,12 +5835,13 @@
       "title": "ganancia de la caja sin IVA",
       "description": "El KPI «Ganancia de Ordenex» de /wallet muestra la ganancia sin IVA y, debajo y más pequeño, el IVA cobrado; el IVA sale del desglose de la ganancia a un bolsillo «IVA por pagar» y un egreso nuevo «Pago de IVA» lo baja.",
       "zone": "fullstack",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "media",
       "depends_on": null,
       "spec_path": "specs/488-ganancia-caja-sin-iva",
-      "status_note": "Decisiones del humano (2026-10-22): 1a el IVA sale de «De Ordenex» a un tercer bolsillo «IVA por pagar»; 2a egreso nuevo «Pago de IVA» que baja el IVA por pagar sin tocar la ganancia."
+      "branch": "feat/488-ganancia-caja-sin-iva",
+      "status_note": "Decisiones del humano (2026-10-22): 1a el IVA sale de «De Ordenex» a un tercer bolsillo «IVA por pagar»; 2a egreso nuevo «Pago de IVA» que baja el IVA por pagar sin tocar la ganancia. Spec aprobado el 2026-10-22 con los supuestos P1-P6 tal cual."
     }
   ]
 }
