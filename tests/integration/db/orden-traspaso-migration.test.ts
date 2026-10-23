@@ -193,6 +193,10 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       // Ficha 419 (2026-10-21): las tres tablas del comprobante de entrega central a la tienda. No
       // toca `orden_traspaso_mensajero`.
       "20261021120000_devolucion_tienda_comprobante_419",
+      // Ficha 488 (2026-10-22): los dos valores de enum del IVA por pagar (solos, por el 55P04; down
+      // dinamico) y el CHECK tipo<->categoria de la caja ampliado. Ninguna toca `orden_traspaso_mensajero`.
+      "20261023120000_iva_por_pagar_488_enums",
+      "20261023120100_iva_por_pagar_488_checks",
     ]);
   });
 });

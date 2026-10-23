@@ -48,7 +48,7 @@ function sumar(filas: FilaCuenta[], tipo: string): string {
 interface Medida {
   r: Record<string, ComoQuedoResult>;
   esperado: Record<string, ComoQuedoDTO>;
-  resumenSinFiltros: { enCaja: string; ganancia: string; deTerceros: string; capital: string };
+  resumenSinFiltros: { enCaja: string; ganancia: string; deTerceros: string; capital: string; ivaPorPagar: string };
   pagoConReverso: boolean;
   /** 458-B m2: las dos lineas de caja del rechazo empatan en `created_at` (sin empate, el caso no mide nada). */
   empateRechazo: boolean;
@@ -95,7 +95,8 @@ describeSiHayBase("458-B/TB.13 — «Cómo quedó» (Postgres real)", () => {
           const i = cajaEntera.findIndex((f) => f.id === id);
           if (i < 0) throw new Error(`fila de caja ${id} no esta`);
           const d = derivarCaja(agregar(cajaEntera.slice(0, i + 1)), { haySaldoInicialVigente: haySaldo, primerDia });
-          return { cifraPrincipal: d.enCaja, rotulo: d.estado, ganancia: d.ganancia, deTiendas: d.deTerceros, capital: d.capital };
+          // FICHA 488 (R30): + el IVA por pagar tras el movimiento.
+          return { cifraPrincipal: d.enCaja, rotulo: d.estado, ganancia: d.ganancia, deTiendas: d.deTerceros, capital: d.capital, ivaPorPagar: d.ivaPorPagar };
         };
         const tiendaHasta = (filas: FilaCuenta[], id: string) => {
           const pre = filas.slice(0, filas.findIndex((f) => f.id === id) + 1);
@@ -185,6 +186,7 @@ describeSiHayBase("458-B/TB.13 — «Cómo quedó» (Postgres real)", () => {
             ganancia: resumen.resumen.ganancia,
             deTerceros: resumen.resumen.deTerceros,
             capital: resumen.resumen.capital,
+            ivaPorPagar: resumen.resumen.ivaPorPagar, // FICHA 488 (R30)
           },
           pagoConReverso: conReverso !== undefined,
           empateRechazo,
@@ -207,11 +209,21 @@ describeSiHayBase("458-B/TB.13 — «Cómo quedó» (Postgres real)", () => {
       ganancia: r.comoQuedo.caja?.ganancia,
       deTerceros: r.comoQuedo.caja?.deTiendas,
       capital: r.comoQuedo.caja?.capital,
+      ivaPorPagar: r.comoQuedo.caja?.ivaPorPagar, // FICHA 488 (R30)
     }).toEqual(m().resumenSinFiltros);
   });
 
   it("R58: una linea del medio da la caja de su PREFIJO (derivado aparte)", () => {
     expect(m().r.sueldo).toEqual({ status: "ok", comoQuedo: m().esperado.sueldo });
+  });
+
+  it("488/R30: «Cómo quedó» trae el IVA por pagar tras el movimiento, STRING escala 2, y el escenario lo tiene", () => {
+    const r = m().r.ultima;
+    if (r.status !== "ok" || r.comoQuedo.caja === null) throw new Error(JSON.stringify(r));
+    expect(r.comoQuedo.caja.ivaPorPagar).toMatch(/^-?\d+\.\d{2}$/);
+    // Anti-vacuidad: tras el cobro por devolucion a origen (flete + IVA), el IVA por pagar de su prefijo
+    // es distinto del de la linea anterior; si el campo saliera fijo en "0.00" este caso no lo veria.
+    expect(m().esperado.rechazo0.caja?.ivaPorPagar).toBe((m().r.rechazo0 as { comoQuedo: ComoQuedoDTO }).comoQuedo.caja?.ivaPorPagar);
   });
 
   it("R58: un pago a una tienda en la caja da la tienda tras SU debito (la contrapartida mas cercana)", () => {

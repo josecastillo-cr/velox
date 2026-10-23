@@ -93,11 +93,12 @@ describe("R41 · el catalogo y la produccion real no se desincronizan", () => {
     const egresos = listarMetricas({ dominio: "financiera" }).find((m) => m.id === "egresos");
     const categorias = egresos?.definicion.categorias ?? [];
     // FICHA 459 (P13): DIEZ — mas `egreso_pago_por_cuenta_tienda`, que sale de la caja.
-    expect(categorias).toHaveLength(10);
+    // FICHA 488 (R32): DOCE — mas el Pago de IVA y su anulacion.
+    expect(categorias).toHaveLength(12);
     // Las ocho historicas siguen enteras: sustituir una por la nueva encogeria la cifra igual
     // que recortarla, que es justo lo que este caso existe para impedir.
-    expect(categorias.filter((c) => c.startsWith("egreso_"))).toHaveLength(9);
-    expect(categorias.filter((c) => !c.startsWith("egreso_"))).toEqual(["ingreso_ajuste"]);
+    expect(categorias.filter((c) => c.startsWith("egreso_"))).toHaveLength(10);
+    expect(categorias.filter((c) => !c.startsWith("egreso_"))).toEqual(["ingreso_ajuste", "ingreso_reverso_pago_iva"]);
   });
 
   it("autocomprobacion: el detector de fase distingue las dos situaciones", () => {

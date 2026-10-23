@@ -209,6 +209,11 @@ const RESUMEN_OK = {
     periodoFiltrado: false,
     // Feature 231 (R9/R10): 10 000 / 11 500 x 100 = 86.9565… -> "86.96".
     porcentajeTiendas: "86.96",
+    // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+    ivaCobrado: "0.00",
+    ivaPorPagar: "0.00",
+    signoIvaPorPagar: "cero" as const,
+    porcentajeIva: "0.00",
     modoComposicion: "dos_bolsillos" as const,
     // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
     capital: "0.00",

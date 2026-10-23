@@ -65,19 +65,23 @@ const DESGLOSE: DesgloseEgresosDTO = {
  * el caso de R28 pasaba en verde con el código roto. Se descubrió matándolo con una mutación.
  *
  * Suman `totalIngresos` (5 709,75) exactamente; los egresos, 1 250,75 + 940 = 2 190,75.
+ *
+ * FICHA 488 (R19): los tres IVA salen de la composición (son IVA por pagar, no ingreso de Ordenex).
+ * El conjunto pierde sus tres importes (19,50 + 520,00 + 30,25 = 569,75) y los totales se reescriben a
+ * mano: `totalIngresos` 5 709,75 → 5 140,00 y la ganancia 3 519,00 → 2 949,25. El ORDEN sigue sin ser
+ * el de magnitud: el mayor (4 000) sigue siendo el SEGUNDO.
  */
 const COMPOSICION: ComposicionGananciaDTO = {
   ingresos: {
     ingreso_flete: "150.00",
     ingreso_flete_devolucion: "4000.00",
     ingreso_comision_cod: "900.00",
-    ingreso_iva_flete: "19.50",
-    ingreso_iva_flete_devolucion: "520.00",
-    ingreso_iva_comision_cod: "30.25",
+    // Ficha 488: fuera `ingreso_iva_flete` ("19.50"), `ingreso_iva_flete_devolucion` ("520.00") e
+    // `ingreso_iva_comision_cod` ("30.25"): ya no son ingreso propio.
     ingreso_ajuste: "90.00",
     ingreso_cobro_tienda: "0.00", // ficha 461: la exige el `Record` total
   },
-  totalIngresos: "5709.75",
+  totalIngresos: "5140.00", // ficha 488: antes "5709.75" (con los tres IVA)
   /**
    * Ficha 339 (T6.3) — las dos cubetas que la ficha SACA del cubo anónimo, con importes
    * distintos entre sí y distintos de todos los demás de la columna.
@@ -93,7 +97,7 @@ const COMPOSICION: ComposicionGananciaDTO = {
     egreso_ajuste: "45.75",
     egreso_reverso_cobro_tienda: "0.00", // ficha 461: la exige el `Record` total
     egreso_reverso_flete_devolucion: "0.00", // ficha 458-B: la exige el `Record` total
-    egreso_reverso_iva_flete_devolucion: "0.00", // ficha 458-B
+    // Ficha 488: fuera `egreso_reverso_iva_flete_devolucion` ("0.00"): netea contra el IVA por pagar.
   },
   otrosEgresos: "194.25",
   // R9: lo decide el SERVIDOR. Aqui quedan 194,25 sin clasificar, asi que la fila se pinta.
@@ -106,19 +110,24 @@ const RESUMEN: CajaResumenDTO = {
   salidas: "2190.75",
   enCaja: "15809.25",
   signoEnCaja: "positivo",
-  ingresosPropios: "5709.75",
+  ingresosPropios: "5140.00", // ficha 488: antes "5709.75"
   egresosPropios: "2190.75",
-  // 5 709,75 - 2 190,75 = 3 519,00
-  ganancia: "3519.00",
+  // 5 140,00 - 2 190,75 = 2 949,25 (ficha 488; antes 5 709,75 - 2 190,75 = 3 519,00)
+  ganancia: "2949.25",
   signoGanancia: "positivo",
   deTerceros: "12290.25",
   periodoFiltrado: false,
   porcentajeTiendas: "77.74",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero",
+  porcentajeIva: "0.00",
   modoComposicion: "dos_bolsillos",
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "3519.00",
+  deOrdenex: "2949.25", // ficha 488: antes "3519.00"
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "12290.25",
   estado: "flujo",
@@ -158,7 +167,7 @@ function pintarComoLa158(overrides: Partial<ComposicionGananciaDTO> = {}) {
         egreso_ajuste: "0.00",
         egreso_reverso_cobro_tienda: "0.00",
         egreso_reverso_flete_devolucion: "0.00", // ficha 458-B
-        egreso_reverso_iva_flete_devolucion: "0.00", // ficha 458-B
+        // Ficha 488: fuera `egreso_reverso_iva_flete_devolucion` ("0.00").
       },
       otrosEgresos: "0.00",
       hayOtrosEgresos: false, // ficha 343 (R7): sin residuo, la fila «Otros» no se pinta
@@ -307,7 +316,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
 
     // Los dos lados, cada uno con su grupo accesible y su total.
     expect(within(listaIngresos()).getByText("Total de ingresos")).toBeInTheDocument();
-    expect(within(listaIngresos()).getByText("₡5.709,75")).toBeInTheDocument();
+    expect(within(listaIngresos()).getByText("₡5.140")).toBeInTheDocument(); // ficha 488: antes "₡5.709,75"
     expect(within(listaEgresos()).getByText("Total de egresos")).toBeInTheDocument();
     expect(within(listaEgresos()).getByText("₡2.190,75")).toBeInTheDocument();
 
@@ -315,7 +324,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
     const pie = container.querySelector<HTMLElement>('[data-slot="card-footer"]');
     expect(pie, "la tarjeta no tiene pie").not.toBeNull();
     expect(within(pie as HTMLElement).getByText("Ganancia de Ordenex")).toBeInTheDocument();
-    expect(within(pie as HTMLElement).getByText("₡3.519")).toBeInTheDocument();
+    expect(within(pie as HTMLElement).getByText("₡2.949,25")).toBeInTheDocument(); // ficha 488: antes "₡3.519"
   });
 
   it("R23: hay una fila por cada categoría de ingreso propio del catálogo", () => {
@@ -323,7 +332,9 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
 
     const filas = rotulos(listaIngresos());
     // Control de no-vacuidad: el catálogo tiene siete conceptos, no cero.
-    expect(WALLET_INGRESO_PROPIO_SEED.length).toBe(8); // ficha 461 (R27): + el cobro de Ordenex a una tienda
+    // Ficha 461 (R27): + el cobro de Ordenex a una tienda (8). Ficha 488 (R19): sin los tres IVA,
+    // 5 (antes `toBe(8)`).
+    expect(WALLET_INGRESO_PROPIO_SEED.length).toBe(5);
     // Las siete filas más la del total: ninguna categoría propia se queda sin enseñar.
     expect(filas).toHaveLength(WALLET_INGRESO_PROPIO_SEED.length + 1);
     for (const categoria of WALLET_INGRESO_PROPIO_SEED) {
@@ -348,13 +359,13 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
       { rotulo: "Flete cobrado a la tienda", importe: "₡150" },
       { rotulo: "Flete por devolución a origen cobrado a la tienda", importe: "₡4.000" },
       { rotulo: "Comisión de contra-entrega cobrada a la tienda", importe: "₡900" },
-      { rotulo: "IVA del flete cobrado a la tienda", importe: "₡19,50" },
-      { rotulo: "IVA del flete por devolución a origen cobrado a la tienda", importe: "₡520" },
-      { rotulo: "IVA de la comisión cobrado a la tienda", importe: "₡30,25" },
+      // Ficha 488 (R19): fuera las tres filas de IVA (antes «IVA del flete cobrado a la tienda» ₡19,50,
+      // «IVA del flete por devolución a origen cobrado a la tienda» ₡520 e «IVA de la comisión
+      // cobrado a la tienda» ₡30,25).
       { rotulo: "Corrección de caja (suma)", importe: "₡90" },
       // Ficha 461 (R27): la fila del cobro de Ordenex a una tienda; en este fixture vale 0,00.
       { rotulo: "Ordenex le cobra a una tienda", importe: "₡0" },
-      { rotulo: "Total de ingresos", importe: "₡5.709,75" },
+      { rotulo: "Total de ingresos", importe: "₡5.140" }, // ficha 488: antes "₡5.709,75"
     ]);
 
     // La columna de egresos, con el mismo rasero: la 45/158 afirmaba rótulo e importe por
@@ -381,7 +392,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
       { rotulo: "Cobros a una tienda anulados", importe: "₡0" },
       // Ficha 458-B (design §2.3): las dos filas de la anulacion de un cobro por devolución a origen; aqui 0,00.
       { rotulo: "Fletes por devolución a origen cobrados a una tienda anulados", importe: "₡0" },
-      { rotulo: "IVA de fletes por devolución a origen cobrados a una tienda anulados", importe: "₡0" },
+      // Ficha 488 (R19): fuera «IVA de fletes por devolución a origen cobrados a una tienda anulados» (₡0).
       { rotulo: "Otros gastos de Ordenex", importe: "₡194,25" },
       { rotulo: "Total de egresos", importe: "₡2.190,75" },
     ]);
@@ -482,7 +493,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
       "Correcciones de caja (resta)",
       "Cobros a una tienda anulados", // ficha 461: tercer nombrado, antes de «Otros»
       "Fletes por devolución a origen cobrados a una tienda anulados", // ficha 458-B
-      "IVA de fletes por devolución a origen cobrados a una tienda anulados", // ficha 458-B
+      // Ficha 488 (R19): fuera «IVA de fletes por devolución a origen cobrados a una tienda anulados».
       "Otros gastos de Ordenex",
       "Total de egresos",
     ]);
@@ -549,14 +560,14 @@ describe("ComposicionGananciaCard — el pie y el signo del servidor (R27)", () 
     cleanup();
 
     const negativo = pintar({
-      resumen: { ...RESUMEN, ganancia: "-3519.00", signoGanancia: "negativo" },
+      resumen: { ...RESUMEN, ganancia: "-2949.25", signoGanancia: "negativo" }, // ficha 488: antes "-3519.00"
     });
     const pieNegativo = negativo.container.querySelector<HTMLElement>(
       '[data-slot="card-footer"]',
     ) as HTMLElement;
     expect(within(pieNegativo).getByText("Negativo")).toBeInTheDocument();
     // El STRING llega con su signo puesto y se pinta tal cual.
-    expect(within(pieNegativo).getByText("-₡3.519")).toBeInTheDocument();
+    expect(within(pieNegativo).getByText("-₡2.949,25")).toBeInTheDocument(); // ficha 488: antes "-₡3.519"
     cleanup();
 
     const cero = pintar({
@@ -677,7 +688,7 @@ describe("Ficha 339 — «Otros» sólo cuando de verdad queda algo (R7/R8/R9/R1
       "Correcciones de caja (resta)",
       "Cobros a una tienda anulados", // ficha 461
       "Fletes por devolución a origen cobrados a una tienda anulados", // ficha 458-B
-      "IVA de fletes por devolución a origen cobrados a una tienda anulados", // ficha 458-B
+      // Ficha 488 (R19): fuera «IVA de fletes por devolución a origen cobrados a una tienda anulados».
       "Total de egresos",
     ]);
   });
@@ -813,5 +824,33 @@ describe("458/O5 — las dos columnas son un grupo con nombre que ENVUELVE una <
       const padre = item.parentElement;
       expect(padre === dl || padre?.parentElement === dl).toBe(true);
     }
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────────────────
+// FICHA 488 (T F.4, R19) — el IVA sale de la composición de la ganancia.
+// ─────────────────────────────────────────────────────────────────────────────────────────
+describe("Ficha 488 — la composición de la ganancia no tiene filas de IVA (R19)", () => {
+  it("R19: ninguna fila nombra el IVA, ni en ingresos ni en egresos", () => {
+    pintar();
+    const filas = [...rotulos(listaIngresos()), ...rotulos(listaEgresos())];
+    // Control de no-vacuidad: hay filas que mirar.
+    expect(filas.length).toBeGreaterThan(10);
+    for (const rotulo of filas) expect(rotulo, `fila de IVA: ${rotulo}`).not.toMatch(/IVA/);
+    // Los cuatro rótulos que la ficha retira, escritos a mano.
+    for (const retirado of [
+      "IVA del flete cobrado a la tienda",
+      "IVA del flete por devolución a origen cobrado a la tienda",
+      "IVA de la comisión cobrado a la tienda",
+      "IVA de fletes por devolución a origen cobrados a una tienda anulados",
+    ]) {
+      expect(filas).not.toContain(retirado);
+    }
+  });
+
+  it("R19: los totales de las dos columnas son los del DTO (ingresos y gastos de Ordenex sin IVA)", () => {
+    pintar();
+    expect(pares(listaIngresos()).at(-1)).toEqual({ rotulo: "Total de ingresos", importe: "₡5.140" });
+    expect(pares(listaEgresos()).at(-1)).toEqual({ rotulo: "Total de egresos", importe: "₡2.190,75" });
   });
 });

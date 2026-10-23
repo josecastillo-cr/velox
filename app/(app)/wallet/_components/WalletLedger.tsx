@@ -15,6 +15,7 @@ import type { AutoriaDeFilaDTO } from "@/lib/types/libro-caja-autoria";
 import type { NaturalezaMovimiento, WalletMovimientoDTO } from "@/lib/types/wallet";
 import { cn } from "@/lib/utils";
 
+import { COLOR_IVA_POR_PAGAR } from "./BarraComposicionCaja";
 import { DetalleMovimientoCierre } from "./DetalleMovimientoCierre";
 import { DETALLE_MOVIMIENTO_NOMBRE } from "./detalle-movimiento-labels";
 import {
@@ -122,6 +123,8 @@ const DUENO_PUNTO: Record<NaturalezaMovimiento, string> = {
   terceros: "bg-warning",
   // Ficha 459 (design §5): capital de Ordenex (saldo inicial y aportes), token semantico existente.
   capital: "bg-info",
+  // Ficha 488 (design §6.3, R29): el IVA por pagar, con el MISMO token que su porcion de la barra.
+  iva: COLOR_IVA_POR_PAGAR,
 };
 
 function DuenoCelda({ dueno }: { dueno: NaturalezaMovimiento }) {

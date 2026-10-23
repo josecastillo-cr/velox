@@ -130,9 +130,11 @@ describe("458-B (bloque B) — la oficina puede preguntar por la anulacion del c
 describe("458-C (bloque C) — la oficina puede preguntar cómo registrar, ver y anular un movimiento", () => {
   it.each(OFICINA)("%s: el diálogo único, sus diez conceptos y lo que pide cada uno", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
-    expect(caja).toContain("**Registrar un movimiento** abre un diálogo con **diez conceptos en tres grupos**");
+    // FICHA 488 (R21) — once conceptos, con «Pago de IVA» tras el sueldo (antes «…con **diez conceptos en
+    // tres grupos**» y la lista de «Sale dinero de Ordenex» sin el Pago de IVA).
+    expect(caja).toContain("**Registrar un movimiento** abre un diálogo con **once conceptos en tres grupos**");
     expect(caja).toContain(
-      "**Sale dinero de Ordenex** | Gasto de Ordenex · Sueldo · Ordenex paga un gasto de una tienda · Corrección de caja (resta) · Ordenex le paga a una tienda · Ordenex le paga a un mensajero",
+      "**Sale dinero de Ordenex** | Gasto de Ordenex · Sueldo · Pago de IVA · Ordenex paga un gasto de una tienda · Corrección de caja (resta) · Ordenex le paga a una tienda · Ordenex le paga a un mensajero",
     );
     expect(caja).toContain("**a quién se le pagó** —la persona o el proveedor, con su nombre libre—. **Es obligatorio.**");
     expect(caja).toContain("la cuenta, que se elige **buscando por su nombre**");

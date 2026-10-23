@@ -89,7 +89,7 @@ querido.
    cambia su `4` por `6` y su comentario; la propiedad «no hay restas propias» sigue igual, sin `.sub(`):
    - `caja`, `propio`, `terceros`, `capital` — como hoy (el `propio` ya no contiene IVA);
    - **`iva = derivarBalance(ingresosIva, egresosIva)`** → `ivaPorPagar` (R4);
-   - **`ivaCobrado = derivarBalance(ingresosIva, reversosIvaCobrado)`** → `ivaCobrado` (R5; P2).
+   - **`ivaCobrado = derivarBalance(cargosIva, reversosIvaCobrado)`** → `ivaCobrado` (R5; P2). `cargosIva` = ingresos de dueño `iva` con liquidez «cargo» (los tres IVA cobrados). *Corregido en implementación:* la fórmula original usaba `ingresosIva`, que incluye `ingreso_reverso_pago_iva`, y anular un Pago de IVA subía el IVA cobrado contra R5; lo cazó el test unitario R4/R5 (ver `progress/dev_488_backend.md`).
 3. `deOrdenex = propio + capital` (fórmula sin cambio; el valor ya no lleva IVA, R6).
 4. **Identidad R7, por construcción** (extiende la de la 461): con I = ingIva − egIva,
    G + T + C + I = (ingP + ingT + ingC + ingI − cargos) − (egP + egT + egC + egI − rev) = Entró − Salió,
@@ -241,7 +241,7 @@ export const CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO: readonly ["ingreso_ajuste",
 
 | Campo | Valor |
 | --- | --- |
-| `ivaCobrado` | `derivarBalance(ingresosIva, reversosIvaCobrado).balance` (R5) |
+| `ivaCobrado` | `derivarBalance(cargosIva, reversosIvaCobrado).balance` (R5; ver §2.2) |
 | `ivaPorPagar` | `derivarBalance(ingresosIva, egresosIva).balance` (R4) |
 | `signoIvaPorPagar` | su `signo` |
 | `porcentajeIva` | §2.3 |

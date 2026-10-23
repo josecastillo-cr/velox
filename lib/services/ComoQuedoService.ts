@@ -59,6 +59,7 @@ export class ComoQuedoService implements IComoQuedoService {
         ganancia: resumen.ganancia,
         deTiendas: resumen.deTerceros,
         capital: resumen.capital,
+        ivaPorPagar: resumen.ivaPorPagar, // FICHA 488 (R30)
       };
     }
     if (cuenta !== null) {

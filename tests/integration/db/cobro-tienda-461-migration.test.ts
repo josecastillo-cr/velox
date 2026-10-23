@@ -73,7 +73,8 @@ describeSiHayBase("461/T B.10 — las migraciones del cobro a una tienda contra 
     // esta ficha ya no cierran la lista: se leen justo antes (dos en la caja, dos en la tienda, uno en el
     // origen). Lo que se afirma es el orden relativo: contiguos y al final de lo que habia antes.
     // Ficha 458-B (2026-09-26): dos valores mas en la caja y dos en la tienda, detras de los de la 457.
-    expect(caja.slice(-6, -4)).toEqual(["ingreso_cobro_tienda", "egreso_reverso_cobro_tienda"]);
+    // Ficha 488: + 2 valores de caja al final (el Pago de IVA y su anulacion) → la ventana se corre 2.
+    expect(caja.slice(-8, -6)).toEqual(["ingreso_cobro_tienda", "egreso_reverso_cobro_tienda"]);
     expect(tienda.slice(-5, -4)).toEqual(["cobro_tienda_anulado"]);
     expect(origen.slice(-3, -1)).toEqual(["cobro_tienda", "cobro_tienda_completado"]);
     // El `up` de la 1 es aditivo y solo eso: seis `ADD VALUE IF NOT EXISTS`, ni un CHECK ni una tabla.

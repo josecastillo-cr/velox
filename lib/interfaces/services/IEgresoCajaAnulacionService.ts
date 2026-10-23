@@ -9,8 +9,10 @@ import type { AnularEgresoCajaInput, AnularEgresoCajaResult } from "@/lib/types/
  * Hasta hoy los tres primeros solo se «reversaban» sin motivo (`WalletEgresoService.reversarEgreso`)
  * y la indemnizacion no tenia ninguna via. Esta es la via uniforme: motivo obligatorio, constancia
  * en `ajuste_caja_anulacion` (D13: la tabla que la 461 dejo con FK a `wallet_movimiento`),
- * contra-asiento `ingreso_ajuste` por el monto DEL ORIGINAL —el mismo molde que el reverso de
- * siempre— e historial `egreso_caja_anulado`. Nada se edita ni se borra.
+ * contra-asiento por el monto DEL ORIGINAL —el mismo molde que el reverso de siempre— e historial
+ * `egreso_caja_anulado`. Nada se edita ni se borra. FICHA 488: la categoria del contra-asiento es
+ * una de `CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO` (`ingreso_ajuste`, o `ingreso_reverso_pago_iva`
+ * si el original es un Pago de IVA).
  *
  * SERVICIO PROPIO y no un metodo mas de `WalletEgresoService`: aquel se construye en 32 sitios
  * con dos dependencias, y la anulacion necesita su repositorio, un ejecutor de transaccion y el

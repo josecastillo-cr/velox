@@ -130,6 +130,11 @@ const BASE: CajaResumenDTO = {
   deTerceros: "-4780583.97",
   periodoFiltrado: false,
   porcentajeTiendas: "0.00",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero",
+  porcentajeIva: "0.00",
   modoComposicion: "sin_reparto",
   capital: "0.00",
   signoCapital: "cero",

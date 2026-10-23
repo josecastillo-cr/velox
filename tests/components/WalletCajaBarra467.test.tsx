@@ -112,6 +112,11 @@ const RESUMEN = {
   deTerceros: "10000.00",
   periodoFiltrado: false,
   porcentajeTiendas: "0.00",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero" as const,
+  porcentajeIva: "0.00",
   modoComposicion: "dos_bolsillos" as const,
   capital: "3000.00",
   signoCapital: "positivo" as const,

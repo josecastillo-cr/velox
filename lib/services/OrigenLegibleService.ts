@@ -128,6 +128,11 @@ function textoDeGasto(fila: FilaConOrigenTecnico): string | null {
       return ORIGEN_ENTIDAD_LABEL.gastoDeOrdenex;
     case "egreso_gasto_fijo":
       return unir(ORIGEN_ENTIDAD_LABEL.gastoFijo, fila.descripcion);
+    // FICHA 488 (revision m3): el Pago de IVA y su contra-asiento de anulacion tienen su propio
+    // nombre; el rotulo generico del origen `gasto` los llamaba «gasto o sueldo».
+    case "egreso_pago_iva":
+    case "ingreso_reverso_pago_iva":
+      return ORIGEN_ENTIDAD_LABEL.pagoDeIva;
     default:
       return null;
   }

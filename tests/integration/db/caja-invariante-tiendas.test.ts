@@ -548,9 +548,15 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
   it("R7: cifra principal = ganancia + «De las tiendas» + capital, tras CADA paso (libro entero y diferencia)", () => {
     for (const p of m().pasos) {
       const r = p.lectura.resumen;
-      expect(suma([r.ganancia, r.deTerceros, r.capital]), `R7 libro entero · ${p.nombre}`).toBe(r.enCaja);
+      // FICHA 488: la identidad gana el cuarto bolsillo, el IVA por pagar.
+      expect(suma([r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar]), `R7 libro entero · ${p.nombre}`).toBe(r.enCaja);
       expect(
-        suma([delta(p, (l) => l.resumen.ganancia), delta(p, (l) => l.resumen.deTerceros), delta(p, (l) => l.resumen.capital)]),
+        suma([
+          delta(p, (l) => l.resumen.ganancia),
+          delta(p, (l) => l.resumen.deTerceros),
+          delta(p, (l) => l.resumen.capital),
+          delta(p, (l) => l.resumen.ivaPorPagar),
+        ]),
         `R7 diferencia · ${p.nombre}`,
       ).toBe(delta(p, (l) => l.resumen.enCaja));
       expect(r.deOrdenex, `«De Ordenex» · ${p.nombre}`).toBe(suma([r.ganancia, r.capital]));
@@ -638,7 +644,8 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
     expect(cambio(14)).toEqual({
       ...nada,
       deTerceros: COBRO_RECHAZO_458,
-      ganancia: `-${COBRO_RECHAZO_458}`,
+      // FICHA 488 (R10): la ganancia baja SOLO el flete (1 000,00); el IVA (130,00), el IVA por pagar.
+      ganancia: "-1000.00",
       saldoTiendaA: COBRO_RECHAZO_458,
     });
     expect(menos(pasos[14].lectura.resumen.entradas, pasos[13].lectura.resumen.entradas)).toBe("0.00");

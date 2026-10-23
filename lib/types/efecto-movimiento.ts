@@ -11,11 +11,14 @@ import { montoPositivoSchema, type EstadoCaja } from "@/lib/types/wallet";
  * Los DIEZ conceptos del registro unico (design §4.1), en los tres grupos de la 461. Es la clave de
  * `EFECTO_POR_TIPO` y de la tabla de enrutado del dialogo (458-C): un concepto nuevo no compila
  * hasta que alguien decida su efecto.
+ *
+ * FICHA 488 (design §4.3, R21/R24): + `pago_iva`, el Pago de IVA a Hacienda, en el tramo «Sale» (once).
  */
 export const CONCEPTO_REGISTRO_SEED = [
   // Sale
   "gasto_ordenex",
   "sueldo",
+  "pago_iva",
   "pago_gasto_tienda",
   "correccion_resta",
   "pago_a_tienda",
@@ -61,6 +64,8 @@ export interface EfectoMovimientoDTO {
     ganancia: LineaEfectoDTO;
     deTiendas: LineaEfectoDTO;
     capital: LineaEfectoDTO;
+    /** FICHA 488 (R24) — el IVA por pagar antes y despues; STRING escala 2 (R34). */
+    ivaPorPagar: LineaEfectoDTO;
   };
   /** R47 — la tienda queda con saldo en contra tras el movimiento. */
   saldoEnContra: boolean;

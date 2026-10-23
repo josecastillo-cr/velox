@@ -85,6 +85,11 @@ export const WALLET_MOVIMIENTO_CATEGORIA_SEED = [
   // liquidez «cargo»; bajan la ganancia y suben «De las tiendas» sin tocar «Entro» ni «Salio».
   "egreso_reverso_flete_devolucion",
   "egreso_reverso_iva_flete_devolucion",
+  // Ficha 488 (design §2.1): el PAGO DE IVA a Hacienda y su ANULACION. Dueño `iva` y liquidez
+  // `efectivo` los dos: el pago sale de verdad y baja el IVA por pagar sin tocar la ganancia; su
+  // anulacion entra de verdad y lo devuelve (NUNCA `ingreso_ajuste`, que es propio y subiria la ganancia).
+  "egreso_pago_iva",
+  "ingreso_reverso_pago_iva",
 ] as const satisfies readonly PrismaWalletMovimientoCategoria[];
 
 export type WalletMovimientoCategoria = (typeof WALLET_MOVIMIENTO_CATEGORIA_SEED)[number];
@@ -168,8 +173,15 @@ export type WalletIngresoConcepto = (typeof WALLET_INGRESO_CONCEPTO_SEED)[number
 // composicion exige que este seed sea EXACTAMENTE los ingresos propios, y el cobro lo es (HD1).
 // `WALLET_INGRESO_CONCEPTO_SEED` NO cambia: son los seis del feed del cierre y
 // `MAPEO_CONCEPTO_TIENDA` depende de el.
+//
+// Ficha 488 (design §2.4, R19): deja de ser un spread del seed del feed y se escribe con sus CINCO
+// valores. Los tres IVA del feed ya no son ingresos propios (dueño `iva`: se le deben a Hacienda), asi
+// que el spread metia en la composicion de la ganancia tres filas que no son ganancia. La guardia de
+// composicion sigue exigiendo «seed = ingresos propios segun el `Record`», y eso obliga.
 export const WALLET_INGRESO_PROPIO_SEED = [
-  ...WALLET_INGRESO_CONCEPTO_SEED,
+  "ingreso_flete",
+  "ingreso_flete_devolucion",
+  "ingreso_comision_cod",
   "ingreso_ajuste",
   "ingreso_cobro_tienda",
 ] as const satisfies readonly WalletMovimientoCategoria[];
@@ -206,12 +218,14 @@ export type WalletEgresoDesglosado = (typeof WALLET_EGRESO_DESGLOSADO_SEED)[numb
 //
 // Ficha 458-B (design §2.3): + los dos reversos del cobro por rechazo (flete e IVA). Bajan la
 // ganancia igual que el reverso del cobro de la 461 y, por el mismo motivo, se ven con su nombre.
+//
+// Ficha 488 (design §2.4, R19): − `egreso_reverso_iva_flete_devolucion`. El reverso del IVA ya no es un
+// egreso propio (dueño `iva`): netea contra el IVA por pagar, no contra la ganancia.
 export const WALLET_EGRESO_NOMBRADO_SEED = [
   "egreso_pago_mensajero",
   "egreso_ajuste",
   "egreso_reverso_cobro_tienda",
   "egreso_reverso_flete_devolucion",
-  "egreso_reverso_iva_flete_devolucion",
 ] as const satisfies readonly WalletMovimientoCategoria[];
 
 export type WalletEgresoNombrado = (typeof WALLET_EGRESO_NOMBRADO_SEED)[number];
@@ -273,7 +287,11 @@ export type ComposicionFilaId = (typeof COMPOSICION_FILA_SEED)[number];
 // Ficha 459 (design §2.2, P1): tercer dueño, `capital` — el saldo inicial y los aportes de capital.
 // Es dinero de Ordenex que NO es ganancia: suma a la cifra principal y a «De Ordenex», nunca a la
 // ganancia ni a «De las tiendas».
-export type NaturalezaMovimiento = "propio" | "terceros" | "capital";
+//
+// Ficha 488 (design §2.1, R1): cuarto dueño, `iva` — el IVA cobrado a las tiendas, sus reversos, el Pago
+// de IVA a Hacienda y su anulacion. Es dinero que esta en la caja pero se le debe a Hacienda: suma a la
+// cifra principal y a «IVA por pagar», nunca a la ganancia, a «De Ordenex» ni a «De las tiendas».
+export type NaturalezaMovimiento = "propio" | "terceros" | "capital" | "iva";
 
 // ── Contratos I/O (frontera Server Action -> cliente). Montos SIEMPRE STRING (R4/R25) ──
 
@@ -426,6 +444,20 @@ export type CajaResumenDTO = {
   estado: EstadoCaja;
   /** R15 — YYYY-MM-DD (Costa Rica) del primer movimiento de la caja; null con el libro vacio. */
   flujoDesde: string | null;
+  // ── Ficha 488 (design §5.1) — el IVA por pagar. Todo STRING escala 2 (R34) ──
+  /**
+   * R5 — el IVA cobrado a las tiendas del conjunto, NETO de las anulaciones del IVA del flete por
+   * devolucion a origen. Los Pagos de IVA y sus anulaciones NO lo cambian (P2).
+   */
+  ivaCobrado: string;
+  /** R4 — IVA cobrado − Pagos de IVA + anulaciones de Pagos de IVA: el tercer bolsillo. */
+  ivaPorPagar: string;
+  signoIvaPorPagar: WalletBalanceSigno;
+  /**
+   * R14/R16 — porcion del IVA por pagar en la barra, "0.00"–"100.00", sobre la suma de los bolsillos
+   * POSITIVOS (design §2.3). "0.00" si el IVA por pagar es cero o negativo.
+   */
+  porcentajeIva: string;
 };
 
 /** Ficha 459 (R14) — el estado de la caja lo decide el servidor. */
@@ -754,7 +786,11 @@ export type ListarMovimientosCompletoResult = ListarCompletoResult<ConOrigen<Wal
 
 // Los DOS tipos de egreso administrativo que se registran A MANO (R2/R19). El gasto FIJO
 // NO entra aqui: lo EMITE el cron mensual (R27), no el formulario manual.
-export const TIPO_EGRESO_MANUAL_SEED = ["gasto_variable", "sueldo"] as const;
+//
+// Ficha 488 (design §4.1, R21/R22): + `pago_iva`, el Pago de IVA a Hacienda. Reutiliza el egreso
+// administrativo de la 45 (una fila origen `gasto`, historial, idempotencia, comprobante opcional). La
+// regla «el gasto fijo no se registra a mano» NO cambia: sigue fuera del enum.
+export const TIPO_EGRESO_MANUAL_SEED = ["gasto_variable", "sueldo", "pago_iva"] as const;
 export type TipoEgresoManual = (typeof TIPO_EGRESO_MANUAL_SEED)[number];
 
 // Mapa tipo de egreso manual -> categoria del libro (R2). Se reutiliza `egreso_sueldo`
@@ -763,6 +799,7 @@ export type TipoEgresoManual = (typeof TIPO_EGRESO_MANUAL_SEED)[number];
 export const TIPO_EGRESO_MANUAL_A_CATEGORIA = {
   gasto_variable: "egreso_gasto_variable",
   sueldo: "egreso_sueldo",
+  pago_iva: "egreso_pago_iva", // ficha 488
 } as const satisfies Record<TipoEgresoManual, WalletMovimientoCategoria>;
 
 // R2/R4/R5/R19 (borde): egreso manual = tipo del conjunto {gasto_variable, sueldo}, monto

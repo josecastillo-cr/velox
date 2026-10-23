@@ -19,6 +19,10 @@ import {
  *
  * MUTACIONES que este archivo pone en rojo (design §14.2): (2) `ingreso_cobro_tienda` como efectivo
  * sube «Entro» y rompe R7 en «Entro»; (3) `egreso_reverso_cobro_tienda` como efectivo sube «Salio».
+ *
+ * FICHA 488 (design §2.1): el IVA de M6 (928 499,43) sale de la ganancia hacia «IVA por pagar». Se
+ * reescriben SOLO la ganancia, los ingresos propios y la composicion (valor de antes en su comentario),
+ * y la identidad R7 gana el cuarto bolsillo. Entro, Salio, la cifra y «De las tiendas» no cambian.
  */
 
 const fila = (categoria: WalletMovimientoCategoria, total: string): AgregadoCajaRow => ({
@@ -56,15 +60,16 @@ describe("461/A.2 — R28: sin cobros ni reversos, la derivacion vale EXACTAMENT
     expect(r.entradas).toBe("29059224.00");
     expect(r.salidas).toBe("38245444.50");
     expect(r.enCaja).toBe("-9186220.50");
-    expect(r.ganancia).toBe("-4405636.53");
+    expect(r.ganancia).toBe("-5334135.96"); // 488 (459: −4 405 636,53, con el IVA dentro)
     expect(r.deTerceros).toBe("-4780583.97");
     expect(r.capital).toBe("0.00");
+    expect(r.ivaPorPagar).toBe("928499.43"); // 488
     expect(r.modoComposicion).toBe("sin_reparto");
   });
 
   it("la composicion de la ganancia tampoco se mueve: las filas nuevas valen 0,00", () => {
     const c = derivarComposicionGanancia(M6_RECLASIFICADO);
-    expect(c.totalIngresos).toBe("8070773.47");
+    expect(c.totalIngresos).toBe("7142274.04"); // 488 (459: 8 070 773,47)
     expect(c.totalEgresos).toBe("12476410.00");
     expect(c.ingresos.ingreso_cobro_tienda).toBe("0.00");
     expect(c.egresos.egreso_reverso_cobro_tienda).toBe("0.00");
@@ -82,23 +87,24 @@ describe("461/A.2 — R22/R23/R24: un cobro de 42 000,00 (design §2.5)", () => 
   });
 
   it("R4/R23: la ganancia sube EXACTAMENTE en el monto y «De las tiendas» baja lo mismo", () => {
-    // −4 405 636,53 + 42 000,00 = −4 363 636,53 ; −4 780 583,97 − 42 000,00 = −4 822 583,97
-    expect(r.ganancia).toBe("-4363636.53");
-    expect(r.ingresosPropios).toBe("8112773.47"); // 8 070 773,47 + 42 000,00
+    // 488: −5 334 135,96 + 42 000,00 = −5 292 135,96 ; −4 780 583,97 − 42 000,00 = −4 822 583,97
+    // (461: −4 363 636,53 y 8 112 773,47, con el IVA dentro)
+    expect(r.ganancia).toBe("-5292135.96");
+    expect(r.ingresosPropios).toBe("7184274.04"); // 7 142 274,04 + 42 000,00
     expect(r.deTerceros).toBe("-4822583.97");
     expect(r.capital).toBe("0.00");
   });
 
   it("R24: R7 al centimo con el cobro dentro", () => {
-    expect(suma(r.ganancia, r.deTerceros, r.capital)).toBe(r.enCaja);
-    // Y a mano: −4 363 636,53 − 4 822 583,97 + 0 = −9 186 220,50.
-    expect(suma("-4363636.53", "-4822583.97", "0.00")).toBe("-9186220.50");
+    expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar)).toBe(r.enCaja);
+    // Y a mano (488): −5 292 135,96 − 4 822 583,97 + 0 + 928 499,43 = −9 186 220,50.
+    expect(suma("-5292135.96", "-4822583.97", "0.00", "928499.43")).toBe("-9186220.50");
   });
 
   it("R27: el cobro es una fila PROPIA de ingresos de la composicion, y el total sigue siendo `ingresosPropios`", () => {
     const c = derivarComposicionGanancia([...M6_RECLASIFICADO, fila("ingreso_cobro_tienda", COBRO)]);
     expect(c.ingresos.ingreso_cobro_tienda).toBe("42000.00");
-    expect(c.totalIngresos).toBe("8112773.47");
+    expect(c.totalIngresos).toBe("7184274.04"); // 488 (461: 8 112 773,47)
     expect(c.totalIngresos).toBe(r.ingresosPropios);
   });
 });
@@ -118,15 +124,15 @@ describe("461/A.2 — R22/R23/R24: el cobro y su anulacion (design §2.5)", () =
   });
 
   it("R12/R23: todo vuelve a la columna 3: ganancia y «De las tiendas» como sin el cobro", () => {
-    expect(r.ganancia).toBe("-4405636.53");
+    expect(r.ganancia).toBe("-5334135.96"); // 488 (461: −4 405 636,53)
     expect(r.deTerceros).toBe("-4780583.97");
     // Y los dos brutos si lo llevan dentro: el cobro como ingreso propio, el reverso como egreso propio.
-    expect(r.ingresosPropios).toBe("8112773.47");
+    expect(r.ingresosPropios).toBe("7184274.04"); // 488 (461: 8 112 773,47)
     expect(r.egresosPropios).toBe("12518410.00"); // 12 476 410,00 + 42 000,00
   });
 
   it("R24: R7 al centimo con el cobro y su reverso dentro", () => {
-    expect(suma(r.ganancia, r.deTerceros, r.capital)).toBe(r.enCaja);
+    expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar)).toBe(r.enCaja); // 488: + IVA
   });
 
   it("R27: el reverso es una fila PROPIA de egresos nombrada; los totales siguen siendo los propios", () => {
@@ -186,8 +192,9 @@ describe("461/A.2 — R24: R7 sobre subconjuntos al azar CON los conceptos nuevo
       if (filas.some((f) => f.categoria === "ingreso_cobro_tienda")) conCobro += 1;
       if (filas.some((f) => f.categoria === "egreso_reverso_cobro_tienda")) conReverso += 1;
       const r = derivarCaja(filas, { periodoFiltrado: azar() < 0.5 });
-      expect(suma(r.ganancia, r.deTerceros, r.capital), `conjunto ${n}`).toBe(r.enCaja);
-      expect(suma(r.deOrdenex, r.deTerceros), `conjunto ${n}`).toBe(r.enCaja);
+      // FICHA 488: la identidad gana el cuarto bolsillo, el IVA por pagar.
+      expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar), `conjunto ${n}`).toBe(r.enCaja);
+      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar), `conjunto ${n}`).toBe(r.enCaja);
       // Y ni el cobro ni su reverso estan en «Entro»/«Salio»: la cifra es la de los efectivos solos.
       const efectivos = derivarCaja(
         filas.filter(

@@ -27,6 +27,8 @@ export const ORIGEN_ENTIDAD_LABEL = {
   sueldo: "Sueldo",
   gastoDeOrdenex: "Gasto de Ordenex",
   gastoFijo: "Gasto fijo de Ordenex",
+  /** FICHA 488 (revision m3): el Pago de IVA y su anulacion no son ni gasto ni sueldo. */
+  pagoDeIva: "Pago de IVA registrado a mano",
 } as const;
 
 /** Nombres accesibles de los enlaces (R7): dicen a donde van y con que, nunca un id. */

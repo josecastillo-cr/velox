@@ -48,8 +48,37 @@ describe("458-B/TB.12 — un caso por concepto (R44, R45 «no cambia»)", () => 
         ganancia: SI("1000.00", "900.00"),
         deTiendas: NO("6000.00"),
         capital: NO("500.00"),
+        ivaPorPagar: NO("0.00"), // ficha 488 (R24): la linea existe en todo concepto
       });
     }
+  });
+
+  it("488/R24: Pago de IVA de M: baja la cifra y el IVA por pagar M; la ganancia, las tiendas y el capital NO cambian", () => {
+    // La caja de partida + el IVA de su flete (130, cargo): cifra 7 500 · ganancia 1 000 ·
+    // de las tiendas 6 000 − 130 = 5 870 · capital 500 · IVA por pagar 130.
+    const conIva: EstadoActualParaEfecto = {
+      ...base(),
+      caja: [...CAJA, { categoria: "ingreso_iva_flete", tipo: "ingreso", total: "130.00" }],
+    };
+    const r = efectoDeMovimiento("pago_iva", "100", conIva);
+    expect(r.lineas).toEqual({
+      cuenta: null,
+      cifraPrincipal: { ...SI("7500.00", "7400.00"), rotulo: "flujo" },
+      ganancia: NO("1000.00"),
+      deTiendas: NO("5870.00"),
+      capital: NO("500.00"),
+      ivaPorPagar: SI("130.00", "30.00"),
+    });
+    expect(r.saldoEnContra).toBe(false);
+    expect(r).not.toHaveProperty("superaDisponible");
+    // P3: sin tope; un pago mayor deja el IVA por pagar negativo, con su signo.
+    expect(efectoDeMovimiento("pago_iva", "200", conIva).lineas.ivaPorPagar).toEqual(SI("130.00", "-70.00"));
+    // Lo que escribe: UNA salida de caja `egreso_pago_iva`, sin cuenta.
+    expect(EFECTO_POR_TIPO.pago_iva).toEqual({
+      cuenta: null,
+      caja: [{ tipo: "egreso", categoria: "egreso_pago_iva" }],
+      enCuenta: null,
+    });
   });
 
   it("correccion: resta y suma mueven la cifra y la ganancia", () => {
@@ -107,12 +136,15 @@ describe("458-B/TB.12 — un caso por concepto (R44, R45 «no cambia»)", () => 
     expect(efectoDeMovimiento("sueldo", "1", { ...base(), haySaldoInicialVigente: true }).lineas.cifraPrincipal.rotulo).toBe("saldo");
   });
 
-  it("identidad R7 despues de cada concepto: cifra = ganancia + de las tiendas + capital", () => {
+  it("identidad R7 despues de cada concepto: cifra = ganancia + de las tiendas + capital + IVA por pagar (488)", () => {
     const cuentaPara = (c: ConceptoRegistro) =>
       EFECTO_POR_TIPO[c].cuenta === "tienda" ? TIENDA_A_FAVOR : EFECTO_POR_TIPO[c].cuenta === "mensajero" ? MENSAJERO : null;
     for (const c of CONCEPTO_REGISTRO_SEED) {
       const l = efecto(c, "123.45", cuentaPara(c)).lineas;
-      const suma = new Prisma.Decimal(l.ganancia.despues).add(l.deTiendas.despues).add(l.capital.despues);
+      const suma = new Prisma.Decimal(l.ganancia.despues)
+        .add(l.deTiendas.despues)
+        .add(l.capital.despues)
+        .add(l.ivaPorPagar.despues);
       expect(suma.toFixed(2), c).toBe(l.cifraPrincipal.despues);
     }
   });

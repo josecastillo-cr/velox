@@ -47,12 +47,18 @@ import { CONCEPTO_REGISTRO_SEED } from "@/lib/types/efecto-movimiento";
 // contrato nuevo (461-R39 superado por 458-R37, listado en `progress/impl_458-C.md`): DIEZ conceptos;
 // «Ordenex le paga a una tienda» y «Ordenex le paga a un mensajero» entran en «Sale dinero de
 // Ordenex». Las siete frases de la 461 y la de la 457 siguen byte a byte; las dos nuevas, literales.
+//
+// ⭑ FICHA 488 (T F.5, design §6.3; R21) — ONCE conceptos: «Pago de IVA» entra en «Sale dinero de
+// Ordenex» justo tras el sueldo, como quinto egreso administrativo (mismo destino que el gasto y el
+// sueldo, «A quién» obligatorio). Cada literal cambiado deja su valor anterior en un comentario.
 
 const CATEGORIAS_CAJA_ESPERADAS = [
   "egreso_gasto_variable",
   "egreso_sueldo",
   "ingreso_ajuste",
   "egreso_ajuste",
+  // Ficha 488: el Pago de IVA es un egreso administrativo más (antes eran las cuatro de la 334).
+  "egreso_pago_iva",
 ] as const;
 
 /** Los cuatro conceptos de la ficha 334 (gastos administrativos y correcciones). */
@@ -77,10 +83,11 @@ function conLineaDeCaja(): ConceptoManual[] {
 
 describe("catálogo de conceptos manuales — son exactamente DIEZ (458-R37, que supera a 461-R39 / 457-R54)", () => {
   it("el catálogo ofrece los diez conceptos del pedido y ninguno más, en los tres grupos", () => {
-    expect(CONCEPTOS_MANUALES).toHaveLength(10);
+    expect(CONCEPTOS_MANUALES).toHaveLength(11); // ficha 488: antes 10
     expect(CONCEPTOS_MANUALES.map((c) => c.id)).toEqual([
       "gasto_variable",
       "sueldo",
+      "pago_iva", // ficha 488
       "pago_por_cuenta_tienda",
       "ajuste_egreso",
       "pago_a_tienda",
@@ -98,6 +105,7 @@ describe("catálogo de conceptos manuales — son exactamente DIEZ (458-R37, que
     expect(CONCEPTOS_MANUALES.map((c) => c.label)).toEqual([
       "Gasto de Ordenex",
       "Sueldo",
+      "Pago de IVA", // ficha 488
       "Ordenex paga un gasto de una tienda",
       "Corrección de caja (resta)",
       "Ordenex le paga a una tienda",
@@ -116,6 +124,7 @@ describe("catálogo de conceptos manuales — son exactamente DIEZ (458-R37, que
     expect(conceptosDeCaja().map((c) => c.id)).toEqual([
       "gasto_variable",
       "sueldo",
+      "pago_iva", // ficha 488
       "ajuste_egreso",
       "ajuste_ingreso",
     ]);
@@ -127,7 +136,7 @@ describe("catálogo de conceptos manuales — ningún concepto lleva al gasto FI
     const destino = conceptosDeCaja().map(categoriaDeCaja).sort();
     expect(destino).toEqual([...CATEGORIAS_CAJA_ESPERADAS].sort());
     // Anti-vacuidad: si el filtro se quedara sin conceptos, la igualdad de arriba sería trivial.
-    expect(conceptosDeCaja()).toHaveLength(4);
+    expect(conceptosDeCaja()).toHaveLength(5); // ficha 488: antes 4
   });
 
   it("ninguno mapea a `egreso_gasto_fijo` ni a ninguna otra categoría de la máquina", () => {
@@ -194,6 +203,7 @@ describe("⭑ FICHA 381/461 — el cobro de Ordenex a una tienda cae en los DOS 
     expect(porLibro).toEqual([
       ["gasto_variable", "caja"],
       ["sueldo", "caja"],
+      ["pago_iva", "caja"], // ficha 488
       ["pago_por_cuenta_tienda", "caja_y_tienda"],
       ["ajuste_egreso", "caja"],
       ["pago_a_tienda", "caja_y_tienda"],
@@ -324,7 +334,7 @@ describe("catálogo de conceptos manuales — el nombre del libro se DERIVA (R4 
     // NO la lectura desde la tienda (P4): el diálogo lo lee la oficina.
     expect(nombreEnElLibroDeLaTienda(cobro)).not.toBe(CATEGORIA_MI_WALLET_LABEL.cobro_manual);
     // Los que no escriben en la tienda no prometen nada allí.
-    for (const id of ["gasto_variable", "sueldo", "ajuste_egreso", "aporte_capital", "ajuste_ingreso", "pago_a_mensajero"]) {
+    for (const id of ["gasto_variable", "sueldo", "pago_iva", "ajuste_egreso", "aporte_capital", "ajuste_ingreso", "pago_a_mensajero"]) {
       expect(nombreEnElLibroDeLaTienda(conceptoPorId(id)!), id).toBe("");
     }
     // ⭑ 458-C: el pago de Ordenex a una tienda, con el nombre desde Ordenex del libro de la tienda.
@@ -358,6 +368,8 @@ describe("catálogo de conceptos manuales — el nombre del libro se DERIVA (R4 
     expect(fraseDelLibro(conceptoPorId("pago_a_mensajero")!)).toBe(
       "Se registra en el libro del mensajero como «Liquidación».",
     );
+    // ⭑ 488 (R21): el Pago de IVA cae solo en la caja.
+    expect(fraseDelLibro(conceptoPorId("pago_iva")!)).toBe("Se registra en el libro como «Pago de IVA».");
   });
 });
 
@@ -367,7 +379,7 @@ describe("⭑ FICHA 381/459/461 — la cabecera del diálogo, por concepto (R4/R
     expect(CABECERA_CAJA.descripcion).toBe(
       "Elegí el concepto, el monto y la fecha. El movimiento es inmutable una vez registrado.",
     );
-    for (const id of ["gasto_variable", "sueldo", "ajuste_egreso", "aporte_capital", "ajuste_ingreso"]) {
+    for (const id of ["gasto_variable", "sueldo", "pago_iva", "ajuste_egreso", "aporte_capital", "ajuste_ingreso"]) {
       expect(cabeceraDelConcepto(conceptoPorId(id)!), id).toBe(CABECERA_CAJA);
     }
   });
@@ -401,6 +413,7 @@ describe("⭑ FICHA 459/461 — los tres grupos del selector (R59 / 461-R40)", (
     expect(CONCEPTO_MANUAL_OPTIONS.map((o) => [o.value, o.group])).toEqual([
       ["gasto_variable", "Sale dinero de Ordenex"],
       ["sueldo", "Sale dinero de Ordenex"],
+      ["pago_iva", "Sale dinero de Ordenex"], // ficha 488
       ["pago_por_cuenta_tienda", "Sale dinero de Ordenex"],
       ["ajuste_egreso", "Sale dinero de Ordenex"],
       ["pago_a_tienda", "Sale dinero de Ordenex"],
@@ -439,6 +452,9 @@ describe("⭑ FICHA 459/461 — la frase del efecto, una línea por concepto (R6
     expect(FRASE_DEL_EFECTO).toEqual({
       gasto_variable: "Sale dinero de Ordenex y baja su ganancia.",
       sueldo: "Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.",
+      // ⭑ 488 (design §6): literal.
+      pago_iva:
+        "Sale dinero de la caja para pagarle a Hacienda el IVA cobrado y baja el IVA por pagar; la ganancia no cambia.",
       pago_por_cuenta_tienda:
         "Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.",
       ajuste_egreso: "Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.",
@@ -506,6 +522,7 @@ describe("⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» 
     expect(Object.fromEntries(CONCEPTOS_MANUALES.map((c) => [c.id, cuentaDelConcepto(c)]))).toEqual({
       gasto_variable: null,
       sueldo: null,
+      pago_iva: null, // ficha 488
       pago_por_cuenta_tienda: "tienda",
       ajuste_egreso: null,
       pago_a_tienda: "tienda",
@@ -521,6 +538,7 @@ describe("⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» 
     expect(Object.fromEntries(CONCEPTOS_MANUALES.map((c) => [c.id, aQuienDelConcepto(c)]))).toEqual({
       gasto_variable: "obligatorio",
       sueldo: "obligatorio",
+      pago_iva: "obligatorio", // ficha 488 (P4): se escribe «Hacienda»
       pago_por_cuenta_tienda: null,
       ajuste_egreso: "opcional",
       pago_a_tienda: null,
@@ -532,15 +550,16 @@ describe("⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» 
     });
   });
 
-  it("R44: cada concepto pide su «Así queda» con una clave DISTINTA del catálogo del servidor, y las diez están", () => {
+  it("R44: cada concepto pide su «Así queda» con una clave DISTINTA del catálogo del servidor, y las once están", () => {
     const claves = CONCEPTOS_MANUALES.map((c) => CONCEPTO_REGISTRO_DE[c.id]);
-    expect(new Set(claves).size).toBe(10);
+    expect(new Set(claves).size).toBe(11); // ficha 488: antes 10
     expect([...claves].sort()).toEqual([...CONCEPTO_REGISTRO_SEED].sort());
     // Literales de la correspondencia que importa (el nombre del servidor no es el de la pantalla).
     expect(CONCEPTO_REGISTRO_DE.gasto_variable).toBe("gasto_ordenex");
     expect(CONCEPTO_REGISTRO_DE.abono_tienda).toBe("tienda_paga_a_ordenex");
     expect(CONCEPTO_REGISTRO_DE.cobro_tienda).toBe("cobro_a_tienda");
     expect(CONCEPTO_REGISTRO_DE.pago_por_cuenta_tienda).toBe("pago_gasto_tienda");
+    expect(CONCEPTO_REGISTRO_DE.pago_iva).toBe("pago_iva"); // ficha 488 (R24)
   });
 
   it("las cabeceras de los dos pagos llevan su nombre y dicen que se anulan con un motivo", () => {
@@ -550,5 +569,30 @@ describe("⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» 
         "Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que Ordenex le debe a la tienda. El pago no se edita: si hay un error, se anula con un motivo.",
     });
     expect(cabeceraDelConcepto(conceptoPorId("pago_a_mensajero")!).titulo).toBe("Ordenex le paga a un mensajero");
+  });
+});
+
+describe("⭑ FICHA 488 — el Pago de IVA (R21)", () => {
+  it("está en «Sale dinero de Ordenex», con el destino del egreso administrativo y sus textos", () => {
+    const pago = conceptoPorId("pago_iva");
+    expect(pago).toBeDefined();
+    expect(pago?.label).toBe("Pago de IVA");
+    expect(pago?.grupo).toBe("sale");
+    // Literal, y ES el contrato: el payload que el diálogo le manda a `registrarEgresoAdministrativoAction`.
+    expect(pago?.destino).toEqual({
+      clase: "egreso_administrativo",
+      tipoEgreso: "pago_iva",
+      categoria: "egreso_pago_iva",
+    });
+    expect(pago?.descripcionLabel).toBe("Detalle del pago");
+    expect(pago?.descripcionPlaceholder).toBe("Ej. IVA de septiembre declarado a Hacienda");
+    expect(aQuienDelConcepto(pago!)).toBe("obligatorio");
+    expect(cuentaDelConcepto(pago!)).toBeNull();
+    expect(libroDelConcepto(pago!)).toBe("caja");
+  });
+
+  it("va justo tras el sueldo: el tramo «sale» sigue siendo consecutivo", () => {
+    const ids = CONCEPTOS_MANUALES.map((c) => c.id);
+    expect(ids.indexOf("pago_iva")).toBe(ids.indexOf("sueldo") + 1);
   });
 });

@@ -165,12 +165,16 @@ describeSiHayBase("⭑ 458-B/B2 — la anulacion del cobro por devolución a ori
     expect(menos(trasAnulacion.iva.bruto, trasCobro.iva.bruto)).toBe("130.00");
   });
 
-  it("la ganancia cuadra: baja 1 130,00, exactamente lo que bajan flete + IVA", () => {
+  it("la ganancia cuadra: baja 1 000,00, exactamente lo que baja el flete (488: el IVA no es ganancia)", () => {
+    // FICHA 488 (R31/R10): la anulacion del IVA (130,00) netea el IVA por pagar, no la ganancia. Hasta la
+    // 488: «baja 1 130,00 = flete + IVA».
     const { trasCobro, trasAnulacion } = m();
     const bajaGanancia = menos(trasCobro.ganancia.neto, trasAnulacion.ganancia.neto);
-    expect(bajaGanancia).toBe("1130.00");
+    expect(bajaGanancia).toBe("1000.00");
     const bajaFlete = menos(trasCobro.flete.neto, trasAnulacion.flete.neto);
     const bajaIva = menos(trasCobro.iva.neto, trasAnulacion.iva.neto);
-    expect(menos(bajaGanancia, bajaFlete)).toBe(bajaIva);
+    expect(bajaGanancia).toBe(bajaFlete);
+    // Y el IVA, que baja 130,00 en «Ingreso por IVA», NO esta en la ganancia.
+    expect(bajaIva).toBe("130.00");
   });
 });

@@ -150,6 +150,8 @@ export function AsiQueda({
           <Linea nombre={CAJA_RESUMEN_LABEL.ganancia} linea={lineas.ganancia} />
           <Linea nombre={CAJA_RESUMEN_LABEL.deTerceros} linea={lineas.deTiendas} />
           <Linea nombre={CAJA_RESUMEN_LABEL.capital} linea={lineas.capital} />
+          {/* Ficha 488 (R24): el IVA por pagar, antes y después, derivado en el servidor. */}
+          <Linea nombre={CAJA_RESUMEN_LABEL.ivaPorPagar} linea={lineas.ivaPorPagar} />
         </dl>
         {data.saldoEnContra && lineas.cuenta !== null ? (
           <p role="alert" className="mt-2 text-sm font-medium text-danger-strong">

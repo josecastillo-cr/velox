@@ -99,13 +99,15 @@ describeSiHayBase("457/T1.5 — las migraciones del pago de una tienda a Ordenex
     expect([...entidades].sort()).toEqual([...HISTORIAL_ACCION_ENTIDADES].sort());
     // Ficha 458-B (2026-09-26): sus valores (`20260928120000`) van DETRAS de los de la 457 (dos en la
     // caja, dos en la tienda, dos en el historial): los de esta ficha se leen un tramo mas atras.
-    expect(caja.slice(-4, -2)).toEqual([...VALORES_457.wallet_movimiento_categoria]);
+    // Ficha 488: + 2 valores de caja al final (el Pago de IVA y su anulacion) → la ventana se corre 2.
+    expect(caja.slice(-6, -4)).toEqual([...VALORES_457.wallet_movimiento_categoria]);
     expect(tienda.slice(-4, -2)).toEqual([...VALORES_457.wallet_tienda_movimiento_categoria]);
     expect(origen.slice(-1)).toEqual([...VALORES_457.wallet_origen_tipo]);
     expect(tipos.slice(-4, -2)).toEqual([...VALORES_457.historial_accion_tipo]);
     expect(entidades.slice(-1)).toEqual([...VALORES_457.historial_accion_entidad]);
-    // Los conteos de design §14 «despues»: 25 / 16 / 14 / 63 / 24; con la 458-B detras: 27 / 18 / 14 / 65 / 24.
-    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([27, 18, 14, 65, 24]);
+    // Los conteos de design §14 «despues»: 25 / 16 / 14 / 63 / 24; con la 458-B detras: 27 / 18 / 14 / 65 / 24;
+    // con la 488 detras (+ 2 en la caja): 29 / 18 / 14 / 65 / 24.
+    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([29, 18, 14, 65, 24]);
     // El `up` de la 1 es aditivo y solo eso: ocho `ADD VALUE IF NOT EXISTS`, ni un CHECK ni una tabla.
     const up1 = soloEjecutable(UP_1);
     expect(up1.match(/ADD VALUE IF NOT EXISTS/g)).toHaveLength(8);

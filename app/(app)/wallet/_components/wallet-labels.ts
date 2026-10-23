@@ -88,7 +88,14 @@ export const CAJA_RESUMEN_LABEL = {
   entradas: "Entró",
   salidas: "Salió",
   ganancia: "Ganancia de Ordenex",
-  gananciaPista: "Lo que Ordenex gana menos lo que gasta",
+  // Ficha 488 (design §6, R11/R18): la ganancia ya no lleva el IVA, y la pista lo dice.
+  gananciaPista: "Lo que Ordenex gana menos lo que gasta, sin el IVA",
+  /** Ficha 488 (R12) — la linea pequena bajo la cifra de la ganancia: «IVA cobrado a las tiendas: ₡X». */
+  ivaCobrado: "IVA cobrado a las tiendas",
+  /** Ficha 488 (R13) — el TERCER bolsillo: el IVA que se le debe a Hacienda. No es de Ordenex. */
+  ivaPorPagar: "IVA por pagar",
+  ivaPorPagarPista:
+    "El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de Ordenex.",
   ingresosPropios: "Ingresos de Ordenex",
   egresosPropios: "Gastos de Ordenex",
   /** R23 — desde esta ficha «De las tiendas» ES lo que Ordenex les debe. */
@@ -189,7 +196,7 @@ export function CAJA_RESUMEN_NOTA_DIFERENCIA(rotulo: string): string {
   return (
     `«${rotulo}» cuenta todo el dinero, también el que es de las tiendas. ` +
     `«${CAJA_RESUMEN_LABEL.ganancia}» es solo lo que Ordenex gana menos lo que gasta: no incluye ` +
-    `el dinero de las tiendas ni el saldo inicial o los aportes.`
+    `el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.`
   );
 }
 
@@ -213,6 +220,8 @@ export const CAJA_COMPOSICION_LABEL = {
   barra: "Reparto del dinero en caja",
   tiendas: "De las tiendas",
   ordenex: "De Ordenex",
+  // Ficha 488 (decision 1a, R13–R15) — el tercer bolsillo de la barra.
+  iva: "IVA por pagar",
 } as const;
 
 /**
@@ -232,8 +241,10 @@ export const CAJA_COMPOSICION_MENSAJE: Record<ModoComposicionCaja, string | null
   solo_tiendas:
     "Lo de Ordenex (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.",
   // R17 de la 231 (D4): el espejo — «De las tiendas» negativo.
+  // Ficha 488 (R17): ya no dice que «todo» es de Ordenex, porque con IVA por pagar positivo parte
+  // de la caja es IVA que se le debe a Hacienda.
   solo_ordenex:
-    "Las tiendas le deben a Ordenex, así que todo lo que hay en la caja es de Ordenex y además hay dinero por cobrarles.",
+    "Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.",
   // R18 de la 231: nada que repartir. Ni se enuncia porcentaje ni se pinta segmento alguno.
   sin_reparto:
     "No hay nada que repartir: ni Ordenex ni las tiendas tienen dinero a favor en la caja.",
@@ -252,7 +263,9 @@ export function composicionCajaNombreAccesible(resumen: CajaResumenDTO): string 
   return (
     `${CAJA_COMPOSICION_LABEL.barra}. ` +
     `${CAJA_COMPOSICION_LABEL.tiendas}: ${money(resumen.deTerceros)}. ` +
-    `${CAJA_COMPOSICION_LABEL.ordenex}: ${money(resumen.deOrdenex)} (ganancia y aportes).`
+    `${CAJA_COMPOSICION_LABEL.ordenex}: ${money(resumen.deOrdenex)} (ganancia y aportes). ` +
+    // Ficha 488 (R15): el tercer bolsillo, con su importe.
+    `${CAJA_COMPOSICION_LABEL.iva}: ${money(resumen.ivaPorPagar)}.`
   );
 }
 
@@ -269,6 +282,8 @@ export const DUENO_LABEL: Record<NaturalezaMovimiento, string> = {
   terceros: "Tienda",
   // Ficha 459 (design §5) — el saldo inicial y los aportes de capital.
   capital: "Ordenex (capital)",
+  // Ficha 488 (design §6, R29) — los movimientos de IVA: se le deben a Hacienda.
+  iva: "IVA por pagar",
 };
 
 export { ORIGEN_LABEL } from "@/lib/constants/wallet-rotulos";
@@ -386,9 +401,11 @@ export const CATEGORIA_TODAS_OPTION = { value: "", label: "Todas las categorías
 export const TIPO_EGRESO_MANUAL_LABEL: Record<TipoEgresoManual, string> = {
   gasto_variable: "Gasto de Ordenex",
   sueldo: "Sueldo",
+  // Ficha 488 (design §6, R21).
+  pago_iva: "Pago de IVA",
 };
 
-/** Opciones del `Select` de tipo del egreso manual (solo {gasto variable, sueldo}). */
+/** Opciones del `Select` de tipo del egreso manual ({gasto variable, sueldo} y, desde la ficha 488, el Pago de IVA). */
 export const TIPO_EGRESO_MANUAL_OPTIONS = TIPO_EGRESO_MANUAL_SEED.map((tipo) => ({
   value: tipo,
   label: TIPO_EGRESO_MANUAL_LABEL[tipo],
@@ -399,11 +416,13 @@ export const TIPO_EGRESO_MANUAL_OPTIONS = TIPO_EGRESO_MANUAL_SEED.map((tipo) => 
 export const DESCRIPCION_EGRESO_LABEL: Record<TipoEgresoManual, string> = {
   gasto_variable: "Concepto del gasto",
   sueldo: "Trabajador y periodo",
+  pago_iva: "Detalle del pago",
 };
 
 export const DESCRIPCION_EGRESO_PLACEHOLDER: Record<TipoEgresoManual, string> = {
   gasto_variable: "Ej. Compra de suministros de oficina",
   sueldo: "Ej. Juan Pérez — julio 2026",
+  pago_iva: "Ej. IVA de septiembre declarado a Hacienda",
 };
 
 /**

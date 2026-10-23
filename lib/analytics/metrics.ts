@@ -637,7 +637,7 @@ const CATALOGO = [
     // `ingreso_ajuste` y cero `egreso_ajuste`, luego el cambio no mueve hoy ningun numero
     // (`egresos` sigue valiendo 22042.40 de bruto). Es la ventana barata.
     descripcion:
-      "Salidas de la caja principal (pagos a tienda y mensajero, sueldos, gastos fijos y variables, indemnizaciones y ajustes) segun el libro append-only de la wallet; DESDE LA FEATURE 173 incluye el dinero ENTREGADO A LAS TIENDAS, que antes ninguna via emitia, asi que su cifra crece a partir de esa fecha sin que su id ni su nombre cambien y no es comparable con la de antes; DESDE LA FEATURE 183 la ANULACION de un egreso se DESCUENTA de esta cifra: el reverso que la anulacion emite (ingreso_ajuste) entra en la definicion, de modo que el bruto cuenta los DOS movimientos (el pago y su reverso) y el neto es lo que de verdad salio de caja. Se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
+      "Salidas de la caja principal (pagos a tienda y mensajero, sueldos, gastos fijos y variables, indemnizaciones y ajustes) segun el libro append-only de la wallet; DESDE LA FEATURE 173 incluye el dinero ENTREGADO A LAS TIENDAS, que antes ninguna via emitia, asi que su cifra crece a partir de esa fecha sin que su id ni su nombre cambien y no es comparable con la de antes; DESDE LA FEATURE 183 la ANULACION de un egreso se DESCUENTA de esta cifra: el reverso que la anulacion emite (ingreso_ajuste) entra en la definicion, de modo que el bruto cuenta los DOS movimientos (el pago y su reverso) y el neto es lo que de verdad salio de caja; DESDE LA FICHA 488 incluye el PAGO DE IVA a Hacienda (egreso_pago_iva) y su ANULACION (ingreso_reverso_pago_iva) se DESCUENTA, igual que la de cualquier otro egreso, asi que su cifra crece a partir de esa fecha sin que su id ni su nombre cambien. Se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -668,6 +668,10 @@ const CATALOGO = [
         // FICHA 459 (P13): el pago por cuenta de una tienda es dinero que SALE de la caja, como el
         // pago a tienda. Su reverso NO entra (decision de la 457 para los reversos de terceros).
         "egreso_pago_por_cuenta_tienda",
+        // FICHA 488 (design §7, R32, P6): DOCE. El Pago de IVA a Hacienda SALE de la caja, y su
+        // anulacion se descuenta (regla de la 183 para los egresos administrativos).
+        "egreso_pago_iva",
+        "ingreso_reverso_pago_iva",
       ],
     },
   },
@@ -735,6 +739,10 @@ const CATALOGO = [
         // ahora 27. La cifra NO cambia con ellos (son reversos de cargo: no sale dinero).
         "egreso_reverso_flete_devolucion",
         "egreso_reverso_iva_flete_devolucion",
+        // FICHA 488 (design §7, R32): el Pago de IVA y su anulacion. La caja entera, ahora 29. Los
+        // dos SI mueven la cifra (efectivo: el pago sale de verdad hacia Hacienda).
+        "egreso_pago_iva",
+        "ingreso_reverso_pago_iva",
       ],
     },
   },
@@ -742,7 +750,7 @@ const CATALOGO = [
     id: "ganancia_ordenex",
     etiqueta: "Ganancia de Ordenex",
     descripcion:
-      "RESULTADO: ingresos propios de Ordenex menos sus egresos propios, dejando fuera el dinero de terceros que solo pasa por la caja (el contra-entrega y su devolucion a la tienda). Incluye lo que Ordenex les cobra a las tiendas (el cobro de Ordenex a una tienda es ganancia: se toma del saldo que le guardaba) y descuenta sus anulaciones. Es, numero por numero, lo que `derivarBalance` devolvia sobre el libro entero antes de la 173: no cambia de valor, cambia de nombre. Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
+      "RESULTADO: ingresos propios de Ordenex menos sus egresos propios, dejando fuera el dinero de terceros que solo pasa por la caja (el contra-entrega y su devolucion a la tienda). Incluye lo que Ordenex les cobra a las tiendas (el cobro de Ordenex a una tienda es ganancia: se toma del saldo que le guardaba) y descuenta sus anulaciones. Es, numero por numero, lo que `derivarBalance` devolvia sobre el libro entero antes de la 173: no cambia de valor, cambia de nombre. DESDE LA FICHA 488 NO incluye el IVA cobrado a las tiendas ni su anulacion: es IVA por pagar a Hacienda, no ganancia; la cifra baja a partir de esa fecha sin que su id ni su nombre cambien. Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -758,9 +766,7 @@ const CATALOGO = [
         "ingreso_flete",
         "ingreso_flete_devolucion",
         "ingreso_comision_cod",
-        "ingreso_iva_flete",
-        "ingreso_iva_flete_devolucion",
-        "ingreso_iva_comision_cod",
+        // FICHA 488 (design §7, R31): los tres IVA SALEN de la ganancia (dueño `iva`).
         "ingreso_ajuste",
         "egreso_pago_mensajero",
         "egreso_gasto",
@@ -773,10 +779,10 @@ const CATALOGO = [
         // anulacion la devuelve; los dos son propios en `NATURALEZA_POR_CATEGORIA`.
         "ingreso_cobro_tienda",
         "egreso_reverso_cobro_tienda",
-        // FICHA 458-B (design §2.3): DIECIOCHO. La anulacion de un cobro por rechazo baja la ganancia
-        // (flete e IVA por separado); los dos son propios en `NATURALEZA_POR_CATEGORIA`.
+        // FICHA 458-B (design §2.3): DIECIOCHO. La anulacion de un cobro por rechazo baja la ganancia.
+        // FICHA 488 (design §7, R31): CATORCE. Solo el reverso del FLETE: el de su IVA, como los tres
+        // IVA de arriba, es dueño `iva` en `NATURALEZA_POR_CATEGORIA` y netea el IVA por pagar.
         "egreso_reverso_flete_devolucion",
-        "egreso_reverso_iva_flete_devolucion",
       ],
     },
   },

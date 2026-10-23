@@ -1,4 +1,5 @@
 import type { PrismaClient } from "@prisma/client";
+import { CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO } from "@/lib/utils/egreso-anulable";
 
 import type {
   CaminoConComprobanteLateral,
@@ -143,7 +144,7 @@ export class WalletComprobanteRepository implements IWalletComprobanteRepository
   async estaAnulado(camino: CaminoConComprobanteLateral, id: string): Promise<boolean> {
     if (camino === "egreso_caja") {
       const reverso = await this.prisma.walletMovimiento.count({
-        where: { categoria: "ingreso_ajuste", origenTipo: "gasto", origenId: id },
+        where: { categoria: { in: [...CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO] }, origenTipo: "gasto", origenId: id },
       });
       if (reverso > 0) return true;
       return (await this.prisma.ajusteCajaAnulacion.count({ where: { movimientoId: id } })) > 0;

@@ -273,7 +273,13 @@ describe("468 R17/R18/R20/R21 — Concepto, Detalle, A quién, Es dinero de", ()
   it("R20/R21: «A quién» y «Registró» sin autoría dicen «—» (nunca un id); «Es dinero de» usa las palabras de la tabla", () => {
     const f = filaBaseCaja(mov(1, { dueno: "terceros" }), undefined, null);
     expect(f.esDineroDe).toBe(DUENO_LABEL.terceros);
-    expect(DUENO_LABEL).toEqual({ propio: "Ordenex", terceros: "Tienda", capital: "Ordenex (capital)" });
+    // Ficha 488 (R29): + `iva: "IVA por pagar"` (antes `{ propio, terceros, capital }`).
+    expect(DUENO_LABEL).toEqual({
+      propio: "Ordenex",
+      terceros: "Tienda",
+      capital: "Ordenex (capital)",
+      iva: "IVA por pagar",
+    });
     expect(f.aQuien).toBe(f.registro);
     expect(String(f.aQuien)).not.toMatch(UUID);
     // La fila base no lleva dinero: lo coloca `filasKardex` desde el kardex del servidor (R54).

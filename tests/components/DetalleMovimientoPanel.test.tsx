@@ -65,7 +65,8 @@ const AUTORIA = {
 const COMO_QUEDO = {
   status: "ok",
   comoQuedo: {
-    caja: { cifraPrincipal: "75000.00", rotulo: "flujo", ganancia: "15000.00", deTiendas: "60000.00", capital: "0.00" },
+    // Ficha 488 (R30): + `ivaPorPagar`.
+    caja: { cifraPrincipal: "75000.00", rotulo: "flujo", ganancia: "15000.00", deTiendas: "60000.00", capital: "0.00", ivaPorPagar: "4250.75" },
     cuenta: null,
   },
 };
@@ -115,6 +116,9 @@ describe("458-C R58 — lo que dice el panel", () => {
     expect(await within(comoQuedo).findByText("₡75.000")).toBeTruthy();
     expect(within(comoQuedo).getByText("Flujo de dinero registrado")).toBeTruthy();
     expect(within(comoQuedo).getByText("₡15.000")).toBeTruthy();
+    // Ficha 488 (R30): el IVA por pagar tras el movimiento, con su rótulo.
+    expect(within(comoQuedo).getByText("IVA por pagar")).toBeTruthy();
+    expect(within(comoQuedo).getByText("₡4.250,75")).toBeTruthy();
     expect(comoQuedoMock).toHaveBeenCalledWith({ destino: { libro: "caja", movimientoId: ID } });
   });
 
