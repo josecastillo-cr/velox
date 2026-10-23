@@ -120,6 +120,11 @@ const RESUMEN_OK = {
     deTerceros: "0.00",
     periodoFiltrado: false,
     porcentajeTiendas: "0.00",
+    // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+    ivaCobrado: "0.00",
+    ivaPorPagar: "0.00",
+    signoIvaPorPagar: "cero" as const,
+    porcentajeIva: "0.00",
     modoComposicion: "sin_reparto" as const,
     // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
     capital: "0.00",

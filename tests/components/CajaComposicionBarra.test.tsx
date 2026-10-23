@@ -45,6 +45,11 @@ const RESUMEN: CajaResumenDTO = {
   periodoFiltrado: false,
   // 10 000 / 12 000 x 100 = 83.333… -> "83.33" (R9/R10, derivado en el servidor).
   porcentajeTiendas: "83.33",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero",
+  porcentajeIva: "0.00",
   modoComposicion: "dos_bolsillos",
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0.
   capital: "0.00",
@@ -415,8 +420,9 @@ describe("Ficha 459 — la barra reparte «De las tiendas» y «De Ordenex» (R1
     // Capital distinto de cero: con 0 «De Ordenex» y la ganancia valdrían lo mismo y el caso
     // no distinguiría nada.
     pintarBarra({ ganancia: "2000.00", capital: "500.25", deOrdenex: "2500.25" });
+    // Ficha 488 (R15): + « IVA por pagar: ₡0.» al final (antes terminaba en «(ganancia y aportes).»).
     expect(screen.getByRole("img").getAttribute("aria-label")).toBe(
-      "Reparto del dinero en caja. De las tiendas: ₡10.000. De Ordenex: ₡2.500,25 (ganancia y aportes).",
+      "Reparto del dinero en caja. De las tiendas: ₡10.000. De Ordenex: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡0.",
     );
   });
 
@@ -425,8 +431,10 @@ describe("Ficha 459 — la barra reparte «De las tiendas» y «De Ordenex» (R1
       dos_bolsillos: null,
       solo_tiendas:
         "Lo de Ordenex (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.",
+      // Ficha 488 (R17): antes «Las tiendas le deben a Ordenex, así que todo lo que hay en la caja es
+      // de Ordenex y además hay dinero por cobrarles.» — falso con IVA por pagar positivo.
       solo_ordenex:
-        "Las tiendas le deben a Ordenex, así que todo lo que hay en la caja es de Ordenex y además hay dinero por cobrarles.",
+        "Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.",
       sin_reparto:
         "No hay nada que repartir: ni Ordenex ni las tiendas tienen dinero a favor en la caja.",
     });

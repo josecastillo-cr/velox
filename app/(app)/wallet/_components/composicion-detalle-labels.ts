@@ -76,7 +76,8 @@ export const EGRESO_NOMBRADO_LABEL: Record<WalletEgresoNombrado, string> = {
   // Ficha 458-B (design §2.3): las filas de la anulación de un cobro por rechazo; en el libro, cada
   // fila se rotula «Flete por rechazo cobrado a la tienda anulado» / «IVA del flete…».
   egreso_reverso_flete_devolucion: "Fletes por devolución a origen cobrados a una tienda anulados",
-  egreso_reverso_iva_flete_devolucion: "IVA de fletes por devolución a origen cobrados a una tienda anulados",
+  // Ficha 488 (R19): la fila «IVA de fletes por devolución a origen cobrados a una tienda anulados»
+  // sale: esa anulación netea contra el IVA por pagar, no contra la ganancia.
 };
 
 /**

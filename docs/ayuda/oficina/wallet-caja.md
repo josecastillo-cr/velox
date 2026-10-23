@@ -3,7 +3,7 @@ titulo: Wallet · Caja
 modulo: wallet
 pantalla: /wallet
 roles: [maestro, admin]
-actualizado: 2026-10-02
+actualizado: 2026-10-22
 fuentes:
   - app/(app)/wallet/_components/WalletModule.tsx
   - app/(app)/wallet/_components/CajaResumenCard.tsx
@@ -54,10 +54,12 @@ no del de las tiendas ni del de los mensajeros —esos tienen la suya—.
 ## Qué vas a ver
 
 **El resumen de caja**, arriba: la cifra grande, lo que **entró** y lo que **salió**, la **ganancia de
-Ordenex**, el **saldo inicial y aportes** y **lo que Ordenex les debe a las tiendas**.
+Ordenex** (sin el IVA) con el **IVA cobrado a las tiendas** debajo, el **saldo inicial y aportes**,
+**lo que Ordenex les debe a las tiendas** y el **IVA por pagar**.
 
 **Cómo se compone la ganancia**, desglosada por concepto, para ver de dónde sale de verdad el margen —
-fletes, comisiones, IVA, lo que Ordenex les cobra a las tiendas— y no solo el total.
+fletes, comisiones, lo que Ordenex les cobra a las tiendas— y no solo el total. El IVA **no está** en
+la composición: no es ganancia de Ordenex (ver «El IVA por pagar», más abajo).
 
 **El desglose de egresos**, del otro lado.
 
@@ -71,7 +73,7 @@ fila tiene un botón **Ver** que abre su detalle. Una fila anulada dice **Anulad
 | **Fecha** | El día del movimiento, en hora de Costa Rica |
 | **Movimiento y motivo** | El concepto, dicho desde Ordenex; debajo, de dónde nace (con la tienda, el mensajero o el cierre) y el motivo que se escribió |
 | **A quién** | La tienda, el mensajero, la persona o el proveedor del movimiento. Si es una tienda o un mensajero, el nombre lleva a su estado de cuenta. **Ordenex** en un aporte, y **—** en un movimiento viejo que no lo anotaba |
-| **Monto** | **Entra** o **Sale**, el importe y de quién es el dinero: **Ordenex**, **Tienda** u **Ordenex (capital)** |
+| **Monto** | **Entra** o **Sale**, el importe y de quién es el dinero: **Ordenex**, **Tienda**, **Ordenex (capital)** o **IVA por pagar** |
 | **Registró** | Quién lo registró o, si no lo tecleó nadie, **Automático** y qué lo produjo: «Automático · Aprobación del cierre por Ana», «Automático · Plantilla de gasto fijo» |
 | **Ver** | Abre el detalle del movimiento. En una fila anulada, al lado dice **Anulado** |
 
@@ -84,7 +86,7 @@ Cada concepto del libro se lee desde Ordenex y dice quién le paga a quién. Los
 
 | En la caja dice | Qué es |
 | --- | --- |
-| **Flete cobrado a la tienda**, **Comisión de contra-entrega cobrada a la tienda**, **IVA del flete cobrado a la tienda**… | El servicio, cobrado a cada tienda al aprobarse un cierre |
+| **Flete cobrado a la tienda**, **Comisión de contra-entrega cobrada a la tienda**, **IVA del flete cobrado a la tienda**… | El servicio, cobrado a cada tienda al aprobarse un cierre. Las líneas de IVA son dinero **IVA por pagar**, no ganancia |
 | **Contra-entrega cobrado a los clientes de la tienda** | Lo que el mensajero cobró a los clientes en nombre de la tienda. Es dinero de la tienda |
 | **Ordenex le cobra a una tienda** | Un cobro que la oficina le hace a mano a una tienda. Es ganancia de Ordenex |
 | **Cobro a una tienda anulado** | La anulación de ese cobro |
@@ -96,6 +98,7 @@ Cada concepto del libro se lee desde Ordenex y dice quién le paga a quién. Los
 | **Aporte de dinero a la caja** / **Aporte de dinero a la caja anulado** | El saldo inicial o un aporte de Ordenex, y su anulación |
 | **Una tienda le paga a Ordenex** / **Pago de una tienda a Ordenex anulado** | Lo que una tienda con saldo en contra le paga a Ordenex, y su anulación. Es dinero de la tienda: sube lo que Ordenex les debe a las tiendas |
 | **Flete por devolución a origen cobrado a la tienda** / **Flete por devolución a origen cobrado a la tienda anulado** | El flete que Ordenex le cobra a una tienda cuando su cliente rechaza el pedido, y su anulación. El IVA va en su propia línea, con su propia anulación |
+| **Pago de IVA** / **Pago de IVA anulado** | Lo que Ordenex le paga a Hacienda del IVA cobrado a las tiendas, y su anulación. Baja (o, al anularlo, sube) el IVA por pagar; la ganancia no cambia |
 | **Indemnización que Ordenex paga por un incidente** | Lo que Ordenex paga cuando un envío sufre un incidente. Si se anula, aparece una **Corrección de caja (suma)** por el mismo monto |
 
 Debajo del concepto, en **Movimiento y motivo**, se dice de dónde nace cada línea con el mismo criterio: **Cierre del día**,
@@ -134,11 +137,28 @@ Es la **suma de los saldos de todas las tiendas**, ya descontados el flete, la c
 que le deben a Ordenex**, y cuánto. El detalle de cada tienda está en **Wallet · Tiendas** («Ver la
 deuda de cada tienda»).
 
+### El IVA por pagar
+
+El IVA que Ordenex les cobra a las tiendas (el del flete, el del flete por devolución a origen y el de
+la comisión) **no es de Ordenex**: se le debe a Hacienda. Por eso:
+
+- La **ganancia de Ordenex** no incluye el IVA: es lo que Ordenex gana menos lo que gasta, **sin el
+  IVA**. Lo mismo los **ingresos** y **gastos de Ordenex** de la tarjeta.
+- Debajo de la ganancia, en letra más pequeña, la tarjeta dice el **IVA cobrado a las tiendas**: lo que
+  entró por IVA, ya descontadas las anulaciones del IVA de un cobro por devolución a origen. Pagar IVA
+  a Hacienda no lo cambia.
+- La tarjeta tiene un tercer bloque, **IVA por pagar**, junto a «De las tiendas» y «De Ordenex»: el IVA
+  cobrado a las tiendas **menos lo ya pagado a Hacienda**. Puede salir negativo si se pagó más de lo
+  cobrado en lo que estás mirando.
+- La cifra grande **no cambia**: cuenta todo el dinero, también el IVA. Siempre se cumple que la cifra
+  grande es «De Ordenex» más «De las tiendas» más el IVA por pagar.
+
 ### La barra de reparto
 
 Solo aparece cuando hay un saldo inicial registrado (la cifra dice **Dinero en caja**). Parte el
-dinero en **De las tiendas** y **De Ordenex** (ganancia más aportes). Si uno de los dos está en
-negativo, la barra no se parte y en su lugar te dice qué pasa.
+dinero en **De las tiendas**, **De Ordenex** (ganancia más aportes) y el **IVA por pagar**. Si «De
+Ordenex» o «De las tiendas» está en negativo, la barra no se parte entre esos dos y en su lugar te dice
+qué pasa; el IVA por pagar se pinta solo cuando es positivo.
 
 ## De dónde entra el dinero solo
 
@@ -151,14 +171,14 @@ cierre se apruebe.
 
 ## Lo que sí se registra a mano
 
-**Registrar un movimiento** abre un diálogo con **diez conceptos en tres grupos**, a la izquierda; a la
+**Registrar un movimiento** abre un diálogo con **once conceptos en tres grupos**, a la izquierda; a la
 derecha, los campos del concepto que elegiste. Al elegir uno, el diálogo dice con una frase qué le pasa
 al dinero de Ordenex, al saldo de la cuenta (si la toca) y a la ganancia, y con qué nombre va a salir en
 cada libro.
 
 | Grupo | Conceptos |
 | --- | --- |
-| **Sale dinero de Ordenex** | Gasto de Ordenex · Sueldo · Ordenex paga un gasto de una tienda · Corrección de caja (resta) · Ordenex le paga a una tienda · Ordenex le paga a un mensajero |
+| **Sale dinero de Ordenex** | Gasto de Ordenex · Sueldo · Pago de IVA · Ordenex paga un gasto de una tienda · Corrección de caja (resta) · Ordenex le paga a una tienda · Ordenex le paga a un mensajero |
 | **Llega dinero a la caja** | Aporte de dinero a la caja · Una tienda le paga a Ordenex · Corrección de caja (suma) |
 | **Se descuenta del saldo de una tienda** | Ordenex le cobra a una tienda |
 
@@ -168,8 +188,8 @@ enlace a ellas.
 **Lo que se pide.** En **todos** los conceptos, **el monto**, **la fecha** y **el motivo**, y un
 **comprobante opcional**. Además, cada concepto pide lo suyo:
 
-- **Sueldo** y **Gasto de Ordenex**: **a quién se le pagó** —la persona o el proveedor, con su nombre
-  libre—. **Es obligatorio.** La referencia es opcional.
+- **Sueldo**, **Gasto de Ordenex** y **Pago de IVA**: **a quién se le pagó** —la persona o el proveedor, con su nombre libre—. **Es obligatorio.** En el Pago de IVA se escribe «Hacienda». La referencia es
+  opcional.
 - **Corrección de caja**: **a quién**, si lo sabés (opcional), y la referencia, también opcional.
 - **Los conceptos de una tienda o de un mensajero**: la cuenta, que se elige **buscando por su nombre**
   (solo cuentas activas).
@@ -182,12 +202,18 @@ y baja **lo que Ordenex les debe a las tiendas**; la ganancia no cambia. Solo se
 Ordenex le debe** a esa tienda. **Ordenex le paga a un mensajero** reparte el importe entre sus cierres
 pendientes y baja lo que Ordenex le debe; la caja no cambia con él.
 
+**Pago de IVA** registra lo que Ordenex le paga a Hacienda del IVA cobrado a las tiendas: sale dinero de
+la caja (**Salió** sube y la cifra grande baja) y **baja el IVA por pagar**; la **ganancia no cambia**,
+ni lo que Ordenex les debe a las tiendas. Se pide **a quién** (Hacienda), **el monto**, **la fecha**,
+**el detalle del pago** y, si los tenés, la referencia y el comprobante. No se compara contra el IVA por
+pagar: si pagás más, el IVA por pagar queda en negativo.
+
 ### «Así queda»: el antes y el después, antes de registrar
 
 Debajo del formulario, en cuanto escribís el monto (y elegís la cuenta, si el concepto la lleva), el
 recuadro **Así queda** te dice cómo van a quedar, **antes y después**: el saldo de la cuenta, la cifra
-grande de la caja, la **ganancia de Ordenex**, **lo que Ordenex les debe a las tiendas** y el **saldo
-inicial y aportes**. Lo que el concepto no mueve dice **«no cambia»**. Las cifras las calcula el
+grande de la caja, la **ganancia de Ordenex**, **lo que Ordenex les debe a las tiendas**, el **saldo
+inicial y aportes** y el **IVA por pagar**. Lo que el concepto no mueve dice **«no cambia»**. Las cifras las calcula el
 servidor con la misma cuenta que la tarjeta de arriba.
 
 - Si la tienda **queda con el saldo en contra**, el recuadro lo avisa en palabras, con el saldo y su
@@ -332,15 +358,15 @@ persona o el proveedor), **por qué** (el motivo), **de dónde sale**, **cómo**
 referencia, si los tiene), el **comprobante**, **quién lo registró** —o **Automático** y qué lo produjo,
 como «Aprobación del cierre»— y **cuándo**: el día y la hora de Costa Rica en que se tecleó («Ana · el
 2026-09-26 a las 21:30»), que puede no ser la fecha del movimiento (un sueldo del 1 registrado el 26), su **estado** (**Vigente**, o **Anulado** con el día, quién lo anuló, el
-motivo y cómo se anuló) y **Cómo quedó**: la cifra grande, la ganancia, lo que Ordenex les debe a las tiendas y el
-saldo inicial y aportes **justo después** de ese movimiento, y el saldo de la cuenta que tocó.
+motivo y cómo se anuló) y **Cómo quedó**: la cifra grande, la ganancia, lo que Ordenex les debe a las tiendas, el
+saldo inicial y aportes y el IVA por pagar **justo después** de ese movimiento, y el saldo de la cuenta que tocó.
 
 Un **cobro por devolución a origen** dice además en palabras que es un cargo a la tienda: la ganancia sube y el saldo
 de la tienda baja, sin dinero nuevo en la caja.
 
 ## Anular: con motivo, y sin borrar nada
 
-Un **sueldo**, un **gasto de Ordenex**, un **gasto fijo cobrado**, un **pago de un gasto de una tienda**,
+Un **sueldo**, un **gasto de Ordenex**, un **pago de IVA**, un **gasto fijo cobrado**, un **pago de un gasto de una tienda**,
 un **aporte de dinero a la caja**, un **cobro de Ordenex a una tienda**, un **pago de una tienda a
 Ordenex** o una **corrección de caja** no se editan. Tampoco un **cobro por devolución a origen a una tienda** ni una
 **indemnización por un incidente**. Ni un **pago de Ordenex a una tienda** o un **premio del ranking**. Si hubo un error, se anulan desde el detalle de su fila: **Ver** y
@@ -362,9 +388,10 @@ luego **Anular…**. Es la misma forma para todos:
   de la tienda a Ordenex anulado».
 - Al anular una corrección de caja, aparece la corrección contraria por el mismo monto.
 - Un **cobro por devolución a origen** tiene dos líneas en la caja, el flete y su IVA: se anula desde **cualquiera de
-  las dos** y se anulan **las dos juntas**. La **ganancia baja** en el flete más el IVA, **lo que Ordenex
-  les debe a las tiendas** y el saldo de la tienda **vuelven a subir** en lo mismo (si al cobrarlo se le
-  descontó a la tienda), y **Entró**, **Salió** y la cifra grande no cambian. En la caja aparecen
+  las dos** y se anulan **las dos juntas**. La **ganancia baja** en el flete y el **IVA por pagar** (y el
+  IVA cobrado) en el IVA; **lo que Ordenex les debe a las tiendas** y el saldo de la tienda **vuelven a
+  subir** en el flete más el IVA (si al cobrarlo se le descontó a la tienda), y **Entró**, **Salió** y la
+  cifra grande no cambian. En la caja aparecen
   **Flete por devolución a origen cobrado a la tienda anulado** y **IVA del flete por devolución a origen cobrado a la tienda
   anulado**. En **Analítica**, «Ingreso por flete» e «Ingreso por IVA» descuentan la anulación: el
   **neto** vuelve a ser el de antes del cobro.
@@ -376,7 +403,10 @@ movimiento no se puede anular: …»** sobre un cobro, es uno de los cobros anti
 de un gasto de la tienda, o uno sin su línea en la caja: se explica en el propio aviso.
 
 Al anular un **gasto de Ordenex**, un **sueldo** o un **gasto fijo cobrado**, se registra una **Corrección
-de caja (suma)** por el mismo monto: la caja y la ganancia vuelven a subir. Los que se revirtieron antes,
+de caja (suma)** por el mismo monto: la caja y la ganancia vuelven a subir.
+
+Al anular un **Pago de IVA**, se registra **Pago de IVA anulado** por el mismo monto: la cifra grande y
+el **IVA por pagar** vuelven a subir, y la **ganancia no cambia**. Los que se revirtieron antes,
 sin motivo, se ven **Anulado · motivo no registrado**.
 
 Lo que nace de un cierre, una anulación y las salidas de los cobros reclasificados **no ofrecen
@@ -463,7 +493,7 @@ mirando, y las mismas columnas que la tabla (**A quién** y **Registró** inclui
 - **No muestra lo que le debés a cada tienda.** Eso es **Wallet · Tiendas**.
 - **No muestra lo que le debés a cada mensajero.** Eso es **Wallet · Mensajeros**.
 - **No es el saldo del banco**, salvo que alguien haya registrado el saldo inicial real.
-- **No se editan movimientos.** Un sueldo, un gasto, un pago de un gasto, un aporte, un cobro a una
+- **No se editan movimientos.** Un sueldo, un gasto, un pago de IVA, un pago de un gasto, un aporte, un cobro a una
   tienda, un pago de una tienda a Ordenex, una corrección, un cobro por devolución a origen o una indemnización se
   anulan con motivo; los demás son inmutables.
 - **No se corrigen cifras de entregas.** Un movimiento que nació de un cierre se arregla en el cierre,

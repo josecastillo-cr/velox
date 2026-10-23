@@ -58,13 +58,14 @@ import {
 // Módulo PURO: sin React y sin leer ningún reloj. La fecha del movimiento la pone el diálogo.
 
 /**
- * Los DIEZ conceptos (ficha 458-C), en el orden en que se ofrecen: tres tramos CONSECUTIVOS, uno por
- * grupo. `gasto_fijo` NO está: lo emite el cron desde su plantilla (R38). El primero sigue siendo el
+ * Los ONCE conceptos (ficha 458-C: diez; ficha 488: + «Pago de IVA», justo tras el sueldo), en el
+ * orden en que se ofrecen: tres tramos CONSECUTIVOS, uno por grupo. `gasto_fijo` NO está: lo emite el cron desde su plantilla (R38). El primero sigue siendo el
  * gasto de Ordenex: quien abre y registra sin tocar el catálogo registra lo mismo que antes.
  */
 export const CONCEPTO_MANUAL_IDS = [
   "gasto_variable",
   "sueldo",
+  "pago_iva",
   "pago_por_cuenta_tienda",
   "ajuste_egreso",
   "pago_a_tienda",
@@ -210,6 +211,21 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     grupo: "sale",
   },
   {
+    // ⭑ FICHA 488 (decision 2a, design §6.3, R21) — Ordenex le paga a Hacienda el IVA cobrado a las
+    // tiendas. Mismo destino que el gasto y el sueldo (el egreso administrativo de la 45): mismos
+    // campos, «A quién» obligatorio (P4) y comprobante opcional. Baja el IVA por pagar, no la ganancia.
+    id: "pago_iva",
+    label: "Pago de IVA",
+    descripcionLabel: DESCRIPCION_EGRESO_LABEL.pago_iva,
+    descripcionPlaceholder: DESCRIPCION_EGRESO_PLACEHOLDER.pago_iva,
+    destino: {
+      clase: "egreso_administrativo",
+      tipoEgreso: "pago_iva",
+      categoria: TIPO_EGRESO_MANUAL_A_CATEGORIA.pago_iva,
+    },
+    grupo: "sale",
+  },
+  {
     // ⭑ FICHA 459 (R29/R61) — Ordenex SACA dinero de la caja para pagarle a un tercero en nombre
     // de la tienda, y se lo descuenta de su saldo. No es un cobro a la tienda (ese NO saca dinero
     // de la caja): la frase del efecto lo dice en voz alta (R60).
@@ -332,6 +348,9 @@ export const CONCEPTO_MANUAL_OPTIONS = CONCEPTOS_MANUALES.map((concepto) => ({
 export const FRASE_DEL_EFECTO: Record<ConceptoManualId, string> = {
   gasto_variable: "Sale dinero de Ordenex y baja su ganancia.",
   sueldo: "Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.",
+  // Ficha 488 (design §6): literal.
+  pago_iva:
+    "Sale dinero de la caja para pagarle a Hacienda el IVA cobrado y baja el IVA por pagar; la ganancia no cambia.",
   pago_por_cuenta_tienda:
     "Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.",
   ajuste_egreso: "Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.",
@@ -487,6 +506,8 @@ export function cabeceraDelConcepto(concepto: ConceptoManual): {
 export const CONCEPTO_REGISTRO_DE: Record<ConceptoManualId, ConceptoRegistro> = {
   gasto_variable: "gasto_ordenex",
   sueldo: "sueldo",
+  // Ficha 488 (design §4.3): el «Así queda» del Pago de IVA lo deriva el servidor.
+  pago_iva: "pago_iva",
   pago_por_cuenta_tienda: "pago_gasto_tienda",
   ajuste_egreso: "correccion_resta",
   pago_a_tienda: "pago_a_tienda",

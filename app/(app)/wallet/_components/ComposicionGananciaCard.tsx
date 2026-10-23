@@ -3,7 +3,6 @@
 import {
   ArrowRightLeft,
   HandCoins,
-  Percent,
   Scale,
   Store,
   Truck,
@@ -91,17 +90,16 @@ const INGRESOS_TOTAL_LABEL = "Total de ingresos";
 const GANANCIA_LABEL = "Ganancia de Ordenex";
 
 /**
- * Icono de cada concepto de ingreso. `Record` TOTAL sobre las siete categorías de ingreso
- * propio: una categoría nueva rompe el build hasta que alguien decida cómo se dibuja. Los tres
- * impuestos comparten icono a propósito — son la misma clase de dinero.
+ * Icono de cada concepto de ingreso. `Record` TOTAL sobre las categorías de ingreso propio: una
+ * categoría nueva rompe el build hasta que alguien decida cómo se dibuja.
+ *
+ * Ficha 488 (design §6.3, R19): los tres IVA salen de aquí. Ya no son ingreso de Ordenex (se le
+ * deben a Hacienda: bolsillo «IVA por pagar»), así que la composición de la ganancia no los pinta.
  */
 const INGRESO_ICONO: Record<WalletIngresoPropio, LucideIcon> = {
   ingreso_flete: Truck,
   ingreso_flete_devolucion: ArrowRightLeft,
   ingreso_comision_cod: HandCoins,
-  ingreso_iva_flete: Percent,
-  ingreso_iva_flete_devolucion: Percent,
-  ingreso_iva_comision_cod: Percent,
   ingreso_ajuste: Scale,
   // Ficha 461 (design §4, R27): el cobro de Ordenex a una tienda, octavo ingreso propio. `Store`
   // —la tienda— porque es lo que lo distingue de los seis cargos del cierre: no nace de una

@@ -180,6 +180,7 @@ const EFECTO_SUELDO = {
       ganancia: linea("40000.00", "15000.00"),
       deTiendas: linea("60000.00", "60000.00"),
       capital: linea("0.00", "0.00"),
+      ivaPorPagar: linea("1234.50", "1234.50"), // ficha 488 (R24): ni el sueldo ni el cobro lo mueven
     },
     saldoEnContra: false,
   },
@@ -229,6 +230,7 @@ describe("458-C R37/R38 — el catálogo: diez conceptos en tres grupos y el enl
     expect(nombres("Sale dinero de Ordenex")).toEqual([
       "Gasto de Ordenex",
       "Sueldo",
+      "Pago de IVA", // ficha 488 (R21): justo tras el sueldo
       "Ordenex paga un gasto de una tienda",
       "Corrección de caja (resta)",
       "Ordenex le paga a una tienda",
@@ -240,7 +242,7 @@ describe("458-C R37/R38 — el catálogo: diez conceptos en tres grupos y el enl
       "Corrección de caja (suma)",
     ]);
     expect(nombres("Se descuenta del saldo de una tienda")).toEqual(["Ordenex le cobra a una tienda"]);
-    expect(within(dialog).getAllByRole("radio")).toHaveLength(10);
+    expect(within(dialog).getAllByRole("radio")).toHaveLength(11); // ficha 488: antes 10 (+ «Pago de IVA»)
   });
 
   it("R38: no se ofrece «Gasto fijo»; el enlace lleva a las plantillas", async () => {
@@ -749,6 +751,7 @@ describe("458-C R44–R47 — «Así queda», calculado en el servidor", () => {
           ganancia: linea("40000.00", "45000.00"),
           deTiendas: linea("60000.00", "55000.00"),
           capital: linea("0.00", "0.00"),
+          ivaPorPagar: linea("1234.50", "1234.50"), // ficha 488 (R24): ni el sueldo ni el cobro lo mueven
         },
         saldoEnContra: true,
       },
@@ -810,6 +813,7 @@ describe("458-C R44–R47 — «Así queda», calculado en el servidor", () => {
           ganancia: linea("40000.00", "40000.00"),
           deTiendas: linea("60000.00", "58500.00"),
           capital: linea("0.00", "0.00"),
+          ivaPorPagar: linea("1234.50", "1234.50"), // ficha 488 (R24): ni el sueldo ni el cobro lo mueven
         },
         saldoEnContra: true,
         superaDisponible: true,
@@ -1148,4 +1152,74 @@ describe("458-C M3 — un fallo de red no es un diálogo mudo, y cambiar de conc
     expect(sueldo.claveIdempotencia).toMatch(UUID);
     expect(sueldo.claveIdempotencia).not.toBe(gasto.claveIdempotencia);
   }, 30000);
+});
+
+// ─── Ficha 488 (T F.5, R21/R24) — el Pago de IVA en el diálogo y su «Así queda» ─────────────────
+
+describe("488 — el Pago de IVA", () => {
+  it("R21: se ofrece en «Sale dinero de Ordenex», pide «A quién» y manda `tipoEgreso: pago_iva` sin comprobante", async () => {
+    const { user, dialog } = await abrir();
+    const grupo = within(dialog).getByRole("radiogroup", { name: "Sale dinero de Ordenex" });
+    expect(within(grupo).getByRole("radio", { name: "Pago de IVA" })).toBeTruthy();
+    await elegirConcepto(user, dialog, "Pago de IVA");
+    // «A quién» es obligatorio (P4): sin él no llama al servidor.
+    escribir(dialog, /^Monto/, "45000.75");
+    escribir(dialog, /^Detalle del pago/, "IVA de septiembre");
+    await confirmar(user, dialog);
+    expect(await within(dialog).findByText("Escribí a quién se le pagó.")).toBeTruthy();
+    expect(registrarEgresoMock).not.toHaveBeenCalled();
+
+    escribir(dialog, /^A quién se le pagó/, "Hacienda");
+    await confirmar(user, dialog);
+    await waitFor(() => expect(registrarEgresoMock).toHaveBeenCalledTimes(1));
+    const fd = entradas(registrarEgresoMock.mock.calls[0][0]);
+    expect(Object.keys(fd).sort()).toEqual(
+      ["claveIdempotencia", "contraparteNombre", "descripcion", "monto", "tipoEgreso"].sort(),
+    );
+    expect(fd).toMatchObject({
+      tipoEgreso: "pago_iva",
+      monto: "45000.75",
+      descripcion: "IVA de septiembre",
+      contraparteNombre: "Hacienda",
+    });
+    expect(fd.claveIdempotencia).toMatch(UUID);
+  });
+
+  it("R21: la frase del efecto y el nombre en el libro", async () => {
+    const { user, dialog } = await abrir();
+    await elegirConcepto(user, dialog, "Pago de IVA");
+    expect(dialog.querySelector("#movimiento-concepto-efecto")?.textContent).toBe(
+      "Sale dinero de la caja para pagarle a Hacienda el IVA cobrado y baja el IVA por pagar; la ganancia no cambia.",
+    );
+    expect(dialog.querySelector("#movimiento-concepto-libro")?.textContent).toBe(
+      "Se registra en el libro como «Pago de IVA».",
+    );
+  });
+
+  it("R24: el «Así queda» pide el concepto `pago_iva` y pinta la línea «IVA por pagar» antes y después", async () => {
+    previsualizarMock.mockResolvedValue({
+      status: "ok",
+      efecto: {
+        lineas: {
+          cuenta: null,
+          cifraPrincipal: { ...linea("100000.00", "55000.00"), rotulo: "flujo" },
+          ganancia: linea("40000.00", "40000.00"),
+          deTiendas: linea("60000.00", "60000.00"),
+          capital: linea("0.00", "0.00"),
+          ivaPorPagar: linea("47500.25", "2500.25"),
+        },
+        saldoEnContra: false,
+      },
+    });
+    const { user, dialog } = await abrir();
+    await elegirConcepto(user, dialog, "Pago de IVA");
+    escribir(dialog, /^Monto/, "45000");
+    await waitFor(() => expect(previsualizarMock).toHaveBeenCalledWith({ concepto: "pago_iva", monto: "45000" }));
+    const recuadro = screen.getByRole("region", { name: "Así queda" });
+    expect(await within(recuadro).findByText("IVA por pagar")).toBeTruthy();
+    expect(within(recuadro).getByText("₡47.500,25")).toBeTruthy();
+    expect(within(recuadro).getByText("₡2.500,25")).toBeTruthy();
+    // La ganancia no cambia: lo dice el servidor con `cambia: false`.
+    expect(within(recuadro).getByText("₡40.000 · no cambia")).toBeTruthy();
+  });
 });

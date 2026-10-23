@@ -60,9 +60,10 @@ describe("466 · R1 — conceptos de dinero en la wallet (C5-C14, C16-C24)", () 
     expect(EGRESO_NOMBRADO_LABEL.egreso_reverso_flete_devolucion).toBe(
       "Fletes por devolución a origen cobrados a una tienda anulados",
     );
-    expect(EGRESO_NOMBRADO_LABEL.egreso_reverso_iva_flete_devolucion).toBe(
-      "IVA de fletes por devolución a origen cobrados a una tienda anulados",
-    );
+    // Ficha 488 (R19): la anulación del IVA del flete por devolución ya no es egreso de Ordenex y
+    // pierde su fila (antes: `toBe("IVA de fletes por devolución a origen cobrados a una tienda
+    // anulados")`). Su nombre en el libro de la caja sigue en `CATEGORIA_LABEL`.
+    expect(Object.keys(EGRESO_NOMBRADO_LABEL)).not.toContain("egreso_reverso_iva_flete_devolucion");
   });
 
   it("libro de la tienda desde la oficina (C7-C10)", () => {

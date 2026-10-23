@@ -405,6 +405,8 @@ describe("469 T12/T13 — la caja (`/wallet`)", () => {
     egresosPropios: "0.00", ganancia: "0.00", signoGanancia: "cero" as const, deTerceros: "0.00", periodoFiltrado: false,
     porcentajeTiendas: "0.00", modoComposicion: "dos_bolsillos" as const, capital: "0.00", signoCapital: "cero" as const,
     deOrdenex: "0.00", signoDeTerceros: "cero" as const, deTercerosAbsoluto: "0.00", estado: "flujo" as const, flujoDesde: "2026-08-25",
+    // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar, en cero.
+    ivaCobrado: "0.00", ivaPorPagar: "0.00", signoIvaPorPagar: "cero" as const, porcentajeIva: "0.00",
   };
   const COMPOSICION = {
     ingresos: {
