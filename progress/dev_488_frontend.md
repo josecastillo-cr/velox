@@ -83,3 +83,67 @@ integración 4267/4267).
 
 Frontend de la 488 hecho (F.1–F.9), con los 30 errores de typecheck y los rojos de UI cerrados, la
 pantalla vista con números que cuadran y `./init.sh --rapido` en verde (`INIT_EXIT=0`).
+
+## F.8 tras revisión (2026-10-22, sobre `d38265d9`)
+
+Corrige el BLOQUEANTE 2 de `progress/review_488.md`. Dev server propio en `:3488` (no había otro),
+Playwright headless, `admin.qa@ordenex.test`. Base LOCAL: `prisma migrate status` → `localhost:5432`, al
+día. Apagado al terminar y `.next/dev` borrado. Capturas y el Excel en `progress/capturas_488/` (sin
+commitear).
+
+**Aviso (m5):** la contraseña con la que roté las cuentas QA la primera vez no quedó anotada y no
+coincidía con `QA_PASSWORD` del `.env`. Volví a correr `seed-usuarios-qa.ts` en la base LOCAL con el
+`QA_PASSWORD` del `.env`: las CUATRO cuentas QA locales quedan con esa clave. Al entrar a `/wallet` sale
+el modal «Confirmá el SINPE de GAM»; se cierra con «Ahora no».
+
+**Siembra (por la app):** «Aporte de dinero a la caja» → «Saldo inicial», ₡1.000.000, 2026-08-11. Su
+«Así queda»: cifra ₡13.483.932,72 → ₡14.483.932,72; saldo inicial y aportes ₡0 → ₡1.000.000; ganancia,
+tiendas e IVA por pagar «no cambia». La tarjeta pasa de «Flujo de dinero registrado» a «Dinero en caja».
+
+| Momento | Cifra | Ganancia | IVA cobrado | IVA por pagar | De las tiendas | Capital | Ingresos / Gastos | Movs |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Inicial (flujo) | 13.483.932,72 | 13.331.231,72 | 5.030,90 | 5.030,90 | 147.670,10 | 0 | 13.372.032,22 / 40.800,50 | 36 |
+| Tras saldo inicial | 14.483.932,72 | 13.331.231,72 | 5.030,90 | 5.030,90 | 147.670,10 | 1.000.000 | igual | 37 |
+| Tras Pago de IVA ₡1.000 | 14.482.932,72 | 13.331.231,72 | 5.030,90 | **4.030,90** | 147.670,10 | 1.000.000 | igual | 38 |
+| Tras anularlo | 14.483.932,72 | 13.331.231,72 | 5.030,90 | **5.030,90** | 147.670,10 | 1.000.000 | igual | 39 |
+
+R7 en cada fila, al céntimo: 13.331.231,72 + 1.000.000 + 147.670,10 + 5.030,90 = 14.483.932,72.
+
+- **a. Barra en «saldo»: OK.** `data-modo="dos_bolsillos"`, tres segmentos `tiendas` (1,02 %, `bg-warning`),
+  `iva` (0,03 %, `bg-chart-13`) y `ordenex` (`flex-1`). Nombre accesible: «Reparto del dinero en caja. De
+  las tiendas: ₡147.670,10. De Ordenex: ₡14.331.231,72 (ganancia y aportes). IVA por pagar: ₡5.030,90.»
+  (14.331.231,72 = ganancia + capital). Tras el pago, el nombre dice «IVA por pagar: ₡4.030,90»; tras
+  anularlo, «₡5.030,90». **Observación:** el ancho 0,03 % lo da el servidor (5.030,90 / 14.483.932,72), como
+  pide R14. Medido en pantalla, el segmento tiene **0,31 px de 1.064 px**: a esta proporción no se ve. El spec
+  no fija un ancho mínimo; no lo cambié. Captura `03a`.
+- **b. Pago de IVA: OK.** El concepto está en «Sale dinero de Ordenex», tras «Sueldo». Sin «A quién», el
+  diálogo no se envía: `aria-invalid="true"`, `aria-required="true"`, «Escribí a quién se le pagó.» (`05`).
+  «Así queda» con ₡1.000 (`04`): cifra 14.483.932,72 → 14.482.932,72; «Ganancia de Ordenex ₡13.331.231,72 ·
+  no cambia»; tiendas y capital «no cambia»; **«IVA por pagar» 5.030,90 → 4.030,90**. Registrado con «A quién»
+  = Hacienda, 2026-10-22. Δ ganancia 0; Δ IVA por pagar −1.000,00 (exacto); Δ IVA cobrado 0.
+- **c. Anulación: OK.** «Anular…» desde el detalle, con motivo. Δ ganancia 0; IVA por pagar 4.030,90 → 5.030,90
+  (vuelve a su valor); Δ IVA cobrado 0; gastos de Ordenex 40.800,50 sin cambio.
+- **d. Libro: OK.** Dos filas el 2026-10-22, las dos con dueño «IVA por pagar» y origen «Pago de IVA
+  registrado a mano»:
+  - «Pago de IVA · Pago de IVA registrado a mano · IVA de prueba… · Hacienda · Sale ₡1.000 · IVA por pagar ·
+    Anulado»;
+  - «Pago de IVA anulado · Pago de IVA registrado a mano · Anulación de: IVA de prueba… · — · Entra ₡1.000 ·
+    IVA por pagar».
+  Captura `10`.
+- **e. «Cómo quedó»: OK.** Del pago: caja 14.482.932,72, ganancia 13.331.231,72, tiendas 147.670,10, capital
+  1.000.000, **IVA por pagar 4.030,90**; estado «Anulado el 2026-10-22 … por Ana Admin · <motivo>». De la
+  anulación: caja 14.483.932,72 e **IVA por pagar 5.030,90**. Capturas `07`, `11_*`.
+- **f. Descarga: OK.** `libro-de-movimientos-2026-10-22.xlsx`, leído con `exceljs`. Cabecera con «Es dinero
+  de». Las filas 40 («Pago de IVA», Hacienda, Sale 1000, saldo 14482932.72) y 41 («Pago de IVA anulado», Entra
+  1000, saldo 14483932.72) llevan **«IVA por pagar»**. El saldo inicial lleva «Ordenex (capital)». En la hoja
+  «Detalle por guía», las dos filas aparecen con su concepto.
+- **Con periodo (resto del *Hecho* de F.8): OK.** Periodo 01–22 oct 2026: «Movimiento neto del periodo» ₡0,
+  entró 1.000 y salió 1.000, 2 movimientos. Ganancia ₡0, IVA cobrado ₡0, IVA por pagar ₡0, y aparece el aviso
+  de que con filtros la cifra no es el dinero de hoy. Captura `13_wallet_con_periodo_octubre`.
+
+Los datos sembrados se quedan en la base local: el saldo inicial (es único y no se borra) y el Pago de IVA
+con su anulación.
+
+**m4 (ayuda):** la frase «Los que se revirtieron antes, sin motivo, se ven Anulado · motivo no registrado»
+vuelve al párrafo de gastos, sueldos y gastos fijos de `docs/ayuda/oficina/wallet-caja.md`. Ningún test
+fijaba su posición. Corrí los 22 archivos que leen esa ayuda: 22/22, 404 tests verdes.

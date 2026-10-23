@@ -403,11 +403,11 @@ movimiento no se puede anular: …»** sobre un cobro, es uno de los cobros anti
 de un gasto de la tienda, o uno sin su línea en la caja: se explica en el propio aviso.
 
 Al anular un **gasto de Ordenex**, un **sueldo** o un **gasto fijo cobrado**, se registra una **Corrección
-de caja (suma)** por el mismo monto: la caja y la ganancia vuelven a subir.
+de caja (suma)** por el mismo monto: la caja y la ganancia vuelven a subir. Los que se revirtieron antes,
+sin motivo, se ven **Anulado · motivo no registrado**.
 
 Al anular un **Pago de IVA**, se registra **Pago de IVA anulado** por el mismo monto: la cifra grande y
-el **IVA por pagar** vuelven a subir, y la **ganancia no cambia**. Los que se revirtieron antes,
-sin motivo, se ven **Anulado · motivo no registrado**.
+el **IVA por pagar** vuelven a subir, y la **ganancia no cambia**.
 
 Lo que nace de un cierre, una anulación y las salidas de los cobros reclasificados **no ofrecen
 Anular…**: el detalle no tiene el botón.
