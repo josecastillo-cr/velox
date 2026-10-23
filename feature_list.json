@@ -5828,20 +5828,20 @@
       "complexity": "baja",
       "depends_on": 485,
       "branch": "feat/487-producto-detalle-guia-libros",
-      "status_note": "HECHA en dev (PR #869, 68e012c0, 2026-10-22), sin desplegar. Producto movido a la cabecera compartida filaCabeceraDeGuia; columna desmarcable tras Remision en los 4 libros. Sin backend. Gate --rapido verde en rama (8587, incl. integration/db) y en dev tras merge (INIT_EXIT=0)."
+      "status_note": "HECHA en dev (PR #869, 68e012c0, 2026-10-22), DESPLEGADA en prod (release #871, eabb47b0, 2026-10-22). Producto movido a la cabecera compartida filaCabeceraDeGuia; columna desmarcable tras Remision en los 4 libros. Sin backend. Gate --rapido verde en rama (8587, incl. integration/db) y en dev tras merge (INIT_EXIT=0)."
     },
     {
       "id": 488,
       "title": "ganancia de la caja sin IVA",
       "description": "El KPI «Ganancia de Ordenex» de /wallet muestra la ganancia sin IVA y, debajo y más pequeño, el IVA cobrado; el IVA sale del desglose de la ganancia a un bolsillo «IVA por pagar» y un egreso nuevo «Pago de IVA» lo baja.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "media",
       "depends_on": null,
       "spec_path": "specs/488-ganancia-caja-sin-iva",
       "branch": "feat/488-ganancia-caja-sin-iva",
-      "status_note": "Decisiones del humano (2026-10-22): 1a el IVA sale de «De Ordenex» a un tercer bolsillo «IVA por pagar»; 2a egreso nuevo «Pago de IVA» que baja el IVA por pagar sin tocar la ganancia. Spec aprobado el 2026-10-22 con los supuestos P1-P6 tal cual."
+      "status_note": "HECHA en dev (PR #870, f4a3473b), DESPLEGADA en prod (release #871, eabb47b0, 2026-10-22). Migraciones 488_enums y 488_checks aplicadas en prod. IVA neto medido antes (progress/contraste_488.md): ganancia y De Ordenex bajan 2.341.138,03; IVA por pagar nace en esa cifra. Revision RECHAZO de proceso, cerrado (progress/review_488.md). Gate completo: 18 rojos intermitentes, 159/159 aislados. Abierto: porcion de IVA de la barra puede quedar < 1 px."
     }
   ]
 }
