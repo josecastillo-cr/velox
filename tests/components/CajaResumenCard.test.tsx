@@ -38,6 +38,11 @@ const RESUMEN: CajaResumenDTO = {
   periodoFiltrado: false,
   // Feature 231 (R9/R10): 10 000 / 12 000 x 100 = 83.333… -> "83.33".
   porcentajeTiendas: "83.33",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero",
+  porcentajeIva: "0.00",
   modoComposicion: "dos_bolsillos",
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0.
   capital: "0.00",
@@ -243,8 +248,10 @@ describe("CajaResumenCard — la nota de la diferencia (R60)", () => {
     const texto = diferencia?.textContent ?? "";
 
     expect(texto.length).toBeGreaterThan(0);
-    // Ninguna sigla: nada de dos o más mayúsculas seguidas.
-    expect(texto).not.toMatch(/\b[A-ZÁÉÍÓÚÑ]{2,}\b/);
+    // Ninguna sigla: nada de dos o más mayúsculas seguidas. Ficha 488 (R18/R38): salvo «IVA», que la
+    // nota nombra porque la ganancia ya no lo incluye (antes: `not.toMatch(/\b[A-ZÁÉÍÓÚÑ]{2,}\b/)`).
+    expect((texto.match(/\b[A-ZÁÉÍÓÚÑ]{2,}\b/g) ?? []).filter((s) => s !== "IVA")).toEqual([]);
+    expect(texto).toContain("IVA");
     for (const palabra of JERGA) {
       expect(texto.toLowerCase(), `la nota dice «${palabra}»`).not.toContain(
         palabra.toLowerCase(),
@@ -391,6 +398,11 @@ describe("CajaResumenCard — money-safe en el navegador (R64)", () => {
       // última línea afirma que ningún importe de la tarjeta se lee «₡0».
       capital: "5.00",
       signoCapital: "positivo",
+      // Ficha 488: el IVA cobrado y el IVA por pagar también se pintan; por la misma razón que el
+      // capital, no pueden ir en `0.00`.
+      ivaCobrado: "7.00",
+      ivaPorPagar: "6.00",
+      signoIvaPorPagar: "positivo",
     });
 
     expect(screen.getByText("₡12.345.678.901,99")).toBeInTheDocument();
@@ -581,7 +593,9 @@ describe("Ficha 459 — la nota de la diferencia usa el rótulo vigente (design 
     pintar(FLUJO);
     expect(
       screen.getByText(
-        "«Flujo de dinero registrado» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de Ordenex» es solo lo que Ordenex gana menos lo que gasta: no incluye el dinero de las tiendas ni el saldo inicial o los aportes.",
+        // Ficha 488 (R18): «…no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los
+        // aportes.» (antes: «…no incluye el dinero de las tiendas ni el saldo inicial o los aportes.»).
+        "«Flujo de dinero registrado» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de Ordenex» es solo lo que Ordenex gana menos lo que gasta: no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.",
       ),
     ).toBeInTheDocument();
     cleanup();

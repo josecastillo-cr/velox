@@ -300,6 +300,11 @@ const CAJA_CON_CENTIMOS: CajaResumenDTO = {
   deTerceros: "8999.67",
   periodoFiltrado: false,
   porcentajeTiendas: "72.49",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero",
+  porcentajeIva: "0.00",
   modoComposicion: "dos_bolsillos",
   capital: "1000.33",
   signoCapital: "positivo",

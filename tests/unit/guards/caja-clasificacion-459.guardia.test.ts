@@ -152,8 +152,13 @@ function problemasDeClasificacion(t: Tablas): string[] {
   if (JSON.stringify(cargos) !== JSON.stringify(cargosEsperados)) {
     problemas.push(`cargos a tienda = ${JSON.stringify(cargos)}`);
   }
+  // FICHA 488 (design §13): «todo cargo es `propio` o `iva`». El IVA de los cargos (los tres del feed y
+  // el reverso del IVA del cobro por devolucion a origen) es dueño `iva` desde la 488; un cargo de
+  // TERCEROS (o de capital) sigue siendo un problema: la contraprueba de abajo lo pone en rojo.
   for (const c of cargos) {
-    if (t.naturaleza[c] !== "propio") problemas.push(`${c}: cargo que no es propio`);
+    if (t.naturaleza[c] !== "propio" && t.naturaleza[c] !== "iva") {
+      problemas.push(`${c}: cargo que no es propio`);
+    }
   }
 
   return problemas;
@@ -205,12 +210,14 @@ describe("459 — guardia de la clasificacion de la caja y del libro de las tien
     expect(TIPO_POR_CATEGORIA_TIENDA.cobro_tienda_anulado).toBe("credito");
   });
 
-  it("⭑ 458-B (R68/R91, design §2.3): los dos reversos del cobro por devolución a origen son propios, reversos de cargo y suben «De las tiendas»", () => {
+  it("⭑ 458-B (R68/R91, design §2.3): los dos reversos del cobro por devolución a origen son reversos de cargo y suben «De las tiendas»", () => {
     for (const c of ["egreso_reverso_flete_devolucion", "egreso_reverso_iva_flete_devolucion"] as const) {
-      expect(NATURALEZA_POR_CATEGORIA[c]).toBe("propio");
       expect(LIQUIDEZ_POR_CATEGORIA[c]).toBe("cargo_a_tienda");
       expect(efectoEnDeLasTiendas(REALES, c)).toBe(1);
     }
+    // FICHA 488 (R10): el del flete es propio (baja la ganancia); el del IVA, `iva` (baja el IVA por pagar).
+    expect(NATURALEZA_POR_CATEGORIA.egreso_reverso_flete_devolucion).toBe("propio");
+    expect(NATURALEZA_POR_CATEGORIA.egreso_reverso_iva_flete_devolucion).toBe("iva");
     // Y son las parejas de los dos creditos espejo del libro de la tienda (contrapartidas +2).
     expect(CONTRAPARTIDA_EN_CAJA.flete_devolucion_anulado).toBe("egreso_reverso_flete_devolucion");
     expect(CONTRAPARTIDA_EN_CAJA.iva_flete_devolucion_anulado).toBe("egreso_reverso_iva_flete_devolucion");
@@ -343,6 +350,22 @@ describe("459 — guardia de la clasificacion de la caja y del libro de las tien
       };
       const p = problemasDeClasificacion(cargoComoEfectivo);
       expect(p).toContain("flete (-1) ↔ ingreso_flete (0): no mueven igual");
+    });
+
+    it("⭑ 488 (design §13): un cargo clasificado como TERCEROS sigue en rojo («cargo = propio o iva»)", () => {
+      // Relajar (4) a «propio o iva» no puede abrir la puerta a un cargo de terceros: el IVA del flete
+      // como terceros es un cargo que no es de Ordenex ni de Hacienda.
+      const cargoDeTerceros: Tablas = {
+        ...REALES,
+        naturaleza: { ...NATURALEZA_POR_CATEGORIA, ingreso_iva_flete: "terceros" },
+      };
+      expect(problemasDeClasificacion(cargoDeTerceros)).toContain("ingreso_iva_flete: cargo que no es propio");
+      // Y de capital, tambien.
+      const cargoDeCapital: Tablas = {
+        ...REALES,
+        naturaleza: { ...NATURALEZA_POR_CATEGORIA, ingreso_flete: "capital" },
+      };
+      expect(problemasDeClasificacion(cargoDeCapital)).toContain("ingreso_flete: cargo que no es propio");
     });
 
     it("un tipo de la tienda cambiado → rojo", () => {

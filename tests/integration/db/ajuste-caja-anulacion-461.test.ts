@@ -127,7 +127,7 @@ describeSiHayBase("461/R69–R71 — anular una correccion de caja (Postgres rea
     expect(m.despues.deTerceros).toBe(m.antes.deTerceros);
     // R7 en los tres momentos.
     for (const r of [m.antes, m.conCorreccion, m.despues]) {
-      expect(suma([r.ganancia, r.deTerceros, r.capital])).toBe(r.enCaja);
+      expect(suma([r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar])).toBe(r.enCaja); // 488: + IVA por pagar
     }
 
     // R71: el libro marca la ORIGINAL como documento `ajuste_caja` (antes sin anular, despues anulada) y

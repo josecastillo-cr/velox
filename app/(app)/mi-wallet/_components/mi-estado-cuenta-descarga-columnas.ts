@@ -21,10 +21,15 @@ import { resultadosTexto } from "./detalle-mi-movimiento-labels";
 /** Ámbito PROPIO de la hoja de detalle de `/mi-wallet` (se conserva el de la 464, R52). */
 export const AMBITO_DESCARGA_MI_WALLET_DETALLE = "mi-wallet-detalle-orden";
 
-/** R32 — la hoja «Detalle por guía» de `/mi-wallet`, en este orden (CONTRATO, `toEqual` a mano). */
+/**
+ * R32 — la hoja «Detalle por guía» de `/mi-wallet`, en este orden (CONTRATO, `toEqual` a mano).
+ * Ficha 487 — «Producto» justo tras «Remisión», como en la caja (485); desmarcable (fuera de
+ * `FIJAS_DETALLE_POR_GUIA`) y marcada también para quien ya tenía guardada la preferencia.
+ */
 export const COLUMNAS_DESCARGA_DETALLE_GUIA_MI_WALLET: DescargaColumna[] = [
   COLUMNA_LIBRO.guia,
   COLUMNA_LIBRO.remision,
+  COLUMNA_LIBRO.producto,
   COLUMNA_LIBRO.destinatario,
   COLUMNA_LIBRO.cierre,
   COLUMNA_LIBRO.resultado,

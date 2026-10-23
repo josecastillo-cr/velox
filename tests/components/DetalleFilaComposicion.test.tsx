@@ -53,19 +53,18 @@ const COMPOSICION: ComposicionGananciaDTO = {
     ingreso_flete: "150.00",
     ingreso_flete_devolucion: "4000.00",
     ingreso_comision_cod: "900.00",
-    ingreso_iva_flete: "19.50",
-    ingreso_iva_flete_devolucion: "520.00",
-    ingreso_iva_comision_cod: "30.25",
+    // Ficha 488 (R19): fuera `ingreso_iva_flete` ("19.50"), `ingreso_iva_flete_devolucion` ("520.00")
+    // e `ingreso_iva_comision_cod` ("30.25"): ya no son ingreso propio.
     ingreso_ajuste: "90.00",
     ingreso_cobro_tienda: "0.00", // ficha 461: la exige el `Record` total
   },
-  totalIngresos: "5709.75",
+  totalIngresos: "5140.00", // ficha 488: antes "5709.75" (con los tres IVA)
   egresos: {
     egreso_pago_mensajero: "700.00",
     egreso_ajuste: "45.75",
     egreso_reverso_cobro_tienda: "0.00", // ficha 461: la exige el `Record` total
     egreso_reverso_flete_devolucion: "0.00", // ficha 458-B: la exige el `Record` total
-    egreso_reverso_iva_flete_devolucion: "0.00", // ficha 458-B
+    // Ficha 488: fuera `egreso_reverso_iva_flete_devolucion` ("0.00"): netea contra el IVA por pagar.
   },
   otrosEgresos: "194.25",
   hayOtrosEgresos: true,
@@ -77,18 +76,23 @@ const RESUMEN: CajaResumenDTO = {
   salidas: "2190.75",
   enCaja: "15809.25",
   signoEnCaja: "positivo",
-  ingresosPropios: "5709.75",
+  ingresosPropios: "5140.00", // ficha 488: antes "5709.75"
   egresosPropios: "2190.75",
-  ganancia: "3519.00",
+  ganancia: "2949.25", // ficha 488: antes "3519.00"
   signoGanancia: "positivo",
   deTerceros: "12290.25",
   periodoFiltrado: false,
   porcentajeTiendas: "77.74",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero",
+  porcentajeIva: "0.00",
   modoComposicion: "dos_bolsillos",
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "3519.00",
+  deOrdenex: "2949.25", // ficha 488: antes "3519.00"
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "12290.25",
   estado: "flujo",
@@ -353,10 +357,12 @@ describe("Ficha 339 — el nombre de cada control y sus estados (R24/R25/R26)", 
     // Las dieciséis filas del catálogo: 8 de ingreso + 7 de egreso + «Otros», que aquí se pinta.
     // (Ficha 461, R27: + «Ordenex le cobra a una tienda» y + «Cobros a una tienda anulados».)
     // (Ficha 458-B: + las dos filas de la anulacion de un cobro por devolución a origen: 18.)
-    expect(controles).toHaveLength(18);
+    // (Ficha 488, R19: − las tres filas de IVA de ingreso y − la anulación del IVA del flete por
+    // devolución a origen: 18 → 14.)
+    expect(controles).toHaveLength(14);
 
     const nombres = controles.map((b) => b.getAttribute("aria-label") ?? "");
-    expect(new Set(nombres).size).toBe(18);
+    expect(new Set(nombres).size).toBe(14); // ficha 488: antes 18
     // Y cada nombre CONTIENE el rótulo visible de su fila («Label in Name»).
     expect(nombres).toContain(ABRIR_MENSAJEROS);
     expect(nombres).toContain(ABRIR_AJUSTES);

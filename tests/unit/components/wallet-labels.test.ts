@@ -2,19 +2,29 @@ import { describe, it, expect } from "vitest";
 
 import {
   ANULAR_DOCUMENTO_CAJA_RESPUESTA,
+  CAJA_COMPOSICION_LABEL,
+  CAJA_COMPOSICION_MENSAJE,
   CAJA_RESUMEN_AVISO_TERCEROS,
+  CAJA_RESUMEN_LABEL,
+  CAJA_RESUMEN_NOTA_DIFERENCIA,
   CATEGORIA_LABEL,
   CATEGORIA_TODAS_OPTION,
+  DESCRIPCION_EGRESO_LABEL,
+  DESCRIPCION_EGRESO_PLACEHOLDER,
   DOCUMENTO_CAJA_NOMBRE,
+  DUENO_LABEL,
   MOTIVO_NO_ANULABLE_LABEL,
   ORIGEN_LABEL,
   TIPO_EGRESO_MANUAL_LABEL,
+  composicionCajaNombreAccesible,
 } from "@/app/(app)/wallet/_components/wallet-labels";
+import { FRASE_DEL_EFECTO } from "@/app/(app)/wallet/_components/wallet-conceptos-manuales";
 import { opcionesDeConceptos } from "@/components/shared/wallet/conceptos-filtro";
 import { EGRESO_NOMBRADO_LABEL } from "@/app/(app)/wallet/_components/composicion-detalle-labels";
 import {
   WALLET_MOVIMIENTO_CATEGORIA_SEED,
   WALLET_ORIGEN_TIPO_SEED,
+  type CajaResumenDTO,
   type WalletMovimientoCategoria,
   type WalletOrigenTipo,
 } from "@/lib/types/wallet";
@@ -63,6 +73,9 @@ const CONCEPTOS_ESPERADOS: Record<WalletMovimientoCategoria, string> = {
   // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, flete e IVA por separado.
   egreso_reverso_flete_devolucion: "Flete por devolución a origen cobrado a la tienda anulado",
   egreso_reverso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda anulado",
+  // Ficha 488 (design §6, R29): el Pago de IVA y su anulacion.
+  egreso_pago_iva: "Pago de IVA",
+  ingreso_reverso_pago_iva: "Pago de IVA anulado",
 };
 
 /** design §7.3 — los 13 origenes del libro de la caja (+ el de la 457: 14). */
@@ -85,14 +98,15 @@ const ORIGENES_ESPERADOS: Record<WalletOrigenTipo, string> = {
 };
 
 describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42, design §7.2)", () => {
-  it("dice exactamente los 27 textos aprobados (23 de la 461 + 2 de la 457 + 2 de la 458-B), y el seed es exactamente esas 27 claves", () => {
+  // Ficha 488: 27 → 29 (+ «Pago de IVA» y «Pago de IVA anulado»).
+  it("dice exactamente los 29 textos aprobados (23 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488), y el seed es exactamente esas 29 claves", () => {
     expect(CATEGORIA_LABEL).toEqual(CONCEPTOS_ESPERADOS);
     // Anti-vacuidad: la igualdad de arriba compara contra una lista escrita a mano; esta linea
     // afirma que esa lista cubre el catalogo ENTERO y no un subconjunto que casara por casualidad.
     expect([...WALLET_MOVIMIENTO_CATEGORIA_SEED].sort()).toEqual(
       Object.keys(CONCEPTOS_ESPERADOS).sort(),
     );
-    expect(WALLET_MOVIMIENTO_CATEGORIA_SEED).toHaveLength(27);
+    expect(WALLET_MOVIMIENTO_CATEGORIA_SEED).toHaveLength(29); // ficha 488: antes 27
   });
 
   it("⭑ 457 (R45/R53): el pago de una tienda a Ordenex y su anulacion, con los nombres reservados por la 461", () => {
@@ -129,7 +143,7 @@ describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42,
     );
   });
 
-  it("el filtro por concepto ofrece los 27 con SU nombre (R42; 457/R45; 458-B), tras la opcion «todas»", () => {
+  it("el filtro por concepto ofrece los 29 con SU nombre (R42; 457/R45; 458-B; 488), tras la opcion «todas»", () => {
     // 458-A (TA.3): el filtro ofrece los conceptos CON movimientos; con los 27 presentes, los 27.
     const lista = opcionesDeConceptos(
       WALLET_MOVIMIENTO_CATEGORIA_SEED.map((categoria) => ({ categoria, movimientos: 1 })),
@@ -139,7 +153,7 @@ describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42,
     );
     expect(lista[0]).toEqual({ value: "", label: "Todas las categorías" });
     const opciones = new Map(lista.slice(1).map((o) => [o.value, o.label]));
-    expect(opciones.size).toBe(27);
+    expect(opciones.size).toBe(29); // ficha 488: antes 27
     for (const [clave, texto] of Object.entries(CONCEPTOS_ESPERADOS)) {
       expect(opciones.get(clave), clave).toBe(`${texto} (1)`);
     }
@@ -177,7 +191,12 @@ describe("461 — el resto de textos de la caja que esta ficha toca (R42/R50, de
   });
 
   it("el tipo de egreso manual se llama «Gasto de Ordenex», igual que el concepto del dialogo", () => {
-    expect(TIPO_EGRESO_MANUAL_LABEL).toEqual({ gasto_variable: "Gasto de Ordenex", sueldo: "Sueldo" });
+    // Ficha 488 (R21): + `pago_iva: "Pago de IVA"` (antes `{ gasto_variable, sueldo }`).
+    expect(TIPO_EGRESO_MANUAL_LABEL).toEqual({
+      gasto_variable: "Gasto de Ordenex",
+      sueldo: "Sueldo",
+      pago_iva: "Pago de IVA",
+    });
     expect(TIPO_EGRESO_MANUAL_LABEL.gasto_variable).toBe(CATEGORIA_LABEL.egreso_gasto_variable);
   });
 
@@ -218,7 +237,96 @@ describe("461 — el resto de textos de la caja que esta ficha toca (R42/R50, de
       egreso_reverso_cobro_tienda: "Cobros a una tienda anulados",
       // Ficha 458-B (design 458 §2.3): las dos filas de la anulacion de un cobro por devolución a origen.
       egreso_reverso_flete_devolucion: "Fletes por devolución a origen cobrados a una tienda anulados",
-      egreso_reverso_iva_flete_devolucion: "IVA de fletes por devolución a origen cobrados a una tienda anulados",
+      // Ficha 488 (R19): fuera `egreso_reverso_iva_flete_devolucion: "IVA de fletes por devolución a
+      // origen cobrados a una tienda anulados"` — netea contra el IVA por pagar, no contra la ganancia.
     });
+  });
+});
+
+// =================================================================================================
+// FICHA 488 (T F.1, design §6) — los textos del IVA por pagar. Literales escritos a mano (R17, R18, R38).
+// =================================================================================================
+
+/** Un resumen con importes distintos entre si, para que el nombre accesible no case por casualidad. */
+const RESUMEN_488 = {
+  deTerceros: "10000.00",
+  deOrdenex: "2500.25",
+  ivaPorPagar: "340.50",
+} as unknown as CajaResumenDTO;
+
+describe("488 — los textos de la tarjeta de la caja (R11–R13, R17, R18)", () => {
+  it("la pista de la ganancia dice que no lleva el IVA, y los rotulos del IVA son los aprobados", () => {
+    expect(CAJA_RESUMEN_LABEL.gananciaPista).toBe("Lo que Ordenex gana menos lo que gasta, sin el IVA");
+    expect(CAJA_RESUMEN_LABEL.ivaCobrado).toBe("IVA cobrado a las tiendas");
+    expect(CAJA_RESUMEN_LABEL.ivaPorPagar).toBe("IVA por pagar");
+    expect(CAJA_RESUMEN_LABEL.ivaPorPagarPista).toBe(
+      "El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de Ordenex.",
+    );
+    expect(CAJA_COMPOSICION_LABEL.iva).toBe("IVA por pagar");
+  });
+
+  it("R15: el nombre accesible de la barra enuncia los TRES bolsillos con su importe", () => {
+    expect(composicionCajaNombreAccesible(RESUMEN_488)).toBe(
+      "Reparto del dinero en caja. De las tiendas: ₡10.000. De Ordenex: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡340,50.",
+    );
+  });
+
+  it("R17: con las tiendas debiendo, el mensaje ya no dice que TODO lo de la caja es de Ordenex", () => {
+    expect(CAJA_COMPOSICION_MENSAJE.solo_ordenex).toBe(
+      "Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.",
+    );
+    // Contraprueba escrita a mano: la frase retirada.
+    expect(CAJA_COMPOSICION_MENSAJE.solo_ordenex).not.toMatch(/todo lo que hay en la caja es de Ordenex/);
+  });
+
+  it("R18: la nota de la diferencia dice que la ganancia no incluye el IVA", () => {
+    expect(CAJA_RESUMEN_NOTA_DIFERENCIA("Dinero en caja")).toBe(
+      "«Dinero en caja» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de Ordenex» es solo lo que Ordenex gana menos lo que gasta: no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.",
+    );
+  });
+});
+
+describe("488 — el Pago de IVA y el dueño «IVA por pagar» (R21, R29)", () => {
+  it("R29: el dueño de un movimiento de IVA se llama «IVA por pagar» en el libro y su descarga", () => {
+    expect(DUENO_LABEL).toEqual({
+      propio: "Ordenex",
+      terceros: "Tienda",
+      capital: "Ordenex (capital)",
+      iva: "IVA por pagar",
+    });
+  });
+
+  it("R21: los campos del Pago de IVA en el dialogo", () => {
+    expect(DESCRIPCION_EGRESO_LABEL.pago_iva).toBe("Detalle del pago");
+    expect(DESCRIPCION_EGRESO_PLACEHOLDER.pago_iva).toBe("Ej. IVA de septiembre declarado a Hacienda");
+    expect(FRASE_DEL_EFECTO.pago_iva).toBe(
+      "Sale dinero de la caja para pagarle a Hacienda el IVA cobrado y baja el IVA por pagar; la ganancia no cambia.",
+    );
+  });
+
+  it("R38: ningun texto nuevo lleva una sigla salvo «IVA»", () => {
+    const nuevos = [
+      CAJA_RESUMEN_LABEL.gananciaPista,
+      CAJA_RESUMEN_LABEL.ivaCobrado,
+      CAJA_RESUMEN_LABEL.ivaPorPagar,
+      CAJA_RESUMEN_LABEL.ivaPorPagarPista,
+      CAJA_COMPOSICION_LABEL.iva,
+      CAJA_COMPOSICION_MENSAJE.solo_ordenex ?? "",
+      CAJA_RESUMEN_NOTA_DIFERENCIA("Dinero en caja"),
+      composicionCajaNombreAccesible(RESUMEN_488),
+      DUENO_LABEL.iva,
+      TIPO_EGRESO_MANUAL_LABEL.pago_iva,
+      DESCRIPCION_EGRESO_LABEL.pago_iva,
+      DESCRIPCION_EGRESO_PLACEHOLDER.pago_iva,
+      FRASE_DEL_EFECTO.pago_iva,
+      CATEGORIA_LABEL.egreso_pago_iva,
+      CATEGORIA_LABEL.ingreso_reverso_pago_iva,
+    ];
+    /** Dos o mas mayusculas seguidas = una sigla. */
+    const siglas = (texto: string) => (texto.match(/\b[A-ZÁÉÍÓÚÑ]{2,}\b/g) ?? []).filter((s) => s !== "IVA");
+    // Autocomprobacion: el detector SI caza una sigla.
+    expect(siglas("Pago del COD por SLA")).toEqual(["COD", "SLA"]);
+    expect(siglas("IVA por pagar")).toEqual([]);
+    for (const texto of nuevos) expect(siglas(texto), texto).toEqual([]);
   });
 });

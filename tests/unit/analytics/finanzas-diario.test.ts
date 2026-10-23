@@ -138,7 +138,30 @@ describe("La derivación del dinero por día", () => {
       fecha: "2026-08-18",
       ingresos: "0.00",
       egresos: "0.00",
-      ganancia: "2825.00",
+      // FICHA 488 (R33): la ganancia del dia SIN el IVA (325): 2 500. Antes de la 488, 2 825.
+      ganancia: "2500.00",
+      pagoMensajeros: "0.00",
+      pagoTiendas: "0.00",
+    });
+  });
+
+  it("488/R33: la ganancia del dia no lleva IVA y el Pago de IVA cae en las SALIDAS del dia", () => {
+    // Flete 1 000 + su IVA 130 + IVA de comision 13 ; sueldo 200 ; Pago de IVA 100 ; anulacion de un
+    // Pago de IVA 40. A mano: ganancia = 1 000 − 200 = 800 (ni el IVA ni el pago ni su anulacion).
+    // Salidas (efectivo) = 200 + 100 = 300. Entradas (efectivo) = 40 (la anulacion entra de verdad).
+    const [dia] = derivarFinanzasDiarias([
+      fila("2026-10-20", "ingreso_flete", "ingreso", "1000.00"),
+      fila("2026-10-20", "ingreso_iva_flete", "ingreso", "130.00"),
+      fila("2026-10-20", "ingreso_iva_comision_cod", "ingreso", "13.00"),
+      fila("2026-10-20", "egreso_sueldo", "egreso", "200.00"),
+      fila("2026-10-20", "egreso_pago_iva", "egreso", "100.00"),
+      fila("2026-10-20", "ingreso_reverso_pago_iva", "ingreso", "40.00"),
+    ]);
+    expect(dia).toEqual({
+      fecha: "2026-10-20",
+      ingresos: "40.00",
+      egresos: "300.00",
+      ganancia: "800.00",
       pagoMensajeros: "0.00",
       pagoTiendas: "0.00",
     });

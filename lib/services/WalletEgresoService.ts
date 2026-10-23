@@ -23,6 +23,7 @@ import {
   type ReversarEgresoInput,
 } from "@/lib/types/wallet";
 import { instanteDelMovimientoManual } from "@/lib/utils/fecha-movimiento-manual";
+import { categoriaDelContraAsiento } from "@/lib/utils/egreso-anulable";
 import { esAccesoTotal } from "@/lib/auth/acceso-total";
 import { CATEGORIA_LABEL } from "@/lib/constants/wallet-rotulos";
 
@@ -150,7 +151,9 @@ export class WalletEgresoService implements IWalletEgresoService {
       {
         id: reversoId,
         tipo: "ingreso",
-        categoria: "ingreso_ajuste",
+        // FICHA 488 (design §4.2): la MISMA categoria que la anulacion con motivo, para que un reverso
+        // sembrado sobre un Pago de IVA devuelva el IVA por pagar y no suba la ganancia.
+        categoria: categoriaDelContraAsiento(original.categoria),
         monto: original.monto,
         origenTipo: "gasto",
         origenId: original.id,

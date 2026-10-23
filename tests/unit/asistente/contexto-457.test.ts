@@ -53,7 +53,8 @@ describe("457 R68/R69 — la oficina puede preguntar por el pago de una tienda a
     );
     expect(caja).toContain("**Pago de una tienda a Ordenex**");
     // FICHA 458-C (TC.6, R37) — REESCRITO: el registro único tiene DIEZ conceptos (impl_458-C.md).
-    expect(caja).toContain("**diez conceptos en tres grupos**");
+    // FICHA 488 (R21) — el diálogo gana «Pago de IVA»: once (antes «**diez conceptos en tres grupos**»).
+    expect(caja).toContain("**once conceptos en tres grupos**");
     expect(caja).toContain(
       "**Llega dinero a la caja** | Aporte de dinero a la caja · Una tienda le paga a Ordenex · Corrección de caja (suma)",
     );

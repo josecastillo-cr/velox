@@ -33,6 +33,8 @@ export interface ComoQuedoDTO {
     ganancia: string;
     deTiendas: string;
     capital: string;
+    /** FICHA 488 (R30) — el IVA por pagar tras el movimiento; STRING escala 2 (R34). */
+    ivaPorPagar: string;
   } | null;
   /**
    * El saldo de la cuenta afectada tras el movimiento (la ventana de §3.2). Para una fila de la caja,

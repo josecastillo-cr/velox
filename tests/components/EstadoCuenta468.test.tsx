@@ -305,6 +305,7 @@ describe("468 R7/R26/R53 — con detalle: UNA petición, dos hojas", () => {
     expect(guias.filas[0]).toEqual([
       "Guía",
       "Remisión",
+      "Producto",
       "Destinatario",
       "Mensajero",
       "Cierre",
@@ -314,17 +315,17 @@ describe("468 R7/R26/R53 — con detalle: UNA petición, dos hojas", () => {
       "Entra",
       "Sale",
     ]);
-    // [Guía, Concepto, Entra, Sale]
-    expect(guias.filas.slice(1).map((f) => [f[0], f[6], f[8], f[9]])).toEqual([
-      ["1001", null, null, null],
-      ["1001", movs.filas[2][1], 10, null],
-      ["1001", "Total de la guía", 10, 0],
-      ["1002", null, null, null],
-      ["1002", movs.filas[2][1], 20, null],
-      ["1002", "Total de la guía", 20, 0],
-      [null, "Movimientos sin guía", null, null],
-      [null, movs.filas[3][1], null, 30],
-      [null, "TOTAL GENERAL", 30, 30],
+    // [Guía, Producto, Concepto, Entra, Sale] — 487: el producto solo en la cabecera de cada guía.
+    expect(guias.filas.slice(1).map((f) => [f[0], f[2], f[7], f[9], f[10]])).toEqual([
+      ["1001", "Camisa", null, null, null],
+      ["1001", null, movs.filas[2][1], 10, null],
+      ["1001", null, "Total de la guía", 10, 0],
+      ["1002", "Gorra", null, null, null],
+      ["1002", null, movs.filas[2][1], 20, null],
+      ["1002", null, "Total de la guía", 20, 0],
+      [null, null, "Movimientos sin guía", null, null],
+      [null, null, movs.filas[3][1], null, 30],
+      [null, null, "TOTAL GENERAL", 30, 30],
     ]);
   });
 
@@ -339,6 +340,7 @@ describe("468 R7/R26/R53 — con detalle: UNA petición, dos hojas", () => {
     expect(guias.filas[0]).toEqual([
       "Guía",
       "Remisión",
+      "Producto",
       "Destinatario",
       "Tienda",
       "Cierre",
@@ -348,7 +350,8 @@ describe("468 R7/R26/R53 — con detalle: UNA petición, dos hojas", () => {
       "Entra",
       "Sale",
     ]);
-    expect(guias.filas[1].slice(0, 4)).toEqual(["2001", "R-9", "Carla", "Tienda Uno"]);
+    expect(guias.filas[1].slice(0, 5)).toEqual(["2001", "R-9", "Bolso", "Carla", "Tienda Uno"]);
+    expect(guias.filas[2][2]).toBeNull();
   });
 
   it("/mi-wallet con «Más recientes»: sale igual en orden ascendente; ninguna cuenta viaja; sin mensajero (R32/R49)", async () => {
@@ -361,6 +364,11 @@ describe("468 R7/R26/R53 — con detalle: UNA petición, dos hojas", () => {
     expect(movs.filas[0]).toEqual(CABECERA_TIENDA);
     expect(movs.filas[1][1]).toBe("Saldo al inicio del periodo");
     expect(guias.filas[0]).not.toContain("Mensajero");
+    // 487: «Producto» tras «Remisión», con el de cada guía solo en su cabecera.
+    expect(guias.filas[0].slice(0, 4)).toEqual(["Guía", "Remisión", "Producto", "Destinatario"]);
+    expect(guias.filas[1].slice(0, 3)).toEqual(["1001", "R-1", "Camisa"]);
+    expect(guias.filas[2][2]).toBeNull();
+    expect(guias.filas[4].slice(0, 3)).toEqual(["1002", "R-2", "Gorra"]);
     expect(JSON.stringify(hojas)).not.toContain("Mario Mensajero");
   });
 });

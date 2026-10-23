@@ -158,6 +158,10 @@ function ComoQuedo({ destino, abierto }: { destino: DetalleMovimiento["destino"]
             <Fila nombre={CAJA_RESUMEN_LABEL.capital}>
               <span className="tabular-nums">{money(data.caja.capital)}</span>
             </Fila>
+            {/* Ficha 488 (R30): el IVA por pagar tras el movimiento. */}
+            <Fila nombre={CAJA_RESUMEN_LABEL.ivaPorPagar}>
+              <span className="tabular-nums">{money(data.caja.ivaPorPagar)}</span>
+            </Fila>
           </>
         )}
         {data.cuenta === null ? null : (

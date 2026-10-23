@@ -98,11 +98,12 @@ describeSiHayBase("458-B/TB.2–TB.3 — las migraciones de la wallet contra Pos
     expect([...origen].sort()).toEqual([...WALLET_ORIGEN_TIPO_SEED].sort());
     expect([...tipos].sort()).toEqual([...HISTORIAL_ACCION_TIPOS].sort());
     expect([...entidades].sort()).toEqual([...HISTORIAL_ACCION_ENTIDADES].sort());
-    expect(caja.slice(-2)).toEqual([...VALORES_458.wallet_movimiento_categoria]);
+    // Ficha 488: + 2 valores de caja al final (el Pago de IVA y su anulacion) → la ventana se corre 2.
+    expect(caja.slice(-4, -2)).toEqual([...VALORES_458.wallet_movimiento_categoria]);
     expect(tienda.slice(-2)).toEqual([...VALORES_458.wallet_tienda_movimiento_categoria]);
     expect(tipos.slice(-2)).toEqual([...VALORES_458.historial_accion_tipo]);
-    // Antes (457): 25 / 16 / 14 / 63 / 24. Despues (458-B): 27 / 18 / 14 / 65 / 24.
-    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([27, 18, 14, 65, 24]);
+    // Antes (457): 25 / 16 / 14 / 63 / 24. Despues (458-B): 27 / 18 / 14 / 65 / 24. Con la 488: 29 en la caja.
+    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([29, 18, 14, 65, 24]);
     const up1 = soloEjecutable(UP_1);
     expect(up1.match(/ADD VALUE IF NOT EXISTS/g)).toHaveLength(6);
     expect(up1).not.toMatch(/CHECK|CREATE TABLE|UPDATE|DELETE|INSERT/);

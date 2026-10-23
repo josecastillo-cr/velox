@@ -71,7 +71,7 @@ export const COLUMNA_LIBRO = {
   registro: { clave: "registro", encabezado: "Registró" },
   guia: { clave: "guia", encabezado: "Guía" },
   remision: { clave: "remision", encabezado: "Remisión" },
-  // Ficha 485 — solo la declara la hoja «Detalle por guía» de la caja; las demás superficies no.
+  // Fichas 485/487 — la declara la hoja «Detalle por guía» de los cuatro libros, justo tras «Remisión».
   producto: { clave: "producto", encabezado: "Producto" },
   destinatario: { clave: "destinatario", encabezado: "Destinatario" },
   tienda: { clave: "tienda", encabezado: "Tienda" },

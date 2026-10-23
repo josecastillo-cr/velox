@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Landmark, TriangleAlert } from "lucide-react";
+import { Landmark, ReceiptText, TriangleAlert } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -70,6 +70,14 @@ import {
 //  - El bolsillo de Ordenex gana una region propia, «Saldo inicial y aportes» (R25). La ganancia
 //    no cambia ni de rotulo ni de valor.
 //  - La tarjeta NUNCA propone ni calcula un saldo inicial (R27): no hay control para eso aqui.
+//
+// ── Ficha 488 (T F.2, design §6.1) — LA GANANCIA, SIN IVA ──
+//
+//  - La cifra del bloque «Ganancia de Ordenex» ya llega sin IVA (R11). Debajo, dentro de la MISMA
+//    region y en tipografia menor, el IVA cobrado a las tiendas (R12).
+//  - Un TERCER bolsillo, «IVA por pagar», hermano de los otros dos, siempre visible —en «flujo» y en
+//    «saldo», con o sin filtros— con su importe, su insignia de signo y una pista que dice que no es
+//    ganancia de Ordenex (R13). Superficie neutra: es dinero que se debe, no una alarma.
 
 /**
  * Feature 200 (tanda 2) — las insignias de signo usan las variantes SEMANTICAS de la
@@ -178,6 +186,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
   const badgePrincipal = SIGNO_BADGE[resumen.signoEnCaja];
   const badgeGanancia = SIGNO_BADGE[resumen.signoGanancia];
   const badgeCapital = SIGNO_BADGE[resumen.signoCapital];
+  const badgeIva = SIGNO_BADGE[resumen.signoIvaPorPagar];
   const ordenex = conBarra ? BOLSILLO_ORDENEX[resumen.modoComposicion] : ORDENEX_NEUTRO;
   // R16/R17/R18 de la 231: lo que hay que decir cuando la barra no se puede partir. Solo con barra.
   const mensajeModo = conBarra ? CAJA_COMPOSICION_MENSAJE[resumen.modoComposicion] : null;
@@ -243,8 +252,8 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
         {/* 2 — la barra (R2 de la 231), SOLO en estado «saldo» (R22 de la 459). */}
         {conBarra ? <BarraComposicionCaja resumen={resumen} /> : null}
 
-        {/* 3 — los DOS bolsillos, hermanos y a la vez (R3). */}
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+        {/* 3 — los bolsillos, hermanos y a la vez (R3). Ficha 488: tres, con el IVA por pagar. */}
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-3">
           <section
             aria-label={CAJA_RESUMEN_LABEL.deTerceros}
             data-bolsillo="tiendas"
@@ -306,6 +315,10 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
               <span className="text-xs text-muted-foreground">
                 {CAJA_RESUMEN_LABEL.gananciaPista}
               </span>
+              {/* Ficha 488 (R12): cuanto entro por IVA, debajo de la cifra y mas pequeno. */}
+              <span data-dato="iva-cobrado" className="text-xs text-muted-foreground tabular-nums">
+                {CAJA_RESUMEN_LABEL.ivaCobrado}: {money(resumen.ivaCobrado)}
+              </span>
             </section>
 
             <div className="grid grid-cols-2 gap-4 border-t pt-3">
@@ -346,6 +359,29 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
               </p>
             )}
           </div>
+
+          {/* Ficha 488 (R13): el tercer bolsillo. No depende del estado ni de los filtros. */}
+          <section
+            aria-label={CAJA_RESUMEN_LABEL.ivaPorPagar}
+            data-bolsillo="iva"
+            className={cn(BOLSILLO, SUPERFICIE_NEUTRA)}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center justify-center rounded-md bg-muted p-2 text-muted-foreground">
+                <ReceiptText className="size-4" aria-hidden="true" />
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">
+                {CAJA_COMPOSICION_LABEL.iva}
+              </span>
+              <Badge variant={badgeIva.variant}>{badgeIva.label}</Badge>
+            </div>
+            <span className={cn(CIFRA_BOLSILLO, "text-foreground")}>
+              {money(resumen.ivaPorPagar)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {CAJA_RESUMEN_LABEL.ivaPorPagarPista}
+            </span>
+          </section>
         </div>
 
         {/* R60 de la 173: en que se diferencian, junto a las cifras y no en otra pantalla. Se

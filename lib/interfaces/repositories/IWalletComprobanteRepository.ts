@@ -57,7 +57,8 @@ export interface IWalletComprobanteRepository {
   tiendaDeFila(movimientoId: string): Promise<string | null>;
   /**
    * FICHA 458-B (revision m6) — ¿esta ANULADO el movimiento de un camino con comprobante lateral?
-   * Egreso de caja: su contra-asiento (`ingreso_ajuste` con origen `gasto`) o su constancia
+   * Egreso de caja: su contra-asiento (cualquiera de `CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO`, con
+   * origen `gasto`; ficha 488: incluye el `ingreso_reverso_pago_iva` del Pago de IVA) o su constancia
    * (`ajuste_caja_anulacion`, que cubre la indemnizacion, D8); correccion: su constancia; cobro de
    * Ordenex: `cobro_tienda_anulacion`; pago de la 172: `liquidacion_anulacion`.
    */

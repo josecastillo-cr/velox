@@ -214,6 +214,11 @@ const RESUMEN = {
   periodoFiltrado: false,
   // Feature 231 (R9/R10): sin dinero de terceros la porcion de las tiendas es 0.
   porcentajeTiendas: "0.00",
+  // Ficha 488 (design §5.1): los cuatro campos del IVA por pagar; en cero, la tarjeta y la barra de antes.
+  ivaCobrado: "0.00",
+  ivaPorPagar: "0.00",
+  signoIvaPorPagar: "cero" as const,
+  porcentajeIva: "0.00",
   modoComposicion: "dos_bolsillos" as const,
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
   capital: "0.00",

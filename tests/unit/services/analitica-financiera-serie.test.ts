@@ -593,7 +593,8 @@ const TOTALES_ESPERADOS: Readonly<Record<string, ImporteAnalitico>> = {
   ingreso_iva: { forma: "bruto_y_neto", bruto: "9730.00", neto: "2930.00", moneda: MONEDA },
   egresos: { forma: "bruto_y_neto", bruto: "9730.00", neto: "2930.00", moneda: MONEDA },
   dinero_en_caja: { forma: "bruto_y_neto", bruto: "9730.00", neto: "1800.00", moneda: MONEDA },
-  ganancia_ordenex: { forma: "bruto_y_neto", bruto: "9730.00", neto: "730.00", moneda: MONEDA },
+  // FICHA 488 (R31): la ganancia sin el IVA del flete (130): 730 → 600.
+  ganancia_ordenex: { forma: "bruto_y_neto", bruto: "9730.00", neto: "600.00", moneda: MONEDA },
   cod_recaudado__por_metodo: {
     forma: "bruto_y_neto",
     bruto: "400.00",

@@ -116,10 +116,10 @@ const LIBRO_COMPLETO: AgregadoCajaRow[] = WALLET_MOVIMIENTO_CATEGORIA_SEED.map((
 }));
 
 describe("R32 — la clasificacion por naturaleza cubre el SEED entero (runtime)", () => {
-  it("CONTROL DE NO-VACUIDAD: el catalogo tiene categorias, y de las TRES naturalezas (ficha 459)", () => {
+  it("CONTROL DE NO-VACUIDAD: el catalogo tiene categorias, y de las CUATRO naturalezas (459: tres; 488: + iva)", () => {
     expect(WALLET_MOVIMIENTO_CATEGORIA_SEED.length).toBeGreaterThan(10);
     const naturalezas = WALLET_MOVIMIENTO_CATEGORIA_SEED.map((c) => NATURALEZA_POR_CATEGORIA[c]);
-    expect(new Set(naturalezas)).toEqual(new Set(["propio", "terceros", "capital"]));
+    expect(new Set(naturalezas)).toEqual(new Set(["propio", "terceros", "capital", "iva"]));
   });
 
   it("R32: toda categoria del catalogo tiene una naturaleza declarada, sin huecos", () => {
@@ -214,17 +214,22 @@ describe("R23/R26 — la particion de la ganancia cubre TODAS las categorias pro
     );
     expect([...WALLET_INGRESO_PROPIO_SEED].sort()).toEqual([...derivados].sort());
     // D5: los seis del feed MAS el ajuste; ficha 461 (R27): MAS el cobro de Ordenex a una tienda.
-    expect(derivados.length).toBe(8);
+    // Ficha 488 (design §2.4, R19): MENOS los tres IVA del feed (dueño `iva`): de 8 a CINCO. El
+    // literal de abajo es el contrato; la igualdad de arriba con la clasificacion sigue intacta.
+    expect(derivados.length).toBe(5);
     expect(derivados).toContain("ingreso_cobro_tienda");
+    for (const iva of ["ingreso_iva_flete", "ingreso_iva_flete_devolucion", "ingreso_iva_comision_cod"]) {
+      expect(derivados, iva).not.toContain(iva);
+    }
   });
 
-  it("⭑ 461 (R27) + 458-B: el reverso del cobro es el TERCER egreso nombrado y los dos del cobro por devolución a origen el cuarto y el quinto (3→5); «otros» sigue siendo solo `egreso_gasto`", () => {
+  it("⭑ 461 (R27) + 458-B + 488: el reverso del cobro es el TERCER egreso nombrado y el del flete del cobro por devolución a origen el cuarto; «otros» sigue siendo solo `egreso_gasto`", () => {
+    // Ficha 488 (design §2.4, R19): el reverso del IVA sale (dueño `iva`): de 5 a CUATRO.
     expect([...WALLET_EGRESO_NOMBRADO_SEED]).toEqual([
       "egreso_pago_mensajero",
       "egreso_ajuste",
       "egreso_reverso_cobro_tienda",
       "egreso_reverso_flete_devolucion", // ficha 458-B
-      "egreso_reverso_iva_flete_devolucion", // ficha 458-B
     ]);
     expect(NATURALEZA_POR_CATEGORIA.egreso_reverso_cobro_tienda).toBe("propio");
     expect(OTROS_EGRESOS_DE_ORDENEX).toEqual(["egreso_gasto"]);

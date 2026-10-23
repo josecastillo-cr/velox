@@ -310,8 +310,11 @@ describe("R18 · egresos se sirve de verdad, incluida la indemnizacion", () => {
     // ⚠️ DADO VUELTA por la 183 (R25): era `toHaveLength(8)`. ⟨D12⟩ (humano, 2026-08-04,
     // `progress/decision_183.md`) anadio `ingreso_ajuste` sin quitar ninguna de las ocho.
     const egresos = listarMetricas({ dominio: "financiera" }).find((m) => m.id === "egresos");
-    // FICHA 459 (P13): DIEZ, con `egreso_pago_por_cuenta_tienda`.
-    expect(egresos?.definicion.categorias).toHaveLength(10);
+    // FICHA 459 (P13): DIEZ, con `egreso_pago_por_cuenta_tienda`. FICHA 488 (R32): DOCE, + el Pago de
+    // IVA y su anulacion.
+    expect(egresos?.definicion.categorias).toHaveLength(12);
+    expect(egresos?.definicion.categorias).toContain("egreso_pago_iva");
+    expect(egresos?.definicion.categorias).toContain("ingreso_reverso_pago_iva");
     expect(egresos?.definicion.categorias).toContain("egreso_pago_por_cuenta_tienda");
     expect(egresos?.definicion.categorias).toContain("ingreso_ajuste");
     // R10/183 — y de la entrada NO cambia nada mas que la definicion y la descripcion.
@@ -475,10 +478,11 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
     expect(tarjeta.enCaja).toBe("1800.00");
   });
 
-  it("`ganancia_ordenex` deja fuera el dinero de terceros: 730, no 2930", async () => {
+  it("`ganancia_ordenex` deja fuera el dinero de terceros y, desde la 488, el IVA: 600, no 2930", async () => {
     const vista = await totalDe("ganancia_ordenex", LIBRO_MIXTO);
 
-    expect(vista.total.neto).toBe("730.00");
+    // FICHA 488 (R31): el IVA del flete (130) ya no es ganancia: 1 000 − 400 = 600 (antes 730).
+    expect(vista.total.neto).toBe("600.00");
     // El bruto es el de lo agregado, igual que en las demas metricas de caja ⟨D1(c)⟩.
     expect(vista.total.bruto).toBe("9730.00");
     expect(vista.id).toBe("ganancia_ordenex");
@@ -491,10 +495,11 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
     expect(enCaja.total.neto).not.toBe(ganancia.total.neto);
     // Ficha 459 (reescrito): 1800 − 730 = 1070 = lo que se les debe a las tiendas
     // (5000 − 3000 + 200 − 1130 de flete e IVA que Ordenex se queda del contra-entrega).
+    // Ficha 488 (R31): 1800 − 600 = 1200 = las tiendas (1070) + el IVA por pagar (130).
     expect(
       Number(enCaja.total.neto) - Number(ganancia.total.neto),
       "solo para leer el descuadre: la aritmetica de dinero vive en Prisma.Decimal",
-    ).toBeCloseTo(1070, 2);
+    ).toBeCloseTo(1200, 2);
   });
 
   it("R51 en el servicio: anadir contra-entrega NO mueve la ganancia y SI mueve la caja", async () => {
@@ -504,7 +509,7 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
     const cajaConTerceros = await totalDe("dinero_en_caja", LIBRO_MIXTO);
 
     expect(gananciaConTerceros.total.neto).toBe(gananciaSinTerceros.total.neto);
-    expect(gananciaConTerceros.total.neto).toBe("730.00");
+    expect(gananciaConTerceros.total.neto).toBe("600.00"); // 488: sin el IVA (antes 730)
     // Y la otra no es insensible: si las dos se movieran igual, serian la misma cifra.
     expect(cajaConTerceros.total.neto).not.toBe(cajaSinTerceros.total.neto);
     // Ficha 459 (reescrito): sin contra-entrega, el flete y su IVA no entran a la caja (son una
@@ -515,11 +520,12 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
   it("459/R12: sin dinero de terceros las dos cifras difieren EXACTAMENTE en los cargos a tiendas", async () => {
     // Sustituye a «un libro sin dinero de terceros hace coincidir las dos (R6)», que medía el doble
     // conteo F2: el flete (1 000) y su IVA (130) no son efectivo. Ganancia 730; caja −400.
+    // Ficha 488 (R31): la ganancia sin el IVA: 1 000 − 400 = 600.
     const enCaja = await totalDe("dinero_en_caja", LIBRO_SOLO_PROPIO);
     const ganancia = await totalDe("ganancia_ordenex", LIBRO_SOLO_PROPIO);
 
     expect(enCaja.total.neto).toBe("-400.00");
-    expect(ganancia.total.neto).toBe("730.00");
+    expect(ganancia.total.neto).toBe("600.00");
   });
 
   it("las dos consultan el libro de la caja y NINGUN otro repositorio", async () => {

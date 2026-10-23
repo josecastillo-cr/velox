@@ -117,6 +117,19 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
     ]);
   });
 
+  it("488/m3 — el Pago de IVA y su anulación tienen su propio origen, no «gasto o sueldo»", async () => {
+    const svc = new OrigenLegibleService(repoFalso());
+    const r = await svc.resolver(
+      "caja",
+      [
+        fila("gasto", { origenId: null, categoria: "egreso_pago_iva" }),
+        fila("gasto", { categoria: "ingreso_reverso_pago_iva", descripcion: "Anulación del pago de IVA" }),
+      ],
+      MAESTRO,
+    );
+    expect(r.map((o) => o.texto)).toEqual(["Pago de IVA registrado a mano", "Pago de IVA registrado a mano"]);
+  });
+
   it("458/O1 — el nombre de la tienda sale una sola vez cuando la descripción ya empieza por él", async () => {
     const svc = new OrigenLegibleService(repoFalso());
     const r = await svc.resolver(

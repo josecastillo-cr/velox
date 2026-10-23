@@ -135,8 +135,9 @@ describe("Feature 158/R29 — quien puede emitir `egreso_indemnizacion`", () => 
       wallet.indexOf("registrarEgresoAdministrativoSchema"),
     );
     expect(mapa).not.toMatch(/egreso_indemnizacion/);
-    // Y el enum del formulario sigue teniendo SOLO dos tipos manuales.
-    expect(wallet).toMatch(/TIPO_EGRESO_MANUAL_SEED = \["gasto_variable", "sueldo"\]/);
+    // Y el enum del formulario sigue teniendo SOLO sus tipos manuales: los dos de la 45 y, desde la
+    // ficha 488, el Pago de IVA. Ninguno es la indemnizacion.
+    expect(wallet).toMatch(/TIPO_EGRESO_MANUAL_SEED = \["gasto_variable", "sueldo", "pago_iva"\]/);
   });
 
   it("el guard DISCRIMINA: la expresion de emision no marca una simple mencion", () => {

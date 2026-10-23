@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 import type { EstadoDocumentoCaja } from "@/lib/interfaces/services/IWalletService";
+import { CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO } from "@/lib/utils/egreso-anulable";
 
 type LecturaPrismaClient = Pick<PrismaClient, "walletMovimiento" | "ajusteCajaAnulacion" | "walletComprobante">;
 
@@ -15,6 +16,11 @@ type LecturaPrismaClient = Pick<PrismaClient, "walletMovimiento" | "ajusteCajaAn
  * `sinConstancia` (la pantalla dice «motivo no registrado», R72). Sin backfill (R89).
  *
  * TRES consultas por pagina, ninguna si la lista viene vacia. SOLO queries.
+ *
+ * FICHA 488 (design §4.2, R25): el contra-asiento es CUALQUIERA de `CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO`
+ * —el `ingreso_ajuste` de siempre o el `ingreso_reverso_pago_iva` de la anulacion de un Pago de IVA—.
+ * La lista es la MISMA con la que se escribe (`categoriaDelContraAsiento`): un Pago de IVA anulado se lee
+ * «anulado». Es un WHERE: se prueba contra Postgres (`tests/integration/db/caja-iva-488.test.ts`).
  */
 export class EgresoCajaDocumentosRepository {
   constructor(private readonly prisma: LecturaPrismaClient) {}
@@ -23,7 +29,7 @@ export class EgresoCajaDocumentosRepository {
     if (ids.length === 0) return [];
     const lista = [...ids];
     const reversos = await this.prisma.walletMovimiento.findMany({
-      where: { categoria: "ingreso_ajuste", origenTipo: "gasto", origenId: { in: lista } },
+      where: { categoria: { in: [...CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO] }, origenTipo: "gasto", origenId: { in: lista } },
       select: { origenId: true },
     });
     const constancias = await this.prisma.ajusteCajaAnulacion.findMany({
