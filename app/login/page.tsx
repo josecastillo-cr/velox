@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { SESSION_COOKIE_NAME } from "@/lib/constants/auth";
 import { SessionRepository } from "@/lib/repositories/SessionRepository";
 import { getPrismaClient } from "@/lib/db/prisma-client";
+import { recuperacionContrasenaActiva } from "@/lib/config/recuperacion-contrasena";
 import { Logo } from "@/components/shared/Logo";
 import { VolverAlInicioLink } from "@/components/shared/VolverAlInicioLink";
 import { LoginForm } from "./_components/LoginForm";
@@ -27,6 +28,10 @@ export default async function LoginPage(props: {
   // Leer el parámetro de redirección
   const searchParams = await props.searchParams;
   const redirectParam = searchParams.redirect || null;
+
+  // Interruptor de la recuperación de contraseña (feature 489): se lee aquí, en el servidor,
+  // y viaja como prop; el LoginForm es de cliente y no lee `process.env` (R18).
+  const recuperacionActiva = recuperacionContrasenaActiva();
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
@@ -73,7 +78,7 @@ export default async function LoginPage(props: {
               escritorio, `bg-navy` con texto blanco, es superficie FIJA y se conserva.) */}
             <Logo className="text-xl text-foreground" />
           </div>
-          <LoginForm redirectParam={redirectParam} />
+          <LoginForm redirectParam={redirectParam} recuperacionActiva={recuperacionActiva} />
         </div>
       </div>
     </div>

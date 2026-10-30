@@ -4,25 +4,27 @@ import { SESSION_COOKIE_NAME } from "@/lib/constants/auth";
 import { SessionRepository } from "@/lib/repositories/SessionRepository";
 import { getPrismaClient } from "@/lib/db/prisma-client";
 import { Logo } from "@/components/shared/Logo";
+import { recuperacionContrasenaActiva } from "@/lib/config/recuperacion-contrasena";
 import { RecuperacionDesactivadaAviso } from "./_components/RecuperacionDesactivadaAviso";
+import { RecuperarContrasenaForm } from "./_components/RecuperarContrasenaForm";
 
-// Pagina publica del flujo de recuperacion de contrasena (R12). Si ya hay una
-// sesion valida se redirige a la home, replicando el patron de app/login/page.tsx.
+// Pagina publica del flujo de recuperacion de contrasena. Si ya hay una sesion valida se
+// redirige a la home, replicando el patron de app/login/page.tsx; esa redireccion va ANTES del
+// interruptor y no depende de el (feature 489, R14).
 //
-// ⚠️ DESACTIVADO EL 2026-09-04: la ruta sigue viva y publica, pero en vez del formulario de
-// 3 pasos monta `RecuperacionDesactivadaAviso`. La causa esta escrita entera en la cabecera de
-// ese componente y se resume aqui: el paso 1 manda un OTP por correo y el SMTP de Gmail rechaza
-// la credencial con `535-5.7.8 Username and Password not accepted` (EAUTH), asi que el envio
-// FALLA SIEMPRE; como ese paso responde un `ok` generico anti-enumeracion, el fallo es MUDO
-// (12 intentos de 2 personas reales medidos en produccion el 2026-09-04, ninguna aviso alguno).
+// INTERRUPTOR (feature 489, R12/R13/R17): `RECUPERACION_CONTRASENA_ACTIVA` (solo servidor, se
+// lee en cada render). Encendido (`true`/`1`) monta el formulario de 3 pasos; apagado (cualquier
+// otro valor o ausente) monta `RecuperacionDesactivadaAviso`, que manda a un administrador.
+// Se enciende y se apaga con la variable de entorno + redeploy, sin tocar codigo
+// (procedimiento en `docs/release.md`, seccion 489).
 //
-// La pagina NO se borra ni se saca del middleware A PROPOSITO: quien tenga el enlace guardado o
-// llegue por un correo viejo debe encontrar una salida, no un redirect a /login sin explicacion.
+// Historia: se apago el 2026-09-04 porque el SMTP de Gmail rechazaba la credencial (535) y el
+// paso 1, que responde `ok` generico, fallaba en silencio. El correo ahora sale por Brevo.
 //
-// PARA VOLVER A ENCENDERLO cuando el correo funcione: importar de nuevo
-// `./_components/RecuperarContrasenaForm` (sigue en el repo, intacto y probado), montarlo abajo
-// en lugar del aviso, devolver el subtitulo del panel de marca y reponer el enlace del login.
+// La pagina NO se saca del middleware: con el interruptor apagado, quien tenga el enlace
+// guardado encuentra a quien acudir, no un redirect a /login sin explicacion.
 export default async function RecuperarContrasenaPage() {
+  const activa = recuperacionContrasenaActiva();
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
@@ -48,11 +50,12 @@ export default async function RecuperarContrasenaPage() {
           <Logo />
           <div className="mt-3 h-1 w-10 rounded-full bg-brand" />
         </div>
-        {/* El subtitulo dice lo que la pantalla PUEDE cumplir hoy. El anterior —«Recupera el
-          acceso a tu cuenta de forma segura»— prometia un flujo que ya no esta montado; se
-          repone tal cual cuando vuelva el formulario. */}
+        {/* El subtitulo dice lo que la pantalla PUEDE cumplir con el interruptor en su estado:
+          apagado no promete un flujo que no esta montado. */}
         <p className="relative max-w-sm text-sm leading-relaxed text-white/70">
-          Te ayudamos a volver a entrar a tu cuenta.
+          {activa
+            ? "Recupera el acceso a tu cuenta de forma segura"
+            : "Te ayudamos a volver a entrar a tu cuenta."}
         </p>
       </div>
 
@@ -65,7 +68,7 @@ export default async function RecuperarContrasenaPage() {
             escritorio, `bg-navy` con texto blanco, es superficie FIJA y se conserva.) */}
           <Logo className="text-xl text-foreground" />
         </div>
-        <RecuperacionDesactivadaAviso />
+        {activa ? <RecuperarContrasenaForm /> : <RecuperacionDesactivadaAviso />}
       </div>
     </div>
   );

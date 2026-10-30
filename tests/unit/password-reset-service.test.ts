@@ -94,7 +94,12 @@ describe("PasswordResetService", () => {
 
     expect(result).toEqual({ status: "ok" });
     expect(deps.otpIssuer.emitir).toHaveBeenCalledWith(
-      expect.objectContaining({ usuarioId: "usr-1", email: USUARIO.email }),
+      expect.objectContaining({
+        usuarioId: "usr-1",
+        email: USUARIO.email,
+        // Feature 489 — R5: el correo es el de cambiar la contrasena.
+        proposito: "cambio_contrasena",
+      }),
     );
   });
 

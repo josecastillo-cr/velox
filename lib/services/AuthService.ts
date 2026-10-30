@@ -134,6 +134,7 @@ export class AuthService implements IAuthService {
       email: usuario.email,
       deviceHash,
       ipAddress: input.ipAddress,
+      proposito: "inicio_sesion",
     });
     await this.registrarIntento(contexto, {
       usuarioId: usuario.id,

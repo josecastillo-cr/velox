@@ -7,7 +7,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
 
 ## B · Backend
 
-- [ ] **B.1 `[P]` con B.2 — Marca y interruptor en config.**
+- [x] **B.1 `[P]` con B.2 — Marca y interruptor en config.**
   `lib/config/email.ts`: `nombreMarcaCorreo()` (SMTP_FROM_NAME → "Ordenex"), y `loadEmailConfig().fromName`
   la usa. Nuevo `lib/config/recuperacion-contrasena.ts` con `recuperacionContrasenaActiva()`.
   `.env.example`: `RECUPERACION_CONTRASENA_ACTIVA=` con comentario (vacío = apagado).
@@ -15,7 +15,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   `tests/unit/config/recuperacion-contrasena.test.ts` tabla `true`, `TRUE`, ` 1 `, `1` → true;
   `false`, `0`, `si`, `""`, ausente → false (R17). Verdes.
 
-- [ ] **B.2 `[P]` con B.1 — Base común y dos plantillas.**
+- [x] **B.2 `[P]` con B.1 — Base común y dos plantillas.**
   `base-codigo.ts`, `codigo-inicio-sesion.ts`, `codigo-cambio-contrasena.ts` y el selector exhaustivo
   `plantillaCodigoPorProposito` según `design.md §3`. Textos literales de §3.2.
   **Hecho:** `tests/unit/services/email/plantillas-codigo.test.ts` con, al menos:
@@ -29,7 +29,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   - R8: marca `A<b>&"` sale escapada en `html` y literal en `text`.
   Los literales se escriben en el test, no se recomponen con la base.
 
-- [ ] **B.3 — El propósito atraviesa el flujo.** Depende de B.2.
+- [x] **B.3 — El propósito atraviesa el flujo.** Depende de B.2.
   `PropositoCodigo` y `SendOtpCodeParams.proposito` en `IEmailProvider.ts`; `EmitirOtpParams.proposito`
   obligatorio y reenviado en `OtpChallengeIssuer`; `AuthService` pasa `"inicio_sesion"`,
   `PasswordResetService.solicitar` pasa `"cambio_contrasena"`.
@@ -40,7 +40,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   20) `solicitar` llama con `"cambio_contrasena"` y sigue devolviendo `{ status: "ok" }` (R5, R11).
   Ajustar `postulacion-login-regresion.test.ts` si su doble de `sendOtpCode` lo requiere.
 
-- [ ] **B.4 — El proveedor elige la plantilla y registra el propósito.** Depende de B.1, B.3.
+- [x] **B.4 — El proveedor elige la plantilla y registra el propósito.** Depende de B.1, B.3.
   `EmailNotificacionProvider(sender, marca)` según `design.md §3.4`; `crearEmailProvider` pasa
   `nombreMarcaCorreo()`; `StubEmailProvider` con la firma nueva. Borrar `otp-codigo.ts` y migrar su
   `describe("plantillaOtpCodigo")` de `tests/unit/services/email-notificacion.test.ts` a B.2.
@@ -53,17 +53,17 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   Mutación de control: cambiar el `switch` para devolver siempre la de entrar pone rojo el test de
   `cambio_contrasena` (anotarlo en `progress/impl_489.md`).
 
-- [ ] **B.5 — Umbral de riesgo documentado, no cambiado.** `[P]` con B.4.
+- [x] **B.5 — Umbral de riesgo documentado, no cambiado.** `[P]` con B.4.
   **Hecho:** test en `tests/unit/config/` (o el existente de `authConfig` si ya lo cubre: citarlo) que
   sin `AUTH_RISK_THRESHOLD` el umbral es 50 y con `999` es 999, y en `auth-service.test.ts` que con
   umbral 999 un login con dispositivo nuevo no llama a `emitir` (R20). `lib/config/auth.ts` sin diff de
   lógica. El código de inicio de sesión queda apagado en producción (decisión del humano 2026-10-30).
 
-- [ ] **B.6 — Gate backend.** `./init.sh --rapido` verde; commit `feat(489): plantillas de correo por propósito e interruptor de recuperación (backend)`.
+- [x] **B.6 — Gate backend.** `./init.sh --rapido` verde; commit `feat(489): plantillas de correo por propósito e interruptor de recuperación (backend)`.
 
 ## F · Frontend (depende de B.1 commiteado)
 
-- [ ] **F.1 — `/recuperar-contrasena` obedece al interruptor.**
+- [x] **F.1 — `/recuperar-contrasena` obedece al interruptor.**
   `page.tsx` según `design.md §5.1`; reescribir su cabecera (§5.4).
   **Hecho:** `tests/integration/recuperar-contrasena-page.test.tsx` parametrizado:
   - apagado (env ausente) → aviso del administrador + subtítulo actual, sin campo de correo (R12);
@@ -72,7 +72,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   - sesión válida → `redirect("/dashboard")` en los dos estados (R14).
   El `process.env` se restaura en `afterEach`.
 
-- [ ] **F.2 — Login obedece al interruptor.** `[P]` con F.1.
+- [x] **F.2 — Login obedece al interruptor.** `[P]` con F.1.
   `app/login/page.tsx` lee y pasa `recuperacionActiva`; `LoginForm` según `design.md §5.2`; el bloque
   comentado se sustituye por la rama.
   **Hecho:** `tests/integration/login-form-reset-link.test.tsx` con dos `describe`:
@@ -83,30 +83,30 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   enlace aparece y apagada no (R16, lectura en servidor). El bloque de `LoginForm.test.tsx` ~l.497
   sigue verde sin cambios (es el estado apagado).
 
-- [ ] **F.3 — Guardia de superficie.** Depende de F.1.
+- [x] **F.3 — Guardia de superficie.** Depende de F.1.
   Borrar las cuatro `@sin-superficie`: `RecuperarContrasenaForm` y `solicitarRecuperacion`,
   `verificarCodigoRecuperacion`, `restablecerContrasena`; reescribir sus cabeceras (§5.4).
   **Hecho:** `pnpm exec vitest run superficie-de-uso` verde (R19). Mutación: dejar una de las
   anotaciones la pone roja («la excepción caducó»); anotarlo en `progress/impl_489.md`.
 
-- [ ] **F.4 — Sin variable pública.** `[P]` con F.3.
+- [x] **F.4 — Sin variable pública.** `[P]` con F.3.
   **Hecho:** test en `tests/unit/config/recuperacion-contrasena.test.ts` (o guardia mínima) que ningún
   archivo de `app/`, `components/`, `lib/` contiene `NEXT_PUBLIC_RECUPERACION` y que `LoginForm.tsx`
   no lee `process.env` (R18).
 
-- [ ] **F.5 — Ver la app.** Depende de F.1, F.2.
+- [x] **F.5 — Ver la app.** Depende de F.1, F.2.
   Dev server con la env apagada y encendida: `/login` y `/recuperar-contrasena` en escritorio y móvil;
   con encendida, pedir un código de recuperación con `AUTH_OTP_DEBUG_LOG=1` y sin SMTP, y comprobar en
   la consola el asunto de «cambiar la contraseña» y la marca. Limpiar lo que deje en la base local.
   **Hecho:** capturas o descripción con números en `progress/impl_489.md`.
 
-- [ ] **F.6 — Gate frontend.** `./init.sh --rapido` verde + guardia de F.3 a mano; commit
+- [x] **F.6 — Gate frontend.** `./init.sh --rapido` verde + guardia de F.3 a mano; commit
   `feat(489): la recuperación y su enlace se encienden con RECUPERACION_CONTRASENA_ACTIVA`.
   `progress/impl_489.md` con el mapa R1–R20 → test.
 
 ## E · Encendido (depende de F.6 y de la release a `prod`)
 
-- [ ] **E.1 — Procedimiento escrito en `docs/release.md`** (sección «489 · encendido de la recuperación
+- [x] **E.1 — Procedimiento escrito en `docs/release.md`** (sección «489 · encendido de la recuperación
   de contraseña»):
   1. Precondición: la 489 en `prod` con la UI de hoy (comprobar `/login` sin enlace).
   2. Vercel (team Velox, proyecto `velox`) → Environment Variables → **Production solamente**:

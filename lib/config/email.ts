@@ -114,6 +114,16 @@ export function emailSmtpConfigurado(): boolean {
 }
 
 /**
+ * Marca visible de los correos (feature 489, R2/R3): SMTP_FROM_NAME o "Ordenex".
+ * No exige credenciales, asi que sirve tambien sin SMTP (dev, CI, emisor de
+ * consola). Es la UNICA fuente del nombre: el `From` visible y la marca del
+ * cuerpo del correo no pueden divergir.
+ */
+export function nombreMarcaCorreo(): string {
+  return leerTexto("SMTP_FROM_NAME") ?? DEFAULT_FROM_NAME;
+}
+
+/**
  * Lee y valida la configuracion SMTP. Lanza EmailNoConfiguradoError citando el
  * NOMBRE de la variable ausente. Llamar en el borde, antes de abrir la conexion:
  * asi un fallo de configuracion se detecta sin tocar la red.
@@ -128,7 +138,7 @@ export function loadEmailConfig(): EmailConfig {
     user,
     password: normalizarPassword(leerRequerido("SMTP_PASSWORD")),
     from: leerTexto("SMTP_FROM") ?? user,
-    fromName: leerTexto("SMTP_FROM_NAME") ?? DEFAULT_FROM_NAME,
+    fromName: nombreMarcaCorreo(),
     timeoutMs: leerEnteroPositivo("SMTP_TIMEOUT_MS", DEFAULT_TIMEOUT_MS),
     rejectUnauthorized: leerBooleano("SMTP_TLS_REJECT_UNAUTHORIZED", true),
   };

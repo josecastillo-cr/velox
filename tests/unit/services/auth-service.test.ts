@@ -8,6 +8,7 @@ import type { IEmailOtpChallengeRepository } from "@/lib/interfaces/repositories
 import type { ISessionRepository } from "@/lib/interfaces/repositories/ISessionRepository";
 import type { IRiskEngine } from "@/lib/interfaces/services/IRiskEngine";
 import type { IEmailProvider } from "@/lib/interfaces/external/IEmailProvider";
+import { RiskEngine } from "@/lib/services/RiskEngine";
 
 const REQUEST_CONTEXT = { ipAddress: "1.2.3.4", userAgent: "vitest-agent" };
 
@@ -204,6 +205,10 @@ describe("AuthService.login", () => {
     expect(result).toEqual({ status: "challenge_required", challengeId: "challenge-1" });
     expect(mocks.otpRepo.create).toHaveBeenCalledTimes(1);
     expect(mocks.emailProvider.sendOtpCode).toHaveBeenCalledTimes(1);
+    // Feature 489 — R4: el codigo de esta rama es el «codigo para entrar».
+    expect(mocks.emailProvider.sendOtpCode).toHaveBeenCalledWith(
+      expect.objectContaining({ to: usuario.email, proposito: "inicio_sesion" }),
+    );
     expect(mocks.sessionRepo.create).not.toHaveBeenCalled();
   });
 
@@ -338,5 +343,53 @@ describe("AuthService.logout", () => {
     const mocks = buildMocks();
     await mocks.authService.logout("sess-1");
     expect(mocks.sessionRepo.deleteById).toHaveBeenCalledWith("sess-1");
+  });
+});
+
+// Feature 489 — R20: el codigo de inicio de sesion sigue gobernado por el umbral
+// de riesgo, sin cambios. Con el RiskEngine REAL (no el doble): un dispositivo
+// y una IP nuevos suman 70; con umbral 50 (por defecto) se exige codigo, con
+// 999 (Production, decision del humano 2026-10-30) no se emite nada.
+describe("AuthService.login con el umbral de riesgo real (feature 489, R20)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  async function loginDesdeDispositivoNuevo(umbral: number) {
+    const mocks = buildMocks();
+    const usuario = await buildUsuario();
+    (mocks.userRepo.findByEmailWithHash as ReturnType<typeof vi.fn>).mockResolvedValue(usuario);
+    (mocks.trustedDeviceRepo.findByUsuarioAndDevice as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (mocks.loginAttemptRepo.ipReconocida as ReturnType<typeof vi.fn>).mockResolvedValue(false);
+    const authService = new AuthService(
+      mocks.userRepo,
+      mocks.loginAttemptRepo,
+      mocks.trustedDeviceRepo,
+      mocks.otpRepo,
+      mocks.sessionRepo,
+      new RiskEngine(mocks.loginAttemptRepo, mocks.trustedDeviceRepo, umbral),
+      mocks.emailProvider,
+    );
+    const result = await authService.login({
+      email: usuario.email,
+      password: "clave-correcta",
+      ...REQUEST_CONTEXT,
+    });
+    return { mocks, result };
+  }
+
+  it("con umbral 999 un login desde dispositivo nuevo NO emite codigo", async () => {
+    const { mocks, result } = await loginDesdeDispositivoNuevo(999);
+    expect(result.status).toBe("ok");
+    expect(mocks.otpRepo.create).not.toHaveBeenCalled();
+    expect(mocks.emailProvider.sendOtpCode).not.toHaveBeenCalled();
+  });
+
+  it("con umbral 50 el mismo login exige el codigo para entrar", async () => {
+    const { mocks, result } = await loginDesdeDispositivoNuevo(50);
+    expect(result.status).toBe("challenge_required");
+    expect(mocks.emailProvider.sendOtpCode).toHaveBeenCalledWith(
+      expect.objectContaining({ proposito: "inicio_sesion" }),
+    );
   });
 });
