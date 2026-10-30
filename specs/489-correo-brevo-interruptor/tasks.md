@@ -63,7 +63,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
 
 ## F · Frontend (depende de B.1 commiteado)
 
-- [ ] **F.1 — `/recuperar-contrasena` obedece al interruptor.**
+- [x] **F.1 — `/recuperar-contrasena` obedece al interruptor.**
   `page.tsx` según `design.md §5.1`; reescribir su cabecera (§5.4).
   **Hecho:** `tests/integration/recuperar-contrasena-page.test.tsx` parametrizado:
   - apagado (env ausente) → aviso del administrador + subtítulo actual, sin campo de correo (R12);
@@ -72,7 +72,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   - sesión válida → `redirect("/dashboard")` en los dos estados (R14).
   El `process.env` se restaura en `afterEach`.
 
-- [ ] **F.2 — Login obedece al interruptor.** `[P]` con F.1.
+- [x] **F.2 — Login obedece al interruptor.** `[P]` con F.1.
   `app/login/page.tsx` lee y pasa `recuperacionActiva`; `LoginForm` según `design.md §5.2`; el bloque
   comentado se sustituye por la rama.
   **Hecho:** `tests/integration/login-form-reset-link.test.tsx` con dos `describe`:
@@ -83,13 +83,13 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   enlace aparece y apagada no (R16, lectura en servidor). El bloque de `LoginForm.test.tsx` ~l.497
   sigue verde sin cambios (es el estado apagado).
 
-- [ ] **F.3 — Guardia de superficie.** Depende de F.1.
+- [x] **F.3 — Guardia de superficie.** Depende de F.1.
   Borrar las cuatro `@sin-superficie`: `RecuperarContrasenaForm` y `solicitarRecuperacion`,
   `verificarCodigoRecuperacion`, `restablecerContrasena`; reescribir sus cabeceras (§5.4).
   **Hecho:** `pnpm exec vitest run superficie-de-uso` verde (R19). Mutación: dejar una de las
   anotaciones la pone roja («la excepción caducó»); anotarlo en `progress/impl_489.md`.
 
-- [ ] **F.4 — Sin variable pública.** `[P]` con F.3.
+- [x] **F.4 — Sin variable pública.** `[P]` con F.3.
   **Hecho:** test en `tests/unit/config/recuperacion-contrasena.test.ts` (o guardia mínima) que ningún
   archivo de `app/`, `components/`, `lib/` contiene `NEXT_PUBLIC_RECUPERACION` y que `LoginForm.tsx`
   no lee `process.env` (R18).
@@ -106,7 +106,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
 
 ## E · Encendido (depende de F.6 y de la release a `prod`)
 
-- [ ] **E.1 — Procedimiento escrito en `docs/release.md`** (sección «489 · encendido de la recuperación
+- [x] **E.1 — Procedimiento escrito en `docs/release.md`** (sección «489 · encendido de la recuperación
   de contraseña»):
   1. Precondición: la 489 en `prod` con la UI de hoy (comprobar `/login` sin enlace).
   2. Vercel (team Velox, proyecto `velox`) → Environment Variables → **Production solamente**:

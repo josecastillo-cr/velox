@@ -205,6 +205,37 @@ sino «por qué seguimos esperando».
 
 ---
 
+## 489 · encendido de la recuperación de contraseña
+
+Se enciende con una variable de entorno y un redeploy, **sin tocar código**. Hasta entonces la 489
+despliega con todo apagado: la pantalla de login y `/recuperar-contrasena` quedan exactamente como
+estaban (texto que manda a un administrador, sin enlace ni formulario).
+
+1. **Precondición:** la 489 está en `prod` con la UI de hoy. Comprobar en producción que `/login`
+   NO tiene el enlace «¿Olvidaste tu contraseña?» (solo el texto «Pídele a un administrador…»).
+2. **Vercel** (team Velox, proyecto `velox`) → Environment Variables → **Production solamente**:
+   crear `RECUPERACION_CONTRASENA_ACTIVA=true`. Confirmar que `SMTP_HOST`, `SMTP_PORT`,
+   `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` y `SMTP_FROM_NAME=Velox` siguen ahí.
+3. **`AUTH_RISK_THRESHOLD=999` se MANTIENE; no se borra.** Decisión del humano (2026-10-30): el
+   código de inicio de sesión sigue apagado de forma indefinida porque varios usuarios no tienen
+   acceso a su correo (p. ej. `mensajero@ordenex.co` no existe) y quedarían sin poder entrar.
+   Encenderlo es una decisión aparte, no parte de este procedimiento.
+4. **Redeploy** de producción y esperar `READY`.
+5. **Prueba real (la única):** `/login` muestra el enlace «¿Olvidaste tu contraseña?»; pedir el código
+   para una cuenta real con buzón accesible; medir en los logs de Vercel la línea
+   `[auth] OTP enviado a … (cambio_contrasena)`; recibir el correo (asunto, marca Velox, aviso «tu
+   contraseña sigue igual»), completar el cambio y entrar con la contraseña nueva. Comprobar además
+   que ese inicio de sesión **NO pidió código** (umbral 999 intacto).
+6. El correo «código para entrar» **NO se prueba en producción**: lo cubren los tests unitarios
+   (B.2, B.4 de la 489) hasta que el humano decida encender ese flujo.
+7. **Vuelta atrás:** borrar `RECUPERACION_CONTRASENA_ACTIVA` en Production y redeploy. Cualquier
+   valor distinto de `true`/`1` también apaga.
+
+Resultado del encendido (E.2): _pendiente — anotar aquí la línea de log del paso 5, la hora y que
+`AUTH_RISK_THRESHOLD` sigue en 999._
+
+---
+
 ## Release del 2026-10-21 — 485, 486 y 419
 
 - PR #868 (`dev` → `prod`, merge commit), `9ab23cd2`, despliegue `dpl_BGkjoy3mr6jCYnPKni4WNNZfoBLP` READY.
