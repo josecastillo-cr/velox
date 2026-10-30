@@ -125,3 +125,9 @@ con espacios alrededor ignorados); cualquier otro valor, vacío o ausencia = «a
   queda bloqueado en el login por su correo. La recuperación solo envía a quien la pide.
 - **P6 — Logo en la cabecera.** La base usa la marca como texto. Un logo por imagen exigiría una URL
   pública por marca que hoy no está en la config. Se deja como texto salvo que el humano dé la URL.
+
+## Decisiones del humano (2026-10-30, spec aprobado)
+
+- P1: el código NO va en el asunto (R6 tal cual).
+- P4: la página de ayuda pública se deja como está.
+- P2 sin efecto: el correo «código para entrar» no se envía mientras el OTP siga apagado.
