@@ -59,7 +59,7 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   umbral 999 un login con dispositivo nuevo no llama a `emitir` (R20). `lib/config/auth.ts` sin diff de
   lógica. El código de inicio de sesión queda apagado en producción (decisión del humano 2026-10-30).
 
-- [ ] **B.6 — Gate backend.** `./init.sh --rapido` verde; commit `feat(489): plantillas de correo por propósito e interruptor de recuperación (backend)`.
+- [x] **B.6 — Gate backend.** `./init.sh --rapido` verde; commit `feat(489): plantillas de correo por propósito e interruptor de recuperación (backend)`.
 
 ## F · Frontend (depende de B.1 commiteado)
 
@@ -94,13 +94,13 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
   archivo de `app/`, `components/`, `lib/` contiene `NEXT_PUBLIC_RECUPERACION` y que `LoginForm.tsx`
   no lee `process.env` (R18).
 
-- [ ] **F.5 — Ver la app.** Depende de F.1, F.2.
+- [x] **F.5 — Ver la app.** Depende de F.1, F.2.
   Dev server con la env apagada y encendida: `/login` y `/recuperar-contrasena` en escritorio y móvil;
   con encendida, pedir un código de recuperación con `AUTH_OTP_DEBUG_LOG=1` y sin SMTP, y comprobar en
   la consola el asunto de «cambiar la contraseña» y la marca. Limpiar lo que deje en la base local.
   **Hecho:** capturas o descripción con números en `progress/impl_489.md`.
 
-- [ ] **F.6 — Gate frontend.** `./init.sh --rapido` verde + guardia de F.3 a mano; commit
+- [x] **F.6 — Gate frontend.** `./init.sh --rapido` verde + guardia de F.3 a mano; commit
   `feat(489): la recuperación y su enlace se encienden con RECUPERACION_CONTRASENA_ACTIVA`.
   `progress/impl_489.md` con el mapa R1–R20 → test.
 

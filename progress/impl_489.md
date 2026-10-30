@@ -141,3 +141,11 @@ app/recuperar-contrasena/_components/RecuperarContrasenaForm.tsx`» (17/18). Res
 - No se corrió `./init.sh` (F.6 queda para el leader). F.5 (ver la app) pendiente: requiere dev server.
 
 **Veredicto frontend:** F.1–F.4 y E.1 hechas y en verde; F.5 y F.6 pendientes del leader; E.2 el viernes.
+
+## Cierre del leader (2026-10-30)
+
+- B.6/F.6: `--rapido` exige el completo por `.env.example`; gate completo sobre ed5a9a23: 34.253 verdes, 26 skipped, 1 rojo `ranking-snapshot-migration` (deadlock 40P01), aislado 49/49 verde (progress/gate_489_completo.log, progress/rerun_489_ranking.log).
+- F.5 (navegador, Playwright, `next dev --webpack` en el worktree: Turbopack rechaza el junction de node_modules):
+  - ENCENDIDO: /login 200 con enlace «¿Olvidaste tu contraseña?»; /recuperar-contrasena 200 con formulario (campo correo + «Enviar código»).
+  - APAGADO: /login sin enlace, texto «Pídele a un administrador que te la restablezca»; /recuperar-contrasena con el aviso, 0 campos. Igual que hoy.
+- Revisión: APROBADO (progress/review_489.md, 5b364254).
