@@ -5848,7 +5848,7 @@
       "title": "correo por Brevo: plantillas e interruptor de recuperación y OTP",
       "description": "Plantillas de correo propias (base común con la marca de SMTP_FROM_NAME) separadas para el código de entrada y el de cambio de contraseña, y una variable RECUPERACION_CONTRASENA_ACTIVA que vuelve a montar la recuperación y su enlace del login sin tocar código.",
       "zone": "fullstack",
-      "status": "pending",
+      "status": "spec_ready",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
