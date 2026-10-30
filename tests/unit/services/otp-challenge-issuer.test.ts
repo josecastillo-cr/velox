@@ -2,6 +2,8 @@ import { describe, it, expect, vi, afterEach } from "vitest";
 import { OtpChallengeIssuer } from "@/lib/services/OtpChallengeIssuer";
 import type { IEmailOtpChallengeRepository } from "@/lib/interfaces/repositories/IEmailOtpChallengeRepository";
 import type { IEmailProvider } from "@/lib/interfaces/external/IEmailProvider";
+import bcrypt from "bcryptjs";
+import { authConfig } from "@/lib/config/auth";
 
 describe("OtpChallengeIssuer", () => {
   it("nunca persiste el codigo en claro, solo codeHash", async () => {
@@ -30,6 +32,7 @@ describe("OtpChallengeIssuer", () => {
       email: "ana@example.com",
       deviceHash: "hash-device",
       ipAddress: "1.2.3.4",
+      proposito: "cambio_contrasena",
     });
 
     const dataPersistida = create.mock.calls[0][0];
@@ -65,6 +68,7 @@ describe("OtpChallengeIssuer", () => {
       email: "ana@example.com",
       deviceHash: "hash-device",
       ipAddress: "1.2.3.4",
+      proposito: "cambio_contrasena",
     });
 
     expect(sendOtpCode).toHaveBeenCalledTimes(1);
@@ -73,6 +77,81 @@ describe("OtpChallengeIssuer", () => {
     expect(typeof callArgs.code).toBe("string");
     expect(callArgs.code).toMatch(/^\d{6}$/);
     expect(result.challengeId).toBe("otp-1");
+  });
+
+  // Feature 489 — el proposito recibido viaja tal cual al proveedor, y el
+  // resto de `emitir` no cambia (R11): 6 digitos, TTL de config, hash.
+  it.each(["inicio_sesion", "cambio_contrasena"] as const)(
+    "reenvia el proposito %s al proveedor sin tocar codigo, TTL ni hash",
+    async (proposito) => {
+      const create = vi.fn().mockResolvedValue({
+        id: "otp-9",
+        usuarioId: "usr-1",
+        codeHash: "hash",
+        deviceHash: "hash-device",
+        ipAddress: "1.2.3.4",
+        expiresAt: new Date(),
+        consumedAt: null,
+        createdAt: new Date(),
+      });
+      const sendOtpCode = vi.fn().mockResolvedValue(undefined);
+      const otpRepo: IEmailOtpChallengeRepository = {
+        create,
+        findActiveById: vi.fn(),
+        markConsumed: vi.fn(),
+        findLatestActiveByUsuarioId: vi.fn(),
+        contarRecientesPorUsuario: vi.fn(),
+      };
+      const issuer = new OtpChallengeIssuer(otpRepo, { sendOtpCode });
+
+      await issuer.emitir({
+        usuarioId: "usr-1",
+        email: "ana@example.com",
+        deviceHash: "hash-device",
+        ipAddress: "1.2.3.4",
+        proposito,
+      });
+
+      const enviado = sendOtpCode.mock.calls[0][0];
+      expect(enviado.proposito).toBe(proposito);
+      expect(enviado.code).toMatch(/^\d{6}$/);
+      expect(enviado.expiresInMinutes).toBe(authConfig.OTP_TTL_MINUTES);
+      const persistido = create.mock.calls[0][0];
+      expect(persistido).not.toHaveProperty("code");
+      expect(persistido).not.toHaveProperty("proposito");
+      expect(await bcrypt.compare(enviado.code, persistido.codeHash)).toBe(true);
+      expect(JSON.stringify(persistido)).not.toContain(enviado.code);
+    },
+  );
+
+  it("propaga el fallo del proveedor (R11)", async () => {
+    const otpRepo: IEmailOtpChallengeRepository = {
+      create: vi.fn().mockResolvedValue({
+        id: "otp-1",
+        usuarioId: "usr-1",
+        codeHash: "hash",
+        deviceHash: "hash-device",
+        ipAddress: "1.2.3.4",
+        expiresAt: new Date(),
+        consumedAt: null,
+        createdAt: new Date(),
+      }),
+      findActiveById: vi.fn(),
+      markConsumed: vi.fn(),
+      findLatestActiveByUsuarioId: vi.fn(),
+      contarRecientesPorUsuario: vi.fn(),
+    };
+    const sendOtpCode = vi.fn().mockRejectedValue(new Error("smtp caido"));
+    const issuer = new OtpChallengeIssuer(otpRepo, { sendOtpCode });
+    await expect(
+      issuer.emitir({
+        usuarioId: "usr-1",
+        email: "ana@example.com",
+        deviceHash: "hash-device",
+        ipAddress: "1.2.3.4",
+        proposito: "cambio_contrasena",
+      }),
+    ).rejects.toThrow("smtp caido");
   });
 });
 
@@ -112,6 +191,7 @@ describe("OtpChallengeIssuer (feature 80)", () => {
       email: "ana@example.com",
       deviceHash: "hash-device",
       ipAddress: "1.2.3.4",
+      proposito: "cambio_contrasena",
     });
 
     const code: string = sendOtpCode.mock.calls[0][0].code;
