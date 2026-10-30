@@ -5854,7 +5854,7 @@
       "depends_on": null,
       "spec_path": "specs/489-correo-brevo-interruptor",
       "branch": "feat/489-correo-brevo-interruptor",
-      "status_note": "Encendido previsto el viernes 2026-10-30 junto al cambio de dominio: solo RECUPERACION_CONTRASENA_ACTIVA=true. OTP de login SIGUE APAGADO (AUTH_RISK_THRESHOLD=999, decisión del humano 2026-10-30: usuarios sin acceso a su correo)."
+      "status_note": "DESPLEGADA en prod APAGADA (release #873, 0e2f4e89, 2026-10-30 ~05:00 UTC): /login y /recuperar-contrasena iguales a antes, 0 runtime errors. PR #872. Revision APROBADA. FALTA E.2 (viernes 2026-10-30): RECUPERACION_CONTRASENA_ACTIVA=true en Production + redeploy + prueba real del correo (docs/release.md). OTP de login sigue apagado (AUTH_RISK_THRESHOLD=999)."
     }
   ]
 }
