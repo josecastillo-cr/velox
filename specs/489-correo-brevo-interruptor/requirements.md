@@ -20,7 +20,11 @@
     llevan hoy la anotación `@sin-superficie` que exige la guardia
     `tests/unit/guards/superficie-de-uso.guardia.test.ts`.
 - Plan del humano: desplegar con todo apagado (cero cambio visible) y encender el viernes 2026-10-30
-  con variables de entorno + redeploy, sin tocar código.
+  **solo la recuperación** con variables de entorno + redeploy, sin tocar código.
+- Decisión del humano (2026-10-30): el código de inicio de sesión **sigue apagado de forma
+  indefinida** (`AUTH_RISK_THRESHOLD=999` se mantiene) porque varios usuarios no tienen acceso a su
+  correo (p. ej. `mensajero@ordenex.co` no existe): encenderlo los dejaría fuera de la app. Su
+  plantilla se escribe igual, porque el flujo existe y la usaría si algún día se enciende.
 
 Glosario de este documento: «código para entrar» = correo del código de inicio de sesión;
 «código para cambiar la contraseña» = correo del código de recuperación; «interruptor» = la variable
@@ -84,17 +88,19 @@ con espacios alrededor ignorados); cualquier otro valor, vacío o ausencia = «a
   `verificarCodigoRecuperacion` y `restablecerContrasena` conservan la anotación `@sin-superficie`, y
   `RecuperacionDesactivadaAviso` sigue alcanzable.
 
-## C · Código de inicio de sesión (solo se documenta)
+## C · Código de inicio de sesión (sigue apagado; solo se documenta)
 
-- **R20** — El sistema DEBE conservar la regla vigente del umbral de riesgo: SI `AUTH_RISK_THRESHOLD` no
-  está configurado, ENTONCES el umbral es 50; esta feature no cambia cómo se calcula el riesgo ni cuándo
-  se exige el código.
+- **R20** — El sistema DEBE conservar la regla vigente del umbral de riesgo: SI `AUTH_RISK_THRESHOLD` vale
+  `999`, ENTONCES ningún inicio de sesión exige código; y SI no está configurado, ENTONCES el umbral es
+  50. Esta feature no cambia cómo se calcula el riesgo ni cuándo se exige el código, y en Production
+  `AUTH_RISK_THRESHOLD=999` se mantiene (decisión del humano, 2026-10-30).
 
 ## Fuera de alcance
 
 - Correos nuevos (p. ej. «tu contraseña cambió», «nuevo inicio de sesión»): ver P3.
 - Cambios al modelo de autenticación, al cálculo de riesgo o a los límites de solicitudes.
-- Un interruptor para el código de inicio de sesión: ya existe (borrar `AUTH_RISK_THRESHOLD`).
+- Encender el código de inicio de sesión: queda apagado indefinidamente (`AUTH_RISK_THRESHOLD=999`).
+  Su interruptor ya existe (borrar la variable) y no se toca; su correo no se prueba en producción.
 - El procedimiento de encendido del viernes no es un requisito testeable: vive como tarea final en
   `tasks.md` y en `docs/release.md`.
 
@@ -114,8 +120,8 @@ con espacios alrededor ignorados); cualquier otro valor, vacío o ausencia = «a
   flujo ENCENDIDO (pedir código, escribirlo, nueva contraseña) también hoy, con la recuperación
   apagada. Es contenido estático y no puede seguir al interruptor. ¿Se deja así (será correcto desde
   el viernes) o se añade una línea condicional? Este spec no lo toca.
-- **P5 — Buzón del usuario activo `@ordenex.co`** (de la `status_note`): antes de encender, confirmar que
-  ese buzón recibe; si el dominio cambia el viernes, el correo puede rebotar. Es una comprobación
-  operativa del procedimiento (tarea E.2), no del código.
+- ~~**P5 — Buzón del usuario activo `@ordenex.co`**~~ **Resuelta (2026-10-30):** el humano decidió no
+  encender el código de inicio de sesión porque varios usuarios no tienen buzón real; con eso nadie
+  queda bloqueado en el login por su correo. La recuperación solo envía a quien la pide.
 - **P6 — Logo en la cabecera.** La base usa la marca como texto. Un logo por imagen exigiría una URL
   pública por marca que hoy no está en la config. Se deja como texto salvo que el humano dé la URL.

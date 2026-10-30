@@ -201,12 +201,14 @@ requiere nada nuevo para HTML+texto. Vercel: dos variables (§8).
 1. Se despliega con `RECUPERACION_CONTRASENA_ACTIVA` sin definir y `AUTH_RISK_THRESHOLD=999`: la UI es la
    de hoy (R12/R15) y no se envía ningún correo nuevo. Lo único que cambia en prod es el texto de un
    correo que hoy no sale.
-2. El viernes: en Vercel → Production, crear `RECUPERACION_CONTRASENA_ACTIVA=true` y **borrar**
-   `AUTH_RISK_THRESHOLD`; redeploy; prueba real de los dos correos midiendo `[auth] OTP enviado …
-   (cambio_contrasena)` y `(inicio_sesion)` en los logs. Procedimiento completo en `docs/release.md`
-   (tarea E.1).
-3. Vuelta atrás: borrar `RECUPERACION_CONTRASENA_ACTIVA` y volver a poner `AUTH_RISK_THRESHOLD=999`;
-   redeploy. Sin código.
+2. El viernes: en Vercel → Production, crear `RECUPERACION_CONTRASENA_ACTIVA=true`; redeploy; prueba
+   real SOLO del correo de recuperación, midiendo `[auth] OTP enviado … (cambio_contrasena)` en los
+   logs. Procedimiento completo en `docs/release.md` (tarea E.1).
+   **`AUTH_RISK_THRESHOLD=999` NO se borra** (decisión del humano, 2026-10-30): varios usuarios no
+   tienen acceso a su correo (p. ej. `mensajero@ordenex.co` no existe), y exigirles un código por
+   correo los dejaría sin poder entrar. La plantilla «código para entrar» se implementa y se prueba en
+   unitarios, pero no en producción.
+3. Vuelta atrás: borrar `RECUPERACION_CONTRASENA_ACTIVA`; redeploy. Sin código.
 
 ## 9 · Alternativas descartadas
 

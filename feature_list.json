@@ -5854,7 +5854,7 @@
       "depends_on": null,
       "spec_path": "specs/489-correo-brevo-interruptor",
       "branch": "feat/489-correo-brevo-interruptor",
-      "status_note": "Encendido previsto el viernes 2026-10-30 junto al cambio de dominio: RECUPERACION_CONTRASENA_ACTIVA=true y borrar AUTH_RISK_THRESHOLD. Antes: confirmar el buzón del usuario activo @ordenex.co."
+      "status_note": "Encendido previsto el viernes 2026-10-30 junto al cambio de dominio: solo RECUPERACION_CONTRASENA_ACTIVA=true. OTP de login SIGUE APAGADO (AUTH_RISK_THRESHOLD=999, decisión del humano 2026-10-30: usuarios sin acceso a su correo)."
     }
   ]
 }

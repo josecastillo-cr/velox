@@ -55,8 +55,9 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
 
 - [ ] **B.5 — Umbral de riesgo documentado, no cambiado.** `[P]` con B.4.
   **Hecho:** test en `tests/unit/config/` (o el existente de `authConfig` si ya lo cubre: citarlo) que
-  sin `AUTH_RISK_THRESHOLD` el umbral es 50 y con `999` es 999 (R20). `lib/config/auth.ts` sin diff de
-  lógica.
+  sin `AUTH_RISK_THRESHOLD` el umbral es 50 y con `999` es 999, y en `auth-service.test.ts` que con
+  umbral 999 un login con dispositivo nuevo no llama a `emitir` (R20). `lib/config/auth.ts` sin diff de
+  lógica. El código de inicio de sesión queda apagado en producción (decisión del humano 2026-10-30).
 
 - [ ] **B.6 — Gate backend.** `./init.sh --rapido` verde; commit `feat(489): plantillas de correo por propósito e interruptor de recuperación (backend)`.
 
@@ -105,27 +106,30 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
 
 ## E · Encendido (depende de F.6 y de la release a `prod`)
 
-- [ ] **E.1 — Procedimiento escrito en `docs/release.md`** (sección «489 · encendido de recuperación y
-  código de entrada»):
+- [ ] **E.1 — Procedimiento escrito en `docs/release.md`** (sección «489 · encendido de la recuperación
+  de contraseña»):
   1. Precondición: la 489 en `prod` con la UI de hoy (comprobar `/login` sin enlace).
   2. Vercel (team Velox, proyecto `velox`) → Environment Variables → **Production solamente**:
-     crear `RECUPERACION_CONTRASENA_ACTIVA=true`; **borrar** `AUTH_RISK_THRESHOLD` (vuelve al 50).
-     Confirmar que `SMTP_HOST/PORT/USER/PASSWORD`, `SMTP_FROM`, `SMTP_FROM_NAME=Velox` siguen ahí.
-  3. Redeploy de producción y esperar READY.
-  4. Prueba real 1 — recuperación: `/login` muestra «¿Olvidaste tu contraseña?»; pedir el código para
-     una cuenta real con buzón accesible; medir en los logs de Vercel
+     crear `RECUPERACION_CONTRASENA_ACTIVA=true`. Confirmar que `SMTP_HOST/PORT/USER/PASSWORD`,
+     `SMTP_FROM`, `SMTP_FROM_NAME=Velox` siguen ahí.
+  3. **`AUTH_RISK_THRESHOLD=999` se MANTIENE; no se borra.** Decisión del humano (2026-10-30): el
+     código de inicio de sesión sigue apagado de forma indefinida porque varios usuarios no tienen
+     acceso a su correo (p. ej. `mensajero@ordenex.co` no existe) y quedarían sin poder entrar.
+     Encenderlo es una decisión aparte, no parte de este procedimiento.
+  4. Redeploy de producción y esperar READY.
+  5. Prueba real (la única): `/login` muestra «¿Olvidaste tu contraseña?»; pedir el código para una
+     cuenta real con buzón accesible; medir en los logs de Vercel
      `[auth] OTP enviado a … (cambio_contrasena)`; recibir el correo (asunto, marca Velox, aviso
-     «tu contraseña sigue igual»), completar el cambio y entrar con la contraseña nueva.
-  5. Prueba real 2 — código para entrar: entrar desde un navegador/dispositivo nunca usado (ventana
-     privada de otro equipo); medir `[auth] OTP enviado a … (inicio_sesion)`; recibir el correo y
-     entrar con el código. Si no se pide código, anotar el score del intento (`login_attempt.risk_score`)
-     en vez de concluir que falla.
-  6. Vuelta atrás: borrar `RECUPERACION_CONTRASENA_ACTIVA`, poner `AUTH_RISK_THRESHOLD=999`, redeploy.
+     «tu contraseña sigue igual»), completar el cambio y entrar con la contraseña nueva. Comprobar
+     además que ese login NO pidió código (umbral 999 intacto).
+  6. El correo «código para entrar» NO se prueba en producción: lo cubren los tests unitarios (B.2,
+     B.4) hasta que el humano decida encender ese flujo.
+  7. Vuelta atrás: borrar `RECUPERACION_CONTRASENA_ACTIVA` y redeploy.
   **Hecho:** sección commiteada en `docs/release.md`.
 
-- [ ] **E.2 — Ejecutar el encendido el viernes** (humano o leader con su OK). Antes: P5 (buzón del
-  usuario activo `@ordenex.co` tras el cambio de dominio).
-  **Hecho:** resultado de los pasos 4 y 5 con las líneas de log y la hora, en `docs/release.md`.
+- [ ] **E.2 — Ejecutar el encendido el viernes** (humano o leader con su OK).
+  **Hecho:** resultado del paso 5, con la línea de log y la hora, anotado en `docs/release.md`; y
+  `AUTH_RISK_THRESHOLD` sigue en 999 en Production.
 
 ## Mapa R → test
 
@@ -142,4 +146,4 @@ La guardia `superficie-de-uso` se corre además a mano en F (lee `app/` con `fs`
 | R17 | `tests/unit/config/recuperacion-contrasena.test.ts` (B.1) |
 | R18 | `tests/unit/config/recuperacion-contrasena.test.ts` (F.4) |
 | R19 | `tests/unit/guards/superficie-de-uso.guardia.test.ts` (F.3) |
-| R20 | test de `authConfig` (B.5) |
+| R20 | test de `authConfig` + `auth-service.test.ts` con umbral 999 (B.5) |
