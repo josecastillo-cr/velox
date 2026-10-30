@@ -4,17 +4,13 @@ import { render, screen } from "@testing-library/react";
 import { LoginForm } from "@/app/login/_components/LoginForm";
 
 /**
- * ESTE ARCHIVO CAMBIÓ DE SIGNO EL 2026-09-04, y el nombre se conserva a propósito para que la
- * historia siga siendo legible: nació para exigir el enlace «¿Olvidaste tu contraseña?»
- * (R18 de la feature 20) y ahora exige lo contrario, que NO esté.
+ * El «¿Olvidaste tu contraseña?» del login en sus dos estados (feature 489, R15/R16).
  *
- * Por qué: el destino de ese enlace, `/recuperar-contrasena`, manda un OTP por correo y el SMTP
- * de Gmail rechaza la credencial con `535-5.7.8 Username and Password not accepted`. El envío
- * falla siempre y falla MUDO —el paso 1 responde un `ok` genérico anti-enumeración—, así que
- * medido en producción hubo 12 intentos de 2 personas reales sin un solo correo entregado.
- *
- * Cuando el correo vuelva a funcionar, este archivo se revierte junto con el enlace: el caso
- * original está abajo, escrito, para que reponerlo sea copiar y pegar.
+ * Historia del nombre: nació para exigir el enlace (R18 de la feature 20); el 2026-09-04 cambió
+ * de signo y exigió que NO estuviera, porque el SMTP de Gmail rechazaba la credencial (535) y el
+ * paso 1 de `/recuperar-contrasena` fallaba en silencio. Desde la 489 el enlace depende del
+ * interruptor `RECUPERACION_CONTRASENA_ACTIVA`, que lee `app/login/page.tsx` en el servidor y
+ * llega aquí como la prop `recuperacionActiva` (default `false`).
  */
 
 // Las Server Actions no se ejercitan en este test; se mockean para aislar el render.
@@ -35,45 +31,53 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("LoginForm — el enlace de recuperación está retirado (2026-09-04)", () => {
-  it("no ofrece ningún enlace hacia /recuperar-contrasena en la fase de credenciales", () => {
-    render(<LoginForm redirectParam={null} />);
+/** Literales del spec, escritos a mano (no derivados del componente). */
+const TEXTO_ADMIN = "¿Olvidaste tu contraseña? Pídele a un administrador que te la restablezca.";
+const ENLACE = "¿Olvidaste tu contraseña?";
 
-    // CONTROL DE NO-VACUIDAD: el formulario SÍ se renderizó. Sin esto, cualquier fallo de
-    // montaje (un import roto, un throw en el render) dejaría este test verde con la pantalla
-    // de login caída, que es exactamente el fallo mudo que esta ficha vino a quitar.
+function hrefs(): (string | null)[] {
+  return screen.getAllByRole("link").map((a) => a.getAttribute("href"));
+}
+
+describe("LoginForm — recuperación apagada (R15)", () => {
+  it.each([
+    ["sin la prop", undefined],
+    ["con false", false],
+  ])("%s: muestra el texto del administrador y ningún enlace a /recuperar-contrasena", (_, valor) => {
+    render(<LoginForm redirectParam={null} recuperacionActiva={valor} />);
+
+    // CONTROL DE NO-VACUIDAD: el formulario SÍ se renderizó.
     expect(screen.getByRole("heading", { name: "Iniciar sesión" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Iniciar sesión" })).toBeInTheDocument();
 
-    const enlaces = screen.getAllByRole("link");
-    expect(enlaces.map((a) => a.getAttribute("href"))).not.toContain(
-      "/recuperar-contrasena",
-    );
-    expect(
-      screen.queryByRole("link", { name: "¿Olvidaste tu contraseña?" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByText(TEXTO_ADMIN)).toBeInTheDocument();
+    expect(hrefs()).not.toContain("/recuperar-contrasena");
+    expect(screen.queryByRole("link", { name: ENLACE })).not.toBeInTheDocument();
   });
 
-  it("conserva el enlace de postulación pública, que NO entra en esta desactivación", () => {
+  it("conserva el enlace de postulación pública", () => {
     render(<LoginForm redirectParam={null} />);
 
-    // La otra mitad del par: retirar el de recuperación no puede llevarse por delante el de
-    // postulación (feature 21, única vía de auto-registro). Es el control que distingue
-    // «quitaron UN enlace» de «se cayó el bloque de enlaces entero».
-    const postulacion = screen.getByRole("link", {
-      name: "¿Quieres ser mensajero? Postúlate aquí",
-    });
-    expect(postulacion).toHaveAttribute("href", "/postulacion");
+    // Control que distingue «falta UN enlace» de «se cayó el bloque de enlaces entero».
+    expect(
+      screen.getByRole("link", { name: "¿Quieres ser mensajero? Postúlate aquí" }),
+    ).toHaveAttribute("href", "/postulacion");
   });
 });
 
-/*
- * EL CASO ORIGINAL, para reponerlo tal cual cuando el correo vuelva a enviar:
- *
- *   it("muestra un enlace hacia la ruta de reset en la fase de credenciales", () => {
- *     render(<LoginForm redirectParam={null} />);
- *
- *     const link = screen.getByRole("link", { name: "¿Olvidaste tu contraseña?" });
- *     expect(link).toHaveAttribute("href", "/recuperar-contrasena");
- *   });
- */
+describe("LoginForm — recuperación encendida (R16)", () => {
+  it("muestra el enlace «¿Olvidaste tu contraseña?» hacia /recuperar-contrasena y no el texto del administrador", () => {
+    render(<LoginForm redirectParam={null} recuperacionActiva />);
+
+    expect(screen.getByRole("link", { name: ENLACE })).toHaveAttribute(
+      "href",
+      "/recuperar-contrasena",
+    );
+    expect(screen.queryByText(TEXTO_ADMIN)).not.toBeInTheDocument();
+
+    // El de postulación sigue ahí: el enlace nuevo no sustituye al otro.
+    expect(
+      screen.getByRole("link", { name: "¿Quieres ser mensajero? Postúlate aquí" }),
+    ).toHaveAttribute("href", "/postulacion");
+  });
+});

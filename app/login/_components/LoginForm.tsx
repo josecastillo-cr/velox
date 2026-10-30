@@ -40,9 +40,15 @@ export function getRedirectTarget(redirectParam: string | null): string {
 
 export interface LoginFormProps {
   redirectParam: string | null;
+  /**
+   * Interruptor `RECUPERACION_CONTRASENA_ACTIVA`, leído en el SERVIDOR por `app/login/page.tsx`
+   * (feature 489, R18: este componente es de cliente y no lee variables de entorno). Opcional con
+   * default `false` a propósito: sin la prop, el login es el de la recuperación apagada.
+   */
+  recuperacionActiva?: boolean;
 }
 
-export function LoginForm({ redirectParam }: LoginFormProps) {
+export function LoginForm({ redirectParam, recuperacionActiva = false }: LoginFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -268,62 +274,34 @@ export function LoginForm({ redirectParam }: LoginFormProps) {
         </form>
 
         {/*
-          ⚠️ AQUÍ IBA EL ENLACE «¿Olvidaste tu contraseña?» → `/recuperar-contrasena` (R18 de la
-          feature 20). SE RETIRÓ EL 2026-09-04 A PROPÓSITO, y esto es una DESACTIVACIÓN, no una
-          limpieza: el flujo entero sigue en el repo y probado.
+          «¿OLVIDASTE TU CONTRASEÑA?»: una sola pieza en dos estados, según el interruptor
+          `RECUPERACION_CONTRASENA_ACTIVA` (feature 489, R15/R16). Nunca conviven.
+          - Encendido: enlace a `/recuperar-contrasena`, que monta el formulario de 3 pasos.
+          - Apagado: TEXTO PLANO que dice a quién acudir. La vía es humana —un administrador
+            restablece la contraseña desde Configuración → Usuarios (ficha 287)— y no hay URL
+            que sirva (feature 373: sin esta línea el login se quedaba sin ninguna pista).
+          Historia: el enlace se retiró el 2026-09-04 porque el SMTP de Gmail rechazaba la
+          credencial (535) y el paso 1 fallaba en silencio; el correo ahora sale por Brevo.
 
-          CAUSA, medida en producción ese mismo día: el paso 1 de esa ruta emite un OTP por
-          correo y el envío falla SIEMPRE —el SMTP de Gmail rechaza la credencial con
-          `535-5.7.8 Username and Password not accepted` (`EAUTH`, comando `AUTH PLAIN`)—.
-          Y falla MUDO, que es lo que lo hace inaceptable en la puerta de la app: ese paso
-          responde siempre un `ok` genérico para no revelar si la cuenta existe, así que la
-          persona pide el código, no le llega nada y vuelve a pedirlo. 12 intentos de 2
-          personas reales (8 de una en menos de dos horas; 4 de otra el 31 de agosto), cero
-          correos entregados, cero aviso. Un enlace que lleva a eso es peor que no tenerlo.
-
-          MIENTRAS TANTO: `/recuperar-contrasena` sigue pública y muestra a quién acudir
-          (`RecuperacionDesactivadaAviso`), y la vía real es que un administrador restablezca
-          la contraseña desde Configuración → Usuarios (ficha 287).
-
-          PARA VOLVER A ENCENDERLO cuando el correo funcione (contraseña de aplicación de
-          Google en la credencial SMTP): reponer aquí el bloque de abajo, tal cual, y montar de
-          nuevo `<RecuperarContrasenaForm />` en `app/recuperar-contrasena/page.tsx`.
-
-            <div className="text-center">
-              <Link
-                href="/recuperar-contrasena"
-                className="text-sm text-muted-foreground hover:text-foreground underline"
-              >
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
-        */}
-
-        {/*
-          LA LÍNEA DE ABAJO OCUPA EL HUECO QUE DEJÓ ESE ENLACE, y las dos son la MISMA pieza en
-          dos estados: mientras el correo esté caído, aquí hay TEXTO PLANO que dice a quién
-          acudir; cuando vuelva a enviar, este párrafo se BORRA y en su sitio se repone el bloque
-          comentado de arriba, tal cual. Nunca conviven: o el enlace, o esta línea.
-
-          POR QUÉ EXISTE (feature 373): al retirar el enlace, el login se quedó sin ninguna
-          pista. El callejón sin salida no desapareció, se MOVIÓ del formulario de recuperación
-          a la puerta de la app: quien olvida su contraseña mira la pantalla y no sabe qué hacer.
-          Un enlace roto era peor que nada, pero nada es peor que una salida escrita.
-
-          POR QUÉ TEXTO Y NO ENLACE: no hay ningún destino que funcione. La vía real es humana
-          —un administrador restablece la contraseña desde Configuración → Usuarios (ficha
-          287)— y no es una URL que esta persona pueda abrir: si no puede entrar, no puede
-          llegar a Configuración. `tests/integration/login-form-reset-link.test.tsx` vigila
-          justamente eso: que de aquí no vuelva a colgar un `href` a `/recuperar-contrasena`.
-
-          POR QUÉ UN `<p>` PELADO Y NO UN `<Alert>`: esto es una ayuda, no un error. Además,
+          POR QUÉ UN `<p>` PELADO Y NO UN `<Alert>`: es una ayuda, no un error. Además,
           `role="alert"`/`role="status"` en el render inicial rompería la suite de LoginForm,
           que exige CERO regiones vivas en la pantalla de credenciales para que el
           `findByRole("alert")` en singular de los tests de error no se vuelva ambiguo.
         */}
-        <p className="text-center text-sm text-muted-foreground">
-          ¿Olvidaste tu contraseña? Pídele a un administrador que te la restablezca.
-        </p>
+        {recuperacionActiva ? (
+          <div className="text-center">
+            <Link
+              href="/recuperar-contrasena"
+              className="text-sm text-muted-foreground hover:text-foreground underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
+        ) : (
+          <p className="text-center text-sm text-muted-foreground">
+            ¿Olvidaste tu contraseña? Pídele a un administrador que te la restablezca.
+          </p>
+        )}
 
         {/* Enlace a la postulación pública de mensajero (feature 21, afordancia) */}
         <div className="text-center">

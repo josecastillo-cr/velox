@@ -1,3 +1,10 @@
+# ESTADO 2026-10-30 — TRASPASO A JOSÉ (velox) EN CURSO; 489 en spec
+
+- Proyecto traspasado: repo `josecastillo-cr/velox`, Vercel team Velox (proyecto `velox`), Google Cloud de José (geocodificación y rutas OK). Correo saliente de Production por Brevo (dominio velox-courier.company autenticado; prueba entregada).
+- Viernes 2026-10-30, con la app parada: dominio velox-courier.company, Supabase a la org de José y encendido de la 489 (RECUPERACION_CONTRASENA_ACTIVA=true + borrar AUTH_RISK_THRESHOLD).
+- 489 (correo: plantillas + interruptor): registrada, fullstack, spec en curso. Antes de encender OTP: confirmar el buzón del usuario activo @ordenex.co.
+- WhatsApp sigue en la WABA de Nuform (1007158822023912); migrarlo depende de José.
+
 # ESTADO 2026-10-16 — RELEASE DESPLEGADA (PR #862, b784b8f2, dpl_91wyLY78pHnhx3w5Ux4bdgT2p5N6); in_progress = 0
 
 - En prod: 477 (#855), 478 (#858), 479 (#857), 480 (#856), 481 (#859), 482 (#860), 483 (#861). Sin migraciones.

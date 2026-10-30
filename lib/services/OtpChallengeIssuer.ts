@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import type { IEmailOtpChallengeRepository } from "@/lib/interfaces/repositories/IEmailOtpChallengeRepository";
-import type { IEmailProvider } from "@/lib/interfaces/external/IEmailProvider";
+import type { IEmailProvider, PropositoCodigo } from "@/lib/interfaces/external/IEmailProvider";
 import { authConfig } from "@/lib/config/auth";
 
 const OTP_SALT_ROUNDS = 10;
@@ -18,6 +18,12 @@ export interface EmitirOtpParams {
   email: string;
   deviceHash: string;
   ipAddress: string;
+  /**
+   * Feature 489: para que es el codigo. Obligatorio a proposito: sin valor por
+   * defecto, ningun flujo puede acabar con el texto del otro sin que el
+   * typecheck lo senale. Solo decide la plantilla; no se persiste.
+   */
+  proposito: PropositoCodigo;
 }
 
 export interface EmitirOtpResult {
@@ -52,6 +58,7 @@ export class OtpChallengeIssuer {
       to: params.email,
       code,
       expiresInMinutes: authConfig.OTP_TTL_MINUTES,
+      proposito: params.proposito,
     });
 
     return { challengeId: challenge.id };

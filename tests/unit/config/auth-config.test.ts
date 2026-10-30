@@ -39,6 +39,20 @@ describe("lib/config/auth", () => {
     expect(config.RISK_THRESHOLD).toBe(70);
   });
 
+  // Feature 489 — R20: la regla del umbral se conserva. Sin variable, 50; con
+  // 999 (Production) ningun score alcanzable (maximo 110) exige codigo.
+  it("R20: sin AUTH_RISK_THRESHOLD el umbral es 50", async () => {
+    clearEnv();
+    const { loadAuthConfig } = await import("@/lib/config/auth");
+    expect(loadAuthConfig().RISK_THRESHOLD).toBe(50);
+  });
+
+  it("R20: con AUTH_RISK_THRESHOLD=999 el umbral es 999", async () => {
+    process.env.AUTH_RISK_THRESHOLD = "999";
+    const { loadAuthConfig } = await import("@/lib/config/auth");
+    expect(loadAuthConfig().RISK_THRESHOLD).toBe(999);
+  });
+
   it("ignora overrides invalidos y cae al valor por defecto", async () => {
     process.env.AUTH_MAX_FAILED_ATTEMPTS = "no-es-un-numero";
     const { loadAuthConfig } = await import("@/lib/config/auth");

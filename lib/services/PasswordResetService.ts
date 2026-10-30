@@ -56,6 +56,7 @@ export class PasswordResetService implements IPasswordResetService {
           email: usuario.email,
           deviceHash: input.deviceHash,
           ipAddress: input.ipAddress,
+          proposito: "cambio_contrasena",
         });
       }
     }
