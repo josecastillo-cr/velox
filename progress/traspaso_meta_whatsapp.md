@@ -29,6 +29,8 @@ final.
 
 - Verificación del negocio enviada a Meta (con la certificación del Registro Nacional); se espera la respuesta. Configuración básica de la app hecha en parte.
 - El redeploy del corte (4.2) incluye también `RECUPERACION_CONTRASENA_ACTIVA=true` (encendido de la 489) y la `ANTHROPIC_API_KEY` de José (decisión de Carlos, 2026-10-30).
+- 2026-10-31, ~04:40 UTC, PREPARACIÓN DEL CORTE HECHA (sin corte): el `WHATSAPP_WEBHOOK_VERIFY_TOKEN` nuevo y `RECUPERACION_CONTRASENA_ACTIVA=true` (489 encendida) están en prod, con redeploy `dpl_Cs614XTZoiCh76joTyUDDzte1Men` READY. El webhook de la app Velox apunta a velox-courier.company y la verificación respondió 200. `messages` suscrito, `subscribed_apps` hecho y la app PUBLICADA (Live). La app sigue enviando por el número de Nuform.
+- FALTA para el corte: plantillas APPROVED (siguen PENDING); luego José cambia las 4 `WHATSAPP_*` restantes (CLOUD_TOKEN, NUMERO_ID, WABA_ID, APP_SECRET) en Production y Preview, y la `ANTHROPIC_API_KEY` si ya la tiene. Después: redeploy y pruebas al +57 300 802 9714.
 - 6.1 Aviso a clientes: NO se hace (decisión de Carlos, 2026-10-30). El número viejo no está publicado en ningún sitio.
 
 ## 0.5 Inventario de plantillas (prod, `plantilla_mensaje` vigentes, leído el 2026-10-30)
