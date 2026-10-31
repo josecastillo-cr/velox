@@ -35,6 +35,18 @@ final.
   - Entrada: el texto de +57 300 802 9714 llegó al webhook con firma válida, pero se descartó porque viene con `from_user_id` y sin `from` (ese usuario tiene nombre de usuario de WhatsApp) → ficha 491.
   - Salida: texto libre por la API al +57 302 420 6707, que confirmó haberlo recibido.
   - Pendiente: ver entrar al chat el mensaje de un cliente real con orden activa, y las plantillas siguen PENDING.
+## Pendiente para la próxima sesión (cierre del 2026-10-31 ~06:10 UTC)
+
+1. Plantillas: consultar `GET /2115650402656273/message_templates`. Cuando estén APPROVED, EDITAR el cuerpo, cambiando "Ordenex" por "Velox Courier" (mismas variables y mismo orden; los nombres se quedan), y actualizar `plantilla_mensaje.cuerpo` en prod. Decisión de Carlos del 2026-10-31. Si alguna sale REJECTED, ver el motivo.
+2. Envíos automáticos con plantilla fallidos durante la espera: medirlos en la base y reenviarlos si hace falta.
+3. Primer entrante real de un cliente con orden activa: confirmar que entra en `chat_mensaje`.
+4. Respuesta de Meta a la verificación del negocio.
+5. Integradores de la API: darles `https://velox-courier.company` (Nuform es uno).
+6. Nuform, en unos días: quitar su webhook, revocar sus tokens y borrar el número viejo `1109739142232496`; revocar su clave de Anthropic; cerrar el GCP `rapidisimo-app-496106`; quitar sus tarjetas; comprobar que no es miembro del team Velox de Vercel. Después, quitar `ordenex.vercel.app` del proyecto.
+7. Cambio de marca Ordenex → Velox Courier en la app (landing, `apple-mobile-web-app-title`, `SMTP_FROM_NAME`, push `soporte@ordenex.co`, guía de integración).
+8. Ficha 491 (entrantes con nombre de usuario), unos 450 jobs de geocodificación fallidos, ficha para el envío por el ID de la cuenta de WhatsApp de Meta, actualizar el spec de la 490, y el teléfono y la cédula de relleno del maestro de José.
+- El SMTP de Preview se borra (decisión de Carlos); no se migra.
+- OJO: el token de José (`meta_token.txt`) y el del webhook estaban en el scratchpad de ESTA sesión, que no se hereda. Para la API de Meta, Carlos tiene que volver a dejar el token en el scratchpad de la sesión nueva.
 - 6.1 Aviso a clientes: NO se hace (decisión de Carlos, 2026-10-30). El número viejo no está publicado en ningún sitio.
 
 ## 0.5 Inventario de plantillas (prod, `plantilla_mensaje` vigentes, leído el 2026-10-30)
