@@ -1,3 +1,4 @@
+import { ConservacionLegal } from "./ConservacionLegal";
 import { CorreoLegal, DatoLegal } from "./DatoLegal";
 import type { DatosLegales } from "./datos-legales";
 import {
@@ -19,8 +20,9 @@ import {
  * El inventario sale de `specs/490-paginas-legales/design.md` §3, verificado contra
  * `db/schema.prisma`: solo figura lo que la aplicacion guarda y solo para lo que la aplicacion lo
  * usa (R9-R12). Terceros, norma aplicable y plazo de respuesta se publican por decision del
- * humano (2026-10-30, T8). A proposito NO afirma plazos de conservacion ni que se conserva tras una
- * solicitud de eliminacion (pregunta abierta 8): un texto legal que promete lo que nadie decidio es
+ * humano (2026-10-30, T8). Lo que se conserva tras una solicitud de eliminacion sale de
+ * `ConservacionLegal` y se limita a lo que el esquema obliga a conservar (revision 490, m3/d). A
+ * proposito NO afirma plazos de conservacion: un texto legal que promete lo que nadie decidio es
  * peor que uno que calla.
  */
 export function PoliticaPrivacidad({ datos }: Readonly<{ datos: DatosLegales }>) {
@@ -96,8 +98,17 @@ export function PoliticaPrivacidad({ datos }: Readonly<{ datos: DatosLegales }>)
           </li>
           <li>Ubicación al registrar una gestión de entrega.</li>
           <li>
-            Datos de seguridad de acceso: dirección IP y navegador de los intentos de ingreso y de
-            los dispositivos de confianza.
+            Datos de seguridad de acceso: dirección IP y navegador de los intentos de ingreso,
+            dirección IP de las verificaciones con código enviado al correo, y dirección IP y una
+            huella cifrada (no el dato en claro) de los dispositivos de confianza.
+          </li>
+          <li>
+            Movimientos de dinero de mensajeros y tiendas: cobros, pagos y ajustes, con los
+            comprobantes que se adjuntan.
+          </li>
+          <li>
+            Historial de las acciones que cada usuario realiza en la aplicación, con su nombre y su
+            rol en ese momento.
           </li>
         </ListaLegal>
         <SubtituloLegal>Para qué se usan</SubtituloLegal>
@@ -107,6 +118,8 @@ export function PoliticaPrivacidad({ datos }: Readonly<{ datos: DatosLegales }>)
           <li>Verificar la identidad y el vehículo de quien se postula como mensajero.</li>
           <li>Respaldar cada gestión de entrega registrada.</li>
           <li>Proteger el ingreso a la aplicación.</li>
+          <li>Llevar las cuentas de cobros y pagos con mensajeros y tiendas.</li>
+          <li>Dejar constancia de quién hizo cada acción en la aplicación.</li>
         </ListaLegal>
       </SeccionLegal>
 
@@ -131,6 +144,10 @@ export function PoliticaPrivacidad({ datos }: Readonly<{ datos: DatosLegales }>)
           <li>Meta (WhatsApp): mensajería con los destinatarios para coordinar la entrega.</li>
           <li>Google Maps: ubicación de las direcciones de entrega y planificación de rutas.</li>
           <li>Brevo: envío de correos electrónicos.</li>
+          <li>
+            Anthropic: asistente de ayuda dentro de la aplicación; recibe las preguntas que escriben
+            los usuarios de la aplicación.
+          </li>
           <li>Vercel: alojamiento de la aplicación.</li>
           <li>Supabase: base de datos y almacenamiento de archivos.</li>
         </ListaLegal>
@@ -150,6 +167,7 @@ export function PoliticaPrivacidad({ datos }: Readonly<{ datos: DatosLegales }>)
           máximo de <DatoLegal valor={datos.plazoRespuesta} />. Consulta cómo hacerlo en{" "}
           <EnlaceLegal href="/eliminacion-datos">Eliminación de datos</EnlaceLegal>.
         </p>
+        <ConservacionLegal />
       </SeccionLegal>
     </PaginaLegal>
   );

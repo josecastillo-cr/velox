@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
+
 import { Logo } from "@/components/shared/Logo";
 
 import { DatoLegal } from "../_legal/DatoLegal";
@@ -21,13 +23,23 @@ const CLASE_ENLACE =
  *
  * Las anclas de esta misma página van en `<a>` nativo por la misma razón que en
  * `LandingNav`: `<Link>` anularía el desplazamiento suave.
+ *
+ * `marca` (feature 490): si se pasa, sustituye al wordmark `Logo` por ese texto. Las páginas
+ * legales pasan la marca de `datos-legales.ts` para no mostrar dos marcas distintas en la misma
+ * página. Sin `marca` (la landing) el pie no cambia.
  */
-export function LandingFooter() {
+export function LandingFooter({ marca }: Readonly<{ marca?: ReactNode }> = {}) {
   return (
     <footer className="bg-navy-deep px-6 pt-14 pb-8 text-asfalto-2/80 md:px-12 md:pt-[72px]">
       <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-8 md:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
         <div>
-          <Logo className="text-white" />
+          {marca === undefined ? (
+            <Logo className="text-white" />
+          ) : (
+            <span className="font-heading text-2xl font-semibold tracking-tight text-white">
+              {marca}
+            </span>
+          )}
           <p className="mt-3.5 max-w-[38ch] text-[13px] leading-relaxed text-asfalto-2/60">
             Transportadora costarricense comprometida con la rapidez, confiabilidad y
             transparencia en cada envío. Operamos en el Gran Área Metropolitana.

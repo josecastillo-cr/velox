@@ -1,3 +1,4 @@
+import { ConservacionLegal } from "./ConservacionLegal";
 import { CorreoLegal, DatoLegal } from "./DatoLegal";
 import type { DatosLegales } from "./datos-legales";
 import {
@@ -12,8 +13,9 @@ import {
  * Feature 490 — cuerpo de las instrucciones de eliminacion de datos (`/eliminacion-datos`).
  *
  * Mismo contrato que `PoliticaPrivacidad`: datos legales por prop. La solicitud es por CORREO y no
- * hay formulario (R15). El plazo de respuesta sale de los datos legales (T8). A proposito NO afirma
- * que se borra todo ni que algo se conserva: es la pregunta abierta 8.
+ * hay formulario (R15). El plazo de respuesta sale de los datos legales (T8). Lo que se conserva
+ * sale de `ConservacionLegal` (solo lo que el esquema obliga); a proposito NO afirma que el resto
+ * se borra de una forma concreta ni plazos de conservacion.
  */
 export function InstruccionesEliminacion({ datos }: Readonly<{ datos: DatosLegales }>) {
   return (
@@ -41,6 +43,10 @@ export function InstruccionesEliminacion({ datos }: Readonly<{ datos: DatosLegal
           <li>El teléfono con el que te relacionas con nosotros.</li>
           <li>Si eres destinatario de un envío, el número de guía cuando lo tengas.</li>
         </ListaLegal>
+      </SeccionLegal>
+
+      <SeccionLegal titulo="Qué se conserva">
+        <ConservacionLegal />
       </SeccionLegal>
 
       <SeccionLegal titulo="Responsable de los datos">

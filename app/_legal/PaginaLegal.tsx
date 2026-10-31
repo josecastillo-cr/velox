@@ -14,7 +14,8 @@ import { DatoLegal } from "./DatoLegal";
  * Server Component puro, con el estilo de la landing (`tema-claro`, `bg-kraft-canvas`, tokens
  * `asfalto-*`/`navy-deep`) y sus primitivas. La cabecera pinta la MARCA COMO TEXTO desde los datos
  * legales y no el `Logo` compartido: ese es un wordmark fijo y la marca a mostrar esta abierta.
- * No reutiliza `LandingNav`: sus anclas solo existen en `/` y monta una isla cliente.
+ * No reutiliza `LandingNav`: sus anclas solo existen en `/` y monta una isla cliente. El pie
+ * recibe la misma marca, asi que el wordmark compartido no aparece en estas paginas: una sola marca.
  *
  * Exactamente un `<h1>` (R8): el titulo. Las secciones del cuerpo van en `<h2>` (`SeccionLegal`).
  */
@@ -53,7 +54,7 @@ export function PaginaLegal({
         </Seccion>
       </main>
 
-      <LandingFooter />
+      <LandingFooter marca={<DatoLegal valor={marca} />} />
     </div>
   );
 }

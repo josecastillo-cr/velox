@@ -90,16 +90,74 @@ conserva tras una solicitud (abierto 8).
   con su motivo. Es la única edición fuera del alcance listado en el design.
 - La guardia lee con `fs`: corrida a mano por nombre, `pnpm exec vitest run paginas-legales`
   → 3 archivos, 45 tests verdes. También verdes `middleware.test.ts` y `LandingPage.test.tsx`.
-- **T9.2 NO hecha**: el leader indicó no levantar dev server. El `curl` sin cookie y con
-  `-A "facebookexternalhit/1.1"` y la captura del navegador quedan pendientes (el HTML de servidor
-  sí se prueba por `renderToStaticMarkup` de las `page.tsx` reales). T9.4 (preview) es tras merge.
+- T9.2: ver la sección «Revisión 490 — correcciones» (hecha el 2026-10-30).
+
+## Revisión 490 — correcciones (2026-10-30, tras `progress/review_490.md`)
+
+El MCP `codebase-memory` no conectó (CONNECT_TIMEOUT): todo se buscó con grep y leyendo archivos.
+
+### B1 — tasks y T9.2
+- `tasks.md`: `[x]` en T1-T8, T9.1, T9.2, T9.3. T9.4 diferida por escrito a después del merge.
+- **T9.2 hecha.** Antes de arrancar se comprobó que no había otro `next dev` (solo dos `node` del
+  plugin context-mode). Un dev server en `:3490`, `curl` SIN cookie y con
+  `-A "facebookexternalhit/1.1"`, servidor apagado después y `rm -rf .next/dev` (el typecheck salió
+  con 4 errores, todos en `.next/dev/types` truncados; tras borrar, 0). Salida en
+  `progress/t92_490_curl.txt`:
+  - `/privacidad` → `HTTP/1.1 200 OK`, `text/html`, sin `location` ni `set-cookie`, 60.580 bytes,
+    `<title>Política de privacidad · Velox Courier</title>`. En el HTML crudo: «Velox Courier»,
+    `3-102-965944`, `battos.sa@gmail.com`, «Destinatarios de los envíos», «Anthropic», «huella
+    cifrada», «Movimientos de dinero de mensajeros y tiendas» y «La base de datos no permite borrar a
+    un usuario».
+  - `/eliminacion-datos` → `HTTP/1.1 200 OK`, sin `location` ni `set-cookie`, 46.030 bytes,
+    `<title>Eliminación de datos · Velox Courier</title>`; «Qué incluir en la solicitud», «Qué se
+    conserva», el correo y la razón social.
+  - «Ordenex» sale 2 veces en el HTML de cada página, y NO es texto visible: es
+    `<meta name="apple-mobile-web-app-title" content="Ordenex">`, escrito a mano en el `<head>` del
+    layout raíz (`app/layout.tsx:51`), más su copia en el payload RSC. Una página no puede
+    sobrescribirlo sin tocar el layout raíz: va con el cambio de marca posterior.
+  - Captura del navegador no hecha; la evidencia es el HTML crudo, que es lo que lee el rastreador.
+
+### Texto legal (cada afirmación contrastada con `db/schema.prisma` y el código)
+- **m2 / a — Anthropic** añadido a «Servicios de terceros»: `lib/clients/anthropic-asistente.ts`
+  manda a `api.anthropic.com/v1/messages` las preguntas del asistente. Brevo se mantiene (el leader
+  confirma que es el SMTP de producción).
+- **m1 / b — dispositivos de confianza**: ahora «dirección IP y una huella cifrada (no el dato en
+  claro)». `TrustedDevice` guarda `ipAddress` y `deviceHash`, no el navegador. Los intentos de
+  ingreso sí guardan IP y navegador (`LoginAttempt.ipAddress/userAgent`).
+- **m3 / c — categorías añadidas** a «Usuarios de la aplicación»: IP de la verificación por código al
+  correo (`EmailOtpChallenge.ipAddress`), movimientos de dinero de mensajeros y tiendas con sus
+  comprobantes (`PagoMensajeroMovimiento`, `WalletTiendaMovimiento`, `WalletComprobante`) e
+  historial de acciones con nombre y rol (`HistorialAccion.actorNombre/actorRol`). Dos finalidades
+  nuevas: llevar las cuentas con mensajeros y tiendas, y dejar constancia de quién hizo cada acción.
+- **d — qué se conserva** (`app/_legal/ConservacionLegal.tsx`, en las dos páginas): (1) movimientos
+  de dinero y comprobantes: los libros no tienen `updated_at`/`deleted_at` («fila INMUTABLE») y no
+  hay ningún `update`/`delete` sobre ellos en `lib/` ni en `app/` (grep); los comprobantes cuelgan
+  con FK `Restrict`; (2) historial de acciones: fila inmutable, FK `Restrict` al actor (la base no
+  deja borrar a un usuario con acciones registradas). No promete plazos ni cómo se borra el resto.
+  Sustituye a los tests «no afirma que se conserva», que ya no eran el contrato.
+- **e / m7 — una sola marca**: `LandingFooter` acepta un `marca?` opcional que sustituye al `Logo`;
+  `PaginaLegal` le pasa la marca de `datos-legales.ts`. La landing (sin prop) no cambia.
+
+### Tests
+- `tests/components/paginas-legales.test.tsx`: literales nuevos en R10 y R12; m1 (sin
+  «navegador… dispositivos de confianza»); Anthropic en la lista y con su literal; lista
+  `CONSERVADO` exacta en las dos páginas; sin plazos de conservación; R16 acotado a su sección (la
+  lista de conservación añade `<li>`); pie con la marca de los datos (ficticia) y sin «ordenex»;
+  `page.tsx` reales: el pie dice «Velox Courier» y el `body` no contiene «ordenex».
+- `tests/components/LandingFooter.test.tsx`: sin `marca` pinta el wordmark; con `marca`, ese texto.
+- Mutación: devolver `PaginaLegal` a `<LandingFooter />` pone 4 rojos (los cuatro tests de e).
+  Restaurado.
+
+### Gate (`progress/gate_490_b.log`)
+`--rapido` se niega (middleware.ts en `RUTAS_GLOBALES`); completo NO corrido (regla 5). Pasos a
+mano: typecheck 0 (tras `rm -rf .next/dev`), lint 0 errores, `test:cambiados` 11 archivos / 151
+tests verdes, explícitos de la revisión 5 / 78 verdes, `test:guardias` 274 / 3.769 verdes, 0 skipped.
 
 ## Abiertos
 
-- Abierto 8 (qué se conserva pese a una solicitud de borrado): sin texto en el spec, no se afirma.
-- El wordmark `Logo` «Ordenex» sigue en la barra y el pie de la landing y en el pie de las páginas
-  legales (lo pinta `LandingFooter`); también el texto «Transportadora costarricense…». Fuera del
-  encargo.
+- Abierto 8: cerrado en lo básico (ver «qué se conserva»); el spec no lo refleja aún (m4).
+- El wordmark «Ordenex» sigue en la barra y el pie de la landing general (fuera del encargo: cambio
+  de marca posterior) y en el `<meta name="apple-mobile-web-app-title">` del layout raíz.
 - Brevo se nombra como tercero, pero la 489 se desplegó APAGADA (encendido pendiente).
 - Spec desactualizado respecto a T8 (ver arriba).
-- T9.2 (curl + captura con dev server) y T9.4 (curl contra preview).
+- T9.4 (curl contra preview), tras merge.

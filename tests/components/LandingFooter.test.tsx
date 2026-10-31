@@ -49,3 +49,16 @@ describe("LandingFooter — enlaces legales (R22)", () => {
     );
   });
 });
+
+describe("LandingFooter — marca del pie (revision 490, e)", () => {
+  it("sin `marca` (la landing) pinta el wordmark compartido, como siempre", () => {
+    const { container } = render(<LandingFooter />);
+    expect(container.querySelector("footer span.font-heading")?.textContent).toBe("Ordenex");
+  });
+
+  it("con `marca` pinta ese texto en lugar del wordmark", () => {
+    const { container } = render(<LandingFooter marca="MARCA-PRUEBA" />);
+    expect(container.querySelector("footer span.font-heading")?.textContent).toBe("MARCA-PRUEBA");
+    expect(container.textContent).not.toContain("Ordenex");
+  });
+});

@@ -38,6 +38,15 @@ const DATOS_FICTICIOS: DatosLegales = {
   plazoRespuesta: "PLAZO-PRUEBA",
 };
 
+/**
+ * Lo que se conserva aunque se pida borrar (revision 490, d). Literal del contrato: libros de dinero
+ * inmutables y `historial_accion` con FK `Restrict` al actor, contrastados con `db/schema.prisma`.
+ */
+const CONSERVADO = [
+  "Los movimientos de dinero con mensajeros y tiendas (cobros, pagos y ajustes) y sus comprobantes. Son registros que la aplicación no modifica ni borra.",
+  "El historial de acciones: quién hizo cada acción en la aplicación, con su nombre y su rol en ese momento. La base de datos no permite borrar a un usuario que tenga acciones registradas.",
+];
+
 function html(el: ReactElement): string {
   return renderToStaticMarkup(el);
 }
@@ -58,6 +67,17 @@ function texto(d: Document): string {
 
 function itemsDeLista(d: Document): string[] {
   return [...d.querySelectorAll("main li")].map((li) =>
+    (li.textContent ?? "").replace(/\s+/g, " ").trim(),
+  );
+}
+
+/** Items de lista de la seccion cuyo `<h2>` es `titulo`; falla si la seccion no existe. */
+function itemsDeSeccion(d: Document, titulo: string): string[] {
+  const seccion = [...d.querySelectorAll("main section")].find(
+    (s) => s.querySelector("h2")?.textContent === titulo,
+  );
+  expect(seccion, titulo).toBeDefined();
+  return [...seccion!.querySelectorAll("li")].map((li) =>
     (li.textContent ?? "").replace(/\s+/g, " ").trim(),
   );
 }
@@ -126,10 +146,18 @@ describe("PoliticaPrivacidad — categorias de datos (R9, R10, R11)", () => {
       "Vehículo y placa (mensajeros).",
       "Documentos de postulación de mensajeros: fotografías de la identificación, de la propiedad del vehículo y del rostro.",
       "Ubicación al registrar una gestión de entrega.",
-      "Datos de seguridad de acceso: dirección IP y navegador de los intentos de ingreso y de los dispositivos de confianza.",
+      "Datos de seguridad de acceso: dirección IP y navegador de los intentos de ingreso, dirección IP de las verificaciones con código enviado al correo, y dirección IP y una huella cifrada (no el dato en claro) de los dispositivos de confianza.",
+      "Movimientos de dinero de mensajeros y tiendas: cobros, pagos y ajustes, con los comprobantes que se adjuntan.",
+      "Historial de las acciones que cada usuario realiza en la aplicación, con su nombre y su rol en ese momento.",
     ]) {
       expect(items).toContain(literal);
     }
+  });
+
+  it("revision 490 (m1): no afirma que se guarde el navegador de los dispositivos de confianza", () => {
+    // `TrustedDevice` guarda `ip_address` y `device_hash`, nunca el navegador en claro.
+    const t = texto(doc(<PoliticaPrivacidad datos={SIN_DATOS} />));
+    expect(t).not.toContain("navegador de los intentos de ingreso y de los dispositivos de confianza");
   });
 
   it("R11: enumera los datos de los postulantes", () => {
@@ -166,6 +194,8 @@ describe("PoliticaPrivacidad — finalidades (R12)", () => {
         "Verificar la identidad y el vehículo de quien se postula como mensajero.",
         "Respaldar cada gestión de entrega registrada.",
         "Proteger el ingreso a la aplicación.",
+        "Llevar las cuentas de cobros y pagos con mensajeros y tiendas.",
+        "Dejar constancia de quién hizo cada acción en la aplicación.",
       ],
     ],
     ["Postulantes", ["Responder la postulación."]],
@@ -191,9 +221,16 @@ describe("PoliticaPrivacidad — finalidades (R12)", () => {
     );
     expect(seccion).toBeDefined();
     const items = [...seccion!.querySelectorAll("li")].map((li) => li.textContent ?? "");
-    for (const tercero of ["Meta (WhatsApp)", "Google Maps", "Brevo", "Vercel", "Supabase"]) {
+    for (const tercero of ["Meta (WhatsApp)", "Google Maps", "Brevo", "Anthropic", "Vercel", "Supabase"]) {
       expect(items.some((i) => i.startsWith(`${tercero}:`)), tercero).toBe(true);
     }
+  });
+
+  it("revision 490 (m2): Anthropic figura con lo que recibe (las preguntas al asistente)", () => {
+    const items = itemsDeLista(doc(<PoliticaPrivacidad datos={SIN_DATOS} />));
+    expect(items).toContain(
+      "Anthropic: asistente de ayuda dentro de la aplicación; recibe las preguntas que escriben los usuarios de la aplicación.",
+    );
   });
 
   it("T8: cita la Ley 8968 de Costa Rica", () => {
@@ -209,9 +246,14 @@ describe("PoliticaPrivacidad — finalidades (R12)", () => {
     );
   });
 
-  it("no afirma que se conserva nada tras una solicitud (abierto 8)", () => {
+  it("revision 490 (d): en «Eliminación de tus datos» dice lo que se conserva", () => {
+    const d = doc(<PoliticaPrivacidad datos={SIN_DATOS} />);
+    expect(itemsDeSeccion(d, "Eliminación de tus datos")).toEqual(CONSERVADO);
+  });
+
+  it("no promete plazos de conservacion", () => {
     const t = texto(doc(<PoliticaPrivacidad datos={SIN_DATOS} />)).toLowerCase();
-    for (const prohibido of ["se conserva", "conservamos", "días hábiles"]) {
+    for (const prohibido of ["conservamos durante", "días hábiles", "años"]) {
       expect(t).not.toContain(prohibido);
     }
   });
@@ -302,8 +344,8 @@ describe("InstruccionesEliminacion — solicitud por correo (R15, R16, R21)", ()
   });
 
   it("R16: dice que datos incluir para identificar a la persona", () => {
-    const items = itemsDeLista(doc(<InstruccionesEliminacion datos={SIN_DATOS} />));
-    expect(items).toEqual([
+    const d = doc(<InstruccionesEliminacion datos={SIN_DATOS} />);
+    expect(itemsDeSeccion(d, "Qué incluir en la solicitud")).toEqual([
       "Tu nombre.",
       "El teléfono con el que te relacionas con nosotros.",
       "Si eres destinatario de un envío, el número de guía cuando lo tengas.",
@@ -325,9 +367,14 @@ describe("InstruccionesEliminacion — solicitud por correo (R15, R16, R21)", ()
     expect(texto(d)).toContain("Respondemos cada solicitud en un plazo máximo de PLAZO-PRUEBA.");
   });
 
-  it("no afirma que se borra todo ni que algo se conserva (abierto 8)", () => {
+  it("revision 490 (d): la seccion «Qué se conserva» lista lo que no se borra", () => {
+    const d = doc(<InstruccionesEliminacion datos={SIN_DATOS} />);
+    expect(itemsDeSeccion(d, "Qué se conserva")).toEqual(CONSERVADO);
+  });
+
+  it("no afirma que se borra todo ni promete plazos de conservacion", () => {
     const t = texto(doc(<InstruccionesEliminacion datos={SIN_DATOS} />)).toLowerCase();
-    for (const prohibido of ["se conserva", "conservamos", "todos tus datos serán"]) {
+    for (const prohibido of ["todos tus datos serán", "se borra todo", "conservamos durante"]) {
       expect(t).not.toContain(prohibido);
     }
   });
@@ -375,6 +422,19 @@ describe("armazon comun — la marca de la cabecera sale de los datos legales (R
     expect(sinDatos.querySelector("header [data-pendiente]")?.textContent).toBe(MARCADOR);
     expect(sinDatos.querySelector('header a[href="/"]')).not.toBeNull();
   });
+
+  it.each([
+    ["privacidad", PoliticaPrivacidad],
+    ["eliminacion", InstruccionesEliminacion],
+  ] as const)(
+    "revision 490 (e) %s: el pie pinta la marca de los datos legales, no el wordmark compartido",
+    (_n, Cuerpo) => {
+      const pie = doc(<Cuerpo datos={DATOS_FICTICIOS} />).querySelector("footer");
+      expect(pie).not.toBeNull();
+      expect(pie!.querySelector("span.font-heading")?.textContent).toBe("MARCA-PRUEBA");
+      expect(pie!.textContent?.toLowerCase()).not.toContain("ordenex");
+    },
+  );
 });
 
 // =================================================================================================
@@ -446,6 +506,18 @@ describe("T8 — datos legales reales: ningun marcador de pendiente", () => {
     expect(markup).not.toContain(MARCADOR);
     expect(markup).not.toContain("data-pendiente");
     expect(String(pagina.metadata.title)).not.toContain(MARCADOR);
+  });
+
+  it.each([
+    ["/privacidad", "@/app/privacidad/page"],
+    ["/eliminacion-datos", "@/app/eliminacion-datos/page"],
+  ])("revision 490 (e) %s: una sola marca en toda la pagina (pie incluido)", async (_r, modulo) => {
+    vi.resetModules();
+    const pagina = await import(/* @vite-ignore */ modulo);
+    const d = new DOMParser().parseFromString(renderToStaticMarkup(pagina.default()), "text/html");
+    // Contrato de la ficha 490 / T8 como literal: la marca publicada es Velox Courier.
+    expect(d.querySelector("footer span.font-heading")?.textContent).toBe("Velox Courier");
+    expect(d.body.textContent?.toLowerCase()).not.toContain("ordenex");
   });
 
   it("no publica datos personales del gerente (decision del humano)", async () => {
