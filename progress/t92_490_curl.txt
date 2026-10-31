@@ -1,0 +1,38 @@
+=== GET /privacidad (sin cookie, UA facebookexternalhit/1.1)
+HTTP/1.1 200 OK
+Cache-Control: no-cache, must-revalidate
+Content-Type: text/html; charset=utf-8
+bytes: 60580
+  Política de privacidad                            2
+  Eliminación de datos                              1
+  Velox Courier                                      2
+  3-102-965944                                       1
+  battos.sa@gmail.com                                1
+  Anthropic                                          1
+  Qué se conserva                                   0
+  La base de datos no permite borrar a un usuario    1
+  huella cifrada                                     1
+  Movimientos de dinero de mensajeros y tiendas      1
+  Qué incluir en la solicitud                       0
+  Destinatarios de los envíos                       1
+  ordenex (case-insens., en el HTML): 2
+  <title>: <title>Política de privacidad · Velox Courier</title>
+=== GET /eliminacion-datos (sin cookie, UA facebookexternalhit/1.1)
+HTTP/1.1 200 OK
+Cache-Control: no-cache, must-revalidate
+Content-Type: text/html; charset=utf-8
+bytes: 46030
+  Política de privacidad                            1
+  Eliminación de datos                              2
+  Velox Courier                                      2
+  3-102-965944                                       1
+  battos.sa@gmail.com                                1
+  Anthropic                                          0
+  Qué se conserva                                   1
+  La base de datos no permite borrar a un usuario    1
+  huella cifrada                                     0
+  Movimientos de dinero de mensajeros y tiendas      0
+  Qué incluir en la solicitud                       1
+  Destinatarios de los envíos                       0
+  ordenex (case-insens., en el HTML): 2
+  <title>: <title>Eliminación de datos · Velox Courier</title>

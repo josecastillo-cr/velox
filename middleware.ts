@@ -19,6 +19,12 @@ const PUBLIC_ROUTES = [
   // listar el prefijo `/api/docs` explicitamente o el spec redirige a /login y la UI no renderiza.
   "/api-docs",
   "/api/docs",
+  // Feature 490: politica de privacidad e instrucciones de eliminacion de datos. Meta las exige
+  // para pasar la app de WhatsApp a Live y su rastreador las pide SIN cookie: detras del guard
+  // recibiria un 307 a /login. Son paginas estaticas sin datos de nadie. `matches()` compara por
+  // igualdad o prefijo `ruta + "/"`, asi que `/privacidad-admin` sigue siendo privada (R4).
+  "/privacidad",
+  "/eliminacion-datos",
 ];
 
 // Endpoints que NO usan cookie de sesion porque traen su PROPIA autenticacion
