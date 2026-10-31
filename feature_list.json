@@ -5855,6 +5855,19 @@
       "spec_path": "specs/489-correo-brevo-interruptor",
       "branch": "feat/489-correo-brevo-interruptor",
       "status_note": "DESPLEGADA en prod APAGADA (release #873, 0e2f4e89, 2026-10-30 ~05:00 UTC): /login y /recuperar-contrasena iguales a antes, 0 runtime errors. PR #872. Revision APROBADA. FALTA E.2 (viernes 2026-10-30): RECUPERACION_CONTRASENA_ACTIVA=true en Production + redeploy + prueba real del correo (docs/release.md). OTP de login sigue apagado (AUTH_RISK_THRESHOLD=999)."
+    },
+    {
+      "id": 490,
+      "title": "páginas públicas de privacidad y eliminación de datos",
+      "description": "Rutas públicas /privacidad y /eliminacion-datos con el texto legal, exigidas por Meta para publicar la app de WhatsApp.",
+      "zone": "frontend",
+      "status": "in_progress",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": null,
+      "spec_path": "specs/490-paginas-legales",
+      "branch": "feat/490-paginas-legales",
+      "status_note": "Bloquea la publicación (Live) de la app de Meta (progress/traspaso_meta_whatsapp.md). Spec aprobado por Carlos el 2026-10-30: texto básico y sin /design. Abiertos para el humano (T8): razón social, cédula jurídica, correo de privacidad, texto legal propio o básico, y marca (Velox Courier u Ordenex)."
     }
   ]
 }
