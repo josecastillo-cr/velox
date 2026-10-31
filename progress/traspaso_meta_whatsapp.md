@@ -27,6 +27,8 @@ final.
   `listo_para_entrega_mensajero` 28252813871058704, `alerta_transito_ordenex` 1598724291390711,
   `picking_bodega_ordenex` 1152229794427597. Todas en PENDING al crearlas.
 
+- Verificación del negocio enviada a Meta (con la certificación del Registro Nacional); se espera la respuesta. Configuración básica de la app hecha en parte.
+- El redeploy del corte (4.2) incluye también `RECUPERACION_CONTRASENA_ACTIVA=true` (encendido de la 489) y la `ANTHROPIC_API_KEY` de José (decisión de Carlos, 2026-10-30).
 - 6.1 Aviso a clientes: NO se hace (decisión de Carlos, 2026-10-30). El número viejo no está publicado en ningún sitio.
 
 ## 0.5 Inventario de plantillas (prod, `plantilla_mensaje` vigentes, leído el 2026-10-30)
