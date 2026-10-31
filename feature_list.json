@@ -5861,13 +5861,13 @@
       "title": "páginas públicas de privacidad y eliminación de datos",
       "description": "Rutas públicas /privacidad y /eliminacion-datos con el texto legal, exigidas por Meta para publicar la app de WhatsApp.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "small",
       "depends_on": null,
       "spec_path": "specs/490-paginas-legales",
       "branch": "feat/490-paginas-legales",
-      "status_note": "Bloquea la publicación (Live) de la app de Meta (progress/traspaso_meta_whatsapp.md). Spec aprobado por Carlos el 2026-10-30: texto básico y sin /design. Abiertos para el humano (T8): razón social, cédula jurídica, correo de privacidad, texto legal propio o básico, y marca (Velox Courier u Ordenex)."
+      "status_note": "DESPLEGADA en prod (release #875, 71a05453, 2026-10-31): /privacidad y /eliminacion-datos dan 200 sin sesión, también con el user-agent de Meta, y con los datos de 3-102-965944 S.R.L. 0 runtime errors. PR #874, revisión APROBADA, gate completo INIT_EXIT=0. Sigue vivo: el spec no recoge las decisiones posteriores del humano (pendiente del spec_author), \"Ordenex\" sigue en apple-mobile-web-app-title (va en el cambio de marca) y T9.4 (preview) no se hizo."
     }
   ]
 }

@@ -236,6 +236,11 @@ Resultado del encendido (E.2): _pendiente — anotar aquí la línea de log del 
 
 ---
 
+## Release del 2026-10-31 — la 490, páginas legales
+
+- **PR #875** (`dev` → `prod`, merge commit), `prod` = `71a05453`, build `dpl_QzAukUwrKZZFh9GPPvZhbrMFEGCY` READY. Autorización de Carlos: «si apruebo el texto». Gate completo sobre `1d72d20b`: `INIT_EXIT=0`, 34.319 tests (`progress/gate_release_490.log`).
+- Verificado después: `/privacidad` y `/eliminacion-datos` dan **200** sin cookie con el user-agent `facebookexternalhit/1.1`, con la cédula 3-102-965944 y el correo en el HTML. `/` y `/login` dan 200. Sin errores de runtime en 30 min. Jobs recurrentes: una fila `pending` de `liberar_reprogramadas` y una de `analitica_rollup_diario`. Sin migraciones ni variables nuevas.
+
 ## Release del 2026-10-21 — 485, 486 y 419
 
 - PR #868 (`dev` → `prod`, merge commit), `9ab23cd2`, despliegue `dpl_BGkjoy3mr6jCYnPKni4WNNZfoBLP` READY.
