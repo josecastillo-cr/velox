@@ -162,3 +162,76 @@ afirmación falsa que haga daño. Sí hay imprecisiones y omisiones, todas menor
 
 Recomendado antes de entregar la URL a Meta, sin bloquear: m2 (Anthropic, confirmar el proveedor de
 correo) y m1.
+
+---
+
+## Re-revisión (2026-10-30) — diff `d16a343d..07e57246`
+
+No corrí gate ni tests (orden del leader). Evidencia leída: `progress/gate_490_b.log` (pasos del
+`--rapido` a mano: typecheck 0 tras `rm -rf .next/dev`, lint 0, 11/151 + 5/78 + guardias 274/3.769
+verdes, 0 skipped), `progress/gate_490_completo.log` (`INIT_EXIT=0`, commit anterior) y
+`progress/t92_490_curl.txt`.
+
+### Veredicto: OK (APROBADA)
+
+B1 resuelto: `tasks.md` con T1-T9.3 en `[x]`, T9.2 hecha (las dos rutas 200 sin cookie y con UA
+`facebookexternalhit/1.1`, sin `location` ni `set-cookie`, texto legal y `<title>` con la marca en el
+HTML crudo) y T9.4 diferida por escrito a tras-merge con la condición de no entregar la URL a Meta
+sin ese curl. La captura del navegador no se hizo; lo acepto, porque el rastreador lee el HTML
+crudo y eso es lo que se midió.
+
+### (1) `ConservacionLegal` frente al esquema y al código: cierto
+- «Movimientos de dinero… y sus comprobantes… la aplicación no modifica ni borra». `WalletMovimiento`,
+  `WalletTiendaMovimiento` y `PagoMensajeroMovimiento` no tienen `updatedAt`/`deletedAt` (comentario
+  «INMUTABLE (R3)» en el esquema). En `lib/`, `app/` y `scripts/` no hay ningún
+  `update`/`updateMany`/`delete`/`deleteMany`/`upsert` de esas tres tablas ni de `walletComprobante`,
+  ningún SQL crudo `UPDATE`/`DELETE FROM` sobre ellas, y ningún borrado de archivo de comprobante en
+  storage. `WalletComprobante` cuelga de los movimientos con FK `Restrict`.
+- Matiz que no lo falsea: a nivel de base, `registrado_por` de los tres libros es
+  `ON DELETE SET NULL`. Pero el único borrado físico de `usuario` del código
+  (`ApiKeyRepository.ts:491`, cuenta sintética de una API key) se bloquea antes si la cuenta tiene
+  `dependencias.dinero`. El texto dice «la aplicación», no «la base», y eso es exacto.
+- «La base de datos no permite borrar a un usuario que tenga acciones registradas». Es cierto:
+  `20260902120000_historial_accion/migration.sql` crea `historial_accion_actor_usuario_id_fkey ...
+  ON DELETE RESTRICT` (explícito, no el `SET NULL` por defecto de una relación opcional), y ninguna
+  migración posterior redefine esa constraint. «Con su nombre y su rol en ese momento» corresponde a
+  `actor_nombre` y `actor_rol`, congelados en la fila.
+- No promete plazos de conservación ni que el resto se borre de una forma concreta.
+
+### (2) Tests que sustituyen a los «no afirma que se conserva»: siguen protegiendo, y mejor
+Lo que importaba era que la página no afirmase sobre la conservación nada que nadie hubiera
+decidido. Ahora lo fija una igualdad EXACTA (`toEqual(CONSERVADO)`) de los `li` de «Qué se conserva»
+y de «Eliminación de tus datos». Un ítem de más, de menos o reescrito pone el test rojo, y
+`CONSERVADO` es un literal del contrato, no la fuente del componente. Los filtros negativos que
+quedan («conservamos durante», «días hábiles», «años», «se borra todo», «todos tus datos serán»)
+son porosos: «se conservan por cinco ejercicios» pasaría. Pero solo pasaría FUERA de esas dos
+secciones, y es un menor (r2). R16 quedó acotado a su sección, que es necesario porque la lista de
+conservación añade `<li>` a la página.
+
+### (3) Prop `marca` de `LandingFooter`: la landing no cambia
+`marca?: ReactNode` es opcional, y su valor por defecto es `= {}`. Con `marca === undefined` se pinta
+`<Logo className="text-white" />`, exactamente lo de antes. El único otro llamador, `app/page.tsx:72`,
+sigue siendo `<LandingFooter />` sin prop. Lo cubren `LandingFooter.test.tsx` (sin prop, wordmark
+«Ordenex»; con prop, ese texto y nada de «Ordenex») y, en las páginas legales, los tests (e) más la
+mutación anotada en `impl_490.md` (volver a `<LandingFooter />` pone 4 rojos).
+
+### Resto del diff
+- m1: corregido. `TrustedDevice` figura como «dirección IP y una huella cifrada», hay test negativo
+  del texto viejo, y se añadió la IP del reto OTP (`EmailOtpChallenge.ipAddress`, existe).
+- m2: Anthropic añadido con lo que recibe, con test literal.
+- m3: «Movimientos de dinero» e «Historial de las acciones», con sus finalidades. Ambas categorías
+  existen en el esquema.
+
+### Menores que quedan (no bloquean)
+- **r1 — El abierto 8 lo cerró el código, no el humano.** Publicar «estos registros no se borran
+  aunque se pida» es una postura legal, aunque sea cierta. Antes de entregar la URL a Meta, que Carlos
+  lo vea y lo apruebe (una línea en `tasks.md` o en el spec basta).
+- **r2 — Filtros negativos porosos** (ver punto 2). La igualdad exacta de las secciones es lo que
+  carga el contrato.
+- **r3 — «Ordenex» sigue en el `<head>`** (`apple-mobile-web-app-title` del layout raíz, 2 apariciones
+  en el HTML crudo, no visibles). Anotado por el implementador para el cambio de marca posterior.
+- **r4 — m4 sigue abierto:** el spec (requirements/design) no recoge T8, `ConservacionLegal`, el prop
+  `marca` del pie ni el cierre del abierto 8. Es pendiente del spec_author, igual que el `status_note`
+  rancio (m8).
+- **r5 — Brevo** se nombra como proveedor de correo y la 489 está apagada hasta su encendido. Hay que
+  confirmar que, el día que se entregue la URL, el correo sale por Brevo.
