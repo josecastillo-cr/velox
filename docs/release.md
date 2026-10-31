@@ -231,8 +231,11 @@ estaban (texto que manda a un administrador, sin enlace ni formulario).
 7. **Vuelta atrás:** borrar `RECUPERACION_CONTRASENA_ACTIVA` en Production y redeploy. Cualquier
    valor distinto de `true`/`1` también apaga.
 
-Resultado del encendido (E.2): _pendiente — anotar aquí la línea de log del paso 5, la hora y que
-`AUTH_RISK_THRESHOLD` sigue en 999._
+Resultado del encendido (E.2), HECHO el 2026-10-31:
+- La variable se creó en Production a las ~04:30 UTC y se redesplegó con `dpl_Cs614XTZoiCh76joTyUDDzte1Men`. Después de READY, `/login` tiene `href="/recuperar-contrasena"`; antes del redeploy no lo tenía.
+- Línea de log del paso 5: `[auth] OTP enviado a jose.castillotrasnportadora@gmail.com (cambio_contrasena), expira en 10 min`, a las 05:53:06 UTC. Carlos confirmó que el correo llegó, que el cambio funcionó y que entró con la contraseña nueva.
+- Un usuario real (otra cuenta) la usó por su cuenta a las 05:29 y a las 05:31 UTC.
+- `AUTH_RISK_THRESHOLD` no se tocó: su última edición en Vercel es de hace más de 60 días.
 
 ---
 

@@ -5848,13 +5848,13 @@
       "title": "correo por Brevo: plantillas e interruptor de recuperación y OTP",
       "description": "Plantillas de correo propias (base común con la marca de SMTP_FROM_NAME) separadas para el código de entrada y el de cambio de contraseña, y una variable RECUPERACION_CONTRASENA_ACTIVA que vuelve a montar la recuperación y su enlace del login sin tocar código.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/489-correo-brevo-interruptor",
       "branch": "feat/489-correo-brevo-interruptor",
-      "status_note": "DESPLEGADA en prod APAGADA (release #873, 0e2f4e89, 2026-10-30 ~05:00 UTC): /login y /recuperar-contrasena iguales a antes, 0 runtime errors. PR #872. Revision APROBADA. FALTA E.2 (viernes 2026-10-30): RECUPERACION_CONTRASENA_ACTIVA=true en Production + redeploy + prueba real del correo (docs/release.md). OTP de login sigue apagado (AUTH_RISK_THRESHOLD=999)."
+      "status_note": "ENCENDIDA en prod el 2026-10-31 (RECUPERACION_CONTRASENA_ACTIVA=true + redeploy dpl_Cs614XTZ). E.2 hecha: OTP por Brevo a una cuenta real a las 05:53 UTC; Carlos confirmó correo, cambio y entrada (docs/release.md §489). El OTP de login sigue apagado (AUTH_RISK_THRESHOLD=999) por decisión del humano. Preview sigue con el SMTP de Gmail de Nuform."
     },
     {
       "id": 490,
