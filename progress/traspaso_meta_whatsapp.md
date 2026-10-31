@@ -27,6 +27,8 @@ final.
   `listo_para_entrega_mensajero` 28252813871058704, `alerta_transito_ordenex` 1598724291390711,
   `picking_bodega_ordenex` 1152229794427597. Todas en PENDING al crearlas.
 
+- 6.1 Aviso a clientes: NO se hace (decisión de Carlos, 2026-10-30). El número viejo no está publicado en ningún sitio.
+
 ## 0.5 Inventario de plantillas (prod, `plantilla_mensaje` vigentes, leído el 2026-10-30)
 
 Las 3 son `activo`, idioma `es`, y están en Meta en la cuenta de Nuform `1007158822023912`.
