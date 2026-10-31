@@ -48,7 +48,7 @@ function listaDelMiddleware(nombre: string): string[] {
 /** El contenido FIRMADO de cada lista. Cualquier alteracion pone esta guardia roja. */
 const LISTAS_ESPERADAS: Record<string, string[]> = {
   // Paginas publicas fuera de `(app)`: login, recuperacion (20), postulacion (21) y la
-  // documentacion publica de la API (106). `/` NO esta aqui, y es la clave de la feature 229:
+  // documentacion publica de la API (106) y las paginas legales (490). `/` NO esta aqui, y es la clave de la feature 229:
   // se resuelve por coincidencia EXACTA mas abajo, porque el `startsWith` de esta lista
   // volveria publica la app entera.
   PUBLIC_ROUTES: [
@@ -58,6 +58,9 @@ const LISTAS_ESPERADAS: Record<string, string[]> = {
     "/postulacion",
     "/api-docs",
     "/api/docs",
+    // Feature 490: paginas legales estaticas que Meta pide sin cookie (alta firmada).
+    "/privacidad",
+    "/eliminacion-datos",
   ],
   // Endpoints con autenticacion propia (Bearer o firma HMAC), validada en el handler.
   SELF_AUTH_ROUTES: ["/api/cron", "/api/ordenes/api-key", "/api/webhooks"],

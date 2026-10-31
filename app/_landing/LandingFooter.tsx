@@ -1,16 +1,23 @@
 import Link from "next/link";
 import { Logo } from "@/components/shared/Logo";
 
+import { DatoLegal } from "../_legal/DatoLegal";
+import { DATOS_LEGALES } from "../_legal/datos-legales";
+
 const CLASE_ENLACE =
   "block py-1.5 text-[13px] text-asfalto-2/70 transition-colors hover:text-brand-light";
 
 /**
  * Pie de la landing (`.lp-footer`).
  *
- * Los destinos que hoy no tienen ruta en la app (términos, privacidad, acuerdo
- * COD, dirección y WhatsApp) se pintan como texto, no como enlaces: un
- * `href="#"` muerto es peor que un elemento honesto que no promete navegación.
- * El teléfono sí es un enlace `tel:` real.
+ * Los destinos que hoy no tienen ruta en la app (términos, acuerdo COD,
+ * dirección y WhatsApp) se pintan como texto, no como enlaces: un `href="#"`
+ * muerto es peor que un elemento honesto que no promete navegación. El teléfono
+ * sí es un enlace `tel:` real. Feature 490: «Política de Privacidad» y
+ * «Eliminación de datos» ya tienen ruta pública (`/privacidad`,
+ * `/eliminacion-datos`) y son enlaces, y la línea de copyright lee marca y razón
+ * social de `app/_legal/datos-legales.ts` (la fuente única) en vez de un literal
+ * fijo.
  *
  * Las anclas de esta misma página van en `<a>` nativo por la misma razón que en
  * `LandingNav`: `<Link>` anularía el desplazamiento suave.
@@ -59,7 +66,12 @@ export function LandingFooter() {
         <div>
           <ColumnaTitulo>Legal</ColumnaTitulo>
           <span className={CLASE_ENLACE}>Términos y Condiciones</span>
-          <span className={CLASE_ENLACE}>Política de Privacidad</span>
+          <Link href="/privacidad" className={CLASE_ENLACE}>
+            Política de Privacidad
+          </Link>
+          <Link href="/eliminacion-datos" className={CLASE_ENLACE}>
+            Eliminación de datos
+          </Link>
           <span className={CLASE_ENLACE}>Acuerdo COD</span>
         </div>
 
@@ -77,7 +89,10 @@ export function LandingFooter() {
       </div>
 
       <div className="mx-auto mt-10 flex max-w-[1200px] flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-xs text-asfalto-2/55 md:flex-row md:items-center">
-        <span>© 2026 · Ordenex S.A. · Costa Rica</span>
+        <span>
+          © 2026 · <DatoLegal valor={DATOS_LEGALES.marca} /> ·{" "}
+          <DatoLegal valor={DATOS_LEGALES.razonSocial} /> · Costa Rica
+        </span>
         <span className="flex flex-wrap gap-2">
           {["Hacienda CR", "MOPT", "SSL"].map((sello) => (
             <span
