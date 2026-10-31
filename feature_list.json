@@ -5868,6 +5868,19 @@
       "spec_path": "specs/490-paginas-legales",
       "branch": "feat/490-paginas-legales",
       "status_note": "DESPLEGADA en prod (release #875, 71a05453, 2026-10-31): /privacidad y /eliminacion-datos dan 200 sin sesión, también con el user-agent de Meta, y con los datos de 3-102-965944 S.R.L. 0 runtime errors. PR #874, revisión APROBADA, gate completo INIT_EXIT=0. Sigue vivo: el spec no recoge las decisiones posteriores del humano (pendiente del spec_author), \"Ordenex\" sigue en apple-mobile-web-app-title (va en el cambio de marca) y T9.4 (preview) no se hizo."
+    },
+    {
+      "id": 491,
+      "title": "WhatsApp: mensajes entrantes de clientes con nombre de usuario",
+      "description": "Aceptar en el webhook los mensajes de clientes que tienen activo el nombre de usuario de WhatsApp: llegan con `from_user_id` y sin `from` (teléfono), y hoy se descartan.",
+      "zone": "backend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "medium",
+      "depends_on": null,
+      "spec_path": "specs/491-whatsapp-usuario-sin-telefono",
+      "branch": "feat/491-whatsapp-usuario-sin-telefono",
+      "status_note": "Medido en prod el 2026-10-31 a las 05:46 UTC con el número nuevo: el webhook recibió un texto con `contacts[].user_id`, `profile.username` y `messages[].from_user_id`, sin `from`. El zod falla con `messages.0.from: invalid_type`, el handler responde 200 y el mensaje se pierde sin error visible. Abierto: cómo se asocia a un hilo o una orden sin teléfono, y si se puede responder por `user_id`. Mirar la doc de Meta de usernames/BSUID antes del spec."
     }
   ]
 }
