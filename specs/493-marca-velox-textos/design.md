@@ -7,16 +7,21 @@
 
 1. **No se crea constante propia.** La marca sale de `MARCA` en `lib/marca/identidad.ts`, que crea la
    492 (`specs/492-marca-velox-identidad/design.md §3.1`): `MARCA.nombre` («Velox Courier») y
-   `MARCA.nombreCorto` (valor de la P1 de la 492; recomendado «Velox»). La 493 depende de la 492 y se
-   implementa después. Si la 493 necesitara un campo que `MARCA` no tiene, es una dependencia
-   explícita de la 492 (hoy solo la condiciona la P1 de esta ficha, ver §3), no un campo que se añade aquí.
-2. Todo literal de texto que hoy dice «Ordenex» pasa a interpolar `MARCA.nombre` o
-   `MARCA.nombreCorto`. Los identificadores no se tocan (R11).
-3. Los tests siguen afirmando texto **literal**; la parte de la marca la escriben desde un fixture de
+   `MARCA.nombreCorto` («Velox»). La 493 depende de la 492 y se implementa después. Con P1 resuelta
+   no hace falta ningún campo que `MARCA` no tenga; si apareciera, sería dependencia explícita de la
+   492, no un campo que se añade aquí.
+2. Todo literal de texto que hoy dice «Ordenex» pasa a interpolar `MARCA.nombreCorto` en etiquetas
+   cortas y `MARCA.nombre` en frases (P1). Los identificadores internos no se tocan (R11).
+3. **Cambios de contrato con integradores (P4, P6, 2026-10-31):** las cabeceras de firma pasan a
+   `X-Velox-Signature`/`X-Velox-Timestamp` sin doble cabecera (R17); `ordenex.co`/`app.ordenex.co`
+   pasan a `https://velox-courier.company` en documentación, ejemplos y plantillas (R18); el correo
+   de soporte pasa a `battos.sa@gmail.com` (R20). Todo se anuncia en una entrada nueva del
+   `CHANGELOG.md` de la API y en el manual (R19, T15).
+4. Los tests siguen afirmando texto **literal**; la parte de la marca la escriben desde un fixture de
    test, también literal, nunca desde la constante de producción (§5).
-4. Una guardia por AST (`typescript`) impide que vuelva «Ordenex» a un texto y que el nombre nuevo se
-   escriba a mano fuera de su módulo (R1, R14–R16).
-5. Sin base de datos: no hay tablas, RLS ni migraciones. No hay rutas nuevas.
+5. Una guardia por AST (`typescript`) impide que vuelva «Ordenex» a un texto y que el nombre nuevo se
+   escriba a mano fuera de su módulo (R1, R14–R16), y vigila el contrato nuevo (R17, R18, R20).
+6. Sin base de datos: no hay tablas, RLS ni migraciones. No hay rutas nuevas.
 
 ## 2. Inventario clasificado
 
@@ -61,7 +66,6 @@ cadena**:
 | `ordenex:sonido-notificaciones`, `ordenex:app-navegacion`, `ordenex:sinpe-revision-aplazada:*` | `lib/audio/preferencia-sonido.ts`, `lib/utils/preferencia-navegacion.ts`, `hooks/*`, revisión SINPE | ídem |
 | `ordenex_tema` | `lib/tema/tema.ts` (cookie) | ídem |
 | `ordenex:relevo-ahora`, `ordenex:pagina-lista`, `ordenex:push-recibido`, tag `ordenex:<evento>` | `lib/pwa/actualizacion.ts`, `public/sw.js` | protocolo página ↔ service worker; un SW viejo en caché y una página nueva dejarían de entenderse |
-| `X-Ordenex-Signature`, `X-Ordenex-Timestamp` | `lib/crypto/webhook-firma.ts`, `lib/api/openapi-spec.ts`, guía de integración | contrato con integradores (P4) |
 | `"ordenex"` (clave de columna/segmento), `solo_ordenex`, `ordenex_debe`, `gasto_ordenex`, `tienda_paga_a_ordenex`, `concepto_ordenex`, `ganancia_ordenex` | `BarraComposicionCaja.tsx`, `analitica-productos-descarga-columnas.ts`, `wallet-labels.ts`, `estado-cuenta-labels.ts`, `wallet-conceptos-manuales.ts`, `lib/utils/efecto-movimiento.ts`, `lib/analytics/metrics.ts` | valores de enum/claves; algunos viajan en URL, en la caché de analítica o en preferencias |
 
 Justificación de no renombrar: no lo ve nadie, renombrar cientos de símbolos de dinero amplía el
@@ -73,12 +77,45 @@ persistido. Si algún día se quiere, es otra ficha.
 `alerta_transito_ordenex`, `picking_bodega_ordenex`: 0 coincidencias en `lib/` (medido). Viven en
 Meta y en la configuración de envíos; renombrarlas exige re-aprobación en Meta.
 
-### (d) Dominios y correos → FUERA (P6)
+### (d) Dominios y correo de soporte → SE CAMBIAN (P6 resuelta 2026-10-31; R18, R20)
 
-`https://ordenex.co` (`lib/types/plantilla-datos.ts` `urlBase`/`ejemplo`,
-`lib/whatsapp-envios/informes/aviso-interno.ts`, «Base URL» de la guía de integración),
-`https://app.ordenex.co/...` (ejemplo de la OpenAPI), `mailto:soporte@ordenex.co` (`lib/config/push.ts`).
-Son excepciones explícitas de la guardia.
+Origen nuevo: `https://velox-courier.company` (sin barra final; `app.ordenex.co` también pasa a este
+origen, no a un subdominio `app.`, porque el humano solo ha dado ese). Medido el 2026-11-01:
+
+| Dónde | Hoy | Pasa a |
+| --- | --- | --- |
+| `lib/types/plantilla-datos.ts` (`ejemplo` de `url_guia`, `urlBase` de los datos de muestra) | `https://ordenex.co` | `https://velox-courier.company` |
+| `lib/whatsapp-envios/informes/aviso-interno.ts` (`ejemplo`) | `https://ordenex.co/cierres` | `https://velox-courier.company/cierres` |
+| `lib/api/openapi-spec.ts:1165`, `docs/api/api-key-openapi.yaml:961`, `docs/api/manual-metricas-por-mensajero.md:208` (`evidenciasUrl` de ejemplo) | `https://app.ordenex.co/...` | `https://velox-courier.company/...` |
+| `docs/api/guia-integracion/guia-integracion.html` (Base URL `:180`, tabla `:380`, seis `curl` `:494–:768`, ejemplo `:845`) | `https://ordenex.co` | `https://velox-courier.company` |
+| `lib/config/push.ts:20` `DEFAULT_SUBJECT` (contacto VAPID por defecto) | `mailto:soporte@ordenex.co` | `mailto:battos.sa@gmail.com` |
+
+`docs/ayuda/**` y `docs/api/**` no contienen hoy ningún correo de soporte (medido): R20 los vigila
+para que no aparezca uno viejo. El correo va en minúsculas (el humano lo escribió «Battos.sa@…»;
+en Gmail es el mismo buzón). `lib/config/push.ts` aparece en el P5 de la 492 como pendiente: si la
+492 lo cambia antes, T11 solo verifica.
+
+Los enlaces **reales** que la app genera (`evidenciasUrl` del webhook, `{{url_guia}}`, enlaces del
+aviso interno) salen de `NEXT_PUBLIC_APP_URL` / `NEXT_PUBLIC_SITE_URL` (`lib/config/webhook.ts`,
+`lib/utils/whatsapp-envio-valores.ts`, `lib/config/whatsapp-envios.ts`, `lib/utils/paquete-url.ts`),
+no de un literal. Cambiar esas variables en Vercel es un paso de configuración de la release (T15),
+y el dominio tiene que servir la app antes de cambiarlas.
+
+Los tests que usan `ordenex.co` como **dato de prueba** (p. ej. `linkificar.test.ts`, `email-config.test.ts`)
+no se tocan: no afirman un contrato. Solo se migran los que afirman un ejemplo publicado (§ R18).
+
+### (d2) Cabeceras de firma de webhooks → SE RENOMBRAN (P4 resuelta 2026-10-31; R17)
+
+`lib/crypto/webhook-firma.ts`: `WEBHOOK_SIGNATURE_HEADER = "X-Velox-Signature"`,
+`WEBHOOK_TIMESTAMP_HEADER = "X-Velox-Timestamp"`. Mismo algoritmo, mismo formato de valor. Sin
+periodo de doble cabecera (decisión del humano: pausa a los integradores y los actualiza con el
+manual). Se actualizan también `lib/api/openapi-spec.ts`, el `.yaml`, la guía de integración
+(`:854–:864`) y el comentario de `lib/services/WebhookEstadoService.ts:185`.
+
+Nombre exacto propuesto: `X-Velox-Signature` / `X-Velox-Timestamp`. Por qué «Velox» y no
+«Velox-Courier»: es la forma corta acordada (P1), es más corto y se escribe igual en todas las
+librerías (las cabeceras no distinguen mayúsculas). **Literal, no derivado de `MARCA`**: un nombre
+de cabecera es contrato; si un día cambia la marca, la cabecera no debe cambiar sola sin anuncio.
 
 ### (e) Comentarios → NO se tocan
 
@@ -88,13 +125,14 @@ La guardia trabaja sobre el AST, así que los comentarios no cuentan nunca.
 
 Decisión: el encabezado (`encabezado`) pasa a la marca; la `clave` y el orden de la columna no
 cambian. Ejemplo: `{ clave: "ordenex", encabezado: \`Cobró ${MARCA.nombreCorto} ${MARCA_NO_SUMABLE_ARCHIVO}\` }`
-(o `MARCA.nombre`, según P1).
+→ «Cobró Velox …» (P1).
 
 Por qué: el encabezado es texto para una persona que abre el archivo en una hoja de cálculo; dejar
 «Cobró Ordenex» en el archivo mientras la pantalla dice otra cosa es la incoherencia que la ficha
 viene a quitar. La integración por máquina es la API, no las descargas, y no hay ningún consumidor
-automático medido. Quien procese el archivo por nombre de columna se rompe: se acepta y se pregunta si
-hay que avisar (P8). Las cabeceras que salen de constantes compartidas (`INGRESO_TOTAL_COL`,
+automático medido. Quien procese el archivo por nombre de columna se rompe: se acepta, y por P8
+(resuelta 2026-10-31) no se avisa a las tiendas aparte: el cambio va en la entrada del `CHANGELOG.md`
+y en el manual de la API (R19, T15). Las cabeceras que salen de constantes compartidas (`INGRESO_TOTAL_COL`,
 `INGRESO_TOTAL_LABEL`) cambian solas al cambiar la constante.
 
 ### (g) Frontera con la 492
@@ -120,7 +158,7 @@ en la guardia y se recoge en T13 apuntándolo a `MARCA`.
 ```ts
 export const MARCA = {
   nombre: "Velox Courier",
-  nombreCorto: "<P1 de la 492>",   // ≤ 12 caracteres; recomendado «Velox»
+  nombreCorto: "Velox",            // P1 de la 492 y P1 de la 493
   descripcion: "<P4 de la 492>",
   colorTema: "#011027",
 } as const;
@@ -130,10 +168,11 @@ La 493 usa solo `MARCA.nombre` y `MARCA.nombreCorto`. Uso: interpolación en el 
 (`` `Ganancia de ${MARCA.nombre}` ``). No se crean funciones de frase ni plantillas con huecos: el
 texto completo sigue leyéndose en su archivo de labels.
 
-**Dependencia explícita con la 492 (no se resuelve aquí):** si la respuesta a la P1 de esta ficha es
-que las etiquetas cortas lleven una forma distinta de `MARCA.nombreCorto` (el `short_name` de la app),
-hace falta un campo nuevo en `MARCA` (p. ej. para etiquetas). Lo añade la 492 o una enmienda suya; la
-493 no lo crea. Si la P1 se responde «`nombreCorto`» o «`nombre`», no hace falta ningún campo.
+**Regla de uso (P1, resuelta 2026-10-31):** etiquetas de una o dos palabras («Cobró …», «Total …»,
+«Cargos de …», «Neto de …», encabezados de descarga) → `MARCA.nombreCorto` («Velox»); frases, pistas,
+avisos, ayuda y documentación → `MARCA.nombre` («Velox Courier»). No hace falta ningún campo nuevo
+en `MARCA`. Dependencia con la 492: que `nombreCorto` quede en «Velox» (su P1); si la 492 se cerrara
+con otro valor, se vuelve a este spec.
 
 Los textos que hoy son un `as const` literal y pasan a interpolar dejan de ser tipo literal; si algún
 tipo dependía del literal exacto (p. ej. `typeof X.y`), el typecheck lo dirá y se resuelve con
@@ -159,7 +198,7 @@ La regla para migrarlos:
 - **L1 — el contrato sigue literal.** Un test que afirma un texto visible lo afirma con un literal
   escrito en el test. La parte de la marca se escribe con `NOMBRE_ESPERADO` / `NOMBRE_CORTO_ESPERADO`
   de un fixture nuevo `tests/fixtures/marca-esperada.ts`, cuyos valores son literales
-  (`"Velox Courier"` y el valor de la P1 de la 492). Ejemplo:
+  (`"Velox Courier"` y `"Velox"`). Ejemplo:
   `expect(label).toBe(\`Cobró ${NOMBRE_CORTO_ESPERADO}\`)`.
   Prohibido importar `@/lib/marca/identidad` desde un test de texto (R16).
 - **L2 — un solo ancla.** `tests/unit/marca/textos-ancla-493.test.ts` afirma
@@ -179,9 +218,13 @@ La regla para migrarlos:
 - **L4 — lo que ya se comparaba con su fuente no se toca.** Los tests que hoy comparan contra un label
   importado de producción (`toBe(INGRESO_TOTAL_LABEL)`) siguen igual: esta ficha no los arregla ni
   crea otros.
-- **L5 — identificadores literales intactos.** Los tests que afirman `X-Ordenex-Signature`,
-  `ordenex:descarga-columnas:*`, `ordenex_tema` o claves `"ordenex"` siguen literales y verdes: son la
-  prueba de R11/R12.
+- **L5 — identificadores literales intactos.** Los tests que afirman `ordenex:descarga-columnas:*`,
+  `ordenex_tema` o claves `"ordenex"` siguen literales y verdes: son la prueba de R11/R12.
+- **L5b — el contrato nuevo, literal también.** Los tests de cabeceras, dominio y correo (R17, R18,
+  R20) afirman `"X-Velox-Signature"`, `"X-Velox-Timestamp"`, `"https://velox-courier.company"` y
+  `"mailto:battos.sa@gmail.com"` escritos en el test, nunca importando `WEBHOOK_SIGNATURE_HEADER` ni
+  otra constante de producción. Y cada uno lleva su negativa (la cabecera vieja no va en la petición;
+  el ejemplo no contiene `ordenex.co`), que es la única forma admitida de «Ordenex» en tests de contrato.
 - **L6 — cada tramo se mata una vez.** Al cerrar cada task de superficie, se revierte UN label de esa
   superficie a «Ordenex» a mano y se comprueba que se ponen rojos su test y la guardia; se anota en
   `progress/impl_493.md` y se restaura.
@@ -201,11 +244,11 @@ Bloques:
    Busca `/ordenex/i`.
    **Excepciones explícitas** (lista cerrada, en el propio test, cada una con su motivo):
    - cadena que empieza por `ordenex:` (claves de almacenamiento, protocolo SW, tags);
-   - cadena que contiene `X-Ordenex-Signature` o `X-Ordenex-Timestamp`;
-   - cadena que contiene `ordenex.co` (dominios y `soporte@ordenex.co`, P6);
    - cadena que entera es un identificador en minúsculas `^[a-z0-9_]*ordenex[a-z0-9_]*$` (`"ordenex"`,
      `"solo_ordenex"`, `"ganancia_ordenex"`, `"ordenex_tema"`…);
    - en `public/sw.js`, las líneas de las constantes `MENSAJE_*` y el `tag`.
+   Ya NO son excepción (P4/P6 resueltas): `X-Ordenex-*`, `ordenex.co`, `app.ordenex.co`,
+   `soporte@ordenex.co`. `docs/api/CHANGELOG.md` queda fuera del barrido (registro histórico).
    El fallo lista `archivo:línea — fragmento`. **Contraprueba**: una fuente sintética con
    `"Cobró Ordenex"`, un `JsxText` «Ordenex · Guía» y un `` `Total ${x} Ordenex` `` sale con 3
    hallazgos; otra con solo las excepciones sale con 0.
@@ -215,15 +258,23 @@ Bloques:
    busca suelto si es una sola palabra («Velox»), por falsos positivos; se busca en las formas
    `de ${corto}`/`Cobró ${corto}`/`Total ${corto}`. Excepciones cerradas: los archivos de §4,
    `app/_legal/datos-legales.ts` (`DATOS_LEGALES.marca`, dato legal con guardia propia, la 492 lo
-   deja así) y `ROTULO_GUIA` (literal en mayúsculas por decisión de la 492).
+   deja así), `ROTULO_GUIA` (literal en mayúsculas por decisión de la 492) y el ejemplo de razón
+   social «Velox Courier S.A.» (P2) en `components/shared/sinpe-textos.ts`, `CrearZonaForm.tsx` y
+   `lib/types/plantilla-datos.ts` (es un ejemplo de dato, no la marca).
    Contraprueba: fuente sintética con `"Total Velox Courier"` → 1 hallazgo.
 3. **R14 — paridad.** `public/sw.js` `TITULO_RESERVA` === `MARCA.nombre`; el texto de
    «Aplicaciones → X → Permisos» del aviso de ubicación contiene el `short_name` de `manifest.json`.
 4. **R16 — los tests no se anclan a su fuente.** Árbol `tests/` y `e2e/`: solo importan
    `@/lib/marca/identidad` los de una lista cerrada (el ancla de la 493, esta guardia y los tests de
    paridad de la 492, nombrados uno a uno al implementar T2 tras leer lo que la 492 mergeó); ningún
-   nodo de texto contiene «Ordenex» fuera de las excepciones del bloque 1 y de la lista
-   `MARCAS_RETIRADAS` de esta guardia. Contraprueba sintética para cada mitad.
+   nodo de texto contiene «Ordenex» fuera de las excepciones del bloque 1, de la lista
+   `MARCAS_RETIRADAS` de esta guardia, de las negativas de contrato (L5b, lista cerrada de archivos)
+   y de `ordenex.co` como dato de prueba. Contraprueba sintética para cada mitad.
+5. **Contrato (R17, R18, R20).** En `lib/`, `app/`, `components/`, `public/`, `docs/ayuda/**` y
+   `docs/api/**` (sin `CHANGELOG.md`): ninguna aparición de `X-Ordenex-`, `ordenex.co` ni
+   `soporte@ordenex.co`; `lib/crypto/webhook-firma.ts` declara `X-Velox-Signature` y
+   `X-Velox-Timestamp`. Contraprueba: fuente sintética con `"X-Ordenex-Signature"` y
+   `"https://app.ordenex.co/x"` → 2 hallazgos.
 
 `MARCAS_RETIRADAS = ["Ordenex"]` vive en la guardia: en un futuro cambio se le añade «Velox Courier»
 y la guardia enumera cada sitio pendiente, incluidos los `.md` y el `.html` de la guía.
@@ -266,6 +317,13 @@ Nota de gate: la guardia lee el árbol con `fs`; el grafo no la relaciona con lo
    imprime a PDF desde el archivo).
 6. **Renombrar también los identificadores (`ingresoOrdenex` → `ingresoEmpresa`).** Coherente, pero
    multiplica el diff en código de dinero y tipos, toca claves persistidas y no lo ve nadie (§2 b).
+7. **Enviar las dos cabeceras (vieja y nueva) durante un periodo de transición.** Es lo prudente con
+   integradores en vivo, pero el humano lo descartó el 2026-10-31 (P4): pausa a los integradores y
+   los actualiza con el manual. Mantener las dos dejaría además un «Ordenex» vivo en el contrato
+   sin fecha de retirada.
+8. **Derivar el nombre de la cabecera de `MARCA` (`X-${MARCA.nombreCorto}-Signature`).** Un futuro
+   cambio de marca cambiaría el contrato sin que nadie lo anunciara y rompería a todos los
+   integradores en silencio. El nombre de cabecera es literal y su test también.
 
 ## 9. Riesgos
 
@@ -276,4 +334,10 @@ Nota de gate: la guardia lee el árbol con `fs`; el grafo no la relaciona con lo
 - Conflictos con fichas abiertas que editen los mismos `*labels*`: cada task toca pocos archivos para
   que el rebase sea por tramos.
 - La guía de integración se imprime a PDF: tras cambiar la prosa hay que regenerar el PDF como indica
-  su `README.md` (lo hace T11).
+  su `README.md` (lo hace T15).
+- **Ruptura con integradores en el despliegue:** desde que la release llega a `prod`, un integrador
+  que verifica `X-Ordenex-Signature` rechaza todas las entregas. El humano pausa a los integradores
+  antes; T15 deja el aviso listo y la release no se abre hasta que el humano confirma la pausa.
+- `https://velox-courier.company` tiene que servir la app antes de cambiar `NEXT_PUBLIC_APP_URL` /
+  `NEXT_PUBLIC_SITE_URL`; si no, los enlaces reales (evidencias, `url_guia`) quedan rotos. Es un paso
+  de configuración, fuera del código (T15).

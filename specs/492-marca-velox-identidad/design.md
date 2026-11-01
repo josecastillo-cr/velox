@@ -34,11 +34,13 @@ vez de duplicarse, y las guardias de la PWA (284, 410, 164) siguen valiendo.
 | Correo | `lib/config/email.ts:23` `DEFAULT_FROM_NAME = "Ordenex"`; `plantillas/base-codigo.ts` usa la marca resuelta | §3.9 |
 | API docs | `app/api-docs/route.ts:12`, `lib/api/openapi-spec.ts:117`, `docs/api/api-key-openapi.yaml:6` | `Ordenex — API de integración por API key` | §3.10 |
 | Guía integración | `docs/api/guia-integracion/guia-integracion.html` (`:5`, `:6`, `:41`, `:175`, `:219`) | título, autor, pie, portada | §3.11 |
-| Capturas | `public/screenshots/{inicio,ingreso}-narrow.png`, `inicio-wide.png` | marca vieja | §3.12, depende de P3 |
+| Capturas | `public/screenshots/{inicio,ingreso}-narrow.png`, `inicio-wide.png` | marca vieja | se rehacen (P3), §3.12 |
 | Errores | `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx` | **sin marca** (verificado) | ninguno |
 
 Lo que **no** es de esta ficha y se ha visto en el inventario: prosa «Ordenex» de la UI (493),
-`ordenex:*` como identificadores (se quedan), `ordenex.co` y `soporte@ordenex.co` (P5/P6). No hay ni
+`ordenex:*` como identificadores (se quedan), `ordenex.co` en la documentación de integradores y la
+prosa de la guía (493, P6/P7). `soporte@ordenex.co` (contacto VAPID por defecto,
+`lib/config/push.ts:20`) sí es de esta ficha: §3.13. No hay ni
 un enlace clicable a `ordenex.co` en `app/`, `components/` ni `public/`: solo aparece en
 comentarios, en ejemplos de documentación y como `DEFAULT_SUBJECT` de VAPID, que no se ve.
 
@@ -54,8 +56,8 @@ Ninguno. Sin tablas, sin RLS, sin migraciones. El gate es `./init.sh --rapido` s
 ```ts
 export const MARCA = {
   nombre: "Velox Courier",
-  nombreCorto: "<P1>",                       // ≤ 12 caracteres
-  descripcion: "<P4>",                       // propuesta: "Plataforma de logística y entregas Velox Courier"
+  nombreCorto: "Velox",                      // P1, 2026-10-31
+  descripcion: "Plataforma de logística y entregas Velox Courier", // P4, 2026-10-31
   colorTema: "#011027",
 } as const;
 
@@ -204,12 +206,13 @@ pinta el wordmark» pasa a afirmar el logo por rol y nombre; el caso «con `marc
 
 ### 3.7 Etiqueta (R16, R17)
 
-`ROTULO_GUIA` cambia de texto (P2) y **no** se deriva de `MARCA`: es un literal en mayúsculas con
+`ROTULO_GUIA = "VELOX · GUÍA"` (P2, 2026-10-31) y **no** se deriva de `MARCA`: es un literal en mayúsculas con
 forma propia y un test lo fija como contrato literal (no contra su fuente). Sigue siendo Helvetica
 negrita (todo Latin-1, `exigirRotuloEscribible` lo comprueba) y negro: la térmica imprime negro puro.
 
 El rótulo de marca **también fija el cuerpo de todos los rótulos diminutos** (`cuerpoRotulo`,
-`etiquetas-dibujo.ts:408`, compartido con PARA/CONTENIDO/TIENDA). Por eso R17 se comprueba con las
+`etiquetas-dibujo.ts:408`, compartido con PARA/CONTENIDO/TIENDA). «VELOX · GUÍA» es más estrecho
+que «ORDENEX · GUÍA», así que no se espera que cambie ningún cuerpo, pero se comprueba. Por eso R17 se comprueba con las
 pruebas que ya existen y **no se editan**: `tests/unit/pdf/etiquetas-capacidad.test.ts` (capacidad
 declarada por hoja), `tests/unit/pdf/etiquetas-diseno-353.test.ts` (posición del rótulo, `8.82`) y
 `tests/unit/components/etiquetas-pdf.test.ts`. Si con el texto elegido alguna se pone roja, no se
@@ -236,23 +239,34 @@ plantilla (`base-codigo.ts`) ya usa la marca resuelta: no cambia ni su HTML ni s
 `app/api-docs/route.ts` `<title>` y `lib/api/openapi-spec.ts` `info.title` desde `MARCA.nombre`; el
 espejo `docs/api/api-key-openapi.yaml:6` a mano. No se añade `<link rel="icon">`: el navegador pide
 `/favicon.ico` solo y ahora lo sirve `app/favicon.ico`. Los ejemplos con `ordenex.co` no se tocan
-(P6).
+aquí: son de la 493 (P6).
 
 ### 3.11 Guía de integración (R21)
 
 `<title>`, `<meta name="author">`, `@bottom-left` del `@page`, el `.cover .title` y el `<h1>` con
 «Velox Courier». Logo en la portada: `<img src="../../marca/velox/svg/logo-horizontal-fondo-claro.svg">`
 encima del bloque del título (el PDF se imprime con Chrome headless desde el archivo, así que la ruta
-relativa resuelve). La prosa del cuerpo y la «Base URL» se quedan (P6, P7). El README de la carpeta
+relativa resuelve). La prosa del cuerpo y la «Base URL» las cambia la 493 (P6, P7), que es
+también la que entrega el manual nuevo a los integradores. El README de la carpeta
 cambia el nombre de ejemplo del PDF.
 
 ### 3.12 Capturas (R22)
 
-Según P3. Recomendado: rehacer las tres con Playwright contra el servidor local, mismos nombres y
-tamaños (540×1170 ×2, 1280×720), ocultando `nextjs-portal` como hizo la 164. Si se quitan, además
-cambian `tests/unit/pwa/manifest.test.ts` y el caso «diez claves» de la guardia de la 284.
+Se rehacen (P3, 2026-10-31): las tres con Playwright contra el servidor local, con los mismos
+nombres y tamaños (dos de 540×1170 y una de 1280×720) y ocultando `nextjs-portal` como hizo la 164.
+El manifiesto no cambia en esta parte; `tests/unit/pwa/manifest.test.ts` y el caso «diez claves» de
+la guardia de la 284 siguen valiendo tal cual.
 
-### 3.13 Cómo se prueba «ya no es la marca anterior»
+### 3.13 Contacto de soporte (R23)
+
+`lib/config/push.ts`: `DEFAULT_SUBJECT = "mailto:battos.sa@gmail.com"` (P5, 2026-10-31; en
+minúsculas, como lo trata Gmail) y el comentario que lo acompaña. No se crea una constante de
+soporte en `MARCA`: hoy solo hay un consumidor, y la 493 la crea si sus textos la necesitan.
+`tests/unit/config/push-config.test.ts` (1 aparición de `ordenex.co`) y
+`tests/unit/guards/pwa-push.guardia.test.ts` (2) se actualizan si afirman el valor por defecto; si
+usan `soporte@ordenex.co` como valor de prueba de `VAPID_SUBJECT` puesto a mano, se quedan.
+
+### 3.15 Cómo se prueba «ya no es la marca anterior»
 
 Para R7, R8, R9 y R22 la guardia `marca-velox-sin-anterior.guardia.test.ts` lleva el SHA-256 de
 cada archivo de la marca anterior (iconos, badge, `app/icon.png`, capturas), calculado desde
@@ -268,8 +282,8 @@ Verificar en Vercel, **por entorno** (Production y Preview separados):
 | Variable | Qué mirar |
 |---|---|
 | `SMTP_FROM_NAME` | Si existe y vale «Ordenex», cambiarla a «Velox Courier» o borrarla (el valor por defecto pasa a serlo). Si no se cambia, R19 no se ve en ese entorno. |
-| `SMTP_FROM` | Dirección del remitente; P5. |
-| `VAPID_SUBJECT` | Contacto `mailto:` de las notificaciones push; P5. No se ve. |
+| `SMTP_FROM` | Según el humano ya vale `no-reply@velox-courier.company` en Production (SMTP en Brevo, P5). Falta comprobar Preview. |
+| `VAPID_SUBJECT` | Si existe con `soporte@ordenex.co`, cambiarla a `mailto:battos.sa@gmail.com` o borrarla (el valor por defecto pasa a ser ese, R23). |
 | `NEXT_PUBLIC_SITE_URL` | Base de `metadataBase` y de los enlaces `url_guia` que van a clientes: debe ser el dominio de producción vigente (`https://velox-courier.company` según el traspaso). Es del traspaso, no de esta ficha; se anota porque afecta a lo que ve el cliente. |
 
 ## 5. Alternativas descartadas

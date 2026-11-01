@@ -25,7 +25,7 @@ Glosario de este spec:
 
 - **Marca**: el nombre de la empresa tal como se le muestra a una persona. Hoy «Ordenex»; pasa a «Velox Courier».
 - **Marca** en código: `MARCA.nombre` («Velox Courier», 492).
-- **Forma corta de la marca**: `MARCA.nombreCorto` (valor que decide la P1 de la 492; recomendado «Velox»). Si se usa o no en etiquetas de una o dos palabras («Cobró …», «Total …») es la P1 de esta ficha.
+- **Forma corta de la marca**: `MARCA.nombreCorto` = «Velox». Se usa en etiquetas de una o dos palabras («Cobró Velox», «Total Velox»); las frases usan `MARCA.nombre` (P1, resuelta).
 - **Texto visible**: todo literal de cadena o texto JSX que el sistema puede mostrar a una persona, incluido lo que se genera en servidor (rótulos del libro de caja, historial, avisos, mensajes de error, documentación de la API, instrucciones del asistente) y los encabezados de los archivos descargables.
 - **Identificador**: nombre de variable, tipo, función, archivo, clave de objeto, valor de enum, clave de almacenamiento local, tipo de mensaje entre pestañas/service worker, nombre de cookie, nombre de cabecera HTTP o id de métrica.
 
@@ -49,7 +49,7 @@ Glosario de este spec:
 
 ### Lo que NO cambia
 
-- **R11** (condicional) — SI un texto contiene un identificador que contiene «ordenex» (clave de almacenamiento local `ordenex:*`, tipo de mensaje `ordenex:*` entre la página y el service worker, etiqueta de notificación `ordenex:*`, cookie `ordenex_tema`, cabeceras `X-Ordenex-Signature`/`X-Ordenex-Timestamp`, id de métrica, valor de enum o clave de concepto/columna), ENTONCES el sistema DEBE conservar ese identificador sin cambios.
+- **R11** (condicional) — SI un texto contiene un identificador interno que contiene «ordenex» (clave de almacenamiento local `ordenex:*`, tipo de mensaje `ordenex:*` entre la página y el service worker, etiqueta de notificación `ordenex:*`, cookie `ordenex_tema`, id de métrica, valor de enum o clave de concepto/columna), ENTONCES el sistema DEBE conservar ese identificador sin cambios. (Las cabeceras de webhook NO son de esta lista desde la respuesta a P4: ver R17.)
 - **R12** (condicional) — SI una persona tenía guardada una preferencia (columnas de descarga, columnas del manifiesto, sonido, navegación, tema) antes del cambio, ENTONCES el sistema DEBE seguir aplicándola después del cambio.
 
 ### Archivos descargables
@@ -62,8 +62,15 @@ Glosario de este spec:
 
 ### Guardias
 
-- **R15** (condicional) — SI aparece «Ordenex» (sin distinguir mayúsculas) en un literal de cadena o texto JSX de `app/`, `components/`, `hooks/` o `lib/`, en un archivo de `public/`, en `docs/ayuda/**` o en la documentación para integradores de R9, fuera de la lista explícita de excepciones de R11 y de los dominios/correos de P6, ENTONCES la suite DEBE fallar nombrando archivo, línea y fragmento.
-- **R16** (condicional) — SI un test que no está en la lista cerrada de permitidos (el test ancla de la 493, la guardia de la 493 y las guardias/tests de paridad de la 492) importa `lib/marca/identidad.ts`, o un test contiene «Ordenex» en un literal de cadena fuera de la lista de excepciones de R11, ENTONCES la suite DEBE fallar nombrando el archivo.
+- **R15** (condicional) — SI aparece «Ordenex» (sin distinguir mayúsculas) en un literal de cadena o texto JSX de `app/`, `components/`, `hooks/` o `lib/`, en un archivo de `public/`, en `docs/ayuda/**` o en la documentación para integradores de R9, fuera de la lista explícita de excepciones de R11, ENTONCES la suite DEBE fallar nombrando archivo, línea y fragmento.
+- **R16** (condicional) — SI un test que no está en la lista cerrada de permitidos (el test ancla de la 493, la guardia de la 493 y las guardias/tests de paridad de la 492) importa `lib/marca/identidad.ts`, o un test contiene «Ordenex» en un literal de cadena fuera de la lista de excepciones de R11, de las aserciones negativas de R17/R18 (que la cabecera o el dominio viejos ya no salen) y de los dominios `ordenex.co` usados como dato de prueba (no como contrato), ENTONCES la suite DEBE fallar nombrando el archivo.
+
+### Cambios de contrato con integradores (respuestas P4 y P6, 2026-10-31)
+
+- **R17** (por evento) — CUANDO el sistema entrega un webhook firmado, DEBE enviar la firma en la cabecera `X-Velox-Signature` y el instante en `X-Velox-Timestamp`, con el mismo algoritmo y formato de valor que hoy (`sha256=<hex>` sobre `${timestamp}.${cuerpo}`; segundos unix), y NO DEBE enviar `X-Ordenex-Signature` ni `X-Ordenex-Timestamp`. La OpenAPI, su espejo `.yaml` y la guía de integración DEBEN declarar los nombres nuevos y no los viejos.
+- **R18** (ubicuo) — La documentación para integradores (OpenAPI, `.yaml`, guía de integración, `docs/api/manual-metricas-por-mensajero.md`), los ejemplos de variables de plantilla y del aviso interno, y los valores de ejemplo de `lib/types/plantilla-datos.ts` DEBEN usar `https://velox-courier.company` como origen y NO DEBEN contener `ordenex.co` ni `app.ordenex.co`.
+- **R20** (ubicuo) — Toda dirección de contacto de soporte que el sistema o su documentación muestren o envíen DEBE ser `battos.sa@gmail.com` (en minúsculas), y ningún archivo de `app/`, `components/`, `hooks/`, `lib/`, `public/`, `docs/ayuda/**` ni `docs/api/**` (salvo `CHANGELOG.md` histórico) DEBE contener `soporte@ordenex.co`. Medido el 2026-11-01: hoy solo aparece en `lib/config/push.ts` (`DEFAULT_SUBJECT = "mailto:soporte@ordenex.co"`, contacto VAPID por defecto); `docs/ayuda/**` y `docs/api/**` no tienen correo de soporte.
+- **R19** (por evento) — CUANDO se prepara la release de esta ficha, `docs/api/CHANGELOG.md` DEBE tener una entrada nueva fechada, marcada como ruptura, que enumere los tres cambios de contrato (cabeceras de R17, dominio de R18 y encabezados de descarga de R13) con el antes y el después de cada uno; y la guía de integración DEBE reflejar los mismos cambios.
 
 ## Trazabilidad prevista (R → test)
 
@@ -79,12 +86,16 @@ Glosario de este spec:
 | R8 | `tests/unit/services/wallet-origen-legible.test.ts`, `tests/unit/historial-accion/catalogo-y-choke-point.test.ts`, `tests/unit/utils/aviso-ubicacion-denegada.test.ts`, `tests/unit/asistente/instrucciones.test.ts`, `tests/components/PushOptIn.test.tsx`, test nuevo de `AvisoVersionNueva` si no existe, test de la landing de postulación (`tests/components/LandingPage.test.tsx` o uno nuevo `LandingPostular`) |
 | R9 | `tests/unit/api/openapi-webhook-estado-actualizado.test.ts` + bloque nuevo «descripciones con la marca» en un test de `openapi-spec`; `marca-fuente-unica-493.guardia.test.ts` (bloque «documentación para integradores»: `guia-integracion.html`, su `README.md` y `api-key-openapi.yaml` sin «Ordenex» fuera de excepciones) |
 | R10 | `marca-fuente-unica-493.guardia.test.ts` (bloque `docs/ayuda`) + `tests/unit/docs/ayuda-wallet-caja-488.test.ts`, `tests/unit/asistente/contexto-45{7,8}.test.ts`, `contexto-46{0,1}.test.ts` migrados |
-| R11 | `marca-fuente-unica-493.guardia.test.ts` (bloque «excepciones», con contraprueba) + `tests/unit/clients/webhook-sender.test.ts`, `tests/unit/services/webhook-estado-service.test.ts`, `tests/unit/api/openapi-webhook-estado-actualizado.test.ts`, que siguen afirmando `X-Ordenex-Signature` literal |
+| R11 | `marca-fuente-unica-493.guardia.test.ts` (bloque «excepciones», con contraprueba) + `tests/unit/guards/tema-encendido.guardia.test.ts` y `tests/unit/hooks/useTonoAlIncrementar.test.tsx`, que siguen afirmando las claves `ordenex_tema`/`ordenex:*` literales |
 | R12 | tests existentes que afirman la clave literal, sin cambios y verdes: `tests/components/descarga/CierresDescargaColumnas.test.tsx`, `tests/components/OrdenesDescargaColumnas.test.tsx`, `tests/components/descarga/ProductosDescargaColumnas.test.tsx`, `tests/unit/hooks/useTonoAlIncrementar.test.tsx`, `tests/unit/guards/tema-encendido.guardia.test.ts` |
 | R13 | `tests/unit/descarga/analitica-productos-descarga-columnas.test.ts`, `cierres-gestiones-fundida-descarga-columnas.test.ts`, `cierre-dia-descarga-columnas.test.ts`, `wallet-caja-descarga-columnas.test.ts` (encabezado nuevo literal + clave intacta) |
 | R14 | `marca-fuente-unica-493.guardia.test.ts` (bloque «paridad con archivos estáticos») |
 | R15 | `marca-fuente-unica-493.guardia.test.ts` (bloque «R15», con contraprueba sobre fuente sintética) |
 | R16 | `marca-fuente-unica-493.guardia.test.ts` (bloque «R16: los tests no se anclan a su fuente», con contraprueba) |
+| R17 | `tests/unit/clients/webhook-sender.test.ts`, `tests/unit/services/webhook-estado-service.test.ts`, `tests/unit/services/WebhookEventoOrdenService.test.ts` (afirman `X-Velox-Signature`/`X-Velox-Timestamp` literales y que `X-Ordenex-*` NO va en la petición) + `tests/unit/api/openapi-webhook-estado-actualizado.test.ts` (la OpenAPI declara los nombres nuevos) + bloque «contrato» de la guardia (`.yaml` y guía sin `X-Ordenex-`) |
+| R18 | `tests/unit/api/openapi-406-evidencias-url.test.ts`, `tests/unit/types/plantilla-datos.test.ts`, `tests/unit/whatsapp-envios/informe-aviso-interno.test.ts` (ejemplos con `https://velox-courier.company` literal) + bloque «contrato» de la guardia (`ordenex.co` ausente de código y de `docs/api/**` salvo `CHANGELOG.md`) |
+| R19 | test nuevo `tests/unit/docs/changelog-api-493.test.ts`: existe una entrada de `CHANGELOG.md` con fecha y «ruptura» que contiene `X-Velox-Signature`, `X-Velox-Timestamp`, `velox-courier.company` y el encabezado nuevo «Cobró Velox»; la guía de integración contiene los mismos tres |
+| R20 | `tests/unit/config/push-config.test.ts` (asunto VAPID por defecto `mailto:battos.sa@gmail.com` literal) + bloque «contrato» de la guardia (`soporte@ordenex.co` ausente) |
 
 ## Fuera de alcance (no son requisitos de esta ficha)
 
@@ -92,17 +103,20 @@ Glosario de este spec:
 - Renombrar identificadores (`ingresoOrdenex`, `lib/utils/ingreso-ordenex.ts`, `netoOrdenex`…).
 - Nombres de plantillas de Meta (`alerta_transito_ordenex`, `picking_bodega_ordenex`): no aparecen en el código (medido: 0 coincidencias en `lib/`); viven en Meta/la base.
 - Lo que cubre la 492 (su design §1 y §3): la constante `MARCA`, metadatos y títulos de la app, manifiesto, `offline.html`, logo y su `alt`/`aria-label` (también en la landing), rótulo de la etiqueta (`EtiquetaGuia`, `ROTULO_GUIA`), PDFs de informes de tránsito/picking, remitente del correo (`DEFAULT_FROM_NAME = MARCA.nombre`), títulos de `/api-docs` y de la OpenAPI, y portada/título/autor/pie de la guía de integración. La **prosa** de la landing y del cuerpo de la guía sí es de esta ficha (R8, R9). Si al implementar la 493 queda algo de la 492 con «Ordenex», la guardia de R15 lo detecta y se recoge aquí (ver `design.md §2 g`).
-- `docs/api/CHANGELOG.md` (historial de versiones: es un registro, no se reescribe) y el nombre de archivo de la colección Postman.
-- Datos ya guardados en la base (p. ej. el usuario sembrado «Maestro Ordenex»): ver P5.
+- Reescribir las entradas viejas de `docs/api/CHANGELOG.md` (es un registro; solo se AÑADE la entrada de R19) y el nombre de archivo de la colección Postman.
+- Datos ya guardados en la base (p. ej. el usuario sembrado «Maestro Ordenex»): se dejan como están (P5, resuelta).
+- El origen real de los enlaces que la app genera en producción no sale del código sino de las variables de entorno `NEXT_PUBLIC_APP_URL` / `NEXT_PUBLIC_SITE_URL` (Vercel). Cambiarlas a `https://velox-courier.company` es un paso de configuración de la release (T15), no un requisito de código.
 - `scripts/` y `e2e/` (no se ejecutan en el gate; `e2e/` se actualiza por coherencia en T13, sin requisito).
 
 ## Preguntas abiertas
 
-- **P1 — Forma corta en etiquetas.** ¿Las etiquetas cortas usan `MARCA.nombreCorto` («Cobró Velox», «Total Velox», si la P1 de la 492 fija «Velox») o `MARCA.nombre` completo («Cobró Velox Courier», «Total Velox Courier»)? Afecta a columnas estrechas de tablas y descargas. Si el humano quiere en etiquetas una forma distinta del `short_name` de la app, hace falta un campo nuevo en `MARCA`: sería una **dependencia de la 492** (la 493 no lo añade).
-- **P2 — Razón social en ejemplos.** Los placeholders «Ej: Ordenex CR S.A.» (`components/shared/sinpe-textos.ts`, `CrearZonaForm.tsx`) y los ejemplos «Ordenex S.A.» de `lib/types/plantilla-datos.ts` (`ejemplo`, `sinpeNombre`): ¿cuál es la razón social de Velox Courier, o se usa un ejemplo genérico («Ej: Mi Empresa S.A.»)?
-- **P3 — Nombre de la app instalada: depende de la 492.** El aviso de ubicación denegada («Aplicaciones → … → Permisos») usa `MARCA.nombreCorto`, que es el `short_name` del manifiesto; su valor lo resuelve la P1 de la 492 (recomendado «Velox»). Esta ficha no decide nada aquí.
-- **P4 — Cabeceras de webhook.** `X-Ordenex-Signature` y `X-Ordenex-Timestamp` son contrato con integradores y se conservan (R11). ¿Se quiere una ficha aparte para renombrarlas con periodo de doble cabecera, o quedan así indefinidamente?
-- **P5 — Datos persistidos.** ¿Se renombran en otra ficha los textos ya guardados en la base (usuario «Maestro Ordenex» de la migración `20260709120000_seed_maestro_user`, y cualquier descripción o nota guardada que diga «Ordenex»)? Antes habría que medir con un `SELECT … ILIKE '%ordenex%'` de solo lectura.
-- **P6 — Dominio y correos.** `ordenex.co` aparece en ejemplos de variables de plantilla (`urlBase`, `ejemplo`), en el ejemplo de la OpenAPI (`app.ordenex.co`), en el ejemplo de aviso interno y en `mailto:soporte@ordenex.co` (asunto VAPID de push). Se dejan fuera hasta que exista el dominio de Velox (el traspaso del dominio está pendiente). ¿Confirmado?
-- **P7 — Remitente del correo: depende de la 492.** Su design (§3.9) fija `DEFAULT_FROM_NAME = MARCA.nombre` en `lib/config/email.ts`. La 493 no lo toca; su guardia solo comprobará que ya no dice «Ordenex».
-- **P8 — Aviso a tiendas por los encabezados.** Cambiar «Cobró Ordenex»/«Total Ordenex» en las descargas puede romper a quien procese esos archivos por nombre de columna. No hay audiencia medida (la integración por máquina es la API, no las descargas). ¿Se avisa a las tiendas o basta con la nota de la release?
+Todas resueltas. Ninguna queda abierta.
+
+- **P1 — Forma corta en etiquetas. RESUELTA (2026-10-31, humano).** Las etiquetas cortas usan `MARCA.nombreCorto` = «Velox» («Cobró Velox», «Total Velox», «Cargos de Velox»…); los textos largos (frases, pistas, avisos) usan `MARCA.nombre` = «Velox Courier». No hace falta ningún campo nuevo en `MARCA`.
+- **P2 — Razón social en ejemplos. RESUELTA (2026-10-31, humano).** «Velox Courier S.A.»: placeholders «Ej: Velox Courier S.A.» (`components/shared/sinpe-textos.ts`, `CrearZonaForm.tsx`) y `ejemplo`/`sinpeNombre` de `lib/types/plantilla-datos.ts`. Es un ejemplo de razón social, no la marca: va literal y la guardia de R1 lo admite como excepción nombrada.
+- **P3 — Nombre de la app instalada. RESUELTA por la 492 (P1 de la 492: «Velox»).** El aviso de ubicación denegada usa `MARCA.nombreCorto`, que es el `short_name`.
+- **P4 — Cabeceras de webhook. RESUELTA (2026-10-31, humano) — CAMBIO DE ALCANCE.** Se renombran a `X-Velox-Signature` y `X-Velox-Timestamp`, sin periodo de doble cabecera; el humano pausa a los integradores y los actualiza con el manual nuevo. Requisito R17; aviso en R19.
+- **P5 — Datos persistidos. RESUELTA (2026-10-31, humano).** Se dejan como están; fuera de alcance.
+- **P6 — Dominio y correos. RESUELTA (2026-10-31, humano) — CAMBIO DE ALCANCE.** `ordenex.co` y `app.ordenex.co` pasan a `https://velox-courier.company` en la documentación para integradores, la OpenAPI, los ejemplos y las plantillas (R18); `ordenex.co` se libera. El correo de soporte `soporte@ordenex.co` pasa a `battos.sa@gmail.com` (fijado por el humano el 2026-10-31, escrito en minúsculas; R20). Sin bloqueos pendientes.
+- **P7 — Remitente del correo. RESUELTA por la 492** (su §3.9: `DEFAULT_FROM_NAME = MARCA.nombre`).
+- **P8 — Aviso por los encabezados. RESUELTA (2026-10-31, humano).** No se avisa a las tiendas aparte; el cambio de encabezados de las descargas y todo lo de integradores se comunica con la actualización del manual de la API (R19, T15).

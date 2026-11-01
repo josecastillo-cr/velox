@@ -12,8 +12,9 @@
 > (`#011027`) y los propios del logo. Los tokens de la UI (`app/globals.css`) **no** se tocan; eso es
 > otra ficha y pasa por `/design`.
 >
-> Términos: **nombre de marca** = «Velox Courier». **Nombre corto** = el valor que decida el humano
-> (pregunta abierta P1). **Color de tema** = `#011027`. **Marca anterior** = cualquier archivo o
+> Términos: **nombre de marca** = «Velox Courier». **Nombre corto** = «Velox» (P1, resuelta el
+> 2026-10-31). **Descripción** = «Plataforma de logística y entregas Velox Courier» (P4). **Color de
+> tema** = `#011027`. **Marca anterior** = cualquier archivo o
 > texto de identidad de Ordenex tal como está en `origin/dev` al empezar la ficha.
 
 ## Fuente única
@@ -31,8 +32,8 @@
 ## Navegador y aplicación instalada (PWA)
 
 - **R4** — El manifiesto de la aplicación DEBE declarar `name` igual al nombre de marca,
-  `short_name` igual al nombre corto (como máximo 12 caracteres), `description` igual a la
-  descripción de la fuente única, y `theme_color` y `background_color` iguales a `#011027`.
+  `short_name` igual al nombre corto («Velox»), `description` igual a la descripción
+  («Plataforma de logística y entregas Velox Courier»), y `theme_color` y `background_color` iguales a `#011027`.
 - **R5** — El manifiesto DEBE conservar sin cambios `id` (`/`), `start_url`, `scope`, `display`,
   `orientation`, `categories`, la ausencia de `shortcuts`, y la ruta, el tamaño y el `purpose` de
   cada icono declarado.
@@ -72,8 +73,8 @@
 
 ## Etiqueta de envío
 
-- **R16** — La cabecera de la etiqueta PDF DEBE mostrar como rótulo de marca el texto que fije el
-  humano (pregunta abierta P2), en negro y con la tipografía estándar en negrita, y NO DEBE dibujar
+- **R16** — La cabecera de la etiqueta PDF DEBE mostrar como rótulo de marca «VELOX · GUÍA» (P2),
+  en negro y con la tipografía estándar en negrita, y NO DEBE dibujar
   un logo gráfico.
 - **R17** — CUANDO se genera la etiqueta en cualquier hoja del catálogo, el rótulo de marca DEBE caber
   en la cabecera, y la capacidad de caracteres declarada de cada hoja DEBE seguir siendo la misma
@@ -94,10 +95,17 @@
   de página, y DEBE mostrar en la portada el logotipo de Velox Courier en su variante sobre fondo
   claro.
 
+## Contacto de soporte
+
+- **R23** — SI la variable `VAPID_SUBJECT` no existe o está en blanco, ENTONCES el contacto de las
+  notificaciones push DEBE ser `mailto:battos.sa@gmail.com` (en minúsculas), y ningún archivo
+  tocado por esta ficha DEBE citar `soporte@ordenex.co`.
+
 ## Capturas del diálogo de instalación
 
-- **R22** — Ninguna captura declarada en el manifiesto DEBE coincidir byte a byte con una captura de
-  la marca anterior.
+- **R22** — El manifiesto DEBE declarar las mismas tres capturas (mismos nombres, tamaños y
+  `form_factor`), y ninguna DEBE coincidir byte a byte con su versión de la marca anterior (P3:
+  se rehacen).
 
 ## Fuera de alcance (no son requisitos de esta ficha)
 
@@ -107,38 +115,33 @@
 - Identificadores de código y claves de almacenamiento (`ordenex:relevo-ahora`, etiquetas `ordenex:*`
   de las notificaciones, `ordenex:sinpe-revision-aplazada:*`): no se ven y renombrarlos rompe
   estado guardado.
-- Dominios y direcciones de correo (`ordenex.co`, `soporte@ordenex.co`, `no-reply@…`): ver P5 y P6.
+- El dominio `ordenex.co` en la documentación para integradores (Base URL de la guía, ejemplos del
+  OpenAPI, de `url_guia` y del aviso interno) y la prosa «Ordenex» del cuerpo de la guía: ficha 493
+  (P6/P7). El dominio nuevo es `https://velox-courier.company`.
 - `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx`: verificado, no pintan marca.
 
 ## Preguntas abiertas
 
-- **P1 — Nombre corto (`short_name` y `apple-mobile-web-app-title`).** ¿«Velox» o «Velox Courier»?
-  «Velox Courier» tiene 13 caracteres, uno más del tope de 12 que Android muestra sin cortar bajo el
-  icono. Recomendación técnica: «Velox». R4 y R6 quedan con el valor que se decida.
-- **P2 — Rótulo de la etiqueta.** ¿«VELOX · GUÍA» o «VELOX COURIER · GUÍA»? El primero es más
-  estrecho que el actual «ORDENEX · GUÍA», así que cabe en todas las hojas sin tocar el tamaño de
-  los rótulos. El segundo es más ancho: en las hojas pequeñas puede encoger el cuerpo de TODOS los
-  rótulos diminutos (PARA, CONTENIDO, TIENDA comparten tamaño con este) o no caber en la de
-  100×100; R17 lo detectaría y habría que volver al spec.
-- **P3 — Capturas del manifiesto** (`public/screenshots/*.png`, muestran la marca vieja). ¿Se
-  rehacen (recomendado: mismas tres, mismo tamaño, con Playwright contra el servidor local como en
-  la ficha 164; son pantallas públicas, no hace falta sesión) o se quitan? Quitarlas obliga a
-  cambiar las dos guardias que hoy exigen tres capturas y al menos una `narrow` y una `wide`, y
-  Android degrada el diálogo de instalación al aviso pequeño.
-- **P4 — Descripción de la aplicación** (manifiesto y `<meta name="description">`). Propuesta mínima:
-  «Plataforma de logística y entregas Velox Courier». ¿Vale, u otro texto?
-- **P5 — Correo y contacto.** El contacto VAPID por defecto es `mailto:soporte@ordenex.co`
-  (`lib/config/push.ts`) y el remitente de los correos sale de `SMTP_FROM`. ¿Cuál es el correo de
-  soporte de Velox Courier y el remitente nuevo? Dependen del traspaso del SMTP; hasta tenerlos esta
-  ficha no los cambia.
-- **P6 — Dominio en la documentación para integradores.** La guía de integración dice «Base URL de
-  producción: https://ordenex.co» y los ejemplos del OpenAPI, de la variable de plantilla
-  `url_guia` y del aviso interno usan `ordenex.co`. Cambiarlo es un cambio de contrato para
-  integradores, no de identidad visual: ¿sigue `ordenex.co` sirviendo la API tras el traspaso, y se
-  hace en una ficha aparte? Esta ficha no los toca.
-- **P7 — Prosa de la guía de integración.** Además de la portada, el cuerpo de la guía nombra a
-  «Ordenex» unas 40 veces («la emite Ordenex», «pida a Ordenex»…). ¿Va a la 493 junto con los textos
-  de la app (propuesta) o a una ficha propia de documentación?
-- **P8 — Fotos de la landing** (`public/landing/*.jpg`). Este spec no ha verificado si alguna muestra
-  la marca vieja (rótulos, uniformes, vehículos). La tarea T12 las revisa y, si alguna la muestra,
-  lo reporta: sustituir una foto es decisión del humano, no de esta ficha.
+Respuestas del humano del 2026-10-31. No queda ninguna abierta.
+
+- **P1 — RESUELTA (2026-10-31).** El nombre corto (`short_name` y `apple-mobile-web-app-title`) es
+  **«Velox»** (5 caracteres; «Velox Courier» tenía 13 y Android lo habría cortado).
+- **P2 — RESUELTA (2026-10-31).** El rótulo de la etiqueta es **«VELOX · GUÍA»**. Es más estrecho que
+  «ORDENEX · GUÍA», así que R17 debería cumplirse sin tocar el tamaño de los rótulos.
+- **P3 — RESUELTA (2026-10-31).** Las capturas **se rehacen** con Playwright: las mismas tres, con el
+  mismo tamaño, contra el servidor local y como en la ficha 164.
+- **P4 — RESUELTA (2026-10-31).** La descripción es **«Plataforma de logística y entregas Velox
+  Courier»**.
+- **P5 — RESUELTA (2026-10-31).** El remitente es «Velox Courier»
+  `<no-reply@velox-courier.company>`. `SMTP_FROM` ya vale eso en Production (SMTP en Brevo), así que
+  no hace falta código. El **correo de soporte** es `battos.sa@gmail.com`, escrito en minúsculas (el
+  humano lo escribió «Battos.sa@gmail.com»; en Gmail es el mismo buzón). Sustituye a
+  `soporte@ordenex.co` como contacto por defecto de las notificaciones push
+  (`mailto:battos.sa@gmail.com`) y en los textos de esta ficha (R23, tarea T16).
+- **P6 — RESUELTA (2026-10-31).** El dominio `ordenex.co` de la documentación para integradores se
+  cambia en la **493**, no aquí. El humano pausa a los integradores y los pone al día con el manual
+  nuevo; `ordenex.co` se libera y el dominio pasa a ser `https://velox-courier.company`.
+- **P7 — RESUELTA (2026-10-31).** La prosa «Ordenex» del cuerpo de la guía de integración se cambia
+  en la **493**. La 492 solo toca la portada, el título, el autor y el pie (R21).
+- **P8 — RESUELTA (2026-10-31).** Las fotos de la landing se quedan como están; T12 solo las revisa
+  y anota lo que vea.

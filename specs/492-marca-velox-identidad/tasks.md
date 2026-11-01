@@ -1,7 +1,7 @@
 # 492 — Marca Velox Courier: identidad visual · tasks
 
-> Zona `frontend`; implementa `frontend_dev`. Requisito previo: P1–P4 respondidas (P5–P8 no
-> bloquean). Gate: `./init.sh --rapido` + las guardias de T13 a mano (no las selecciona el grafo).
+> Zona `frontend`; implementa `frontend_dev`. P1–P8 resueltas por el humano el 2026-10-31 (ver
+> `requirements.md`); no queda ninguna tarea bloqueada. Gate: `./init.sh --rapido` + las guardias de T13 a mano (no las selecciona el grafo).
 > Nunca el completo. `[P]` = paralelizable con las demás `[P]` de su fase una vez cumplidas sus
 > dependencias. Un commit por task: `feat(492): …` / `test(492): …`.
 
@@ -15,9 +15,10 @@
 
 ## Fase 1 — Fuente única y archivos
 
-- [ ] **T1 — `lib/marca/identidad.ts`** (`MARCA`, `LOGO`, design §3.1) con el nombre corto (P1) y la
-  descripción (P4). Test `tests/unit/marca/identidad.test.ts`: valores como **literales de contrato**
-  (`"Velox Courier"`, `"#011027"`, longitud de `nombreCorto` ≤ 12, rutas de `LOGO`) y
+- [ ] **T1 — `lib/marca/identidad.ts`** (`MARCA`, `LOGO`, design §3.1) con `nombreCorto: "Velox"` (P1) y
+  `descripcion: "Plataforma de logística y entregas Velox Courier"` (P4). Test
+  `tests/unit/marca/identidad.test.ts`: valores como **literales de contrato** (`"Velox Courier"`,
+  `"Velox"`, la descripción, `"#011027"`, rutas de `LOGO`) y
   `MARCA.nombre === DATOS_LEGALES.marca`. → R1.
   **Hecho:** test verde; mutar `colorTema` lo pone rojo.
 - [ ] **T2 [P] — Copiar archivos** (design §3.2): `public/marca/{logo-horizontal,logo-horizontal-fondo-claro,logo-simbolo}.svg`,
@@ -83,10 +84,10 @@
 
 ## Fase 4 — PDF, correo y documentación (todas `[P]` entre sí; dependen de T1)
 
-- [ ] **T7 [P] — Etiqueta** (design §3.7; P2). `ROTULO_GUIA` al texto decidido; comentarios de
+- [ ] **T7 [P] — Etiqueta** (design §3.7; P2). `ROTULO_GUIA = "VELOX · GUÍA"`; comentarios de
   `etiquetas-dibujo.ts:369` y `etiquetas-maqueta.ts:117`. Test de contrato literal nuevo en
-  `tests/unit/pdf/etiquetas-diseno-353.test.ts` (o archivo propio): `ROTULO_GUIA` vale el literal
-  decidido y la etiqueta generada lo contiene y no contiene «ORDENEX». → R16.
+  `tests/unit/pdf/etiquetas-diseno-353.test.ts` (o archivo propio): `ROTULO_GUIA` vale
+  `"VELOX · GUÍA"` y la etiqueta generada lo contiene y no contiene «ORDENEX». → R16.
   **Hecho:** además, SIN editar, en verde: `tests/unit/pdf/etiquetas-capacidad.test.ts`,
   `etiquetas-diseno-353.test.ts`, `etiquetas-caracter-no-cubierto.test.ts`,
   `tests/unit/components/etiquetas-pdf.test.ts` y `tests/unit/guards/etiquetas-maqueta-unica.guardia.test.ts`
@@ -100,6 +101,12 @@
   `tests/unit/config/email-marca.test.ts` y `email-config.test.ts:102` a «Velox Courier» literal;
   caso nuevo: sin `SMTP_FROM_NAME`, el correo compuesto lleva «Velox Courier» en cabecera y pie. → R19.
   **Hecho:** `tests/unit/config/` y `tests/unit/services/email-*` verdes.
+- [ ] **T16 [P] — Contacto de soporte** (design §3.13; P5). `DEFAULT_SUBJECT =
+  "mailto:battos.sa@gmail.com"` en `lib/config/push.ts`, en minúsculas. Caso en
+  `tests/unit/config/push-config.test.ts`: sin `VAPID_SUBJECT` (o en blanco), `loadPushConfig().subject`
+  vale ese literal exacto; y `grep` de `soporte@ordenex.co` sobre los archivos de esta ficha vacío.
+  Ajustar `pwa-push.guardia` solo si afirma el valor por defecto. → R23.
+  **Hecho:** `tests/unit/config/push-config.test.ts`, `tests/unit/push/` y `pwa-push.guardia` verdes.
 - [ ] **T10 [P] — API docs** (design §3.10). `app/api-docs/route.ts`, `lib/api/openapi-spec.ts`,
   `docs/api/api-key-openapi.yaml`. Test nuevo `tests/unit/api/openapi-titulo-marca.test.ts`: el
   HTML de `GET()` y `info.title` del spec y del YAML valen «Velox Courier — API de integración por
@@ -115,12 +122,12 @@
 
 ## Fase 5 — Capturas y fotos
 
-- [ ] **T12 [P] — Fotos de la landing** (P8, solo lectura). Mirar `public/landing/*.jpg` y anotar en
-  `progress/impl_492.md` si alguna muestra «Ordenex». **Hecho:** nota escrita; no se sustituye nada.
-- [ ] **T13a — Capturas** (depende de T4, T5, T6; P3). Si «rehacer»: las tres con Playwright contra
-  el servidor local, mismos nombres y tamaños, `nextjs-portal` oculto, revisadas a ojo. Si «quitar»:
-  fuera del manifiesto y de `public/`, y ajuste de `manifest.test.ts` y del caso «diez claves».
-  La guardia de T3 suma las capturas a la lista de hashes prohibidos. → R22.
+- [ ] **T12 [P] — Fotos de la landing** (P8, solo lectura; el humano decidió que se quedan como
+  están). Mirar `public/landing/*.jpg` y anotar en `progress/impl_492.md` si alguna muestra
+  «Ordenex». **Hecho:** nota escrita; no se sustituye nada.
+- [ ] **T13a — Rehacer las capturas** (depende de T4, T5, T6; P3). Las tres con Playwright contra el
+  servidor local, con los mismos nombres y tamaños y con `nextjs-portal` oculto, revisadas a ojo. El
+  manifiesto no cambia. La guardia de T3 suma las capturas a la lista de hashes prohibidos. → R22.
   **Hecho:** `manifest.test.ts`, `pwa-manifiesto-atajos` y `marca-velox-sin-anterior` verdes.
 
 ## Fase 6 — Verificación y cierre
@@ -138,7 +145,7 @@
   `/manifest.json`. Generar una etiqueta 100×100 y un lote en la hoja más pequeña del catálogo y
   mirarlas. Limpiar lo que se haya creado en la base local.
   **Hecho:** capturas o mediciones en `progress/impl_492.md`.
-- [ ] **T15 — Trazabilidad y entrega.** `progress/impl_492.md` con el mapa R1–R22 → test, la lista de
+- [ ] **T15 — Trazabilidad y entrega.** `progress/impl_492.md` con el mapa R1–R23 → test, la lista de
   tests actualizados (no borrados) y la tabla de acciones de configuración del humano (design §4).
   **Hecho:** cada R con al menos un test que lo pone rojo al mutarse; commit hecho y verificado en la
   rama (`git log` del blob), no solo en disco.
@@ -148,7 +155,7 @@
 ```
 T0 ─┬─ T1 ─┬─ T4 ─────────────┐
     │      ├─ T5 ─ T6 ────────┼─ T13a ─ T13 ─ T14 ─ T15
-    │      └─ T7 T8 T9 T10 T11 [P]   │
+    │      └─ T7 T8 T9 T10 T11 T16 [P]
     └─ T2 ─ T3 ────────────────┘
 T12 [P] en cualquier momento
 ```
