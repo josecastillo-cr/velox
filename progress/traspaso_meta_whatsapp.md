@@ -38,8 +38,17 @@ final.
 ## Pendiente para la próxima sesión (cierre del 2026-10-31 ~06:10 UTC)
 
 1. Plantillas: consultar `GET /2115650402656273/message_templates`. Cuando estén APPROVED, EDITAR el cuerpo, cambiando "Ordenex" por "Velox Courier" (mismas variables y mismo orden; los nombres se quedan), y actualizar `plantilla_mensaje.cuerpo` en prod. Decisión de Carlos del 2026-10-31. Si alguna sale REJECTED, ver el motivo.
+   - 2026-10-31 18:30 UTC: las 3 siguen PENDING; ninguna REJECTED.
+   - 2026-10-31 ~19:30 UTC: las 3 APPROVED. Por decisión de Carlos, editado ya el cuerpo ("Ordenex" → "Velox Courier") de `listo_para_entrega_mensajero` (28252813871058704) y `alerta_transito_ordenex` (1598724291390711), que vuelven a estar PENDING. `picking_bodega_ordenex` (1152229794427597) no cambia: su cuerpo no dice Ordenex. FALTA cuando estén APPROVED: actualizar `plantilla_mensaje.cuerpo` de las 2 en prod (mismo texto con variables con nombre). El `template_id` de prod aún apunta a los ids de Nuform.
+   - Las 74 bienvenidas fallidas NO se reenvían (decisión de Carlos, 2026-10-31).
+   - Verificación del negocio: `pending_need_more_info` por el documento del teléfono +506 7075 9997; reenviada a revisión el 2026-10-31. Mientras tanto, `TIER_250` (250 destinatarios únicos/24 h) frente a ~370 bienvenidas/día.
 2. Envíos automáticos con plantilla fallidos durante la espera: medirlos en la base y reenviarlos si hace falta.
+   - Medido el 2026-10-31 18:30 UTC (prod): 74 bienvenidas `listo_para_entrega_mensajero` en `chat_mensaje` `failed` (15:16–15:31 UTC, 74 conversaciones) y 2 `whatsapp_envio_entrega` en `rechazo_permanente` (12:01 UTC). Todas con Meta 132001 «template name does not exist in es»: la plantilla sigue PENDING en la WABA nueva.
+   - Fallo mudo: los jobs `whatsapp_bienvenida` quedan `done` aunque Meta los rechace.
+   - Reenviar SOLO tras APPROVED y solo a órdenes aún activas; los 2 informes probablemente ya no valen.
 3. Primer entrante real de un cliente con orden activa: confirmar que entra en `chat_mensaje`.
+   - Medido el 2026-10-31 18:30 UTC: 0 entrantes desde las 02:26 UTC (antes del corte, 450–740 al día). En los logs, el webhook solo recibió de la WABA nueva la prueba de Carlos (05:46 UTC, descartada por `from_user_id` sin `from` → ficha 491).
+   - Sospecha sin medir: los clientes responden al número viejo; la app de Nuform sigue enviando su webhook a nuestra URL y la firma falla con 401 sin dejar log.
 4. Respuesta de Meta a la verificación del negocio.
 5. Integradores de la API: darles `https://velox-courier.company` (Nuform es uno).
 6. Nuform, en unos días: quitar su webhook, revocar sus tokens y borrar el número viejo `1109739142232496`; revocar su clave de Anthropic; cerrar el GCP `rapidisimo-app-496106`; quitar sus tarjetas; comprobar que no es miembro del team Velox de Vercel. Después, quitar `ordenex.vercel.app` del proyecto.
