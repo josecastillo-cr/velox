@@ -50,10 +50,10 @@ final.
    - Medido el 2026-10-31 18:30 UTC: 0 entrantes desde las 02:26 UTC (antes del corte, 450–740 al día). En los logs, el webhook solo recibió de la WABA nueva la prueba de Carlos (05:46 UTC, descartada por `from_user_id` sin `from` → ficha 491).
    - Sospecha sin medir: los clientes responden al número viejo; la app de Nuform sigue enviando su webhook a nuestra URL y la firma falla con 401 sin dejar log.
 4. Respuesta de Meta a la verificación del negocio.
-5. Integradores de la API: darles `https://velox-courier.company` (Nuform es uno).
-6. Nuform, en unos días: quitar su webhook, revocar sus tokens y borrar el número viejo `1109739142232496`; revocar su clave de Anthropic; cerrar el GCP `rapidisimo-app-496106`; quitar sus tarjetas; comprobar que no es miembro del team Velox de Vercel. Después, quitar `ordenex.vercel.app` del proyecto.
-7. Cambio de marca Ordenex → Velox Courier en la app (landing, `apple-mobile-web-app-title`, `SMTP_FROM_NAME`, push `soporte@ordenex.co`, guía de integración).
-8. Ficha 491 (entrantes con nombre de usuario), unos 450 jobs de geocodificación fallidos, ficha para el envío por el ID de la cuenta de WhatsApp de Meta, actualizar el spec de la 490, y el teléfono y la cédula de relleno del maestro de José.
+5. ~~Integradores de la API: darles la URL nueva.~~ CERRADO (Carlos, 2026-10-31): no se avisa aparte; van con el manual nuevo de la ficha 493.
+6. ~~Limpieza de Nuform.~~ HECHO (Carlos, 2026-10-31).
+7. Cambio de marca: fichas 492 (identidad) y 493 (textos), `spec_ready` el 2026-10-31.
+8. Sigue pendiente: ficha 491 (entrantes con nombre de usuario), ficha para el envío por el ID de la cuenta de WhatsApp de Meta, actualizar el spec de la 490. Descartado por Carlos (2026-10-31): los ~450 jobs de geocodificación fallidos (se empieza de cero) y el teléfono/cédula de relleno del maestro de José (se queda así, no es pendiente).
 - El SMTP de Preview se borra (decisión de Carlos); no se migra.
 - OJO: el token de José (`meta_token.txt`) y el del webhook estaban en el scratchpad de ESTA sesión, que no se hereda. Para la API de Meta, Carlos tiene que volver a dejar el token en el scratchpad de la sesión nueva.
 - 6.1 Aviso a clientes: NO se hace (decisión de Carlos, 2026-10-30). El número viejo no está publicado en ningún sitio.
