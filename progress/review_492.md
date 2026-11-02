@@ -178,3 +178,61 @@ de valor puede verla. Hace falta una guardia de forma.
    con autocomprobación; demostrar que X7 y X8 la ponen roja y anotarlo en `progress/impl_492.md`.
 3. Recomendado en la misma vuelta: M1 (`EtiquetaGuia.tsx:131` → `ROTULO_GUIA`) y m1 (las 3 `label`
    del manifiesto), con sus aserciones.
+
+---
+
+## Ronda 2 (reviewer, 2026-11-02)
+
+HEAD `33a8e360` (confirmado con `git log --oneline -1`). Diff revisado `4990cde6..33a8e360`: 7 archivos
+(`EtiquetaGuia.tsx`, `manifest.json`, `tasks.md`, `impl_492.md`, la guardia nueva y 2 tests).
+Solo se verifican B1, B2, M1 y m1.
+
+### Veredicto final: APROBADO
+
+Los dos bloqueantes, el mayor y m1 están corregidos y medidos. Quedan 2 menores nuevos que no bloquean.
+
+### Verificación
+
+- [x] **B1** — `tasks.md`: 18 de 18 tasks en `[x]` y 0 en `[ ]`.
+- [x] **B2** — `tests/unit/guards/marca-velox-sin-literal.guardia.test.ts`:
+  - recorre una lista cerrada de 15 archivos: los 9 que leen `MARCA` tienen que importar
+    `@/lib/marca/identidad`, y ninguno de los 15 puede llevar `velox` (sin distinguir caja),
+    `#011027`, `/marca/logo-` ni el arranque de la descripción una vez quitados los comentarios;
+  - tiene autocomprobación positiva y negativa (comentario `//`, `/* */`, `{/* */}` y CRLF).
+  - En el árbol limpio está verde.
+- [x] **M1** — `EtiquetaGuia.tsx:133` pinta `{ROTULO_GUIA}` importado. Hay un caso nuevo en
+  `tests/components/EtiquetaGuia.test.tsx` que compara con el literal «VELOX · GUÍA» y además con
+  la constante; las dos aserciones van por separado, así que la de la constante no es la única.
+- [x] **m1** — las 3 `label` de `manifest.json:20-22` dicen «Velox Courier». Hay un caso nuevo en
+  `tests/unit/pwa/manifest.test.ts` con `toEqual` literal de `[src, label]`.
+- [x] Medido por mí: guardia nueva + `EtiquetaGuia` + `manifest` + `marca-velox-identidad`, 4/4 archivos y 65/65 tests en verde.
+  Gate: `progress/gate_492_2.log` con `INIT_EXIT=0` y «0 rojos sobre 822»; no lo repetí.
+
+### Mutaciones de la ronda 2 (mismo arnés: aplicar, `numstat` = 1, correr, `git checkout --`, árbol limpio)
+
+| # | Mutación | Test(s) | Resultado |
+|---|---|---|---|
+| X7 | `transito/pdf.ts:205` `l.texto("Velox Courier", …)` | guardia `sin-literal` | ROJO (1 de 26) |
+| X8 | `api-docs/route.ts:14` `<title>Velox Courier — API…` | guardia `sin-literal` | ROJO (1 de 26) |
+| X17 | `EtiquetaGuia.tsx` `{ROTULO_GUIA}` → `Ordenex · Guía` | guardia + `EtiquetaGuia.test` | ROJO (2 de 35) |
+| X18 | `EtiquetaGuia.tsx` `{ROTULO_GUIA}` → `VELOX · GUÍA` a mano | guardia + `EtiquetaGuia.test` | ROJO (2 de 35) |
+| X19 | `manifest.json` `label` «Ordenex en escritorio» | `manifest.test` | ROJO (1 de 22) |
+| E1 | `transito/pdf.ts:205` `"Vel" + "ox Courier"` (concatenación) | guardia `sin-literal` | **VERDE: se salta** |
+| E2 | `transito/pdf.ts:205` `` `${"Velox"} Courier` `` (template literal) | guardia `sin-literal` | ROJO (1 de 26) |
+| E3 | `layout.tsx` `content="#01102"+"7"` (color partido) | guardia `sin-literal` | **VERDE: se salta** |
+| E4 | `layout.tsx` `content="rgb(1,16,39)"` (otra notación) | guardia `sin-literal` | **VERDE: se salta** (pero R6 lo caza: `marca-velox-identidad` exige `content={MARCA.colorTema}` y `#011027` en el `<head>` pintado) |
+
+### Hallazgos nuevos
+
+- **menor r2-1 — La guardia se salta partiendo el literal.** Una concatenación (`"Vel" + "ox Courier"`,
+  E1) o un color partido o en otra notación (E3, E4) pasan. Escribirlo así es ofuscar a propósito,
+  no la regresión natural (copiar «Velox Courier» a mano), que sí se caza. E4 lo cubre R6 por otro
+  lado. Aceptable; se anota para que nadie crea que la guardia es una prueba total.
+- **menor r2-2 — Falso positivo previsible con la 493.**
+  `marca-velox-sin-literal.guardia.test.ts:57` prohíbe `/velox/gi` en `lib/api/openapi-spec.ts`. La 493 (R18)
+  va a cambiar `openapi-spec.ts:1166` (`https://app.ordenex.co/…`) por `https://velox-courier.company/…`,
+  y eso pondrá roja esta guardia aunque el cambio sea correcto. Hoy no hay ningún falso positivo
+  (verde en el árbol limpio). Lo que tiene que hacer la 493: añadir una excepción cerrada para el
+  dominio `velox-courier.company`, sin aflojar el patrón. Hay que anotarlo en su spec o en su arranque.
+- Sin cambios: m2 y m3 se quedan para la 493 por decisión del leader; m4, m5 y m6 siguen como estaban
+  (m5 resuelto según el leader: el build de Vercel del PR #876 salió verde).
