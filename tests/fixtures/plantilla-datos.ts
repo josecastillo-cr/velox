@@ -58,7 +58,7 @@ export function datosPlantillaFixture(overrides?: {
     negocio: {
       sinpeNumero: "",
       sinpeNombre: "",
-      urlBase: "https://ordenex.co",
+      urlBase: "https://velox-courier.company",
       ...overrides?.negocio,
     },
   };

@@ -12,6 +12,7 @@ import type { IAsistenteUsoRepository } from "@/lib/interfaces/repositories/IAsi
 import type { IAsistenteService } from "@/lib/interfaces/services/IAsistenteService";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import { DobleProveedor, compuerta } from "../unit/asistente/_doble-proveedor";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * ⭑ FICHA 436 · R7, R8, R12, R13, R18, R19 — EL BORDE HTTP, CON EL SERVICIO REAL.
@@ -134,10 +135,10 @@ describe("R32 — el modelo sabe CON QUIÉN habla, y lo dice la misma sesión qu
     const { proveedor: deMaestro } = await llamar(MAESTRO, CUERPO_VALIDO);
 
     expect(deMensajero.llamadas[0].instrucciones).toContain(
-      "Esta persona entra a Ordenex como Mensajero",
+      `Esta persona entra a ${NOMBRE_ESPERADO} como Mensajero`,
     );
     expect(deMaestro.llamadas[0].instrucciones).toContain(
-      "Esta persona entra a Ordenex como Maestro",
+      `Esta persona entra a ${NOMBRE_ESPERADO} como Maestro`,
     );
     // Y ninguno lleva la frase del otro: lo único que cambia entre las dos llamadas es `getActor`.
     expect(deMensajero.llamadas[0].instrucciones).not.toContain("como Maestro");

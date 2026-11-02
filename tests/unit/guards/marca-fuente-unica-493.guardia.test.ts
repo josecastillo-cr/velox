@@ -207,8 +207,7 @@ describe("493 — R14: paridad de lo que no puede importar MARCA", () => {
     expect(m?.[1]).toBe(MARCA.nombre);
   });
 
-  // ⏳ T4.
-  it.fails("aviso de ubicacion denegada: manda a buscar el short_name del manifiesto", () => {
+  it("aviso de ubicacion denegada: manda a buscar el short_name del manifiesto", () => {
     const corto = (JSON.parse(leer("public/manifest.json")) as { short_name: string }).short_name;
     const instalada = avisoUbicacionDenegada("app_instalada", "denegado");
     const sinDecidir = avisoUbicacionDenegada("app_instalada", "sin_decidir");

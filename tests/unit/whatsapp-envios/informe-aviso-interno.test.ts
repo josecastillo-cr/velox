@@ -14,6 +14,16 @@ function datos(texto: string, creadoAt = "2026-10-05T11:00:00.000Z"): DatosAviso
   return { texto, rolFila: "maestro", creadoAt };
 }
 
+// FEATURE 493 (T4, R18) — el ejemplo PUBLICADO de la variable `enlace` usa el dominio nuevo.
+// Literal a mano (L5b), con su negativa: el dominio viejo no sale en ningun ejemplo.
+describe("493/R18 — el ejemplo del enlace es https://velox-courier.company", () => {
+  it("`enlace` publica https://velox-courier.company/cierres y ningun ejemplo dice ordenex.co", () => {
+    const variables = crearInformeAvisoInterno().variables;
+    expect(variables.find((v) => v.clave === "enlace")?.ejemplo).toBe("https://velox-courier.company/cierres");
+    expect(variables.map((v) => v.ejemplo).join(" | ")).not.toContain("ordenex.co");
+  });
+});
+
 describe("474/R51 — valores desde el aviso", () => {
   it("titulo = nombre del catalogo; texto = el del aviso; fecha/hora CR del aviso", async () => {
     const r = await informe.generar({

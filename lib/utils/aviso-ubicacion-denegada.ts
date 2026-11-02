@@ -37,6 +37,8 @@
 //  - **No se usa `navigator.standalone`** (el `display-mode` estándar ya cubre iOS 13+, y todo
 //    lo anterior no puede instalar esta app).
 
+import { MARCA } from "@/lib/marca/identidad";
+
 /** Cómo está abierta la app AHORA. `navegador` incluye el navegador embebido de otra app. */
 export type ContextoDeApertura = "app_instalada" | "navegador";
 
@@ -73,15 +75,15 @@ const PASO_PRECISA =
  */
 const AVISO_APP_INSTALADA: AvisoUbicacion = {
   resumen:
-    "Para registrar la gestión hace falta tu ubicación. Abriste Ordenex desde su ícono, " +
+    `Para registrar la gestión hace falta tu ubicación. Abriste ${MARCA.nombreCorto} desde su ícono, ` +
     "así que el permiso se activa en los Ajustes del teléfono.",
   titulo: "Activá la ubicación desde los Ajustes del teléfono",
   pasos: [
     PASO_AJUSTES,
-    "Entrá en Aplicaciones y buscá Ordenex.",
+    `Entrá en Aplicaciones y buscá ${MARCA.nombreCorto}.`,
     PASO_PERMISOS,
     PASO_PRECISA,
-    "Volvé a Ordenex y tocá «Guardar gestión» otra vez.",
+    `Volvé a ${MARCA.nombreCorto} y tocá «Guardar gestión» otra vez.`,
   ],
 };
 
@@ -100,7 +102,7 @@ const AVISO_NAVEGADOR: AvisoUbicacion = {
     "Volvé acá y tocá «Guardar gestión» otra vez.",
   ],
   nota:
-    "Si abriste Ordenex desde un enlace de WhatsApp y no ves el candado, tocá los tres " +
+    `Si abriste ${MARCA.nombreCorto} desde un enlace de WhatsApp y no ves el candado, tocá los tres ` +
     "puntos y elegí «Abrir en Chrome».",
 };
 
@@ -140,7 +142,7 @@ function avisoSinDecidir(contexto: ContextoDeApertura): AvisoUbicacion {
     ],
     nota:
       contexto === "app_instalada"
-        ? "Si no te sale ningún aviso, activá la ubicación en los Ajustes del teléfono: Aplicaciones → Ordenex → Permisos → Ubicación."
+        ? `Si no te sale ningún aviso, activá la ubicación en los Ajustes del teléfono: Aplicaciones → ${MARCA.nombreCorto} → Permisos → Ubicación.`
         : "Si no te sale ningún aviso, tocá el candado que está al lado de la dirección web y activá Ubicación.",
   };
 }

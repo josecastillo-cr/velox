@@ -17,6 +17,27 @@ import { datosPlantillaFixture } from "@/tests/fixtures/plantilla-datos";
 
 const DATOS = datosPlantillaFixture();
 
+// FEATURE 493 (T4, R18, P2) — los EJEMPLOS publicados del catalogo usan el origen y la razon social
+// de Velox Courier. Literales a mano (L5b): el contrato es el texto, no la constante de produccion.
+describe("493/R18 — ejemplos del catalogo con el dominio nuevo", () => {
+  it("el ejemplo de `url_guia` y la base de los datos de muestra son https://velox-courier.company", () => {
+    expect(CAMPOS_PLANTILLA_POR_CLAVE.get("url_guia")?.ejemplo).toBe("https://velox-courier.company/?guia=10432");
+    expect(DATOS_PLANTILLA_EJEMPLO.negocio.urlBase).toBe("https://velox-courier.company");
+  });
+
+  it("la razon social de ejemplo es «Velox Courier S.A.» (P2)", () => {
+    expect(CAMPOS_PLANTILLA_POR_CLAVE.get("sinpe_nombre")?.ejemplo).toBe("Velox Courier S.A.");
+    expect(DATOS_PLANTILLA_EJEMPLO.negocio.sinpeNombre).toBe("Velox Courier S.A.");
+  });
+
+  it("ningun ejemplo ni dato de muestra conserva el dominio viejo", () => {
+    const ejemplos = CAMPOS_PLANTILLA.map((c) => c.ejemplo).join(" | ");
+    expect(ejemplos.length).toBeGreaterThan(0);
+    expect(ejemplos).not.toContain("ordenex.co");
+    expect(JSON.stringify(DATOS_PLANTILLA_EJEMPLO)).not.toContain("ordenex.co");
+  });
+});
+
 describe("catalogo de campos", () => {
   it("las claves son unicas", () => {
     const claves = CAMPOS_PLANTILLA.map((c) => c.clave);
@@ -122,12 +143,12 @@ describe("formato de cada tipo de dato", () => {
   // destinatario. El nombre del parametro sale de `PARAM_GUIA` (`app/_landing/guia-en-url.ts`),
   // que es quien lo LEE: si alli se renombra, este test cae y el enlace no se queda roto.
   it("`url_guia` arma el enlace de rastreo con la guia en el query param", () => {
-    expect(valorDeCampo("url_guia", DATOS)).toBe("https://ordenex.co/?guia=25381189");
+    expect(valorDeCampo("url_guia", DATOS)).toBe("https://velox-courier.company/?guia=25381189");
   });
 
   it("`url_guia` no emite barras dobles si la base ya trae barra final", () => {
-    const d = datosPlantillaFixture({ negocio: { urlBase: "https://ordenex.co/" } });
-    expect(valorDeCampo("url_guia", d)).toBe("https://ordenex.co/?guia=25381189");
+    const d = datosPlantillaFixture({ negocio: { urlBase: "https://velox-courier.company/" } });
+    expect(valorDeCampo("url_guia", d)).toBe("https://velox-courier.company/?guia=25381189");
   });
 
   it("`url_guia` es vacia sin guia y sin URL publica, nunca un enlace roto", () => {

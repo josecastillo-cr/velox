@@ -1,3 +1,4 @@
+import { MARCA } from "@/lib/marca/identidad";
 import { randomUUID } from "node:crypto";
 
 import { Prisma } from "@prisma/client";
@@ -54,14 +55,14 @@ const MSG_TIENDA = {
 /** Señal interna: el choque de la clave se responde FUERA de la transaccion (que revierte). */
 class ClaveRepetidaError extends Error {
   constructor() {
-    super("pago de una tienda a Ordenex: clave de idempotencia repetida");
+    super(`pago de una tienda a ${MARCA.nombre}: clave de idempotencia repetida`);
     this.name = "ClaveRepetidaError";
   }
 }
 
 class YaAnuladoError extends Error {
   constructor() {
-    super("pago de una tienda a Ordenex: ya anulado");
+    super(`pago de una tienda a ${MARCA.nombre}: ya anulado`);
     this.name = "YaAnuladoError";
   }
 }
@@ -69,14 +70,14 @@ class YaAnuladoError extends Error {
 /** R14/R15 — la regla del dinero no se cumple: se sale de la transaccion SIN escribir. */
 class SinDeudaError extends Error {
   constructor(readonly saldo: SaldoTiendaDTO) {
-    super("pago de una tienda a Ordenex: la tienda no tiene saldo en contra");
+    super(`pago de una tienda a ${MARCA.nombre}: la tienda no tiene saldo en contra`);
     this.name = "SinDeudaError";
   }
 }
 
 class ExcedeError extends Error {
   constructor(readonly deuda: string) {
-    super("pago de una tienda a Ordenex: el monto supera lo que la tienda debe");
+    super(`pago de una tienda a ${MARCA.nombre}: el monto supera lo que la tienda debe`);
     this.name = "ExcedeError";
   }
 }
@@ -268,7 +269,7 @@ export class AbonoTiendaService implements IAbonoTiendaService {
       if (error instanceof ClaveRepetidaError) {
         const repetido = await this.yaRegistrado(input.claveIdempotencia);
         if (repetido === null) {
-          throw new Error("pago de una tienda a Ordenex: clave repetida sin documento que releer");
+          throw new Error(`pago de una tienda a ${MARCA.nombre}: clave repetida sin documento que releer`);
         }
         return repetido;
       }

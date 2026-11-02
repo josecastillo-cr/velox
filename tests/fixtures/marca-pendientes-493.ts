@@ -1,6 +1,6 @@
 // FEATURE 493 (T2) — LO QUE AUN FALTA, POR ARCHIVO Y CON SU NUMERO EXACTO (trinquete).
 //
-// GENERADO con el detector de `tests/fixtures/marca-retirada-493.ts` tras T3. La guardia
+// GENERADO con el detector de `tests/fixtures/marca-retirada-493.ts` tras T4. La guardia
 // `marca-fuente-unica-493.guardia.test.ts` exige, para cada bloque: (1) que ningun archivo fuera
 // de la lista tenga hallazgos ni ninguno de la lista tenga MAS de los anotados, y (2) que cada
 // pendiente siga teniendo EXACTAMENTE su numero. Asi, reintroducir «Ordenex» en algo ya cerrado
@@ -9,7 +9,7 @@
 // Cada task de superficie (T5–T12) baja o borra sus entradas; T13 deja los cuatro mapas vacios.
 // El detalle (linea y fragmento) esta en `progress/censo_marca_493.md`.
 
-/** R15 — texto con la marca retirada en app/, components/, hooks/, lib/ (188 en 42 archivos). */
+/** R15 — texto con la marca retirada en app/, components/, hooks/, lib/ (155 en 35 archivos). */
 export const PENDIENTE_R15_CODIGO: Readonly<Record<string, number>> = {
   "app/(app)/analitica/_components/entregas/DineroProductoDetalle.tsx": 2,
   "app/(app)/analitica/_components/entregas/ProductosTabla.tsx": 2,
@@ -44,15 +44,8 @@ export const PENDIENTE_R15_CODIGO: Readonly<Record<string, number>> = {
   "components/shared/sinpe-textos.ts": 1,
   "components/shared/wallet/detalle-movimiento-panel-labels.ts": 4,
   "components/shared/wallet/registrar-movimiento-labels.ts": 16,
-  "lib/analytics/metrics.ts": 6,
   "lib/api/openapi-spec.ts": 3,
-  "lib/asistente/instrucciones.ts": 5,
   "lib/crypto/webhook-firma.ts": 2,
-  "lib/services/AbonoTiendaService.ts": 5,
-  "lib/types/historial-accion.ts": 3,
-  "lib/types/plantilla-datos.ts": 8,
-  "lib/utils/aviso-ubicacion-denegada.ts": 5,
-  "lib/whatsapp-envios/informes/aviso-interno.ts": 1,
 };
 
 /** R10 — lineas con la marca retirada en docs/ayuda/** (176 en 12 archivos). */
@@ -77,7 +70,7 @@ export const PENDIENTE_R9_INTEGRADORES: Readonly<Record<string, number>> = {
   "docs/api/guia-integracion/guia-integracion.html": 42,
 };
 
-/** R16 — textos de tests/ y e2e/ que dicen la marca retirada (604 en 130 archivos). */
+/** R16 — textos de tests/ y e2e/ que dicen la marca retirada (573 en 125 archivos). */
 export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/components/BarraComposicionCaja488.test.tsx": 2,
   "tests/components/CajaComposicionBarra.test.tsx": 9,
@@ -103,8 +96,7 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/components/EstadoCuentaAnulados.test.tsx": 2,
   "tests/components/EstadoCuentaMensajeroAnular.test.tsx": 2,
   "tests/components/EtiquetaGuia.test.tsx": 1,
-  "tests/components/GestionarOrdenUbicacionContexto.test.tsx": 5,
-  "tests/components/HistorialAccionesAbonoTienda457.test.tsx": 10,
+  "tests/components/GestionarOrdenUbicacionContexto.test.tsx": 1,
   "tests/components/LandingFooter.test.tsx": 2,
   "tests/components/LoginPage.test.tsx": 1,
   "tests/components/Logo.test.tsx": 1,
@@ -127,7 +119,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/components/WalletRefrescoDirigido.test.tsx": 5,
   "tests/components/descarga/IncidentesDescarga.test.tsx": 4,
   "tests/components/paginacion/BajoRiesgoPaginacion.test.tsx": 1,
-  "tests/integration/asistente-route.test.ts": 2,
   "tests/integration/db/abono-tienda-457-concurrencia.test.ts": 2,
   "tests/integration/db/abono-tienda-457-migration.test.ts": 1,
   "tests/integration/db/abono-tienda-457.test.ts": 2,
@@ -146,7 +137,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/integration/repositories/dinero-productos.int.test.ts": 2,
   "tests/integration/wallet-page.test.tsx": 2,
   "tests/unit/analytics/conteo-productos-dinero.test.ts": 1,
-  "tests/unit/analytics/etiquetas-visibles.guardia.test.ts": 1,
   "tests/unit/analytics/finanzas-diario.test.ts": 2,
   "tests/unit/analytics/kpis-financieros.test.ts": 2,
   "tests/unit/analytics/metrics-caja-naturaleza.guardia.test.ts": 2,
@@ -156,7 +146,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/asistente/contexto-458.test.ts": 12,
   "tests/unit/asistente/contexto-460.test.ts": 11,
   "tests/unit/asistente/contexto-461.test.ts": 25,
-  "tests/unit/asistente/instrucciones.test.ts": 6,
   "tests/unit/clients/whatsapp-app-id.test.ts": 1,
   "tests/unit/components/desglose-tienda-labels.test.ts": 15,
   "tests/unit/components/desglose-tienda-ledger.test.tsx": 7,
@@ -185,7 +174,7 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/guards/nombres-wallet-461.guardia.test.ts": 17,
   "tests/unit/guards/paginas-legales-estaticas.guardia.test.ts": 3,
   "tests/unit/guards/wallet-textos-458.guardia.test.ts": 1,
-  "tests/unit/historial-accion/catalogo-y-choke-point.test.ts": 4,
+  "tests/unit/historial-accion/catalogo-y-choke-point.test.ts": 1,
   "tests/unit/pdf/etiquetas-rotulo-marca-492.test.ts": 1,
   "tests/unit/pdf/informe-transito-pdf.test.ts": 1,
   "tests/unit/pwa/manifest.test.ts": 1,
@@ -199,7 +188,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/services/wallet-egreso-reverso-legible.test.ts": 1,
   "tests/unit/services/wallet-origen-legible.test.ts": 1,
   "tests/unit/types/wallet-461-clave-schema.test.ts": 4,
-  "tests/unit/utils/aviso-ubicacion-denegada.test.ts": 5,
   "tests/unit/utils/caja-composicion.test.ts": 1,
   "tests/unit/utils/caja-derivacion-459.test.ts": 2,
   "tests/unit/utils/caja-tesoreria.test.ts": 2,
