@@ -133,3 +133,14 @@ describe("EtiquetaGuia — R30: no expone el conteo de intentos", () => {
     expect(container.textContent ?? "").not.toContain("Intentos");
   });
 });
+
+describe("EtiquetaGuia — feature 492 (revision M1): rotulo de marca igual al del PDF", () => {
+  it("la vista previa pinta «VELOX · GUÍA», el mismo texto que ROTULO_GUIA, y nada de Ordenex", async () => {
+    const { ROTULO_GUIA } = await import("@/lib/pdf/etiquetas-dibujo");
+    const { container } = render(<EtiquetaGuia etiqueta={makeEtiqueta()} />);
+    // Literal de contrato (lo que se ve) Y la constante del PDF (que no diverjan).
+    expect(screen.getByText("VELOX · GUÍA")).toBeInTheDocument();
+    expect(screen.getByText(ROTULO_GUIA)).toBeInTheDocument();
+    expect(container.textContent ?? "").not.toMatch(/ordenex/i);
+  });
+});
