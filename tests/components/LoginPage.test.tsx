@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Mocks de las dependencias server-side de app/login/page.tsx. El propio
 // page.tsx (Server Component real) se importa sin mockear: se ejercita su
 // logica real de R24 (redireccion si hay sesion valida).
@@ -188,7 +189,7 @@ describe("app/login/page.tsx — logo de Velox Courier por fondo (feature 492, R
     // Dos logos (panel + movil), cada uno con UN nombre accesible.
     const logos = screen.getAllByRole("img", { name: "Velox Courier" });
     expect(logos).toHaveLength(2);
-    expect(container.textContent).not.toContain("Ordenex");
+    expect(container.textContent).not.toContain(MARCA_RETIRADA);
 
     const fuentes = (logo: HTMLElement) =>
       Array.from(logo.querySelectorAll("img")).map((i) => i.getAttribute("src"));

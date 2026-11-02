@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 492 (R21) — la fuente de la guia de integracion lleva la marca Velox Courier en su
 // identidad: `<title>`, autor, pie de pagina (`@page`), titulo de portada y `<h1>`, y la portada
 // muestra el logotipo sobre fondo claro. La prosa del cuerpo y la «Base URL» son de la 493
@@ -31,7 +32,7 @@ describe("Feature 492 — identidad de la guia de integracion (R21)", () => {
     expect(HTML).toContain("<h1>Guía de integración — API de Velox Courier</h1>");
   });
 
-  it("ninguna de esas cinco piezas conserva «Ordenex»", () => {
+  it(`ninguna de esas cinco piezas conserva «${MARCA_RETIRADA}»`, () => {
     expect(HTML).not.toMatch(/<title>[^<]*Ordenex/);
     expect(HTML).not.toMatch(/<meta name="author" content="[^"]*Ordenex/);
     expect(HTML).not.toMatch(/@bottom-left \{ content: "[^"]*Ordenex/);

@@ -13,6 +13,7 @@ import { crearLayout } from "@/lib/pdf/etiquetas-layout";
 import { CASO_EVIDENCIA } from "../../fixtures/etiquetas-282";
 import { leerEtiqueta } from "./etiquetas-verificacion";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 492 (R16, P2) — el rotulo de marca de la cabecera de la etiqueta es «VELOX · GUÍA».
 // LITERAL DE CONTRATO a proposito: compararlo contra `ROTULO_GUIA` seria compararlo consigo mismo.
 // La capacidad por hoja (R17) la fijan, SIN editar, `etiquetas-capacidad`, `etiquetas-diseno-353`,
@@ -45,7 +46,7 @@ describe("Feature 492 — rotulo de marca de la etiqueta (R16)", () => {
   });
 
   it.each(HOJAS_ETIQUETA.map((h) => [h.id, h] as const))(
-    "hoja %s: la etiqueta lleva el rotulo en Helvetica negrita, dentro de la hoja, y no dice ORDENEX",
+    `hoja %s: la etiqueta lleva el rotulo en Helvetica negrita, dentro de la hoja, y no dice ${MARCA_RETIRADA.toUpperCase()}`,
     (_id, hoja) => {
       const { leida } = dibujar(hoja);
       const rotulo = leida.textos.find((t) => t.texto === "VELOX · GUÍA");

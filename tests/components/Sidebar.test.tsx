@@ -13,6 +13,7 @@ import {
 } from "@/lib/auth/menu-visibility";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // usePathname es configurable por test; useRouter se mockea porque el patrón
 // del repo lo espera aunque el Sidebar no lo consuma directamente.
 const pushMock = vi.fn();
@@ -597,7 +598,7 @@ describe("Sidebar marca (feature 492, R13)", () => {
     const simbolo = container.querySelector('img[src="/marca/logo-simbolo.svg"]');
     expect(simbolo).not.toBeNull();
     expect(simbolo).toHaveAttribute("alt", "Velox Courier");
-    expect(container.querySelector('img[alt="Ordenex"]')).toBeNull();
+    expect(container.querySelector(`img[alt="${MARCA_RETIRADA}"]`)).toBeNull();
     expect(container.querySelector('img[src="/icons/icon-192.png"]')).toBeNull();
   });
 });

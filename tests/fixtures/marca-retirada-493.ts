@@ -15,10 +15,12 @@ import path from "node:path";
 
 import ts from "typescript";
 
+import { MARCAS_RETIRADAS } from "./marca-retirada-nombre-493";
+
 export const RAIZ = path.resolve(__dirname, "../..");
 
-/** Marcas que ya no pueden aparecer en un texto. Un cambio futuro de marca añade aqui la vigente. */
-export const MARCAS_RETIRADAS = ["Ordenex"] as const;
+/** Marcas que ya no pueden aparecer en un texto (viven en `marca-retirada-nombre-493.ts`). */
+export { MARCAS_RETIRADAS };
 
 const RETIRADA = new RegExp(MARCAS_RETIRADAS.join("|"), "i");
 
@@ -311,11 +313,11 @@ export function hallazgosContratoEnTextoPlano(fuente: string, archivo: string): 
 export const CODIGO_DIRS = ["app", "components", "hooks", "lib"] as const;
 export const MODULO_MARCA = "lib/marca/identidad.ts";
 
-/** Esta guardia, su detector y su trinquete: contienen la marca retirada a proposito (sinteticos, `MARCAS_RETIRADAS`, rutas). */
+/** Esta guardia, su detector y la marca retirada de las negativas: contienen la marca retirada a proposito (sinteticos, `MARCAS_RETIRADAS`, rutas). */
 export const PROPIOS = new Set([
   "tests/unit/guards/marca-fuente-unica-493.guardia.test.ts",
   "tests/fixtures/marca-retirada-493.ts",
-  "tests/fixtures/marca-pendientes-493.ts",
+  "tests/fixtures/marca-retirada-nombre-493.ts",
 ]);
 
 /**
@@ -428,25 +430,4 @@ export function censoContrato(): Hallazgo[] {
     ...listar("docs/api", /./).filter((f) => f !== "docs/api/CHANGELOG.md" && !/\.(pdf|png|jpe?g)$/i.test(f)),
   ].flatMap((f) => hallazgosContratoEnTextoPlano(leer(f), f));
   return [...codigo, ...planos];
-}
-
-/**
- * El trinquete de un bloque: (1) nada fuera de `pendiente` ni por encima de su numero; (2) cada
- * pendiente sigue teniendo EXACTAMENTE su numero. Devuelve los dos listados para la guardia.
- */
-export function trinquete(
-  hallazgos: Hallazgo[],
-  pendiente: Readonly<Record<string, number>>,
-): { nuevos: string[]; desfasados: string[] } {
-  const porArchivo = new Map<string, Hallazgo[]>();
-  for (const h of hallazgos) porArchivo.set(h.archivo, [...(porArchivo.get(h.archivo) ?? []), h]);
-  const nuevos: string[] = [];
-  for (const [archivo, hs] of porArchivo) {
-    const permitido = pendiente[archivo] ?? 0;
-    if (hs.length > permitido) nuevos.push(...hs.map(formatear), `  ^ ${archivo}: ${hs.length} > ${permitido} pendientes`);
-  }
-  const desfasados = Object.entries(pendiente)
-    .filter(([archivo, n]) => (porArchivo.get(archivo)?.length ?? 0) !== n)
-    .map(([archivo, n]) => `${archivo}: anotados ${n}, hay ${porArchivo.get(archivo)?.length ?? 0} (baja o borra la entrada)`);
-  return { nuevos, desfasados };
 }

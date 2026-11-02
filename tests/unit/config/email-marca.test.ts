@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { loadEmailConfig, nombreMarcaCorreo } from "@/lib/config/email";
 import { plantillaCodigoPorProposito } from "@/lib/services/email/plantillas";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 489 — R2/R3: la marca de los correos sale de SMTP_FROM_NAME y, si no
 // esta o esta vacia, es el nombre de marca: «Velox Courier» desde la feature 492 (R19). No exige
 // credenciales SMTP. Literal de contrato, no `MARCA.nombre`.
@@ -54,7 +55,7 @@ describe("nombreMarcaCorreo", () => {
 
 describe("feature 492 (R19) — correo compuesto sin SMTP_FROM_NAME", () => {
   it.each(["inicio_sesion", "cambio_contrasena"] as const)(
-    "%s: cabecera y pie llevan «Velox Courier» y no «Ordenex»",
+    `%s: cabecera y pie llevan «Velox Courier» y no «${MARCA_RETIRADA}»`,
     (proposito) => {
       delete process.env.SMTP_FROM_NAME;
       const correo = plantillaCodigoPorProposito(

@@ -17,6 +17,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, it, expect } from "vitest";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 const RAIZ = path.resolve(__dirname, "../../..");
 
 const DIRECTORIOS = ["app/_legal", "app/privacidad", "app/eliminacion-datos"];
@@ -63,7 +64,7 @@ function infraccionesDinamicas(fuente: string): string[] {
 /** Literales de datos legales fuera de la fuente unica (R18): la marca o un correo. */
 function literalesLegales(fuente: string): string[] {
   const hallados: string[] = [];
-  if (/ordenex/i.test(fuente)) hallados.push("Ordenex");
+  if (/ordenex/i.test(fuente)) hallados.push(MARCA_RETIRADA);
   if (/velox/i.test(fuente)) hallados.push("Velox");
   // Un correo: algo@dominio.tld. No casa con los alias de import (`@/app/...`).
   if (/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/.test(fuente)) hallados.push("correo");
@@ -102,7 +103,7 @@ describe("guardia 490 — autocomprobacion de los detectores", () => {
     expect(literalesLegales(sano)).toEqual([]);
 
     expect(literalesLegales(`const m = "Velox Courier";`)).toEqual(["Velox"]);
-    expect(literalesLegales(`// la marca es Ordenex`)).toEqual(["Ordenex"]);
+    expect(literalesLegales(`// la marca es ${MARCA_RETIRADA}`)).toEqual([MARCA_RETIRADA]);
     expect(literalesLegales(`const c = "privacidad@ejemplo.com";`)).toEqual(["correo"]);
   });
 });

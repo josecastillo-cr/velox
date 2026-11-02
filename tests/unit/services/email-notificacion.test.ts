@@ -12,6 +12,7 @@ import {
 import { ConsoleEmailSender } from "@/lib/services/email/ConsoleEmailSender";
 import { NodemailerEmailSender } from "@/lib/services/email/NodemailerEmailSender";
 
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // Feature 80 — la capa de notificaciones por correo: un caso de uso (OTP) que
 // compone y delega, y la seleccion de transporte por entorno. Feature 489: la
 // plantilla la elige el proposito del codigo.
@@ -78,13 +79,13 @@ describe("EmailNotificacionProvider", () => {
   it("la marca del correo es la que recibe por constructor", async () => {
     vi.spyOn(console, "info").mockImplementation(() => {});
     const sender = new SenderEspia();
-    await new EmailNotificacionProvider(sender, "Ordenex").sendOtpCode({
+    await new EmailNotificacionProvider(sender, NOMBRE_ESPERADO).sendOtpCode({
       to: "ana@example.com",
       code: CODIGO,
       expiresInMinutes: 10,
       proposito: "inicio_sesion",
     });
-    expect(sender.enviados[0].subject).toBe("Tu código para entrar a Ordenex");
+    expect(sender.enviados[0].subject).toBe(`Tu código para entrar a ${NOMBRE_ESPERADO}`);
   });
 
   it.each(["inicio_sesion", "cambio_contrasena"] as const)(

@@ -13,6 +13,7 @@ import type { FilaPicking } from "@/lib/whatsapp-envios/informes/picking/tipos";
 import { fuenteEtiqueta } from "@/lib/pdf/etiquetas-fuente";
 import { cubreTexto, registrarFuente, seguroEnFuenteEstandar } from "@/lib/pdf/etiquetas-fuente-registro";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Ficha 476 (T2.3) — el PDF del picking sobre su MAQUETA (operaciones por pagina): R16, R17, R19-R22.
 // Mas un humo del PDF real con jsPDF: bytes `%PDF` y numero de paginas = el de la maqueta.
 
@@ -254,7 +255,7 @@ describe("feature 492 (R18) — marca Velox Courier en el picking", () => {
     expect(deRol(m.paginas[0], "pie")[0].startsWith("Velox Courier · Picking Gameos")).toBe(true);
   });
 
-  it("ningun texto de la maqueta ni del PDF real contiene «Ordenex»", () => {
+  it(`ningun texto de la maqueta ni del PDF real contiene «${MARCA_RETIRADA}»`, () => {
     const { m } = maqueta([fila("2 * Crema X"), fila("1 * Base")]);
     expect(textos(todas(m.paginas)).map((t) => t.texto).join(" ")).not.toMatch(/ordenex/i);
     const r = renderizarPicking(construirModeloPicking([fila("2 * Crema X")], { ahora: AHORA, diasAtraso: 2, tienda: "Gameos" }));

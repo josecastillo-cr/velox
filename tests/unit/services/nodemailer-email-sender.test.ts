@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { EmailConfig } from "@/lib/config/email";
 
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 const sendMail = vi.fn();
 const createTransport = vi.fn((opts: unknown) => ({ sendMail, opts }));
 
@@ -25,7 +26,7 @@ const config: EmailConfig = {
   user: "bot@ordenex.co",
   password: PASSWORD,
   from: "no-reply@ordenex.co",
-  fromName: "Ordenex",
+  fromName: NOMBRE_ESPERADO,
   timeoutMs: 10_000,
   rejectUnauthorized: true,
 };
@@ -44,7 +45,7 @@ describe("NodemailerEmailSender", () => {
     expect(resultado.messageId).toBe("<abc@ordenex.co>");
     expect(sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: { name: "Ordenex", address: "no-reply@ordenex.co" },
+        from: { name: NOMBRE_ESPERADO, address: "no-reply@ordenex.co" },
         to: "ana@example.com",
         subject: "asunto",
         text: "cuerpo",
