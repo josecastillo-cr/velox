@@ -25,7 +25,7 @@ fuentes:
 **Dónde está el efectivo que las bodegas todavía no te han entregado.** Cada satélite consolida lo que
 recaudaron sus mensajeros y te lo manda; esta pantalla lleva la cuenta de qué llegó y qué no.
 
-> **El saldo NO es un movimiento de caja.** Esa plata **ya entró** a la caja de Ordenex cuando se
+> **El saldo NO es un movimiento de caja.** Esa plata **ya entró** a la caja de Velox Courier cuando se
 > aprobó el cierre de cada mensajero. Lo que esta pantalla dice es **dónde está físicamente**: cuánto
 > queda en manos de cada bodega esperando llegar a la central.
 >
@@ -114,5 +114,5 @@ lleva esperando la consolidación más antigua: esa columna es el sustituto del 
 ## Lo que esta pantalla NO hace
 
 - **No mueve dinero.** Marcar o desmarcar no crea ningún movimiento de caja.
-- **No es la caja de Ordenex.** Eso es **Wallet · Caja**.
+- **No es la caja de Velox Courier.** Eso es **Wallet · Caja**.
 - **No aprueba cierres.** Los cierres de mensajero se aprueban en **Cierres**.

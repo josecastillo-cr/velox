@@ -4,6 +4,7 @@ import { contextoPara } from "@/lib/asistente/contexto";
 import { leerCatalogoAyuda } from "@/lib/ayuda/catalogo";
 import { NOMBRE_ESTADO } from "@/lib/types/order-status";
 import type { RolValue } from "@prisma/client";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FICHA 460 — la ayuda y el asistente al día con la 454, la 456 y la 459.
@@ -55,11 +56,11 @@ const PERSONAS: RolValue[] = [...OFICINA, ...FUERA_DE_OFICINA];
 describe("459 — la oficina puede preguntar por la caja nueva", () => {
   it.each(OFICINA)("%s: la diferencia entre pagar un gasto de una tienda y cobrarle, con su ejemplo", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
-    expect(caja).toContain("Ordenex paga un gasto de una tienda, u Ordenex le cobra a una tienda: no son lo mismo");
-    expect(caja).toContain("¿salió dinero de Ordenex hacia otra persona?");
+    expect(caja).toContain(`${NOMBRE_ESPERADO} paga un gasto de una tienda, u ${NOMBRE_ESPERADO} le cobra a una tienda: no son lo mismo`);
+    expect(caja).toContain(`¿salió dinero de ${NOMBRE_ESPERADO} hacia otra persona?`);
     expect(caja).toContain("Elegir el equivocado descuadra la caja.");
     // El ejemplo: el mismo pago, bien y mal registrado.
-    expect(caja).toContain("Ordenex le paga **₡50.000 a Facebook**");
+    expect(caja).toContain(`${NOMBRE_ESPERADO} le paga **₡50.000 a Facebook**`);
     expect(caja).toContain("La caja queda mostrando ₡50.000 que ya no están.");
     // Qué pide el pago por cuenta.
     expect(caja).toContain("**A quién se le pagó**");
@@ -74,7 +75,7 @@ describe("459 — la oficina puede preguntar por la caja nueva", () => {
     expect(caja).toContain("**Movimiento neto del periodo**");
     expect(caja).toContain("«Flujo de dinero registrado» no es el saldo del banco.");
     expect(caja).toContain("### Por qué el flujo puede salir negativo");
-    expect(caja).toContain("dinero que Ordenex ya tenía **antes** de usar la app");
+    expect(caja).toContain(`dinero que ${NOMBRE_ESPERADO} ya tenía **antes** de usar la app`);
   });
 
   it.each(OFICINA)("%s: saldo inicial sin cifra propuesta, anulación con motivo, comprobante y hora de Costa Rica", (rol) => {
@@ -89,26 +90,26 @@ describe("459 — la oficina puede preguntar por la caja nueva", () => {
 
   it.each(OFICINA)("%s: Wallet · Tiendas distingue los dos conceptos en el desglose", (rol) => {
     const tiendas = cuerpoEnContexto(rol, "oficina/wallet-tiendas");
-    expect(tiendas).toContain("**Ordenex paga un gasto de la tienda**");
-    expect(tiendas).toContain("**Ordenex le cobra a la tienda**");
+    expect(tiendas).toContain(`**${NOMBRE_ESPERADO} paga un gasto de la tienda**`);
+    expect(tiendas).toContain(`**${NOMBRE_ESPERADO} le cobra a la tienda**`);
     expect(tiendas).toContain("**Un pago de un gasto no cuenta como un pago a la tienda**");
   });
 
   it.each(FUERA_DE_OFICINA)("%s NO recibe la ayuda de la caja (acotamiento por rol)", (rol) => {
     const todo = textoDelContexto(rol);
     expect(contextoPara(docs, rol).map((d) => d.slug)).not.toContain("oficina/wallet-caja");
-    expect(todo).not.toContain("Ordenex paga un gasto de una tienda, u Ordenex le cobra a una tienda: no son lo mismo");
+    expect(todo).not.toContain(`${NOMBRE_ESPERADO} paga un gasto de una tienda, u ${NOMBRE_ESPERADO} le cobra a una tienda: no son lo mismo`);
     expect(todo).not.toContain("**La app nunca propone una cifra.**");
   });
 });
 
 describe("459 — la tienda entiende un pago hecho por ella en Mi wallet", () => {
-  it("adminTienda: Mi wallet explica el pago de un gasto, su anulación y que no es un cobro de Ordenex", () => {
+  it(`adminTienda: Mi wallet explica el pago de un gasto, su anulación y que no es un cobro de ${NOMBRE_ESPERADO}`, () => {
     const wallet = cuerpoEnContexto("adminTienda", "tienda/mi-wallet");
-    expect(wallet).toContain("## Un pago que Ordenex hizo por ti");
+    expect(wallet).toContain(`## Un pago que ${NOMBRE_ESPERADO} hizo por ti`);
     expect(wallet).toContain("**a quién se le pagó, el motivo, el método**");
-    expect(wallet).toContain("**Ordenex anuló un pago hecho por ti**");
-    expect(wallet).toContain("No es lo mismo que **Ordenex pagó un gasto por ti**: en el cobro no le pagó nada a nadie.");
+    expect(wallet).toContain(`**${NOMBRE_ESPERADO} anuló un pago hecho por ti**`);
+    expect(wallet).toContain(`No es lo mismo que **${NOMBRE_ESPERADO} pagó un gasto por ti**: en el cobro no le pagó nada a nadie.`);
     expect(wallet).toContain("**tu saldo queda en contra**");
   });
 });

@@ -22,7 +22,7 @@ mensajero. Es la pantalla que alimenta todos los números de dinero del sistema.
 **Costos por zona.** Cada zona tiene su tarifa. Las zonas se crean acá mismo, y se arman eligiendo
 sobre el catálogo geográfico — provincia, cantón, distrito — con su buscador.
 
-**Comisión por cobro contra entrega (%).** El porcentaje que Ordenex cobra por recaudar la plata del
+**Comisión por cobro contra entrega (%).** El porcentaje que Velox Courier cobra por recaudar la plata del
 cliente. Es lo que después aparece como *Comisión COD* en la cuenta de la tienda.
 
 **Cobro por vehículo.** Lo que varía según el tipo de vehículo que hace la entrega.

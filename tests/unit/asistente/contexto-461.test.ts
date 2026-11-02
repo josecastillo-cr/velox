@@ -7,6 +7,7 @@ import { contextoPara } from "@/lib/asistente/contexto";
 import { leerCatalogoAyuda } from "@/lib/ayuda/catalogo";
 import { partirFrontmatter } from "@/lib/ayuda/frontmatter";
 import type { RolValue } from "@prisma/client";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const DIR_AYUDA = path.resolve(__dirname, "../../..", "docs", "ayuda");
 
@@ -47,29 +48,29 @@ function cuerpoEnContexto(rol: RolValue, slug: string): string {
 const OFICINA: RolValue[] = ["maestro", "admin"];
 const FUERA_DE_OFICINA: RolValue[] = ["mensajero", "adminTienda", "adminSatelite"];
 
-describe("461 R56/R57 — la oficina puede preguntar por el cobro de Ordenex a una tienda", () => {
+describe(`461 R56/R57 — la oficina puede preguntar por el cobro de ${NOMBRE_ESPERADO} a una tienda`, () => {
   it.each(OFICINA)("%s: la caja explica el cobro como cargo —no llega dinero nuevo, es ganancia— y su anulación", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
     // design §11 — frases literales.
-    expect(caja).toContain("## Ordenex le cobra a una tienda: se descuenta de su saldo y es ganancia");
+    expect(caja).toContain(`## ${NOMBRE_ESPERADO} le cobra a una tienda: se descuenta de su saldo y es ganancia`);
     expect(caja).toContain("**No llega dinero nuevo**");
-    expect(caja).toContain("pasa a ser **ganancia de Ordenex**");
+    expect(caja).toContain(`pasa a ser **ganancia de ${NOMBRE_ESPERADO}**`);
     expect(caja).toContain("**Anular…**");
     // El efecto en las tres cifras, dicho en palabras.
-    expect(caja).toContain("La **ganancia de Ordenex** sube en el monto.");
+    expect(caja).toContain(`La **ganancia de ${NOMBRE_ESPERADO}** sube en el monto.`);
     expect(caja).toContain("**Entró**, **Salió** y la cifra grande **no cambian**.");
     expect(caja).toContain("**su saldo queda en contra**");
     // Y la anulación, con sus contra-asientos y su efecto.
-    expect(caja).toContain("Al anular un cobro de Ordenex a una tienda, la **ganancia baja** en el monto");
+    expect(caja).toContain(`Al anular un cobro de ${NOMBRE_ESPERADO} a una tienda, la **ganancia baja** en el monto`);
     expect(caja).toContain("**Cobro a una tienda anulado**");
   });
 
   it.each(OFICINA)("%s: la tabla de los dos conceptos dice que el cobro NO cambia el dinero de la caja", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
-    expect(caja).toContain("## Ordenex paga un gasto de una tienda, u Ordenex le cobra a una tienda: no son lo mismo");
+    expect(caja).toContain(`## ${NOMBRE_ESPERADO} paga un gasto de una tienda, u ${NOMBRE_ESPERADO} le cobra a una tienda: no son lo mismo`);
     expect(caja).toContain("**Baja: sale dinero**");
-    expect(caja).toContain("**No cambia el dinero: pasa del saldo de la tienda a la ganancia de Ordenex**");
-    expect(caja).toContain("Ordenex le paga **₡50.000 a Facebook**");
+    expect(caja).toContain(`**No cambia el dinero: pasa del saldo de la tienda a la ganancia de ${NOMBRE_ESPERADO}**`);
+    expect(caja).toContain(`${NOMBRE_ESPERADO} le paga **₡50.000 a Facebook**`);
   });
 
   // FICHA 457 (T7.1) — REESCRITO (listado en `progress/impl_457.md`): el grupo «Llega dinero a la caja»
@@ -79,43 +80,43 @@ describe("461 R56/R57 — la oficina puede preguntar por el cobro de Ordenex a u
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
     // FICHA 458-C (TC.6, R37) — REESCRITO: «Sale dinero de Ordenex» gana los dos pagos de Ordenex (impl_458-C.md).
     // FICHA 488 (R21) — + «Pago de IVA» tras el sueldo (antes: la misma lista sin él).
-    expect(caja).toContain("**Sale dinero de Ordenex** | Gasto de Ordenex · Sueldo · Pago de IVA · Ordenex paga un gasto de una tienda · Corrección de caja (resta) · Ordenex le paga a una tienda · Ordenex le paga a un mensajero");
-    expect(caja).toContain("**Llega dinero a la caja** | Aporte de dinero a la caja · Una tienda le paga a Ordenex · Corrección de caja (suma)");
-    expect(caja).toContain("**Se descuenta del saldo de una tienda** | Ordenex le cobra a una tienda");
+    expect(caja).toContain(`**Sale dinero de ${NOMBRE_ESPERADO}** | Gasto de ${NOMBRE_CORTO_ESPERADO} · Sueldo · Pago de IVA · ${NOMBRE_ESPERADO} paga un gasto de una tienda · Corrección de caja (resta) · ${NOMBRE_ESPERADO} le paga a una tienda · ${NOMBRE_ESPERADO} le paga a un mensajero`);
+    expect(caja).toContain(`**Llega dinero a la caja** | Aporte de dinero a la caja · Una tienda le paga a ${NOMBRE_ESPERADO} · Corrección de caja (suma)`);
+    expect(caja).toContain(`**Se descuenta del saldo de una tienda** | ${NOMBRE_ESPERADO} le cobra a una tienda`);
   });
 
-  it.each(OFICINA)("%s: «De las tiendas» nombra lo que Ordenex les cobró y ya no dice que no pasa por la caja (R50/R56)", (rol) => {
+  it.each(OFICINA)(`%s: «De las tiendas» nombra lo que ${NOMBRE_ESPERADO} les cobró y ya no dice que no pasa por la caja (R50/R56)`, (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
-    expect(caja).toContain("ya descontados el flete, la comisión, el impuesto y **lo que Ordenex les cobró**");
+    expect(caja).toContain(`ya descontados el flete, la comisión, el impuesto y **lo que ${NOMBRE_ESPERADO} les cobró**`);
     expect(caja).not.toMatch(/sin pasar por la caja/i);
     expect(caja).not.toMatch(/no mueve la caja/i);
   });
 
-  it.each(OFICINA)("%s: Wallet · Tiendas distingue el cobro, su anulación y el pago de un gasto, desde Ordenex", (rol) => {
+  it.each(OFICINA)(`%s: Wallet · Tiendas distingue el cobro, su anulación y el pago de un gasto, desde ${NOMBRE_ESPERADO}`, (rol) => {
     const tiendas = cuerpoEnContexto(rol, "oficina/wallet-tiendas");
-    expect(tiendas).toContain("**Ordenex le cobra a la tienda**");
-    expect(tiendas).toContain("**Cobro de Ordenex a la tienda anulado**");
-    expect(tiendas).toContain("**Ordenex paga un gasto de la tienda**");
-    expect(tiendas).toContain("**es ganancia de Ordenex**");
+    expect(tiendas).toContain(`**${NOMBRE_ESPERADO} le cobra a la tienda**`);
+    expect(tiendas).toContain(`**Cobro de ${NOMBRE_ESPERADO} a la tienda anulado**`);
+    expect(tiendas).toContain(`**${NOMBRE_ESPERADO} paga un gasto de la tienda**`);
+    expect(tiendas).toContain(`**es ganancia de ${NOMBRE_ESPERADO}**`);
   });
 
   it.each(FUERA_DE_OFICINA)("%s NO recibe la ayuda de la caja (R57)", (rol) => {
     expect(contextoPara(docs, rol).map((d) => d.slug)).not.toContain("oficina/wallet-caja");
     expect(contextoPara(docs, rol).map((d) => d.slug)).not.toContain("oficina/wallet-tiendas");
     const todo = textoDelContexto(rol);
-    expect(todo).not.toContain("## Ordenex le cobra a una tienda: se descuenta de su saldo y es ganancia");
-    expect(todo).not.toContain("**Ordenex le cobra a la tienda**");
+    expect(todo).not.toContain(`## ${NOMBRE_ESPERADO} le cobra a una tienda: se descuenta de su saldo y es ganancia`);
+    expect(todo).not.toContain(`**${NOMBRE_ESPERADO} le cobra a la tienda**`);
   });
 });
 
-describe("461 R56/R57 — la tienda entiende un cobro de Ordenex en Mi wallet, desde su lado", () => {
+describe(`461 R56/R57 — la tienda entiende un cobro de ${NOMBRE_ESPERADO} en Mi wallet, desde su lado`, () => {
   it("adminTienda: Mi wallet lee el cobro, su anulación y el pago de un gasto en segunda persona", () => {
     const wallet = cuerpoEnContexto("adminTienda", "tienda/mi-wallet");
     // design §11 — frases literales.
-    expect(wallet).toContain("**Ordenex te cobró**");
-    expect(wallet).toContain("**Ordenex anuló un cobro y te lo devolvió**");
-    expect(wallet).toContain("**Ordenex pagó un gasto por ti**");
-    expect(wallet).toContain("## Un cobro que Ordenex te hizo");
+    expect(wallet).toContain(`**${NOMBRE_ESPERADO} te cobró**`);
+    expect(wallet).toContain(`**${NOMBRE_ESPERADO} anuló un cobro y te lo devolvió**`);
+    expect(wallet).toContain(`**${NOMBRE_ESPERADO} pagó un gasto por ti**`);
+    expect(wallet).toContain(`## Un cobro que ${NOMBRE_ESPERADO} te hizo`);
     expect(wallet).toContain("**tu saldo queda en contra**");
     // Y dice que la anulación la hace la oficina, no la tienda.
     expect(wallet).toContain("**No se anula ningún cobro ni ningún pago desde acá.**");
