@@ -1,3 +1,4 @@
+import { MARCA } from "@/lib/marca/identidad";
 import { ORDER_STATUS_SEED } from "@/lib/types/order-status";
 import { MSG_CARGA_SIN_TARIFA, MSG_FILA_SIN_TARIFA } from "@/lib/services/mensajes-tarifa";
 import { EVENTOS_PUBLICOS } from "@/lib/types/webhook-eventos";
@@ -114,7 +115,7 @@ const MAX_CARGA_ROWS = 5000;
 export const openApiSpec = {
   openapi: "3.1.0",
   info: {
-    title: "Ordenex — API de integración por API key",
+    title: `${MARCA.nombre} — API de integración por API key`,
     version: "1.0.0",
     description: [
       "Canal de integración por **API key** para crear, listar, consultar, cancelar y eliminar órdenes.",
