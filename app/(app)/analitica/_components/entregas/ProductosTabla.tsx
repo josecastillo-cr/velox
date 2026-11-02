@@ -137,6 +137,7 @@ import {
   filaDescargaAnaliticaProductos,
 } from "./analitica-productos-descarga-columnas";
 import { claveConteoProductos, consultarConteoProductosSwr } from "./productos-swr";
+import { MARCA } from "@/lib/marca/identidad";
 
 /* -------------------------------------------------------------------------- */
 /* Textos                                                                      */
@@ -201,7 +202,7 @@ export const PRODUCTOS_TEXTOS = {
    * proyecta nada (R31) y por eso su celda dice «—» y no «0,00» (R30).
    */
   avisoLiquidado:
-    "«Cobró Ordenex» y «Para la tienda» son solo de las órdenes ya liquidadas (cierre aprobado). Lo cobrado y aún sin liquidar se muestra aparte, en la celda de Recaudado.",
+    `«Cobró ${MARCA.nombreCorto}» y «Para la tienda» son solo de las órdenes ya liquidadas (cierre aprobado). Lo cobrado y aún sin liquidar se muestra aparte, en la celda de Recaudado.`,
   vacioTitulo: "Sin productos en el rango",
   vacioDescripcion:
     "Ninguna orden del filtro seleccionado dejó un producto que se pueda interpretar.",
@@ -246,7 +247,7 @@ export const PRODUCTOS_COLUMNAS = {
    * abre la fila, que es cuando interesa.
    */
   recaudado: "Recaudado",
-  ordenex: "Cobró Ordenex",
+  ordenex: `Cobró ${MARCA.nombreCorto}`,
   paraTienda: "Para la tienda",
   /**
    * FICHA 449 — EL SERVICIO DE BODEGA, con el nombre que YA tiene en el resto de la app.

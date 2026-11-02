@@ -5,6 +5,7 @@ import { FinanzasDiarioRepository } from "@/lib/repositories/FinanzasDiarioRepos
 import { FinanzasDiarioService } from "@/lib/services/FinanzasDiarioService";
 import { derivarFinanzasDiarias } from "@/lib/utils/finanzas-diarias";
 import type { AgregadoDiarioCajaRow } from "@/lib/interfaces/repositories/IFinanzasDiarioRepository";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const AHORA = new Date("2026-08-17T12:00:00.000Z");
 
@@ -49,7 +50,7 @@ describe("La derivación del dinero por día", () => {
   // en los `ingresos` de su dia y su anulacion en los `egresos` del dia en que se anula; la ganancia
   // del dia no se mueve con ninguno de los dos (los fletes que la tienda debia ya se contaron al
   // aprobar el cierre). El cobro que la dejo en contra es un CARGO: sube la ganancia y no los ingresos.
-  it("el pago de una tienda a Ordenex entra en los ingresos del dia y su anulacion en los egresos; la ganancia no cambia", () => {
+  it(`el pago de una tienda a ${NOMBRE_ESPERADO} entra en los ingresos del dia y su anulacion en los egresos; la ganancia no cambia`, () => {
     const dias = derivarFinanzasDiarias([
       fila("2026-09-20", "ingreso_cobro_tienda", "ingreso", "10000.00"), // cargo: no es efectivo
       fila("2026-09-20", "ingreso_abono_tienda", "ingreso", "4000.00"), // efectivo de terceros
@@ -167,7 +168,7 @@ describe("La derivación del dinero por día", () => {
     });
   });
 
-  it("⭑ 461/R30: el cobro de Ordenex a una tienda y su reverso NO son efectivo del dia, pero SI cuentan en la ganancia", () => {
+  it(`⭑ 461/R30: el cobro de ${NOMBRE_ESPERADO} a una tienda y su reverso NO son efectivo del dia, pero SI cuentan en la ganancia`, () => {
     // Un cobro de 2 500,50 el dia 18 y su anulacion el 19: ni «ingresos» ni «egresos» se mueven
     // (no entro ni salio dinero: se tomo del saldo de la tienda y se le devolvio), y la ganancia
     // sube y baja exactamente en el monto.

@@ -574,6 +574,7 @@ import {
   FALTA_POR_RECIBIR_LABEL,
   MONTO_RECIBIDO_LABEL,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 /**
  * El reparto que EXCEDE: se teclean 9.000 y el imputable real es 4.500,35. El
  * servidor devuelve `sobrante = 4.499,65`, así que en pantalla tiene que leerse
@@ -948,7 +949,7 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
     );
   });
 
-  it("R7 — cobrado sobre lo recaudado + flete por devolución a origen = lo que Ordenex facturó", async () => {
+  it(`R7 — cobrado sobre lo recaudado + flete por devolución a origen = lo que ${NOMBRE_ESPERADO} facturó`, async () => {
     const { dueno } = await abrir();
     laCuentaCierra(
       [
@@ -968,7 +969,7 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
     expect(tienda - (recaudado - facturado)).toBe(centimosDelServidor("500.75"));
   });
 
-  it("R8 — facturado − mensajeros − gana la bodega = neto de Ordenex", async () => {
+  it(`R8 — facturado − mensajeros − gana la bodega = neto de ${NOMBRE_ESPERADO}`, async () => {
     const { dueno } = await abrir();
     laCuentaCierra(
       [
@@ -977,7 +978,7 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
         importeTrasEn(dueno, GANA_BODEGA_SATELITE_LABEL),
       ],
       importeTrasEn(dueno, NETO_ORDENEX_LABEL),
-      "detalle de bodega: neto de Ordenex",
+      `detalle de bodega: neto de ${NOMBRE_ESPERADO}`,
     );
   });
 
@@ -1057,7 +1058,7 @@ describe("ficha 359 · C — el resto del censo, por su propia etiqueta", () => 
     );
   });
 
-  it("dinero por producto: recaudado = liquidado a Ordenex + liquidado a la tienda + pendiente", () => {
+  it(`dinero por producto: recaudado = liquidado a ${NOMBRE_ESPERADO} + liquidado a la tienda + pendiente`, () => {
     const ordenex = new Prisma.Decimal("416.47");
     const tienda = new Prisma.Decimal("11482.53");
     const pendiente = new Prisma.Decimal("0.50");
@@ -1199,7 +1200,7 @@ const CENSO: readonly { ruta: string; identidad: string }[] = [
   },
   {
     ruta: "app/(app)/cierres-admin/_components/CierresBodegaAdminModule.tsx",
-    identidad: "las dos cascadas: para la tienda, neto de Ordenex y para la central",
+    identidad: `las dos cascadas: para la tienda, neto de ${NOMBRE_ESPERADO} y para la central`,
   },
   // FICHA 395 — la superficie que estrena el detalle del cierre de MENSAJERO. Entra en el censo
   // porque pinta dinero derivado y porque sus identidades son justo las que el humano no podía

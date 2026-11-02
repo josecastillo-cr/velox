@@ -62,7 +62,7 @@ function grupo(filas: readonly ReturnType<typeof filaDinero>[], clave: string, t
 }
 
 describe("R11 / R14 / R15 / R20 · las cuatro cifras de una fila", () => {
-  it("una entrega liquidada da recaudado, ordenex y tienda con los numeros de la tarifa", () => {
+  it("una entrega liquidada da recaudado, `ordenex` y tienda con los numeros de la tarifa", () => {
     const c = grupo([filaDinero()], "base c");
 
     expect(c.recaudado).toBe("10000.00");

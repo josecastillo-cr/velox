@@ -53,6 +53,7 @@ import {
   consultarDetalleDineroProductoSwr,
 } from "./dinero-producto-swr";
 import { etiquetaDeDesenlace } from "./etiqueta-desenlace";
+import { MARCA } from "@/lib/marca/identidad";
 
 /* -------------------------------------------------------------------------- */
 /* Textos                                                                      */
@@ -81,7 +82,7 @@ export const DETALLE_DINERO_TEXTOS = {
   totales: {
     recaudado: "Recaudado",
     recaudadoPista: "En órdenes que incluyen este producto",
-    ordenex: "Cobró Ordenex",
+    ordenex: `Cobró ${MARCA.nombreCorto}`,
     ordenexPista: "Solo de lo ya liquidado: flete + IVA y comisión + IVA",
     tienda: "Para la tienda",
     tiendaPista: "Solo de lo ya liquidado: lo recaudado menos lo anterior",
@@ -133,7 +134,7 @@ export const DETALLE_DINERO_TEXTOS = {
     resultados: "Resultados",
     estado: "Estado",
     recaudado: "Recaudado",
-    ordenex: "Cobró Ordenex",
+    ordenex: `Cobró ${MARCA.nombreCorto}`,
     tienda: "Para la tienda",
     retorno: "Flete por devolución a origen",
   },

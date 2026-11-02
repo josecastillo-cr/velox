@@ -30,6 +30,7 @@ import {
   type ImporteDeFila,
   type MetricaTemporalServida,
 } from "@/tests/fixtures/dto-financiero-servido";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 132 (T4.1, T4.2) — los paneles del tablero financiero.
 //
@@ -201,7 +202,7 @@ const ETIQUETAS: Readonly<Record<MetricaFinancieraId, string>> = {
   // Feature 173 ⟨P4⟩ — las dos de la caja en modo tesoreria. Las etiquetas son las
   // del catalogo (`lib/analytics/metrics.ts`), como las otras ocho.
   dinero_en_caja: "Dinero en caja",
-  ganancia_ordenex: "Ganancia de Ordenex",
+  ganancia_ordenex: `Ganancia de ${NOMBRE_CORTO_ESPERADO}`,
   cod_recaudado: "Recaudo COD",
   cuenta_por_pagar_tienda: "Cuenta por pagar a tiendas",
   cuenta_por_pagar_mensajero: "Devengado de mensajeros",

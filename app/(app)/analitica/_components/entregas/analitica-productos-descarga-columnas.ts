@@ -47,6 +47,7 @@ import { NOMBRE_ESTADO } from "@/lib/types/order-status";
 import { ETIQUETA_EN_PROCESO } from "./desenlaces-de-fila";
 import { calcularEfectividad } from "./efectividad";
 import { textoComposicionOtrosResultados } from "./otros-resultados";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * FICHA 347 (R49) — la marca que llevan los encabezados de dinero del ARCHIVO.
@@ -150,7 +151,7 @@ export const COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO: DescargaColumna[] = [
     encabezado: `Recaudado liquidado ${MARCA_NO_SUMABLE_ARCHIVO}`,
   },
   { clave: "liquidado_ordenes", encabezado: "Órdenes liquidadas" },
-  { clave: "ordenex", encabezado: `Cobró Ordenex ${MARCA_NO_SUMABLE_ARCHIVO}` },
+  { clave: "ordenex", encabezado: `Cobró ${MARCA.nombreCorto} ${MARCA_NO_SUMABLE_ARCHIVO}` },
   { clave: "para_la_tienda", encabezado: `Para la tienda ${MARCA_NO_SUMABLE_ARCHIVO}` },
   {
     clave: "pendiente_recaudado",
