@@ -5887,13 +5887,13 @@
       "title": "Marca Velox Courier: identidad visual",
       "description": "Sustituir logo, iconos PWA/favicon, manifest, títulos, landing, rótulo de la etiqueta, PDFs de informes, correo y offline.html por la marca Velox Courier.",
       "zone": "frontend",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/492-marca-velox-identidad",
       "branch": "feat/492-marca-velox-identidad",
-      "status_note": "Spec escrito el 2026-10-31 (23 requisitos), P1-P8 respondidas por el humano el mismo día; solo falta aprobar. Nombre corto «Velox», soporte battos.sa@gmail.com. Crea `lib/marca/identidad.ts` (MARCA), que la 493 reutiliza. Archivos y paleta en docs/marca/velox/. Colores: solo theme_color y el logo; rediseñar los tokens de la UI es otra ficha vía /design. Variables de Vercel (SMTP_FROM_NAME, SMTP_FROM, VAPID_SUBJECT, NEXT_PUBLIC_SITE_URL) son acción del humano."
+      "status_note": "Spec escrito el 2026-10-31 (23 requisitos), P1-P8 respondidas por el humano el mismo día; aprobado el 2026-11-02, en implementación. Nombre corto «Velox», soporte battos.sa@gmail.com. Crea `lib/marca/identidad.ts` (MARCA), que la 493 reutiliza. Archivos y paleta en docs/marca/velox/. Colores: solo theme_color y el logo; rediseñar los tokens de la UI es otra ficha vía /design. Variables de Vercel (SMTP_FROM_NAME, SMTP_FROM, VAPID_SUBJECT, NEXT_PUBLIC_SITE_URL) son acción del humano."
     },
     {
       "id": 493,
@@ -5906,7 +5906,7 @@
       "depends_on": 492,
       "spec_path": "specs/493-marca-velox-textos",
       "branch": "feat/493-marca-velox-textos",
-      "status_note": "Spec escrito el 2026-10-31 (20 requisitos), P1-P8 respondidas por el humano el mismo día; solo falta aprobar. ROMPE CONTRATO a propósito: cabeceras X-Velox-* sin doble cabecera y dominio velox-courier.company en docs; antes de desplegar, pausar a los integradores y enviarles el manual/CHANGELOG nuevo (T15). Medido: 239 archivos de código (1.017 apariciones), 246 de test (1.474) y docs/ayuda/** (176). Zona fullstack: hay texto visible generado en lib/, y tocar lib/types/ amplía el --rapido con integration/db. La guardia nueva lee archivos con fs: correrla a mano. Fuera: identificadores, claves de localStorage, plantillas de Meta y datos ya guardados en la base."
+      "status_note": "Spec escrito el 2026-10-31 (20 requisitos), P1-P8 respondidas por el humano el mismo día; aprobado el 2026-11-02. Arranca cuando la 492 esté en dev (reutiliza su MARCA). ROMPE CONTRATO a propósito: cabeceras X-Velox-* sin doble cabecera y dominio velox-courier.company en docs; antes de desplegar, pausar a los integradores y enviarles el manual/CHANGELOG nuevo (T15). Medido: 239 archivos de código (1.017 apariciones), 246 de test (1.474) y docs/ayuda/** (176). Zona fullstack: hay texto visible generado en lib/, y tocar lib/types/ amplía el --rapido con integration/db. La guardia nueva lee archivos con fs: correrla a mano. Fuera: identificadores, claves de localStorage, plantillas de Meta y datos ya guardados en la base."
     }
   ]
 }

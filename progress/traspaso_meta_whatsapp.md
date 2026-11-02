@@ -40,6 +40,7 @@ final.
 1. Plantillas: consultar `GET /2115650402656273/message_templates`. Cuando estén APPROVED, EDITAR el cuerpo, cambiando "Ordenex" por "Velox Courier" (mismas variables y mismo orden; los nombres se quedan), y actualizar `plantilla_mensaje.cuerpo` en prod. Decisión de Carlos del 2026-10-31. Si alguna sale REJECTED, ver el motivo.
    - 2026-10-31 18:30 UTC: las 3 siguen PENDING; ninguna REJECTED.
    - 2026-10-31 ~19:30 UTC: las 3 APPROVED. Por decisión de Carlos, editado ya el cuerpo ("Ordenex" → "Velox Courier") de `listo_para_entrega_mensajero` (28252813871058704) y `alerta_transito_ordenex` (1598724291390711), que vuelven a estar PENDING. `picking_bodega_ordenex` (1152229794427597) no cambia: su cuerpo no dice Ordenex. FALTA cuando estén APPROVED: actualizar `plantilla_mensaje.cuerpo` de las 2 en prod (mismo texto con variables con nombre). El `template_id` de prod aún apunta a los ids de Nuform.
+   - 2026-11-01: las 3 APPROVED en Meta con el cuerpo nuevo. En prod, `template_id` ya con los ids nuevos (03:00 UTC) y las 2 editadas seguían `pending` (la bienvenida no sale si no está `activo`, `whatsapp-bienvenida-handler.ts:121`). Actualizado `cuerpo` (Ordenex → Velox Courier, variables con nombre intactas) y `estado = activo` de las 2. CERRADO.
    - Las 74 bienvenidas fallidas NO se reenvían (decisión de Carlos, 2026-10-31).
    - Verificación del negocio: `pending_need_more_info` por el documento del teléfono +506 7075 9997; reenviada a revisión el 2026-10-31. Mientras tanto, `TIER_250` (250 destinatarios únicos/24 h) frente a ~370 bienvenidas/día.
 2. Envíos automáticos con plantilla fallidos durante la espera: medirlos en la base y reenviarlos si hace falta.
@@ -49,6 +50,7 @@ final.
 3. Primer entrante real de un cliente con orden activa: confirmar que entra en `chat_mensaje`.
    - Medido el 2026-10-31 18:30 UTC: 0 entrantes desde las 02:26 UTC (antes del corte, 450–740 al día). En los logs, el webhook solo recibió de la WABA nueva la prueba de Carlos (05:46 UTC, descartada por `from_user_id` sin `from` → ficha 491).
    - Sospecha sin medir: los clientes responden al número viejo; la app de Nuform sigue enviando su webhook a nuestra URL y la firma falla con 401 sin dejar log.
+   - 2026-11-02 (prod): 70 entrantes en `chat_mensaje` y 67 salientes (0 `failed`) en el día; el 2026-11-01 (domingo) hubo 0. Los clientes ya escriben al número nuevo. CERRADO.
 4. Respuesta de Meta a la verificación del negocio.
 5. ~~Integradores de la API: darles la URL nueva.~~ CERRADO (Carlos, 2026-10-31): no se avisa aparte; van con el manual nuevo de la ficha 493.
 6. ~~Limpieza de Nuform.~~ HECHO (Carlos, 2026-10-31).
