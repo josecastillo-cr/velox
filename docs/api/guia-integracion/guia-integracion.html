@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Guía de integración — API de Ordenex</title>
-<meta name="author" content="Ordenex">
+<title>Guía de integración — API de Velox Courier</title>
+<meta name="author" content="Velox Courier">
 <meta name="description" content="Documentación técnica de integración del canal por API key de Ordenex. Versión del documento: septiembre 2026.">
 <!--
   FUENTE EDITABLE de la guía de integración (canal por API key).
@@ -38,7 +38,7 @@
   @page {
     size: A4;
     margin: 17mm 16mm 20mm 16mm;
-    @bottom-left { content: "Guía de integración — API de Ordenex"; font: 8pt "Segoe UI", "DejaVu Sans", Arial, sans-serif; color: #7a8c9c; }
+    @bottom-left { content: "Guía de integración — API de Velox Courier"; font: 8pt "Segoe UI", "DejaVu Sans", Arial, sans-serif; color: #7a8c9c; }
     @bottom-right { content: counter(page) " / " counter(pages); font: 8pt "Segoe UI", "DejaVu Sans", Arial, sans-serif; color: #7a8c9c; }
   }
   @page :first {
@@ -148,6 +148,8 @@
   .no { color: #8c2d2d; font-weight: 600; }
   /* Portada */
   .cover { height: 245mm; position: relative; }
+  /* Feature 492 (R21): logotipo de Velox Courier sobre fondo claro, encima del bloque del titulo. */
+  .cover .logo { position: absolute; top: 18mm; left: 0; width: 70mm; height: auto; }
   .cover .block { position: absolute; top: 58mm; left: 0; border-left: 4px solid var(--accent); padding-left: 14pt; }
   .cover .kicker { font-size: 8pt; letter-spacing: 2.2px; color: var(--muted); text-transform: uppercase; margin-bottom: 8pt; }
   .cover .title { font-size: 26pt; font-weight: 700; color: var(--navy); line-height: 1.15; margin-bottom: 8pt; }
@@ -170,9 +172,10 @@
 
 <!-- ============================================================ PORTADA -->
 <section class="cover">
+  <img class="logo" src="../../marca/velox/svg/logo-horizontal-fondo-claro.svg" alt="Velox Courier">
   <div class="block">
     <div class="kicker">Documentación técnica</div>
-    <div class="title">Guía de integración<br>API de Ordenex</div>
+    <div class="title">Guía de integración<br>API de Velox Courier</div>
     <div class="sub">Logística de última milla — Costa Rica</div>
     <div class="sub">Para desarrolladores backend del comercio integrador</div>
     <div class="meta">
@@ -216,7 +219,7 @@
 
 <!-- ============================================================ INTRO -->
 <section class="pb">
-  <h1>Guía de integración — API de Ordenex</h1>
+  <h1>Guía de integración — API de Velox Courier</h1>
   <p><strong>Logística de última milla en Costa Rica.</strong> Documento técnico para desarrolladores backend del comercio integrador.</p>
   <div class="warn">Todos los importes, números de guía, UUID y ejemplos de este documento son <strong>ilustrativos</strong>. Ninguna clave mostrada es real: siempre se usan placeholders del tipo <code>ordx_XXXXXXXXXXXX</code>. El contrato completo y ejecutable vive en el OpenAPI del canal (<code>docs/api/api-key-openapi.yaml</code>) y los cambios se anuncian en su changelog (<code>docs/api/CHANGELOG.md</code>).</div>
 
