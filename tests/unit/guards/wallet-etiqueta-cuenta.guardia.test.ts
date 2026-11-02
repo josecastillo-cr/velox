@@ -29,7 +29,9 @@ const COMPOSICION_EN_CLIENTE: readonly RegExp[] = [
   /\bnombreCompletoUsuario\s*\(/,
   /\bprimerApellido\b/,
   /\bsegundoApellido\b/,
-  /\$\{[^}]*\.nombre\}\s+\$\{/,
+  // 493: `MARCA.nombre` es el nombre de la EMPRESA (`lib/marca/identidad.ts`), no el de una cuenta:
+  // «Las tiendas le deben a ${MARCA.nombre} ${monto}» no compone ningún nombre de persona ni tienda.
+  /\$\{(?!MARCA\.)[^}]*\.nombre\}\s+\$\{/,
 ];
 
 const COMPOSICION_EN_SERVIDOR: readonly RegExp[] = [
@@ -106,6 +108,9 @@ describe("458-A R33 — el nombre de una cuenta de la wallet se compone en UN so
     expect(hallazgos(antes, COMPOSICION_EN_SERVIDOR)).toHaveLength(2);
     const cliente = "const t = `${tienda.nombre} ${tienda.primerApellido}`;";
     expect(hallazgos(cliente, COMPOSICION_EN_CLIENTE).length).toBeGreaterThanOrEqual(2);
+    // 493: la marca seguida de un importe no es componer una cuenta; una tienda seguida de algo, sí.
+    expect(hallazgos("const s = `Las tiendas le deben a ${MARCA.nombre} ${monto}.`;", COMPOSICION_EN_CLIENTE)).toEqual([]);
+    expect(hallazgos("const s = `Le debe ${fila.tienda.nombre} ${monto}.`;", COMPOSICION_EN_CLIENTE)).toHaveLength(1);
   });
 
   it("contraprueba B1: la anulacion del cobro y los pagos/repartos de cd91bcf4 la ponen roja, y entran al censo", () => {
