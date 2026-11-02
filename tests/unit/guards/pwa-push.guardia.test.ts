@@ -225,7 +225,7 @@ describe("410/R38 · un contenido ilegible NO deja el push en silencio", () => {
     // LITERALES ESCRITOS A MANO: es lo que la persona va a leer el dia que algo se rompa, y un
     // push que no muestra nada hace que el navegador pinte su propio «este sitio se actualizo en
     // segundo plano», que dice menos y asusta igual.
-    expect(sw.mostradas[0].titulo).toBe("Ordenex");
+    expect(sw.mostradas[0].titulo).toBe("Velox Courier");
     expect(sw.mostradas[0].opciones.body).toBe("Tenés un aviso nuevo. Abrí la app para verlo.");
     expect(sw.mostradas[0].opciones.data).toEqual({ destino: "/" });
   });
@@ -234,13 +234,13 @@ describe("410/R38 · un contenido ilegible NO deja el push en silencio", () => {
     const sw = cargarSw();
     await sw.pushVacio();
     expect(sw.mostradas).toHaveLength(1);
-    expect(sw.mostradas[0].titulo).toBe("Ordenex");
+    expect(sw.mostradas[0].titulo).toBe("Velox Courier");
   });
 
   it("un payload SIN titulo cae tambien en la reserva", async () => {
     const sw = cargarSw();
     await sw.push({ cuerpo: "solo cuerpo", destino: "/ordenes" });
-    expect(sw.mostradas[0].titulo).toBe("Ordenex");
+    expect(sw.mostradas[0].titulo).toBe("Velox Courier");
   });
 
   it("⭑ un destino que no es una ruta de la app se sustituye por la portada", async () => {

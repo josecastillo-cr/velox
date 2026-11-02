@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
+import { MARCA } from "@/lib/marca/identidad";
 import { RastreoDialog } from "./RastreoDialog";
 
 const CLASE_ENLACE =
@@ -46,8 +47,8 @@ export interface LandingNavProps {
 export function LandingNav({ guiaInicial = null }: LandingNavProps = {}) {
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between gap-2.5 border-b border-white/10 bg-navy-deep/95 px-4 py-3 backdrop-blur-[10px] md:gap-4 md:px-6 md:py-3.5">
-      <Link href="/" aria-label="Ordenex — inicio">
-        <Logo className="text-white" />
+      <Link href="/" aria-label={`${MARCA.nombre} — inicio`}>
+        <Logo fondo="oscuro" />
       </Link>
 
       <div className="hidden items-center gap-7 md:flex">

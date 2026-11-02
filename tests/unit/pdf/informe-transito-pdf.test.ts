@@ -190,8 +190,13 @@ describe("475/R29 — resumen de parametros y pie", () => {
   it("pie con fecha y hora y «Pagina X de Y» en todas", () => {
     pags.forEach((p, i) => {
       expect(p).toContain(`Página ${i + 1} de ${pags.length}`);
-      expect(p).toContain("Ordenex · Informe de tránsito · 05/10/2026 05:00");
+      expect(p).toContain("Velox Courier · Informe de tránsito · 05/10/2026 05:00");
     });
+  });
+
+  it("feature 492 (R18): el encabezado lleva el nombre de marca y el PDF no contiene «Ordenex»", () => {
+    expect(pags[0][0]).toBe("Velox Courier");
+    expect(plano).not.toMatch(/ordenex/i);
   });
 });
 

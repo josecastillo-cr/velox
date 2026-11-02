@@ -66,7 +66,17 @@ describe("410/R30 — sin claves VAPID no hay canal, y NADA revienta", () => {
     process.env.VAPID_PUBLIC_KEY = PUBLICA;
     process.env.VAPID_PRIVATE_KEY = PRIVADA;
     expect(pushConfigurado()).toBe(true);
-    expect(loadPushConfig().subject).toBe("mailto:soporte@ordenex.co");
+    expect(loadPushConfig().subject).toBe("mailto:battos.sa@gmail.com");
+  });
+
+  it("feature 492 (R23): sin `VAPID_SUBJECT`, o en blanco, el contacto es el de soporte de Velox (minusculas)", () => {
+    limpiar();
+    process.env.VAPID_PUBLIC_KEY = PUBLICA;
+    process.env.VAPID_PRIVATE_KEY = PRIVADA;
+    delete process.env.VAPID_SUBJECT;
+    expect(loadPushConfig().subject).toBe("mailto:battos.sa@gmail.com");
+    process.env.VAPID_SUBJECT = "   ";
+    expect(loadPushConfig().subject).toBe("mailto:battos.sa@gmail.com");
   });
 
   it("una variable VACIA cuenta como ausente (no como cadena vacia)", () => {

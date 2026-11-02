@@ -176,3 +176,32 @@ describe("app/login/page.tsx — salida a la landing", () => {
     expect(bloqueCentrado).toContainElement(screen.getByTestId("login-form-stub"));
   });
 });
+
+describe("app/login/page.tsx — logo de Velox Courier por fondo (feature 492, R14)", () => {
+  it("panel de escritorio (navy fijo) con la variante oscura; cabecera movil con la variante segun el tema", async () => {
+    const { default: LoginPage } = await import("@/app/login/page");
+    cookieGetMock.mockReturnValue(undefined);
+
+    const element = await LoginPage({ searchParams: Promise.resolve({}) });
+    const { container } = render(element);
+
+    // Dos logos (panel + movil), cada uno con UN nombre accesible.
+    const logos = screen.getAllByRole("img", { name: "Velox Courier" });
+    expect(logos).toHaveLength(2);
+    expect(container.textContent).not.toContain("Ordenex");
+
+    const fuentes = (logo: HTMLElement) =>
+      Array.from(logo.querySelectorAll("img")).map((i) => i.getAttribute("src"));
+
+    // El del panel vive bajo el `hidden md:flex` (solo escritorio); el de movil, bajo `md:hidden`.
+    const panel = logos.find((l) => ancestrosOcultos(l).length > 0);
+    const movil = logos.find((l) => l.closest('[class~="md:hidden"]') !== null);
+    expect(panel).toBeDefined();
+    expect(movil).toBeDefined();
+    expect(fuentes(panel!)).toEqual(["/marca/logo-horizontal.svg"]);
+    expect(fuentes(movil!)).toEqual([
+      "/marca/logo-horizontal-fondo-claro.svg",
+      "/marca/logo-horizontal.svg",
+    ]);
+  });
+});

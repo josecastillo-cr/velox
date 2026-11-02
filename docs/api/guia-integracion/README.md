@@ -1,4 +1,4 @@
-# Guía de integración — API de Ordenex (fuente editable)
+# Guía de integración — API de Velox Courier (fuente editable)
 
 Aquí vive la **fuente** del manual de integración del canal por API key que se entrega a los
 integradores como PDF. Hasta septiembre de 2026 el manual existía solo como PDF y cada versión
@@ -12,12 +12,12 @@ había que reconstruirla desde el anterior; desde esta carpeta se edita el HTML 
 ## Regenerar el PDF
 
 ```bash
-python docs/api/guia-integracion/generar-pdf.py "C:/Users/<usuario>/Desktop/Guia-Integracion-API-Ordenex (mes año).pdf"
+python docs/api/guia-integracion/generar-pdf.py "C:/Users/<usuario>/Desktop/Guia-Integracion-API-Velox-Courier (mes año).pdf"
 ```
 
 Sin argumento escribe `guia-integracion.pdf` al lado del HTML (ese PDF **no se commitea**: el
 entregable se genera cuando hace falta). Los pies de página («Guía de integración — API de
-Ordenex · n / N») salen de las reglas `@page` del HTML; la portada no lleva pie.
+Velox Courier · n / N») salen de las reglas `@page` del HTML; la portada no lleva pie.
 
 ## Qué actualizar en cada versión
 

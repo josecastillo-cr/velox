@@ -5,7 +5,7 @@
 // plano con las mismas piezas. Todo valor interpolado en el HTML se escapa.
 
 export interface CorreoCodigoPiezas {
-  /** Marca ya resuelta (SMTP_FROM_NAME o "Ordenex"). */
+  /** Marca ya resuelta (SMTP_FROM_NAME o el nombre de marca, «Velox Courier»). */
   marca: string;
   titulo: string;
   /** Parrafo antes del codigo. */

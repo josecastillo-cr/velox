@@ -47,7 +47,7 @@ export default async function RecuperarContrasenaPage() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(242,100,25,0.16),transparent_55%)]"
         />
         <div className="relative">
-          <Logo />
+          <Logo fondo="oscuro" />
           <div className="mt-3 h-1 w-10 rounded-full bg-brand" />
         </div>
         {/* El subtitulo dice lo que la pantalla PUEDE cumplir con el interruptor en su estado:
@@ -66,7 +66,7 @@ export default async function RecuperarContrasenaPage() {
           {/* Feature 208: el wordmark de móvil vive sobre `bg-background`, que gira
             con el tema; en `navy` fijo medía 1.06:1 en oscuro. (El panel de marca de
             escritorio, `bg-navy` con texto blanco, es superficie FIJA y se conserva.) */}
-          <Logo className="text-xl text-foreground" />
+          <Logo fondo="tema" className="text-xl" />
         </div>
         {activa ? <RecuperarContrasenaForm /> : <RecuperacionDesactivadaAviso />}
       </div>

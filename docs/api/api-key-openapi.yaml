@@ -3,7 +3,7 @@
 # regenerar con `pnpm tsx <script>` si cambia el objeto TS.
 openapi: 3.1.0
 info:
-  title: Ordenex — API de integración por API key
+  title: Velox Courier — API de integración por API key
   version: 1.0.0
   description: |-
     Canal de integración por **API key** para crear, listar, consultar, cancelar y eliminar órdenes.

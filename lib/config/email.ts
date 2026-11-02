@@ -13,14 +13,16 @@
 // sobreescribibles por env para no clavar el proveedor en el codigo (mudarse a
 // SES o a `smtp-relay.gmail.com` es cambiar SMTP_HOST, nada mas).
 
+import { MARCA } from "@/lib/marca/identidad";
+
 /** Host SMTP de Google. Workspace con relay propio usa smtp-relay.gmail.com. */
 const DEFAULT_SMTP_HOST = "smtp.gmail.com";
 
 /** Puerto SMTP por defecto: submission con STARTTLS, el que Google recomienda. */
 const DEFAULT_SMTP_PORT = 587;
 
-/** Nombre visible del remitente cuando no se configura uno. */
-const DEFAULT_FROM_NAME = "Ordenex";
+/** Nombre visible del remitente cuando no se configura uno (feature 492, R19). */
+const DEFAULT_FROM_NAME = MARCA.nombre;
 
 /** Timeout (ms) de cada fase de la conexion SMTP. Evita colgar una Server Action. */
 const DEFAULT_TIMEOUT_MS = 10_000;
@@ -114,7 +116,8 @@ export function emailSmtpConfigurado(): boolean {
 }
 
 /**
- * Marca visible de los correos (feature 489, R2/R3): SMTP_FROM_NAME o "Ordenex".
+ * Marca visible de los correos (feature 489, R2/R3): SMTP_FROM_NAME o el nombre de marca
+ * («Velox Courier», `MARCA.nombre`, feature 492).
  * No exige credenciales, asi que sirve tambien sin SMTP (dev, CI, emisor de
  * consola). Es la UNICA fuente del nombre: el `From` visible y la marca del
  * cuerpo del correo no pueden divergir.

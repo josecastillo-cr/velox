@@ -2,6 +2,8 @@
 // SIN agregar dependencias npm, apuntando al spec JSON de `/api/docs/openapi`. Es una pagina de
 // documentacion publica: NO exige sesion. Como `/api-docs` NO cae bajo la rama `/api/*` del
 // middleware, se agrego a PUBLIC_ROUTES para que no quede detras del login (ver middleware.ts).
+import { MARCA } from "@/lib/marca/identidad";
+
 const SWAGGER_VERSION = "5.17.14";
 
 const HTML = `<!DOCTYPE html>
@@ -9,7 +11,7 @@ const HTML = `<!DOCTYPE html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Ordenex — API de integración por API key</title>
+    <title>${MARCA.nombre} — API de integración por API key</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/swagger-ui-dist@${SWAGGER_VERSION}/swagger-ui.css"

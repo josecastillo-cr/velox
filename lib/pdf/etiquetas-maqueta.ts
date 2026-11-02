@@ -114,7 +114,7 @@ export const INTERLINEADO = 1.26;
  *
  * De donde sale cada uno:
  *  - `rotulo` 8: no se toca (282/R24). Es el cuerpo de TODOS los rotulos
- *    diminutos de la etiqueta: «ORDENEX · GUÍA», «PARA», «CONTENIDO», «TIENDA».
+ *    diminutos de la etiqueta: «VELOX · GUÍA», «PARA», «CONTENIDO», «TIENDA».
  *  - `guia` **30**: feature 353. Ver la nota de abajo.
  *  - `remision` 10: no se toca (feature 295). Gobierna la fila «REM … FECHA …».
  *  - `destinatario` 13 y `telefono` 12: D3, jerarquia por TAMAÑO.

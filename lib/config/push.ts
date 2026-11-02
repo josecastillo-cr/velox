@@ -16,8 +16,11 @@
 // EJECUCION y se sirve al navegador por Server Action (`lib/actions/push.ts`), de modo que hay UNA
 // sola fuente y rotar la clave es cambiar una variable de entorno.
 
-/** Contacto que exige el estandar VAPID cuando no se configura otro. No es un secreto. */
-const DEFAULT_SUBJECT = "mailto:soporte@ordenex.co";
+/**
+ * Contacto que exige el estandar VAPID cuando no se configura otro. No es un secreto.
+ * Feature 492 (R23, P5): el correo de soporte de Velox Courier, en minusculas.
+ */
+const DEFAULT_SUBJECT = "mailto:battos.sa@gmail.com";
 
 /** Nombres de las variables. Se exportan para que los mensajes y los tests citen el MISMO texto. */
 export const VAPID_PUBLIC_KEY = "VAPID_PUBLIC_KEY";

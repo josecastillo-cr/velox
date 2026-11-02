@@ -7,7 +7,7 @@
 
 ## Fase 0 — Antes de tocar nada
 
-- [ ] **T0 — Huella de la marca anterior.** En el worktree (nacido de `dev`, SHA dado por el leader,
+- [x] **T0 — Huella de la marca anterior.** En el worktree (nacido de `dev`, SHA dado por el leader,
   `checkout --detach` + merge-base como primer paso), calcular el SHA-256 de:
   `app/icon.png`, `public/icons/icon-{192,512}.png`, `public/icons/icon-{192,512}-maskable.png`,
   `public/icons/icon-180.png`, `public/icons/badge-72.png`, `public/screenshots/*.png`.
@@ -15,18 +15,18 @@
 
 ## Fase 1 — Fuente única y archivos
 
-- [ ] **T1 — `lib/marca/identidad.ts`** (`MARCA`, `LOGO`, design §3.1) con `nombreCorto: "Velox"` (P1) y
+- [x] **T1 — `lib/marca/identidad.ts`** (`MARCA`, `LOGO`, design §3.1) con `nombreCorto: "Velox"` (P1) y
   `descripcion: "Plataforma de logística y entregas Velox Courier"` (P4). Test
   `tests/unit/marca/identidad.test.ts`: valores como **literales de contrato** (`"Velox Courier"`,
   `"Velox"`, la descripción, `"#011027"`, rutas de `LOGO`) y
   `MARCA.nombre === DATOS_LEGALES.marca`. → R1.
   **Hecho:** test verde; mutar `colorTema` lo pone rojo.
-- [ ] **T2 [P] — Copiar archivos** (design §3.2): `public/marca/{logo-horizontal,logo-horizontal-fondo-claro,logo-simbolo}.svg`,
+- [x] **T2 [P] — Copiar archivos** (design §3.2): `public/marca/{logo-horizontal,logo-horizontal-fondo-claro,logo-simbolo}.svg`,
   `public/icons/fuente/icon-maskable.svg`, `app/favicon.ico`, `app/icon.svg`; borrar `app/icon.png`.
   Guardia `tests/unit/guards/marca-velox-archivos.guardia.test.ts`: cada destino byte-idéntico a su
   origen en `docs/marca/velox/`, y `app/icon.png` no existe. → R3, R8.
   **Hecho:** guardia verde; cambiar un byte de una copia la pone roja.
-- [ ] **T3 — PNG de la PWA y badge** (depende de T2; design §3.3). Escribir
+- [x] **T3 — PNG de la PWA y badge** (depende de T2; design §3.3). Escribir
   `public/icons/fuente/icon-any.svg` (fondo `#011027` con `rx="108"` + símbolo, solo trazados).
   Ampliar `scripts/generate-pwa-icons.mjs` con la salida `badge-72.png` (silueta blanca desde
   `docs/marca/velox/svg/logo-simbolo.svg` o su copia en `public/marca/`) y actualizar sus
@@ -41,7 +41,7 @@
 
 ## Fase 2 — Identidad del documento y de la PWA
 
-- [ ] **T4 — Manifiesto, `<head>`, `offline.html`, `sw.js`** (depende de T1; design §3.4–3.5).
+- [x] **T4 — Manifiesto, `<head>`, `offline.html`, `sw.js`** (depende de T1; design §3.4–3.5).
   - `public/manifest.json`: `name`, `short_name`, `description`, `theme_color`, `background_color`.
   - `app/layout.tsx`: `metadata.title/description`, `theme-color`, `apple-mobile-web-app-title`
     desde `MARCA`.
@@ -60,13 +60,13 @@
 
 ## Fase 3 — Logo en pantalla
 
-- [ ] **T5 — Componente `Logo`** (depende de T1, T2; design §3.6). Prop `fondo`, raíz
+- [x] **T5 — Componente `Logo`** (depende de T1, T2; design §3.6). Prop `fondo`, raíz
   `role="img"` con `aria-label`, imágenes `alt=""`. Test `tests/components/Logo.test.tsx`: un único
   `img` accesible llamado «Velox Courier» en las tres variantes; `oscuro` → `src` de
   `LOGO.sobreOscuro`; `claro` → `LOGO.sobreClaro`; `tema` → las dos, la clara con `dark:hidden` y
   la oscura con `hidden dark:inline-block`; ningún texto «Ordenex». → R12.
   **Hecho:** test verde; cambiar el `src` de una variante lo pone rojo.
-- [ ] **T6 — Consumidores de `Logo`** (depende de T5).
+- [x] **T6 — Consumidores de `Logo`** (depende de T5).
   - `Sidebar.tsx`: `fondo="oscuro"`; icono colapsado `LOGO.simbolo` con `alt={MARCA.nombre}`. Caso
     nuevo en `tests/components/Sidebar.test.tsx` (sin tocar los existentes). → R13.
   - `login/page.tsx`, `recuperar-contrasena/page.tsx`, `postulacion/page.tsx`: panel `oscuro`,
@@ -84,7 +84,7 @@
 
 ## Fase 4 — PDF, correo y documentación (todas `[P]` entre sí; dependen de T1)
 
-- [ ] **T7 [P] — Etiqueta** (design §3.7; P2). `ROTULO_GUIA = "VELOX · GUÍA"`; comentarios de
+- [x] **T7 [P] — Etiqueta** (design §3.7; P2). `ROTULO_GUIA = "VELOX · GUÍA"`; comentarios de
   `etiquetas-dibujo.ts:369` y `etiquetas-maqueta.ts:117`. Test de contrato literal nuevo en
   `tests/unit/pdf/etiquetas-diseno-353.test.ts` (o archivo propio): `ROTULO_GUIA` vale
   `"VELOX · GUÍA"` y la etiqueta generada lo contiene y no contiene «ORDENEX». → R16.
@@ -92,27 +92,27 @@
   `etiquetas-diseno-353.test.ts`, `etiquetas-caracter-no-cubierto.test.ts`,
   `tests/unit/components/etiquetas-pdf.test.ts` y `tests/unit/guards/etiquetas-maqueta-unica.guardia.test.ts`
   → R17. Si alguno se pone rojo: parar y volver al spec, no tocar números.
-- [ ] **T8 [P] — Informes PDF** (design §3.8). `transito/pdf.ts` y `picking/pdf.ts` desde
+- [x] **T8 [P] — Informes PDF** (design §3.8). `transito/pdf.ts` y `picking/pdf.ts` desde
   `MARCA.nombre`. Actualizar los literales de `tests/unit/pdf/informe-transito-pdf.test.ts:193` y
   `tests/unit/whatsapp-envios/picking-pdf.test.ts:152/194/206`, y añadir en cada uno un caso «el PDF
   no contiene "Ordenex"». → R18.
   **Hecho:** ambos archivos verdes.
-- [ ] **T9 [P] — Correo** (design §3.9). `DEFAULT_FROM_NAME = MARCA.nombre`. Actualizar
+- [x] **T9 [P] — Correo** (design §3.9). `DEFAULT_FROM_NAME = MARCA.nombre`. Actualizar
   `tests/unit/config/email-marca.test.ts` y `email-config.test.ts:102` a «Velox Courier» literal;
   caso nuevo: sin `SMTP_FROM_NAME`, el correo compuesto lleva «Velox Courier» en cabecera y pie. → R19.
   **Hecho:** `tests/unit/config/` y `tests/unit/services/email-*` verdes.
-- [ ] **T16 [P] — Contacto de soporte** (design §3.13; P5). `DEFAULT_SUBJECT =
+- [x] **T16 [P] — Contacto de soporte** (design §3.13; P5). `DEFAULT_SUBJECT =
   "mailto:battos.sa@gmail.com"` en `lib/config/push.ts`, en minúsculas. Caso en
   `tests/unit/config/push-config.test.ts`: sin `VAPID_SUBJECT` (o en blanco), `loadPushConfig().subject`
   vale ese literal exacto; y `grep` de `soporte@ordenex.co` sobre los archivos de esta ficha vacío.
   Ajustar `pwa-push.guardia` solo si afirma el valor por defecto. → R23.
   **Hecho:** `tests/unit/config/push-config.test.ts`, `tests/unit/push/` y `pwa-push.guardia` verdes.
-- [ ] **T10 [P] — API docs** (design §3.10). `app/api-docs/route.ts`, `lib/api/openapi-spec.ts`,
+- [x] **T10 [P] — API docs** (design §3.10). `app/api-docs/route.ts`, `lib/api/openapi-spec.ts`,
   `docs/api/api-key-openapi.yaml`. Test nuevo `tests/unit/api/openapi-titulo-marca.test.ts`: el
   HTML de `GET()` y `info.title` del spec y del YAML valen «Velox Courier — API de integración por
   API key». → R20.
   **Hecho:** test nuevo y `tests/unit/api/openapi-*` verdes.
-- [ ] **T11 [P] — Guía de integración** (design §3.11). Portada, `<title>`, autor, pie `@page`,
+- [x] **T11 [P] — Guía de integración** (design §3.11). Portada, `<title>`, autor, pie `@page`,
   `<h1>`, logo de portada; README de la carpeta. Test `tests/unit/docs/guia-integracion-marca.test.ts`:
   las cinco piezas llevan «Velox Courier» y el `src` del logo resuelve a
   `docs/marca/velox/svg/logo-horizontal-fondo-claro.svg` existente. → R21.
@@ -122,30 +122,31 @@
 
 ## Fase 5 — Capturas y fotos
 
-- [ ] **T12 [P] — Fotos de la landing** (P8, solo lectura; el humano decidió que se quedan como
+- [x] **T12 [P] — Fotos de la landing** (P8, solo lectura; el humano decidió que se quedan como
   están). Mirar `public/landing/*.jpg` y anotar en `progress/impl_492.md` si alguna muestra
   «Ordenex». **Hecho:** nota escrita; no se sustituye nada.
-- [ ] **T13a — Rehacer las capturas** (depende de T4, T5, T6; P3). Las tres con Playwright contra el
+- [x] **T13a — Rehacer las capturas** (depende de T4, T5, T6; P3). Las tres con Playwright contra el
   servidor local, con los mismos nombres y tamaños y con `nextjs-portal` oculto, revisadas a ojo. El
   manifiesto no cambia. La guardia de T3 suma las capturas a la lista de hashes prohibidos. → R22.
   **Hecho:** `manifest.test.ts`, `pwa-manifiesto-atajos` y `marca-velox-sin-anterior` verdes.
 
 ## Fase 6 — Verificación y cierre
 
-- [ ] **T13 — Gate y guardias a mano.** `./init.sh --rapido` (con `INIT_EXIT=$?` escrito dentro del
+- [x] **T13 — Gate y guardias a mano.** `./init.sh --rapido` (con `INIT_EXIT=$?` escrito dentro del
   log, sin `tail`) y, aparte, porque el grafo no las relaciona con `public/**` ni `docs/**`:
   `tests/unit/guards/pwa-*.guardia.test.ts`, `tests/unit/guards/marca-velox-*.guardia.test.ts`,
   `tests/unit/pwa/manifest.test.ts`, `tests/unit/guards/html-lang.guardia.test.ts`,
   `tests/unit/guards/etiquetas-maqueta-unica.guardia.test.ts`, `tests/unit/docs/guia-integracion-marca.test.ts`.
   Comprobar que `git diff --stat origin/dev -- app/globals.css` está vacío.
   **Hecho:** todo verde, `skipped` revisados, logs en `progress/`.
-- [ ] **T14 — Ver la app** (depende de T13; un solo dev server). Con Playwright, en claro y oscuro:
+- [x] **T14 — Ver la app** (depende de T13; un solo dev server). Con Playwright, en claro y oscuro:
   barra expandida y colapsada (medir que la caja del logo no se solapa con el botón de colapso),
   `/login` escritorio y móvil, `/`, `/paquete/<guía>`, `/api-docs` (pestaña con favicon nuevo),
   `/manifest.json`. Generar una etiqueta 100×100 y un lote en la hoja más pequeña del catálogo y
   mirarlas. Limpiar lo que se haya creado en la base local.
   **Hecho:** capturas o mediciones en `progress/impl_492.md`.
-- [ ] **T15 — Trazabilidad y entrega.** `progress/impl_492.md` con el mapa R1–R23 → test, la lista de
+  _Nota (2026-11-02): dev server con `next dev --webpack` (Turbopack rechaza el junction de `node_modules` del worktree); la etiqueta y el lote se generaron con `buildEtiquetasLotePdf`, el generador real, sin pasar por la UI._
+- [x] **T15 — Trazabilidad y entrega.** `progress/impl_492.md` con el mapa R1–R23 → test, la lista de
   tests actualizados (no borrados) y la tabla de acciones de configuración del humano (design §4).
   **Hecho:** cada R con al menos un test que lo pone rojo al mutarse; commit hecho y verificado en la
   rama (`git log` del blob), no solo en disco.

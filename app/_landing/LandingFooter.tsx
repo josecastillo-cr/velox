@@ -34,7 +34,7 @@ export function LandingFooter({ marca }: Readonly<{ marca?: ReactNode }> = {}) {
       <div className="mx-auto grid max-w-[1200px] grid-cols-2 gap-8 md:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
         <div>
           {marca === undefined ? (
-            <Logo className="text-white" />
+            <Logo fondo="oscuro" />
           ) : (
             <span className="font-heading text-2xl font-semibold tracking-tight text-white">
               {marca}
