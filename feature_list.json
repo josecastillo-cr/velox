@@ -5900,13 +5900,13 @@
       "title": "Marca Velox Courier: textos de la app",
       "description": "Centralizar el nombre de marca en una constante y sustituir \"Ordenex\" en los textos que ve el usuario (etiquetas de dinero, wallet, cierres, configuración).",
       "zone": "fullstack",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "large",
       "depends_on": 492,
       "spec_path": "specs/493-marca-velox-textos",
       "branch": "feat/493-marca-velox-textos",
-      "status_note": "Spec escrito el 2026-10-31 (20 requisitos), P1-P8 respondidas por el humano el mismo día; aprobado el 2026-11-02. La 492 ya está en dev: se puede arrancar. Heredado de la revisión de la 492: (1) la guardia `marca-velox-sin-literal` prohíbe /velox/i en `lib/api/openapi-spec.ts` y dará falso rojo con el dominio de R18; hace falta una excepción cerrada para `velox-courier.company`. (2) Quedan para esta ficha la meta description de la guía de integración y el comentario de cabecera del YAML. ROMPE CONTRATO a propósito: cabeceras X-Velox-* sin doble cabecera y dominio velox-courier.company en docs; antes de desplegar, pausar a los integradores y enviarles el manual/CHANGELOG nuevo (T15). Medido: 239 archivos de código (1.017 apariciones), 246 de test (1.474) y docs/ayuda/** (176). Zona fullstack: hay texto visible generado en lib/, y tocar lib/types/ amplía el --rapido con integration/db. La guardia nueva lee archivos con fs: correrla a mano. Fuera: identificadores, claves de localStorage, plantillas de Meta y datos ya guardados en la base."
+      "status_note": "Spec escrito el 2026-10-31 (20 requisitos), P1-P8 respondidas por el humano el mismo día; aprobado el 2026-11-02, en implementación (backend_dev → frontend_dev). Integradores medidos el 2026-11-02: 0 órdenes por API desde el 2026-10-28 (Gameos, único real, paró del todo), 0 webhooks; el humano decide arrancar sin pausa previa. Heredado de la revisión de la 492: (1) la guardia `marca-velox-sin-literal` prohíbe /velox/i en `lib/api/openapi-spec.ts` y dará falso rojo con el dominio de R18; hace falta una excepción cerrada para `velox-courier.company`. (2) Quedan para esta ficha la meta description de la guía de integración y el comentario de cabecera del YAML. ROMPE CONTRATO a propósito: cabeceras X-Velox-* sin doble cabecera y dominio velox-courier.company en docs; antes de desplegar, pausar a los integradores y enviarles el manual/CHANGELOG nuevo (T15). Medido: 239 archivos de código (1.017 apariciones), 246 de test (1.474) y docs/ayuda/** (176). Zona fullstack: hay texto visible generado en lib/, y tocar lib/types/ amplía el --rapido con integration/db. La guardia nueva lee archivos con fs: correrla a mano. Fuera: identificadores, claves de localStorage, plantillas de Meta y datos ya guardados en la base."
     }
   ]
 }
