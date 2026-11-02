@@ -175,3 +175,37 @@ login, sin indicador de Next. El manifiesto no cambió.
    por API key de Ordenex…»); el comentario de cabecera del YAML («(Ordenex)»). Ninguno está en
    R1–R23, así que no se tocaron.
 4. iOS no refresca el icono de una PWA ya añadida (design §3.4, limitación conocida).
+
+## Ronda 2 — correcciones de la revisión (`progress/review_492.md`, RECHAZADA)
+
+Partida: HEAD `4990cde6` (merge de `origin/dev` `0ddaa782` + informe del reviewer), confirmado con `git log --oneline -3`.
+
+| Hallazgo | Arreglo | Commit |
+|---|---|---|
+| M1 | `EtiquetaGuia.tsx`: la vista previa del modal pinta `{ROTULO_GUIA}` importado de `lib/pdf/etiquetas-dibujo` (antes «Ordenex · Guía» copiado a mano). Caso nuevo en `tests/components/EtiquetaGuia.test.tsx`: literal «VELOX · GUÍA» + igual a `ROTULO_GUIA` + sin «Ordenex». | `a17bf74a` |
+| m1 | `public/manifest.json`: las 3 `label` de las capturas con «Velox Courier». Caso nuevo en `tests/unit/pwa/manifest.test.ts` con `toEqual` literal de `[src, label]`. | `fddbff5c` |
+| B2 | Guardia nueva `tests/unit/guards/marca-velox-sin-literal.guardia.test.ts`. Recorre una lista cerrada de 15 archivos: los 9 que leen `MARCA`/`LOGO` tienen que importar de `@/lib/marca/identidad`, y los 6 que pintan la marca vía `<Logo>`/`ROTULO_GUIA` no la escriben. Sin comentarios (`quitarComentarios`) y con CRLF normalizado, prohíbe `velox` (cualquier caja, lo que incluye nombre, nombre corto y rótulo), `#011027`, `/marca/logo-` y el arranque de la descripción. También exige que la vista previa tome `{ROTULO_GUIA}`. Lleva autocomprobación: el literal en código da hallazgo, el mismo texto en un comentario (también `{/* */}` y CRLF) no. | `6327d5fa` |
+| B1 | `specs/492-marca-velox-identidad/tasks.md`: las 18 tareas `[x]`, con nota de una línea en T14 (dev server `--webpack`, etiqueta generada con `buildEtiquetasLotePdf`). | `ac5e1e28` |
+
+m2 y m3 (meta description de la guía, comentario del YAML) quedan para la 493, por decisión del leader.
+
+### Mutaciones medidas (aplicar → `git diff --numstat` = 1/1 → correr → `git checkout --` → árbol limpio)
+
+| # | Mutación | Test | Resultado |
+|---|---|---|---|
+| X7 | `transito/pdf.ts` `l.texto("Velox Courier", …)` en vez de `MARCA.nombre` | `marca-velox-sin-literal.guardia` | ROJO (1 de 26) |
+| X8 | `api-docs/route.ts` `<title>Velox Courier — API…` en vez de `${MARCA.nombre}` | `marca-velox-sin-literal.guardia` | ROJO (1 de 26) |
+| X7 + CRLF | X7 con el archivo entero en CRLF | `marca-velox-sin-literal.guardia` | ROJO (1 de 26) |
+| X17 | `EtiquetaGuia.tsx` `VELOX · GUÍA` escrito a mano en vez de `{ROTULO_GUIA}` | guardia + `EtiquetaGuia.test.tsx` | ROJO (2 de 35, los dos de la guardia) |
+| X18 | `EtiquetaGuia.tsx` vuelto a «Ordenex · Guía» | `EtiquetaGuia.test.tsx` | ROJO (1 de 9) |
+| X19 | `manifest.json` con las `label` viejas (stash) | `tests/unit/pwa/manifest.test.ts` | ROJO (1 de 22) |
+
+### Gate
+
+`./init.sh --rapido` **VERDE**. Log `progress/gate_492_2.log`, con `INIT_EXIT=0` dentro. `.env` copiado del checkout principal y borrado al acabar.
+- typecheck ✓.
+- Relacionados: 558 archivos, 7044 tests. Los 26 skipped son los de siempre: 17 en `AnaliticaPage` y 9 en `AnaliticaShell`.
+- Guardias: 279 archivos, 3839 tests; la guardia nueva va incluida.
+- 0 rojos nuevos sobre 822 archivos.
+
+A mano: `pwa-*`, `marca-velox-*`, `manifest`, `html-lang`, `etiquetas-maqueta-unica`, `guia-integracion-marca` y `EtiquetaGuia`. Son 15 archivos y 209 tests, todos en verde. Build: el de Vercel del PR #876 salió verde según el leader, así que no lo repetí.
