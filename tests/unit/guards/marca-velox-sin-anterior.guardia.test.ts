@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 
 import { MARCA } from "@/lib/marca/identidad";
 
-// FICHA 492 (T3) — GUARDIA «YA NO ES LA MARCA ANTERIOR» (R7, R8, R9).
+// FICHA 492 (T3, T13a) — GUARDIA «YA NO ES LA MARCA ANTERIOR» (R7, R8, R9, R22).
 //
 // Los SHA-256 de abajo son los de cada archivo de identidad de Ordenex tal como estaba en
 // `origin/dev` 8e150533 ANTES de reemplazarlo (T0, anotados en `progress/impl_492.md`). Son la
@@ -30,6 +30,10 @@ const HUELLA_ANTERIOR: Readonly<Record<string, string>> = {
   "public/icons/icon-512-maskable.png": "71c5f1cefe6a7adae1ac8a26243c2aca40fcce3780857eafb04a111e300c552b",
   "public/icons/icon-180.png": "d0bba6acc991691c914f7f7c8444cd3dbaa733566a7a72b0ae35ebb08153d52c",
   "public/icons/badge-72.png": "02196430dbbbb160a48e4de57782811fdf95486a0de1ea491c364e2ed85ec5c3",
+  // T13a (R22): las tres capturas del dialogo de instalacion, rehechas con Playwright (P3).
+  "public/screenshots/ingreso-narrow.png": "79cba346f3ac7fd8f93846af85d5460c76e66957f3910e4e8bc6719419d0a0e9",
+  "public/screenshots/inicio-narrow.png": "aa0f6826301706c9059611da3f80358ee0d100f7c858a5b4994a20c40c81f2bb",
+  "public/screenshots/inicio-wide.png": "4ca3d4adfd3ac62d51b76a79a6ea7dd6b1ca2cb6a89be7e74acbfd7c3b7cfc0a",
 };
 
 const HASHES_ANTERIORES = new Set(Object.values(HUELLA_ANTERIOR));
@@ -44,6 +48,9 @@ const SERVIDOS = [
   "public/icons/icon-512-maskable.png",
   "public/icons/icon-180.png",
   "public/icons/badge-72.png",
+  "public/screenshots/ingreso-narrow.png",
+  "public/screenshots/inicio-narrow.png",
+  "public/screenshots/inicio-wide.png",
 ];
 
 /** Los cinco iconos de la PWA (manifiesto + `apple-touch-icon`). */
@@ -62,9 +69,9 @@ async function rgba(rel: string) {
   return sharp(path.join(RAIZ, rel)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 }
 
-describe("Feature 492 — ningun archivo servido es de la marca anterior (R7, R8, R9)", () => {
+describe("Feature 492 — ningun archivo servido es de la marca anterior (R7, R8, R9, R22)", () => {
   it("la huella tiene los archivos de T0", () => {
-    expect(Object.keys(HUELLA_ANTERIOR)).toHaveLength(7);
+    expect(Object.keys(HUELLA_ANTERIOR)).toHaveLength(10);
     expect(ICONOS).toHaveLength(5);
   });
 
