@@ -22,6 +22,7 @@ import {
   sembrarPersonas459,
   type Personas459,
 } from "./_fixtures/escrituras-459";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-B — ARREGLO HEREDADO DE LA 457 (`progress/impl_457.md` §12.4), contra Postgres.
@@ -42,7 +43,7 @@ import {
 
 const describeSiHayBase = HAY_BASE_DE_DATOS ? describe : describe.skip;
 
-describeSiHayBase("458-B — el pago de Ordenex a una tienda lee el saldo por la transaccion del candado (Postgres real)", () => {
+describeSiHayBase(`458-B — el pago de ${NOMBRE_ESPERADO} a una tienda lee el saldo por la transaccion del candado (Postgres real)`, () => {
   let prisma: PrismaClient;
 
   beforeAll(() => {

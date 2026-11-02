@@ -19,6 +19,7 @@ import {
   montarServicios459,
   sembrarEscenario459,
 } from "./_fixtures/caja-459";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-C — REVISIÓN (B3 y M1), contra Postgres, sobre el escenario de la fase 0 de la 459 (todos
@@ -163,7 +164,7 @@ describeSiHayBase("458-C revisión B3/M1 — el pago a una tienda y el premio en
     }
   });
 
-  it("B3/R71: el pago de Ordenex a una tienda ANULADO sale con documento anulado; el vigente, vigente", () => {
+  it(`B3/R71: el pago de ${NOMBRE_ESPERADO} a una tienda ANULADO sale con documento anulado; el vigente, vigente`, () => {
     expect(m().documentos.pagoAnulado).toEqual({ tipo: "pago_tienda", anulado: true, tieneComprobante: false });
     expect(m().documentos.pagoVigente).toEqual({ tipo: "pago_tienda", anulado: false, tieneComprobante: false });
   });

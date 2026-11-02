@@ -11,6 +11,7 @@ import { listarCobrosPendientesAction } from "@/lib/actions/gasto-fijo-cobro";
 import { listarCobrosRechazoTiendaAction } from "@/lib/actions/rechazo-tienda-cobro";
 
 import { WalletModule } from "./_components/WalletModule";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * Feature 42 (T11, R18/R19/R21) — página `/wallet`: la caja principal de Ordenex.
@@ -107,7 +108,7 @@ export default async function WalletPage() {
       title="Wallet"
       // R59: la descripción tampoco puede rotular ninguna cifra con la palabra que mentía.
       // Nombra las DOS que la pantalla enseña, con los mismos nombres que la tarjeta.
-      description="Caja principal de Ordenex: libro de movimientos, cifras de la caja y ganancia de Ordenex"
+      description={`Caja principal de ${MARCA.nombre}: libro de movimientos, cifras de la caja y ganancia de ${MARCA.nombre}`}
     >
       <WalletModule
         movimientos={movimientosResult.data.movimientos}

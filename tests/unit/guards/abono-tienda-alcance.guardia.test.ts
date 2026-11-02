@@ -5,6 +5,7 @@ import { describe, it, expect } from "vitest";
 import { CONCEPTOS_MANUALES } from "@/app/(app)/wallet/_components/wallet-conceptos-manuales";
 import { TIPO_POR_CATEGORIA_TIENDA } from "@/lib/utils/invariante-tiendas";
 import { quitarComentarios } from "@/tests/fixtures/sin-comentarios";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FICHA 457 / T8.2 (design §12; R65, R67) — GUARDIA DE ALCANCE: **lo que la D3 de la 381 protegia,
@@ -124,7 +125,7 @@ function conceptosQueAcreditan(catalogo: readonly Concepto[]): string[] {
     .map((c) => c.id);
 }
 
-describe("457/R67 — el unico concepto del dialogo que acredita a una tienda es el pago de la tienda a Ordenex", () => {
+describe(`457/R67 — el unico concepto del dialogo que acredita a una tienda es el pago de la tienda a ${NOMBRE_ESPERADO}`, () => {
   it("control de NO-VACUIDAD: el catalogo tiene conceptos con asiento en la tienda (los que la debitan)", () => {
     const conTienda = CONCEPTOS_MANUALES.filter((c) => "categoriaTienda" in c.destino);
     expect(conTienda.length).toBeGreaterThanOrEqual(2);

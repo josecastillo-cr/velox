@@ -370,7 +370,7 @@ describe("derivarComposicionGanancia — la ganancia concepto por concepto (R23/
     const conjuntos: { nombre: string; filas: AgregadoCajaRow[] }[] = [
       { nombre: "dos bolsillos", filas: DOS_BOLSILLOS },
       { nombre: "solo tiendas", filas: SOLO_TIENDAS },
-      { nombre: "solo ordenex", filas: SOLO_ORDENEX },
+      { nombre: "solo_ordenex", filas: SOLO_ORDENEX },
       { nombre: "sin reparto", filas: SIN_REPARTO },
       {
         nombre: "solo egresos propios, sin ningun ingreso",

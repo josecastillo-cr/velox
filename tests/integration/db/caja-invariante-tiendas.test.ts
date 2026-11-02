@@ -20,6 +20,7 @@ import {
 import { UP_COMPLETAR_461 } from "./_fixtures/completar-caja-461-sql";
 import { CLAVE_CANDADO_459 } from "./_fixtures/escrituras-459";
 import { upCon } from "./_fixtures/reclasificacion-459-sql";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 459 / T B.14 → FICHA 461 / T B.12 — LA INVARIANTE CON TODO, Y SIN EXCEPCION.
@@ -304,7 +305,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
     );
     respuestas.pagoDeTienda = pagoDeB.status;
     if (pagoDeB.status !== "ok") throw new Error(`pago de la tienda: ${JSON.stringify(pagoDeB)}`);
-    await foto("pago de la tienda B a Ordenex");
+    await foto(`pago de la tienda B a ${NOMBRE_ESPERADO}`);
 
     // 12 — su anulacion: la tienda vuelve a deber; «Salio» sube y la cifra y «De las tiendas» bajan.
     respuestas.anularPagoDeTienda = (
@@ -491,7 +492,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
       // Ficha 457: el cargo del cobro grande; la ENTRADA del pago de la tienda; el EGRESO de su anulacion.
       // Mutacion 1 de design §13 de la 457 (sin `emitirIngresoDeAbono`) → aqui 0 y R8 rota en el paso 11.
       ["cobro grande a la tienda B", 1],
-      ["pago de la tienda B a Ordenex", 1],
+      [`pago de la tienda B a ${NOMBRE_ESPERADO}`, 1],
       ["anulacion del pago de la tienda B", 1],
       ["anulacion del saldo inicial", 1],
       // Ficha 458-B: los DOS reversos de cargo (flete e IVA); la indemnizacion; su contra-asiento.
@@ -559,7 +560,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
         ]),
         `R7 diferencia · ${p.nombre}`,
       ).toBe(delta(p, (l) => l.resumen.enCaja));
-      expect(r.deOrdenex, `«De Ordenex» · ${p.nombre}`).toBe(suma([r.ganancia, r.capital]));
+      expect(r.deOrdenex, `«De ${NOMBRE_CORTO_ESPERADO}» · ${p.nombre}`).toBe(suma([r.ganancia, r.capital]));
     }
   });
 
@@ -669,7 +670,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
       "cobro completado": "saldo",
       "anulacion del cobro": "saldo",
       "cobro grande a la tienda B": "saldo",
-      "pago de la tienda B a Ordenex": "saldo",
+      [`pago de la tienda B a ${NOMBRE_ESPERADO}`]: "saldo",
       "anulacion del pago de la tienda B": "saldo",
       "anulacion del saldo inicial": "flujo",
       "anulacion del cobro por devolución a origen": "flujo", // ficha 458-B

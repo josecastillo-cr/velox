@@ -180,7 +180,7 @@ describe("457/R45 — concepto, tipo, origen y dueño en la tabla, el filtro y l
     expect(Object.keys(d).sort()).toEqual(COLUMNAS_DESCARGA_WALLET_CAJA.map((c) => c.clave).sort());
   });
 
-  it("el filtro por concepto del libro ofrece los dos conceptos con su nombre desde Ordenex", () => {
+  it(`el filtro por concepto del libro ofrece los dos conceptos con su nombre desde ${NOMBRE_ESPERADO}`, () => {
     // 458-A (TA.3): las opciones son los conceptos CON movimientos (aquí, uno de cada uno).
     const lista = opcionesDeConceptos(
       ["ingreso_abono_tienda","egreso_reverso_abono_tienda"].map((categoria) => ({ categoria, movimientos: 1 })),

@@ -228,7 +228,7 @@ describe("458-C R37/R38 — el catálogo: diez conceptos en tres grupos y el enl
       within(within(dialog).getByRole("radiogroup", { name: grupo }))
         .getAllByRole("radio")
         .map((r) => r.closest("label")?.textContent);
-    expect(nombres("Sale dinero de Ordenex")).toEqual([
+    expect(nombres(`Sale dinero de ${NOMBRE_ESPERADO}`)).toEqual([
       `Gasto de ${NOMBRE_CORTO_ESPERADO}`,
       "Sueldo",
       "Pago de IVA", // ficha 488 (R21): justo tras el sueldo
@@ -253,7 +253,7 @@ describe("458-C R37/R38 — el catálogo: diez conceptos en tres grupos y el enl
     expect(enlace.getAttribute("href")).toBe("/wallet#gastos-fijos");
   });
 
-  it("abre con el gasto de Ordenex elegido (el primero) y sin pedir ninguna lista", async () => {
+  it(`abre con el gasto de ${NOMBRE_ESPERADO} elegido (el primero) y sin pedir ninguna lista`, async () => {
     const { dialog } = await abrir();
     expect(within(dialog).getByRole("radio", { name: `Gasto de ${NOMBRE_CORTO_ESPERADO}` })).toBeChecked();
     expect(listarTiendasMock).not.toHaveBeenCalled();
@@ -267,30 +267,30 @@ describe("458-C R39/R52 — la frase del efecto y la del libro siguen al concept
   it("las siete frases de la 461 salen byte a byte y las nuevas con la suya", async () => {
     const { user, dialog } = await abrir();
     const casos: Array<[string, string]> = [
-      [`Gasto de ${NOMBRE_CORTO_ESPERADO}`, "Sale dinero de Ordenex y baja su ganancia."],
-      ["Sueldo", "Sale dinero de Ordenex para pagar un sueldo y baja su ganancia."],
+      [`Gasto de ${NOMBRE_CORTO_ESPERADO}`, `Sale dinero de ${NOMBRE_ESPERADO} y baja su ganancia.`],
+      ["Sueldo", `Sale dinero de ${NOMBRE_ESPERADO} para pagar un sueldo y baja su ganancia.`],
       [
         `${NOMBRE_ESPERADO} paga un gasto de una tienda`,
-        "Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.",
+        `Sale dinero de ${NOMBRE_ESPERADO} hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.`,
       ],
-      ["Corrección de caja (resta)", "Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex."],
-      ["Aporte de dinero a la caja", "Llega dinero de Ordenex a la caja; no es ganancia, la ganancia no cambia."],
-      ["Corrección de caja (suma)", "Llega dinero a la caja para corregir un descuadre y sube la ganancia de Ordenex."],
+      ["Corrección de caja (resta)", `Sale dinero de la caja para corregir un descuadre y baja la ganancia de ${NOMBRE_ESPERADO}.`],
+      ["Aporte de dinero a la caja", `Llega dinero de ${NOMBRE_ESPERADO} a la caja; no es ganancia, la ganancia no cambia.`],
+      ["Corrección de caja (suma)", `Llega dinero a la caja para corregir un descuadre y sube la ganancia de ${NOMBRE_ESPERADO}.`],
       [
         `${NOMBRE_ESPERADO} le cobra a una tienda`,
-        "No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex; si la tienda no tiene saldo, queda en contra.",
+        `No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de ${NOMBRE_ESPERADO}; si la tienda no tiene saldo, queda en contra.`,
       ],
       [
         `Una tienda le paga a ${NOMBRE_ESPERADO}`,
-        "Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.",
+        `Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de ${NOMBRE_ESPERADO} no cambia.`,
       ],
       [
         `${NOMBRE_ESPERADO} le paga a una tienda`,
-        "Sale dinero de Ordenex hacia la tienda y baja lo que Ordenex le debe; la ganancia no cambia.",
+        `Sale dinero de ${NOMBRE_ESPERADO} hacia la tienda y baja lo que ${NOMBRE_ESPERADO} le debe; la ganancia no cambia.`,
       ],
       [
         `${NOMBRE_ESPERADO} le paga a un mensajero`,
-        "Ordenex le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.",
+        `${NOMBRE_ESPERADO} le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.`,
       ],
     ];
     for (const [concepto, frase] of casos) {
@@ -305,7 +305,7 @@ describe("458-C R39/R52 — la frase del efecto y la del libro siguen al concept
     expect(libro()).toBe(`Se registra en el libro como «Gasto de ${NOMBRE_CORTO_ESPERADO}».`);
     await elegirConcepto(user, dialog, `${NOMBRE_ESPERADO} le paga a una tienda`);
     expect(libro()).toBe(
-      `Se registra en la caja como «${NOMBRE_ESPERADO} le paga a una tienda» y en el libro de la tienda como «Ordenex le paga a la tienda».`,
+      `Se registra en la caja como «${NOMBRE_ESPERADO} le paga a una tienda» y en el libro de la tienda como «${NOMBRE_ESPERADO} le paga a la tienda».`,
     );
     await elegirConcepto(user, dialog, `${NOMBRE_ESPERADO} le paga a un mensajero`);
     expect(libro()).toBe("Se registra en el libro del mensajero como «Liquidación».");
@@ -383,7 +383,7 @@ describe("458-C R39/R42/R43/R51 — cada concepto pide sus campos y manda SOLO s
     expect(fd.tiendaId).toBe(NORTE);
     // R48: el aviso lleva el saldo del SERVIDOR, en negativo, y dice que la tienda le debe a Ordenex.
     expect(successMock).toHaveBeenCalledWith(
-      "Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a Ordenex.",
+      `Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a ${NOMBRE_ESPERADO}.`,
     );
   });
 
@@ -421,7 +421,7 @@ describe("458-C R39/R42/R43/R51 — cada concepto pide sus campos y manda SOLO s
     expect(fd.fecha).toBe(hoyEnCostaRica());
   });
 
-  it("una tienda le paga a Ordenex: tienda, método y la fecha como `fechaPago`, siempre", async () => {
+  it(`una tienda le paga a ${NOMBRE_ESPERADO}: tienda, método y la fecha como \`fechaPago\`, siempre`, async () => {
     const { user, dialog } = await abrir();
     await elegirConcepto(user, dialog, `Una tienda le paga a ${NOMBRE_ESPERADO}`);
     await elegirCuenta(dialog, "Tienda que paga", "Tienda Norte");
@@ -453,7 +453,7 @@ describe("458-C R39/R42/R43/R51 — cada concepto pide sus campos y manda SOLO s
     );
     expect(fd).toMatchObject({ tiendaId: NORTE, nota: "Entrega quincenal", metodo: "transferencia", monto: "3000" });
     expect(successMock).toHaveBeenCalledWith(
-      "Pago de ₡3.000 a Tienda Norte registrado. Ordenex le sigue debiendo ₡7.000.",
+      `Pago de ₡3.000 a Tienda Norte registrado. ${NOMBRE_ESPERADO} le sigue debiendo ₡7.000.`,
     );
   });
 
@@ -474,7 +474,7 @@ describe("458-C R39/R42/R43/R51 — cada concepto pide sus campos y manda SOLO s
     );
     expect(fd.mensajeroId).toBe(JUAN);
     expect(successMock).toHaveBeenCalledWith(
-      "Pago de ₡8.000 a Juan Pérez Mora registrado. Ordenex le sigue debiendo ₡2.000 por sus cierres.",
+      `Pago de ₡8.000 a Juan Pérez Mora registrado. ${NOMBRE_ESPERADO} le sigue debiendo ₡2.000 por sus cierres.`,
     );
   });
 
@@ -602,9 +602,9 @@ describe("458-C R40/R41 — la cuenta: buscador por nombre, al abrir, y fija des
       {
         conceptoInicial: "abono_tienda",
         cuentaFija: { id: NORTE, nombre: "Tienda Norte" },
-        etiquetaBoton: "Registrar pago de la tienda a Ordenex",
+        etiquetaBoton: `Registrar pago de la tienda a ${NOMBRE_ESPERADO}`,
       },
-      "Registrar pago de la tienda a Ordenex",
+      `Registrar pago de la tienda a ${NOMBRE_ESPERADO}`,
     );
     expect(within(dialog).getByRole("radio", { name: `Una tienda le paga a ${NOMBRE_ESPERADO}` })).toBeChecked();
     expect(within(dialog).getByRole("radio", { name: "Sueldo" })).toHaveAttribute("aria-disabled", "true");
@@ -675,7 +675,7 @@ describe("458-C R48/R49/R76 — lo que responde el servidor", () => {
     await elegirMetodo(user, dialog, "Efectivo");
     await confirmar(user, dialog);
     expect(
-      await within(dialog).findByText("Ordenex le debe ₡2.500 a esta tienda: el pago no puede superar ese importe."),
+      await within(dialog).findByText(`${NOMBRE_ESPERADO} le debe ₡2.500 a esta tienda: el pago no puede superar ese importe.`),
     ).toBeTruthy();
     await confirmar(user, dialog);
     expect(await within(dialog).findByText("Esta tienda no tiene saldo a favor: no hay nada que pagar.")).toBeTruthy();
@@ -737,7 +737,7 @@ describe("458-C R44–R47 — «Así queda», calculado en el servidor", () => {
     expect(await within(recuadro()).findByText("Flujo de dinero registrado")).toBeTruthy();
     expect(within(recuadro()).getByText("₡100.000")).toBeTruthy();
     expect(within(recuadro()).getByText("₡75.000")).toBeTruthy();
-    expect(within(recuadro()).getByText("Ganancia de Ordenex")).toBeTruthy();
+    expect(within(recuadro()).getByText(`Ganancia de ${NOMBRE_CORTO_ESPERADO}`)).toBeTruthy();
     expect(within(recuadro()).getByText("₡60.000 · no cambia")).toBeTruthy();
     expect(within(recuadro()).getByText("₡0 · no cambia")).toBeTruthy();
   });
@@ -768,7 +768,7 @@ describe("458-C R44–R47 — «Así queda», calculado en el servidor", () => {
     expect(await within(recuadro()).findByText("Saldo de Tienda Norte")).toBeTruthy();
     // R47: el aviso de saldo en contra, con el saldo del servidor y su signo.
     expect(within(recuadro()).getByRole("alert").textContent).toBe(
-      "Así, Tienda Norte queda con el saldo en contra: -₡3.000. Le deberá ese dinero a Ordenex.",
+      `Así, Tienda Norte queda con el saldo en contra: -₡3.000. Le deberá ese dinero a ${NOMBRE_ESPERADO}.`,
     );
     // La cifra principal en estado «saldo» se llama por su estado, y no cambia.
     expect(within(recuadro()).getByText("Dinero en caja")).toBeTruthy();
@@ -825,7 +825,7 @@ describe("458-C R44–R47 — «Así queda», calculado en el servidor", () => {
     await elegirCuenta(dialog, "Tienda a la que se le paga", "Tienda Norte");
     escribir(dialog, /^Monto/, "1500");
     expect(
-      await within(recuadro()).findByText("El monto supera lo que Ordenex le debe a esta tienda: no se va a poder registrar."),
+      await within(recuadro()).findByText(`El monto supera lo que ${NOMBRE_ESPERADO} le debe a esta tienda: no se va a poder registrar.`),
     ).toBeTruthy();
   });
 });
@@ -908,7 +908,7 @@ describe("458-C B1 — 461 R68: `ya_registrado` (el doble envío) es ÉXITO en l
     [
       `${NOMBRE_ESPERADO} le cobra a una tienda`,
       () => registrarCobroMock.mockResolvedValue({ status: "ya_registrado", cobro: { id: "c1" }, saldo: SALDO_NEGATIVO }),
-      "Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a Ordenex.",
+      `Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a ${NOMBRE_ESPERADO}.`,
     ],
     [
       `${NOMBRE_ESPERADO} paga un gasto de una tienda`,
@@ -918,7 +918,7 @@ describe("458-C B1 — 461 R68: `ya_registrado` (el doble envío) es ÉXITO en l
           pago: { id: "p1", tiendaNombre: "Tienda Norte", monto: "10000.00" },
           saldo: { ...SALDO_NEGATIVO, saldo: "-10000.00" },
         }),
-      "Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a Ordenex.",
+      `Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a ${NOMBRE_ESPERADO}.`,
     ],
     [
       "Aporte de dinero a la caja",
@@ -935,12 +935,12 @@ describe("458-C B1 — 461 R68: `ya_registrado` (el doble envío) es ÉXITO en l
           abono: { id: "ab1", tiendaNombre: "Tienda Norte", monto: "2500.00" },
           saldo: { creditos: "4000.00", debitos: "10000.00", saldo: "-6000.00", signo: "negativo" },
         }),
-      "Este pago ya estaba registrado, por ₡2.500. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a Ordenex.",
+      `Este pago ya estaba registrado, por ₡2.500. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a ${NOMBRE_ESPERADO}.`,
     ],
     [
       `${NOMBRE_ESPERADO} le paga a una tienda`,
       () => registrarPagoTiendaMock.mockResolvedValue({ status: "ya_registrado", pago: { id: "lp1", monto: "3000.00" }, restante: "7000.00" }),
-      "Pago de ₡3.000 a Tienda Norte registrado. Ordenex le sigue debiendo ₡7.000.",
+      `Pago de ₡3.000 a Tienda Norte registrado. ${NOMBRE_ESPERADO} le sigue debiendo ₡7.000.`,
     ],
     [
       `${NOMBRE_ESPERADO} le paga a un mensajero`,
@@ -949,7 +949,7 @@ describe("458-C B1 — 461 R68: `ya_registrado` (el doble envío) es ÉXITO en l
           status: "ya_registrado",
           reparto: { totalImputado: "8000.00", restanteImputable: "2000.00", imputaciones: [] },
         }),
-      "Pago de ₡8.000 a Juan Pérez Mora registrado. Ordenex le sigue debiendo ₡2.000 por sus cierres.",
+      `Pago de ₡8.000 a Juan Pérez Mora registrado. ${NOMBRE_ESPERADO} le sigue debiendo ₡2.000 por sus cierres.`,
     ],
   ];
 
@@ -970,13 +970,13 @@ describe("458-C B1 — 461 R68: `ya_registrado` (el doble envío) es ÉXITO en l
 });
 
 describe("458-C B1 — los avisos de éxito con la cifra del SERVIDOR (459 R63/R68, 457 R57)", () => {
-  it("459 R63: el pago de un gasto dice el saldo con su signo; en contra, que la tienda le debe a Ordenex", async () => {
+  it(`459 R63: el pago de un gasto dice el saldo con su signo; en contra, que la tienda le debe a ${NOMBRE_ESPERADO}`, async () => {
     const { user, dialog } = await abrir();
     await rellenar(user, dialog, `${NOMBRE_ESPERADO} paga un gasto de una tienda`);
     await confirmar(user, dialog);
     await waitFor(() => expect(successMock).toHaveBeenCalledTimes(1));
     expect(successMock).toHaveBeenCalledWith(
-      "Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a Ordenex.",
+      `Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a ${NOMBRE_ESPERADO}.`,
     );
   }, 30000);
 
@@ -1020,7 +1020,7 @@ describe("458-C B1 — los avisos de éxito con la cifra del SERVIDOR (459 R63/R
     await confirmar(user, dialog);
     await waitFor(() => expect(successMock).toHaveBeenCalledTimes(1));
     expect(successMock).toHaveBeenCalledWith(
-      "Pago registrado. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a Ordenex.",
+      `Pago registrado. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a ${NOMBRE_ESPERADO}.`,
     );
   }, 30000);
 
@@ -1158,9 +1158,9 @@ describe("458-C M3 — un fallo de red no es un diálogo mudo, y cambiar de conc
 // ─── Ficha 488 (T F.5, R21/R24) — el Pago de IVA en el diálogo y su «Así queda» ─────────────────
 
 describe("488 — el Pago de IVA", () => {
-  it("R21: se ofrece en «Sale dinero de Ordenex», pide «A quién» y manda `tipoEgreso: pago_iva` sin comprobante", async () => {
+  it(`R21: se ofrece en «Sale dinero de ${NOMBRE_ESPERADO}», pide «A quién» y manda \`tipoEgreso: pago_iva\` sin comprobante`, async () => {
     const { user, dialog } = await abrir();
-    const grupo = within(dialog).getByRole("radiogroup", { name: "Sale dinero de Ordenex" });
+    const grupo = within(dialog).getByRole("radiogroup", { name: `Sale dinero de ${NOMBRE_ESPERADO}` });
     expect(within(grupo).getByRole("radio", { name: "Pago de IVA" })).toBeTruthy();
     await elegirConcepto(user, dialog, "Pago de IVA");
     // «A quién» es obligatorio (P4): sin él no llama al servidor.

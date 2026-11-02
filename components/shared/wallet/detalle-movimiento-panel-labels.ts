@@ -1,6 +1,7 @@
 import type { RegistroDTO } from "@/lib/types/estado-cuenta";
 import type { MotivoSinComprobanteLateral } from "@/lib/types/wallet-comprobante-lateral";
 import type { MotivoNoAnulable } from "@/lib/types/wallet-anulacion";
+import { MARCA } from "@/lib/marca/identidad";
 
 // FICHA 458-C (T C.3/C.4, design §3.7/§4.2/§5.1; R58, R63–R67, R71, R72, R79, R80, R100) — los textos
 // del panel «Ver» y de «Anular…». Fuera del JSX (docs/conventions). Ningún texto lleva un
@@ -47,7 +48,7 @@ export const PANEL_TEXTO = {
       : referencia === null
         ? metodo
         : `${metodo} · referencia ${referencia}`,
-  esOrdenex: "Ordenex",
+  esOrdenex: `${MARCA.nombreCorto}`,
   aTercero: (beneficiario: string) => `a ${beneficiario}`,
   cargando: "Cargando…",
   errorAutoria: "No se pudo leer quién lo registró.",
@@ -81,7 +82,7 @@ export const COMO_QUEDO_TEXTO = {
   error: "No se pudo leer cómo quedó la caja tras este movimiento.",
   sinCaja: "Este movimiento no tiene línea en la caja: la caja no cambió con él.",
   cuentaTienda: "Saldo de la tienda",
-  cuentaMensajero: "Lo que Ordenex le debe al mensajero",
+  cuentaMensajero: `Lo que ${MARCA.nombre} le debe al mensajero`,
 } as const;
 
 /** R79/R80 — el comprobante: verlo por su rótulo legible, o adjuntarlo una sola vez. */
@@ -152,7 +153,7 @@ export const MOTIVO_NO_ANULABLE_TEXTO: Record<MotivoNoAnulable, string> = {
  */
 export const COBRO_RECHAZO_TEXTO = {
   vigente:
-    "Es un cobro a la tienda por el flete de una devolución a origen: la ganancia de Ordenex sube y el saldo de la tienda baja, sin dinero nuevo en la caja.",
+    `Es un cobro a la tienda por el flete de una devolución a origen: la ganancia de ${MARCA.nombre} sube y el saldo de la tienda baja, sin dinero nuevo en la caja.`,
   anulado:
-    "Este cobro por devolución a origen se anuló: la ganancia de Ordenex bajó y el saldo de la tienda volvió a subir. El cobro sigue aprobado en su cola y no se vuelve a ofrecer.",
+    `Este cobro por devolución a origen se anuló: la ganancia de ${MARCA.nombre} bajó y el saldo de la tienda volvió a subir. El cobro sigue aprobado en su cola y no se vuelve a ofrecer.`,
 } as const;

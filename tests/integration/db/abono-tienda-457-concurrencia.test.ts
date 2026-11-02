@@ -35,6 +35,7 @@ import {
   sembrarPersonas459,
   type Personas459,
 } from "./_fixtures/escrituras-459";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 457 / T5.2 — CONCURRENCIA (R16, R36, R38), contra Postgres, con filas COMMITEADAS.
@@ -83,7 +84,7 @@ function senal() {
   return { p, dar };
 }
 
-describeSiHayBase("457/T5.2 — concurrencia del pago de una tienda a Ordenex (Postgres real)", () => {
+describeSiHayBase(`457/T5.2 — concurrencia del pago de una tienda a ${NOMBRE_ESPERADO} (Postgres real)`, () => {
   let prisma: PrismaClient;
   let clienteA: PrismaClient;
   let clienteB: PrismaClient;
@@ -202,7 +203,7 @@ describeSiHayBase("457/T5.2 — concurrencia del pago de una tienda a Ordenex (P
     });
   }, 120_000);
 
-  it("R16: el pago de Ordenex a la tienda ESPERA al pago de la tienda y al entrar la ve en contra -> sin_saldo", async () => {
+  it(`R16: el pago de ${NOMBRE_ESPERADO} a la tienda ESPERA al pago de la tienda y al entrar la ve en contra -> sin_saldo`, async () => {
     await conPersonas(async (p) => {
       await endeudar457(prisma, p.tiendaId, "10000.00");
       const a = await pagoPausado(p);

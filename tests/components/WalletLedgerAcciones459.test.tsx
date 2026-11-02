@@ -57,7 +57,7 @@ import { COLUMNAS_DESCARGA_WALLET_CAJA } from "@/app/(app)/wallet/_components/wa
 import { filaDeLibroCaja as filaDescargaMovimientoCaja } from "@/tests/fixtures/libro-kardex";
 import { opcionesDeConceptos } from "@/components/shared/wallet/conceptos-filtro";
 import { CATEGORIA_LABEL as CATEGORIA_LABEL_458, CATEGORIA_TODAS_OPTION } from "@/app/(app)/wallet/_components/wallet-labels";
-import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const PAGO_ID = "0b6c1f7e-7a44-4b43-9c1a-5e0f2d9a1c11";
 const APORTE_ID = "9f2e3d4c-1b2a-4c3d-8e9f-0a1b2c3d4e5f";
@@ -190,14 +190,14 @@ const ESPERADO: ReadonlyArray<{
     movimiento: SALDO_INICIAL,
     concepto: "Aporte de dinero a la caja",
     origen: "Aporte de dinero a la caja · Saldo inicial · Arranque",
-    dueno: "Ordenex (capital)",
+    dueno: `${NOMBRE_CORTO_ESPERADO} (capital)`,
   },
   {
     caso: "anulación del saldo inicial",
     movimiento: REVERSO_APORTE,
     concepto: "Aporte de dinero a la caja anulado",
     origen: "Aporte de dinero a la caja · Anulación · Saldo inicial · Arranque",
-    dueno: "Ordenex (capital)",
+    dueno: `${NOMBRE_CORTO_ESPERADO} (capital)`,
   },
   {
     caso: "pago por cuenta",

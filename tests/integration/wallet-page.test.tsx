@@ -139,6 +139,7 @@ import { listarCobrosPendientesAction } from "@/lib/actions/gasto-fijo-cobro";
 import { listarCobrosRechazoTiendaAction } from "@/lib/actions/rechazo-tienda-cobro";
 import { autoriaDelLibroCajaAction } from "@/lib/actions/libro-caja-autoria";
 import { money } from "@/app/(app)/wallet/_components/wallet-labels";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const resolveActorMock = vi.mocked(resolveActorFromSession);
 const listarMock = vi.mocked(listarMovimientosAction);
@@ -541,7 +542,7 @@ describe("WalletPage — la descripción de la página (R59)", () => {
     const texto = (document.body.textContent ?? "").toLowerCase();
     expect(texto).not.toContain("dinero en caja");
     expect(texto).toContain("cifras de la caja");
-    expect(texto).toContain("ganancia de ordenex");
+    expect(texto).toContain(`ganancia de ${NOMBRE_ESPERADO.toLowerCase()}`);
   });
 });
 
@@ -619,7 +620,7 @@ describe("WalletPage — el libro de caja de la 458-E (R53–R57)", () => {
     );
 
     // R53: la ganancia de la tarjeta es la del resumen pre-obtenido (1 500), no la cifra de la caja.
-    const ganancia = screen.getByRole("region", { name: "Ganancia de Ordenex" });
+    const ganancia = screen.getByRole("region", { name: `Ganancia de ${NOMBRE_CORTO_ESPERADO}` });
     expect(ganancia.textContent).toContain(money("1500.00"));
     expect(ganancia.textContent).not.toContain(money("11500.00"));
 

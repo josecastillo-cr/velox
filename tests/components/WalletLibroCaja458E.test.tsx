@@ -88,7 +88,7 @@ import { WalletModule } from "@/app/(app)/wallet/_components/WalletModule";
 import { CAJA_RESUMEN_LABEL, money } from "@/app/(app)/wallet/_components/wallet-labels";
 import { COBRO_RECHAZO_TEXTO } from "@/components/shared/wallet/detalle-movimiento-panel-labels";
 import { elegirSoloLosMovimientos } from "@/tests/fixtures/descarga-detalle-por-orden";
-import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ── Datos ──
 
@@ -349,7 +349,7 @@ describe("458-E T E.1 — las columnas del libro (R55–R57)", () => {
     expect(encabezados).toEqual(["Desglose", "Fecha", "Movimiento y motivo", "A quién", "Monto", "Registró", "Ver"]);
   });
 
-  it("R55: «Movimiento y motivo» dice el concepto desde Ordenex, el origen con su entidad y el motivo", () => {
+  it(`R55: «Movimiento y motivo» dice el concepto desde ${NOMBRE_ESPERADO}, el origen con su entidad y el motivo`, () => {
     pintarLibro();
     const cobro = celdasDe(FILAS, COBRO)["Movimiento y motivo"];
     expect(within(cobro).getByText(`${NOMBRE_ESPERADO} le cobra a una tienda`)).toBeInTheDocument();
@@ -364,16 +364,16 @@ describe("458-E T E.1 — las columnas del libro (R55–R57)", () => {
     const sueldo = celdasDe(FILAS, SUELDO).Monto;
     expect(within(sueldo).getByText("Sale")).toBeInTheDocument();
     expect(within(sueldo).getByText(money("25000.00"))).toBeInTheDocument();
-    expect(sueldo.querySelector("[data-dueno]")?.textContent).toBe("Ordenex");
+    expect(sueldo.querySelector("[data-dueno]")?.textContent).toBe(`${NOMBRE_CORTO_ESPERADO}`);
 
     const cierre = celdasDe(FILAS, DEL_CIERRE).Monto;
     expect(within(cierre).getByText("Entra")).toBeInTheDocument();
     expect(cierre.querySelector("[data-dueno]")?.textContent).toBe("Tienda");
 
-    expect(celdasDe(FILAS, APORTE).Monto.querySelector("[data-dueno]")?.textContent).toBe("Ordenex (capital)");
+    expect(celdasDe(FILAS, APORTE).Monto.querySelector("[data-dueno]")?.textContent).toBe(`${NOMBRE_CORTO_ESPERADO} (capital)`);
   });
 
-  it("R56: «A quién» nombra la cuenta y enlaza su estado de cuenta; «Ordenex» en el aporte; «—» sin anotación", () => {
+  it(`R56: «A quién» nombra la cuenta y enlaza su estado de cuenta; «${NOMBRE_ESPERADO}» en el aporte; «—» sin anotación`, () => {
     pintarLibro();
     const aQuien = (m: WalletMovimientoDTO) => celdasDe(FILAS, m)["A quién"];
 
@@ -389,7 +389,7 @@ describe("458-E T E.1 — las columnas del libro (R55–R57)", () => {
     expect(mensajero.getAttribute("href")).toBe(`/wallet/mensajeros/${MENSAJERO_ID}`);
     expect(mensajero).toHaveAccessibleName("Mario Mensajero · estado de cuenta del mensajero");
 
-    expect(aQuien(APORTE).textContent).toBe("Ordenex");
+    expect(aQuien(APORTE).textContent).toBe(`${NOMBRE_CORTO_ESPERADO}`);
     expect(aQuien(ANULADO).textContent).toBe("—");
   });
 

@@ -18,6 +18,7 @@ import {
   DESCRIPCION_EGRESO_LABEL,
   DESCRIPCION_EGRESO_PLACEHOLDER,
 } from "./wallet-labels";
+import { MARCA } from "@/lib/marca/identidad";
 
 // Ficha 334 (D1, design §9) — el CATÁLOGO de conceptos que una persona puede registrar a mano
 // en la caja principal. Es la ÚNICA fuente de los conceptos, y por eso la regla del gasto FIJO se
@@ -161,7 +162,7 @@ export type LibroDestino = "caja" | "caja_y_tienda" | "mensajero";
 export type GrupoConcepto = "sale" | "entra" | "descuenta";
 
 export const GRUPO_CONCEPTO_LABEL: Record<GrupoConcepto, string> = {
-  sale: "Sale dinero de Ordenex",
+  sale: `Sale dinero de ${MARCA.nombre}`,
   entra: "Llega dinero a la caja",
   descuenta: "Se descuenta del saldo de una tienda",
 };
@@ -186,7 +187,7 @@ export interface ConceptoManual {
 export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
   {
     id: "gasto_variable",
-    label: "Gasto de Ordenex",
+    label: `Gasto de ${MARCA.nombreCorto}`,
     // Las dos etiquetas de la ficha 45 se conservan BYTE A BYTE (R9): se derivan de su
     // `Record` en vez de copiarse, que es lo que impide que la fusión las cambie sin querer.
     descripcionLabel: DESCRIPCION_EGRESO_LABEL.gasto_variable,
@@ -230,7 +231,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     // de la tienda, y se lo descuenta de su saldo. No es un cobro a la tienda (ese NO saca dinero
     // de la caja): la frase del efecto lo dice en voz alta (R60).
     id: "pago_por_cuenta_tienda",
-    label: "Ordenex paga un gasto de una tienda",
+    label: `${MARCA.nombre} paga un gasto de una tienda`,
     descripcionLabel: "Motivo del pago",
     descripcionPlaceholder: "Ej. Pauta de publicidad de la tienda",
     destino: {
@@ -253,7 +254,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     // (172). Sale dinero de la caja y baja «De las tiendas»; el tope (el saldo a favor) lo decide
     // el servidor.
     id: "pago_a_tienda",
-    label: "Ordenex le paga a una tienda",
+    label: `${MARCA.nombre} le paga a una tienda`,
     descripcionLabel: "Motivo del pago",
     descripcionPlaceholder: "Ej. Entrega de lo recaudado en la primera quincena",
     destino: { clase: "pago_tienda", categoria: "egreso_pago_tienda", categoriaTienda: "pago_tienda" },
@@ -264,7 +265,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     // cierres pendientes del mensajero. Baja su cuenta por pagar; la caja no tiene línea propia
     // ([P2] de la 173).
     id: "pago_a_mensajero",
-    label: "Ordenex le paga a un mensajero",
+    label: `${MARCA.nombre} le paga a un mensajero`,
     descripcionLabel: "Motivo del pago",
     descripcionPlaceholder: "Ej. Pago de los cierres de la semana",
     destino: { clase: "pago_mensajero", categoria: null, categoriaMensajero: "liquidacion" },
@@ -277,7 +278,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     id: "aporte_capital",
     label: "Aporte de dinero a la caja",
     descripcionLabel: "Motivo",
-    descripcionPlaceholder: "Ej. Dinero con el que Ordenex empezó a usar la app",
+    descripcionPlaceholder: `Ej. Dinero con el que ${MARCA.nombre} empezó a usar la app`,
     destino: { clase: "aporte_capital", categoria: "ingreso_aporte_capital" },
     grupo: "entra",
   },
@@ -286,7 +287,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     // Llega dinero DE LA TIENDA (terceros): su saldo sube y la ganancia no cambia (ya se contó al
     // aprobar cada cierre). Solo con saldo en contra y hasta lo que debe: lo decide el servidor.
     id: "abono_tienda",
-    label: "Una tienda le paga a Ordenex",
+    label: `Una tienda le paga a ${MARCA.nombre}`,
     descripcionLabel: "Motivo del pago",
     descripcionPlaceholder: "Ej. Pago de lo que debía por los fletes de septiembre",
     destino: {
@@ -314,7 +315,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     //
     // El nombre del selector dice la ACCIÓN y quién le paga a quién, no el nombre del enum.
     id: "cobro_tienda",
-    label: "Ordenex le cobra a una tienda",
+    label: `${MARCA.nombre} le cobra a una tienda`,
     descripcionLabel: "Motivo del cobro",
     descripcionPlaceholder: "Ej. Material de despacho entregado en bodega",
     destino: {
@@ -346,26 +347,26 @@ export const CONCEPTO_MANUAL_OPTIONS = CONCEPTOS_MANUALES.map((concepto) => ({
  * ganancia no cambian») queda retirada y una guardia vigila que no vuelva.
  */
 export const FRASE_DEL_EFECTO: Record<ConceptoManualId, string> = {
-  gasto_variable: "Sale dinero de Ordenex y baja su ganancia.",
-  sueldo: "Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.",
+  gasto_variable: `Sale dinero de ${MARCA.nombre} y baja su ganancia.`,
+  sueldo: `Sale dinero de ${MARCA.nombre} para pagar un sueldo y baja su ganancia.`,
   // Ficha 488 (design §6): literal.
   pago_iva:
     "Sale dinero de la caja para pagarle a Hacienda el IVA cobrado y baja el IVA por pagar; la ganancia no cambia.",
   pago_por_cuenta_tienda:
-    "Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.",
-  ajuste_egreso: "Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.",
+    `Sale dinero de ${MARCA.nombre} hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.`,
+  ajuste_egreso: `Sale dinero de la caja para corregir un descuadre y baja la ganancia de ${MARCA.nombre}.`,
   // Ficha 458-C (R39): las dos frases nuevas, con la misma regla (una línea, quién le paga a quién).
   pago_a_tienda:
-    "Sale dinero de Ordenex hacia la tienda y baja lo que Ordenex le debe; la ganancia no cambia.",
+    `Sale dinero de ${MARCA.nombre} hacia la tienda y baja lo que ${MARCA.nombre} le debe; la ganancia no cambia.`,
   pago_a_mensajero:
-    "Ordenex le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.",
-  aporte_capital: "Llega dinero de Ordenex a la caja; no es ganancia, la ganancia no cambia.",
+    `${MARCA.nombre} le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.`,
+  aporte_capital: `Llega dinero de ${MARCA.nombre} a la caja; no es ganancia, la ganancia no cambia.`,
   // Ficha 457 (design §8.2, R55): literal.
   abono_tienda:
-    "Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.",
-  ajuste_ingreso: "Llega dinero a la caja para corregir un descuadre y sube la ganancia de Ordenex.",
+    `Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de ${MARCA.nombre} no cambia.`,
+  ajuste_ingreso: `Llega dinero a la caja para corregir un descuadre y sube la ganancia de ${MARCA.nombre}.`,
   cobro_tienda:
-    "No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex; si la tienda no tiene saldo, queda en contra.",
+    `No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de ${MARCA.nombre}; si la tienda no tiene saldo, queda en contra.`,
 };
 
 /**
@@ -464,13 +465,13 @@ const DESCRIPCION_CABECERA_DOS_LIBROS: Record<
   pago_por_cuenta_tienda:
     "Elegí la tienda, a quién se le pagó, el monto y la fecha. El pago no se puede editar: si hay un error, se anula desde el libro de la caja con un motivo.",
   cobro_tienda:
-    "Elegí la tienda, el monto y la fecha. El cobro se descuenta de lo que Ordenex le debe a esa tienda y no se edita: si hay un error, se anula desde el libro de la caja con un motivo.",
+    `Elegí la tienda, el monto y la fecha. El cobro se descuenta de lo que ${MARCA.nombre} le debe a esa tienda y no se edita: si hay un error, se anula desde el libro de la caja con un motivo.`,
   // FICHA 457 (design §8.1): literal.
   abono_tienda:
     "Elegí la tienda, el monto, la fecha real y el método. Solo se admite si la tienda tiene saldo en contra y hasta lo que debe. El pago no se edita: si hay un error, se anula desde el libro de la caja con un motivo.",
   // FICHA 458-C (design §4.1): los dos pagos de Ordenex.
   pago_tienda:
-    "Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que Ordenex le debe a la tienda. El pago no se edita: si hay un error, se anula con un motivo.",
+    `Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que ${MARCA.nombre} le debe a la tienda. El pago no se edita: si hay un error, se anula con un motivo.`,
   pago_mensajero:
     "Elegí el mensajero, el monto, la fecha real y el método. El importe se reparte entre sus cierres pendientes. El pago no se edita: si hay un error, se anula con un motivo.",
 };

@@ -34,6 +34,7 @@ import { DesgloseEgresosLista } from "./DesgloseEgresosLista";
 import { FilaComposicion } from "./FilaComposicion";
 import type { WalletFiltrosValue } from "./wallet-filtros-input";
 import { CATEGORIA_LABEL, money } from "./wallet-labels";
+import { MARCA } from "@/lib/marca/identidad";
 
 // Feature 231 (T6.2, design §4.3) — «Cómo se compone la ganancia de Ordenex».
 //
@@ -58,7 +59,7 @@ import { CATEGORIA_LABEL, money } from "./wallet-labels";
 // servidor construye el desglose: una fila nueva del catálogo entra por los dos sitios a la vez.
 
 // --- Textos i18n-ready (separados de la lógica, docs/conventions) ---
-const TITULO = "Cómo se compone la ganancia de Ordenex";
+const TITULO = `Cómo se compone la ganancia de ${MARCA.nombre}`;
 
 /**
  * R29 (copy heredado de la 158) — qué entra y, sobre todo, qué NO entra. La 158 escribió «no
@@ -80,14 +81,14 @@ const TITULO = "Cómo se compone la ganancia de Ordenex";
 const DESCRIPCION =
   "Ingresos y gastos propios del conjunto filtrado, concepto por concepto: fletes, comisiones, " +
   "impuestos, gastos, sueldos, indemnizaciones, pagos a mensajeros y ajustes. No incluye el " +
-  "dinero de las tiendas: el contra-entrega cobrado no es de Ordenex y por eso no está en la " +
+  `dinero de las tiendas: el contra-entrega cobrado no es de ${MARCA.nombre} y por eso no está en la ` +
   "ganancia.";
 
 const INGRESOS_TITULO = "Ingresos";
 const EGRESOS_TITULO = "Egresos";
 const INGRESOS_GRUPO_ARIA = "Desglose de ingresos";
 const INGRESOS_TOTAL_LABEL = "Total de ingresos";
-const GANANCIA_LABEL = "Ganancia de Ordenex";
+const GANANCIA_LABEL = `Ganancia de ${MARCA.nombreCorto}`;
 
 /**
  * Icono de cada concepto de ingreso. `Record` TOTAL sobre las categorías de ingreso propio: una

@@ -45,7 +45,7 @@ vi.mock("@/hooks/useToast", () => ({
 }));
 
 import { WalletLedger } from "@/app/(app)/wallet/_components/WalletLedger";
-import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 let n = 0;
 function uuid(): string {
@@ -77,7 +77,7 @@ function doc(tipo: DocumentoCajaDTO["tipo"], extra: Partial<DocumentoCajaDTO> = 
 /** Una fila ORIGINAL vigente por cada camino anulable del libro de la caja. */
 const ANULABLES: Array<[string, WalletMovimientoDTO]> = [
   ["sueldo", fila({ categoria: "egreso_sueldo", monto: "25000.00", documento: doc("egreso_caja") })],
-  ["gasto de Ordenex", fila({ categoria: "egreso_gasto_variable", monto: "1200.00", documento: doc("egreso_caja") })],
+  [`gasto de ${NOMBRE_ESPERADO}`, fila({ categoria: "egreso_gasto_variable", monto: "1200.00", documento: doc("egreso_caja") })],
   [
     "pago de un gasto de una tienda",
     fila({ categoria: "egreso_pago_por_cuenta_tienda", origenTipo: "pago_por_cuenta_tienda", origenId: uuid(), dueno: "terceros", monto: "10000.00", documento: doc("pago_por_cuenta_tienda", { tieneComprobante: true }) }),
@@ -87,7 +87,7 @@ const ANULABLES: Array<[string, WalletMovimientoDTO]> = [
     fila({ tipo: "ingreso", categoria: "ingreso_aporte_capital", origenTipo: "aporte_capital", origenId: uuid(), dueno: "capital", monto: "5000.00", documento: doc("aporte_capital") }),
   ],
   [
-    "cobro de Ordenex",
+    `cobro de ${NOMBRE_ESPERADO}`,
     fila({ tipo: "ingreso", categoria: "ingreso_cobro_tienda", origenTipo: "cobro_tienda", origenId: uuid(), monto: "700.00", documento: doc("cobro_tienda") }),
   ],
   [
@@ -99,7 +99,7 @@ const ANULABLES: Array<[string, WalletMovimientoDTO]> = [
     fila({ tipo: "ingreso", categoria: "ingreso_ajuste", origenTipo: "manual", monto: "50.00", documento: doc("ajuste_caja") }),
   ],
   [
-    "pago de una tienda a Ordenex",
+    `pago de una tienda a ${NOMBRE_ESPERADO}`,
     fila({ tipo: "ingreso", categoria: "ingreso_abono_tienda", origenTipo: "abono_tienda", origenId: uuid(), dueno: "terceros", monto: "4000.00", documento: doc("abono_tienda") }),
   ],
   [
@@ -112,7 +112,7 @@ const ANULABLES: Array<[string, WalletMovimientoDTO]> = [
   ],
   // B3 de la revisión: los dos egresos que el servidor ya anulaba desde la caja y que no traían documento.
   [
-    "pago de Ordenex a una tienda",
+    `pago de ${NOMBRE_ESPERADO} a una tienda`,
     fila({ categoria: "egreso_pago_tienda", origenTipo: "pago_tienda", origenId: uuid(), dueno: "terceros", monto: "3000.00", documento: doc("pago_tienda") }),
   ],
   [
@@ -341,7 +341,7 @@ describe("458-C revisión B2 — la fila anulada del libro DICE «Anulado» (457
 
 describe("458-C revisión B3 — el estado del panel es el del servidor, también en el pago a una tienda y el premio", () => {
   for (const [nombre, m] of [
-    ["el pago de Ordenex a una tienda", PAGO_TIENDA_ANULADO],
+    [`el pago de ${NOMBRE_ESPERADO} a una tienda`, PAGO_TIENDA_ANULADO],
     ["el premio del ranking", PREMIO_ANULADO],
   ] as const) {
     it(`${nombre} anulado: la fila sale tachada, el panel dice «Anulado» y no ofrece «Anular…»`, async () => {
@@ -373,7 +373,7 @@ describe("458-C revisión B3 — el estado del panel es el del servidor, tambié
     const panel = await abrirPanel(user, m);
     expect(lineaDelPanel(panel, "Estado")).toBe("Vigente");
     await user.click(within(panel).getByRole("button", { name: "Anular…" }));
-    const dialogo = await screen.findByRole("dialog", { name: "Anular el pago de Ordenex a una tienda" });
+    const dialogo = await screen.findByRole("dialog", { name: `Anular el pago de ${NOMBRE_ESPERADO} a una tienda` });
     await user.type(within(dialogo).getByLabelText(/^Motivo de la anulación/), "Cuenta equivocada");
     await user.click(within(dialogo).getByRole("button", { name: "Anular" }));
     await waitFor(() =>

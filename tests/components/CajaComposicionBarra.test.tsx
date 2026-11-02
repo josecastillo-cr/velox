@@ -15,6 +15,7 @@ import {
   LLAMADAS_PROHIBIDAS_EN_DINERO,
   codigoSinComentarios,
 } from "@/tests/fixtures/money-safe";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Feature 231 (T4.4) — la barra de composición de la caja y sus CUATRO modos.
@@ -185,7 +186,7 @@ describe("BarraComposicionCaja — los dos bolsillos (R3/R5)", () => {
     expect(within(ordenex).queryByText("₡10.000")).toBeNull();
   });
 
-  it("R5: el bloque de Ordenex es neutro salvo en el caso límite", () => {
+  it(`R5: el bloque de ${NOMBRE_ESPERADO} es neutro salvo en el caso límite`, () => {
     const { container } = pintarTarjeta();
     const normal = bolsillo(container, "ordenex");
     expect(normal.dataset.superficie).toBe("neutra");
@@ -210,7 +211,7 @@ describe("BarraComposicionCaja — los dos bolsillos (R3/R5)", () => {
 });
 
 describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R20)", () => {
-  it("R16: `solo_tiendas`: un solo segmento y el bloque de Ordenex en peligro", () => {
+  it(`R16: \`solo_tiendas\`: un solo segmento y el bloque de ${NOMBRE_ESPERADO} en peligro`, () => {
     const { container } = pintarTarjeta({
       ganancia: "-500.00",
       signoGanancia: "negativo",
@@ -260,7 +261,7 @@ describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R
     expect(nota.className).not.toContain("danger");
   });
 
-  it("R17 (D4): `solo_ordenex` pinta la barra entera de Ordenex y el bolsillo de las tiendas en negativo", () => {
+  it(`R17 (D4): \`solo_ordenex\` pinta la barra entera de ${NOMBRE_ESPERADO} y el bolsillo de las tiendas en negativo`, () => {
     // El espejo: se entregó a las tiendas más contra-entrega del que se cobró.
     const { container } = pintarTarjeta({
       deTerceros: "-800.00",
@@ -415,14 +416,14 @@ describe("BarraComposicionCaja — money-safe y color por token (R12/R39)", () =
 });
 
 // ─── Ficha 459 (design §3.4, R11/R26) — «De Ordenex» es ganancia MÁS aportes ───
-describe("Ficha 459 — la barra reparte «De las tiendas» y «De Ordenex» (R11/R26)", () => {
-  it("el nombre accesible usa «De Ordenex» (ganancia y aportes), no la ganancia a secas", () => {
+describe(`Ficha 459 — la barra reparte «De las tiendas» y «De ${NOMBRE_CORTO_ESPERADO}» (R11/R26)`, () => {
+  it(`el nombre accesible usa «De ${NOMBRE_CORTO_ESPERADO}» (ganancia y aportes), no la ganancia a secas`, () => {
     // Capital distinto de cero: con 0 «De Ordenex» y la ganancia valdrían lo mismo y el caso
     // no distinguiría nada.
     pintarBarra({ ganancia: "2000.00", capital: "500.25", deOrdenex: "2500.25" });
     // Ficha 488 (R15): + « IVA por pagar: ₡0.» al final (antes terminaba en «(ganancia y aportes).»).
     expect(screen.getByRole("img").getAttribute("aria-label")).toBe(
-      "Reparto del dinero en caja. De las tiendas: ₡10.000. De Ordenex: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡0.",
+      `Reparto del dinero en caja. De las tiendas: ₡10.000. De ${NOMBRE_CORTO_ESPERADO}: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡0.`,
     );
   });
 
@@ -430,13 +431,13 @@ describe("Ficha 459 — la barra reparte «De las tiendas» y «De Ordenex» (R1
     expect(CAJA_COMPOSICION_MENSAJE).toEqual({
       dos_bolsillos: null,
       solo_tiendas:
-        "Lo de Ordenex (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.",
+        `Lo de ${NOMBRE_ESPERADO} (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.`,
       // Ficha 488 (R17): antes «Las tiendas le deben a Ordenex, así que todo lo que hay en la caja es
       // de Ordenex y además hay dinero por cobrarles.» — falso con IVA por pagar positivo.
       solo_ordenex:
-        "Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.",
+        `Las tiendas le deben a ${NOMBRE_ESPERADO}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
       sin_reparto:
-        "No hay nada que repartir: ni Ordenex ni las tiendas tienen dinero a favor en la caja.",
+        `No hay nada que repartir: ni ${NOMBRE_ESPERADO} ni las tiendas tienen dinero a favor en la caja.`,
     });
   });
 });

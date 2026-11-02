@@ -14,6 +14,7 @@ import {
   sembrarEscenario459,
   type LecturaCaja459,
 } from "./_fixtures/caja-459";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 459 / FASE 0 (T0.2) — LA FOTOGRAFIA DE LO QUE **NO** PUEDE CAMBIAR (R92–R96).
@@ -241,7 +242,7 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
   // FICHA 461 (T A.1): `ingresosPropios` y `ganancia` se mudan al bloque «lo que la 461 cambia a
   // proposito» (el cobro pasa a ser un ingreso propio: HD1). Los egresos propios NO cambian y se
   // quedan aqui con su literal.
-  it("R93: egresos propios de Ordenex", () => {
+  it(`R93: egresos propios de ${NOMBRE_ESPERADO}`, () => {
     expect(delta(foto(), (l) => l.resumen.egresosPropios)).toBe("153845.77");
   });
 
@@ -413,7 +414,7 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
   // T A.1 (ficha 461): de este bloque se reescriben SOLO dos cifras, `deTerceros` y `deOrdenex`, con
   // el mismo criterio (a mano). Las de la 459 eran: deTerceros 15 546,32 · deOrdenex −89 874,84.
   describe("lo que esta ficha cambia a proposito (cifras con la formula de la 459)", () => {
-    it("«Entro», la cifra principal, «De las tiendas», capital y «De Ordenex»", () => {
+    it(`«Entro», la cifra principal, «De las tiendas», capital y «De ${NOMBRE_CORTO_ESPERADO}»`, () => {
       // Cargos a tiendas del escenario (los seis conceptos del feed y del cobro por devolución a origen):
       //   flete 8 000 + IVA flete 1 040 + comision 978,47 + IVA comision 127,21
       //   + devolucion 2 500 + IVA devolucion 325 = 12 970,68
@@ -595,7 +596,7 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
       });
     });
 
-    it("R7: cifra principal = «De Ordenex» + «De las tiendas» + IVA por pagar (por diferencia, al centimo)", () => {
+    it(`R7: cifra principal = «De ${NOMBRE_CORTO_ESPERADO}» + «De las tiendas» + IVA por pagar (por diferencia, al centimo)`, () => {
       const mas = (a: string, b: string) => menos(a, menos("0.00", b));
       expect(
         menos(
