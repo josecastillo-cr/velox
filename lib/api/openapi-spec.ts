@@ -1,4 +1,5 @@
 import { MARCA } from "@/lib/marca/identidad";
+import { WEBHOOK_SIGNATURE_HEADER, WEBHOOK_TIMESTAMP_HEADER } from "@/lib/crypto/webhook-firma";
 import { ORDER_STATUS_SEED } from "@/lib/types/order-status";
 import { MSG_CARGA_SIN_TARIFA, MSG_FILA_SIN_TARIFA } from "@/lib/services/mensajes-tarifa";
 import { EVENTOS_PUBLICOS } from "@/lib/types/webhook-eventos";
@@ -958,6 +959,10 @@ export const openApiSpec = {
       // `POST` que no existe para el.
       WebhookOrdenEstadoActualizado: {
         type: "object",
+        // FEATURE 493 (R17) — las cabeceras de firma vuelven al contrato, en la descripcion del
+        // propio schema (el sitio que dejo dicho la 256 al retirar `webhooks`). Los nombres salen
+        // de `lib/crypto/webhook-firma.ts`, que es quien los ENVIA: no pueden divergir.
+        description: `Cuerpo del evento \`orden.estado_actualizado\` que se entrega por POST al callback del integrador. Cada entrega va firmada con dos cabeceras: \`${WEBHOOK_TIMESTAMP_HEADER}\` (instante unix en segundos de la firma) y \`${WEBHOOK_SIGNATURE_HEADER}\` (\`sha256=<hex>\`: HMAC-SHA256 de \`\${timestamp}.\${cuerpo}\` con el secreto del webhook). Verificá la firma sobre el cuerpo crudo y en tiempo constante antes de parsear el JSON.`,
         required: ["evento", "eventoId", "ocurridoAt", "data"],
         properties: {
           evento: {
@@ -1163,7 +1168,7 @@ export const openApiSpec = {
               // ⏳ 2026-09-10 (feature 406/R14): AQUI IBA el `orden.id` (un uuid), y ese enlace
               // respondia 404 SIEMPRE — el `{id}` de esa ruta nunca significo `orden.id`. El
               // ultimo segmento es ahora el `numGuia` que ESTE MISMO ejemplo declara arriba.
-              evidenciasUrl: "https://app.ordenex.co/api/ordenes/api-key/orden/100235",
+              evidenciasUrl: "https://velox-courier.company/api/ordenes/api-key/orden/100235",
             },
           },
         ],

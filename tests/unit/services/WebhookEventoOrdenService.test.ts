@@ -143,8 +143,11 @@ describe("454/T1.5 — WebhookEventoOrdenService", () => {
     await m.service.ejecutar(job());
     const [, cuerpo, headers] = m.entregar.mock.calls[0];
     const ts = Math.floor(AHORA.getTime() / 1000);
-    expect(headers["X-Ordenex-Timestamp"]).toBe(String(ts));
-    expect(headers["X-Ordenex-Signature"]).toContain(firmarWebhook(SECRETO, ts, cuerpo));
+    expect(headers["X-Velox-Timestamp"]).toBe(String(ts));
+    expect(headers["X-Velox-Signature"]).toContain(firmarWebhook(SECRETO, ts, cuerpo));
+    // 493/R17 (L5b): sin doble cabecera, la vieja no viaja.
+    expect(Object.keys(headers)).not.toContain("X-Ordenex-Signature");
+    expect(Object.keys(headers)).not.toContain("X-Ordenex-Timestamp");
   });
 
   it("idempotente: reejecutar el mismo job produce el MISMO cuerpo", async () => {

@@ -14,6 +14,23 @@ const SECRET = "ordx_whsec_secreto-de-prueba";
 const CUERPO = JSON.stringify({ evento: "orden.estado_actualizado", eventoId: "e1" });
 const TS = 1_700_000_000;
 
+// FEATURE 493 (R17, L5b): los NOMBRES de las cabeceras son contrato. Literales a mano, no la
+// constante de produccion (que los demas tests si usan para leer el valor).
+describe("493/R17 — las cabeceras de firma se llaman X-Velox-*", () => {
+  it("cabecerasFirma emite exactamente X-Velox-Signature y X-Velox-Timestamp, y no las X-Ordenex-*", () => {
+    const nombres = Object.keys(cabecerasFirma(SECRET, TS, CUERPO)).sort();
+    expect(nombres).toEqual(["X-Velox-Signature", "X-Velox-Timestamp"]);
+    expect(nombres).not.toContain("X-Ordenex-Signature");
+    expect(nombres).not.toContain("X-Ordenex-Timestamp");
+  });
+
+  it("mismo formato de valor que antes: `sha256=<hex>` y segundos unix", () => {
+    const h = cabecerasFirma(SECRET, TS, CUERPO);
+    expect(h["X-Velox-Signature"]).toMatch(/^sha256=[0-9a-f]{64}$/);
+    expect(h["X-Velox-Timestamp"]).toBe("1700000000");
+  });
+});
+
 describe("R18 — firma HMAC-SHA256 determinista sobre timestamp + cuerpo", () => {
   it("coincide con el HMAC-SHA256 hex de `${timestamp}.${cuerpo}`", () => {
     const esperado = createHmac("sha256", SECRET).update(`${TS}.${CUERPO}`).digest("hex");

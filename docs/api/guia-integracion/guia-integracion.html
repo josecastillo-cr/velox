@@ -180,7 +180,7 @@
     <div class="sub">Para desarrolladores backend del comercio integrador</div>
     <div class="meta">
       Versión del documento: septiembre 2026<br>
-      Base URL de producción: https://ordenex.co
+      Base URL de producción: https://velox-courier.company
     </div>
   </div>
 </section>
@@ -380,7 +380,7 @@
   <h2>4.1 Base URL</h2>
   <table class="tight" style="width:60%">
     <thead><tr><th>Ambiente</th><th>URL</th></tr></thead>
-    <tbody><tr><td>Producción</td><td><code>https://ordenex.co</code></td></tr></tbody>
+    <tbody><tr><td>Producción</td><td><code>https://velox-courier.company</code></td></tr></tbody>
   </table>
   <h2>4.2 Headers</h2>
   <table class="tight">
@@ -494,7 +494,7 @@
   </table>
   <p class="small">El sobre admite además dos claves opcionales: <code>name</code> (nombre del lote, 1..120 caracteres; repetirlo dentro de la misma cuenta responde <code>409</code> y no crea nada) y <code>download_type</code> (<code>consolidate</code>, el valor por defecto, o <code>individual</code>: una URL de etiqueta por orden en <code>ordenes[].downloadUrl</code>).</p>
   <h3>Request</h3>
-<pre>curl -X POST https://ordenex.co/api/ordenes/api-key/carga \
+<pre>curl -X POST https://velox-courier.company/api/ordenes/api-key/carga \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX" \
   -H "Content-Type: application/json" \
   -d '{
@@ -595,7 +595,7 @@
     </tbody>
   </table>
   <h3>Request</h3>
-<pre>curl "https://ordenex.co/api/ordenes/api-key?limit=50&offset=0&estado=en_reparto&desde=2026-09-01&hasta=2026-09-21" \
+<pre>curl "https://velox-courier.company/api/ordenes/api-key?limit=50&offset=0&estado=en_reparto&desde=2026-09-01&hasta=2026-09-21" \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
   <h3>Response <code>200</code></h3>
 <pre>{
@@ -678,7 +678,7 @@
   <!-- 5.5 -->
   <h2>5.5 <span class="badge post">POST</span><span class="ep">/api/ordenes/api-key/orden/{id}/generate</span> <span class="ep-title">— PDF de etiqueta de una orden</span></h2>
   <p>Solo <code>POST</code>. <strong>Sin cuerpo.</strong> <code>{id}</code> se resuelve igual que en §5.4. Retorna una <strong>URL firmada para descargar el PDF</strong> de la etiqueta. La primera llamada construye el PDF; las siguientes lo vuelven a firmar (misma forma de respuesta, sin ningún indicador de reuso).</p>
-<pre>curl -X POST https://ordenex.co/api/ordenes/api-key/orden/100234/generate \
+<pre>curl -X POST https://velox-courier.company/api/ordenes/api-key/orden/100234/generate \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
 <pre>{ "url": "https://&lt;host-de-storage&gt;/object/sign/etiquetas/...", "expiraEnSegundos": 300 }</pre>
   <ul>
@@ -702,7 +702,7 @@
     <li>El estado actual es uno de estos siete: <code>en_preparacion</code>, <code>por_recolectar_en_tienda</code>, <code>recolectando</code>, <code>en_bodega_central</code>, <code>en_ruta_bodega_central</code>, <code>en_ruta_bodega_satelite</code>, <code>mensajero_recogiendo_en_bodega</code>. Es decir: el paquete no ha salido hacia el cliente. Haber generado la etiqueta <strong>no</strong> impide eliminar.</li>
     <li><span class="w">⚠</span> <strong>La orden no tiene ningún intento de entrega</strong> (cierres aprobados con una gestión vigente de novedad, reprogramación o rechazo). Una orden con un intento deja de ser eliminable aunque el estado vuelva a estar en la lista.</li>
   </ol>
-<pre>curl -X DELETE https://ordenex.co/api/ordenes/api-key/orden/REM-0001 \
+<pre>curl -X DELETE https://velox-courier.company/api/ordenes/api-key/orden/REM-0001 \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
 <pre>{ "numGuia": 100234, "numRemision": "REM-0001", "estado": "en_bodega_central", "estadoNombre": "En bodega central" }</pre>
   <ul>
@@ -722,7 +722,7 @@
     </tbody>
   </table>
   <h3>Request</h3>
-<pre>curl "https://ordenex.co/api/ordenes/api-key/analitica?metricas=entregas,tasa_entrega&desde=2026-09-19&hasta=2026-09-21" \
+<pre>curl "https://velox-courier.company/api/ordenes/api-key/analitica?metricas=entregas,tasa_entrega&desde=2026-09-19&hasta=2026-09-21" \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
   <h3>Response <code>200</code> (llamada hecha el 2026-09-21 a las 12:40 hora CR)</h3>
 <pre>{
@@ -768,7 +768,7 @@
   <!-- 5.9 -->
   <h2>5.9 <span class="badge put">PUT</span><span class="ep">/api/ordenes/api-key/{numGuia}/cancelar</span> <span class="ep-title">— Cancelar una orden en bodega</span></h2>
   <p><strong>Sin cuerpo.</strong> Se identifica por <strong>número de guía</strong> (entero positivo; si no, <code>422</code>): una orden con fulfillment recién cargada no tiene guía todavía y no se puede cancelar por aquí (use §5.7). Solo procede si el estado actual es <code>en_bodega_central</code> o <code>en_ruta_bodega_central</code>; cualquier otro → <code>409</code>. No borra la orden: la transiciona a <code>devolviendo_a_tienda</code> (el paquete vuelve a su tienda) y emite el webhook <code>orden.estado_actualizado</code> con ese estado.</p>
-<pre>curl -X PUT https://ordenex.co/api/ordenes/api-key/100234/cancelar \
+<pre>curl -X PUT https://velox-courier.company/api/ordenes/api-key/100234/cancelar \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
 <pre>{ "numGuia": 100234,
   "estadoAnterior": "en_ruta_bodega_central", "estadoAnteriorNombre": "En ruta a bodega central",
@@ -845,7 +845,7 @@
     "estado": "incidente", "estadoNombre": "Incidente",
     "motivo": "robado",
     "mensajero": { "id": "018f2c31-0000-4000-8000-0000000000aa", "nombre": "Carlos Jiménez Mora" },
-    "evidenciasUrl": "https://ordenex.co/api/ordenes/api-key/orden/100235"
+    "evidenciasUrl": "https://velox-courier.company/api/ordenes/api-key/orden/100235"
   }
 }</pre>
   <div class="warn"><code>numGuia</code> puede ser <code>null</code> si aún no está asignado (evento de nacimiento <code>en_preparacion</code>). No lo use como clave primaria en su lado sin manejar ese caso; <code>numRemision</code> es su ancla.</div>
@@ -854,8 +854,8 @@
   <table class="tight">
     <thead><tr><th>Header</th><th>Contenido</th></tr></thead>
     <tbody>
-      <tr><td><code>X-Ordenex-Timestamp</code></td><td>Instante unix en <strong>segundos</strong> en que se firmó</td></tr>
-      <tr><td><code>X-Ordenex-Signature</code></td><td><code>sha256=&lt;hex&gt;</code> — HMAC-SHA256 sobre la cadena <code>${timestamp}.${cuerpo}</code> con el secreto de la suscripción</td></tr>
+      <tr><td><code>X-Velox-Timestamp</code></td><td>Instante unix en <strong>segundos</strong> en que se firmó</td></tr>
+      <tr><td><code>X-Velox-Signature</code></td><td><code>sha256=&lt;hex&gt;</code> — HMAC-SHA256 sobre la cadena <code>${timestamp}.${cuerpo}</code> con el secreto de la suscripción</td></tr>
     </tbody>
   </table>
   <p><strong>Procedimiento de verificación:</strong></p>
@@ -863,8 +863,8 @@
     <li><span class="w">⚠</span> Tome el <strong>cuerpo crudo, byte a byte</strong>, tal como llegó.</li>
     <li>Arme la cadena <code>${timestamp}.${cuerpo}</code>.</li>
     <li>Calcule HMAC-SHA256 con el secreto (en hexadecimal).</li>
-    <li><strong>Compare en tiempo constante</strong> contra el valor de <code>X-Ordenex-Signature</code>.</li>
-    <li>Descarte entregas cuyo <code>X-Ordenex-Timestamp</code> caiga <strong>fuera de su ventana anti-replay</strong> (referencia: 5 minutos).</li>
+    <li><strong>Compare en tiempo constante</strong> contra el valor de <code>X-Velox-Signature</code>.</li>
+    <li>Descarte entregas cuyo <code>X-Velox-Timestamp</code> caiga <strong>fuera de su ventana anti-replay</strong> (referencia: 5 minutos).</li>
     <li><strong>Solo entonces</strong> parsee el JSON.</li>
   </ol>
   <div class="warn">Si su framework parsea el cuerpo antes de que usted lo lea (Express con <code>express.json()</code>, por ejemplo), la firma <strong>no va a validar nunca</strong>: al re-serializar cambia el orden de claves o el espaciado. Configure la ruta del webhook para recibir el cuerpo crudo. El orden de las claves del cuerpo es parte de la firma: cuando el contrato gana una clave (como <code>estadoNombre</code>), el texto firmado cambia, y su verificación sigue siendo válida si trabaja sobre el cuerpo crudo.</div>

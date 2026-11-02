@@ -235,13 +235,11 @@ describe("493 — R16: los tests no se anclan a su fuente", () => {
 });
 
 describe("493 — contrato con integradores (R17, R18, R20)", () => {
-  // ⏳ T4 (plantillas, aviso interno) y T11b (cabeceras, OpenAPI, .yaml, guia, manual).
-  it.fails("sin X-Ordenex-*, ordenex.co ni soporte@ordenex.co en codigo, public/, ayuda y docs/api (sin CHANGELOG)", () => {
+  it("sin X-Ordenex-*, ordenex.co ni soporte@ordenex.co en codigo, public/, ayuda y docs/api (sin CHANGELOG)", () => {
     expect(lista(censoContrato())).toEqual([]);
   });
 
-  // ⏳ T11b.
-  it.fails("lib/crypto/webhook-firma.ts declara X-Velox-Signature y X-Velox-Timestamp", () => {
+  it("lib/crypto/webhook-firma.ts declara X-Velox-Signature y X-Velox-Timestamp", () => {
     const fuente = leer("lib/crypto/webhook-firma.ts");
     expect(fuente).toContain(`"X-Velox-Signature"`);
     expect(fuente).toContain(`"X-Velox-Timestamp"`);

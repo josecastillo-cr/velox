@@ -7,7 +7,7 @@ import { WebhookSender, parseRetryAfterMs } from "@/lib/clients/webhook-sender";
 
 const URL_CALLBACK = "https://integrador.example.com/hooks/ordenex?token=SECRETO-EN-URL";
 const CUERPO = JSON.stringify({ eventoId: "webhook_estado:o1:s1:2026", orden: { numGuia: 999 } });
-const HEADERS = { "X-Ordenex-Signature": "sha256=abc", "X-Ordenex-Timestamp": "1700000000" };
+const HEADERS = { "X-Velox-Signature": "sha256=abc", "X-Velox-Timestamp": "1700000000" };
 
 function fetchQueDevuelve(status: number): typeof fetch {
   return vi.fn(async () => new Response(null, { status })) as unknown as typeof fetch;
@@ -24,7 +24,9 @@ describe("R17/R19 — 2xx completa", () => {
     expect(url).toBe(URL_CALLBACK);
     expect(init.method).toBe("POST");
     expect(init.body).toBe(CUERPO);
-    expect((init.headers as Record<string, string>)["X-Ordenex-Signature"]).toBe("sha256=abc");
+    expect((init.headers as Record<string, string>)["X-Velox-Signature"]).toBe("sha256=abc");
+    // 493/R17 (L5b): la cabecera vieja no viaja.
+    expect(Object.keys(init.headers as Record<string, string>)).not.toContain("X-Ordenex-Signature");
   });
 
   it("un 204 tambien es ok", async () => {

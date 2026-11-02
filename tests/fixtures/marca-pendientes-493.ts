@@ -1,6 +1,6 @@
 // FEATURE 493 (T2) — LO QUE AUN FALTA, POR ARCHIVO Y CON SU NUMERO EXACTO (trinquete).
 //
-// GENERADO con el detector de `tests/fixtures/marca-retirada-493.ts` tras T4. La guardia
+// GENERADO con el detector de `tests/fixtures/marca-retirada-493.ts` tras T11b (fin de la fase backend). La guardia
 // `marca-fuente-unica-493.guardia.test.ts` exige, para cada bloque: (1) que ningun archivo fuera
 // de la lista tenga hallazgos ni ninguno de la lista tenga MAS de los anotados, y (2) que cada
 // pendiente siga teniendo EXACTAMENTE su numero. Asi, reintroducir «Ordenex» en algo ya cerrado
@@ -9,7 +9,7 @@
 // Cada task de superficie (T5–T12) baja o borra sus entradas; T13 deja los cuatro mapas vacios.
 // El detalle (linea y fragmento) esta en `progress/censo_marca_493.md`.
 
-/** R15 — texto con la marca retirada en app/, components/, hooks/, lib/ (155 en 35 archivos). */
+/** R15 — texto con la marca retirada en app/, components/, hooks/, lib/ (152 en 34 archivos). */
 export const PENDIENTE_R15_CODIGO: Readonly<Record<string, number>> = {
   "app/(app)/analitica/_components/entregas/DineroProductoDetalle.tsx": 2,
   "app/(app)/analitica/_components/entregas/ProductosTabla.tsx": 2,
@@ -44,8 +44,7 @@ export const PENDIENTE_R15_CODIGO: Readonly<Record<string, number>> = {
   "components/shared/sinpe-textos.ts": 1,
   "components/shared/wallet/detalle-movimiento-panel-labels.ts": 4,
   "components/shared/wallet/registrar-movimiento-labels.ts": 16,
-  "lib/api/openapi-spec.ts": 3,
-  "lib/crypto/webhook-firma.ts": 2,
+  "lib/api/openapi-spec.ts": 2,
 };
 
 /** R10 — lineas con la marca retirada en docs/ayuda/** (176 en 12 archivos). */
@@ -64,13 +63,13 @@ export const PENDIENTE_R10_AYUDA: Readonly<Record<string, number>> = {
   "docs/ayuda/tienda/mi-wallet.md": 36,
 };
 
-/** R9 — lineas con la marca retirada en la guia, su README y el .yaml (47 en 2 archivos). */
+/** R9 — lineas con la marca retirada en la guia, su README y el .yaml (33 en 2 archivos). */
 export const PENDIENTE_R9_INTEGRADORES: Readonly<Record<string, number>> = {
-  "docs/api/api-key-openapi.yaml": 5,
-  "docs/api/guia-integracion/guia-integracion.html": 42,
+  "docs/api/api-key-openapi.yaml": 4,
+  "docs/api/guia-integracion/guia-integracion.html": 29,
 };
 
-/** R16 — textos de tests/ y e2e/ que dicen la marca retirada (573 en 125 archivos). */
+/** R16 — textos de tests/ y e2e/ que dicen la marca retirada (578 en 127 archivos). */
 export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/components/BarraComposicionCaja488.test.tsx": 2,
   "tests/components/CajaComposicionBarra.test.tsx": 9,
@@ -142,6 +141,7 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/analytics/metrics-caja-naturaleza.guardia.test.ts": 2,
   "tests/unit/analytics/metrics-cuenta-por-pagar-tienda-457.test.ts": 1,
   "tests/unit/api/openapi-405-gestiones.test.ts": 1,
+  "tests/unit/api/openapi-webhook-estado-actualizado.test.ts": 2,
   "tests/unit/asistente/contexto-457.test.ts": 23,
   "tests/unit/asistente/contexto-458.test.ts": 12,
   "tests/unit/asistente/contexto-460.test.ts": 11,
@@ -156,6 +156,7 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/components/wallet-labels.test.ts": 19,
   "tests/unit/components/wallet-registrar-movimiento-dialog.test.tsx": 33,
   "tests/unit/config/email-marca.test.ts": 1,
+  "tests/unit/crypto/webhook-firma.test.ts": 3,
   "tests/unit/db/orden-num-remision-parcial.test.ts": 1,
   "tests/unit/descarga/analitica-productos-descarga-columnas.test.ts": 1,
   "tests/unit/descarga/cierres-gestiones-fundida-descarga-columnas.test.ts": 1,

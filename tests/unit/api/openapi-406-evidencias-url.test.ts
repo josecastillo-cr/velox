@@ -60,7 +60,9 @@ describe("406/R14 — el ejemplo publicado enlaza a SU PROPIO identificador, no 
   it("TS: el enlace del ejemplo es invocable tal cual — ruta del endpoint + identificador", () => {
     const data = ejemplos[1].data as Nodo;
     // Literal a mano, no derivado del spec ni del service.
-    expect(data.evidenciasUrl).toBe("https://app.ordenex.co/api/ordenes/api-key/orden/100235");
+    expect(data.evidenciasUrl).toBe("https://velox-courier.company/api/ordenes/api-key/orden/100235");
+    // 493/R18 (L5b): el ejemplo ya no usa el dominio viejo.
+    expect(data.evidenciasUrl).not.toContain("ordenex.co");
     expect(new URL(data.evidenciasUrl as string).search).toBe("");
   });
 
@@ -80,10 +82,13 @@ describe("406/R14 — el ejemplo publicado enlaza a SU PROPIO identificador, no 
     const guiaDelEjemplo = previas[iGuia].slice("numGuia:".length).trim();
 
     expect(ultimoSegmento(enlace)).toBe(guiaDelEjemplo);
+    // 493/R18 (L5b): el espejo publica el origen nuevo, literal, y no el viejo.
+    expect(new URL(enlace).origin).toBe("https://velox-courier.company");
+    expect(enlace).not.toContain("ordenex.co");
     expect(ultimoSegmento(enlace)).not.toMatch(UUID);
     // Ni un solo uuid quedo colgando de un `evidenciasUrl` en todo el archivo.
     expect(yamlTexto).not.toContain(
-      "evidenciasUrl: \"https://app.ordenex.co/api/ordenes/api-key/orden/018f2c31",
+      "evidenciasUrl: \"https://velox-courier.company/api/ordenes/api-key/orden/018f2c31",
     );
   });
 });

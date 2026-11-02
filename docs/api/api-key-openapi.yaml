@@ -746,6 +746,7 @@ components:
     # algo que el integrador llame. Se publica la FORMA, no una operacion.
     WebhookOrdenEstadoActualizado:
       type: object
+      description: "Cuerpo del evento `orden.estado_actualizado` que se entrega por POST al callback del integrador. Cada entrega va firmada con dos cabeceras: `X-Velox-Timestamp` (instante unix en segundos de la firma) y `X-Velox-Signature` (`sha256=<hex>`: HMAC-SHA256 de `${timestamp}.${cuerpo}` con el secreto del webhook). Verificá la firma sobre el cuerpo crudo y en tiempo constante antes de parsear el JSON."
       required:
         - evento
         - eventoId
@@ -958,7 +959,7 @@ components:
             # ⏳ 2026-09-10 (feature 406/R14): AQUI IBA el `orden.id` (un uuid), y ese enlace
             # respondia 404 SIEMPRE — el `{id}` de esa ruta nunca significo `orden.id`. El ultimo
             # segmento es ahora el `numGuia` que ESTE MISMO ejemplo declara arriba.
-            evidenciasUrl: "https://app.ordenex.co/api/ordenes/api-key/orden/100235"
+            evidenciasUrl: "https://velox-courier.company/api/ordenes/api-key/orden/100235"
     # FICHA 454 (T1.20, R33/R36) — PAYLOAD de los eventos de ORDEN que NO son un cambio de estado.
     # Mismo callback y misma firma que `orden.estado_actualizado`. Se publica la FORMA, no una
     # operacion. Espejo de `openApiSpec.components.schemas.WebhookOrdenEvento`.

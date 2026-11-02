@@ -205,7 +205,7 @@ Ahora lleva el `numGuia`, o el `numRemision` si la orden todavía no tiene guía
 con tu propio `Authorization: Bearer ordx_...`:
 
 ```
-"evidenciasUrl": "https://app.ordenex.co/api/ordenes/api-key/orden/100235"
+"evidenciasUrl": "https://velox-courier.company/api/ordenes/api-key/orden/100235"
 ```
 
 Dos detalles: el segmento va **codificado como componente de ruta** (una remisión `A/B C` viaja como

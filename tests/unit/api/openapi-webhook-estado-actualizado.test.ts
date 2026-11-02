@@ -442,3 +442,24 @@ describe("256/R24 — el webhook orden.estado_actualizado esta publicado en el c
     );
   });
 });
+
+// FEATURE 493 (R17, L5b) — las cabeceras de firma VUELVEN al contrato, en la descripcion del propio
+// schema (el sitio que la nota de 2026-09-01 de arriba dejo dicho), con los nombres nuevos. Literales
+// a mano: el contrato es el texto publicado, no la constante que lo genera.
+describe("493/R17 — el schema del webhook declara las cabeceras X-Velox-* y no las viejas", () => {
+  const descripcionTs = (openApiSpec.components.schemas[NOMBRE_SCHEMA] as { description?: string }).description ?? "";
+  const descripcionYaml = String((schemaYaml as { description?: unknown }).description ?? "");
+
+  it("TS: nombra X-Velox-Signature y X-Velox-Timestamp, el formato sha256=<hex> y lo que se firma", () => {
+    expect(descripcionTs).toContain("`X-Velox-Signature`");
+    expect(descripcionTs).toContain("`X-Velox-Timestamp`");
+    expect(descripcionTs).toContain("`sha256=<hex>`");
+    expect(descripcionTs).toContain("`${timestamp}.${cuerpo}`");
+    expect(descripcionTs).not.toContain("X-Ordenex-");
+  });
+
+  it("YAML: el espejo dice exactamente lo mismo", () => {
+    expect(descripcionYaml).toBe(descripcionTs);
+    expect(yamlTexto).not.toContain("X-Ordenex-");
+  });
+});
