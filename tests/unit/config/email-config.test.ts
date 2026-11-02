@@ -99,7 +99,7 @@ describe("loadEmailConfig", () => {
     expect(config.port).toBe(587);
     expect(config.secure).toBe(false);
     expect(config.rejectUnauthorized).toBe(true);
-    expect(config.fromName).toBe("Ordenex");
+    expect(config.fromName).toBe("Velox Courier");
   });
 
   it("usa la cuenta autenticada como remitente cuando no se declara SMTP_FROM", () => {
