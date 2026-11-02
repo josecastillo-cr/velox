@@ -11,7 +11,7 @@
 
 ## Bloque 0 — arranque
 
-- [ ] **T0 — Pre-condiciones.**
+- [x] **T0 — Pre-condiciones.**
   - La 492 está mergeada en `dev` (dependencia de la ficha). Anotar el SHA medido.
   - Confirmar en el archivo real que existe `lib/marca/identidad.ts` con `MARCA.nombre` y
     `MARCA.nombreCorto`, y que valen «Velox Courier» y «Velox». **No se crea otra constante.** Si
@@ -23,14 +23,14 @@
 
 ## Bloque 1 — base (secuencial)
 
-- [ ] **T1 — Fixture y ancla (sin constante nueva).** Depende de T0.
+- [x] **T1 — Fixture y ancla (sin constante nueva).** Depende de T0.
   - `tests/fixtures/marca-esperada.ts` con `NOMBRE_ESPERADO` y `NOMBRE_CORTO_ESPERADO` como literales.
   - `tests/unit/marca/textos-ancla-493.test.ts` (ancla, L2) contra `MARCA` de `lib/marca/identidad.ts`.
   - **Hecho:** el ancla pasa; cambiar a mano `MARCA.nombre` a otro valor la pone roja (anotado y
     restaurado).
   - Traza: R2.
 
-- [ ] **T2 — Guardia en rojo y censo.** Depende de T1.
+- [x] **T2 — Guardia en rojo y censo.** Depende de T1.
   - `tests/unit/guards/marca-fuente-unica-493.guardia.test.ts` con los 5 bloques de `design.md §6` y
     sus contrapruebas sintéticas.
   - Correrla aislada y volcar la lista de hallazgos a `progress/censo_marca_493.md`, agrupada por las
@@ -44,7 +44,7 @@
 
 ## Bloque 2 — servidor (`lib/`) — primero, porque las pantallas lo consumen
 
-- [ ] **T3 [P] — Rótulos del libro de caja.** Depende de T2.
+- [x] **T3 [P] — Rótulos del libro de caja.** Depende de T2.
   - `lib/constants/wallet-rotulos.ts`, `lib/constants/origen-legible-rotulos.ts`,
     `lib/utils/egreso-anulable.ts`.
   - Tests: `tests/unit/services/wallet-origen-legible.test.ts`, `tests/unit/guards/nombres-wallet-461.guardia.test.ts`
@@ -52,7 +52,7 @@
   - **Hecho:** cierre estándar del bloque.
   - Traza: R8.
 
-- [ ] **T4 [P] — Otros textos de servidor.** Depende de T2.
+- [x] **T4 [P] — Otros textos de servidor.** Depende de T2.
   - `lib/types/historial-accion.ts` (etiquetas), `lib/types/plantilla-datos.ts` (descripciones con
     `MARCA.nombre`; `ejemplo`/`sinpeNombre` de razón social → «Velox Courier S.A.», P2; `ejemplo` de
     `url_guia` y `urlBase` de muestra → `https://velox-courier.company`, R18),
@@ -71,7 +71,7 @@
 
 ## Bloque 3 — pantallas (todas `[P]` entre sí; dependen de T2 y, para los rótulos que importan, de T3)
 
-- [ ] **T5 [P] — Caja principal.** `app/(app)/wallet/_components/**`, `app/(app)/wallet/page.tsx`.
+- [x] **T5 [P] — Caja principal.** `app/(app)/wallet/_components/**`, `app/(app)/wallet/page.tsx`.
   - Tests: `tests/unit/components/wallet-labels.test.ts`, `wallet-conceptos-manuales.test.ts`,
     `wallet-indemnizacion-libro.test.tsx`, `tests/components/CajaResumenCard*.test.tsx`,
     `CajaComposicionBarra.test.tsx`, `BarraComposicionCaja488.test.tsx`, `ComposicionGananciaCard.test.tsx`,
@@ -81,14 +81,14 @@
   - **Hecho:** cierre estándar del bloque.
   - Traza: R3.
 
-- [ ] **T6 [P] — Wallet compartido.** `components/shared/wallet/**`.
+- [x] **T6 [P] — Wallet compartido.** `components/shared/wallet/**`.
   - Tests: `tests/unit/components/wallet-registrar-movimiento-dialog.test.tsx` (90 apariciones),
     `tests/components/DetalleMovimientoPanel.test.tsx`, `DetalleMovimientoCierre.test.tsx`,
     `WalletFiltroAQuien458E.test.tsx`.
   - **Hecho:** cierre estándar del bloque.
   - Traza: R3.
 
-- [ ] **T7 [P] — Estados de cuenta y Mi wallet.** `components/shared/estado-cuenta/**`,
+- [x] **T7 [P] — Estados de cuenta y Mi wallet.** `components/shared/estado-cuenta/**`,
   `app/(app)/wallet/tiendas/**`, `app/(app)/wallet/mensajeros/**`, `app/(app)/wallet/satelites/**`,
   `app/(app)/mi-wallet/**`.
   - Tests: `tests/unit/components/mi-wallet-labels.test.ts`, `desglose-tienda-labels.test.ts`,
@@ -100,7 +100,7 @@
   - **Hecho:** cierre estándar del bloque.
   - Traza: R4.
 
-- [ ] **T8 [P] — Cierres.** `app/(app)/cierres-admin/**` (incluido el membrete de texto de
+- [x] **T8 [P] — Cierres.** `app/(app)/cierres-admin/**` (incluido el membrete de texto de
   `cierre-factura.tsx`), `app/(app)/cierre-dia/**`.
   - Tests: `tests/components/CierresAdminModule.test.tsx`, `CierreMensajeroDetalleCascadas.test.tsx`,
     `CierreBodegaDetalleCascadas.test.tsx`, `CierreCobrosDeLaGestion.test.tsx`, `CierreTarifa*.test.tsx`,
@@ -113,7 +113,7 @@
   - **Hecho:** cierre estándar del bloque.
   - Traza: R5, R13.
 
-- [ ] **T9 [P] — Analítica.** `app/(app)/analitica/_components/**`.
+- [x] **T9 [P] — Analítica.** `app/(app)/analitica/_components/**`.
   - Tests: `tests/components/ProductosTablaDinero.test.tsx`, `DineroIdentidadesEnPantalla.test.tsx`,
     `TableroFinanciero.test.tsx`, `tests/unit/analytics/etiquetas-visibles.guardia.test.ts`,
     `kpis-financieros.test.ts`, `dinero-producto-no-sumable.guardia.test.ts`,
@@ -122,14 +122,14 @@
     clave sigue siendo `"ordenex"`.
   - Traza: R6, R13.
 
-- [ ] **T10 [P] — Configuración.** `app/(app)/configuracion/**`, `components/shared/sinpe-textos.ts`.
+- [x] **T10 [P] — Configuración.** `app/(app)/configuracion/**`, `components/shared/sinpe-textos.ts`.
   Placeholders de razón social → «Ej: Velox Courier S.A.» (P2, resuelta 2026-10-31).
   - Test nuevo `tests/unit/components/configuracion-marca-493.test.tsx`: renderiza la descripción de
     API keys, la de envíos de WhatsApp y el texto de tarifas por zona, y afirma la frase literal (L1).
   - **Hecho:** cierre estándar del bloque.
   - Traza: R7.
 
-- [ ] **T11 [P] — PWA, asistente, landing y documentación para integradores.**
+- [x] **T11 [P] — PWA, asistente, landing y documentación para integradores.**
   `components/shared/AvisoVersionNueva.tsx`, `PushOptIn.tsx`, `AsistentePanel.tsx`,
   `app/_landing/LandingPostular.tsx` (y prosa restante de `app/_landing/**`), `public/sw.js`
   (`TITULO_RESERVA`), `lib/api/openapi-spec.ts` (solo descripciones: `info.title` es de la 492),
@@ -144,7 +144,7 @@
     integradores (R9) de la guardia verdes.
   - Traza: R8, R9, R14.
 
-- [ ] **T11b — Contrato con integradores: cabeceras, dominio y correo.** Depende de T2. Secuencial
+- [x] **T11b — Contrato con integradores: cabeceras, dominio y correo.** Depende de T2. Secuencial
   con T11 (tocan los mismos archivos de `docs/api/` y `openapi-spec.ts`): va después de T11.
   - Cabeceras (R17, `design.md §2 d2`): `lib/crypto/webhook-firma.ts` → `X-Velox-Signature` /
     `X-Velox-Timestamp`; `lib/api/openapi-spec.ts`, `docs/api/api-key-openapi.yaml` y la guía
@@ -165,7 +165,7 @@
     `app/`, `components/`, `public/` y `docs/api/` (sin `CHANGELOG.md`) devuelve 0 (anotado).
   - Traza: R17, R18, R20.
 
-- [ ] **T12 [P] — Ayuda.** `docs/ayuda/**/*.md` (prosa literal «Velox Courier», `design.md §8.5`).
+- [x] **T12 [P] — Ayuda.** `docs/ayuda/**/*.md` (prosa literal «Velox Courier», `design.md §8.5`).
   - Tests: `tests/unit/docs/ayuda-wallet-caja-488.test.ts`, `tests/components/AyudaDocumentoPage.test.tsx`,
     `tests/unit/asistente/contexto-457.test.ts`, `contexto-458.test.ts`, `contexto-460.test.ts`,
     `contexto-461.test.ts`, `tests/integration/asistente-route.test.ts`.
@@ -174,7 +174,7 @@
 
 ## Bloque 4 — cierre (secuencial)
 
-- [ ] **T13 — Restos y guardia en verde.** Depende de T3–T12 y T11b.
+- [x] **T13 — Restos y guardia en verde.** Depende de T3–T12 y T11b.
   - Recoger lo que el censo aún liste fuera de las superficies anteriores, incluido lo que la 492 haya
     dejado con «Ordenex» o con la marca escrita a mano (`design.md §2 g`).
   - Tests restantes que el bloque R16 siga listando (incluidas negativas, L3).
@@ -184,7 +184,7 @@
     devuelve solo comentarios, identificadores y excepciones (anotado con el recuento).
   - Traza: R1, R11, R12, R15, R16.
 
-- [ ] **T14 — Verificación y trazabilidad.** Depende de T13.
+- [x] **T14 — Verificación y trazabilidad.** Depende de T13.
   - `./init.sh --rapido` (se amplía solo con `tests/integration/db` por `lib/types/`); mirar los
     `skipped`, no solo el código de salida. Correr a mano la guardia de la 493 y las guardias
     estructurales tocadas en T5/T7 (`caja-*`, `mi-wallet-335`, `nombres-wallet-461`).
@@ -196,7 +196,7 @@
   - **Hecho:** gate verde, mapa R→test completo, capturas o notas de lo visto en la app.
   - Traza: todas.
 
-- [ ] **T15 — CHANGELOG y manual de la API para los integradores (final).** Depende de T14.
+- [x] **T15 — CHANGELOG y manual de la API para los integradores (final).** Depende de T14.
   - `docs/api/CHANGELOG.md`: entrada NUEVA arriba, fechada, marcada **ruptura**, con el formato de
     las existentes («Qué cambia, en una frase», antes/después). Debe listar TODOS los cambios de
     contrato de esta ficha:

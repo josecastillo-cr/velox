@@ -156,13 +156,49 @@ Resultado medido: 9/9 archivos rojos, 13 tests (log en el scratchpad de la sesi�
   Lección para otras guardias: cualquier heurística de texto sobre `${x.nombre}` puede ver la marca;
   el gate corrió las 280 guardias y solo esta lo hizo.
 
+## T14 — pasada visual (cierra B1 de `review_493.md`)
+
+> 2026-11-02, sobre `a69ee0ff`. Dev server del worktree en `:3493` con `next dev --webpack`
+> (Turbopack rechaza el junction de `node_modules`: «Symlink … points out of the filesystem root»).
+> Playwright headless, base LOCAL (`localhost:5432`, medido con `prisma migrate status`). Cuentas
+> `admin.qa@ordenex.test` (admin) y `tienda.qa@ordenex.test` (adminTienda, OTP leído del log del dev
+> server); su clave se ROTÓ con `scripts/seed-usuarios-qa.ts` (rota las cuatro cuentas QA).
+> Dos anchos: 1440 px y 390 px. En cada pantalla: `innerText` buscando `/ordenex/i`,
+> «Courier Courier»/«Velox Velox», elementos con «Velox» con `scrollWidth > clientWidth`
+> (cortados) y desborde horizontal de la página. Capturas en
+> `C:\Users\ArqDev\AppData\Local\Temp\claude\R--job-singularis-projects-ordenex\cad10efb-563f-42a2-b6cd-d333f35d10a8\scratchpad\493-visual\`
+> (fuera del repo).
+
+| Pantalla | Resultado | Capturas |
+| --- | --- | --- |
+| `/wallet` (caja principal) | 0 «Ordenex»; 21 líneas con la marca («Caja principal de Velox Courier…», «Ganancia de Velox», «Gastos fijos de Velox»…). 1440: nada cortado. 390: 2 rótulos de la composición truncados con «…» («Velox Courier le cobra a una tie…», «Pagos de Velox Courier a…»): es el `truncate` de diseño de esa lista, que a 390 ya corta otros rótulos sin marca («Flete por devolución a orig…», «Comisión de contra-entre…»); la fila se abre y su `aria-label` dice el rótulo entero. No es defecto de la 493 | `admin_wallet-1440.png`, `admin_wallet-390.png`, `zoom-390-0.png`, `zoom-390-1.png` |
+| Registrar movimiento (diálogo, sin enviar) | «Sale dinero de Velox Courier», «Velox Courier le paga a un mensajero», «Una tienda le paga a Velox Courier»: envuelven a dos líneas a 390, nada cortado | `wallet-registrar-390.png`, `wallet-registrar-1440.png` |
+| `/wallet/tiendas`, `/wallet/mensajeros`, `/configuracion` | 0 «Ordenex», sin desborde | `admin_wallet_tiendas-*.png`, `admin_wallet_mensajeros-*.png`, `admin_configuracion-*.png` |
+| `/mi-wallet` (tienda) | 0 «Ordenex»; «Velox Courier te debe ₡147.670,10», «Cargos de Velox», «Velox Courier te cobró el flete»…; nada cortado ni a 390 (la tabla desplaza en su contenedor, la página no desborda) | `tienda_mi-wallet-1440.png`, `tienda_mi-wallet-390.png` |
+| `/cierres-admin` (mensajero): tarjeta, «Ver detalles» y «Ver / decidir» | 0 «Ordenex»; «VELOX COURIER», «Total Velox», «Neto de Velox», «Lo que le queda a Velox Courier», «Todo lo que facturó Velox Courier en el cierre…». 1440 limpio | `cierre-detalles-1440.png`, `cierre-decidir-dialog-1440.png`, `cierre-decidir-dialog-390.png` |
+| `/cierres-admin` (bodega, resueltos) y `/cierre-dia` | 0 «Ordenex», sin desborde | `cierre-bodega-1440.png`, `admin_cierre-dia-*.png` |
+| `/analitica`, fila de producto abierta (2 filas con dinero) | 0 «Ordenex»; «Cobró Velox» como rótulo del detalle y como columna de la subtabla; sin cortes a 1440; a 390 la subtabla desplaza en horizontal (como el resto) | `analitica-productos-detalle-1440.png`, `analitica-productos-detalle-390.png` |
+| Descargas | Cierres «Resumen» (`.xlsx`): encabezados sin marca, 0 «Ordenex». Cierres «Detalle» (gestiones, 52 filas): columna «Total Velox». Analítica «Descargar Productos»: «Cobró Velox (no sumar: importe de la orden…)». 0 «Ordenex» en los tres | `resumen-cierres-del-dia-resueltos-2026-11-02.xlsx`, `detalle-gestiones-de-cierres-2026-11-02.xlsx`, `analitica-1440-productos-2026-11-02.xlsx`, `descarga-columnas-detalle-1440.png` |
+| Ayuda: `/ayuda` y 9 documentos (`tienda/mi-wallet`, `oficina/cierres`, `oficina/wallet-caja`, `wallet-tiendas`, `wallet-mensajeros`, `wallet-satelites`, `configuracion-plantillas`, `configuracion-tarifas`, `compartido/analitica`) | 0 «Ordenex», 0 «Courier Courier», sin desborde a 1440 ni a 390 | `ayuda_ayuda_*.png` |
+
+- **«Courier Courier» / «Velox Velox»: 0** en todas las pantallas.
+- **Defectos de la 493: ninguno.** No se tocó código.
+- **Visto de paso, NO de la 493 (anterior, fuera de alcance):** a 390 px, la subtabla de gestiones
+  del diálogo «Detalle del cierre» (`/cierres-admin` → «Ver / decidir») solapa las columnas
+  «Cobrado» y «Total Velox» (cabecera y cifras se pisan: «₡6.5₡2.517,08»). Las cifras se pisan solas,
+  sin la marca; y la 493 ACORTÓ ese encabezado («Total Ordenex» → «Total Velox»), así que venía de
+  antes. Captura `cierre-decidir-dialog-390.png`. Candidato a ficha aparte.
+- **Limpieza de la base local:** no se envió ningún formulario ni acción (el modal «Confirmá el SINPE
+  de GAM» que aparece al admin se cerró con «Ahora no»). Lo que dejaron los logins se borró: 23 filas
+  de `login_attempt` y 23 de `Session` de las dos cuentas QA en la ventana de la pasada. Las 4 filas
+  recientes de `historial_accion` son de suites de tests de otra corrida (actores `maestro 454…`,
+  `QA Maestro 362`), no de esta pasada.
+- Al terminar: dev server parado, `.next` del worktree borrado, `pnpm exec tsc --noEmit` → 0.
+
 ## Abiertos
 
-1. **Ver la app (T14) no se hizo**: no se levantó dev server (instrucción del leader de no hacerlo
-   salvo imprescindible). Lo que cubre en parte: `grep "Courier Courier"` en `app/ components/ lib/
-   docs/` = 0, y la regla de forma está fijada por los tests de paridad. Riesgo de §9 sin medir:
-   etiquetas largas («Velox Courier le cobra a una tienda») en columnas estrechas. Pendiente para
-   el leader/humano con Playwright.
+1. ~~Ver la app (T14) no se hizo~~ → hecha, ver «T14 — pasada visual». Queda anotado el solape
+   previo del diálogo de cierre a 390 px (no de esta ficha).
 2. **Nota operativa (T15, la hace el humano, no el subagente):** (a) pausar a los integradores antes
    de desplegar a `prod` (las cabeceras `X-Ordenex-*` dejan de salir sin periodo de doble cabecera);
    (b) cambiar `NEXT_PUBLIC_APP_URL` y `NEXT_PUBLIC_SITE_URL` en Vercel a
