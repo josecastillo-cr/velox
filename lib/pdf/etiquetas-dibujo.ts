@@ -82,8 +82,12 @@ const FUENTE_ROTULO: FuenteTexto = { nombre: "helvetica", estilo: "bold" };
  *
  * El `·` es U+00B7, dentro de Latin-1: la fuente estandar lo escribe (medido en
  * `escribibleEnFuenteEstandar`), asi que no arrastra la fuente embebida.
+ *
+ * Feature 492 (R16, P2): «VELOX · GUÍA», marca Velox Courier. Literal propio en mayusculas, no
+ * derivado de `MARCA`; un test lo fija como contrato. Mas estrecho que el anterior, asi que el
+ * cuerpo de los rotulos (`cuerpoRotulo`) y la capacidad de cada hoja no cambian (R17).
  */
-export const ROTULO_GUIA = "ORDENEX · GUÍA";
+export const ROTULO_GUIA = "VELOX · GUÍA";
 
 /**
  * Rotulos de la fila META, la que el diseño pone DEBAJO del numero de guia
@@ -366,7 +370,7 @@ export function drawEtiqueta(
   // =========================================================================
   // BANDA 1 — CABECERA (feature 353, el diseño aprobado)
   //
-  //   ORDENEX · GUÍA                        +-----------+
+  //   VELOX · GUÍA                          +-----------+
   //   19887906                              |    QR     |
   //   REM 2201            FECHA 2026-08-25  +-----------+
   //   ----------------------------------------------------  (regla horizontal)
