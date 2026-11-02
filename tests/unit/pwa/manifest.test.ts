@@ -107,6 +107,16 @@ describe("manifest — screenshots del diálogo de instalación", () => {
     }
   });
 
+  it("feature 492 (revision m1): las leyendas nombran la marca Velox Courier, no Ordenex", () => {
+    // Se ven en el dialogo de instalacion junto a las capturas. Literales de contrato.
+    expect(screenshots.map((s) => [s.src, s.label])).toEqual([
+      ["/screenshots/inicio-narrow.png", "Pantalla de inicio de Velox Courier"],
+      ["/screenshots/ingreso-narrow.png", "Inicio de sesión en Velox Courier"],
+      ["/screenshots/inicio-wide.png", "Velox Courier en escritorio"],
+    ]);
+    for (const s of screenshots) expect(s.label ?? "").not.toMatch(/ordenex/i);
+  });
+
   it("ninguna excede el límite de 3840px del navegador", () => {
     for (const s of screenshots) {
       const [ancho, alto] = s.sizes.split("x").map(Number);
