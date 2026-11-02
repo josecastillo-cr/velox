@@ -397,7 +397,7 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_registrado");
   });
 
-  it("⭑ FICHA 457 (R61–R64): los dos tipos del pago de una tienda a Ordenex son DINERO, con entidad propia y sus textos", () => {
+  it(`⭑ FICHA 457 (R61–R64): los dos tipos del pago de una tienda a ${NOMBRE_ESPERADO} son DINERO, con entidad propia y sus textos`, () => {
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_registrado");
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_anulado");
     expect(CATEGORIA_POR_ACCION.abono_tienda_registrado).toBe("mueve_dinero");

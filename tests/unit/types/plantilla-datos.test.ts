@@ -13,6 +13,7 @@ import {
   resolverValoresPlantilla,
   valorDeCampo,
 } from "@/lib/types/plantilla-datos";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 import { datosPlantillaFixture } from "@/tests/fixtures/plantilla-datos";
 
 const DATOS = datosPlantillaFixture();
@@ -28,6 +29,16 @@ describe("493/R18 — ejemplos del catalogo con el dominio nuevo", () => {
   it("la razon social de ejemplo es «Velox Courier S.A.» (P2)", () => {
     expect(CAMPOS_PLANTILLA_POR_CLAVE.get("sinpe_nombre")?.ejemplo).toBe("Velox Courier S.A.");
     expect(DATOS_PLANTILLA_EJEMPLO.negocio.sinpeNombre).toBe("Velox Courier S.A.");
+  });
+
+  it("R7: las descripciones de las variables nombran a la empresa con la marca", () => {
+    expect(CAMPOS_PLANTILLA_POR_CLAVE.get("guia")?.descripcion).toBe(
+      `Número de guía de ${NOMBRE_ESPERADO}. Vacío mientras la orden no la tenga asignada.`,
+    );
+    expect(CAMPOS_PLANTILLA_POR_CLAVE.get("zona")?.descripcion).toBe(
+      `Zona de reparto de ${NOMBRE_ESPERADO} a la que pertenece la dirección.`,
+    );
+    expect(CAMPOS_PLANTILLA.map((c) => c.descripcion).join(" | ")).not.toMatch(/ordenex/i);
   });
 
   it("ningun ejemplo ni dato de muestra conserva el dominio viejo", () => {

@@ -1,6 +1,6 @@
 # Censo de marca — feature 493
 
-Censo de BASE (T2), medido sobre la rama en `c60d8267` (origin/dev `bad98c17` + T1), antes de tocar ningún texto.
+Censo AL CIERRE DE LA FASE BACKEND (T0–T4 y T11b). Es lo que queda para el frontend (T5–T13). El trinquete de la guardia (`tests/fixtures/marca-pendientes-493.ts`) lleva estos mismos números por archivo. Censo de BASE de T2 (rama en `c60d8267`, antes de tocar ningún texto): R15 código 219/45, R10 ayuda 176/12, R9 integradores 47/2, contrato 21/7, R16 tests 764/137, R1 0, public 0.
 
 Emitido con `tests/fixtures/marca-retirada-493.ts` (el mismo detector que juzga la guardia `tests/unit/guards/marca-fuente-unica-493.guardia.test.ts`). Formato: `archivo:línea — fragmento`. Task asignada por la superficie de `tasks.md` (los tests, por el nombre listado en cada task; lo no listado va a T13).
 
@@ -8,96 +8,16 @@ Emitido con `tests/fixtures/marca-retirada-493.ts` (el mismo detector que juzga 
 
 | Bloque | Hallazgos | Archivos |
 | --- | --- | --- |
-| R15 codigo (app/components/hooks/lib) | 219 | 45 |
+| R15 codigo (app/components/hooks/lib) | 152 | 34 |
 | R15 public/ | 0 | 0 |
 | R10 docs/ayuda | 176 | 12 |
-| R9 documentacion para integradores | 47 | 2 |
+| R9 documentacion para integradores | 33 | 2 |
 | R1 marca vigente a mano | 0 | 0 |
-| Contrato R17/R18/R20 | 21 | 7 |
-| R16 textos en tests/ y e2e/ | 764 | 137 |
+| Contrato R17/R18/R20 | 0 | 0 |
+| R16 textos en tests/ y e2e/ | 568 | 121 |
 | R16 imports de lib/marca/identidad fuera de lista | 0 | — |
 
-## R15 codigo (app/components/hooks/lib) — 219
-
-### T3 — 31
-
-- `lib/constants/origen-legible-rotulos.ts` (2)
-  - 28 — Gasto de Ordenex
-  - 29 — Gasto fijo de Ordenex
-- `lib/constants/wallet-rotulos.ts` (25)
-  - 37 — Ordenex le cobra a una tienda
-  - 44 — Ordenex le paga a una tienda
-  - 46 — Ordenex paga un gasto de una tienda
-  - 50 — Una tienda le paga a Ordenex
-  - 51 — Pago de una tienda a Ordenex anulado
-  - 53 — Ordenex le paga a un mensajero
-  - 55 — Gasto de Ordenex
-  - 56 — Gasto fijo de Ordenex
-  - 58 — Otro gasto de Ordenex
-  - 59 — Indemnización que Ordenex paga por un incidente
-  - 82 — Pago de Ordenex a una tienda
-  - 83 — Pago de Ordenex a un mensajero
-  - 96 — Cobro de Ordenex a una tienda
-  - 97 — Cobro de Ordenex a una tienda (línea de caja completada al corregir)
-  - 99 — Pago de una tienda a Ordenex
-  - 118 — Pago de Ordenex a una tienda
-  - 122 — Cobro de Ordenex a una tienda
-  - 124 — Pago de una tienda a Ordenex
-  - 126 — Pago de Ordenex a un mensajero
-  - 132 — Cobro de Ordenex a una tienda (línea de caja completada al corregir)
-  - 145 — Pago de Ordenex a un mensajero
-  - 151 — Pago de Ordenex a una tienda
-  - 157 — Cobro de Ordenex a una tienda
-  - 158 — Cobro de Ordenex a una tienda (línea de caja completada al corregir)
-  - 159 — Pago de una tienda a Ordenex
-- `lib/utils/egreso-anulable.ts` (4)
-  - 14 — Gasto de Ordenex
-  - 15 — Gasto fijo de Ordenex
-  - 16 — Otro gasto de Ordenex
-  - 17 — Indemnización que Ordenex paga por un incidente
-
-### T4 — 33
-
-- `lib/analytics/metrics.ts` (6)
-  - 561 — Ingreso de Ordenex por flete y por flete de devolucion segun el libro append-only de la wallet; DESDE LA FICHA 458-B la ANULACION de un c…
-  - 587 — Ingreso de Ordenex por comision sobre el contra-entrega segun el libro append-only de la wallet; se lee del ledger, no de ordenes, y las …
-  - 694 — TESORERIA: el flujo de dinero registrado de la caja principal — el dinero que entro de verdad menos todo lo que salio, sin distinguir de …
-  - 751 — Ganancia de Ordenex
-  - 753 — RESULTADO: ingresos propios de Ordenex menos sus egresos propios, dejando fuera el dinero de terceros que solo pasa por la caja (el contr…
-  - 793 — Saldo derivado del ledger por tienda (SUM credito - SUM debito): lo que Ordenex le debe entregar a cada tienda; se lee del ledger, no de …
-- `lib/asistente/instrucciones.ts` (5)
-  - 60 — trabaja en la oficina de Ordenex y ve el portal interno entero
-  - 61 — trabaja en la oficina de Ordenex
-  - 63 — administra una tienda que le manda envíos a Ordenex
-  - 91 — Sos el asistente de ayuda de Ordenex, una empresa de mensajería de Costa Rica.
-  - 95 — QUIÉN TE PREGUNTA. Esta persona entra a Ordenex como
-- `lib/services/AbonoTiendaService.ts` (5)
-  - 57 — pago de una tienda a Ordenex: clave de idempotencia repetida
-  - 64 — pago de una tienda a Ordenex: ya anulado
-  - 72 — pago de una tienda a Ordenex: la tienda no tiene saldo en contra
-  - 79 — pago de una tienda a Ordenex: el monto supera lo que la tienda debe
-  - 271 — pago de una tienda a Ordenex: clave repetida sin documento que releer
-- `lib/types/historial-accion.ts` (3)
-  - 532 — Registró un pago de una tienda a Ordenex
-  - 533 — Anuló un pago de una tienda a Ordenex
-  - 598 — Pago de una tienda a Ordenex
-- `lib/types/plantilla-datos.ts` (8)
-  - 282 — Número de guía de Ordenex. Vacío mientras la orden no la tenga asignada.
-  - 344 — https://ordenex.co/?guia=10432
-  - 392 — Zona de reparto de Ordenex a la que pertenece la dirección.
-  - 522 — Cuándo se registró la orden en Ordenex, en hora de Costa Rica.
-  - 622 — Correo con el que el mensajero entra a Ordenex. Es una credencial: no lo envíes.
-  - 676 — Ordenex S.A.
-  - 822 — Ordenex S.A.
-  - 823 — https://ordenex.co
-- `lib/utils/aviso-ubicacion-denegada.ts` (5)
-  - 76 — Para registrar la gestión hace falta tu ubicación. Abriste Ordenex desde su ícono,
-  - 81 — Entrá en Aplicaciones y buscá Ordenex.
-  - 84 — Volvé a Ordenex y tocá «Guardar gestión» otra vez.
-  - 103 — Si abriste Ordenex desde un enlace de WhatsApp y no ves el candado, tocá los tres
-  - 143 — Si no te sale ningún aviso, activá la ubicación en los Ajustes del teléfono: Aplicaciones → Ordenex → Permisos → Ubicación.
-- `lib/whatsapp-envios/informes/aviso-interno.ts` (1)
-  - 64 — https://ordenex.co/cierres
+## R15 codigo (app/components/hooks/lib) — 152
 
 ### T5 — 50
 
@@ -289,7 +209,7 @@ Emitido con `tests/fixtures/marca-retirada-493.ts` (el mismo detector que juzga 
 - `components/shared/sinpe-textos.ts` (1)
   - 24 — Ej: Ordenex CR S.A.
 
-### T11 — 10
+### T11 — 9
 
 - `app/_landing/LandingPostular.tsx` (3)
   - 30 — ¿Tenés un camión, carro o moto que no estás manejando? Ponelo a trabajar con Ordenex y generá ingresos con nuestra operación.
@@ -302,16 +222,9 @@ Emitido con `tests/fixtures/marca-retirada-493.ts` (el mismo detector que juzga 
   - 38 — Hay una versión nueva de Ordenex
 - `components/shared/PushOptIn.tsx` (1)
   - 62 — Agrega Ordenex a tu pantalla de inicio
-- `lib/api/openapi-spec.ts` (3)
-  - 1166 — https://app.ordenex.co/api/ordenes/api-key/orden/100235
-  - 1479 — Los CINCO conceptos que Ordenex factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes …
-  - 1999 — RETIRADO DEL CATÁLOGO (desde 2026-09-06). Ordenex puede retirar una provincia, un cantón
-
-### T11b — 2
-
-- `lib/crypto/webhook-firma.ts` (2)
-  - 11 — X-Ordenex-Signature
-  - 13 — X-Ordenex-Timestamp
+- `lib/api/openapi-spec.ts` (2)
+  - 1484 — Los CINCO conceptos que Ordenex factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes …
+  - 2004 — RETIRADO DEL CATÁLOGO (desde 2026-09-06). Ordenex puede retirar una provincia, un cantón
 
 ## R15 public/ — 0
 
@@ -510,13 +423,12 @@ Sin hallazgos.
   - 145 — pagos que Ordenex te hizo, en los pagos que Ordenex hizo por ti, en los cobros de Ordenex y en los pagos
   - 146 — que le hiciste a Ordenex. Se abre en otra pestaña con un enlace que dura poco. Si esa fila no tiene
 
-## R9 documentacion para integradores — 47
+## R9 documentacion para integradores — 33
 
-### T11 — 47
+### T11 — 33
 
-- `docs/api/guia-integracion/guia-integracion.html` (42)
+- `docs/api/guia-integracion/guia-integracion.html` (29)
   - 7 — <meta name="description" content="Documentación técnica de integración del canal por API key de Ordenex. Versión del documento: septiembr…
-  - 183 — Base URL de producción: https://ordenex.co
   - 232 — <p><strong>Desde cuándo.</strong> Fecha de despliegue <strong>pendiente</strong>: Ordenex la avisará con antelación y la escribirá en el …
   - 283 — <li><strong><code>orden.estado_actualizado</code> llega al APROBAR el cierre del mensajero, no al gestionar.</strong> Cuando el mensajero…
   - 321 — <p>La API de Ordenex le permite a su sistema (e-commerce, ERP, WMS) operar sus envíos sin entrar a la aplicación web:</p>
@@ -528,166 +440,61 @@ Sin hallazgos.
   - 364 — <p>No se rota desde el lado del integrador: se <strong>solicita a Ordenex</strong>, que genera una key nueva y desactiva la anterior, cua…
   - 366 — <li>La key se perdió (no es recuperable: Ordenex tampoco puede volver a mostrarla).</li>
   - 372 — <p>Ordenex puede desactivar la key <strong>o</strong> la cuenta dedicada (y, si la key apunta a una tienda, dar de baja esa tienda). En t…
-  - 383 — <tbody><tr><td>Producción</td><td><code>https://ordenex.co</code></td></tr></tbody>
   - 420 — <p>Consecuencia práctica: un <code>401</code> es problema de su cliente HTTP o de su secreto; un <code>403</code> requiere hablar con Ord…
   - 470 — <p><strong>Estado inicial:</strong> depende de la configuración de la tienda (fulfillment: el paquete ya está en la bodega de Ordenex).</p>
   - 478 — <div class="warn"><strong><code>monto_cobrar</code> no acepta decimales.</strong> La cifra se redondea al colón más cercano (el medio sub…
-  - 497 — <pre>curl -X POST https://ordenex.co/api/ordenes/api-key/carga \
   - 539 — <li><span class="w">⚠</span> <strong>Una fila puede no crear orden por un problema de tarifa o de cobertura.</strong> Vuelve en <code>err…
   - 540 — <li>Una provincia, un cantón o un distrito <strong>retirados del catálogo</strong> producen un error de fila propio, bajo la clave del ni…
-  - 598 — <pre>curl "https://ordenex.co/api/ordenes/api-key?limit=50&offset=0&estado=en_reparto&desde=2026-09-01&hasta=2026-09-21" \
   - 620 — <li><code>costoEstimado</code> y <code>costoReal</code> son lo que ese paquete le cuesta a su tienda <strong>si se entrega</strong>, con …
   - 674 — <li><code>gestiones[].mensajero</code> nunca es <code>null</code> y es el <strong>atribuido</strong> a la gestión, que no siempre es quie…
-  - 681 — <pre>curl -X POST https://ordenex.co/api/ordenes/api-key/orden/100234/generate \
-  - 705 — <pre>curl -X DELETE https://ordenex.co/api/ordenes/api-key/orden/REM-0001 \
-  - 725 — <pre>curl "https://ordenex.co/api/ordenes/api-key/analitica?metricas=entregas,tasa_entrega&desde=2026-09-19&hasta=2026-09-21" \
-  - 771 — <pre>curl -X PUT https://ordenex.co/api/ordenes/api-key/100234/cancelar \
   - 814 — <p><strong>Ordenex envía</strong> (<code>POST</code>) al callback del dueño de la orden un evento cada vez que una orden suya cambia a un…
   - 817 — <p>Se registra en Ordenex, <strong>una suscripción por dueño</strong>, con:</p>
   - 820 — <li>Un <strong>secreto de firma</strong>, generado por Ordenex y entregado una sola vez.</li>
   - 822 — <p>Cambiar la URL conserva el secreto. El secreto se puede rotar (invalida el anterior) y la suscripción se puede desactivar, solicitándo…
-  - 848 — "evidenciasUrl": "https://ordenex.co/api/ordenes/api-key/orden/100235"
-  - 857 — <tr><td><code>X-Ordenex-Timestamp</code></td><td>Instante unix en <strong>segundos</strong> en que se firmó</td></tr>
-  - 858 — <tr><td><code>X-Ordenex-Signature</code></td><td><code>sha256=&lt;hex&gt;</code> — HMAC-SHA256 sobre la cadena <code>${timestamp}.${cuerp…
-  - 866 — <li><strong>Compare en tiempo constante</strong> contra el valor de <code>X-Ordenex-Signature</code>.</li>
-  - 867 — <li>Descarte entregas cuyo <code>X-Ordenex-Timestamp</code> caiga <strong>fuera de su ventana anti-replay</strong> (referencia: 5 minutos…
   - 871 — <p class="small">(El tamaño de la ventana anti-replay lo define usted. Las IPs de origen de las entregas no están definidas en esta guía:…
   - 880 — <div class="warn">Si su handler responde <code>4xx</code> ante un evento que no le interesa (estado o evento desconocido, orden que no re…
   - 998 — <tr><td><code>403</code></td><td><code>FORBIDDEN</code></td><td>La key existe pero está <strong>desactivada</strong>, o su <strong>cuenta…
   - 1000 — <tr><td><code>409</code></td><td><code>CONFLICT</code></td><td>Ninguna fila resolvió tarifa; nombre de lote repetido; orden sin guía impr…
   - 1002 — <tr><td><code>500</code></td><td><code>INTERNAL</code></td><td>Falla del lado de Ordenex.</td><td>Reintente con backoff. Si persiste, rep…
   - 1028 — <tr><td>“Ordenex me reintenta un evento que no me interesa”</td><td>Su handler responde algo distinto de <code>2xx</code>.</td><td>Respon…
-- `docs/api/api-key-openapi.yaml` (5)
+- `docs/api/api-key-openapi.yaml` (4)
   - 1 — # Feature 106 — OpenAPI 3.1 del canal integrador por API key (Ordenex).
   - 719 — # `paths:`): lo que Ordenex ENVÍA al callback del integrador, no lo que el integrador pide.
-  - 961 — evidenciasUrl: "https://app.ordenex.co/api/ordenes/api-key/orden/100235"
-  - 1322 — description: "Los CINCO conceptos que Ordenex factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entreg…
-  - 1944 — RETIRADO DEL CATÁLOGO (desde 2026-09-06). Ordenex puede retirar una provincia, un cantón
+  - 1323 — description: "Los CINCO conceptos que Ordenex factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entreg…
+  - 1945 — RETIRADO DEL CATÁLOGO (desde 2026-09-06). Ordenex puede retirar una provincia, un cantón
 
 ## R1 marca vigente a mano — 0
 
 Sin hallazgos.
 
-## Contrato R17/R18/R20 — 21
+## Contrato R17/R18/R20 — 0
 
-### T4 — 3
+Sin hallazgos.
 
-- `lib/types/plantilla-datos.ts` (2)
-  - 344 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): https://ordenex.co/?guia=10432
-  - 823 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): https://ordenex.co
-- `lib/whatsapp-envios/informes/aviso-interno.ts` (1)
-  - 64 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): https://ordenex.co/cierres
+## R16 textos en tests/ y e2e/ — 568
 
-### T11b — 18
+### T3 — 17
 
-- `lib/api/openapi-spec.ts` (1)
-  - 1166 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): https://app.ordenex.co/api/ordenes/api-key/orden/100235
-- `lib/crypto/webhook-firma.ts` (2)
-  - 11 — cabecera de firma vieja (X-Ordenex-*): X-Ordenex-Signature
-  - 13 — cabecera de firma vieja (X-Ordenex-*): X-Ordenex-Timestamp
-- `docs/api/api-key-openapi.yaml` (1)
-  - 961 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): evidenciasUrl: "https://app.ordenex.co/api/ordenes/api-key/orden/100235"
-- `docs/api/guia-integracion/guia-integracion.html` (13)
-  - 183 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): Base URL de producción: https://ordenex.co
-  - 383 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): <tbody><tr><td>Producción</td><td><code>https://ordenex.co</code></td></tr></tbody>
-  - 497 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): <pre>curl -X POST https://ordenex.co/api/ordenes/api-key/carga \
-  - 598 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): <pre>curl "https://ordenex.co/api/ordenes/api-key?limit=50&offset=0&estado=en_reparto&desde=2026-09-01&hasta=2026-09-21" \
-  - 681 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): <pre>curl -X POST https://ordenex.co/api/ordenes/api-key/orden/100234/generate \
-  - 705 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): <pre>curl -X DELETE https://ordenex.co/api/ordenes/api-key/orden/REM-0001 \
-  - 725 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): <pre>curl "https://ordenex.co/api/ordenes/api-key/analitica?metricas=entregas,tasa_entrega&desde=2026-09-19&hasta=2026-09-21" \
-  - 771 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): <pre>curl -X PUT https://ordenex.co/api/ordenes/api-key/100234/cancelar \
-  - 848 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): "evidenciasUrl": "https://ordenex.co/api/ordenes/api-key/orden/100235"
-  - 857 — cabecera de firma vieja (X-Ordenex-*): <tr><td><code>X-Ordenex-Timestamp</code></td><td>Instante unix en <strong>segundos</strong> en que se firmó</td></tr>
-  - 858 — cabecera de firma vieja (X-Ordenex-*): <tr><td><code>X-Ordenex-Signature</code></td><td><code>sha256=&lt;hex&gt;</code> — HMAC-SHA256 sobre la cadena <code>${timestamp}.${cuerp…
-  - 866 — cabecera de firma vieja (X-Ordenex-*): <li><strong>Compare en tiempo constante</strong> contra el valor de <code>X-Ordenex-Signature</code>.</li>
-  - 867 — cabecera de firma vieja (X-Ordenex-*): <li>Descarte entregas cuyo <code>X-Ordenex-Timestamp</code> caiga <strong>fuera de su ventana anti-replay</strong> (referencia: 5 minutos…
-- `docs/api/manual-metricas-por-mensajero.md` (1)
-  - 208 — dominio viejo (ordenex.co, app.ordenex.co, soporte@ordenex.co): "evidenciasUrl": "https://app.ordenex.co/api/ordenes/api-key/orden/100235"
+- `tests/unit/guards/nombres-wallet-461.guardia.test.ts` (17)
+  - 64 — Cobro de Ordenex
+  - 121 — La tienda le paga a Ordenex
+  - 122 — Le pagaste a Ordenex
+  - 271 — Ordenex
+  - 271 — Cobro de Ordenex
+  - 277 — No sale ni entra dinero: es un cobro de Ordenex a la tienda que baja su saldo. La caja y la ganancia no cambian.
+  - 325 — el quinto reservado («Pago a Ordenex anulado») quedó sin uso: nadie lo dice (D10 de la 457)
+  - 326 — Pago a Ordenex anulado
+  - 330 — La tienda le paga a Ordenex
+  - 332 — La tienda le paga a Ordenex
+  - 392 — export const GRUPO_CONCEPTO_LABEL = { sale: "Sale dinero de la caja", entra: "Entra dinero a la caja", no_mueve: "No mueve la caja" }; ex…
+  - 404 — conceptos-459.ts: nombre «Cobro de Ordenex»
+  - 411 — le cobra a una tienda", manual: "Registrado a mano", gasto: "Gasto o sueldo registrado a mano" }; // el cobro de un costo de la 381 pasó …
+  - 442 — | **Pago por cuenta de la tienda** | Ordenex le pagó a un tercero | **Sí** |
+  - 443 — | **Cobro de Ordenex** | Un cargo de Ordenex a la tienda | **No** |
+  - 449 — doc.md: nombre «Cobro de Ordenex»
+  - 463 — | **Ordenex le cobra a la tienda** | **Ordenex te cobró** | «
 
-## R16 textos en tests/ y e2e/ — 764
-
-### T3 — 35
-
-- `tests/unit/guards/nombres-wallet-461.guardia.test.ts` (21)
-  - 63 — Cobro de Ordenex
-  - 110 — Una tienda le paga a Ordenex
-  - 116 — Pago de una tienda a Ordenex anulado
-  - 120 — La tienda le paga a Ordenex
-  - 121 — Le pagaste a Ordenex
-  - 270 — Ordenex
-  - 270 — Cobro de Ordenex
-  - 276 — No sale ni entra dinero: es un cobro de Ordenex a la tienda que baja su saldo. La caja y la ganancia no cambian.
-  - 316 — ⭑ frontend 457: el concepto del diálogo que dice «Una tienda le paga a Ordenex» es EXACTAMENTE el `abono_tienda`
-  - 317 — Una tienda le paga a Ordenex
-  - 324 — el quinto reservado («Pago a Ordenex anulado») quedó sin uso: nadie lo dice (D10 de la 457)
-  - 325 — Pago a Ordenex anulado
-  - 329 — La tienda le paga a Ordenex
-  - 331 — La tienda le paga a Ordenex
-  - 391 — export const GRUPO_CONCEPTO_LABEL = { sale: "Sale dinero de la caja", entra: "Entra dinero a la caja", no_mueve: "No mueve la caja" }; ex…
-  - 403 — conceptos-459.ts: nombre «Cobro de Ordenex»
-  - 409 — export const CATEGORIA_LABEL = { ingreso_cobro_tienda: "Ordenex le cobra a una tienda", manual: "Registrado a mano", gasto: "Gasto o suel…
-  - 441 — | **Pago por cuenta de la tienda** | Ordenex le pagó a un tercero | **Sí** |
-  - 442 — | **Cobro de Ordenex** | Un cargo de Ordenex a la tienda | **No** |
-  - 448 — doc.md: nombre «Cobro de Ordenex»
-  - 462 — | **Ordenex le cobra a la tienda** | **Ordenex te cobró** | «Ordenex paga un gasto de una tienda» | `Registrado a mano` |
-- `tests/unit/services/wallet-origen-legible.test.ts` (14)
-  - 61 — Pago de Ordenex a una tienda · Tania Tienda · 2026-09-12 · SINPE
-  - 64 — Pago de Ordenex a un mensajero · Tania Tienda · 2026-09-12 · SINPE
-  - 78 — Cobro de Ordenex a una tienda · Tania Tienda
-  - 81 — Cobro de Ordenex a una tienda (línea de caja completada al corregir) · Tania Tienda
-  - 85 — Pago de una tienda a Ordenex · Tania Tienda · 2026-09-11 · Transferencia
-  - 98 — el gasto se nombra por su concepto: sueldo, gasto de Ordenex y gasto fijo con su periodo
-  - 114 — Gasto de Ordenex
-  - 115 — Gasto fijo de Ordenex
-  - 147 — Cobro de Ordenex a una tienda
-  - 149 — Cobro de Ordenex a una tienda · Tania Tienda
-  - 150 — Cobro de Ordenex a una tienda · Tania Tienda
-  - 158 — Cobro de Ordenex a una tienda · Tania Tienda
-  - 161 — Cobro de Ordenex a una tienda
-  - 178 — Pago de Ordenex a un mensajero · Tania Tienda · 2026-09-12 · SINPE
-
-### T4 — 32
-
-- `tests/components/GestionarOrdenUbicacionContexto.test.tsx` (5)
-  - 180 — Feature 399 — con Ordenex instalada como app
-  - 194 — Entrá en Aplicaciones y buscá Ordenex.
-  - 211 — Para registrar la gestión hace falta tu ubicación. Abriste Ordenex desde su ícono, así que el permiso se activa en los Ajustes del teléfono.
-  - 264 — Si abriste Ordenex desde un enlace de WhatsApp y no ves el candado, tocá los tres puntos y elegí «Abrir en Chrome».
-  - 339 — Entrá en Aplicaciones y buscá Ordenex.
-- `tests/components/HistorialAccionesAbonoTienda457.test.tsx` (10)
-  - 54 — Registró un pago de una tienda a Ordenex
-  - 55 — Anuló un pago de una tienda a Ordenex
-  - 65 — Registró un pago de una tienda a Ordenex
-  - 121 — Registró un pago de una tienda a Ordenex
-  - 122 — Registró un pago de una tienda a Ordenex
-  - 125 — Pago de una tienda a Ordenex
-  - 140 — Anuló un pago de una tienda a Ordenex
-  - 147 — Anuló un pago de una tienda a Ordenex
-  - 148 — Registró un pago de una tienda a Ordenex
-  - 149 — Pago de una tienda a Ordenex
-- `tests/unit/analytics/metrics-caja-naturaleza.guardia.test.ts` (2)
-  - 65 — R51 · las tres metricas de ingreso de Ordenex no ven el dinero de terceros
-  - 68 — declara dinero que no es de Ordenex
-- `tests/unit/asistente/instrucciones.test.ts` (6)
-  - 34 — Esta persona entra a Ordenex como Mensajero
-  - 37 — Esta persona entra a Ordenex como Maestro
-  - 40 — Esta persona entra a Ordenex como Administrador
-  - 43 — Esta persona entra a Ordenex como Admin de tienda
-  - 46 — Esta persona entra a Ordenex como Admin satélite
-  - 60 — trabaja en la oficina de Ordenex
-- `tests/unit/historial-accion/catalogo-y-choke-point.test.ts` (4)
-  - 399 — ⭑ FICHA 457 (R61–R64): los dos tipos del pago de una tienda a Ordenex son DINERO, con entidad propia y sus textos
-  - 405 — Registró un pago de una tienda a Ordenex
-  - 406 — Anuló un pago de una tienda a Ordenex
-  - 414 — Pago de una tienda a Ordenex
-- `tests/unit/utils/aviso-ubicacion-denegada.test.ts` (5)
-  - 18 — Para registrar la gestión hace falta tu ubicación. Abriste Ordenex desde su ícono, así que el permiso se activa en los Ajustes del teléfono.
-  - 179 — Entrá en Aplicaciones y buscá Ordenex.
-  - 182 — Volvé a Ordenex y tocá «Guardar gestión» otra vez.
-  - 215 — Si abriste Ordenex desde un enlace de WhatsApp y no ves el candado, tocá los tres puntos y elegí «Abrir en Chrome».
-  - 260 — Si no te sale ningún aviso, activá la ubicación en los Ajustes del teléfono: Aplicaciones → Ordenex → Permisos → Ubicación.
-
-### T5 — 150
+### T5 — 101
 
 - `tests/components/BarraComposicionCaja488.test.tsx` (2)
   - 103 — el IVA lleva su propio color de token, distinto de tiendas y de Ordenex
@@ -702,280 +509,166 @@ Sin hallazgos.
   - 433 — Lo de Ordenex (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no al…
   - 437 — Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.
   - 439 — No hay nada que repartir: ni Ordenex ni las tiendas tienen dinero a favor en la caja.
-- `tests/components/ComposicionGananciaCard.test.tsx` (23)
-  - 223 — Gastos fijos de Ordenex
-  - 225 — Gastos de Ordenex
-  - 326 — Ganancia de Ordenex
-  - 367 — Ordenex le cobra a una tienda
-  - 385 — Gastos fijos de Ordenex
-  - 386 — Gastos de Ordenex
-  - 389 — Pagos de Ordenex a mensajeros
-  - 396 — Otros gastos de Ordenex
-  - 488 — Gastos fijos de Ordenex
-  - 489 — Gastos de Ordenex
-  - 492 — Pagos de Ordenex a mensajeros
-  - 497 — Otros gastos de Ordenex
-  - 530 — Otros gastos de Ordenex
-  - 627 — Pagos de Ordenex a mensajeros
-  - 673 — R7: con `hayOtrosEgresos` falso, la fila «Otros gastos de Ordenex» no está en el DOM
-  - 681 — Otros gastos de Ordenex
-  - 683 — Gastos fijos de Ordenex
-  - 684 — Gastos de Ordenex
-  - 687 — Pagos de Ordenex a mensajeros
-  - 700 — Otros gastos de Ordenex
-  - 712 — Otros gastos de Ordenex
-  - 721 — Otros gastos de Ordenex
-  - 851 — R19: los totales de las dos columnas son los del DTO (ingresos y gastos de Ordenex sin IVA)
-- `tests/components/DetalleFilaComposicion.test.tsx` (6)
-  - 103 — Ver los movimientos de Pagos de Ordenex a mensajeros
-  - 105 — Ver los movimientos de Otros gastos de Ordenex
-  - 109 — Movimientos de Pagos de Ordenex a mensajeros
-  - 111 — Movimientos de Otros gastos de Ordenex
-  - 320 — Pago de Ordenex a un mensajero
-  - 424 — Ganancia de Ordenex
-- `tests/components/WalletLibroCaja458E.test.tsx` (6)
-  - 351 — R55: «Movimiento y motivo» dice el concepto desde Ordenex, el origen con su entidad y el motivo
-  - 354 — Ordenex le cobra a una tienda
-  - 366 — Ordenex
-  - 372 — Ordenex (capital)
-  - 375 — R56: «A quién» nombra la cuenta y enlaza su estado de cuenta; «Ordenex» en el aporte; «—» sin anotación
-  - 391 — Ordenex
+- `tests/components/ComposicionGananciaCard.test.tsx` (22)
+  - 224 — Gastos fijos de Ordenex
+  - 226 — Gastos de Ordenex
+  - 327 — Ganancia de Ordenex
+  - 386 — Gastos fijos de Ordenex
+  - 387 — Gastos de Ordenex
+  - 390 — Pagos de Ordenex a mensajeros
+  - 397 — Otros gastos de Ordenex
+  - 489 — Gastos fijos de Ordenex
+  - 490 — Gastos de Ordenex
+  - 493 — Pagos de Ordenex a mensajeros
+  - 498 — Otros gastos de Ordenex
+  - 531 — Otros gastos de Ordenex
+  - 628 — Pagos de Ordenex a mensajeros
+  - 674 — R7: con `hayOtrosEgresos` falso, la fila «Otros gastos de Ordenex» no está en el DOM
+  - 682 — Otros gastos de Ordenex
+  - 684 — Gastos fijos de Ordenex
+  - 685 — Gastos de Ordenex
+  - 688 — Pagos de Ordenex a mensajeros
+  - 701 — Otros gastos de Ordenex
+  - 713 — Otros gastos de Ordenex
+  - 722 — Otros gastos de Ordenex
+  - 852 — R19: los totales de las dos columnas son los del DTO (ingresos y gastos de Ordenex sin IVA)
+- `tests/components/DetalleFilaComposicion.test.tsx` (5)
+  - 104 — Ver los movimientos de Pagos de Ordenex a mensajeros
+  - 106 — Ver los movimientos de Otros gastos de Ordenex
+  - 110 — Movimientos de Pagos de Ordenex a mensajeros
+  - 112 — Movimientos de Otros gastos de Ordenex
+  - 425 — Ganancia de Ordenex
+- `tests/components/WalletLibroCaja458E.test.tsx` (5)
+  - 352 — R55: «Movimiento y motivo» dice el concepto desde Ordenex, el origen con su entidad y el motivo
+  - 367 — Ordenex
+  - 373 — Ordenex (capital)
+  - 376 — R56: «A quién» nombra la cuenta y enlaza su estado de cuenta; «Ordenex» en el aporte; «—» sin anotación
+  - 392 — Ordenex
 - `tests/integration/wallet-page.test.tsx` (2)
   - 544 — ganancia de ordenex
   - 622 — Ganancia de Ordenex
-- `tests/unit/components/wallet-conceptos-manuales.test.ts` (57)
-  - 104 — ⭑ 458 R37: los diez se llaman EXACTAMENTE así, desde Ordenex y diciendo quién le paga a quién
-  - 106 — Gasto de Ordenex
-  - 109 — Ordenex paga un gasto de una tienda
-  - 111 — Ordenex le paga a una tienda
-  - 112 — Ordenex le paga a un mensajero
-  - 114 — Una tienda le paga a Ordenex
-  - 116 — Ordenex le cobra a una tienda
-  - 120 — el gasto de Ordenex sigue siendo el primero y los cuatro de la 334 conservan su orden relativo (R11)
-  - 186 — ⭑ FICHA 381/461 — el cobro de Ordenex a una tienda cae en los DOS libros (R1 / 461-HD1/R46)
-  - 187 — existe, se llama «Ordenex le cobra a una tienda» y declara su cargo en la caja y su débito en la tienda
-  - 191 — Ordenex le cobra a una tienda
-  - 251 — ⭑ FICHA 457 — «Una tienda le paga a Ordenex» (design §8.1/§8.2; R54, R55, R67)
-  - 256 — Una tienda le paga a Ordenex
-  - 271 — Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.
-  - 274 — Se registra en la caja como «Una tienda le paga a Ordenex» y en el libro de la tienda como «La tienda le paga a Ordenex».
-  - 283 — Una tienda le paga a Ordenex
-  - 315 — Gasto de Ordenex
-  - 317 — Ordenex le cobra a una tienda
-  - 320 — Ordenex le paga a una tienda
-  - 324 — ⭑ 461: el nombre en el libro de la TIENDA sale del diccionario DESDE ORDENEX de /wallet/tiendas, no del de /mi-wallet
-  - 332 — Ordenex le cobra a la tienda
-  - 333 — Ordenex paga un gasto de la tienda
-  - 341 — Ordenex le paga a la tienda
-  - 343 — La tienda le paga a Ordenex
-  - 349 — Se registra en el libro como «Gasto de Ordenex».
-  - 359 — Se registra en la caja como «Ordenex le cobra a una tienda» y en el libro de la tienda como «Ordenex le cobra a la tienda».
-  - 362 — Se registra en la caja como «Ordenex paga un gasto de una tienda» y en el libro de la tienda como «Ordenex paga un gasto de la tienda».
-  - 366 — Se registra en la caja como «Ordenex le paga a una tienda» y en el libro de la tienda como «Ordenex le paga a la tienda».
-  - 389 — Ordenex le cobra a una tienda
-  - 391 — Elegí la tienda, el monto y la fecha. El cobro se descuenta de lo que Ordenex le debe a esa tienda y no se edita: si hay un error, se anu…
-  - 401 — Ordenex paga un gasto de una tienda
-  - 414 — Sale dinero de Ordenex
+- `tests/unit/components/wallet-conceptos-manuales.test.ts` (37)
+  - 105 — ⭑ 458 R37: los diez se llaman EXACTAMENTE así, desde Ordenex y diciendo quién le paga a quién
+  - 121 — el gasto de Ordenex sigue siendo el primero y los cuatro de la 334 conservan su orden relativo (R11)
+  - 187 — ⭑ FICHA 381/461 — el cobro de Ordenex a una tienda cae en los DOS libros (R1 / 461-HD1/R46)
+  - 272 — Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.
+  - 275 — » y en el libro de la tienda como «La tienda le paga a Ordenex».
+  - 325 — ⭑ 461: el nombre en el libro de la TIENDA sale del diccionario DESDE ORDENEX de /wallet/tiendas, no del de /mi-wallet
+  - 333 — Ordenex le cobra a la tienda
+  - 334 — Ordenex paga un gasto de la tienda
+  - 342 — Ordenex le paga a la tienda
+  - 344 — La tienda le paga a Ordenex
+  - 360 — le cobra a una tienda» y en el libro de la tienda como «Ordenex le cobra a la tienda».
+  - 363 — paga un gasto de una tienda» y en el libro de la tienda como «Ordenex paga un gasto de la tienda».
+  - 367 — le paga a una tienda» y en el libro de la tienda como «Ordenex le paga a la tienda».
+  - 392 — Elegí la tienda, el monto y la fecha. El cobro se descuenta de lo que Ordenex le debe a esa tienda y no se edita: si hay un error, se anu…
   - 415 — Sale dinero de Ordenex
   - 416 — Sale dinero de Ordenex
   - 417 — Sale dinero de Ordenex
   - 418 — Sale dinero de Ordenex
   - 419 — Sale dinero de Ordenex
   - 420 — Sale dinero de Ordenex
-  - 427 — Sale dinero de Ordenex
-  - 436 — Ordenex paga un gasto de una tienda
-  - 453 — Sale dinero de Ordenex y baja su ganancia.
-  - 454 — Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.
-  - 459 — Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.
-  - 460 — Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.
-  - 463 — Sale dinero de Ordenex hacia la tienda y baja lo que Ordenex le debe; la ganancia no cambia.
-  - 465 — Ordenex le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.
-  - 466 — Llega dinero de Ordenex a la caja; no es ganancia, la ganancia no cambia.
-  - 468 — Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.
-  - 469 — Llega dinero a la caja para corregir un descuadre y sube la ganancia de Ordenex.
-  - 471 — No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex; si la tienda no tiene saldo, queda e…
-  - 505 — ⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» y el «Así queda» (R37, R41, R42, R44)
-  - 506 — «Ordenex le paga a una tienda» y «Ordenex le paga a un mensajero» están en «Sale dinero de Ordenex» con su destino
-  - 537 — R42 (D5): «a quién» obligatorio en sueldo y gasto de Ordenex, opcional en las dos correcciones, y no se pide en el resto
-  - 567 — Ordenex le paga a una tienda
-  - 569 — Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que Ordenex le debe a la tienda. El pago no se edita: si ha…
-  - 571 — Ordenex le paga a un mensajero
-  - 576 — está en «Sale dinero de Ordenex», con el destino del egreso administrativo y sus textos
-- `tests/unit/components/wallet-indemnizacion-libro.test.tsx` (5)
-  - 75 — Indemnización que Ordenex paga por un incidente
-  - 129 — Indemnización que Ordenex paga por un incidente (2)
-  - 147 — Indemnización que Ordenex paga por un incidente (2)
-  - 151 — Indemnización que Ordenex paga por un incidente
-  - 161 — Indemnización que Ordenex paga por un incidente (2)
-- `tests/unit/components/wallet-labels.test.ts` (40)
-  - 53 — Ordenex le cobra a una tienda
-  - 56 — Ordenex le paga a una tienda
-  - 58 — Ordenex paga un gasto de una tienda
-  - 60 — Ordenex le paga a un mensajero
-  - 62 — Gasto de Ordenex
-  - 63 — Gasto fijo de Ordenex
-  - 64 — Otro gasto de Ordenex
-  - 65 — Indemnización que Ordenex paga por un incidente
-  - 71 — Una tienda le paga a Ordenex
-  - 72 — Pago de una tienda a Ordenex anulado
-  - 87 — Pago de Ordenex a una tienda
-  - 88 — Pago de Ordenex a un mensajero
-  - 94 — Cobro de Ordenex a una tienda
-  - 95 — Cobro de Ordenex a una tienda (línea de caja completada al corregir)
-  - 97 — Pago de una tienda a Ordenex
-  - 100 — 461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42, design §7.2)
-  - 112 — ⭑ 457 (R45/R53): el pago de una tienda a Ordenex y su anulacion, con los nombres reservados por la 461
-  - 113 — Una tienda le paga a Ordenex
-  - 114 — Pago de una tienda a Ordenex anulado
-  - 119 — Pago de una tienda a Ordenex
-  - 136 — Ordenex le cobra a una tienda
-  - 163 — 461 — ORIGEN_LABEL: cada origen de la caja, desde Ordenex (R42, design §7.3)
-  - 185 — R50: «De las tiendas» nombra lo que Ordenex les cobro y NO dice que los cobros no pasan por la caja
-  - 187 — Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que Ordenex les cobró. El detalle d…
-  - 193 — el tipo de egreso manual se llama «Gasto de Ordenex», igual que el concepto del dialogo
-  - 196 — Gasto de Ordenex
-  - 203 — los diez documentos anulables se nombran desde Ordenex dentro de «Anular …»
-  - 207 — el cobro de Ordenex a una tienda
-  - 209 — el pago de una tienda a Ordenex
-  - 215 — el pago de Ordenex a una tienda
-  - 233 — las filas nombradas de la composicion van en plural y desde Ordenex (R27)
-  - 235 — Pagos de Ordenex a mensajeros
-  - 259 — Lo que Ordenex gana menos lo que gasta, sin el IVA
-  - 263 — El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de Ordenex.
-  - 270 — Reparto del dinero en caja. De las tiendas: ₡10.000. De Ordenex: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡340,50.
-  - 274 — R17: con las tiendas debiendo, el mensaje ya no dice que TODO lo de la caja es de Ordenex
-  - 276 — Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.
-  - 284 — «Dinero en caja» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de Ordenex» es solo lo que Ordenex gana menos lo que …
-  - 292 — Ordenex
-  - 294 — Ordenex (capital)
+  - 421 — Sale dinero de Ordenex
+  - 428 — Sale dinero de Ordenex
+  - 454 — Sale dinero de Ordenex y baja su ganancia.
+  - 455 — Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.
+  - 460 — Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.
+  - 461 — Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.
+  - 464 — Sale dinero de Ordenex hacia la tienda y baja lo que Ordenex le debe; la ganancia no cambia.
+  - 466 — Ordenex le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.
+  - 467 — Llega dinero de Ordenex a la caja; no es ganancia, la ganancia no cambia.
+  - 469 — Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.
+  - 470 — Llega dinero a la caja para corregir un descuadre y sube la ganancia de Ordenex.
+  - 472 — No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex; si la tienda no tiene saldo, queda e…
+  - 506 — ⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» y el «Así queda» (R37, R41, R42, R44)
+  - 507 — le paga a un mensajero» están en «Sale dinero de Ordenex» con su destino
+  - 538 — R42 (D5): «a quién» obligatorio en sueldo y gasto de Ordenex, opcional en las dos correcciones, y no se pide en el resto
+  - 570 — Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que Ordenex le debe a la tienda. El pago no se edita: si ha…
+  - 577 — está en «Sale dinero de Ordenex», con el destino del egreso administrativo y sus textos
+- `tests/unit/components/wallet-labels.test.ts` (19)
+  - 101 — 461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42, design §7.2)
+  - 113 — ⭑ 457 (R45/R53): el pago de una tienda a Ordenex y su anulacion, con los nombres reservados por la 461
+  - 164 — 461 — ORIGEN_LABEL: cada origen de la caja, desde Ordenex (R42, design §7.3)
+  - 186 — R50: «De las tiendas» nombra lo que Ordenex les cobro y NO dice que los cobros no pasan por la caja
+  - 188 — Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que Ordenex les cobró. El detalle d…
+  - 204 — los diez documentos anulables se nombran desde Ordenex dentro de «Anular …»
+  - 208 — el cobro de Ordenex a una tienda
+  - 210 — el pago de una tienda a Ordenex
+  - 216 — el pago de Ordenex a una tienda
+  - 234 — las filas nombradas de la composicion van en plural y desde Ordenex (R27)
+  - 236 — Pagos de Ordenex a mensajeros
+  - 260 — Lo que Ordenex gana menos lo que gasta, sin el IVA
+  - 264 — El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de Ordenex.
+  - 271 — Reparto del dinero en caja. De las tiendas: ₡10.000. De Ordenex: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡340,50.
+  - 275 — R17: con las tiendas debiendo, el mensaje ya no dice que TODO lo de la caja es de Ordenex
+  - 277 — Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.
+  - 285 — «Dinero en caja» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de Ordenex» es solo lo que Ordenex gana menos lo que …
+  - 293 — Ordenex
+  - 295 — Ordenex (capital)
 
-### T6 — 94
+### T6 — 35
 
-- `tests/components/DetalleMovimientoCierre.test.tsx` (2)
-  - 423 — Ver las órdenes que componen Ordenex le paga a un mensajero del
-  - 426 — Órdenes que componen Ordenex le paga a un mensajero del
 - `tests/components/DetalleMovimientoPanel.test.tsx` (2)
   - 141 — Lo que Ordenex le debe al mensajero
   - 252 — Es un cobro a la tienda por el flete de una devolución a origen: la ganancia de Ordenex sube y el saldo de la tienda baja, sin dinero nue…
-- `tests/unit/components/wallet-registrar-movimiento-dialog.test.tsx` (90)
-  - 230 — Sale dinero de Ordenex
-  - 231 — Gasto de Ordenex
-  - 234 — Ordenex paga un gasto de una tienda
-  - 236 — Ordenex le paga a una tienda
-  - 237 — Ordenex le paga a un mensajero
-  - 241 — Una tienda le paga a Ordenex
-  - 244 — Ordenex le cobra a una tienda
-  - 255 — abre con el gasto de Ordenex elegido (el primero) y sin pedir ninguna lista
-  - 257 — Gasto de Ordenex
-  - 269 — Gasto de Ordenex
-  - 269 — Sale dinero de Ordenex y baja su ganancia.
-  - 270 — Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.
-  - 272 — Ordenex paga un gasto de una tienda
-  - 273 — Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.
-  - 275 — Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.
-  - 276 — Llega dinero de Ordenex a la caja; no es ganancia, la ganancia no cambia.
-  - 277 — Llega dinero a la caja para corregir un descuadre y sube la ganancia de Ordenex.
-  - 279 — Ordenex le cobra a una tienda
-  - 280 — No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex; si la tienda no tiene saldo, queda e…
-  - 283 — Una tienda le paga a Ordenex
-  - 284 — Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.
-  - 287 — Ordenex le paga a una tienda
-  - 288 — Sale dinero de Ordenex hacia la tienda y baja lo que Ordenex le debe; la ganancia no cambia.
-  - 291 — Ordenex le paga a un mensajero
-  - 292 — Ordenex le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.
-  - 304 — Se registra en el libro como «Gasto de Ordenex».
-  - 305 — Ordenex le paga a una tienda
-  - 307 — Se registra en la caja como «Ordenex le paga a una tienda» y en el libro de la tienda como «Ordenex le paga a la tienda».
-  - 309 — Ordenex le paga a un mensajero
-  - 316 — Ordenex le cobra a una tienda
-  - 317 — Ordenex le cobra a una tienda
-  - 374 — Ordenex le cobra a una tienda
-  - 385 — Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a Ordenex.
-  - 391 — Ordenex paga un gasto de una tienda
-  - 423 — una tienda le paga a Ordenex: tienda, método y la fecha como `fechaPago`, siempre
-  - 425 — Una tienda le paga a Ordenex
-  - 439 — ⭑ Ordenex le paga a una tienda: tienda, método, motivo como `nota` y `fechaPago`; avisa con lo que le sigue debiendo
-  - 441 — Ordenex le paga a una tienda
-  - 455 — Pago de ₡3.000 a Tienda Norte registrado. Ordenex le sigue debiendo ₡7.000.
-  - 459 — ⭑ Ordenex le paga a un mensajero: el buscador ofrece mensajeros (no tiendas) y manda `mensajeroId`
-  - 461 — Ordenex le paga a un mensajero
-  - 476 — Pago de ₡8.000 a Juan Pérez Mora registrado. Ordenex le sigue debiendo ₡2.000 por sus cierres.
-  - 482 — Ordenex le paga a una tienda
-  - 556 — Ordenex le paga a un mensajero
-  - 571 — Ordenex le cobra a una tienda
-  - 592 — Ordenex le cobra a una tienda
-  - 595 — Gasto de Ordenex
-  - 604 — Registrar pago de la tienda a Ordenex
-  - 606 — Registrar pago de la tienda a Ordenex
-  - 608 — Una tienda le paga a Ordenex
-  - 624 — Ordenex le cobra a una tienda
-  - 670 — Ordenex le paga a una tienda
-  - 677 — Ordenex le debe ₡2.500 a esta tienda: el pago no puede superar ese importe.
-  - 739 — Ganancia de Ordenex
-  - 760 — Ordenex le cobra a una tienda
-  - 770 — Así, Tienda Norte queda con el saldo en contra: -₡3.000. Le deberá ese dinero a Ordenex.
-  - 823 — Ordenex le paga a una tienda
-  - 827 — El monto supera lo que Ordenex le debe a esta tienda: no se va a poder registrar.
-  - 846 — Gasto de Ordenex
-  - 855 — Ordenex le cobra a una tienda
-  - 860 — Ordenex paga un gasto de una tienda
-  - 872 — Una tienda le paga a Ordenex
-  - 878 — Ordenex le paga a una tienda
-  - 884 — Ordenex le paga a un mensajero
-  - 898 — Gasto de Ordenex
-  - 908 — Ordenex le cobra a una tienda
-  - 910 — Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a Ordenex.
-  - 913 — Ordenex paga un gasto de una tienda
-  - 920 — Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a Ordenex.
-  - 929 — Una tienda le paga a Ordenex
-  - 937 — Este pago ya estaba registrado, por ₡2.500. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a…
-  - 940 — Ordenex le paga a una tienda
-  - 942 — Pago de ₡3.000 a Tienda Norte registrado. Ordenex le sigue debiendo ₡7.000.
-  - 945 — Ordenex le paga a un mensajero
-  - 951 — Pago de ₡8.000 a Juan Pérez Mora registrado. Ordenex le sigue debiendo ₡2.000 por sus cierres.
-  - 972 — 459 R63: el pago de un gasto dice el saldo con su signo; en contra, que la tienda le debe a Ordenex
-  - 974 — Ordenex paga un gasto de una tienda
-  - 978 — Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a Ordenex.
-  - 989 — Ordenex paga un gasto de una tienda
-  - 1018 — Una tienda le paga a Ordenex
-  - 1022 — Pago registrado. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a Ordenex.
-  - 1033 — Una tienda le paga a Ordenex
-  - 1065 — Una tienda le paga a Ordenex
-  - 1076 — Una tienda le paga a Ordenex
-  - 1089 — Ordenex le paga a un mensajero
-  - 1114 — Gasto de Ordenex
-  - 1138 — tras un fallo, pasar de «Gasto de Ordenex» a «Sueldo» (la MISMA action) manda una clave NUEVA
-  - 1141 — Gasto de Ordenex
-  - 1160 — R21: se ofrece en «Sale dinero de Ordenex», pide «A quién» y manda `tipoEgreso: pago_iva` sin comprobante
-  - 1162 — Sale dinero de Ordenex
+- `tests/unit/components/wallet-registrar-movimiento-dialog.test.tsx` (33)
+  - 231 — Sale dinero de Ordenex
+  - 256 — abre con el gasto de Ordenex elegido (el primero) y sin pedir ninguna lista
+  - 270 — Sale dinero de Ordenex y baja su ganancia.
+  - 271 — Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.
+  - 274 — Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.
+  - 276 — Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.
+  - 277 — Llega dinero de Ordenex a la caja; no es ganancia, la ganancia no cambia.
+  - 278 — Llega dinero a la caja para corregir un descuadre y sube la ganancia de Ordenex.
+  - 281 — No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex; si la tienda no tiene saldo, queda e…
+  - 285 — Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.
+  - 289 — Sale dinero de Ordenex hacia la tienda y baja lo que Ordenex le debe; la ganancia no cambia.
+  - 293 — Ordenex le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.
+  - 308 — le paga a una tienda» y en el libro de la tienda como «Ordenex le paga a la tienda».
+  - 386 — Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a Ordenex.
+  - 424 — una tienda le paga a Ordenex: tienda, método y la fecha como `fechaPago`, siempre
+  - 456 — Pago de ₡3.000 a Tienda Norte registrado. Ordenex le sigue debiendo ₡7.000.
+  - 477 — Pago de ₡8.000 a Juan Pérez Mora registrado. Ordenex le sigue debiendo ₡2.000 por sus cierres.
+  - 605 — Registrar pago de la tienda a Ordenex
+  - 607 — Registrar pago de la tienda a Ordenex
+  - 678 — Ordenex le debe ₡2.500 a esta tienda: el pago no puede superar ese importe.
+  - 740 — Ganancia de Ordenex
+  - 771 — Así, Tienda Norte queda con el saldo en contra: -₡3.000. Le deberá ese dinero a Ordenex.
+  - 828 — El monto supera lo que Ordenex le debe a esta tienda: no se va a poder registrar.
+  - 911 — Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a Ordenex.
+  - 921 — Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a Ordenex.
+  - 938 — Este pago ya estaba registrado, por ₡2.500. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a…
+  - 943 — Pago de ₡3.000 a Tienda Norte registrado. Ordenex le sigue debiendo ₡7.000.
+  - 952 — Pago de ₡8.000 a Juan Pérez Mora registrado. Ordenex le sigue debiendo ₡2.000 por sus cierres.
+  - 973 — 459 R63: el pago de un gasto dice el saldo con su signo; en contra, que la tienda le debe a Ordenex
+  - 979 — Pago registrado. El saldo de Tienda Norte queda en -₡10.000 · En contra. La tienda le debe ese dinero a Ordenex.
+  - 1023 — Pago registrado. El saldo de Tienda Norte queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a Ordenex.
+  - 1161 — R21: se ofrece en «Sale dinero de Ordenex», pide «A quién» y manda `tipoEgreso: pago_iva` sin comprobante
+  - 1163 — Sale dinero de Ordenex
 
-### T7 — 127
+### T7 — 118
 
-- `tests/components/DesgloseTiendaAbono457.test.tsx` (24)
-  - 83 — 457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cuenta lo dice desde Ordenex
-  - 84 — tabla: «La tienda le paga a Ordenex» y «Pago de la tienda a Ordenex anulado», con su origen; sin desplegar ni ids
-  - 96 — La tienda le paga a Ordenex
-  - 97 — Pago de una tienda a Ordenex
-  - 99 — Pago de la tienda a Ordenex anulado
-  - 113 — La tienda le paga a Ordenex
-  - 115 — Pago de una tienda a Ordenex
-  - 118 — Pago de la tienda a Ordenex anulado
-  - 126 — el diccionario desde Ordenex nombra los dos (el filtro de la oficina es el chip «Pagos», D10)
-  - 127 — La tienda le paga a Ordenex
-  - 128 — Pago de la tienda a Ordenex anulado
-  - 138 — tabla: «Le pagaste a Ordenex» y «Ordenex anuló el pago que le hiciste», con su origen; sin desplegar ni ids
-  - 150 — Le pagaste a Ordenex
-  - 151 — Pago de una tienda a Ordenex
-  - 153 — Ordenex anuló el pago que le hiciste
-  - 162 — La tienda le paga a Ordenex
-  - 163 — Pago de la tienda a Ordenex anulado
-  - 170 — Le pagaste a Ordenex
-  - 171 — Pago de una tienda a Ordenex
-  - 174 — Ordenex anuló el pago que le hiciste
-  - 185 — Le pagaste a Ordenex
-  - 186 — Ordenex anuló el pago que le hiciste
-  - 191 — Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular
-  - 194 — Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon
+- `tests/components/DesgloseTiendaAbono457.test.tsx` (20)
+  - 84 — 457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cuenta lo dice desde Ordenex
+  - 85 — tabla: «La tienda le paga a Ordenex» y «Pago de la tienda a Ordenex anulado», con su origen; sin desplegar ni ids
+  - 97 — La tienda le paga a Ordenex
+  - 100 — Pago de la tienda a Ordenex anulado
+  - 114 — La tienda le paga a Ordenex
+  - 119 — Pago de la tienda a Ordenex anulado
+  - 127 — el diccionario desde Ordenex nombra los dos (el filtro de la oficina es el chip «Pagos», D10)
+  - 128 — La tienda le paga a Ordenex
+  - 129 — Pago de la tienda a Ordenex anulado
+  - 139 — tabla: «Le pagaste a Ordenex» y «Ordenex anuló el pago que le hiciste», con su origen; sin desplegar ni ids
+  - 151 — Le pagaste a Ordenex
+  - 154 — Ordenex anuló el pago que le hiciste
+  - 163 — La tienda le paga a Ordenex
+  - 164 — Pago de la tienda a Ordenex anulado
+  - 171 — Le pagaste a Ordenex
+  - 175 — Ordenex anuló el pago que le hiciste
+  - 186 — Le pagaste a Ordenex
+  - 187 — Ordenex anuló el pago que le hiciste
+  - 192 — Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular
+  - 195 — Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon
 - `tests/components/MiWalletComprobante458.test.tsx` (5)
   - 108 — cobro, pago de Ordenex, pago de un gasto y pago de la tienda: sí; lo del cierre: no
   - 112 — Ver comprobante: Comprobante de «Ordenex te cobró» del 2026-09-12
@@ -1044,49 +737,44 @@ Sin hallazgos.
   - 131 — Ordenex te cobró
   - 147 — Ordenex te cobró el flete
   - 148 — Ordenex te cobró
-- `tests/unit/components/mi-wallet-labels.test.ts` (42)
-  - 38 — Ordenex te cobró el flete
-  - 39 — Ordenex te cobró el flete por devolución a origen
-  - 40 — Ordenex te cobró la comisión de contra-entrega
-  - 41 — Ordenex te cobró el IVA del flete
-  - 42 — Ordenex te cobró el IVA del flete por devolución a origen
-  - 43 — Ordenex te cobró el IVA de la comisión
-  - 44 — Ordenex te cobró
-  - 45 — Ordenex anuló un cobro y te lo devolvió
-  - 46 — Ordenex te pagó
-  - 47 — Ordenex pagó un gasto por ti
-  - 48 — Ordenex anuló un pago hecho por ti
-  - 50 — Le pagaste a Ordenex
-  - 51 — Ordenex anuló el pago que le hiciste
-  - 53 — Ordenex anuló el flete por devolución a origen y te lo devolvió
-  - 54 — Ordenex anuló el IVA del flete por devolución a origen y te lo devolvió
-  - 95 — ⭑ 457 (R46/R47): el pago de la tienda a Ordenex y su anulacion se leen distinto desde cada lado
-  - 97 — Le pagaste a Ordenex
-  - 98 — Ordenex anuló el pago que le hiciste
-  - 99 — La tienda le paga a Ordenex
-  - 100 — Pago de la tienda a Ordenex anulado
-  - 105 — R44: es DISTINTA del nombre desde Ordenex en todo concepto donde una parte actúa sobre la otra
-  - 121 — el cobro y lo que Ordenex paga se leen en segunda persona, con Ordenex como sujeto
-  - 122 — Ordenex te cobró
-  - 124 — Ordenex anuló un cobro y te lo devolvió
-  - 126 — Ordenex te pagó
-  - 127 — Ordenex pagó un gasto por ti
-  - 129 — Ordenex le cobra a la tienda
-  - 130 — Ordenex paga un gasto de la tienda
-  - 162 — Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular
-  - 164 — Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon
-  - 165 — Lo que Ordenex te pagó o pagó por ti
-  - 188 — Cargos de Ordenex
-  - 259 — 461 §7.3: los seis textos, desde Ordenex, y los compartidos con la caja dicen lo mismo
-  - 262 — Pago de Ordenex a una tienda
-  - 266 — Cobro de Ordenex a una tienda
-  - 267 — Pago de una tienda a Ordenex
-  - 270 — Pago de Ordenex a un mensajero
-  - 276 — Cobro de Ordenex a una tienda (línea de caja completada al corregir)
-  - 280 — las pistas de /wallet/tiendas hablan desde Ordenex y nombran el cobro y su anulación (R45)
-  - 282 — Contra-entrega cobrado, correcciones a favor, pagos de la tienda a Ordenex y devoluciones por anulaciones
-  - 285 — Fletes, comisión, IVA, los cobros de Ordenex a la tienda y sus pagos a Ordenex anulados
-  - 287 — Lo que Ordenex le pagó a la tienda o pagó por ella
+- `tests/unit/components/mi-wallet-labels.test.ts` (37)
+  - 39 — Ordenex te cobró el flete
+  - 40 — Ordenex te cobró el flete por devolución a origen
+  - 41 — Ordenex te cobró la comisión de contra-entrega
+  - 42 — Ordenex te cobró el IVA del flete
+  - 43 — Ordenex te cobró el IVA del flete por devolución a origen
+  - 44 — Ordenex te cobró el IVA de la comisión
+  - 45 — Ordenex te cobró
+  - 46 — Ordenex anuló un cobro y te lo devolvió
+  - 47 — Ordenex te pagó
+  - 48 — Ordenex pagó un gasto por ti
+  - 49 — Ordenex anuló un pago hecho por ti
+  - 51 — Le pagaste a Ordenex
+  - 52 — Ordenex anuló el pago que le hiciste
+  - 54 — Ordenex anuló el flete por devolución a origen y te lo devolvió
+  - 55 — Ordenex anuló el IVA del flete por devolución a origen y te lo devolvió
+  - 96 — ⭑ 457 (R46/R47): el pago de la tienda a Ordenex y su anulacion se leen distinto desde cada lado
+  - 98 — Le pagaste a Ordenex
+  - 99 — Ordenex anuló el pago que le hiciste
+  - 100 — La tienda le paga a Ordenex
+  - 101 — Pago de la tienda a Ordenex anulado
+  - 106 — R44: es DISTINTA del nombre desde Ordenex en todo concepto donde una parte actúa sobre la otra
+  - 122 — el cobro y lo que Ordenex paga se leen en segunda persona, con Ordenex como sujeto
+  - 123 — Ordenex te cobró
+  - 125 — Ordenex anuló un cobro y te lo devolvió
+  - 127 — Ordenex te pagó
+  - 128 — Ordenex pagó un gasto por ti
+  - 130 — Ordenex le cobra a la tienda
+  - 131 — Ordenex paga un gasto de la tienda
+  - 163 — Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular
+  - 165 — Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon
+  - 166 — Lo que Ordenex te pagó o pagó por ti
+  - 189 — Cargos de Ordenex
+  - 260 — 461 §7.3: los seis textos, desde Ordenex, y los compartidos con la caja dicen lo mismo
+  - 281 — las pistas de /wallet/tiendas hablan desde Ordenex y nombran el cobro y su anulación (R45)
+  - 283 — Contra-entrega cobrado, correcciones a favor, pagos de la tienda a Ordenex y devoluciones por anulaciones
+  - 286 — Fletes, comisión, IVA, los cobros de Ordenex a la tienda y sus pagos a Ordenex anulados
+  - 288 — Lo que Ordenex le pagó a la tienda o pagó por ella
 
 ### T8 — 21
 
@@ -1118,7 +806,7 @@ Sin hallazgos.
 - `tests/unit/services/cierres-admin-service.test.ts` (1)
   - 1826 — R17: un incidente NO aporta ingreso de Ordenex a los totales del cierre
 
-### T9 — 11
+### T9 — 10
 
 - `tests/components/DineroIdentidadesEnPantalla.test.tsx` (5)
   - 951 — R7 — cobrado sobre lo recaudado + flete por devolución a origen = lo que Ordenex facturó
@@ -1130,8 +818,6 @@ Sin hallazgos.
   - 1257 — NO es un sumando de «Cobró Ordenex»: el reparto dice exactamente lo mismo
 - `tests/components/TableroFinanciero.test.tsx` (1)
   - 204 — Ganancia de Ordenex
-- `tests/unit/analytics/etiquetas-visibles.guardia.test.ts` (1)
-  - 76 — Ganancia de Ordenex
 - `tests/unit/analytics/kpis-financieros.test.ts` (2)
   - 223 — Lo que entró menos lo que salió desde el 25 de agosto de 2026. No es el saldo del banco: la app no sabe con cuánto dinero empezó Ordenex.
   - 270 — Suma del saldo de cada tienda, ya descontado lo de Ordenex
@@ -1145,11 +831,8 @@ Sin hallazgos.
   - 252 — Agrega Ordenex a tu pantalla de inicio
   - 254 — Agrega Ordenex a tu pantalla de inicio
 
-### T12 — 74
+### T12 — 72
 
-- `tests/integration/asistente-route.test.ts` (2)
-  - 137 — Esta persona entra a Ordenex como Mensajero
-  - 140 — Esta persona entra a Ordenex como Maestro
 - `tests/unit/asistente/contexto-457.test.ts` (23)
   - 48 — 457 R68/R69 — la oficina puede preguntar por el pago de una tienda a Ordenex
   - 52 — **Una tienda le paga a Ordenex** / **Pago de una tienda a Ordenex anulado** | Lo que una tienda con saldo en contra le paga a Ordenex, y …
@@ -1228,7 +911,7 @@ Sin hallazgos.
 - `tests/unit/docs/ayuda-wallet-caja-488.test.ts` (1)
   - 29 — el diálogo tiene once conceptos y «Pago de IVA» está en «Sale dinero de Ordenex»
 
-### T13 — 217
+### T13 — 191
 
 - `tests/components/CajaResumenCard.test.tsx` (11)
   - 276 — R23: rotula la cifra como lo que Ordenex les debe y explica que son los saldos netos
@@ -1313,43 +996,23 @@ Sin hallazgos.
   - 185 — Ordenex le debe ₡21.150 a Ana Mensajera
   - 188 — Ordenex le paga al mensajero
   - 204 — Ordenex le debe ₡8.750 a Ana Mensajera
-- `tests/components/WalletFechaCostaRica459.test.tsx` (1)
-  - 131 — Ver Ordenex paga un gasto de una tienda del 2026-09-24 por ₡10.000
-- `tests/components/WalletLedgerAcciones457.test.tsx` (7)
-  - 144 — Una tienda le paga a Ordenex
-  - 146 — Pago de una tienda a Ordenex · Tienda Norte · Pago de los fletes · SINPE · 123456
-  - 152 — Pago de una tienda a Ordenex anulado
-  - 154 — Pago de una tienda a Ordenex · Anulación · Tienda Este · Pago equivocado · Efectivo
-  - 182 — el filtro por concepto del libro ofrece los dos conceptos con su nombre desde Ordenex
-  - 191 — Una tienda le paga a Ordenex
-  - 192 — Pago de una tienda a Ordenex anulado
-- `tests/components/WalletLedgerAcciones459.test.tsx` (6)
-  - 142 — Ordenex paga un gasto de una tienda
-  - 153 — Ordenex paga un gasto de una tienda
-  - 192 — Ordenex (capital)
-  - 199 — Ordenex (capital)
-  - 204 — Ordenex paga un gasto de una tienda
-  - 244 — Ordenex paga un gasto de una tienda
-- `tests/components/WalletLedgerAcciones461.test.tsx` (11)
-  - 184 — Ordenex le cobra a una tienda
-  - 186 — Cobro de Ordenex a una tienda · Tienda Norte · Material de despacho
-  - 187 — Ordenex
-  - 192 — Ordenex le cobra a una tienda
-  - 194 — Cobro de Ordenex a una tienda (línea de caja completada al corregir) · Tienda Sur · Bolsas
-  - 195 — Ordenex
-  - 202 — Cobro de Ordenex a una tienda · Anulación · Tienda Este · Etiquetas
-  - 203 — Ordenex
-  - 208 — Ordenex paga un gasto de una tienda
-  - 237 — el filtro por concepto del libro ofrece los dos conceptos nuevos con su nombre desde Ordenex
-  - 246 — Ordenex le cobra a una tienda
-- `tests/components/WalletLedgerVer458C.test.tsx` (7)
-  - 79 — gasto de Ordenex
-  - 89 — cobro de Ordenex
-  - 101 — pago de una tienda a Ordenex
-  - 114 — pago de Ordenex a una tienda
-  - 332 — Ver Gasto de Ordenex del 2026-09-20 por ₡999 · Anulado
-  - 343 — el pago de Ordenex a una tienda
-  - 375 — Anular el pago de Ordenex a una tienda
+- `tests/components/WalletLedgerAcciones457.test.tsx` (1)
+  - 183 — el filtro por concepto del libro ofrece los dos conceptos con su nombre desde Ordenex
+- `tests/components/WalletLedgerAcciones459.test.tsx` (2)
+  - 193 — Ordenex (capital)
+  - 200 — Ordenex (capital)
+- `tests/components/WalletLedgerAcciones461.test.tsx` (4)
+  - 188 — Ordenex
+  - 196 — Ordenex
+  - 204 — Ordenex
+  - 238 — el filtro por concepto del libro ofrece los dos conceptos nuevos con su nombre desde Ordenex
+- `tests/components/WalletLedgerVer458C.test.tsx` (6)
+  - 80 — gasto de Ordenex
+  - 90 — cobro de Ordenex
+  - 102 — pago de una tienda a Ordenex
+  - 115 — pago de Ordenex a una tienda
+  - 344 — el pago de Ordenex a una tienda
+  - 376 — Anular el pago de Ordenex a una tienda
 - `tests/components/WalletRefrescoDirigido.test.tsx` (5)
   - 99 — tras «La tienda le paga a Ordenex»: aviso con el saldo del servidor, tarjeta nueva, y la otra cuenta sin releer
   - 113 — La tienda le paga a Ordenex
@@ -1383,8 +1046,6 @@ Sin hallazgos.
 - `tests/integration/db/caja-iva-488.test.ts` (2)
   - 390 — §1 R2/R3/R4/R5/R6: ganancia, ingresos y gastos de Ordenex SIN IVA; IVA cobrado; IVA por pagar; «De Ordenex»
   - 410 — §1 R7: cifra principal = «De Ordenex» + «De las tiendas» + IVA por pagar, al centimo (diferencia y libro entero)
-- `tests/integration/db/cobro-tienda-461.test.ts` (1)
-  - 114 — Cobro de Ordenex a una tienda
 - `tests/integration/db/detalle-en-lote-464.test.ts` (1)
   - 617 — R5/R21/R22/R34 — /mi-wallet: cada detalle = el de su fila, sin nombres de Ordenex ni de otra tienda
 - `tests/integration/db/estado-cuenta-servidor-458d.test.ts` (1)
@@ -1446,8 +1107,6 @@ Sin hallazgos.
   - 278 — Ordenex
   - 280 — Ordenex (capital)
   - 418 — R3/R49: la de /mi-wallet, sin «Registró» ni ninguna columna de una persona de Ordenex
-- `tests/unit/descarga/wallet-caja-descarga-columnas.test.ts` (1)
-  - 102 — Gasto fijo de Ordenex
 - `tests/unit/descarga/wallet-tienda-descarga-columnas.test.ts` (4)
   - 130 — la columna «Concepto» dice «Ordenex te cobró», no el valor del enum; el importe sale (468 R9)
   - 132 — Ordenex te cobró
@@ -1471,9 +1130,6 @@ Sin hallazgos.
   - 518 — Lo que Ordenex facturó
 - `tests/unit/guards/factura-contraste.guardia.test.ts` (1)
   - 789 — el wordmark «Ordenex» de la hoja compacta
-- `tests/unit/guards/incidente-exhaustividad.test.ts` (2)
-  - 78 — Indemnización que Ordenex paga por un incidente
-  - 101 — Indemnización que Ordenex paga por un incidente (1)
 - `tests/unit/guards/marca-velox-identidad.guardia.test.ts` (1)
   - 113 — Ordenex
 - `tests/unit/guards/paginas-legales-estaticas.guardia.test.ts` (3)
@@ -1503,12 +1159,8 @@ Sin hallazgos.
   - 47 — Ordenex
 - `tests/unit/services/rechazo-tienda-cobro-service.test.ts` (1)
   - 205 — ⭑ la CAJA de Ordenex recibe los dos ingresos, con la clave y los importes CONGELADOS
-- `tests/unit/services/wallet-anulacion-service.test.ts` (2)
-  - 113 — Anulación de: Gasto fijo de Ordenex
-  - 129 — Anulación de: Indemnización que Ordenex paga por un incidente
-- `tests/unit/services/wallet-egreso-reverso-legible.test.ts` (2)
-  - 56 — gasto de Ordenex sin descripción → «Reverso de: Gasto de Ordenex»
-  - 58 — Reverso de: Gasto de Ordenex
+- `tests/unit/services/wallet-egreso-reverso-legible.test.ts` (1)
+  - 57 — gasto de Ordenex sin descripción → «Reverso de: Gasto de
 - `tests/unit/types/wallet-461-clave-schema.test.ts` (4)
   - 34 — cobro de Ordenex a una tienda
   - 36 — sueldo o gasto de Ordenex
@@ -1541,15 +1193,13 @@ Sin hallazgos.
 
 | Task | R15 codigo (app/components/hooks/lib) | R15 public/ | R10 docs/ayuda | R9 documentacion para integradores | R1 marca vigente a mano | Contrato R17/R18/R20 | R16 textos en tests/ y e2e/ |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| T3 | 31 | 0 | 0 | 0 | 0 | 0 | 35 |
-| T4 | 33 | 0 | 0 | 0 | 0 | 3 | 32 |
-| T5 | 50 | 0 | 0 | 0 | 0 | 0 | 150 |
-| T6 | 20 | 0 | 0 | 0 | 0 | 0 | 94 |
-| T7 | 47 | 0 | 0 | 0 | 0 | 0 | 127 |
+| T3 | 0 | 0 | 0 | 0 | 0 | 0 | 17 |
+| T5 | 50 | 0 | 0 | 0 | 0 | 0 | 101 |
+| T6 | 20 | 0 | 0 | 0 | 0 | 0 | 35 |
+| T7 | 47 | 0 | 0 | 0 | 0 | 0 | 118 |
 | T8 | 15 | 0 | 0 | 0 | 0 | 0 | 21 |
-| T9 | 6 | 0 | 0 | 0 | 0 | 0 | 11 |
+| T9 | 6 | 0 | 0 | 0 | 0 | 0 | 10 |
 | T10 | 5 | 0 | 0 | 0 | 0 | 0 | 0 |
-| T11 | 10 | 0 | 0 | 47 | 0 | 0 | 3 |
-| T11b | 2 | 0 | 0 | 0 | 0 | 18 | 0 |
-| T12 | 0 | 0 | 176 | 0 | 0 | 0 | 74 |
-| T13 | 0 | 0 | 0 | 0 | 0 | 0 | 217 |
+| T11 | 9 | 0 | 0 | 33 | 0 | 0 | 3 |
+| T12 | 0 | 0 | 176 | 0 | 0 | 0 | 72 |
+| T13 | 0 | 0 | 0 | 0 | 0 | 0 | 191 |

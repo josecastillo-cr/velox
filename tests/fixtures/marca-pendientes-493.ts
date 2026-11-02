@@ -1,6 +1,6 @@
 // FEATURE 493 (T2) — LO QUE AUN FALTA, POR ARCHIVO Y CON SU NUMERO EXACTO (trinquete).
 //
-// GENERADO con el detector de `tests/fixtures/marca-retirada-493.ts` tras T11b (fin de la fase backend). La guardia
+// GENERADO con el detector de `tests/fixtures/marca-retirada-493.ts` al cierre de la fase backend (T0–T4, T11b). La guardia
 // `marca-fuente-unica-493.guardia.test.ts` exige, para cada bloque: (1) que ningun archivo fuera
 // de la lista tenga hallazgos ni ninguno de la lista tenga MAS de los anotados, y (2) que cada
 // pendiente siga teniendo EXACTAMENTE su numero. Asi, reintroducir «Ordenex» en algo ya cerrado
@@ -69,7 +69,7 @@ export const PENDIENTE_R9_INTEGRADORES: Readonly<Record<string, number>> = {
   "docs/api/guia-integracion/guia-integracion.html": 29,
 };
 
-/** R16 — textos de tests/ y e2e/ que dicen la marca retirada (578 en 127 archivos). */
+/** R16 — textos de tests/ y e2e/ que dicen la marca retirada (568 en 121 archivos). */
 export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/components/BarraComposicionCaja488.test.tsx": 2,
   "tests/components/CajaComposicionBarra.test.tsx": 9,
@@ -95,7 +95,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/components/EstadoCuentaAnulados.test.tsx": 2,
   "tests/components/EstadoCuentaMensajeroAnular.test.tsx": 2,
   "tests/components/EtiquetaGuia.test.tsx": 1,
-  "tests/components/GestionarOrdenUbicacionContexto.test.tsx": 1,
   "tests/components/LandingFooter.test.tsx": 2,
   "tests/components/LoginPage.test.tsx": 1,
   "tests/components/Logo.test.tsx": 1,
@@ -138,10 +137,8 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/analytics/conteo-productos-dinero.test.ts": 1,
   "tests/unit/analytics/finanzas-diario.test.ts": 2,
   "tests/unit/analytics/kpis-financieros.test.ts": 2,
-  "tests/unit/analytics/metrics-caja-naturaleza.guardia.test.ts": 2,
   "tests/unit/analytics/metrics-cuenta-por-pagar-tienda-457.test.ts": 1,
   "tests/unit/api/openapi-405-gestiones.test.ts": 1,
-  "tests/unit/api/openapi-webhook-estado-actualizado.test.ts": 2,
   "tests/unit/asistente/contexto-457.test.ts": 23,
   "tests/unit/asistente/contexto-458.test.ts": 12,
   "tests/unit/asistente/contexto-460.test.ts": 11,
@@ -156,7 +153,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/components/wallet-labels.test.ts": 19,
   "tests/unit/components/wallet-registrar-movimiento-dialog.test.tsx": 33,
   "tests/unit/config/email-marca.test.ts": 1,
-  "tests/unit/crypto/webhook-firma.test.ts": 3,
   "tests/unit/db/orden-num-remision-parcial.test.ts": 1,
   "tests/unit/descarga/analitica-productos-descarga-columnas.test.ts": 1,
   "tests/unit/descarga/cierres-gestiones-fundida-descarga-columnas.test.ts": 1,
@@ -175,7 +171,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/guards/nombres-wallet-461.guardia.test.ts": 17,
   "tests/unit/guards/paginas-legales-estaticas.guardia.test.ts": 3,
   "tests/unit/guards/wallet-textos-458.guardia.test.ts": 1,
-  "tests/unit/historial-accion/catalogo-y-choke-point.test.ts": 1,
   "tests/unit/pdf/etiquetas-rotulo-marca-492.test.ts": 1,
   "tests/unit/pdf/informe-transito-pdf.test.ts": 1,
   "tests/unit/pwa/manifest.test.ts": 1,
@@ -187,7 +182,6 @@ export const PENDIENTE_R16_TESTS: Readonly<Record<string, number>> = {
   "tests/unit/services/nodemailer-email-sender.test.ts": 2,
   "tests/unit/services/rechazo-tienda-cobro-service.test.ts": 1,
   "tests/unit/services/wallet-egreso-reverso-legible.test.ts": 1,
-  "tests/unit/services/wallet-origen-legible.test.ts": 1,
   "tests/unit/types/wallet-461-clave-schema.test.ts": 4,
   "tests/unit/utils/caja-composicion.test.ts": 1,
   "tests/unit/utils/caja-derivacion-459.test.ts": 2,

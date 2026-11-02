@@ -96,7 +96,7 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
     tipos.forEach((t, i) => expect({ t, texto: origenes[i].texto }).toEqual({ t, texto: CASOS_CAJA[t].texto }));
   });
 
-  it("el gasto se nombra por su concepto: sueldo, gasto de Ordenex y gasto fijo con su periodo", async () => {
+  it(`el gasto se nombra por su concepto: sueldo, gasto de ${NOMBRE_CORTO_ESPERADO} y gasto fijo con su periodo`, async () => {
     const svc = new OrigenLegibleService(repoFalso());
     const r = await svc.resolver(
       "caja",

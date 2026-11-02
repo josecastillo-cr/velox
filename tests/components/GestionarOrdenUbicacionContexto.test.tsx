@@ -178,7 +178,7 @@ afterEach(() => {
   }
 });
 
-describe("Feature 399 — con Ordenex instalada como app", () => {
+describe(`Feature 399 — con ${NOMBRE_CORTO_ESPERADO} instalada como app`, () => {
   beforeEach(() => {
     instalarMatchMedia(["(display-mode: standalone)"]);
   });

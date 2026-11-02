@@ -222,7 +222,7 @@ export function quitarIdentificadores(
     const minuscula = m[0] === "ordenex";
     const previo = texto.slice(Math.max(0, m.index - 2), m.index);
     const largo = token.length > m[0].length;
-    const admitida = /^X-Ordenex-/i.test(token)
+    const admitida = /^X-Ordenex-/i.test(texto.slice(a, b))
       ? cabeceraPermitida
       : (/^\w+$/.test(token) && largo) ||
         (enTest && minuscula && largo) ||
@@ -333,6 +333,7 @@ export const PUEDEN_IMPORTAR_LA_MARCA = new Set([
 /** L5b — tests de contrato que afirman que la cabecera vieja `X-Ordenex-*` YA NO sale (lista cerrada). */
 export const NEGATIVAS_DE_CONTRATO = new Set([
   "tests/unit/clients/webhook-sender.test.ts",
+  "tests/unit/crypto/webhook-firma.test.ts",
   "tests/unit/services/webhook-estado-service.test.ts",
   "tests/unit/services/webhook-estado-service.mensajero.test.ts",
   "tests/unit/services/WebhookEventoOrdenService.test.ts",
