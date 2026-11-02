@@ -483,7 +483,7 @@ export function CrearZonaForm({
             <Input
               autoComplete="off"
               value={sinpeNombre}
-              placeholder="Ej: Ordenex CR S.A."
+              placeholder="Ej: Velox Courier S.A."
               onChange={(e) => setSinpeNombre(e.target.value)}
             />
           </FormField>

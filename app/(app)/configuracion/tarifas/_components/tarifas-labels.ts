@@ -19,6 +19,7 @@
  */
 
 import { nombreDeResultado } from "@/lib/types/gestion-resultado";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * Rótulos de los campos de `tarifas` — lo que se le COBRA a la tienda. Las claves son las de
@@ -87,7 +88,7 @@ export const PAGO_ZONA_TEXTO = {
   seccion: "Pagos por zona",
   /** La explicación de la sección: los dos dineros y su destinatario, en una línea. */
   seccionAyuda:
-    "Lo que Ordenex paga por cada gestión en esta zona: la entrega se le paga al mensajero; " +
+    `Lo que ${MARCA.nombre} paga por cada gestión en esta zona: la entrega se le paga al mensajero; ` +
     "una Devolución a origen por rechazo es ingreso de la bodega responsable del mensajero.",
   entregado: "Entregado",
   /** Quién cobra ESTE monto (feature 39). */

@@ -21,7 +21,7 @@ export const SINPE_CAMPO_NUMERO = {
 export const SINPE_CAMPO_NOMBRE = {
   label: "A nombre de",
   hint: "Tal como aparece en SINPE Móvil al teclear el número.",
-  placeholder: "Ej: Ordenex CR S.A.",
+  placeholder: "Ej: Velox Courier S.A.",
 } as const;
 
 /** La tarjeta de `/mi-bodega`. */

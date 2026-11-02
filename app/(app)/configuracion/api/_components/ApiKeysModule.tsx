@@ -26,6 +26,7 @@ import {
 } from "./GenerarApiKeyForm";
 import { RevelarSecretosModal } from "./RevelarSecretosModal";
 import { descargarDatos } from "@/components/shared/descarga-datos";
+import { MARCA } from "@/lib/marca/identidad";
 
 // R18/R19: opciones acotadas por MAX_PAGE_SIZE del backend.
 const PAGE_SIZE_OPTIONS = [10, 25, 50].filter(
@@ -225,7 +226,7 @@ export function ApiKeysModule({ initialData }: ApiKeysModuleProps) {
         emptyState={{
           icon: KeyRound,
           title: "No hay API keys",
-          description: "Genera una API key para conectar sistemas externos con Ordenex.",
+          description: `Genera una API key para conectar sistemas externos con ${MARCA.nombre}.`,
           action: (
             <Button type="button" onClick={abrirGenerar}>
               Generar API key
