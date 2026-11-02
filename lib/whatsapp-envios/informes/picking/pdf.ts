@@ -16,6 +16,7 @@
 // La tabla NUNCA recorta: el nombre del producto y las fichas de remision saltan de linea dentro de
 // su celda, la fila crece, y una fila mas alta que una pagina se parte en filas «(continúa)» (R21).
 import { jsPDF } from "jspdf";
+import { MARCA } from "@/lib/marca/identidad";
 import { fuenteEtiqueta } from "@/lib/pdf/etiquetas-fuente";
 import { cubreCodePoint, registrarFuente } from "@/lib/pdf/etiquetas-fuente-registro";
 import { fechaCortaCR, fechaLargaCR, horaCRLegible } from "@/lib/whatsapp-envios/informes/formato";
@@ -111,7 +112,7 @@ const AMBAR_TEXTO: Rgb = [146, 64, 14];
  * exija que ninguno lleve un caracter que la fuente estandar borraria (`—`, `’`, …).
  */
 export const ROTULOS_HELVETICA = {
-  marca: "Ordenex · Picking",
+  marca: `${MARCA.nombre} · Picking`,
   subtitulo: "Lo que está En preparación, agrupado por producto",
   horaSufijo: " · hora de Costa Rica",
   cifraOrdenes: "ÓRDENES",
@@ -519,7 +520,7 @@ export function maquetarPicking(modelo: ModeloPicking, medir: MedirTexto): Maque
 
   // R21 — pie en CADA pagina, en una segunda pasada: el total de paginas ya se conoce.
   const total = m.paginas.length;
-  const sello = `Ordenex · Picking ${tienda} · ${fechaCortaCR(modelo.ahora)} ${horaCRLegible(modelo.ahora)}`;
+  const sello = `${ROTULOS_HELVETICA.marca} ${tienda} · ${fechaCortaCR(modelo.ahora)} ${horaCRLegible(modelo.ahora)}`;
   m.paginas.forEach((ops, i) => {
     const pagina = `${ROTULOS_HELVETICA.pagina} ${i + 1} de ${total}`;
     // El sello se recorta al hueco que deja «Página X de Y», que se ve SIEMPRE entero (m2).
