@@ -1,4 +1,5 @@
 import { money } from "@/lib/config/moneda";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * FICHA 458-D (T D.2, design §5; R17, R26–R28) — textos del ESTADO DE CUENTA de una tienda
@@ -10,14 +11,14 @@ import { money } from "@/lib/config/moneda";
 
 export const ACCIONES_TIENDA_TEXTO = {
   /** R26 (457) — solo con saldo en contra. */
-  tiendaPaga: "La tienda le paga a Ordenex",
+  tiendaPaga: `La tienda le paga a ${MARCA.nombre}`,
   /** R27 (461). */
-  ordenexCobra: "Ordenex le cobra a la tienda",
+  ordenexCobra: `${MARCA.nombre} le cobra a la tienda`,
   /** R28 (172). */
-  ordenexPaga: "Ordenex le paga a la tienda",
+  ordenexPaga: `${MARCA.nombre} le paga a la tienda`,
   /** R28 — el motivo del botón deshabilitado, en texto visible. */
   sinSaldoAFavor: (tienda: string) =>
-    `Ordenex no le debe nada a ${tienda}: sin saldo a favor no hay nada que pagarle.`,
+    `${MARCA.nombre} no le debe nada a ${tienda}: sin saldo a favor no hay nada que pagarle.`,
 } as const;
 
 /**
@@ -25,8 +26,8 @@ export const ACCIONES_TIENDA_TEXTO = {
  * devuelve el SERVIDOR tal cual, aunque sea negativo (textos de la 172, que vivían en `PagoTiendaAcciones`).
  */
 export const PAGOS_TIENDA_TEXTO = {
-  titulo: "Pagos de Ordenex a la tienda",
-  seccion: (tienda: string) => `Pagos de Ordenex a ${tienda}`,
+  titulo: `Pagos de ${MARCA.nombre} a la tienda`,
+  seccion: (tienda: string) => `Pagos de ${MARCA.nombre} a ${tienda}`,
   anulado: (saldo: string) => `Pago anulado. El saldo de la tienda quedó en ${money(saldo)}.`,
   yaAnulado: "Este pago ya estaba anulado.",
 } as const;
@@ -34,7 +35,7 @@ export const PAGOS_TIENDA_TEXTO = {
 export const ESTADO_CUENTA_TIENDA_PAGINA = {
   titulo: (tienda: string) => `Estado de cuenta de ${tienda}`,
   descripcion:
-    "Cada movimiento del libro de la tienda con su saldo corrido: lo cobrado a sus clientes, los cargos, los cobros y los pagos entre Ordenex y la tienda",
+    `Cada movimiento del libro de la tienda con su saldo corrido: lo cobrado a sus clientes, los cargos, los cobros y los pagos entre ${MARCA.nombre} y la tienda`,
   volver: "Volver a los saldos por tienda",
 } as const;
 

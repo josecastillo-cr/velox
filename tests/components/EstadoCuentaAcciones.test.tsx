@@ -32,11 +32,12 @@ vi.mock("@/lib/actions/efecto-movimiento", () => ({
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
 
 import { EstadoCuentaAcciones } from "@/app/(app)/wallet/tiendas/_components/EstadoCuentaAcciones";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
-const PAGA = "La tienda le paga a Ordenex";
-const COBRA = "Ordenex le cobra a la tienda";
-const ORDENEX_PAGA = "Ordenex le paga a la tienda";
-const SIN_SALDO = "Ordenex no le debe nada a Tania Tienda: sin saldo a favor no hay nada que pagarle.";
+const PAGA = `La tienda le paga a ${NOMBRE_ESPERADO}`;
+const COBRA = `${NOMBRE_ESPERADO} le cobra a la tienda`;
+const ORDENEX_PAGA = `${NOMBRE_ESPERADO} le paga a la tienda`;
+const SIN_SALDO = `${NOMBRE_ESPERADO} no le debe nada a Tania Tienda: sin saldo a favor no hay nada que pagarle.`;
 
 function montar(e: EstadoCuentaDTO) {
   const onCambio = vi.fn(async () => undefined);
@@ -57,7 +58,7 @@ const EN_CERO = estado({ saldoActual: "0.00", signo: "cero", sentido: "en_cero" 
 beforeEach(() => vi.clearAllMocks());
 afterEach(() => cleanup());
 
-describe("R26 — «La tienda le paga a Ordenex» solo con saldo en contra", () => {
+describe(`R26 — «La tienda le paga a ${NOMBRE_ESPERADO}» solo con saldo en contra`, () => {
   it("en contra: se ofrece", () => {
     montar(EN_CONTRA);
     expect(screen.getByRole("button", { name: PAGA })).toBeEnabled();
@@ -73,7 +74,7 @@ describe("R26 — «La tienda le paga a Ordenex» solo con saldo en contra", () 
   });
 });
 
-describe("R27 — «Ordenex le cobra a la tienda» siempre", () => {
+describe(`R27 — «${NOMBRE_ESPERADO} le cobra a la tienda» siempre`, () => {
   it.each([
     ["en contra", EN_CONTRA],
     ["a favor", A_FAVOR],
@@ -84,7 +85,7 @@ describe("R27 — «Ordenex le cobra a la tienda» siempre", () => {
   });
 });
 
-describe("R28 — «Ordenex le paga a la tienda»: sin saldo a favor, deshabilitado y diciendo por qué", () => {
+describe(`R28 — «${NOMBRE_ESPERADO} le paga a la tienda»: sin saldo a favor, deshabilitado y diciendo por qué`, () => {
   it.each([
     ["en contra", EN_CONTRA],
     ["en cero", EN_CERO],
@@ -105,9 +106,9 @@ describe("R28 — «Ordenex le paga a la tienda»: sin saldo a favor, deshabilit
 
 describe("R40 — cada acción abre el diálogo único con concepto y tienda YA elegidos", () => {
   it.each([
-    [PAGA, "Una tienda le paga a Ordenex", /^Tienda que paga/, EN_CONTRA],
-    [COBRA, "Ordenex le cobra a una tienda", /^Tienda a la que se le cobra/, A_FAVOR],
-    [ORDENEX_PAGA, "Ordenex le paga a una tienda", /^Tienda a la que se le paga/, A_FAVOR],
+    [PAGA, `Una tienda le paga a ${NOMBRE_ESPERADO}`, /^Tienda que paga/, EN_CONTRA],
+    [COBRA, `${NOMBRE_ESPERADO} le cobra a una tienda`, /^Tienda a la que se le cobra/, A_FAVOR],
+    [ORDENEX_PAGA, `${NOMBRE_ESPERADO} le paga a una tienda`, /^Tienda a la que se le paga/, A_FAVOR],
   ])("«%s» → concepto «%s» elegido y fijo; la tienda, fija por su nombre", async (boton, concepto, campo, e) => {
     montar(e);
     fireEvent.click(screen.getByRole("button", { name: boton }));

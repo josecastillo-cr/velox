@@ -49,6 +49,7 @@ import { EstadoCuenta } from "@/components/shared/estado-cuenta/EstadoCuenta";
 import { EstadoCuentaTienda, ROTULOS_TIENDA, PANEL_TIENDA } from "@/app/(app)/wallet/tiendas/_components/EstadoCuentaTienda";
 import { EstadoCuentaMensajero } from "@/app/(app)/wallet/mensajeros/_components/EstadoCuentaMensajero";
 import { DETALLE_MOVIMIENTO_SIN_REPARTO } from "@/app/(app)/wallet/_components/detalle-movimiento-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const CIERRE = "5e1d2c3b-4a59-4687-8a9b-0c1d2e3f4a5b";
 const ORDEN = "9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a";
@@ -176,7 +177,7 @@ describe("Método y referencia del pago (458-D servidor → pantalla)", () => {
     n: 7,
     categoria: "pago_tienda",
     origenTipo: "pago_tienda",
-    origen: { texto: "Pago de Ordenex a una tienda · 2026-09-12 · SINPE", enlace: null },
+    origen: { texto: `Pago de ${NOMBRE_ESPERADO} a una tienda · 2026-09-12 · SINPE`, enlace: null },
     pago: { metodo: "SINPE", referencia: "REF-77" },
     chip: "pagos",
     naceDeUnCierre: false,
@@ -194,7 +195,7 @@ describe("Método y referencia del pago (458-D servidor → pantalla)", () => {
 
   it("el panel «Ver» de ese pago tiene la línea «Cómo»", async () => {
     envolver(<EstadoCuenta descargaDeLaSuperficie={{ ambitoColumnas: "prueba-estado-cuenta" }} inicial={estado({ filas: [PAGO] })} rotulos={ROTULOS_TIENDA} panel={PANEL_TIENDA} />);
-    fireEvent.click(within(tabla()).getByRole("button", { name: /^Ver Ordenex le paga a la tienda/ }));
+    fireEvent.click(within(tabla()).getByRole("button", { name: new RegExp(`^Ver ${NOMBRE_ESPERADO} le paga a la tienda`) }));
     const panel = await screen.findByRole("dialog");
     expect(within(panel).getByText("Cómo")).toBeInTheDocument();
     expect(within(panel).getByText("SINPE · referencia REF-77")).toBeInTheDocument();

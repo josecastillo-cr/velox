@@ -44,6 +44,7 @@ import { filasDelPeriodo, lectorDeLaCuenta } from "@/components/shared/estado-cu
 import { ROTULOS_TIENDA } from "@/app/(app)/wallet/tiendas/_components/EstadoCuentaTienda";
 import { LECTOR_MI_TIENDA, ROTULOS_MI_WALLET } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
 import { descargaConfig } from "@/lib/config/descarga";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const LECTOR_TIENDA = lectorDeLaCuenta({ tipo: "tienda", id: UUID_TIENDA });
 const LECTOR_BODEGA = lectorDeLaCuenta({ tipo: "bodega", id: UUID_TIENDA });
@@ -76,7 +77,7 @@ describe("468 R2/R3 — las columnas del archivo", () => {
     ]);
   });
 
-  it("R3 (458-D R34/R35) — `/mi-wallet`: las mismas SIN «Registró» (la tienda no ve los nombres de Ordenex)", () => {
+  it(`R3 (458-D R34/R35) — \`/mi-wallet\`: las mismas SIN «Registró» (la tienda no ve los nombres de ${NOMBRE_ESPERADO})`, () => {
     expect(COLUMNAS_DESCARGA_MI_ESTADO_CUENTA.map((c) => c.encabezado)).toEqual([
       "Fecha",
       "Concepto",
@@ -100,7 +101,7 @@ describe("468 / 458-D R32 — el periodo ENTERO en UNA lectura del kardex, en or
       categoria: "pago_tienda",
       origenTipo: "pago_tienda",
       origen: {
-        texto: "Pago de Ordenex a una tienda · 2026-09-14 · SINPE",
+        texto: `Pago de ${NOMBRE_ESPERADO} a una tienda · 2026-09-14 · SINPE`,
         enlace: { etiqueta: "Ver el pago", href: `/wallet/tiendas/${UUID_TIENDA}` },
       },
       pago: { metodo: "SINPE", referencia: "REF-77" },
@@ -162,9 +163,9 @@ describe("468 / 458-D R32 — el periodo ENTERO en UNA lectura del kardex, en or
     // origen con su entidad, la descripción, el pago y el estado de anulación, en palabras.
     expect(r.filas[2]).toEqual({
       fecha: "2026-09-14",
-      concepto: "Ordenex le paga a la tienda",
+      concepto: `${NOMBRE_ESPERADO} le paga a la tienda`,
       detalle:
-        "Pago de Ordenex a una tienda · 2026-09-14 · SINPE · Quincena · SINPE · referencia REF-77 · Anulado el 2026-09-15 por Ana Admin · Duplicado",
+        `Pago de ${NOMBRE_ESPERADO} a una tienda · 2026-09-14 · SINPE · Quincena · SINPE · referencia REF-77 · Anulado el 2026-09-15 por Ana Admin · Duplicado`,
       registro: "Ana Admin",
       entra: null,
       sale: "40.00",
@@ -236,6 +237,6 @@ describe("468 / 458-D R32 — el periodo ENTERO en UNA lectura del kardex, en or
     expect(kardexMock).not.toHaveBeenCalled();
     expect(r.status).toBe("ok");
     if (r.status !== "ok") return;
-    expect(r.filas[1]).toMatchObject({ concepto: "Ordenex te cobró", detalle: "Registro a mano · Material", sale: "500.00" });
+    expect(r.filas[1]).toMatchObject({ concepto: `${NOMBRE_ESPERADO} te cobró`, detalle: "Registro a mano · Material", sale: "500.00" });
   });
 });

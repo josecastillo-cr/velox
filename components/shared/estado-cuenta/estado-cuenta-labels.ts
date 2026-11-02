@@ -1,5 +1,6 @@
 import type { SentidoDelSaldo, TipoDeCuenta } from "@/lib/types/estado-cuenta";
 import { CHIPS_BODEGA, CHIPS_MENSAJERO, CHIPS_TIENDA, type ChipEstadoCuenta } from "@/lib/utils/estado-cuenta-chips";
+import { MARCA } from "@/lib/marca/identidad";
 
 // FICHA 458-D (T D.1, design §3.2/§5.1; R18–R25, R32) — los textos del ESTADO DE CUENTA de una tienda,
 // un mensajero o una bodega satélite. Fuera del JSX (docs/conventions), sin siglas y sin ningún
@@ -71,9 +72,9 @@ export function fraseDelSaldo(tipo: TipoDeCuenta, sentido: SentidoDelSaldo, nomb
     if (sentido === "en_cero") return `${nombre} no tiene nada por entregar`;
     return `${nombre} entregó ${monto} de más`;
   }
-  if (sentido === "ordenex_debe") return `Ordenex le debe ${monto} a ${nombre}`;
-  if (sentido === "cuenta_debe") return `${nombre} le debe ${monto} a Ordenex`;
-  return `Ordenex y ${nombre} no se deben nada`;
+  if (sentido === "ordenex_debe") return `${MARCA.nombre} le debe ${monto} a ${nombre}`;
+  if (sentido === "cuenta_debe") return `${nombre} le debe ${monto} a ${MARCA.nombre}`;
+  return `${MARCA.nombre} y ${nombre} no se deben nada`;
 }
 
 /**
@@ -81,9 +82,9 @@ export function fraseDelSaldo(tipo: TipoDeCuenta, sentido: SentidoDelSaldo, nomb
  * (como el resto de esa pantalla). `monto` llega ya pintado y sin signo, igual que arriba.
  */
 export function fraseDelSaldoParaLaTienda(sentido: SentidoDelSaldo, monto: string): string {
-  if (sentido === "ordenex_debe") return `Ordenex te debe ${monto}`;
-  if (sentido === "cuenta_debe") return `Le debés ${monto} a Ordenex`;
-  return "Ordenex y vos no se deben nada";
+  if (sentido === "ordenex_debe") return `${MARCA.nombre} te debe ${monto}`;
+  if (sentido === "cuenta_debe") return `Le debés ${monto} a ${MARCA.nombre}`;
+  return `${MARCA.nombre} y vos no se deben nada`;
 }
 
 /** R18 — las tarjetas. En la bodega el cargo es lo DECLARADO y el abono lo RECIBIDO. */

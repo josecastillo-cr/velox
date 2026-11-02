@@ -40,6 +40,7 @@ vi.mock("@/lib/actions/estado-cuenta", () => ({
 import { MiEstadoCuenta } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
 import type { FilaEstadoCuentaDTO } from "@/lib/types/estado-cuenta";
 import { estado, fila } from "@/tests/fixtures/estado-cuenta";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 function mov(n: number, parcial: Partial<WalletTiendaMovimientoDTO>): WalletTiendaMovimientoDTO {
   return {
@@ -105,14 +106,14 @@ afterEach(() => {
 });
 
 describe("R78 — «Ver comprobante» solo en las filas que pueden llevarlo", () => {
-  it("cobro, pago de Ordenex, pago de un gasto y pago de la tienda: sí; lo del cierre: no", () => {
+  it(`cobro, pago de ${NOMBRE_ESPERADO}, pago de un gasto y pago de la tienda: sí; lo del cierre: no`, () => {
     montar();
     const botones = screen.getAllByRole("button", { name: /^Ver comprobante: / }).map((b) => b.getAttribute("aria-label"));
     expect(botones).toEqual([
-      "Ver comprobante: Comprobante de «Ordenex te cobró» del 2026-09-12",
-      "Ver comprobante: Comprobante de «Ordenex te pagó» del 2026-09-12",
-      "Ver comprobante: Comprobante de «Ordenex pagó un gasto por ti» del 2026-09-12",
-      "Ver comprobante: Comprobante de «Le pagaste a Ordenex» del 2026-09-12",
+      `Ver comprobante: Comprobante de «${NOMBRE_ESPERADO} te cobró» del 2026-09-12`,
+      `Ver comprobante: Comprobante de «${NOMBRE_ESPERADO} te pagó» del 2026-09-12`,
+      `Ver comprobante: Comprobante de «${NOMBRE_ESPERADO} pagó un gasto por ti» del 2026-09-12`,
+      `Ver comprobante: Comprobante de «Le pagaste a ${NOMBRE_ESPERADO}» del 2026-09-12`,
     ]);
   });
 
@@ -123,7 +124,7 @@ describe("R78 — «Ver comprobante» solo en las filas que pueden llevarlo", ()
       rotulo: { fuente: "tienda", categoria: "pago_tienda", fecha: "2026-09-12" },
     });
     montar();
-    fireEvent.click(screen.getByRole("button", { name: /«Ordenex te pagó»/ }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`«${NOMBRE_ESPERADO} te pagó»`) }));
     await waitFor(() =>
       expect(verComprobanteMock).toHaveBeenCalledWith({ destino: { libro: "tienda", movimientoId: UUID_MOV(3) } }),
     );
@@ -134,7 +135,7 @@ describe("R78 — «Ver comprobante» solo en las filas que pueden llevarlo", ()
   it("R77: «no encontrado» se dice en palabras y la pestaña se cierra", async () => {
     verComprobanteMock.mockResolvedValue({ status: "no_encontrado" });
     montar();
-    fireEvent.click(screen.getByRole("button", { name: /«Ordenex te cobró»/ }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`«${NOMBRE_ESPERADO} te cobró»`) }));
     expect(await screen.findByText("No se encontró el comprobante.")).toBeInTheDocument();
     expect(abierta.close).toHaveBeenCalled();
   });
@@ -142,7 +143,7 @@ describe("R78 — «Ver comprobante» solo en las filas que pueden llevarlo", ()
   it("sin comprobante: «Este registro no tiene comprobante.»", async () => {
     verComprobanteMock.mockResolvedValue({ status: "sin_comprobante" });
     montar();
-    fireEvent.click(screen.getByRole("button", { name: /«Le pagaste a Ordenex»/ }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`«Le pagaste a ${NOMBRE_ESPERADO}»`) }));
     expect(await screen.findByText("Este registro no tiene comprobante.")).toBeInTheDocument();
   });
 });

@@ -18,7 +18,7 @@ import {
   WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED,
   type WalletTiendaMovimientoCategoria,
 } from "@/lib/types/wallet-tienda";
-import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // FICHA 461 (T C.3, design §7.4/§7.5, HD3, P4) — EL LIBRO DE LA TIENDA SE LEE DESDE DOS LADOS
@@ -36,23 +36,23 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 /** design §7.5 — la lectura desde la tienda, los 14 conceptos. */
 const LECTURA_DESDE_LA_TIENDA: Record<WalletTiendaMovimientoCategoria, string> = {
   cod_recaudado: "Cobrado a tus clientes en contra-entrega",
-  flete: "Ordenex te cobró el flete",
-  flete_devolucion: "Ordenex te cobró el flete por devolución a origen",
-  comision_cod: "Ordenex te cobró la comisión de contra-entrega",
-  iva_flete: "Ordenex te cobró el IVA del flete",
-  iva_flete_devolucion: "Ordenex te cobró el IVA del flete por devolución a origen",
-  iva_comision_cod: "Ordenex te cobró el IVA de la comisión",
-  cobro_manual: "Ordenex te cobró",
-  cobro_tienda_anulado: "Ordenex anuló un cobro y te lo devolvió",
-  pago_tienda: "Ordenex te pagó",
-  pago_por_cuenta: "Ordenex pagó un gasto por ti",
-  pago_por_cuenta_anulado: "Ordenex anuló un pago hecho por ti",
+  flete: `${NOMBRE_ESPERADO} te cobró el flete`,
+  flete_devolucion: `${NOMBRE_ESPERADO} te cobró el flete por devolución a origen`,
+  comision_cod: `${NOMBRE_ESPERADO} te cobró la comisión de contra-entrega`,
+  iva_flete: `${NOMBRE_ESPERADO} te cobró el IVA del flete`,
+  iva_flete_devolucion: `${NOMBRE_ESPERADO} te cobró el IVA del flete por devolución a origen`,
+  iva_comision_cod: `${NOMBRE_ESPERADO} te cobró el IVA de la comisión`,
+  cobro_manual: `${NOMBRE_ESPERADO} te cobró`,
+  cobro_tienda_anulado: `${NOMBRE_ESPERADO} anuló un cobro y te lo devolvió`,
+  pago_tienda: `${NOMBRE_ESPERADO} te pagó`,
+  pago_por_cuenta: `${NOMBRE_ESPERADO} pagó un gasto por ti`,
+  pago_por_cuenta_anulado: `${NOMBRE_ESPERADO} anuló un pago hecho por ti`,
   // Ficha 457 (design §2, D10, R47): la lectura desde la tienda del pago que ELLA le hizo a Ordenex.
-  abono_tienda: "Le pagaste a Ordenex",
-  abono_tienda_anulado: "Ordenex anuló el pago que le hiciste",
+  abono_tienda: `Le pagaste a ${NOMBRE_ESPERADO}`,
+  abono_tienda_anulado: `${NOMBRE_ESPERADO} anuló el pago que le hiciste`,
   // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, desde la tienda.
-  flete_devolucion_anulado: "Ordenex anuló el flete por devolución a origen y te lo devolvió",
-  iva_flete_devolucion_anulado: "Ordenex anuló el IVA del flete por devolución a origen y te lo devolvió",
+  flete_devolucion_anulado: `${NOMBRE_ESPERADO} anuló el flete por devolución a origen y te lo devolvió`,
+  iva_flete_devolucion_anulado: `${NOMBRE_ESPERADO} anuló el IVA del flete por devolución a origen y te lo devolvió`,
   ajuste_credito: "Corrección a tu favor",
   ajuste_debito: "Corrección en tu contra",
 };
@@ -93,17 +93,17 @@ describe("461 — CATEGORIA_MI_WALLET_LABEL: la lectura desde la tienda (R44, de
     expect(WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED).toHaveLength(18);
   });
 
-  it("⭑ 457 (R46/R47): el pago de la tienda a Ordenex y su anulacion se leen distinto desde cada lado", () => {
+  it(`⭑ 457 (R46/R47): el pago de la tienda a ${NOMBRE_ESPERADO} y su anulacion se leen distinto desde cada lado`, () => {
     // Mutacion 11 de design §13: poner en `/mi-wallet` el nombre desde Ordenex → rojo aqui.
-    expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda).toBe("Le pagaste a Ordenex");
-    expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda_anulado).toBe("Ordenex anuló el pago que le hiciste");
-    expect(CATEGORIA_TIENDA_LABEL.abono_tienda).toBe("La tienda le paga a Ordenex");
-    expect(CATEGORIA_TIENDA_LABEL.abono_tienda_anulado).toBe("Pago de la tienda a Ordenex anulado");
+    expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda).toBe(`Le pagaste a ${NOMBRE_ESPERADO}`);
+    expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda_anulado).toBe(`${NOMBRE_ESPERADO} anuló el pago que le hiciste`);
+    expect(CATEGORIA_TIENDA_LABEL.abono_tienda).toBe(`La tienda le paga a ${NOMBRE_ESPERADO}`);
+    expect(CATEGORIA_TIENDA_LABEL.abono_tienda_anulado).toBe(`Pago de la tienda a ${NOMBRE_ESPERADO} anulado`);
     expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda).not.toBe(CATEGORIA_TIENDA_LABEL.abono_tienda);
     expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda_anulado).not.toBe(CATEGORIA_TIENDA_LABEL.abono_tienda_anulado);
   });
 
-  it("R44: es DISTINTA del nombre desde Ordenex en todo concepto donde una parte actúa sobre la otra", () => {
+  it(`R44: es DISTINTA del nombre desde ${NOMBRE_ESPERADO} en todo concepto donde una parte actúa sobre la otra`, () => {
     for (const categoria of UNA_PARTE_ACTUA_SOBRE_LA_OTRA) {
       expect(CATEGORIA_MI_WALLET_LABEL[categoria], categoria).not.toBe(
         CATEGORIA_TIENDA_LABEL[categoria],
@@ -119,16 +119,16 @@ describe("461 — CATEGORIA_MI_WALLET_LABEL: la lectura desde la tienda (R44, de
     expect(UNA_PARTE_ACTUA_SOBRE_LA_OTRA).toHaveLength(17);
   });
 
-  it("el cobro y lo que Ordenex paga se leen en segunda persona, con Ordenex como sujeto", () => {
-    expect(CATEGORIA_MI_WALLET_LABEL.cobro_manual).toBe("Ordenex te cobró");
+  it(`el cobro y lo que ${NOMBRE_ESPERADO} paga se leen en segunda persona, con ${NOMBRE_ESPERADO} como sujeto`, () => {
+    expect(CATEGORIA_MI_WALLET_LABEL.cobro_manual).toBe(`${NOMBRE_ESPERADO} te cobró`);
     expect(CATEGORIA_MI_WALLET_LABEL.cobro_tienda_anulado).toBe(
-      "Ordenex anuló un cobro y te lo devolvió",
+      `${NOMBRE_ESPERADO} anuló un cobro y te lo devolvió`,
     );
-    expect(CATEGORIA_MI_WALLET_LABEL.pago_tienda).toBe("Ordenex te pagó");
-    expect(CATEGORIA_MI_WALLET_LABEL.pago_por_cuenta).toBe("Ordenex pagó un gasto por ti");
+    expect(CATEGORIA_MI_WALLET_LABEL.pago_tienda).toBe(`${NOMBRE_ESPERADO} te pagó`);
+    expect(CATEGORIA_MI_WALLET_LABEL.pago_por_cuenta).toBe(`${NOMBRE_ESPERADO} pagó un gasto por ti`);
     // Ninguno de los dos es el nombre desde Ordenex (design §7.4): esa es la mutación 12.
-    expect(CATEGORIA_MI_WALLET_LABEL.cobro_manual).not.toBe("Ordenex le cobra a la tienda");
-    expect(CATEGORIA_MI_WALLET_LABEL.pago_por_cuenta).not.toBe("Ordenex paga un gasto de la tienda");
+    expect(CATEGORIA_MI_WALLET_LABEL.cobro_manual).not.toBe(`${NOMBRE_ESPERADO} le cobra a la tienda`);
+    expect(CATEGORIA_MI_WALLET_LABEL.pago_por_cuenta).not.toBe(`${NOMBRE_ESPERADO} paga un gasto de la tienda`);
   });
 
   it("ningún nombre se repite, ninguno es el valor técnico y ninguno lleva la sigla «COD» (P9)", () => {
@@ -160,10 +160,10 @@ describe("461 — CATEGORIA_MI_WALLET_LABEL: la lectura desde la tienda (R44, de
 describe("461 — la cabecera de /mi-wallet habla desde la tienda (R45, design §7.5)", () => {
   it("las tres pistas, literales, y sin la sigla «COD»", () => {
     expect(DESGLOSE_MI_WALLET_LABEL.aFavorHint).toBe(
-      "Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular",
+      `Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a ${NOMBRE_ESPERADO} y lo que ${NOMBRE_ESPERADO} te devolvió al anular`,
     );
-    expect(DESGLOSE_MI_WALLET_LABEL.cargosHint).toBe("Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon");
-    expect(DESGLOSE_MI_WALLET_LABEL.pagadoHint).toBe("Lo que Ordenex te pagó o pagó por ti");
+    expect(DESGLOSE_MI_WALLET_LABEL.cargosHint).toBe(`Fletes, comisión, IVA, lo que ${NOMBRE_ESPERADO} te cobró y los pagos a ${NOMBRE_ESPERADO} que se anularon`);
+    expect(DESGLOSE_MI_WALLET_LABEL.pagadoHint).toBe(`Lo que ${NOMBRE_ESPERADO} te pagó o pagó por ti`);
     for (const texto of Object.values(DESGLOSE_MI_WALLET_LABEL)) expect(texto).not.toMatch(/\bCOD\b/);
   });
 
@@ -186,7 +186,7 @@ describe("461 — la cabecera de /mi-wallet habla desde la tienda (R45, design �
 
   it("los rótulos y las claves de la cabecera no cambian: siete, en el orden de la fórmula", () => {
     expect(DESGLOSE_MI_WALLET_LABEL.aFavor).toBe("A tu favor");
-    expect(DESGLOSE_MI_WALLET_LABEL.cargos).toBe("Cargos de Ordenex");
+    expect(DESGLOSE_MI_WALLET_LABEL.cargos).toBe(`Cargos de ${NOMBRE_CORTO_ESPERADO}`);
     expect(DESGLOSE_MI_WALLET_LABEL.pagado).toBe("Ya pagado");
     expect(DESGLOSE_MI_WALLET_LABEL.saldo).toBe("Saldo a favor");
     expect(Object.keys(DESGLOSE_MI_WALLET_LABEL)).toEqual([
@@ -257,7 +257,7 @@ describe("ORIGEN_TIENDA_LABEL cubre cada origen que escribe en el libro de la ti
     }
   });
 
-  it("461 §7.3: los seis textos, desde Ordenex, y los compartidos con la caja dicen lo mismo", () => {
+  it(`461 §7.3: los seis textos, desde ${NOMBRE_ESPERADO}, y los compartidos con la caja dicen lo mismo`, () => {
     expect(ORIGEN_TIENDA_LABEL).toEqual({
       cierre_dia: "Cierre del día",
       pago_tienda: `Pago de ${NOMBRE_ESPERADO} a una tienda`,
@@ -278,13 +278,13 @@ describe("ORIGEN_TIENDA_LABEL cubre cada origen que escribe en el libro de la ti
     });
   });
 
-  it("las pistas de /wallet/tiendas hablan desde Ordenex y nombran el cobro y su anulación (R45)", () => {
+  it(`las pistas de /wallet/tiendas hablan desde ${NOMBRE_ESPERADO} y nombran el cobro y su anulación (R45)`, () => {
     expect(DESGLOSE_TIENDA_LABEL.aFavorHint).toBe(
-      "Contra-entrega cobrado, correcciones a favor, pagos de la tienda a Ordenex y devoluciones por anulaciones",
+      `Contra-entrega cobrado, correcciones a favor, pagos de la tienda a ${NOMBRE_ESPERADO} y devoluciones por anulaciones`,
     );
     expect(DESGLOSE_TIENDA_LABEL.cargosHint).toBe(
-      "Fletes, comisión, IVA, los cobros de Ordenex a la tienda y sus pagos a Ordenex anulados",
+      `Fletes, comisión, IVA, los cobros de ${NOMBRE_ESPERADO} a la tienda y sus pagos a ${NOMBRE_ESPERADO} anulados`,
     );
-    expect(DESGLOSE_TIENDA_LABEL.pagadoHint).toBe("Lo que Ordenex le pagó a la tienda o pagó por ella");
+    expect(DESGLOSE_TIENDA_LABEL.pagadoHint).toBe(`Lo que ${NOMBRE_ESPERADO} le pagó a la tienda o pagó por ella`);
   });
 });

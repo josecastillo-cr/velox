@@ -31,6 +31,7 @@ vi.mock("@/lib/actions/liquidacion", () => ({
 }));
 
 import { PagosTiendaEstadoCuenta } from "@/app/(app)/wallet/tiendas/_components/PagosTiendaEstadoCuenta";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const PAGO_ID = "7c6b5a49-3827-4165-9f4e-3d2c1b0a9f8e";
 const PAGO: PagoRegistradoDTO = {
@@ -68,7 +69,7 @@ afterEach(() => cleanup());
 describe("172 R50 — los pagos de ESTA tienda, en su estado de cuenta", () => {
   it("pide SOLO los de esta tienda y los enseña con su método y su referencia, sin ids", async () => {
     montar();
-    const region = screen.getByRole("region", { name: "Pagos de Ordenex a Tania Tienda" });
+    const region = screen.getByRole("region", { name: `Pagos de ${NOMBRE_ESPERADO} a Tania Tienda` });
     await waitFor(() => expect(listarPagosMock).toHaveBeenCalledWith({ tiendaId: UUID_TIENDA }));
     expect(await within(region).findByText("123456")).toBeInTheDocument();
     expect(region.textContent ?? "").not.toMatch(FORMA_UUID);

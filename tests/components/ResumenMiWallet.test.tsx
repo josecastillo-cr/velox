@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 
 import { ResumenMiWallet } from "@/app/(app)/mi-wallet/_components/ResumenMiWallet";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // FICHA 458-D (cierre; 172 R55 `[P5]`, N1) — el resumen de tres cifras de `/mi-wallet`, aislado: pinta
 // las CUATRO cifras del servidor tal cual (sin sumar ni recalcular), en el orden de la fórmula, con el
@@ -26,8 +27,8 @@ describe("ResumenMiWallet (172 R55 / N1)", () => {
     const texto = region().textContent ?? "";
     const posicion = (t: string) => texto.indexOf(t);
     expect(posicion("A tu favor")).toBeGreaterThanOrEqual(0);
-    expect(posicion("A tu favor")).toBeLessThan(posicion("Cargos de Ordenex"));
-    expect(posicion("Cargos de Ordenex")).toBeLessThan(posicion("Ya pagado"));
+    expect(posicion("A tu favor")).toBeLessThan(posicion(`Cargos de ${NOMBRE_CORTO_ESPERADO}`));
+    expect(posicion(`Cargos de ${NOMBRE_CORTO_ESPERADO}`)).toBeLessThan(posicion("Ya pagado"));
     expect(posicion("Ya pagado")).toBeLessThan(posicion("Saldo a favor"));
     expect(within(region()).getByText("₡13.000")).toBeInTheDocument();
     expect(within(region()).getByText("₡3.800")).toBeInTheDocument();

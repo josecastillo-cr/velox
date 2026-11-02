@@ -6,6 +6,7 @@ import type {
   CuentaPorPagarSigno,
   PagoMensajeroMovimientoCategoria,
 } from "@/lib/types/wallet-mensajero";
+import { MARCA } from "@/lib/marca/identidad";
 
 // Feature 44 (T14) — etiquetas i18n-ready y helper de moneda de la vista del MAESTRO
 // (cuentas por pagar a mensajeros), separados de la logica (docs/conventions: textos de UI
@@ -187,7 +188,7 @@ export const PAGO_MENSAJERO_WALLET = {
    * las de la wallet desde la 461, desde Ordenex y diciendo quién le paga a quién (antes «Registrar
    * pago»; el botón que CONFIRMA dentro del formulario sigue siendo «Registrar pago»).
    */
-  abrir: "Ordenex le paga al mensajero",
+  abrir: `${MARCA.nombre} le paga al mensajero`,
   /** R15 — sin cierres aprobados con saldo no hay nada que pagar, y se dice con texto. */
   sinImputable:
     "Este mensajero no tiene cierres aprobados con saldo pendiente: no hay nada que pagar desde acá.",

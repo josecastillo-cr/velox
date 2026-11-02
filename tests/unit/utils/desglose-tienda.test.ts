@@ -13,6 +13,7 @@ import {
   type WalletTiendaMovimientoTipo,
 } from "@/lib/types/wallet-tienda";
 import type { DesgloseTiendaAgregadoRow } from "@/lib/interfaces/repositories/IWalletTiendaMovimientoRepository";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 171 / T1.2 — derivacion PURA de la cabecera del desglose (R8/R9/R10/R23/R43).
 //
@@ -93,7 +94,7 @@ describe("CUBETA_POR_CATEGORIA — clasificacion exhaustiva (R8/R9)", () => {
     expect(enPagado).toEqual(["pago_tienda", "pago_por_cuenta"]);
   });
 
-  it("⭑ 461 (design §4): la anulacion de un cobro de Ordenex cae en `aFavor` y DEVUELVE exactamente el cobro", () => {
+  it(`⭑ 461 (design §4): la anulacion de un cobro de ${NOMBRE_ESPERADO} cae en \`aFavor\` y DEVUELVE exactamente el cobro`, () => {
     // Mutacion 5 de design §14.2 (`cobro_tienda_anulado: "cargos"`) → rojo aqui: el desglose dejaria
     // de coincidir con el saldo derivado (la cubeta `cargos` sumaria un credito).
     expect(CUBETA_POR_CATEGORIA.cobro_tienda_anulado).toBe("aFavor");

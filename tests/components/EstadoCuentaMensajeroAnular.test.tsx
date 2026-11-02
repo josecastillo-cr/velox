@@ -35,6 +35,7 @@ vi.mock("@/lib/actions/liquidacion", () => ({
 }));
 
 import { EstadoCuentaMensajero } from "@/app/(app)/wallet/mensajeros/_components/EstadoCuentaMensajero";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const PAGO = fila({
   n: 5,
@@ -85,13 +86,13 @@ beforeEach(() => {
 });
 afterEach(() => cleanup());
 
-describe("R29 — «Ordenex le paga al mensajero» (el reparto de la 205)", () => {
+describe(`R29 — «${NOMBRE_ESPERADO} le paga al mensajero» (el reparto de la 205)`, () => {
   it("vive en las acciones de SU estado de cuenta y pide la previsualización de ESTE mensajero", async () => {
     montar();
     const acciones = screen.getByRole("region", { name: "Acciones sobre la cuenta de Mario Mensajero" });
     const bloque = within(acciones).getByRole("region", { name: "Pago al mensajero: Mario Mensajero" });
     await waitFor(() =>
-      expect(within(bloque).getByRole("button", { name: "Ordenex le paga al mensajero" })).toBeEnabled(),
+      expect(within(bloque).getByRole("button", { name: `${NOMBRE_ESPERADO} le paga al mensajero` })).toBeEnabled(),
     );
     expect(previsualizarMock).toHaveBeenCalledWith({ mensajeroId: UUID_MENSAJERO });
   });
