@@ -51,9 +51,14 @@ describe("LandingFooter — enlaces legales (R22)", () => {
 });
 
 describe("LandingFooter — marca del pie (revision 490, e)", () => {
-  it("sin `marca` (la landing) pinta el wordmark compartido, como siempre", () => {
+  it("sin `marca` (la landing) pinta el logo compartido, como siempre", () => {
+    // Feature 492 (R15): el logo es la imagen de Velox Courier sobre fondo oscuro.
     const { container } = render(<LandingFooter />);
-    expect(container.querySelector("footer span.font-heading")?.textContent).toBe("Ordenex");
+    const logo = screen.getByRole("img", { name: "Velox Courier" });
+    expect(Array.from(logo.querySelectorAll("img")).map((i) => i.getAttribute("src"))).toEqual([
+      "/marca/logo-horizontal.svg",
+    ]);
+    expect(container.querySelector("footer span.font-heading")).toBeNull();
   });
 
   it("con `marca` pinta ese texto en lugar del wordmark", () => {

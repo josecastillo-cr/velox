@@ -61,7 +61,7 @@ export default async function PaquetePage({
         {/* Feature 208: la página de seguimiento usa tokens de tema (`bg-card`,
             `border-border`, `text-muted-foreground`), así que gira con él; el
             wordmark en `navy` fijo era lo único que se quedaba atrás. */}
-        <Logo className="text-lg text-foreground" />
+        <Logo fondo="tema" className="text-lg" />
         <div className="h-1 w-10 rounded-full bg-brand" />
       </header>
 

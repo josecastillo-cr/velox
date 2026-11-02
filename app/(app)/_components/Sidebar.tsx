@@ -51,6 +51,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Logo } from "@/components/shared/Logo";
+import { LOGO, MARCA } from "@/lib/marca/identidad";
 
 type SidebarIcon = ComponentType<LucideProps>;
 
@@ -295,8 +296,9 @@ export function Sidebar({
             el padding del header) para que al colapsar no se envuelva en el rail
             angosto ni empuje el alto. */}
         <Logo
+          fondo="oscuro"
           className={cn(
-            "absolute left-3 top-1/2 -translate-y-1/2 whitespace-nowrap text-base text-sidebar-foreground",
+            "absolute left-3 top-1/2 -translate-y-1/2 whitespace-nowrap text-base",
             "opacity-100 transition-opacity duration-300 ease-out",
             "group-data-[collapsible=icon]:pointer-events-none group-data-[collapsible=icon]:opacity-0",
           )}
@@ -305,13 +307,16 @@ export function Sidebar({
             rail y con fade de opacidad (0→1) para que no aparezca de golpe. Se
             mantiene siempre en el DOM (opacity-0 en expandido) para que la
             transición corra al colapsar en lugar de un display none→block seco. */}
+        {/* Feature 492 (R13): el simbolo de Velox (transparente; sin `rounded-md`, que era
+            del PNG con fondo). */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/icons/icon-192.png"
-          alt="Ordenex"
+          src={LOGO.simbolo}
+          alt={MARCA.nombre}
           width={32}
           height={32}
           className={cn(
-            "pointer-events-none absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 rounded-md",
+            "pointer-events-none absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2",
             "opacity-0 transition-opacity duration-300 ease-out",
             "group-data-[collapsible=icon]:opacity-100",
           )}
