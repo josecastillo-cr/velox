@@ -26,9 +26,16 @@ import {
   importaIdentidad,
   leer,
   lineaPermitidaEnDocs,
-  quitarIdentificadoresDeTest,
+  quitarIdentificadores,
+  trinquete,
   type Hallazgo,
 } from "@/tests/fixtures/marca-retirada-493";
+import {
+  PENDIENTE_R10_AYUDA,
+  PENDIENTE_R15_CODIGO,
+  PENDIENTE_R16_TESTS,
+  PENDIENTE_R9_INTEGRADORES,
+} from "@/tests/fixtures/marca-pendientes-493";
 
 // FEATURE 493 (T2, design §6) — LA MARCA VIVE EN UN SITIO Y LA RETIRADA NO VUELVE.
 //
@@ -41,9 +48,11 @@ import {
 // Lee el arbol con `fs`: el grafo no la relaciona con los diffs y `--rapido` puede no correrla
 // (memoria «guardia estructural escapa al --rapido»). Cada task la corre a mano.
 //
-// ⏳ T2 → T13: los bloques del arbol que aun tienen pendiente van con `it.fails` (pasan MIENTRAS
-// haya hallazgos). Cuando una superficie se cierra entera, su `it.fails` se pone rojo y hay que
-// volverlo `it`. T13 deja la guardia sin ningun `it.fails`.
+// ⏳ T2 → T13: los bloques del arbol que aun tienen pendiente van con un TRINQUETE
+// (`tests/fixtures/marca-pendientes-493.ts`, numero exacto por archivo): nada nuevo ni por encima
+// de lo anotado, y cada pendiente con su numero exacto. Asi reintroducir «Ordenex» en algo ya
+// cerrado pone la guardia en rojo (L6) y cerrar una superficie obliga a bajar su entrada. T13
+// deja los mapas vacios. Los bloques sin pendiente ya son `it` llanos.
 
 const lista = (h: Hallazgo[]) => h.map(formatear);
 
@@ -98,7 +107,7 @@ describe("493 — el detector de marca no esta roto", () => {
   });
 
   it("R16: en un test ve la marca dicha; admite identificadores, rutas y datos de prueba", () => {
-    const filtro = (t: string) => !/ordenex/i.test(quitarIdentificadoresDeTest(t));
+    const filtro = (t: string) => !/ordenex/i.test(quitarIdentificadores(t, { enTest: true }));
     const malo = [
       `expect(label).toBe("Cobró Ordenex");`,
       `it("ORDENEX paga", () => {});`,
@@ -116,8 +125,16 @@ describe("493 — el detector de marca no esta roto", () => {
     ].join("\n");
     expect(hallazgosRetiradaEnCodigo(bueno, "t.test.ts", filtro)).toEqual([]);
     // La cabecera vieja solo se admite en las negativas de contrato (L5b).
-    expect(quitarIdentificadoresDeTest(`not.toHaveProperty("X-Ordenex-Signature")`, true)).not.toMatch(/ordenex/i);
-    expect(quitarIdentificadoresDeTest(`not.toHaveProperty("X-Ordenex-Signature")`, false)).toMatch(/ordenex/i);
+    expect(quitarIdentificadores(`not.toHaveProperty("X-Ordenex-Signature")`, { enTest: true, cabeceraPermitida: true })).not.toMatch(/ordenex/i);
+    expect(quitarIdentificadores(`not.toHaveProperty("X-Ordenex-Signature")`, { enTest: true })).toMatch(/ordenex/i);
+  });
+
+  it("trinquete: un archivo cerrado que vuelve a tener hallazgo es nuevo; un pendiente que bajo, desfasado", () => {
+    const h = (archivo: string): Hallazgo => ({ archivo, linea: 1, fragmento: "Ordenex" });
+    expect(trinquete([h("a.ts"), h("a.ts")], { "a.ts": 2 })).toEqual({ nuevos: [], desfasados: [] });
+    expect(trinquete([h("a.ts"), h("b.ts")], { "a.ts": 1 }).nuevos).toHaveLength(2);
+    expect(trinquete([h("a.ts"), h("a.ts")], { "a.ts": 1 }).nuevos).toHaveLength(3);
+    expect(trinquete([], { "a.ts": 1 }).desfasados).toHaveLength(1);
   });
 
   it("contrato: ve la cabecera y el dominio viejos en texto; no en comentarios", () => {
@@ -135,25 +152,42 @@ describe("493 — el detector de marca no esta roto", () => {
 // 2. El arbol
 // ---------------------------------------------------------------------------------------------
 
-describe("493 — R15/R10/R9: sin la marca retirada en texto", () => {
-  // ⏳ T5–T13: pantallas, wallet, cierres, analitica, configuracion, PWA, landing (censo).
-  it.fails("app/, components/, hooks/, lib/ (nodos de texto)", () => {
-    expect(lista(censoR15Codigo()), "texto con «Ordenex»: usa MARCA.nombre / MARCA.nombreCorto").toEqual([]);
+/** Un bloque con trinquete: dos `it`, nuevos y desfasados. */
+function conTrinquete(nombre: string, censo: () => Hallazgo[], pendiente: Readonly<Record<string, number>>, pista: string) {
+  describe(nombre, () => {
+    const { nuevos, desfasados } = trinquete(censo(), pendiente);
+    it("nada fuera de lo pendiente ni por encima de su numero", () => {
+      expect(nuevos, pista).toEqual([]);
+    });
+    it("cada pendiente sigue con su numero exacto (al cerrar, baja la entrada)", () => {
+      expect(desfasados, "actualiza tests/fixtures/marca-pendientes-493.ts").toEqual([]);
+    });
   });
+}
+
+describe("493 — R15/R10/R9: sin la marca retirada en texto", () => {
+  // ⏳ T5–T13: pantallas, wallet, cierres, analitica, configuracion, PWA, landing.
+  conTrinquete(
+    "app/, components/, hooks/, lib/ (nodos de texto)",
+    censoR15Codigo,
+    PENDIENTE_R15_CODIGO,
+    "texto con «Ordenex»: usa MARCA.nombre / MARCA.nombreCorto",
+  );
 
   it("public/ (sw.js por AST; manifest y offline como texto)", () => {
     expect(lista(censoR15Public())).toEqual([]);
   });
 
   // ⏳ T12.
-  it.fails("docs/ayuda/** (R10)", () => {
-    expect(lista(censoR10Ayuda())).toEqual([]);
-  });
+  conTrinquete("docs/ayuda/** (R10)", censoR10Ayuda, PENDIENTE_R10_AYUDA, "prosa literal «Velox Courier»");
 
   // ⏳ T11 (prosa) y T13 (lo que la 492 dejo en portada/titulo).
-  it.fails("documentacion para integradores: guia, su README y el .yaml (R9)", () => {
-    expect(lista(censoR9Integradores())).toEqual([]);
-  });
+  conTrinquete(
+    "documentacion para integradores: guia, su README y el .yaml (R9)",
+    censoR9Integradores,
+    PENDIENTE_R9_INTEGRADORES,
+    "prosa literal «Velox Courier»",
+  );
 });
 
 describe("493 — R1: la marca vigente solo vive en su modulo", () => {
@@ -192,10 +226,13 @@ describe("493 — R16: los tests no se anclan a su fuente", () => {
     for (const f of PUEDEN_IMPORTAR_LA_MARCA) expect(existsSync(path.join(RAIZ, f)), f).toBe(true);
   });
 
-  // ⏳ T3–T13: cada task migra los tests de su superficie (design §5, L1–L3).
-  it.fails("ningun test dice la marca retirada en un texto", () => {
-    expect(lista(censoR16Textos())).toEqual([]);
-  });
+  // ⏳ T5–T13: cada task migra los tests de su superficie (design §5, L1–L3).
+  conTrinquete(
+    "ningun test dice la marca retirada en un texto",
+    censoR16Textos,
+    PENDIENTE_R16_TESTS,
+    "escribe la marca con NOMBRE_ESPERADO / NOMBRE_CORTO_ESPERADO de tests/fixtures/marca-esperada.ts",
+  );
 });
 
 describe("493 — contrato con integradores (R17, R18, R20)", () => {

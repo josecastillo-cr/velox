@@ -30,6 +30,7 @@ vi.mock("next/navigation", () => ({
 import { WalletLedger } from "@/app/(app)/wallet/_components/WalletLedger";
 // FICHA 463: la barra de una sola banda se retiró; la categoría vive en la zona del libro.
 import { LibroCajaBarraControlada } from "@/tests/fixtures/libro-caja-barra";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const EGRESO_INDEMNIZACION: WalletMovimientoDTO = {
   id: "11111111-1111-1111-1111-111111111111",
@@ -72,7 +73,7 @@ describe("R31 — el concepto tiene etiqueta legible en el libro", () => {
     );
 
     const tabla = screen.getByRole("table", { name: "Libro de movimientos" });
-    expect(within(tabla).getByText("Indemnización que Ordenex paga por un incidente")).toBeInTheDocument();
+    expect(within(tabla).getByText(`Indemnización que ${NOMBRE_ESPERADO} paga por un incidente`)).toBeInTheDocument();
     expect(tabla.textContent).not.toMatch(/egreso_indemnizacion/);
   });
 
@@ -126,7 +127,7 @@ describe("R31 — el concepto es una opción del filtro por categoría", () => {
 
     expect(await screen.findByRole("listbox")).toBeInTheDocument();
     expect(
-      await screen.findByRole("option", { name: "Indemnización que Ordenex paga por un incidente (2)" }),
+      await screen.findByRole("option", { name: `Indemnización que ${NOMBRE_ESPERADO} paga por un incidente (2)` }),
     ).toBeInTheDocument();
   });
 
@@ -144,11 +145,11 @@ describe("R31 — el concepto es una opción del filtro por categoría", () => {
     await within(lista).findByRole("option", { name: "Sueldo (1)" });
     expect(within(lista).getAllByRole("option").map((o) => o.textContent)).toEqual([
       "Sueldo (1)",
-      "Indemnización que Ordenex paga por un incidente (2)",
+      `Indemnización que ${NOMBRE_ESPERADO} paga por un incidente (2)`,
     ]);
-    expect(within(lista).queryByRole("option", { name: /Otro gasto de Ordenex/ })).toBeNull();
+    expect(within(lista).queryByRole("option", { name: new RegExp(`Otro gasto de ${NOMBRE_CORTO_ESPERADO}`) })).toBeNull();
     expect(conceptosMock).toHaveBeenCalledWith({ libro: "caja" });
-    expect(CATEGORIA_LABEL.egreso_indemnizacion).toBe("Indemnización que Ordenex paga por un incidente");
+    expect(CATEGORIA_LABEL.egreso_indemnizacion).toBe(`Indemnización que ${NOMBRE_ESPERADO} paga por un incidente`);
   });
 
   it("elegir la indemnización emite ese filtro tal cual (FICHA 463/467: se aplica al elegirla, tras la espera estándar)", async () => {
@@ -158,7 +159,7 @@ describe("R31 — el concepto es una opción del filtro por categoría", () => {
 
     await user.click(screen.getByRole("combobox", { name: "Concepto" }));
     await user.click(
-      await screen.findByRole("option", { name: "Indemnización que Ordenex paga por un incidente (2)" }),
+      await screen.findByRole("option", { name: `Indemnización que ${NOMBRE_ESPERADO} paga por un incidente (2)` }),
     );
     await waitFor(() =>
       expect(onAplicar).toHaveBeenCalledWith(expect.objectContaining({ categoria: "egreso_indemnizacion" })),

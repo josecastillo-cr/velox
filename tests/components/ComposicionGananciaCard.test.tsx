@@ -31,6 +31,7 @@ import {
   LLAMADAS_PROHIBIDAS_EN_DINERO,
   codigoSinComentarios,
 } from "@/tests/fixtures/money-safe";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Feature 231 (T6.2/T6.4) — «Cómo se compone la ganancia de Ordenex».
@@ -364,7 +365,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
       // cobrado a la tienda» ₡30,25).
       { rotulo: "Corrección de caja (suma)", importe: "₡90" },
       // Ficha 461 (R27): la fila del cobro de Ordenex a una tienda; en este fixture vale 0,00.
-      { rotulo: "Ordenex le cobra a una tienda", importe: "₡0" },
+      { rotulo: `${NOMBRE_ESPERADO} le cobra a una tienda`, importe: "₡0" },
       { rotulo: "Total de ingresos", importe: "₡5.140" }, // ficha 488: antes "₡5.709,75"
     ]);
 

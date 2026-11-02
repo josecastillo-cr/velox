@@ -27,6 +27,7 @@ import {
 } from "@/app/(app)/mi-wallet/_components/mi-wallet-labels";
 import { ACCION_LABELS, ENTIDAD_LABELS } from "@/lib/types/historial-accion";
 import { ORIGEN_PAGO_LABEL } from "@/app/(app)/wallet/mensajeros/_components/wallet-mensajeros-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // GUARDIA — FICHA 461 (T C.6, design §7.8/§7.9/§14.3; R47/R48/R50) — LOS NOMBRES RETIRADOS NO VUELVEN
@@ -107,13 +108,13 @@ export const NOMBRES_TOMADOS_457: ReadonlyArray<{
   tambien?: readonly string[];
 }> = [
   {
-    nombre: "Una tienda le paga a Ordenex",
+    nombre: `Una tienda le paga a ${NOMBRE_ESPERADO}`,
     diccionario: "CATEGORIA_LABEL",
     clave: "ingreso_abono_tienda",
     tambien: ["CONCEPTOS_MANUALES.label.abono_tienda"],
   },
   {
-    nombre: "Pago de una tienda a Ordenex anulado",
+    nombre: `Pago de una tienda a ${NOMBRE_ESPERADO} anulado`,
     diccionario: "CATEGORIA_LABEL",
     clave: "egreso_reverso_abono_tienda",
   },
@@ -313,8 +314,8 @@ describe("457/R53 — los nombres que la 461 reservó quedan tomados EXACTAMENTE
     expect(quienesDicen(t.nombre).sort()).toEqual([`${t.diccionario}.${t.clave}`, ...(t.tambien ?? [])].sort());
   });
 
-  it("⭑ frontend 457: el concepto del diálogo que dice «Una tienda le paga a Ordenex» es EXACTAMENTE el `abono_tienda`", () => {
-    expect(DICCIONARIOS_POR_NOMBRE["CONCEPTOS_MANUALES.label"].abono_tienda).toBe("Una tienda le paga a Ordenex");
+  it(`⭑ frontend 457: el concepto del diálogo que dice «Una tienda le paga a ${NOMBRE_ESPERADO}» es EXACTAMENTE el \`abono_tienda\``, () => {
+    expect(DICCIONARIOS_POR_NOMBRE["CONCEPTOS_MANUALES.label"].abono_tienda).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
     // Los otros tres tomados NO son nombre de ningún concepto del diálogo.
     for (const t of NOMBRES_TOMADOS_457.filter((x) => x.tambien === undefined)) {
       expect(quienesDicen(t.nombre).filter((q) => q.startsWith("CONCEPTOS_MANUALES")), t.nombre).toEqual([]);
@@ -407,7 +408,7 @@ const label = "Cobrar un costo a una tienda"; // «Cobro de Ordenex» es el rót
 
   it("y NO ladra ante los nombres nuevos ni ante la prosa que los rodea", () => {
     const sano = `
-export const CATEGORIA_LABEL = { ingreso_cobro_tienda: "Ordenex le cobra a una tienda", manual: "Registrado a mano", gasto: "Gasto o sueldo registrado a mano" };
+export const CATEGORIA_LABEL = { ingreso_cobro_tienda: "${NOMBRE_ESPERADO} le cobra a una tienda", manual: "Registrado a mano", gasto: "Gasto o sueldo registrado a mano" };
 // el cobro de un costo de la 381 pasó a ser el cobro de Ordenex a una tienda; un gasto variable es un gasto de Ordenex
 const pista = "Fletes, comisión, IVA y lo que Ordenex te cobró";
 `;
@@ -459,7 +460,7 @@ describe("461/R47/R56 — la ayuda no cita ningún nombre retirado ni afirma que
   it("y NO ladra ante los nombres nuevos", () => {
     expect(
       hallazgosEnDocumento(
-        "| **Ordenex le cobra a la tienda** | **Ordenex te cobró** | «Ordenex paga un gasto de una tienda» | `Registrado a mano` |",
+        `| **Ordenex le cobra a la tienda** | **Ordenex te cobró** | «${NOMBRE_ESPERADO} paga un gasto de una tienda» | \`Registrado a mano\` |`,
       ),
     ).toEqual([]);
   });

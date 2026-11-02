@@ -68,6 +68,7 @@ import { COLUMNAS_DESCARGA_WALLET_CAJA } from "@/app/(app)/wallet/_components/wa
 import { filaDeLibroCaja as filaDescargaMovimientoCaja } from "@/tests/fixtures/libro-kardex";
 import { opcionesDeConceptos } from "@/components/shared/wallet/conceptos-filtro";
 import { CATEGORIA_LABEL as CATEGORIA_LABEL_458, CATEGORIA_TODAS_OPTION } from "@/app/(app)/wallet/_components/wallet-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /** Los DÉBITOS de la tienda (el `origenId` de cada línea de caja del cobro): uuids que NUNCA se pintan. */
 const COBRO_ID = "3f1c2a7e-9b41-4d6e-8c2f-0a5b7d9e1f23";
@@ -181,17 +182,17 @@ const ESPERADO: ReadonlyArray<{
   {
     caso: "la línea del cobro (propia)",
     movimiento: COBRO_VIGENTE,
-    concepto: "Ordenex le cobra a una tienda",
+    concepto: `${NOMBRE_ESPERADO} le cobra a una tienda`,
     tipo: "Entra", // 458-E (R55): la dirección se dice Entra / Sale (antes «Ingreso»)
-    origen: "Cobro de Ordenex a una tienda · Tienda Norte · Material de despacho",
+    origen: `Cobro de ${NOMBRE_ESPERADO} a una tienda · Tienda Norte · Material de despacho`,
     dueno: "Ordenex",
   },
   {
     caso: "la línea completada por la migración de datos",
     movimiento: COBRO_COMPLETADO,
-    concepto: "Ordenex le cobra a una tienda",
+    concepto: `${NOMBRE_ESPERADO} le cobra a una tienda`,
     tipo: "Entra", // 458-E (R55): la dirección se dice Entra / Sale (antes «Ingreso»)
-    origen: "Cobro de Ordenex a una tienda (línea de caja completada al corregir) · Tienda Sur · Bolsas",
+    origen: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir) · Tienda Sur · Bolsas`,
     dueno: "Ordenex",
   },
   {
@@ -199,13 +200,13 @@ const ESPERADO: ReadonlyArray<{
     movimiento: REVERSO,
     concepto: "Cobro a una tienda anulado",
     tipo: "Sale", // 458-E (R55): antes «Egreso»
-    origen: "Cobro de Ordenex a una tienda · Anulación · Tienda Este · Etiquetas",
+    origen: `Cobro de ${NOMBRE_ESPERADO} a una tienda · Anulación · Tienda Este · Etiquetas`,
     dueno: "Ordenex",
   },
   {
     caso: "la salida de un cobro reclasificado por la 459",
     movimiento: RECLASIFICADO,
-    concepto: "Ordenex paga un gasto de una tienda",
+    concepto: `${NOMBRE_ESPERADO} paga un gasto de una tienda`,
     tipo: "Sale", // 458-E (R55): antes «Egreso»
     origen: "Cobro reclasificado como pago de un gasto de la tienda · Nuform · pago FACEBOOK",
     dueno: "Tienda",
@@ -243,7 +244,7 @@ describe("461 — concepto, tipo, origen y dueño de las líneas del cobro (R42,
       CATEGORIA_TODAS_OPTION,
     );
     const opciones = new Map(lista.map((o) => [o.value, o.label.replace(/ \(1\)$/, "")]));
-    expect(opciones.get("ingreso_cobro_tienda")).toBe("Ordenex le cobra a una tienda");
+    expect(opciones.get("ingreso_cobro_tienda")).toBe(`${NOMBRE_ESPERADO} le cobra a una tienda`);
     expect(opciones.get("egreso_reverso_cobro_tienda")).toBe("Cobro a una tienda anulado");
   });
 

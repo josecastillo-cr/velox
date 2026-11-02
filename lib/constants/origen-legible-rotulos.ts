@@ -8,6 +8,7 @@
 // dia de Costa Rica), nombres (ya con `etiquetaDeCuenta`), guias, metodos y conceptos.
 
 import { METODO_LABEL } from "@/lib/constants/metodo-pago-label";
+import { MARCA } from "@/lib/marca/identidad";
 import { DETALLE_MOVIMIENTO_VER_ORDEN, etiquetaVerOrden } from "@/lib/constants/wallet-rotulos";
 
 /** El separador de la casa entre el rotulo y la entidad («Cierre del día · 2026-09-12 · Juan»). */
@@ -25,8 +26,8 @@ export const ORIGEN_ENTIDAD_LABEL = {
   aBeneficiario: (beneficiario: string) => `a ${beneficiario}`,
   /** El egreso de caja registrado a mano, por su concepto (design §3.3, fila `gasto`). */
   sueldo: "Sueldo",
-  gastoDeOrdenex: "Gasto de Ordenex",
-  gastoFijo: "Gasto fijo de Ordenex",
+  gastoDeOrdenex: `Gasto de ${MARCA.nombreCorto}`,
+  gastoFijo: `Gasto fijo de ${MARCA.nombreCorto}`,
   /** FICHA 488 (revision m3): el Pago de IVA y su anulacion no son ni gasto ni sueldo. */
   pagoDeIva: "Pago de IVA registrado a mano",
 } as const;

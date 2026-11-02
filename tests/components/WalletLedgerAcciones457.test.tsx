@@ -69,6 +69,7 @@ import { COLUMNAS_DESCARGA_WALLET_CAJA } from "@/app/(app)/wallet/_components/wa
 import { filaDeLibroCaja as filaDescargaMovimientoCaja } from "@/tests/fixtures/libro-kardex";
 import { opcionesDeConceptos } from "@/components/shared/wallet/conceptos-filtro";
 import { CATEGORIA_LABEL as CATEGORIA_LABEL_458, CATEGORIA_TODAS_OPTION } from "@/app/(app)/wallet/_components/wallet-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /** Los DOCUMENTOS (el `origenId` de cada fila): uuids que NUNCA se pintan. */
 const ABONO_ID = "5b7d9f1a-3c5e-4a7b-9d1f-3a5c7e9b1d2f";
@@ -141,17 +142,17 @@ const ESPERADO = [
   {
     caso: "el pago",
     movimiento: ABONO_VIGENTE,
-    concepto: "Una tienda le paga a Ordenex",
+    concepto: `Una tienda le paga a ${NOMBRE_ESPERADO}`,
     tipo: "Entra", // 458-E (R55): la dirección se dice Entra / Sale (antes «Ingreso»)
-    origen: "Pago de una tienda a Ordenex · Tienda Norte · Pago de los fletes · SINPE · 123456",
+    origen: `Pago de una tienda a ${NOMBRE_ESPERADO} · Tienda Norte · Pago de los fletes · SINPE · 123456`,
     dueno: "Tienda",
   },
   {
     caso: "su anulación",
     movimiento: REVERSO,
-    concepto: "Pago de una tienda a Ordenex anulado",
+    concepto: `Pago de una tienda a ${NOMBRE_ESPERADO} anulado`,
     tipo: "Sale", // 458-E (R55): antes «Egreso»
-    origen: "Pago de una tienda a Ordenex · Anulación · Tienda Este · Pago equivocado · Efectivo",
+    origen: `Pago de una tienda a ${NOMBRE_ESPERADO} · Anulación · Tienda Este · Pago equivocado · Efectivo`,
     dueno: "Tienda",
   },
 ];
@@ -188,8 +189,8 @@ describe("457/R45 — concepto, tipo, origen y dueño en la tabla, el filtro y l
       CATEGORIA_TODAS_OPTION,
     );
     const opciones = new Map(lista.map((o) => [o.value, o.label.replace(/ \(1\)$/, "")]));
-    expect(opciones.get("ingreso_abono_tienda")).toBe("Una tienda le paga a Ordenex");
-    expect(opciones.get("egreso_reverso_abono_tienda")).toBe("Pago de una tienda a Ordenex anulado");
+    expect(opciones.get("ingreso_abono_tienda")).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
+    expect(opciones.get("egreso_reverso_abono_tienda")).toBe(`Pago de una tienda a ${NOMBRE_ESPERADO} anulado`);
   });
 });
 

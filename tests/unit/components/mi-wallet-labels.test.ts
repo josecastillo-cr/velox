@@ -18,6 +18,7 @@ import {
   WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED,
   type WalletTiendaMovimientoCategoria,
 } from "@/lib/types/wallet-tienda";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // FICHA 461 (T C.3, design §7.4/§7.5, HD3, P4) — EL LIBRO DE LA TIENDA SE LEE DESDE DOS LADOS
@@ -259,21 +260,21 @@ describe("ORIGEN_TIENDA_LABEL cubre cada origen que escribe en el libro de la ti
   it("461 §7.3: los seis textos, desde Ordenex, y los compartidos con la caja dicen lo mismo", () => {
     expect(ORIGEN_TIENDA_LABEL).toEqual({
       cierre_dia: "Cierre del día",
-      pago_tienda: "Pago de Ordenex a una tienda",
+      pago_tienda: `Pago de ${NOMBRE_ESPERADO} a una tienda`,
       manual: "Registrado a mano",
       gestion_orden: "Gestión de orden",
       pago_por_cuenta_tienda: "Pago de un gasto de una tienda",
-      cobro_tienda: "Cobro de Ordenex a una tienda",
-      abono_tienda: "Pago de una tienda a Ordenex", // ficha 457: el MISMO texto que `ORIGEN_LABEL`
+      cobro_tienda: `Cobro de ${NOMBRE_ESPERADO} a una tienda`,
+      abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO}`, // ficha 457: el MISMO texto que `ORIGEN_LABEL`
       // Ficha 458-A (TA.2, R9): el diccionario pasa a TOTAL sobre `WalletOrigenTipo`. Los orígenes
       // que hoy no escriben en este libro llevan el texto de la caja (461 §7.3), escrito a mano.
-      pago_mensajero: "Pago de Ordenex a un mensajero",
+      pago_mensajero: `Pago de ${NOMBRE_ESPERADO} a un mensajero`,
       gasto: "Gasto o sueldo registrado a mano",
       orden_incidente: "Incidente de orden",
       ranking_snapshot_fila: "Premio del ranking",
       aporte_capital: "Aporte de dinero a la caja",
       cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
-      cobro_tienda_completado: "Cobro de Ordenex a una tienda (línea de caja completada al corregir)",
+      cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
     });
   });
 

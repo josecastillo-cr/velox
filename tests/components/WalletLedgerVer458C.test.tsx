@@ -45,6 +45,7 @@ vi.mock("@/hooks/useToast", () => ({
 }));
 
 import { WalletLedger } from "@/app/(app)/wallet/_components/WalletLedger";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 let n = 0;
 function uuid(): string {
@@ -329,7 +330,7 @@ describe("458-C revisión B2 — la fila anulada del libro DICE «Anulado» (457
       expect(within(filaDe(m)).getByRole("button", { name: /^Ver / }).getAttribute("aria-label")).toMatch(/ · Anulado$/);
     }
     expect(within(filaDe(ANULADO)).getByRole("button", { name: /^Ver / }).getAttribute("aria-label")).toBe(
-      "Ver Gasto de Ordenex del 2026-09-20 por ₡999 · Anulado",
+      `Ver Gasto de ${NOMBRE_CORTO_ESPERADO} del 2026-09-20 por ₡999 · Anulado`,
     );
     for (const m of [ANULABLES[0][1], CONTRA_ASIENTO]) {
       expect(within(filaDe(m)).queryByText("Anulado")).toBeNull();

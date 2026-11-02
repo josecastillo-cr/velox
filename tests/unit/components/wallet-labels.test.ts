@@ -28,6 +28,7 @@ import {
   type WalletMovimientoCategoria,
   type WalletOrigenTipo,
 } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // FICHA 461 (T C.1, design §7.2/§7.3, HD3) — LOS NOMBRES DEL LIBRO DE LA CAJA, DESDE ORDENEX
@@ -50,26 +51,26 @@ const CONCEPTOS_ESPERADOS: Record<WalletMovimientoCategoria, string> = {
   ingreso_iva_flete: "IVA del flete cobrado a la tienda",
   ingreso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda",
   ingreso_iva_comision_cod: "IVA de la comisión cobrado a la tienda",
-  ingreso_cobro_tienda: "Ordenex le cobra a una tienda",
+  ingreso_cobro_tienda: `${NOMBRE_ESPERADO} le cobra a una tienda`,
   egreso_reverso_cobro_tienda: "Cobro a una tienda anulado",
   ingreso_cod_recaudado: "Contra-entrega cobrado a los clientes de la tienda",
-  egreso_pago_tienda: "Ordenex le paga a una tienda",
+  egreso_pago_tienda: `${NOMBRE_ESPERADO} le paga a una tienda`,
   ingreso_reverso_pago_tienda: "Pago a una tienda anulado",
-  egreso_pago_por_cuenta_tienda: "Ordenex paga un gasto de una tienda",
+  egreso_pago_por_cuenta_tienda: `${NOMBRE_ESPERADO} paga un gasto de una tienda`,
   ingreso_reverso_pago_por_cuenta_tienda: "Pago de un gasto de una tienda anulado",
-  egreso_pago_mensajero: "Ordenex le paga a un mensajero",
+  egreso_pago_mensajero: `${NOMBRE_ESPERADO} le paga a un mensajero`,
   egreso_sueldo: "Sueldo",
-  egreso_gasto_variable: "Gasto de Ordenex",
-  egreso_gasto_fijo: "Gasto fijo de Ordenex",
-  egreso_gasto: "Otro gasto de Ordenex",
-  egreso_indemnizacion: "Indemnización que Ordenex paga por un incidente",
+  egreso_gasto_variable: `Gasto de ${NOMBRE_CORTO_ESPERADO}`,
+  egreso_gasto_fijo: `Gasto fijo de ${NOMBRE_CORTO_ESPERADO}`,
+  egreso_gasto: `Otro gasto de ${NOMBRE_CORTO_ESPERADO}`,
+  egreso_indemnizacion: `Indemnización que ${NOMBRE_ESPERADO} paga por un incidente`,
   ingreso_ajuste: "Corrección de caja (suma)",
   egreso_ajuste: "Corrección de caja (resta)",
   ingreso_aporte_capital: "Aporte de dinero a la caja",
   egreso_reverso_aporte_capital: "Aporte de dinero a la caja anulado",
   // Ficha 457 (design §2, DH7): el pago de una tienda a Ordenex toma el nombre que la 461 reservo.
-  ingreso_abono_tienda: "Una tienda le paga a Ordenex",
-  egreso_reverso_abono_tienda: "Pago de una tienda a Ordenex anulado",
+  ingreso_abono_tienda: `Una tienda le paga a ${NOMBRE_ESPERADO}`,
+  egreso_reverso_abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO} anulado`,
   // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, flete e IVA por separado.
   egreso_reverso_flete_devolucion: "Flete por devolución a origen cobrado a la tienda anulado",
   egreso_reverso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda anulado",
@@ -84,17 +85,17 @@ const ORIGENES_ESPERADOS: Record<WalletOrigenTipo, string> = {
   gestion_orden: "Gestión de orden",
   manual: "Registrado a mano",
   gasto: "Gasto o sueldo registrado a mano",
-  pago_tienda: "Pago de Ordenex a una tienda",
-  pago_mensajero: "Pago de Ordenex a un mensajero",
+  pago_tienda: `Pago de ${NOMBRE_ESPERADO} a una tienda`,
+  pago_mensajero: `Pago de ${NOMBRE_ESPERADO} a un mensajero`,
   orden_incidente: "Incidente de orden",
   ranking_snapshot_fila: "Premio del ranking",
   pago_por_cuenta_tienda: "Pago de un gasto de una tienda",
   aporte_capital: "Aporte de dinero a la caja",
   cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
-  cobro_tienda: "Cobro de Ordenex a una tienda",
-  cobro_tienda_completado: "Cobro de Ordenex a una tienda (línea de caja completada al corregir)",
+  cobro_tienda: `Cobro de ${NOMBRE_ESPERADO} a una tienda`,
+  cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
   // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
-  abono_tienda: "Pago de una tienda a Ordenex",
+  abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
 };
 
 describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42, design §7.2)", () => {
@@ -110,13 +111,13 @@ describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42,
   });
 
   it("⭑ 457 (R45/R53): el pago de una tienda a Ordenex y su anulacion, con los nombres reservados por la 461", () => {
-    expect(CATEGORIA_LABEL.ingreso_abono_tienda).toBe("Una tienda le paga a Ordenex");
-    expect(CATEGORIA_LABEL.egreso_reverso_abono_tienda).toBe("Pago de una tienda a Ordenex anulado");
+    expect(CATEGORIA_LABEL.ingreso_abono_tienda).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
+    expect(CATEGORIA_LABEL.egreso_reverso_abono_tienda).toBe(`Pago de una tienda a ${NOMBRE_ESPERADO} anulado`);
     // Distintos del cobro (Ordenex le cobra) y del pago de Ordenex a la tienda: la direccion del dinero
     // es la contraria y el nombre lo dice.
     expect(CATEGORIA_LABEL.ingreso_abono_tienda).not.toBe(CATEGORIA_LABEL.ingreso_cobro_tienda);
     expect(CATEGORIA_LABEL.ingreso_abono_tienda).not.toBe(CATEGORIA_LABEL.egreso_pago_tienda);
-    expect(ORIGEN_LABEL.abono_tienda).toBe("Pago de una tienda a Ordenex");
+    expect(ORIGEN_LABEL.abono_tienda).toBe(`Pago de una tienda a ${NOMBRE_ESPERADO}`);
   });
 
   it("ningun nombre se repite: dos conceptos con el mismo texto serian indistinguibles en la tabla", () => {
@@ -133,7 +134,7 @@ describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42,
   });
 
   it("el cobro y su anulacion son dos nombres distintos y ninguno es el del pago de un gasto", () => {
-    expect(CATEGORIA_LABEL.ingreso_cobro_tienda).toBe("Ordenex le cobra a una tienda");
+    expect(CATEGORIA_LABEL.ingreso_cobro_tienda).toBe(`${NOMBRE_ESPERADO} le cobra a una tienda`);
     expect(CATEGORIA_LABEL.egreso_reverso_cobro_tienda).toBe("Cobro a una tienda anulado");
     expect(CATEGORIA_LABEL.ingreso_cobro_tienda).not.toBe(
       CATEGORIA_LABEL.egreso_pago_por_cuenta_tienda,
@@ -190,10 +191,10 @@ describe("461 — el resto de textos de la caja que esta ficha toca (R42/R50, de
     expect(CAJA_RESUMEN_AVISO_TERCEROS).not.toMatch(/cobros? de un costo/i);
   });
 
-  it("el tipo de egreso manual se llama «Gasto de Ordenex», igual que el concepto del dialogo", () => {
+  it(`el tipo de egreso manual se llama «Gasto de ${NOMBRE_CORTO_ESPERADO}», igual que el concepto del dialogo`, () => {
     // Ficha 488 (R21): + `pago_iva: "Pago de IVA"` (antes `{ gasto_variable, sueldo }`).
     expect(TIPO_EGRESO_MANUAL_LABEL).toEqual({
-      gasto_variable: "Gasto de Ordenex",
+      gasto_variable: `Gasto de ${NOMBRE_CORTO_ESPERADO}`,
       sueldo: "Sueldo",
       pago_iva: "Pago de IVA",
     });

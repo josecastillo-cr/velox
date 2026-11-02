@@ -88,6 +88,7 @@ import { WalletModule } from "@/app/(app)/wallet/_components/WalletModule";
 import { CAJA_RESUMEN_LABEL, money } from "@/app/(app)/wallet/_components/wallet-labels";
 import { COBRO_RECHAZO_TEXTO } from "@/components/shared/wallet/detalle-movimiento-panel-labels";
 import { elegirSoloLosMovimientos } from "@/tests/fixtures/descarga-detalle-por-orden";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ── Datos ──
 
@@ -351,7 +352,7 @@ describe("458-E T E.1 — las columnas del libro (R55–R57)", () => {
   it("R55: «Movimiento y motivo» dice el concepto desde Ordenex, el origen con su entidad y el motivo", () => {
     pintarLibro();
     const cobro = celdasDe(FILAS, COBRO)["Movimiento y motivo"];
-    expect(within(cobro).getByText("Ordenex le cobra a una tienda")).toBeInTheDocument();
+    expect(within(cobro).getByText(`${NOMBRE_ESPERADO} le cobra a una tienda`)).toBeInTheDocument();
     expect(cobro.textContent).toContain("Material de despacho");
     const sueldo = celdasDe(FILAS, SUELDO)["Movimiento y motivo"];
     expect(within(sueldo).getByText("Sueldo")).toBeInTheDocument();

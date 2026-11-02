@@ -25,6 +25,7 @@ import {
   LLAMADAS_PROHIBIDAS_EN_DINERO,
   codigoSinComentarios,
 } from "@/tests/fixtures/money-safe";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Ficha 339 (B5) — ABRIR UNA FILA DE LA TARJETA DE LA GANANCIA Y VER LO QUE HAY DENTRO.
@@ -317,7 +318,7 @@ describe("Ficha 339 — lo que enseña cada movimiento (R16/R17/R36)", () => {
     const celdas = await dentro.findAllByRole("cell");
     const textos = celdas.map((c) => (c.textContent ?? "").trim());
     // Ninguna celda muda, y la del detalle dice de dónde viene el movimiento.
-    expect(textos).toContain("Pago de Ordenex a un mensajero");
+    expect(textos).toContain(`Pago de ${NOMBRE_ESPERADO} a un mensajero`);
     expect(textos.filter((t) => t === "")).toEqual([]);
   });
 

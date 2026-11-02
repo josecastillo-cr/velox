@@ -148,14 +148,24 @@ export const EXCEPCIONES_R11: ReadonlyArray<readonly [motivo: string, cumple: (t
 
 export const esExcepcionR11 = (t: string) => EXCEPCIONES_R11.some(([, cumple]) => cumple(t));
 
-/** Hallazgos de la marca retirada en los nodos de texto de un fuente TS/JS (R15). */
+/**
+ * Hallazgos de la marca retirada en los nodos de texto de un fuente TS/JS (R15). Un nodo NO es
+ * hallazgo si entero es una excepcion de R11 o si solo contiene la marca dentro de identificadores
+ * (`quitarIdentificadores`). `permitidoExtra` admite mas (R16 en tests).
+ */
 export function hallazgosRetiradaEnCodigo(
   fuente: string,
   archivo = "fuente.tsx",
   permitidoExtra: (t: string) => boolean = () => false,
 ): Hallazgo[] {
   return textosDeCodigo(fuente, archivo)
-    .filter((n) => RETIRADA.test(n.texto) && !esExcepcionR11(n.texto) && !permitidoExtra(n.texto))
+    .filter(
+      (n) =>
+        RETIRADA.test(n.texto) &&
+        !esExcepcionR11(n.texto) &&
+        RETIRADA.test(quitarIdentificadores(n.texto)) &&
+        !permitidoExtra(n.texto),
+    )
     .map((n) => ({ archivo, linea: n.linea, fragmento: recortar(n.texto) }));
 }
 
@@ -176,21 +186,28 @@ export function hallazgosRetiradaEnTextoPlano(
 }
 
 /**
- * R16 — en los TESTS la marca retirada aparece tambien como PARTE de un identificador escrito en
- * una cadena: el titulo de un `it` que nombra el campo (`liquidado.ordenex`), un fragmento de
- * fuente que se escanea (`NETO_ORDENEX_LABEL`), una ruta (`lib/utils/ingreso-ordenex.ts`), un
- * selector (`[data-bolsillo='ordenex']`) o un dominio de dato de prueba (`no-reply@ordenex.co`,
- * `https://ordenex.app/…`). Nada de eso es la marca dicha a una persona ni se puede «migrar» sin
+ * R11 — un texto puede CONTENER un identificador interno con la marca retirada, y ese identificador
+ * se conserva («SI un texto contiene un identificador interno que contiene "ordenex"…»). Ejemplos:
+ * la descripcion de una metrica que nombra su id (`ganancia_ordenex`), el titulo de un `it` que
+ * nombra el campo (`liquidado.ordenex`), un fragmento de fuente que una guardia escanea
+ * (`NETO_ORDENEX_LABEL`). Nada de eso es la marca dicha a una persona ni se puede cambiar sin
  * renombrar identificadores (fuera de alcance, design §2 b).
  *
- * Una aparicion se admite si el TOKEN que la contiene (racha de `[A-Za-z0-9_./:@-]`) es:
- *  - minusculas y mas largo que la palabra sola (`ordenex.co`, `solo_ordenex`, `ingreso-ordenex.ts`);
- *  - un identificador `\w+` mas largo que la palabra sola (`deOrdenex`, `NETO_ORDENEX_LABEL`);
+ * Esta funcion tacha las apariciones ADMITIDAS y deja las demas. Una aparicion se admite si el
+ * TOKEN que la contiene (racha de `[A-Za-z0-9_./:@-]`) es un identificador `\w+` mas largo que la
+ * palabra sola (`ganancia_ordenex`, `deOrdenex`, `NETO_ORDENEX_LABEL`). Solo en TESTS (`enTest`),
+ * ademas:
+ *  - un token en minusculas mas largo que la palabra (`liquidado.ordenex`, `lib/utils/ingreso-ordenex.ts`,
+ *    y los dominios de DATO de prueba `no-reply@ordenex.co`, `https://ordenex.app/…`, R16);
  *  - la palabra en minusculas entre comillas de un selector (`='ordenex'`) o en codigo Markdown (`` `ordenex` ``).
- * Nunca se admite `X-Ordenex-…` (contrato, R17) salvo en `cabeceraPermitida` (negativas L5b), ni
- * la palabra sola con su caja de marca («Ordenex», «ORDENEX»), ni la minuscula suelta en prosa.
+ * Nunca se admite `X-Ordenex-…` (contrato, R17) salvo con `cabeceraPermitida` (negativas L5b de
+ * tests), ni la palabra sola con su caja de marca («Ordenex», «ORDENEX»), ni la minuscula suelta.
  */
-export function quitarIdentificadoresDeTest(texto: string, cabeceraPermitida = false): string {
+export function quitarIdentificadores(
+  texto: string,
+  opciones: { enTest?: boolean; cabeceraPermitida?: boolean } = {},
+): string {
+  const { enTest = false, cabeceraPermitida = false } = opciones;
   const tok = /[A-Za-z0-9_./:@-]/;
   let out = "";
   let i = 0;
@@ -204,12 +221,12 @@ export function quitarIdentificadoresDeTest(texto: string, cabeceraPermitida = f
     const token = texto.slice(a, b).replace(/[.:-]+$/, "");
     const minuscula = m[0] === "ordenex";
     const previo = texto.slice(Math.max(0, m.index - 2), m.index);
-    const esCabecera = /^X-Ordenex-/i.test(token);
-    const admitida = esCabecera
+    const largo = token.length > m[0].length;
+    const admitida = /^X-Ordenex-/i.test(token)
       ? cabeceraPermitida
-      : (minuscula && token.length > m[0].length) ||
-        (/^\w+$/.test(token) && token.length > m[0].length) ||
-        (minuscula && token === "ordenex" && (/^=['"]$/.test(previo) || previo.endsWith("`")));
+      : (/^\w+$/.test(token) && largo) ||
+        (enTest && minuscula && largo) ||
+        (enTest && minuscula && token === "ordenex" && (/^=['"]$/.test(previo) || previo.endsWith("`")));
     out += texto.slice(i, m.index) + (admitida ? "·······" : m[0]);
     i = m.index + m[0].length;
   }
@@ -294,10 +311,11 @@ export function hallazgosContratoEnTextoPlano(fuente: string, archivo: string): 
 export const CODIGO_DIRS = ["app", "components", "hooks", "lib"] as const;
 export const MODULO_MARCA = "lib/marca/identidad.ts";
 
-/** Esta guardia y su detector: contienen la marca retirada a proposito (sinteticos, `MARCAS_RETIRADAS`). */
+/** Esta guardia, su detector y su trinquete: contienen la marca retirada a proposito (sinteticos, `MARCAS_RETIRADAS`, rutas). */
 export const PROPIOS = new Set([
   "tests/unit/guards/marca-fuente-unica-493.guardia.test.ts",
   "tests/fixtures/marca-retirada-493.ts",
+  "tests/fixtures/marca-pendientes-493.ts",
 ]);
 
 /**
@@ -391,7 +409,11 @@ export function censoR16Textos(): Hallazgo[] {
     .filter((f) => !PROPIOS.has(f))
     .flatMap((f) => {
       const cabecera = NEGATIVAS_DE_CONTRATO.has(f);
-      return hallazgosRetiradaEnCodigo(leer(f), f, (t) => !RETIRADA.test(quitarIdentificadoresDeTest(t, cabecera)));
+      return hallazgosRetiradaEnCodigo(
+        leer(f),
+        f,
+        (t) => !RETIRADA.test(quitarIdentificadores(t, { enTest: true, cabeceraPermitida: cabecera })),
+      );
     });
 }
 
@@ -405,4 +427,25 @@ export function censoContrato(): Hallazgo[] {
     ...listar("docs/api", /./).filter((f) => f !== "docs/api/CHANGELOG.md" && !/\.(pdf|png|jpe?g)$/i.test(f)),
   ].flatMap((f) => hallazgosContratoEnTextoPlano(leer(f), f));
   return [...codigo, ...planos];
+}
+
+/**
+ * El trinquete de un bloque: (1) nada fuera de `pendiente` ni por encima de su numero; (2) cada
+ * pendiente sigue teniendo EXACTAMENTE su numero. Devuelve los dos listados para la guardia.
+ */
+export function trinquete(
+  hallazgos: Hallazgo[],
+  pendiente: Readonly<Record<string, number>>,
+): { nuevos: string[]; desfasados: string[] } {
+  const porArchivo = new Map<string, Hallazgo[]>();
+  for (const h of hallazgos) porArchivo.set(h.archivo, [...(porArchivo.get(h.archivo) ?? []), h]);
+  const nuevos: string[] = [];
+  for (const [archivo, hs] of porArchivo) {
+    const permitido = pendiente[archivo] ?? 0;
+    if (hs.length > permitido) nuevos.push(...hs.map(formatear), `  ^ ${archivo}: ${hs.length} > ${permitido} pendientes`);
+  }
+  const desfasados = Object.entries(pendiente)
+    .filter(([archivo, n]) => (porArchivo.get(archivo)?.length ?? 0) !== n)
+    .map(([archivo, n]) => `${archivo}: anotados ${n}, hay ${porArchivo.get(archivo)?.length ?? 0} (baja o borra la entrada)`);
+  return { nuevos, desfasados };
 }

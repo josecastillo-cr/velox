@@ -39,6 +39,7 @@ import { estado, fila } from "@/tests/fixtures/estado-cuenta";
 import { CATEGORIA_TIENDA_LABEL } from "@/app/(app)/wallet/tiendas/_components/desglose-tienda-labels";
 import { MiEstadoCuenta, ROTULOS_MI_WALLET } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
 import { DESGLOSE_MI_WALLET_LABEL } from "@/app/(app)/mi-wallet/_components/mi-wallet-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const TIENDA_ID = "2c4e6a8b-1d3f-4b5c-9e7a-1c3e5a7b9d0f";
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
@@ -94,7 +95,7 @@ describe("457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cue
     );
     const tabla = screen.getByRole("table", { name: "Estado de cuenta de Tienda Norte" });
     const pago = within(tabla).getByText("La tienda le paga a Ordenex").closest("tr") as HTMLElement;
-    expect(within(pago).getByText("Pago de una tienda a Ordenex")).toBeInTheDocument();
+    expect(within(pago).getByText(`Pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
     expect(within(pago).getByText("Pago de los fletes · SINPE · 123456")).toBeInTheDocument();
     const anulado = within(tabla).getByText("Pago de la tienda a Ordenex anulado").closest("tr") as HTMLElement;
     expect(within(anulado).getByText("Anulación · Pago de los fletes · SINPE · 123456")).toBeInTheDocument();
@@ -112,7 +113,7 @@ describe("457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cue
       fecha: "2026-09-24",
       movimiento: "La tienda le paga a Ordenex",
       abono: "4000.00",
-      origen: "Pago de una tienda a Ordenex",
+      origen: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
       motivo: "Pago de los fletes · SINPE · 123456",
     });
     expect(lineaDeFila(FILA_ANULADO, ROTULOS_TIENDA).movimiento).toBe("Pago de la tienda a Ordenex anulado");
@@ -148,7 +149,7 @@ describe("457/R47/R48/R51 — `/mi-wallet`: la tienda lo lee desde su lado", () 
     );
     const tabla = screen.getByRole("table", { name: "Estado de cuenta de Tienda Norte" });
     const pago = within(tabla).getByText("Le pagaste a Ordenex").closest("tr") as HTMLElement;
-    expect(within(pago).getByText("Pago de una tienda a Ordenex")).toBeInTheDocument();
+    expect(within(pago).getByText(`Pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
     expect(within(pago).getByText("Pago de los fletes · SINPE · 123456")).toBeInTheDocument();
     const anulado = within(tabla).getByText("Ordenex anuló el pago que le hiciste").closest("tr") as HTMLElement;
     expect(anulado).toBeInTheDocument();
@@ -168,7 +169,7 @@ describe("457/R47/R48/R51 — `/mi-wallet`: la tienda lo lee desde su lado", () 
   it("descarga: las mismas palabras que la tabla, sin uuids", () => {
     expect(lineaDeFila(MI_ABONO, ROTULOS_MI_WALLET)).toMatchObject({
       movimiento: "Le pagaste a Ordenex",
-      origen: "Pago de una tienda a Ordenex",
+      origen: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
       motivo: "Pago de los fletes · SINPE · 123456",
     });
     expect(lineaDeFila(MI_ANULADO, ROTULOS_MI_WALLET).movimiento).toBe("Ordenex anuló el pago que le hiciste");
