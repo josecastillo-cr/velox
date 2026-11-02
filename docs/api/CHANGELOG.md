@@ -21,6 +21,69 @@
 
 ---
 
+## 2026-11-02 — ⚠️ RUPTURA — La empresa pasa a llamarse Velox Courier: cabeceras de la firma, dominio y encabezados de descarga
+
+> **Fecha de despliegue: PENDIENTE — se avisará con antelación y se escribirá aquí.** Este cambio
+> **rompe** a quien verifique la firma de los webhooks y a quien llame al dominio anterior. No hay
+> periodo de doble cabecera: Velox Courier pausa las entregas a su callback antes del despliegue y
+> las reanuda cuando usted confirma que su verificador lee las cabeceras nuevas.
+
+**Qué cambia, en una frase:** Ordenex pasa a llamarse **Velox Courier**, y con el nombre cambian las
+cabeceras de la firma de los webhooks, el dominio del canal, los encabezados de dos descargas y el
+correo de soporte.
+
+**1. Las cabeceras de la firma de los webhooks cambian de nombre** (`orden.estado_actualizado` y los
+eventos `orden.gestion_*` / `orden.ayuda_*`):
+
+| Antes | Ahora |
+|---|---|
+| `X-Ordenex-Signature` | `X-Velox-Signature` |
+| `X-Ordenex-Timestamp` | `X-Velox-Timestamp` |
+
+Mismo algoritmo (HMAC-SHA256), mismo formato de valor (`sha256=<hex>` sobre `${timestamp}.${cuerpo}`;
+instante unix en segundos), mismo secreto y mismo cuerpo. Las cabeceras viejas **dejan de enviarse**.
+**Qué tiene que cambiar el integrador:** en su verificador, leer la firma de `X-Velox-Signature` y el
+instante de `X-Velox-Timestamp`. Si sigue leyendo las viejas, rechazará todas las entregas. El contrato
+vuelve a declarar las dos cabeceras en la descripción del schema `WebhookOrdenEstadoActualizado` (en
+`lib/api/openapi-spec.ts` y en su espejo `docs/api/api-key-openapi.yaml`), que no las nombraba desde
+el 2026-09-01.
+
+**2. El dominio cambia:**
+
+| Antes | Ahora |
+|---|---|
+| `https://ordenex.co` (Base URL de las llamadas) | `https://velox-courier.company` |
+| `https://app.ordenex.co/…` (origen de `data.evidenciasUrl` y de los enlaces de los webhooks) | `https://velox-courier.company/…` |
+
+**Qué tiene que cambiar el integrador:** la Base URL de su configuración y cualquier lista de orígenes
+permitidos que filtre los enlaces de evidencias.
+
+**3. Los encabezados de los archivos descargables que nombraban a la empresa** (CSV/Excel de la
+aplicación; no es el canal por API key, pero rompe a quien procese esos archivos por nombre de
+columna). La columna, su clave interna, su posición y su contenido no cambian:
+
+| Descarga | Antes | Ahora |
+|---|---|---|
+| Analítica · productos | «Cobró Ordenex (no sumar: importe de la orden completa)» | «Cobró Velox (no sumar: importe de la orden completa)» |
+| Cierres · gestiones | «Total Ordenex» | «Total Velox» |
+
+Los valores de texto que nombraban a la empresa dentro de las descargas cambian igual: los conceptos
+(«Ordenex te cobró» → «Velox Courier te cobró», «Ordenex le paga a la tienda» → «Velox Courier le
+paga a la tienda»…) y el dueño del dinero («Ordenex» → «Velox», «Ordenex (capital)» → «Velox (capital)»).
+
+**4. Nombre de la empresa y correo de soporte:** toda la documentación (esta, la guía de integración y
+las descripciones del contrato) dice **Velox Courier**. El correo de contacto de soporte pasa a
+`battos.sa@gmail.com`.
+
+**Lo que NO cambia:** ningún path, código de respuesta, campo, valor enumerado ni id de métrica, ni
+el prefijo `ordx_` de las API keys.
+
+Y en la guía de integración (`docs/api/guia-integracion/guia-integracion.html`, versión noviembre
+2026): la sección «Cambios respecto de la versión de septiembre 2026» (D.1–D.4), la Base URL (§4.1),
+los ejemplos `curl`, el ejemplo de `evidenciasUrl` (§6.2) y la tabla de cabeceras de la firma (§6.3).
+
+---
+
 ## 2026-10-01 — Sin ruptura — El flete de una devolución a origen cambia de nombre en las descripciones
 
 > **Sin ruptura.** Solo cambian **textos de descripción** del contrato. Ningún campo, valor
