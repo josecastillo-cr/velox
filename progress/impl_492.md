@@ -185,7 +185,7 @@ Partida: HEAD `4990cde6` (merge de `origin/dev` `0ddaa782` + informe del reviewe
 | M1 | `EtiquetaGuia.tsx`: la vista previa del modal pinta `{ROTULO_GUIA}` importado de `lib/pdf/etiquetas-dibujo` (antes «Ordenex · Guía» copiado a mano). Caso nuevo en `tests/components/EtiquetaGuia.test.tsx`: literal «VELOX · GUÍA» + igual a `ROTULO_GUIA` + sin «Ordenex». | `a17bf74a` |
 | m1 | `public/manifest.json`: las 3 `label` de las capturas con «Velox Courier». Caso nuevo en `tests/unit/pwa/manifest.test.ts` con `toEqual` literal de `[src, label]`. | `fddbff5c` |
 | B2 | Guardia nueva `tests/unit/guards/marca-velox-sin-literal.guardia.test.ts`. Recorre una lista cerrada de 15 archivos: los 9 que leen `MARCA`/`LOGO` tienen que importar de `@/lib/marca/identidad`, y los 6 que pintan la marca vía `<Logo>`/`ROTULO_GUIA` no la escriben. Sin comentarios (`quitarComentarios`) y con CRLF normalizado, prohíbe `velox` (cualquier caja, lo que incluye nombre, nombre corto y rótulo), `#011027`, `/marca/logo-` y el arranque de la descripción. También exige que la vista previa tome `{ROTULO_GUIA}`. Lleva autocomprobación: el literal en código da hallazgo, el mismo texto en un comentario (también `{/* */}` y CRLF) no. | `6327d5fa` |
-| B1 | `specs/492-marca-velox-identidad/tasks.md`: las 18 tareas `[x]`, con nota de una línea en T14 (dev server `--webpack`, etiqueta generada con `buildEtiquetasLotePdf`). | `ac5e1e28` |
+| B1 | `specs/492-marca-velox-identidad/tasks.md`: las 18 tareas `[x]`, con nota de una línea en T14 (dev server `--webpack`, etiqueta generada con `buildEtiquetasLotePdf`). | `6dddfc8a` |
 
 m2 y m3 (meta description de la guía, comentario del YAML) quedan para la 493, por decisión del leader.
 
