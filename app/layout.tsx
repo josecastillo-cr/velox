@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Poppins, JetBrains_Mono } from "next/font/google";
 import { RESCATE_INLINE } from "@/lib/pwa/rescate-inline";
 import { ZodEnEspanol } from "@/components/shared/ZodEnEspanol";
+import { MARCA } from "@/lib/marca/identidad";
 import "./globals.css";
 
 const sans = Poppins({
@@ -19,8 +20,9 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ordenex",
-  description: "Plataforma de logística y entregas Ordenex",
+  // Feature 492 (R6): la identidad sale de la fuente unica de la marca.
+  title: MARCA.nombre,
+  description: MARCA.descripcion,
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
   ),
@@ -42,13 +44,13 @@ export default function RootLayout({
     >
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#0d2444" />
+        <meta name="theme-color" content={MARCA.colorTema} />
         {/* Feature 284 (R18): la moderna y la de Apple, LAS DOS. `mobile-web-app-capable` es
             la estandar; retirar la de Apple dejaria fuera a los iPhone que solo leen aquella. */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Ordenex" />
+        <meta name="apple-mobile-web-app-title" content={MARCA.nombreCorto} />
         {/* Feature 284 (R19): iOS pide 180x180 y aplica EL SOLO su mascara redondeada, asi que
             este PNG va a sangre (esquinas cuadradas). Apuntar al de 192 -que ya viene con las
             esquinas recortadas- daba el doble redondeo que se veia en la pantalla de inicio. */}

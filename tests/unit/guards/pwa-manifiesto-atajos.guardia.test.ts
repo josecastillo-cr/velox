@@ -81,15 +81,17 @@ describe("pwa · el manifiesto", () => {
     // R15 es un requisito de NO REGRESION: `orientation` y `categories` ya estaban (la ficha
     // decia que faltaban y era falso), y lo unico que habia que hacer con ellas era no
     // perderlas al añadir el `id`.
-    expect(MANIFIESTO.name).toBe("Ordenex");
-    expect(MANIFIESTO.short_name).toBe("Ordenex");
-    expect(MANIFIESTO.description).toBe("Plataforma de logística y entregas Ordenex");
+    // Feature 492 (R4): nombre, nombre corto, descripcion y colores pasan a ser los de Velox
+    // Courier; el resto de claves (R5) se conserva tal cual.
+    expect(MANIFIESTO.name).toBe("Velox Courier");
+    expect(MANIFIESTO.short_name).toBe("Velox");
+    expect(MANIFIESTO.description).toBe("Plataforma de logística y entregas Velox Courier");
     expect(MANIFIESTO.start_url).toBe("/");
     expect(MANIFIESTO.scope).toBe("/");
     expect(MANIFIESTO.display).toBe("standalone");
     expect(MANIFIESTO.orientation).toBe("portrait-primary");
-    expect(MANIFIESTO.theme_color).toBe("#0d2444");
-    expect(MANIFIESTO.background_color).toBe("#f7f8fc");
+    expect(MANIFIESTO.theme_color).toBe("#011027");
+    expect(MANIFIESTO.background_color).toBe("#011027");
     expect(MANIFIESTO.categories).toEqual(["business", "productivity"]);
     expect(MANIFIESTO.screenshots?.length).toBe(3);
   });
