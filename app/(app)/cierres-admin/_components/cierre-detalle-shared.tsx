@@ -80,6 +80,7 @@ import {
   GESTION_TIENDA_BADGE_LABEL,
   GESTION_TIENDA_BADGE_NOTA,
 } from "./cierre-labels";
+import { MARCA } from "@/lib/marca/identidad";
 
 // Feature 40 (T8) — helpers y componentes compartidos del detalle de cierre entre
 // el módulo de cierres de mensajero (feature 38, `CierresAdminModule`) y los nuevos
@@ -329,13 +330,13 @@ export const CENTRAL_DEBE_NOTA =
   "El efectivo no alcanzó para pagarle a todos los mensajeros (el pago no puede ser parcial).";
 // --- Desglose del ingreso de Ordenex por orden (texto separado, i18n-ready) ---
 export const MONTO_COBRAR_LABEL = "Monto a cobrar";
-export const INGRESO_TOTAL_LABEL = "Total Ordenex";
-export const INGRESO_PANEL_LABEL = "Ingreso de Ordenex";
+export const INGRESO_TOTAL_LABEL = `Total ${MARCA.nombreCorto}`;
+export const INGRESO_PANEL_LABEL = `Ingreso de ${MARCA.nombreCorto}`;
 // Conceptos AGRUPADOS (cada uno con su IVA incluido): así se leen en tablas y paneles.
 // --- Bruto y ganancia del cierre (texto separado, i18n-ready) ---
 export const INGRESO_BRUTO_LABEL = "Ingreso bruto";
 export const INGRESO_BRUTO_NOTA =
-  "Todo lo que facturó Ordenex en el cierre (flete + IVA + comisión + IVA), sin descontar nada.";
+  `Todo lo que facturó ${MARCA.nombre} en el cierre (flete + IVA + comisión + IVA), sin descontar nada.`;
 export const GANANCIA_LABEL = "Ganancia";
 // Cuando la ganancia es NEGATIVA no es ganancia sino una deuda: se rotula "Debe".
 export const GANANCIA_DEBE_LABEL = "Debe";

@@ -24,6 +24,7 @@ import type { IOrdenRepository } from "@/lib/interfaces/repositories/IOrdenRepos
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import { WalletIndemnizacionFeedService } from "@/lib/services/WalletIndemnizacionFeedService";
 import { conPagos } from "@/tests/fixtures/cierre-pagos";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 38 — tests unit del CierresAdminService (dobles de repo/zona/orden/
 // signedUrls, sin DB/red). Cubre R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,R11,R12,R13,R16.
@@ -1823,7 +1824,7 @@ describe("Feature 158 · verCierreDetalle — el incidente es un grupo PROPIO (R
     expect(r.grupos.entregado.map((g) => g.gestionId)).toEqual(["g1"]);
   });
 
-  it("R17: un incidente NO aporta ingreso de Ordenex a los totales del cierre", async () => {
+  it(`R17: un incidente NO aporta ingreso de ${NOMBRE_ESPERADO} a los totales del cierre`, async () => {
     const repo = fakeRepo({
       findCierreByIdEnAlcance: vi.fn(async () => ({
         sinGestion: [],

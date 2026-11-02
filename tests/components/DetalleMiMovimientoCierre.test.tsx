@@ -31,6 +31,7 @@ import { ToastProvider } from "@/providers/ToastProvider";
 import { DETALLE_MI_MOVIMIENTO_VACIO } from "@/app/(app)/mi-wallet/_components/detalle-mi-movimiento-labels";
 import type { OrdenAporteDTO } from "@/lib/types/detalle-movimiento";
 import type { WalletTiendaMovimientoDTO } from "@/lib/types/wallet-tienda";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Ficha 344 (B7) — ABRIR UNA FILA DEL LIBRO DE LA TIENDA Y VER SUS ÓRDENES.
@@ -158,10 +159,10 @@ function pintar(movimientos: WalletTiendaMovimientoDTO[] = [movimiento()]) {
   );
 }
 
-const ABRIR_FLETE = `Ver las órdenes que componen Ordenex te cobró el flete del ${FECHA_FILA}`;
-const ABRIR_COMISION = `Ver las órdenes que componen Ordenex te cobró la comisión de contra-entrega del ${FECHA_FILA}`;
-const PANEL_FLETE = `Órdenes que componen Ordenex te cobró el flete del ${FECHA_FILA}`;
-const PANEL_COMISION = `Órdenes que componen Ordenex te cobró la comisión de contra-entrega del ${FECHA_FILA}`;
+const ABRIR_FLETE = `Ver las órdenes que componen ${NOMBRE_ESPERADO} te cobró el flete del ${FECHA_FILA}`;
+const ABRIR_COMISION = `Ver las órdenes que componen ${NOMBRE_ESPERADO} te cobró la comisión de contra-entrega del ${FECHA_FILA}`;
+const PANEL_FLETE = `Órdenes que componen ${NOMBRE_ESPERADO} te cobró el flete del ${FECHA_FILA}`;
+const PANEL_COMISION = `Órdenes que componen ${NOMBRE_ESPERADO} te cobró la comisión de contra-entrega del ${FECHA_FILA}`;
 
 function abrir(nombre: string) {
   return userEvent.click(screen.getByRole("button", { name: nombre }));

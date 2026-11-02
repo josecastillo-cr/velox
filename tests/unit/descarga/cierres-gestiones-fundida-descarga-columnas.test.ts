@@ -45,6 +45,7 @@ import type {
   IngresoOrdenexDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreGestionDescargaDTO } from "@/lib/interfaces/services/ICierresAdminService";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // --- Fixtures -------------------------------------------------------------
 
@@ -198,7 +199,7 @@ describe("orden de las columnas de la hoja fundida (T3.2)", () => {
       "Flete + IVA",
       "Comisión + IVA",
       "Flete por devolución a origen + IVA",
-      "Total Ordenex",
+      `Total ${NOMBRE_CORTO_ESPERADO}`,
       "Pago mensajero",
       "Ingreso bodega",
       "Indemnización",

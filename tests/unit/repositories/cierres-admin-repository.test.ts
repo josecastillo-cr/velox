@@ -12,6 +12,7 @@ import type { IWalletMensajeroFeedService } from "@/lib/interfaces/services/IWal
 import { idEstado, sembrarCatalogoEstados } from "@/tests/fixtures/catalogo-estados";
 import type { IWalletIndemnizacionFeedService } from "@/lib/interfaces/services/IWalletIndemnizacionFeedService";
 import { APLICACION_GESTIONES } from "@/tests/fixtures/anclaje-devolucion";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 38 — tests unit del CierresAdminRepository (mockea Prisma, sin DB real,
 // patron cierre-dia-repository.test.ts). Cubre R2/R4/R5 (findCierresByAlcance con
@@ -411,7 +412,7 @@ describe("CierresAdminRepository.findCierreByIdEnAlcance (R6/R13)", () => {
     expect(byId["g-man"]).toBe(false);
   });
 
-  it("deriva el desglose del ingreso de Ordenex de la TARIFA CONGELADA, con la fórmula de las wallets", async () => {
+  it(`deriva el desglose del ingreso de ${NOMBRE_ESPERADO} de la TARIFA CONGELADA, con la fórmula de las wallets`, async () => {
     const prisma = buildPrisma();
     prisma.cierreDia.findFirst.mockResolvedValue(cierreResumenRow());
     prisma.gestionOrden.findMany.mockResolvedValue([gestionRow({ resultado: "entregado" })]);
