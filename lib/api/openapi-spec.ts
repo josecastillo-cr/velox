@@ -1481,7 +1481,7 @@ export const openApiSpec = {
         required: ["flete", "iva", "comision", "ivaComision", "fulfillment"],
         additionalProperties: false,
         description:
-          "Los CINCO conceptos que Ordenex factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes en texto crudo con dos decimales y punto decimal, sin símbolo de moneda y sin separador de miles (`\"2500.00\"`) — el mismo dialecto que la cotización y el `costoEnvio` de la carga. Un `\"0.00\"` es un CERO AFIRMADO (por ejemplo, una orden que no cobra comisión), nunca un dato faltante: dentro de este objeto ningún concepto es `null` y ninguno se omite. **NO hay ningún campo que sume los cinco, ni `total` ni equivalente**: sumalos vos, que sabés qué estás sumando.",
+          `Los CINCO conceptos que ${MARCA.nombre} factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes en texto crudo con dos decimales y punto decimal, sin símbolo de moneda y sin separador de miles (\`\"2500.00\"\`) — el mismo dialecto que la cotización y el \`costoEnvio\` de la carga. Un \`\"0.00\"\` es un CERO AFIRMADO (por ejemplo, una orden que no cobra comisión), nunca un dato faltante: dentro de este objeto ningún concepto es \`null\` y ninguno se omite. **NO hay ningún campo que sume los cinco, ni \`total\` ni equivalente**: sumalos vos, que sabés qué estás sumando.`,
         properties: {
           flete: { type: "string", description: "Flete del envío." },
           iva: { type: "string", description: "IVA del flete." },
@@ -2001,7 +2001,7 @@ export const openApiSpec = {
           "ambiguo, distrito sin zona asignada, algún nivel de la terna RETIRADO del catálogo, o",
           "`monto_cobrar` con formato inválido.",
           "",
-          "RETIRADO DEL CATÁLOGO (desde 2026-09-06). Ordenex puede retirar una provincia, un cantón",
+          `RETIRADO DEL CATÁLOGO (desde 2026-09-06). ${MARCA.nombre} puede retirar una provincia, un cantón`,
           "o un distrito sin borrarlo: deja de admitirse en cargas y cotizaciones nuevas, y las",
           "órdenes que ya lo referencian no se tocan. La fila sale con `resultado: \"error\"` y un",
           "mensaje PROPIO, distinto de «no encontrado» y de «ambiguo», para que no lo confundas con",
