@@ -5874,13 +5874,13 @@
       "title": "WhatsApp: mensajes entrantes de clientes con nombre de usuario",
       "description": "Aceptar en el webhook los mensajes de clientes que tienen activo el nombre de usuario de WhatsApp: llegan con `from_user_id` y sin `from` (teléfono), y hoy se descartan.",
       "zone": "backend",
-      "status": "spec_ready",
+      "status": "cancelled",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/491-whatsapp-entrantes-username",
       "branch": "feat/491-whatsapp-entrantes-username",
-      "status_note": "Spec en specs/491-whatsapp-entrantes-username/ (13 requisitos). Medido: un entrante sin `from` hace fallar el parse del payload entero; el route responde 200 sin llamar al service y se pierden también los demás mensajes y los statuses del lote. Propuesta mínima: `from` opcional, validación por elemento, descarte visible (log `[whatsapp]` + conteos `sinTelefono`/`invalidos`), BSUID redactado en logs. Sin migración ni envío por `recipient`. Doc de Meta resumida en progress/research_491_bsuid.md. Pendiente del humano: P1–P4."
+      "status_note": "CANCELADA POR EL HUMANO el 2026-11-02, tras ver P1 (cómo asociar un entrante sin teléfono) y la propuesta de libreta BSUID↔teléfono: «quiero cancelar mejor esta ficha, no la hagamos». No reproponer. El spec queda como registro de lo medido. Riesgo aceptado: un entrante sin `from` sigue tumbando el lote entero del webhook (mensajes y statuses). Spec en specs/491-whatsapp-entrantes-username/ (13 requisitos). Medido: un entrante sin `from` hace fallar el parse del payload entero; el route responde 200 sin llamar al service y se pierden también los demás mensajes y los statuses del lote. Propuesta mínima: `from` opcional, validación por elemento, descarte visible (log `[whatsapp]` + conteos `sinTelefono`/`invalidos`), BSUID redactado en logs. Sin migración ni envío por `recipient`. Doc de Meta resumida en progress/research_491_bsuid.md. Pendiente del humano: P1–P4."
     },
     {
       "id": 492,
