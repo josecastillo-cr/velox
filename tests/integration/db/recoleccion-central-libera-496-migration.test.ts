@@ -86,7 +86,7 @@ async function fila(
   });
 }
 
-/** asignacion_recoleccion (maestro) -> recoleccion_tienda (`mensajero`) -> recepcion desde en_ruta. */
+/** asignacion_recoleccion (maestro) -> recoleccion_tienda (`mensajero`) -> recepcion desde en_ruta_bodega_central. */
 async function recorridoCompleto(tx: TxDeTest, base: BaseSembrada, ordenId: string, mensajero: string): Promise<void> {
   await fila(tx, base, ordenId, "por_recolectar_en_tienda", "recolectando", "asignacion_recoleccion", base.maestro, "08:00");
   await fila(tx, base, ordenId, "recolectando", "en_ruta_bodega_central", "recoleccion_tienda", mensajero, "09:00");
@@ -105,7 +105,7 @@ async function sembrar(tx: TxDeTest, conObjetivo = true): Promise<Sembrado> {
   const m1 = base.mensajero1;
   const hermanas: Record<string, string> = {};
 
-  // (a) Recepción desde en_ruta como PRIMERA fila, y una fila POSTERIOR de otro tipo: la última no es
+  // (a) Recepción desde en_ruta_bodega_central como PRIMERA fila, y una fila POSTERIOR de otro tipo: la última no es
   //     la recepción. (Recepción primero a propósito: un `DISTINCT ON … ASC` la tomaría por objetivo.)
   hermanas.a = await crearOrden(tx, base, { clave: "a-posterior", estatus: "en_bodega_central", mensajeroId: m1 });
   await fila(tx, base, hermanas.a, "en_ruta_bodega_central", "en_bodega_central", "recepcion_bodega_central", base.maestro, "10:00");
@@ -124,7 +124,7 @@ async function sembrar(tx: TxDeTest, conObjetivo = true): Promise<Sembrado> {
   });
   await recorridoCompleto(tx, base, hermanas.c, m1);
 
-  // (d) Sin mensajero y sin `recoleccion_tienda`: la última fila es la recepción desde en_ruta
+  // (d) Sin mensajero y sin `recoleccion_tienda`: la última fila es la recepción desde en_ruta_bodega_central
   //     (llegó por otra vía, p. ej. reversión de incidente). El down no tiene a quién reponer.
   hermanas.d = await crearOrden(tx, base, { clave: "d-sin-recoleccion", estatus: "en_bodega_central", mensajeroId: null });
   await fila(tx, base, hermanas.d, "en_ruta_bodega_central", "en_bodega_central", "recepcion_bodega_central", base.maestro, "10:00");
