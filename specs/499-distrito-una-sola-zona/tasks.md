@@ -35,7 +35,7 @@
   `ZonaRepository.ts:702-707`. Borrar el script.
 
   *Hecho:* la forma queda anotada. Depende de B.1.
-- [ ] **B.3 Test de migración** `tests/integration/db/zona-distrito-499-migration.test.ts`. Sigue el patrón
+- [x] **B.3 Test de migración** `tests/integration/db/zona-distrito-499-migration.test.ts`. Sigue el patrón
   de `iva-488-migration.test.ts`: lee los `.sql` del disco y los corre dentro de la transacción del test con
   `SAVEPOINT`, y se quita el índice dentro de la transacción para poder sembrar duplicados. Casos:
   - (a) dos zonas, una central: queda la no central (R2);
