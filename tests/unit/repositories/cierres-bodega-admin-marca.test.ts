@@ -63,6 +63,8 @@ interface OpcionesDoble {
 
 function buildPrisma(opciones: OpcionesDoble = {}) {
   const updateMany = vi.fn(async (_args: ArgsUpdateMany) => ({ count: opciones.count ?? 1 }));
+  // FICHA 498 (fixture): `esperadoReglaAnterior: null` = no saldada con la regla anterior. Revertir lo
+  // lee (revision m2); una fila de la base siempre trae la columna.
   const findUnique = vi.fn(async () =>
     opciones.fila === undefined
       ? {
@@ -70,8 +72,11 @@ function buildPrisma(opciones: OpcionesDoble = {}) {
           montoRecibido: new Prisma.Decimal("485.00"),
           solicitadoAt: new Date("2026-09-10T12:00:00.000Z"),
           zona: { nombre: "Cartago" },
+          esperadoReglaAnterior: null,
         }
-      : opciones.fila,
+      : opciones.fila === null
+        ? null
+        : { esperadoReglaAnterior: null, ...opciones.fila },
   );
   const count = vi.fn(async () => opciones.existe ?? 1);
   const createMany = vi.fn(async (_args: { data: FilaHistorial[] }) => ({ count: 1 }));
