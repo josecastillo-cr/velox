@@ -120,3 +120,64 @@ describe("238 — lo que el borde RECHAZA por su forma", () => {
     ).toBe(false);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 497 (T3.4, R13/R18/R19) — el borde acepta tambien la entrada de BARRIDA, por su clave.
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+const ORDEN = "55555555-5555-4555-8555-555555555555";
+
+describe("497 — la entrada de barrida `{ ordenId, numGuia }`", () => {
+  it("acepta ordenId uuid + numGuia entero positivo, y la conserva tal cual", () => {
+    const r = aprobarCierreSchema.safeParse({
+      cierreId: CIERRE,
+      confirmacionFisica: [
+        { gestionId: GESTION, numGuia: 9001 },
+        { ordenId: ORDEN, numGuia: 7001 },
+      ],
+    });
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.confirmacionFisica).toEqual([
+        { gestionId: GESTION, numGuia: 9001 },
+        { ordenId: ORDEN, numGuia: 7001 },
+      ]);
+    }
+  });
+
+  it("R19: la entrada de gestion conserva EXACTAMENTE su forma (mismo payload que antes)", () => {
+    const r = confirmacionFisicaSchema.safeParse({ gestionId: GESTION, numGuia: 9001 });
+    expect(r.success).toBe(true);
+    if (r.success) expect(r.data).toEqual({ gestionId: GESTION, numGuia: 9001 });
+  });
+
+  it("R13: una entrada con las DOS claves es error de forma (no se recorta a una)", () => {
+    expect(
+      confirmacionFisicaSchema.safeParse({ gestionId: GESTION, ordenId: ORDEN, numGuia: 9001 })
+        .success,
+    ).toBe(false);
+  });
+
+  it("una entrada con una clave EXTRA desconocida se rechaza (`.strict()` en las dos ramas)", () => {
+    expect(
+      confirmacionFisicaSchema.safeParse({ gestionId: GESTION, numGuia: 9001, origen: "gestion" })
+        .success,
+    ).toBe(false);
+    expect(
+      confirmacionFisicaSchema.safeParse({ ordenId: ORDEN, numGuia: 7001, origen: "barrida" })
+        .success,
+    ).toBe(false);
+  });
+
+  it("una barrida con `ordenId` no uuid, o con guia no entera/positiva, se rechaza", () => {
+    expect(confirmacionFisicaSchema.safeParse({ ordenId: "no-uuid", numGuia: 7001 }).success).toBe(false);
+    expect(confirmacionFisicaSchema.safeParse({ ordenId: ORDEN, numGuia: 0 }).success).toBe(false);
+    expect(confirmacionFisicaSchema.safeParse({ ordenId: ORDEN, numGuia: 1.5 }).success).toBe(false);
+    expect(confirmacionFisicaSchema.safeParse({ ordenId: ORDEN }).success).toBe(false);
+  });
+
+  it("R18: sin el campo, el default sigue siendo la lista VACIA", () => {
+    const r = aprobarCierreSchema.safeParse({ cierreId: CIERRE });
+    expect(r.success && r.data.confirmacionFisica).toEqual([]);
+  });
+});
