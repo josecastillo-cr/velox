@@ -5394,11 +5394,11 @@
       "title": "las ordenes sin gestionar de un cierre vencido no se piden escanear para recibirlo",
       "description": "Los paquetes sin gestionar de un cierre vencido se reciben sin confirmar que estan delante.",
       "zone": "fullstack",
-      "status": "pending",
+      "status": "cancelled",
       "sdd": true,
       "complexity": "media",
       "depends_on": 238,
-      "status_note": "PEDIDA POR EL HUMANO el 2026-09-21. La ventana de confirmacion fisica de un cierre se construye desde GESTIONES, filtrando por RESULTADOS_QUE_VUELVEN (reprogramada, devuelta, rechazada). Una orden SIN GESTIONAR no tiene resultado, asi que no existe en esa lista y nadie la escanea —aunque al aprobar, la liberacion de la feature 109 SI la manda a bodega en la misma transaccion: el sistema la da por recibida sin pedir prueba. || MEDIDO CONTRA PRODUCCION el 2026-09-21: 185 filas en cierre_sin_gestion, en 14 cierres, 174 ordenes distintas, del 2026-08-27 al 2026-09-19. Los 14 cierres estan TODOS aprobados. En ellos se escanearon 50 paquetes y NO se escanearon 185: el 78,7% del bulto que volvia a bodega se aprobo sin que nadie confirmara tenerlo delante. Y num_guia nulo: CERO, o sea que hoy todas son escaneables. || DECISION DEL HUMANO (2026-09-21): se escanean igual que reprogramadas, devueltas y rechazadas, y mientras falte uno el cierre NO se aprueba. Misma regla, sin salida de emergencia. || DOS PUNTOS DELICADOS PARA EL SPEC. (1) El punto unico de 'que vuelve a bodega' es hoy un Record<GestionResultado, boolean> exhaustivo a proposito (si el enum crece, el repo no compila). Una orden sin gestionar NO es un GestionResultado, asi que no cabe dentro: hay que extender el concepto a dos origenes —gestiones y barridas— SIN crear una segunda lista suelta, porque ya existe una guardia que persigue esas copias. (2) cierre_sin_gestion.num_guia admite NULL: hoy hay cero, pero si aparece uno ese cierre seria imposible de aprobar. Reusar el criterio ya resuelto para las gestiones sin guia: avisar ANTES de empezar a escanear, no dejar que bodega descubra el bloqueo al final. || La tabla ya guarda num_guia, num_remision, destinatario, producto y tienda congelados, y la pantalla ya las muestra en la factura del cierre: el dato para escanear esta, falta exigirlo."
+      "status_note": "CANCELADA el 2026-11-02 por el humano: sustituida por la 497 (mismo defecto, spec previo a la 455 con rótulo retirado). PEDIDA POR EL HUMANO el 2026-09-21. La ventana de confirmacion fisica de un cierre se construye desde GESTIONES, filtrando por RESULTADOS_QUE_VUELVEN (reprogramada, devuelta, rechazada). Una orden SIN GESTIONAR no tiene resultado, asi que no existe en esa lista y nadie la escanea —aunque al aprobar, la liberacion de la feature 109 SI la manda a bodega en la misma transaccion: el sistema la da por recibida sin pedir prueba. || MEDIDO CONTRA PRODUCCION el 2026-09-21: 185 filas en cierre_sin_gestion, en 14 cierres, 174 ordenes distintas, del 2026-08-27 al 2026-09-19. Los 14 cierres estan TODOS aprobados. En ellos se escanearon 50 paquetes y NO se escanearon 185: el 78,7% del bulto que volvia a bodega se aprobo sin que nadie confirmara tenerlo delante. Y num_guia nulo: CERO, o sea que hoy todas son escaneables. || DECISION DEL HUMANO (2026-09-21): se escanean igual que reprogramadas, devueltas y rechazadas, y mientras falte uno el cierre NO se aprueba. Misma regla, sin salida de emergencia. || DOS PUNTOS DELICADOS PARA EL SPEC. (1) El punto unico de 'que vuelve a bodega' es hoy un Record<GestionResultado, boolean> exhaustivo a proposito (si el enum crece, el repo no compila). Una orden sin gestionar NO es un GestionResultado, asi que no cabe dentro: hay que extender el concepto a dos origenes —gestiones y barridas— SIN crear una segunda lista suelta, porque ya existe una guardia que persigue esas copias. (2) cierre_sin_gestion.num_guia admite NULL: hoy hay cero, pero si aparece uno ese cierre seria imposible de aprobar. Reusar el criterio ya resuelto para las gestiones sin guia: avisar ANTES de empezar a escanear, no dejar que bodega descubra el bloqueo al final. || La tabla ya guarda num_guia, num_remision, destinatario, producto y tienda congelados, y la pantalla ya las muestra en la factura del cierre: el dato para escanear esta, falta exigirlo."
     },
     {
       "id": 452,
@@ -5926,26 +5926,26 @@
       "title": "Fechas de cierre en hora de Costa Rica",
       "description": "Las fechas de solicitud, resolución y conciliación de cierres (tarjetas, comprobantes y descargas) usan el día calendario de Costa Rica en vez de recortar el ISO en UTC; guardia contra slice(0, 10) en pantallas de cierres.",
       "zone": "frontend",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "small",
       "depends_on": null,
       "spec_path": "specs/495-fechas-cierre-hora-cr",
       "branch": "fix/495-fechas-cierre-hora-cr",
-      "status_note": "Registrada el 2026-11-02: bloque 1 de H5 de progress/prompt-hotfix-portable.md, adelantado por decisión del humano. Inventario: progress/inventario_hotfix_H2_H3_H5.md §3 (fechaCalendarioCR ya existe; slice en cierre-factura.tsx y CierreDiaModule.tsx). Ramas desde dev, gate --rapido, sale con la próxima release (decisión del humano)."
+      "status_note": "Spec aprobado el 2026-11-02 (9 requisitos) con AMPLIACIÓN del humano: incluye los 4 sitios de /incidentes (IncidentesAdminModule, IncidentesHistoricoTabla) y la guardia cubre también esa ruta. En implementación. Registrada el 2026-11-02: bloque 1 de H5 de progress/prompt-hotfix-portable.md, adelantado por decisión del humano. Inventario: progress/inventario_hotfix_H2_H3_H5.md §3 (fechaCalendarioCR ya existe; slice en cierre-factura.tsx y CierreDiaModule.tsx). Ramas desde dev, gate --rapido, sale con la próxima release (decisión del humano)."
     },
     {
       "id": 496,
       "title": "Recolección recibida en central libera al mensajero",
       "description": "Al recibir en bodega central una orden que viene de recolección, se limpia la asignación del mensajero para que salga en «Reasignables» y no cuente en Monitoreo; la devolución conserva el mensajero.",
       "zone": "backend",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/496-recoleccion-central-libera-mensajero",
       "branch": "fix/496-recoleccion-central-libera-mensajero",
-      "status_note": "Registrada el 2026-11-02: H1 de progress/prompt-hotfix-portable.md. El humano REVOCA la R18 de la spec 138 para en_ruta_bodega_central → en_bodega_central. Inventario: progress/inventario_hotfix_H1_H4.md. Medido en prod (solo lectura): la migración de datos sale vacía; se escribe igual con down.sql. Ramas desde dev, gate --rapido, sale con la próxima release."
+      "status_note": "Spec aprobado el 2026-11-02 (17 requisitos); incluye la liberación también cuando la orden vuelve a en_ruta_bodega_central por reversión de incidente. En implementación. Registrada el 2026-11-02: H1 de progress/prompt-hotfix-portable.md. El humano REVOCA la R18 de la spec 138 para en_ruta_bodega_central → en_bodega_central. Inventario: progress/inventario_hotfix_H1_H4.md. Medido en prod (solo lectura): la migración de datos sale vacía; se escribe igual con down.sql. Ramas desde dev, gate --rapido, sale con la próxima release."
     },
     {
       "id": 497,
@@ -5958,7 +5958,7 @@
       "depends_on": null,
       "spec_path": "specs/497-confirmacion-fisica-sin-gestion",
       "branch": "fix/497-confirmacion-fisica-sin-gestion",
-      "status_note": "Registrada el 2026-11-02: H2 de progress/prompt-hotfix-portable.md; extiende la feature 238. Inventario: progress/inventario_hotfix_H2_H3_H5.md §1. Puerta medida en prod: hay un cierre en cola con barridas, todas con guía; el humano ya avisó a bodega de que deberá escanearlas. Ramas desde dev, gate --rapido, sale con la próxima release."
+      "status_note": "Spec aprobado el 2026-11-02 (41 requisitos); la guardia aprobacion-escrituras-cubiertas recibe una entrada nueva (decisión del leader). Espera hueco fullstack. Registrada el 2026-11-02: H2 de progress/prompt-hotfix-portable.md; extiende la feature 238. Inventario: progress/inventario_hotfix_H2_H3_H5.md §1. Puerta medida en prod: hay un cierre en cola con barridas, todas con guía; el humano ya avisó a bodega de que deberá escanearlas. Ramas desde dev, gate --rapido, sale con la próxima release."
     },
     {
       "id": 498,
@@ -5978,13 +5978,13 @@
       "title": "Un distrito en una sola zona",
       "description": "Bloquear en selector, servicio y base que un distrito quede en dos zonas: índice único (distrito_id) en zona_distrito, error de validación con los conflictos, árbol con todas las zonas del distrito y preselección correcta al editar.",
       "zone": "fullstack",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/499-distrito-una-sola-zona",
       "branch": "fix/499-distrito-una-sola-zona",
-      "status_note": "Registrada el 2026-11-02: H4 de progress/prompt-hotfix-portable.md. Inventario: progress/inventario_hotfix_H1_H4.md. Sin multiempresa: índice UNIQUE (distrito_id) global, sin requisitos de otra empresa ni RLS. Medido en prod: 0 duplicados, la limpieza sale vacía (se escribe igual con respaldo y down.sql). Reescribir los 4 tests que siembran un distrito en dos zonas; varias_zonas se queda como defensa. Ramas desde dev, gate --rapido."
+      "status_note": "Spec aprobado el 2026-11-02 (25 requisitos). En implementación (backend_dev → frontend_dev). Migraciones: renombrar si chocan con la 497. Registrada el 2026-11-02: H4 de progress/prompt-hotfix-portable.md. Inventario: progress/inventario_hotfix_H1_H4.md. Sin multiempresa: índice UNIQUE (distrito_id) global, sin requisitos de otra empresa ni RLS. Medido en prod: 0 duplicados, la limpieza sale vacía (se escribe igual con respaldo y down.sql). Reescribir los 4 tests que siembran un distrito en dos zonas; varias_zonas se queda como defensa. Ramas desde dev, gate --rapido."
     },
     {
       "id": 500,
