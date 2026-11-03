@@ -145,6 +145,20 @@ const ESCRITURAS_DE_LA_APROBACION = [
       "mensajero (rama `aBodega` y rama `enElTope`); incidente BLST-765.",
     cubiertaPor: ["tests/integration/db/484-puntero-aprobacion-sql-real.test.ts"],
   },
+  {
+    // FICHA 497 (T3.3, design §5.4/§8, Q2 aceptada por el leader el 2026-11-02) — LA MARCA DE
+    // CONFIRMACION FISICA DE LAS BARRIDAS. Escritura NUEVA de la transaccion, pegada a la de la 238
+    // y despues de los cinco feeds de dinero. Cambio SOLO ADITIVO: una entrada y un caso nuevos.
+    escritura: "tx.cierreSinGestion.updateMany",
+    que:
+      "la marca `confirmada_fisica_at` de las barridas (`cierre_sin_gestion`) confirmadas al " +
+      "aprobar, guardada por `(cierreId, ordenId IN ordenIds)`, `data` con una sola clave y fallo " +
+      "cerrado por `count`. Sin dinero ni datos congelados.",
+    cubiertaPor: [
+      "tests/unit/repositories/cierres-admin-confirmacion-fisica.test.ts",
+      "tests/integration/db/497-confirmacion-barridas-sql-real.test.ts",
+    ],
+  },
 ] as const;
 
 /**
@@ -281,6 +295,19 @@ describe("239/R33 — el inventario de escrituras de la aprobacion esta CERRADO"
     expect(suite).toContain("ConfirmacionFisicaNoAplicableError");
     expect(suite).toMatch(/TESTIGO del `cierreId`/);
     expect(suite).toMatch(/TESTIGO del `resultado`/);
+  });
+
+  it("497/T3.3: la suite que NOMBRA la marca de las barridas la afirma de verdad", () => {
+    // Molde del caso 238/T3.7: la suite citada tiene que mirar el `where` de la escritura nueva, su
+    // guarda de cierre (caso testigo) y la clave escrita, no solo atravesarla.
+    const suite = fs.readFileSync(
+      path.join(REPO_ROOT, "tests/unit/repositories/cierres-admin-confirmacion-fisica.test.ts"),
+      "utf8",
+    );
+    expect(suite).toContain("cierreSinGestion.updateMany");
+    expect(suite).toMatch(/TESTIGO del `cierreId` de la barrida/);
+    expect(suite).toMatch(/where\)\.toEqual\(\{ cierreId: "c1", ordenId: \{ in: \[/);
+    expect(suite).toMatch(/Object\.keys\(data\)\)\.toEqual\(\["confirmadaFisicaAt"\]\)/);
   });
 
   it("454/T1.7: las escrituras en SQL crudo declaradas siguen en el repositorio, citan suites que existen, y no hay otras", () => {
