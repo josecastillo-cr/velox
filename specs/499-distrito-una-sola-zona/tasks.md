@@ -66,7 +66,7 @@
     lista vacía.
 
   *Hecho:* B.0 (i) y (ii) en **verde**. M1, M2 y M3 en rojo. Depende de B.4.
-- [ ] **B.6 Service** (design §3.2). Mapear `distrito_en_otra_zona` en `crear` y `actualizar`. Ordenar con el
+- [x] **B.6 Service** (design §3.2). Mapear `distrito_en_otra_zona` en `crear` y `actualizar`. Ordenar con el
   comparador español. Constante del mensaje de recarga. Unitario `tests/unit/services/zona-service-499.test.ts`:
   - tres conflictos desordenados salen ordenados, con tildes y mayúsculas mezcladas (R11);
   - `conflictos: null` da solo el mensaje de recarga (R13);
