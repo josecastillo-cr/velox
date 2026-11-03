@@ -59,3 +59,47 @@ export const RESULTADOS_QUE_VUELVEN: readonly GestionResultado[] = (
 export function vuelveABodega(resultado: GestionResultado): boolean {
   return RETORNA_A_BODEGA[resultado];
 }
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 497 (design §3, R1-R4) — EL SEGUNDO EJE: DE DONDE SALE EL PAQUETE.
+//
+// El cierre pone delante de bodega paquetes de DOS origenes: las GESTIONES del cierre (lo de arriba)
+// y las BARRIDAS —ordenes que el corte diario paso a `novedad_interna` al crear el cierre y que
+// quedaron en `cierre_sin_gestion` con su guia congelada (264)—. Una barrida NO es un
+// `GestionResultado`: meterla en `RETORNA_A_BODEGA` obligaria a relajar su `satisfies` (y un
+// resultado nuevo caeria en `undefined` en silencio). Por eso es un eje APARTE, igual de exhaustivo,
+// que DELEGA en el primero en vez de copiarlo. Nada de lo de arriba cambia.
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+/** Ficha 497 — de donde sale una fila que el cierre pone delante de bodega. */
+export type OrigenDelPaquete = "gestion" | "barrida";
+
+/**
+ * Ficha 497 (R1/R3) — QUE VUELVE, POR ORIGEN. Exhaustivo a proposito: un tercer origen no compila
+ * hasta que alguien decida si su paquete vuelve. `gestion` DELEGA en `RETORNA_A_BODEGA` (no copia
+ * sus valores); `barrida` vuelve SIEMPRE (decision H2 adoptada por el humano el 2026-11-02: se
+ * escanean igual que reprogramadas, devoluciones y rechazos).
+ */
+export const RETORNO_POR_ORIGEN = {
+  gestion: "segun_resultado",
+  barrida: "siempre",
+} as const satisfies Record<OrigenDelPaquete, "siempre" | "nunca" | "segun_resultado">;
+
+export type PaqueteDelCierre =
+  | { readonly origen: "gestion"; readonly resultado: GestionResultado }
+  | { readonly origen: "barrida" };
+
+/**
+ * Ficha 497 (R1) — ¿el paquete de esta fila vuelve a bodega? La consultan el servicio (cobertura
+ * exacta) y la ventana de confirmacion: ninguno decide por su cuenta (R4). El `switch` va SIN
+ * `default`: con el tipo de retorno `boolean`, un origen nuevo deja un camino sin `return` y el
+ * typecheck se pone rojo (R3).
+ */
+export function vuelveABodegaElPaquete(p: PaqueteDelCierre): boolean {
+  switch (p.origen) {
+    case "gestion":
+      return vuelveABodega(p.resultado);
+    case "barrida":
+      return RETORNO_POR_ORIGEN.barrida === "siempre";
+  }
+}
