@@ -8,6 +8,7 @@ import { createElement } from "react";
 import { CajaResumenCard } from "@/app/(app)/wallet/_components/CajaResumenCard";
 import type { CajaResumenDTO } from "@/lib/types/wallet";
 import { quitarComentarios } from "@/tests/fixtures/sin-comentarios";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // GUARDIA — FICHA 459 (T A.7, design §3.3 y §12.3) — LOS TEXTOS DE LA CAJA NO MIENTEN
@@ -37,7 +38,7 @@ const RAIZ = path.resolve(__dirname, "../../..");
 const TEXTOS_RETIRADOS: readonly string[] = [
   // `CAJA_RESUMEN_AVISO_TERCEROS` de la 173 (R34 de la 173 → prohibido por R24).
   "No es lo que se les debe a las tiendas",
-  "porque de este dinero Ordenex todavía",
+  `porque de este dinero ${NOMBRE_ESPERADO} todavía`,
   // `CAJA_RESUMEN_LABEL.enCajaPista` de la 173.
   "Todo lo que entró y salió, incluido",
   // La pista del KPI de la analítica, gemela de la de arriba.
@@ -74,7 +75,7 @@ export const CAJA_RESUMEN_LABEL = {
   deTerceros: "Contra-entrega cobrado y aún no entregado a las tiendas",
 } as const;
 export const CAJA_RESUMEN_AVISO_TERCEROS =
-  "No es lo que se les debe a las tiendas: es más, porque de este dinero Ordenex todavía " +
+  "No es lo que se les debe a las tiendas: es más, porque de este dinero ${NOMBRE_ESPERADO} todavía " +
   "descuenta el flete, la comisión y el impuesto. La deuda exacta de cada tienda está en " +
   "Wallet → Tiendas.";
 `;

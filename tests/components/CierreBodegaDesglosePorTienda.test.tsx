@@ -98,6 +98,7 @@ import { CierresBodegaAdminModule } from "@/app/(app)/cierres-admin/_components/
 import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
 
 import { marcaSinConciliar } from "@/tests/fixtures/marca-conciliacion";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // ---------------------------------------------------------------------------
 // Lectura de lo PINTADO
 // ---------------------------------------------------------------------------
@@ -594,14 +595,14 @@ describe("396 · D3 — con dos mensajeros y dos tiendas, el desglose está en L
     expect(
       vaAntes(
         desgloseDe(DE_BODEGA),
-        screen.getByRole("region", { name: "Ingreso de Ordenex del cierre de bodega" }),
+        screen.getByRole("region", { name: `Ingreso de ${NOMBRE_CORTO_ESPERADO} del cierre de bodega` }),
       ),
     ).toBe(true);
     expect(vaAntes(duenoDe("Ana Mensajera"), desgloseDe("Ana Mensajera"))).toBe(true);
     expect(
       vaAntes(
         desgloseDe("Ana Mensajera"),
-        screen.getByRole("region", { name: "Ingreso de Ordenex · Ana Mensajera" }),
+        screen.getByRole("region", { name: `Ingreso de ${NOMBRE_CORTO_ESPERADO} · Ana Mensajera` }),
       ),
     ).toBe(true);
   });

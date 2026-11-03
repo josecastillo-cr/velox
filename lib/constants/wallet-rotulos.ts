@@ -1,3 +1,4 @@
+import { MARCA } from "@/lib/marca/identidad";
 import type { WalletMovimientoCategoria, WalletOrigenTipo } from "@/lib/types/wallet";
 
 // Ficha 458-A (revision m2) — los ROTULOS de la wallet que lee el SERVIDOR.
@@ -34,29 +35,29 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   ingreso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda",
   ingreso_iva_comision_cod: "IVA de la comisión cobrado a la tienda",
   // El cobro de Ordenex a una tienda (cargo, liquidez «cargo») y su reverso.
-  ingreso_cobro_tienda: "Ordenex le cobra a una tienda",
+  ingreso_cobro_tienda: `${MARCA.nombre} le cobra a una tienda`,
   egreso_reverso_cobro_tienda: "Cobro a una tienda anulado",
   // Ficha 458-B (design §2.3, D7): la anulación de un cobro por rechazo, flete e IVA por separado.
   egreso_reverso_flete_devolucion: "Flete por devolución a origen cobrado a la tienda anulado",
   egreso_reverso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda anulado",
   // El dinero de las tiendas que pasa por la caja.
   ingreso_cod_recaudado: "Contra-entrega cobrado a los clientes de la tienda",
-  egreso_pago_tienda: "Ordenex le paga a una tienda",
+  egreso_pago_tienda: `${MARCA.nombre} le paga a una tienda`,
   ingreso_reverso_pago_tienda: "Pago a una tienda anulado",
-  egreso_pago_por_cuenta_tienda: "Ordenex paga un gasto de una tienda",
+  egreso_pago_por_cuenta_tienda: `${MARCA.nombre} paga un gasto de una tienda`,
   ingreso_reverso_pago_por_cuenta_tienda: "Pago de un gasto de una tienda anulado",
   // Ficha 457 (design §2, DH7): el pago de una tienda a Ordenex (nombre reservado por la 461 §7.8,
   // tomado aqui) y su anulacion.
-  ingreso_abono_tienda: "Una tienda le paga a Ordenex",
-  egreso_reverso_abono_tienda: "Pago de una tienda a Ordenex anulado",
+  ingreso_abono_tienda: `Una tienda le paga a ${MARCA.nombre}`,
+  egreso_reverso_abono_tienda: `Pago de una tienda a ${MARCA.nombre} anulado`,
   // Lo que Ordenex gasta.
-  egreso_pago_mensajero: "Ordenex le paga a un mensajero",
+  egreso_pago_mensajero: `${MARCA.nombre} le paga a un mensajero`,
   egreso_sueldo: "Sueldo",
-  egreso_gasto_variable: "Gasto de Ordenex",
-  egreso_gasto_fijo: "Gasto fijo de Ordenex",
+  egreso_gasto_variable: `Gasto de ${MARCA.nombreCorto}`,
+  egreso_gasto_fijo: `Gasto fijo de ${MARCA.nombreCorto}`,
   // Categoría RESERVADA, sin escritor en el árbol: si aparece, alguien empezó a escribirla.
-  egreso_gasto: "Otro gasto de Ordenex",
-  egreso_indemnizacion: "Indemnización que Ordenex paga por un incidente",
+  egreso_gasto: `Otro gasto de ${MARCA.nombreCorto}`,
+  egreso_indemnizacion: `Indemnización que ${MARCA.nombre} paga por un incidente`,
   // Las correcciones de caja (antes «ajustes») y el capital de Ordenex.
   ingreso_ajuste: "Corrección de caja (suma)",
   egreso_ajuste: "Corrección de caja (resta)",
@@ -79,8 +80,8 @@ export const ORIGEN_LABEL: Record<WalletOrigenTipo, string> = {
   cierre_dia: "Cierre del día",
   gestion_orden: "Gestión de orden",
   manual: "Registrado a mano",
-  pago_tienda: "Pago de Ordenex a una tienda",
-  pago_mensajero: "Pago de Ordenex a un mensajero",
+  pago_tienda: `Pago de ${MARCA.nombre} a una tienda`,
+  pago_mensajero: `Pago de ${MARCA.nombre} a un mensajero`,
   gasto: "Gasto o sueldo registrado a mano",
   // Feature 158/R37: origen del egreso de indemnizacion del camino del ADMIN. Sigue la forma
   // del hermano `gestion_orden` ("Gestión de orden"): nombra la ENTIDAD que origina el
@@ -93,10 +94,10 @@ export const ORIGEN_LABEL: Record<WalletOrigenTipo, string> = {
   aporte_capital: "Aporte de dinero a la caja",
   cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
   // El cargo del cobro y su reverso (servicio) y la linea completada por la migracion de datos (R37).
-  cobro_tienda: "Cobro de Ordenex a una tienda",
-  cobro_tienda_completado: "Cobro de Ordenex a una tienda (línea de caja completada al corregir)",
+  cobro_tienda: `Cobro de ${MARCA.nombre} a una tienda`,
+  cobro_tienda_completado: `Cobro de ${MARCA.nombre} a una tienda (línea de caja completada al corregir)`,
   // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
-  abono_tienda: "Pago de una tienda a Ordenex",
+  abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
 };
 
 /**
@@ -115,21 +116,21 @@ export const ORIGEN_LABEL: Record<WalletOrigenTipo, string> = {
  */
 export const ORIGEN_TIENDA_LABEL: Record<WalletOrigenTipo, string> = {
   cierre_dia: "Cierre del día",
-  pago_tienda: "Pago de Ordenex a una tienda",
+  pago_tienda: `Pago de ${MARCA.nombre} a una tienda`,
   manual: "Registrado a mano",
   gestion_orden: "Gestión de orden",
   pago_por_cuenta_tienda: "Pago de un gasto de una tienda",
-  cobro_tienda: "Cobro de Ordenex a una tienda",
+  cobro_tienda: `Cobro de ${MARCA.nombre} a una tienda`,
   // Ficha 457 (design §2/§4.2): el MISMO texto que `ORIGEN_LABEL` en la caja.
-  abono_tienda: "Pago de una tienda a Ordenex",
+  abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
   // Ficha 458-A (TA.2): los origenes que hoy no escriben en este libro, con el texto de la caja.
-  pago_mensajero: "Pago de Ordenex a un mensajero",
+  pago_mensajero: `Pago de ${MARCA.nombre} a un mensajero`,
   gasto: "Gasto o sueldo registrado a mano",
   orden_incidente: "Incidente de orden",
   ranking_snapshot_fila: "Premio del ranking",
   aporte_capital: "Aporte de dinero a la caja",
   cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
-  cobro_tienda_completado: "Cobro de Ordenex a una tienda (línea de caja completada al corregir)",
+  cobro_tienda_completado: `Cobro de ${MARCA.nombre} a una tienda (línea de caja completada al corregir)`,
 };
 
 /**
@@ -142,21 +143,21 @@ export const ORIGEN_TIENDA_LABEL: Record<WalletOrigenTipo, string> = {
  */
 export const ORIGEN_PAGO_LABEL: Record<WalletOrigenTipo, string> = {
   cierre_dia: "Cierre del día",
-  pago_mensajero: "Pago de Ordenex a un mensajero",
+  pago_mensajero: `Pago de ${MARCA.nombre} a un mensajero`,
   manual: "Registrado a mano",
   // Feature 293 (T1.6): origen de las filas de CAJA del premio. En este libro el premio va con
   // `cierre_dia`, pero el mapa es total.
   ranking_snapshot_fila: "Premio del ranking",
   gestion_orden: "Gestión de orden",
-  pago_tienda: "Pago de Ordenex a una tienda",
+  pago_tienda: `Pago de ${MARCA.nombre} a una tienda`,
   gasto: "Gasto o sueldo registrado a mano",
   orden_incidente: "Incidente de orden",
   pago_por_cuenta_tienda: "Pago de un gasto de una tienda",
   aporte_capital: "Aporte de dinero a la caja",
   cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
-  cobro_tienda: "Cobro de Ordenex a una tienda",
-  cobro_tienda_completado: "Cobro de Ordenex a una tienda (línea de caja completada al corregir)",
-  abono_tienda: "Pago de una tienda a Ordenex",
+  cobro_tienda: `Cobro de ${MARCA.nombre} a una tienda`,
+  cobro_tienda_completado: `Cobro de ${MARCA.nombre} a una tienda (línea de caja completada al corregir)`,
+  abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
 };
 
 /**

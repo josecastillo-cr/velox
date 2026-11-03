@@ -1,11 +1,11 @@
 ---
-titulo: Ayuda de Ordenex
+titulo: Ayuda de Velox Courier
 modulo: indice
 roles: [todos]
 actualizado: 2026-09-15
 ---
 
-# Ayuda de Ordenex
+# Ayuda de Velox Courier
 
 Esta carpeta es **la única fuente de la documentación de uso**. La leen dos consumidores:
 

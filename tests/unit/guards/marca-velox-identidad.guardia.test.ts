@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import { MARCA } from "@/lib/marca/identidad";
 import { quitarComentarios } from "@/tests/fixtures/sin-comentarios";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // FICHA 492 (T4) — GUARDIA DE LA IDENTIDAD DEL DOCUMENTO Y DE LA PWA (R2, R4, R5, R6, R11).
 //
 // `public/manifest.json`, `public/offline.html` y `public/sw.js` no pueden importar codigo, asi
@@ -110,7 +111,7 @@ describe("Feature 492 — <head> del layout raiz (R1, R6)", () => {
     expect(codigo).toContain('<meta name="apple-mobile-web-app-title" content={MARCA.nombreCorto} />');
     expect(codigo).toMatch(/title:\s*MARCA\.nombre,/);
     expect(codigo).toMatch(/description:\s*MARCA\.descripcion,/);
-    expect(codigo).not.toContain("Ordenex");
+    expect(codigo).not.toContain(MARCA_RETIRADA);
   });
 
   it("R6: metadata y el <head> pintado declaran titulo, descripcion, theme-color y nombre corto", async () => {

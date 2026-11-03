@@ -25,7 +25,7 @@ Acá se **aprueban los cierres** que piden los mensajeros, y es el momento en qu
 convierte en plata registrada.
 
 > **Aprobar un cierre mueve dinero de verdad y confirma el estado de las órdenes.** En ese instante se
-> le acredita a cada tienda lo recaudado de sus entregas, el efectivo entra a la caja de Ordenex y cada
+> le acredita a cada tienda lo recaudado de sus entregas, el efectivo entra a la caja de Velox Courier y cada
 > orden gestionada pasa a su estado real. No es un visto bueno formal.
 
 ## Por qué las órdenes siguen «En reparto» hasta que aprobás

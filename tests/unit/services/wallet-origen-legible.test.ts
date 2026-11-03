@@ -11,6 +11,7 @@ import {
 } from "@/lib/services/OrigenLegibleService";
 import { WALLET_ORIGEN_TIPO_SEED, type WalletOrigenTipo } from "@/lib/types/wallet";
 import type { FilaConOrigenTecnico } from "@/lib/types/wallet-origen";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Ficha 458-A (TA.2, design §3.3) — R5 (diccionario total, sin valor tecnico), R6 (la entidad
 // concreta), R4 (sin entidad: texto legible, nunca un id) y el LOTE (una consulta por tipo presente).
@@ -58,10 +59,10 @@ const CASOS_CAJA: Record<WalletOrigenTipo, { fila: FilaConOrigenTecnico; texto: 
     texto: "Gestión de orden · cobro por devolución a origen · guía 4321",
   },
   manual: { fila: fila("manual", { origenId: null }), texto: "Registrado a mano" },
-  pago_tienda: { fila: fila("pago_tienda"), texto: "Pago de Ordenex a una tienda · Tania Tienda · 2026-09-12 · SINPE" },
+  pago_tienda: { fila: fila("pago_tienda"), texto: `Pago de ${NOMBRE_ESPERADO} a una tienda · Tania Tienda · 2026-09-12 · SINPE` },
   pago_mensajero: {
     fila: fila("pago_mensajero"),
-    texto: "Pago de Ordenex a un mensajero · Tania Tienda · 2026-09-12 · SINPE",
+    texto: `Pago de ${NOMBRE_ESPERADO} a un mensajero · Tania Tienda · 2026-09-12 · SINPE`,
   },
   gasto: { fila: fila("gasto", { origenId: null, categoria: "egreso_sueldo" }), texto: "Sueldo" },
   orden_incidente: { fila: fila("orden_incidente"), texto: "Incidente de orden · remisión REM-7" },
@@ -75,14 +76,14 @@ const CASOS_CAJA: Record<WalletOrigenTipo, { fila: FilaConOrigenTecnico; texto: 
     fila: fila("cobro_manual_reclasificado"),
     texto: "Cobro reclasificado como pago de un gasto de la tienda · Tania Tienda",
   },
-  cobro_tienda: { fila: fila("cobro_tienda"), texto: "Cobro de Ordenex a una tienda · Tania Tienda" },
+  cobro_tienda: { fila: fila("cobro_tienda"), texto: `Cobro de ${NOMBRE_ESPERADO} a una tienda · Tania Tienda` },
   cobro_tienda_completado: {
     fila: fila("cobro_tienda_completado"),
-    texto: "Cobro de Ordenex a una tienda (línea de caja completada al corregir) · Tania Tienda",
+    texto: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir) · Tania Tienda`,
   },
   abono_tienda: {
     fila: fila("abono_tienda"),
-    texto: "Pago de una tienda a Ordenex · Tania Tienda · 2026-09-11 · Transferencia",
+    texto: `Pago de una tienda a ${NOMBRE_ESPERADO} · Tania Tienda · 2026-09-11 · Transferencia`,
   },
 };
 
@@ -95,7 +96,7 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
     tipos.forEach((t, i) => expect({ t, texto: origenes[i].texto }).toEqual({ t, texto: CASOS_CAJA[t].texto }));
   });
 
-  it("el gasto se nombra por su concepto: sueldo, gasto de Ordenex y gasto fijo con su periodo", async () => {
+  it(`el gasto se nombra por su concepto: sueldo, gasto de ${NOMBRE_CORTO_ESPERADO} y gasto fijo con su periodo`, async () => {
     const svc = new OrigenLegibleService(repoFalso());
     const r = await svc.resolver(
       "caja",
@@ -111,8 +112,8 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
     // Alquiler — sep 2026»). La plantilla y su periodo siguen a la vista: los trae la descripción,
     // que toda superficie pinta junto al origen.
     expect(r.map((o) => o.texto)).toEqual([
-      "Gasto de Ordenex",
-      "Gasto fijo de Ordenex",
+      `Gasto de ${NOMBRE_CORTO_ESPERADO}`,
+      `Gasto fijo de ${NOMBRE_CORTO_ESPERADO}`,
       "Gasto o sueldo registrado a mano",
     ]);
   });
@@ -144,10 +145,10 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
       MAESTRO,
     );
     expect(r.map((o) => o.texto)).toEqual([
-      "Cobro de Ordenex a una tienda",
+      `Cobro de ${NOMBRE_ESPERADO} a una tienda`,
       "Pago de un gasto de una tienda · Tania Tienda",
-      "Cobro de Ordenex a una tienda · Tania Tienda",
-      "Cobro de Ordenex a una tienda · Tania Tienda",
+      `Cobro de ${NOMBRE_ESPERADO} a una tienda · Tania Tienda`,
+      `Cobro de ${NOMBRE_ESPERADO} a una tienda · Tania Tienda`,
     ]);
   });
 
@@ -155,10 +156,10 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
     const svc = new OrigenLegibleService(repoFalso());
     const [o] = await svc.resolver(
       "caja",
-      [fila("cobro_tienda", { descripcion: "Cobro de Ordenex a una tienda · Tania Tienda" })],
+      [fila("cobro_tienda", { descripcion: `Cobro de ${NOMBRE_ESPERADO} a una tienda · Tania Tienda` })],
       MAESTRO,
     );
-    expect(o.texto).toBe("Cobro de Ordenex a una tienda");
+    expect(o.texto).toBe(`Cobro de ${NOMBRE_ESPERADO} a una tienda`);
   });
 
   it("`gestion_orden` en el libro de la TIENDA: el flete por devolución a origen dice la guía (459/461 §7.3)", async () => {
@@ -175,7 +176,7 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
       MAESTRO,
     );
     expect(r.map((o) => o.texto)).toEqual([
-      "Pago de Ordenex a un mensajero · Tania Tienda · 2026-09-12 · SINPE",
+      `Pago de ${NOMBRE_ESPERADO} a un mensajero · Tania Tienda · 2026-09-12 · SINPE`,
       "Registrado a mano",
     ]);
   });

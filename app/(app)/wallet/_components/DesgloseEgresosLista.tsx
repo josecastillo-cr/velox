@@ -26,6 +26,7 @@ import {
 import { FilaComposicion } from "./FilaComposicion";
 import type { WalletFiltrosValue } from "./wallet-filtros-input";
 import { money } from "./wallet-labels";
+import { MARCA } from "@/lib/marca/identidad";
 
 // Feature 231 (T6.1, design §4.3) — la LISTA de egresos, extraida del `<dl>` que vivia dentro
 // de `DesgloseEgresosCard`.
@@ -86,7 +87,7 @@ const DESGLOSE_EGRESOS_TOTAL_LABEL = "Total de egresos";
  * concepto que nadie ha decidido como se llama». Eso es exactamente la señal que se pidio, y por
  * eso lleva su pista debajo (R10) en vez de un 0,00 permanente que entrena a no mirar la linea.
  */
-const OTROS_EGRESOS_LABEL = "Otros gastos de Ordenex";
+const OTROS_EGRESOS_LABEL = `Otros gastos de ${MARCA.nombreCorto}`;
 
 /**
  * Filas del desglose: etiqueta i18n-ready + el monto STRING que le corresponde + su icono + el
@@ -105,13 +106,13 @@ const FILAS: {
   {
     key: "gastoFijo",
     fila: "egreso_gasto_fijo",
-    label: "Gastos fijos de Ordenex",
+    label: `Gastos fijos de ${MARCA.nombreCorto}`,
     icono: CalendarClock,
   },
   {
     key: "gastoVariable",
     fila: "egreso_gasto_variable",
-    label: "Gastos de Ordenex",
+    label: `Gastos de ${MARCA.nombreCorto}`,
     icono: Receipt,
   },
   { key: "sueldo", fila: "egreso_sueldo", label: "Sueldos", icono: Users },

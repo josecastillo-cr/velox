@@ -42,8 +42,8 @@ mensajeros no hace falta desplazarse hasta el final. Cada fila lleva **Ver estad
 
 Abre la cuenta del mensajero en su propia página: **de dónde sale cada colón**, como un extracto.
 
-Arriba, el **saldo actual** con la frase «Ordenex le debe ₡… a Juan Pérez Mora», y las cifras del
-periodo: **Saldo inicial**, **Abonos del periodo** (lo que Ordenex le debe por sus cierres aprobados y
+Arriba, el **saldo actual** con la frase «Velox Courier le debe ₡… a Juan Pérez Mora», y las cifras del
+periodo: **Saldo inicial**, **Abonos del periodo** (lo que Velox Courier le debe por sus cierres aprobados y
 sus premios), **Cargos del periodo** (lo que ya se le pagó o descontó) y **Saldo al final del periodo**.
 Acá las cifras ya **no cuentan los pagos anulados**: un pago y su anulación se cancelan entre ellos.
 
@@ -79,7 +79,7 @@ movimientos de los que entran en una descarga, no se descarga nada y te lo dice.
 
 ## Pagarle al mensajero
 
-**Ordenex le paga al mensajero**, en las acciones de su estado de cuenta, abre el pago con la
+**Velox Courier le paga al mensajero**, en las acciones de su estado de cuenta, abre el pago con la
 **previsualización del reparto**, para ver a qué cierres se aplica antes de confirmarlo — no después.
 Al registrar, su estado de cuenta se actualiza solo.
 

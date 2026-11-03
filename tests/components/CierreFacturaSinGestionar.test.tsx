@@ -12,6 +12,7 @@ import type {
   CierreGrupos,
   CierreOrdenSinGestion,
 } from "@/lib/interfaces/services/ICierreDiaService";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Feature 264 — LA SECCIÓN «ÓRDENES SIN GESTIONAR» DEL COMPROBANTE DETALLADO.
@@ -504,7 +505,7 @@ describe("feature 264 — el dinero del comprobante no se mueve por la sección 
 
     // KPI de dinero de la cabecera.
     expect(kpi(hoja, "Total general")).toBe("₡8.000");
-    expect(kpi(hoja, "Total Ordenex")).toBe("₡3.060");
+    expect(kpi(hoja, `Total ${NOMBRE_CORTO_ESPERADO}`)).toBe("₡3.060");
     expect(kpi(hoja, "Pago al mensajero")).toBe("₡1.200");
 
     // Las dos tarjetas de totales de la empresa.
@@ -529,10 +530,10 @@ describe("feature 264 — el dinero del comprobante no se mueve por la sección 
     expect(texto("Totales del cierre")).toContain("Transferencia₡1.500");
     expect(texto("Totales del cierre")).toContain("Total general₡8.000");
 
-    expect(texto("Ingreso de Ordenex")).toContain("Flete + IVA₡2.260");
-    expect(texto("Ingreso de Ordenex")).toContain("Comisión + IVA₡800");
-    expect(texto("Ingreso de Ordenex")).toContain("Flete por devolución a origen + IVA₡0");
-    expect(texto("Ingreso de Ordenex")).toContain("Total Ordenex₡3.060");
+    expect(texto(`Ingreso de ${NOMBRE_CORTO_ESPERADO}`)).toContain("Flete + IVA₡2.260");
+    expect(texto(`Ingreso de ${NOMBRE_CORTO_ESPERADO}`)).toContain("Comisión + IVA₡800");
+    expect(texto(`Ingreso de ${NOMBRE_CORTO_ESPERADO}`)).toContain("Flete por devolución a origen + IVA₡0");
+    expect(texto(`Ingreso de ${NOMBRE_CORTO_ESPERADO}`)).toContain(`Total ${NOMBRE_CORTO_ESPERADO}₡3.060`);
 
     // La ganancia NEGATIVA (la deuda de Ordenex con el mensajero).
     expect(texto("Liquidación")).toContain("-₡400");

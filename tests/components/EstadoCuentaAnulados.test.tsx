@@ -25,6 +25,7 @@ vi.mock("@/lib/actions/wallet-anulacion", () => ({ anularMovimientoAction: vi.fn
 
 import { EstadoCuenta } from "@/components/shared/estado-cuenta/EstadoCuenta";
 import { PANEL_TIENDA, ROTULOS_TIENDA } from "@/app/(app)/wallet/tiendas/_components/EstadoCuentaTienda";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 function montar(inicial: EstadoCuentaDTO) {
   return render(
@@ -77,7 +78,7 @@ describe("R25 — el anulado se queda, tachado, con motivo, quién y cuándo", (
     montar(estado({ filas: [PAGO_ANULADO, SU_ANULACION], total: 2 }));
     const [anulada] = filas();
     expect(anulada.textContent).toContain("Anulado el 2026-09-20 por Ana Admin · Se pagó dos veces");
-    const concepto = within(anulada).getByText("Ordenex le paga a la tienda");
+    const concepto = within(anulada).getByText(`${NOMBRE_ESPERADO} le paga a la tienda`);
     expect(concepto.className).toContain("line-through");
     const importe = within(anulada).getByText("₡4.000");
     expect(importe.className).toContain("line-through");
@@ -93,7 +94,7 @@ describe("R25 — el anulado se queda, tachado, con motivo, quién y cuándo", (
 
   it("«Ver» sobre el anulado: el panel dice el estado con quién, cuándo y por qué, y NO ofrece «Anular…»", async () => {
     montar(estado({ filas: [PAGO_ANULADO], total: 1 }));
-    fireEvent.click(screen.getByRole("button", { name: /^Ver Ordenex le paga a la tienda/ }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^Ver ${NOMBRE_ESPERADO} le paga a la tienda`) }));
     const panel = await screen.findByRole("dialog");
     // 458 (revisión final, n3): el panel de la oficina dice también la HORA, como `/mi-wallet`.
     expect(panel.textContent).toContain("Anulado el 2026-09-20 a las 10:30 por Ana Admin · Se pagó dos veces");
@@ -118,12 +119,12 @@ describe("R71 — el estado lo decide el servidor, no la página", () => {
     montar(estado({ filas: [{ ...PAGO_ANULADO, anulacion: null, anulable: true }, SU_ANULACION], total: 2 }));
     const [original] = filas();
     expect(original.textContent).not.toContain("Anulado");
-    expect(within(original).getByText("Ordenex le paga a la tienda").className).not.toContain("line-through");
+    expect(within(original).getByText(`${NOMBRE_ESPERADO} le paga a la tienda`).className).not.toContain("line-through");
   });
 
   it("un anulable vigente ofrece «Anular…» en el panel; el servidor dice `anulable`", async () => {
     montar(estado({ filas: [{ ...PAGO_ANULADO, anulacion: null, anulable: true }], total: 1 }));
-    fireEvent.click(screen.getByRole("button", { name: /^Ver Ordenex le paga a la tienda/ }));
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(`^Ver ${NOMBRE_ESPERADO} le paga a la tienda`) }));
     const panel = await screen.findByRole("dialog");
     expect(within(panel).getByRole("button", { name: "Anular…" })).toBeTruthy();
   });

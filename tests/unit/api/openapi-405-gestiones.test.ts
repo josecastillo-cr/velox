@@ -5,6 +5,7 @@ import path from "node:path";
 import { openApiSpec } from "@/lib/api/openapi-spec";
 import { CAUSA_DEVOLUCION_SEED } from "@/lib/types/causa-devolucion";
 import { CAUSA_INCIDENTE_SEED } from "@/lib/types/causa-incidente";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ⏳ 2026-09-10 — Feature 405 (T14, R16/R20/R21/R22): el CONTRATO PUBLICADO declara `gestiones`.
 //
@@ -416,7 +417,7 @@ describe("405/R22 — el CHANGELOG del canal tiene la entrada de la 405 con los 
     expect(t).toContain("última devolución");
   });
 
-  it("(c) dice que `gestiones.length` NO es el contador interno de Ordenex", () => {
+  it(`(c) dice que \`gestiones.length\` NO es el contador interno de ${NOMBRE_ESPERADO}`, () => {
     const t = entrada.replace(/\s+/g, " ");
     expect(t).toContain("`gestiones.length` NO es nuestro contador");
     expect(t).toContain("cierres aprobados distintos");

@@ -4,6 +4,7 @@ import { render, within, cleanup } from "@testing-library/react";
 
 import { CajaResumenCard } from "@/app/(app)/wallet/_components/CajaResumenCard";
 import type { CajaResumenDTO, EstadoCaja } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Ficha 488 (T F.2, design §6.1) — la tarjeta de la caja con la ganancia SIN IVA (R11–R13).
@@ -55,17 +56,17 @@ afterEach(() => {
   cleanup();
 });
 
-describe("488 — el bloque «Ganancia de Ordenex» (R11/R12)", () => {
+describe(`488 — el bloque «Ganancia de ${NOMBRE_CORTO_ESPERADO}» (R11/R12)`, () => {
   it("R11: la cifra grande del bloque es la ganancia sin IVA", () => {
     const { container } = pintar();
-    const ganancia = region(container, "Ganancia de Ordenex");
+    const ganancia = region(container, `Ganancia de ${NOMBRE_CORTO_ESPERADO}`);
     const cifra = ganancia.querySelector<HTMLElement>(".text-2xl");
     expect(cifra?.textContent).toBe("₡1.500");
   });
 
   it("R12: debajo, en la misma región, el IVA cobrado con su rótulo", () => {
     const { container } = pintar();
-    const ganancia = region(container, "Ganancia de Ordenex");
+    const ganancia = region(container, `Ganancia de ${NOMBRE_CORTO_ESPERADO}`);
     const linea = ganancia.querySelector<HTMLElement>('[data-dato="iva-cobrado"]');
     expect(linea, "falta la línea del IVA cobrado dentro del bloque").not.toBeNull();
     expect(linea?.textContent).toBe("IVA cobrado a las tiendas: ₡1.635,50");
@@ -73,7 +74,7 @@ describe("488 — el bloque «Ganancia de Ordenex» (R11/R12)", () => {
 
   it("R12: la línea del IVA va DESPUÉS de la cifra y con tipografía menor", () => {
     const { container } = pintar();
-    const ganancia = region(container, "Ganancia de Ordenex");
+    const ganancia = region(container, `Ganancia de ${NOMBRE_CORTO_ESPERADO}`);
     const cifra = ganancia.querySelector<HTMLElement>(".text-2xl") as HTMLElement;
     const linea = ganancia.querySelector<HTMLElement>('[data-dato="iva-cobrado"]') as HTMLElement;
     // DOCUMENT_POSITION_FOLLOWING = 4: la línea viene después de la cifra.
@@ -108,7 +109,7 @@ describe("488 — el tercer bolsillo «IVA por pagar» (R13)", () => {
     expect(within(b).getByText("Positivo")).toBeInTheDocument();
     expect(
       within(b).getByText(
-        "El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de Ordenex.",
+        `El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de ${NOMBRE_ESPERADO}.`,
       ),
     ).toBeInTheDocument();
   });

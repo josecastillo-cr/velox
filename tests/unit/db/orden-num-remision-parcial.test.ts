@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FEATURE 294 — cobertura ESTATICA del indice unico PARCIAL de `num_remision`.
@@ -59,7 +60,7 @@ describe("migration.sql — el unico de (tienda, remision) pasa a PARCIAL", () =
     expect(sql("migration.sql")).not.toMatch(/\b(INSERT|UPDATE|DELETE)\b/i);
   });
 
-  it("no toca num_guia: ese numero lo genera Ordenex y su unico sigue siendo total", () => {
+  it(`no toca num_guia: ese numero lo genera ${NOMBRE_ESPERADO} y su unico sigue siendo total`, () => {
     expect(sql("migration.sql")).not.toMatch(/num_guia/i);
   });
 });

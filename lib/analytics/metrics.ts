@@ -31,6 +31,7 @@
 // El catalogo vive en TypeScript congelado (`as const`), no en base de datos: ver la
 // alternativa 1 descartada en `design.md §7`.
 
+import { MARCA } from "@/lib/marca/identidad";
 import { ORDER_STATUS_SEED, type OrderStatusValue } from "@/lib/types/order-status";
 import { ESTADOS_CREACION, ESTADOS_TERMINALES } from "@/lib/types/order-status-transiciones";
 import type {
@@ -558,7 +559,7 @@ const CATALOGO = [
     id: "ingreso_flete",
     etiqueta: "Ingreso por flete",
     descripcion:
-      "Ingreso de Ordenex por flete y por flete de devolucion segun el libro append-only de la wallet; DESDE LA FICHA 458-B la ANULACION de un cobro por devolución a origen se DESCUENTA de esta cifra: su reverso (egreso_reverso_flete_devolucion) entra en la definicion, de modo que el bruto cuenta los DOS movimientos y el neto es el flete que Ordenex de verdad cobro. Se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
+      `Ingreso de ${MARCA.nombre} por flete y por flete de devolucion segun el libro append-only de la wallet; DESDE LA FICHA 458-B la ANULACION de un cobro por devolución a origen se DESCUENTA de esta cifra: su reverso (egreso_reverso_flete_devolucion) entra en la definicion, de modo que el bruto cuenta los DOS movimientos y el neto es el flete que ${MARCA.nombre} de verdad cobro. Se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -584,7 +585,7 @@ const CATALOGO = [
     id: "ingreso_comision_cod",
     etiqueta: "Ingreso por comisión COD",
     descripcion:
-      "Ingreso de Ordenex por comision sobre el contra-entrega segun el libro append-only de la wallet; se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
+      `Ingreso de ${MARCA.nombre} por comision sobre el contra-entrega segun el libro append-only de la wallet; se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -691,7 +692,7 @@ const CATALOGO = [
     id: "dinero_en_caja",
     etiqueta: "Dinero en caja",
     descripcion:
-      "TESORERIA: el flujo de dinero registrado de la caja principal — el dinero que entro de verdad menos todo lo que salio, sin distinguir de quien es: incluye el contra-entrega cobrado a nombre de las tiendas, lo que las tiendas le pagan a Ordenex y su anulacion, los reversos y los ajustes. NO suma aparte el flete, la comision ni sus impuestos: son la parte de Ordenex que se descuenta del contra-entrega de la tienda (o una deuda de la tienda), no dinero que entre a la caja; ni el cobro de Ordenex a una tienda ni su anulacion, que tampoco son dinero que entre o salga (se toman del saldo de la tienda y se le devuelven). Es la misma cifra principal de la tarjeta de la caja; solo es el saldo real si hay un saldo inicial registrado. NO es lo que Ordenex gano (eso es ganancia_ordenex). Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
+      `TESORERIA: el flujo de dinero registrado de la caja principal — el dinero que entro de verdad menos todo lo que salio, sin distinguir de quien es: incluye el contra-entrega cobrado a nombre de las tiendas, lo que las tiendas le pagan a ${MARCA.nombre} y su anulacion, los reversos y los ajustes. NO suma aparte el flete, la comision ni sus impuestos: son la parte de ${MARCA.nombre} que se descuenta del contra-entrega de la tienda (o una deuda de la tienda), no dinero que entre a la caja; ni el cobro de ${MARCA.nombre} a una tienda ni su anulacion, que tampoco son dinero que entre o salga (se toman del saldo de la tienda y se le devuelven). Es la misma cifra principal de la tarjeta de la caja; solo es el saldo real si hay un saldo inicial registrado. NO es lo que ${MARCA.nombre} gano (eso es ganancia_ordenex). Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -748,9 +749,9 @@ const CATALOGO = [
   },
   {
     id: "ganancia_ordenex",
-    etiqueta: "Ganancia de Ordenex",
+    etiqueta: `Ganancia de ${MARCA.nombreCorto}`,
     descripcion:
-      "RESULTADO: ingresos propios de Ordenex menos sus egresos propios, dejando fuera el dinero de terceros que solo pasa por la caja (el contra-entrega y su devolucion a la tienda). Incluye lo que Ordenex les cobra a las tiendas (el cobro de Ordenex a una tienda es ganancia: se toma del saldo que le guardaba) y descuenta sus anulaciones. Es, numero por numero, lo que `derivarBalance` devolvia sobre el libro entero antes de la 173: no cambia de valor, cambia de nombre. DESDE LA FICHA 488 NO incluye el IVA cobrado a las tiendas ni su anulacion: es IVA por pagar a Hacienda, no ganancia; la cifra baja a partir de esa fecha sin que su id ni su nombre cambien. Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
+      `RESULTADO: ingresos propios de ${MARCA.nombre} menos sus egresos propios, dejando fuera el dinero de terceros que solo pasa por la caja (el contra-entrega y su devolucion a la tienda). Incluye lo que ${MARCA.nombre} les cobra a las tiendas (el cobro de ${MARCA.nombre} a una tienda es ganancia: se toma del saldo que le guardaba) y descuenta sus anulaciones. Es, numero por numero, lo que \`derivarBalance\` devolvia sobre el libro entero antes de la 173: no cambia de valor, cambia de nombre. DESDE LA FICHA 488 NO incluye el IVA cobrado a las tiendas ni su anulacion: es IVA por pagar a Hacienda, no ganancia; la cifra baja a partir de esa fecha sin que su id ni su nombre cambien. Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -790,7 +791,7 @@ const CATALOGO = [
     id: "cuenta_por_pagar_tienda",
     etiqueta: "Cuenta por pagar a tiendas",
     descripcion:
-      "Saldo derivado del ledger por tienda (SUM credito - SUM debito): lo que Ordenex le debe entregar a cada tienda; se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.",
+      `Saldo derivado del ledger por tienda (SUM credito - SUM debito): lo que ${MARCA.nombre} le debe entregar a cada tienda; se lee del ledger, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",

@@ -786,7 +786,7 @@ const INVENTARIO: Par[] = [
   },
   {
     id: "P16",
-    papel: "el wordmark «Ordenex» de la hoja compacta",
+    papel: "el wordmark de la marca en la hoja compacta",
     tinta: "brand",
     fondo: { clase: "opaco", token: CARD },
     umbral: "exento",

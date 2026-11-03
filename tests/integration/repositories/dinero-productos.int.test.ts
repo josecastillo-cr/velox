@@ -15,6 +15,7 @@ import { DineroProductosRepository } from "@/lib/repositories/DineroProductosRep
 import type { FilaDineroCruda } from "@/lib/interfaces/repositories/IDineroProductosRepository";
 import { fundirDinero, claveDeGrupoProducto } from "@/lib/services/ConteoProductosService";
 import { DetalleDineroProductoService } from "@/lib/services/DetalleDineroProductoService";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // FICHA 347 / B3.3 — EL RECORTE Y EL CUADRE DONDE VIVEN: CONTRA POSTGRES.
 // Cubre R7, R18, R19, R20, R21, R23, R26, R28, R38, R39, R40, R43, R74, y ⟨Q3⟩.
@@ -323,7 +324,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     const filtroResultado = soloEntregas
       ? Prisma.sql`AND g."resultado" = 'entregado'`
       : Prisma.sql`AND g."resultado" IN ('entregado', 'devolucion_a_origen_por_rechazo')`;
-    const filas = await tx.$queryRaw<{ recaudado: string; ordenex: string; tienda: string }[]>`
+    const filas = await tx.$queryRaw<{ recaudado: string; cobro_ordenex: string; tienda: string }[]>`
       WITH calc AS (
         SELECT COALESCE(g."monto_recibido", 0) AS recaudado,
                ROUND(CASE WHEN d."es_central" THEN d."tarifa_valor_flete_gam"
@@ -350,15 +351,15 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
           ${filtroResultado}
       )
       SELECT TO_CHAR(SUM(CASE WHEN TRUE THEN recaudado END), 'FM999999999990.00') AS recaudado,
-             TO_CHAR(SUM(flete + iva_flete + comision + iva_comision), 'FM999999999990.00') AS ordenex,
+             TO_CHAR(SUM(flete + iva_flete + comision + iva_comision), 'FM999999999990.00') AS cobro_ordenex,
              TO_CHAR(SUM(recaudado) - SUM(flete + iva_flete + comision + iva_comision),
                      'FM999999999990.00') AS tienda
       FROM calc`;
     const f = filas[0];
-    if (f === undefined || f.ordenex === null) {
+    if (f === undefined || f.cobro_ordenex === null) {
       throw new Error("el SQL a mano no devolvio cifras: el test FALLA, no se abstiene");
     }
-    return { recaudado: f.recaudado, ordenex: f.ordenex, tienda: f.tienda };
+    return { recaudado: f.recaudado, ordenex: f.cobro_ordenex, tienda: f.tienda };
   }
 
   /** Solo las filas que este test sembro: la base local puede traer otras ordenes. */
@@ -652,7 +653,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     expect(todasLasFilas).toBe(FF_SI_CONTARA_DOS_VECES);
   });
 
-  it("(449-c) ⚠ NO se suma a «Cobró Ordenex»: R20 sigue siendo EXACTA", () => {
+  it(`(449-c) ⚠ NO se suma a «Cobró ${NOMBRE_CORTO_ESPERADO}»: R20 sigue siendo EXACTA`, () => {
     const c = cifras(m.soloA, m.tiendaA, CLAVE_BASE_C);
 
     // `ordenex` sigue valiendo lo mismo que antes de esta ficha: 15.142,00.

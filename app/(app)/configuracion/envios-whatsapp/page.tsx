@@ -3,6 +3,7 @@ import { resolveActorFromSession } from "@/lib/auth/resolve-actor";
 import { listarEnvios } from "@/lib/actions/envios-whatsapp";
 
 import { EnviosModule } from "./_components/EnviosModule";
+import { MARCA } from "@/lib/marca/identidad";
 
 const TITULO_ENVIOS = "Envíos automáticos";
 const SIN_PERMISO_ENVIOS = "No tienes permiso para acceder a esta sección.";
@@ -32,7 +33,7 @@ export default async function EnviosWhatsappPage() {
   return (
     <AppPage
       title={TITULO_ENVIOS}
-      description="Mensajes de WhatsApp que Ordenex manda solo, a una hora fija o cuando pasa algo"    >
+      description={`Mensajes de WhatsApp que ${MARCA.nombre} manda solo, a una hora fija o cuando pasa algo`}    >
       <EnviosModule initialItems={r.status === "ok" ? r.items : []} />
     </AppPage>
   );

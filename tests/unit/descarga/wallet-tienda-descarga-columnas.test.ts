@@ -24,6 +24,7 @@ import { filaDeLibroCuenta } from "@/tests/fixtures/libro-kardex";
 import { ROTULOS_MI_WALLET } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
 import type { FilaEstadoCuentaDTO } from "@/lib/types/estado-cuenta";
 import { fila as filaEstado } from "@/tests/fixtures/estado-cuenta";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 170 / T C.3 (R5/R7/R8/R23) — columnas de export del libro de la tienda en `/mi-wallet`.
 //
@@ -127,9 +128,9 @@ describe("⭑ FICHA 381/461 (R39/R44) — el cobro sale en el archivo con el nom
     cargo: "15000.00",
   });
 
-  it("la columna «Concepto» dice «Ordenex te cobró», no el valor del enum; el importe sale (468 R9)", () => {
+  it(`la columna «Concepto» dice «${NOMBRE_ESPERADO} te cobró», no el valor del enum; el importe sale (468 R9)`, () => {
     const fila = descarga(COBRO);
-    expect(fila.concepto).toBe("Ordenex te cobró");
+    expect(fila.concepto).toBe(`${NOMBRE_ESPERADO} te cobró`);
     expect(fila.concepto).not.toBe("cobro_manual");
     expect(fila.sale).toBe("15000.00");
     expect(fila.entra).toBeNull();
@@ -146,8 +147,8 @@ describe("⭑ FICHA 381/461 (R39/R44) — el cobro sale en el archivo con el nom
     const { ROTULOS_TIENDA } = await import("@/app/(app)/wallet/tiendas/_components/EstadoCuentaTienda");
     const tienda = lineaDeFila(COBRO, ROTULOS_MI_WALLET);
     const oficina = lineaDeFila(COBRO, ROTULOS_TIENDA);
-    expect(tienda.movimiento).toBe("Ordenex te cobró");
-    expect(oficina.movimiento).toBe("Ordenex le cobra a la tienda");
+    expect(tienda.movimiento).toBe(`${NOMBRE_ESPERADO} te cobró`);
+    expect(oficina.movimiento).toBe(`${NOMBRE_ESPERADO} le cobra a la tienda`);
     expect(tienda.movimiento).not.toBe(oficina.movimiento);
     expect(tienda.fecha).toBe(oficina.fecha);
     expect(tienda.cargo).toBe(oficina.cargo);

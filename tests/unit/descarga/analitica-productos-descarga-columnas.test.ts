@@ -35,6 +35,7 @@ import {
 import { FULFILLMENT_COL } from "@/app/(app)/cierres-admin/_components/cierre-labels";
 import type { DineroProductoDTO } from "@/lib/types/conteo-productos";
 import type { FilaProductoDTO } from "@/lib/types/conteo-productos";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /** Un status que NO es ninguno de los cinco desenlaces: la orden sigue su curso. */
 const EN_CURSO = "en_reparto";
@@ -318,7 +319,7 @@ describe("FICHA 347 · columnas del archivo con dinero concedido (R66/R68)", () 
       "Órdenes con otro producto",
       "Recaudado liquidado (no sumar: importe de la orden completa)",
       "Órdenes liquidadas",
-      "Cobró Ordenex (no sumar: importe de la orden completa)",
+      `Cobró ${NOMBRE_CORTO_ESPERADO} (no sumar: importe de la orden completa)`,
       "Para la tienda (no sumar: importe de la orden completa)",
       "Pendiente de cierre (no sumar: importe de la orden completa)",
       "Órdenes pendientes de cierre",

@@ -52,6 +52,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn(), push: 
 
 import { EstadoCuentaTienda } from "@/app/(app)/wallet/tiendas/_components/EstadoCuentaTienda";
 import { SaldosTiendasTable } from "@/app/(app)/wallet/tiendas/_components/SaldosTiendasTable";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 function signo(s: string) {
   return s.startsWith("-") ? ("negativo" as const) : s === "0.00" ? ("cero" as const) : ("positivo" as const);
@@ -96,7 +97,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("R30/R48 — registrar desde el estado de cuenta relee ESA cuenta y ninguna otra", () => {
-  it("tras «La tienda le paga a Ordenex»: aviso con el saldo del servidor, tarjeta nueva, y la otra cuenta sin releer", async () => {
+  it(`tras «La tienda le paga a ${NOMBRE_ESPERADO}»: aviso con el saldo del servidor, tarjeta nueva, y la otra cuenta sin releer`, async () => {
     const user = userEvent.setup();
     const cache = new Map();
     render(
@@ -110,7 +111,7 @@ describe("R30/R48 — registrar desde el estado de cuenta relee ESA cuenta y nin
     // 458-D (cierre de pantalla): la primera página del servidor NO se relee al montar (`revalidateIfStale: false`).
     expect(verEstadoCuentaMock).not.toHaveBeenCalled();
     const acciones = screen.getByRole("region", { name: "Acciones sobre la cuenta de Tania Tienda" });
-    await user.click(within(acciones).getByRole("button", { name: "La tienda le paga a Ordenex" }));
+    await user.click(within(acciones).getByRole("button", { name: `La tienda le paga a ${NOMBRE_ESPERADO}` }));
     const dialogo = await screen.findByRole("dialog");
     await user.type(within(dialogo).getByLabelText(/^Monto/), "4000.00");
     await user.type(within(dialogo).getByLabelText(/^Motivo del pago/), "Pago de los fletes");
@@ -126,11 +127,11 @@ describe("R30/R48 — registrar desde el estado de cuenta relee ESA cuenta y nin
     // R48: el aviso con el saldo que devolvió el SERVIDOR.
     expect(
       await screen.findByText(
-        "Pago registrado. El saldo de Tania Tienda queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a Ordenex.",
+        `Pago registrado. El saldo de Tania Tienda queda en -₡6.000 · En contra. La tienda todavía le debe ese dinero a ${NOMBRE_ESPERADO}.`,
       ),
     ).toBeInTheDocument();
     // R30: las tarjetas de ESA cuenta, sin recargar.
-    await waitFor(() => expect(screen.getByText("Tania Tienda le debe ₡6.000 a Ordenex")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(`Tania Tienda le debe ₡6.000 a ${NOMBRE_ESPERADO}`)).toBeInTheDocument());
     const despues = verEstadoCuentaMock.mock.calls.slice(antes).map(([i]) => (i as { cuenta: { id: string } }).cuenta.id);
     expect(despues.length).toBeGreaterThan(0);
     expect(despues.every((id) => id === UUID_TIENDA)).toBe(true);
@@ -169,7 +170,7 @@ describe("R30 — ANULAR desde el estado de cuenta relee ESA cuenta y ninguna ot
         </ToastProvider>
       </SWRConfig>,
     );
-    await user.click(screen.getByRole("button", { name: /^Ver Ordenex le paga a la tienda/ }));
+    await user.click(screen.getByRole("button", { name: new RegExp(`^Ver ${NOMBRE_ESPERADO} le paga a la tienda`) }));
     const panel = await screen.findByRole("dialog");
     await user.click(within(panel).getByRole("button", { name: "Anular…" }));
     const dialogos = await screen.findAllByRole("dialog");
@@ -183,7 +184,7 @@ describe("R30 — ANULAR desde el estado de cuenta relee ESA cuenta y ninguna ot
         motivo: "Pagado dos veces",
       }),
     );
-    await waitFor(() => expect(screen.getByText("Ordenex le debe ₡4.000 a Tania Tienda")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(`${NOMBRE_ESPERADO} le debe ₡4.000 a Tania Tienda`)).toBeInTheDocument());
     const despues = verEstadoCuentaMock.mock.calls.slice(antes).map(([i]) => (i as { cuenta: { id: string } }).cuenta.id);
     expect(despues.length).toBeGreaterThan(0);
     expect(despues.every((id) => id === UUID_TIENDA)).toBe(true);

@@ -74,6 +74,7 @@ import { clavesVisiblesEnOrden } from "@/lib/columnas/preferencia-columnas";
 import type { DescargaColumna, DescargaFila } from "@/lib/types/descarga";
 import type { DetallePorGuiaDTO, KardexDTO } from "@/lib/types/libro-kardex";
 import type { WalletMovimientoDTO } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
@@ -275,9 +276,9 @@ describe("468 R17/R18/R20/R21 — Concepto, Detalle, A quién, Es dinero de", ()
     expect(f.esDineroDe).toBe(DUENO_LABEL.terceros);
     // Ficha 488 (R29): + `iva: "IVA por pagar"` (antes `{ propio, terceros, capital }`).
     expect(DUENO_LABEL).toEqual({
-      propio: "Ordenex",
+      propio: `${NOMBRE_CORTO_ESPERADO}`,
       terceros: "Tienda",
-      capital: "Ordenex (capital)",
+      capital: `${NOMBRE_CORTO_ESPERADO} (capital)`,
       iva: "IVA por pagar",
     });
     expect(f.aQuien).toBe(f.registro);
@@ -415,7 +416,7 @@ describe("468 R1–R4, R29–R32 — los catálogos de cada hoja (contrato liter
     ]);
   });
 
-  it("R3/R49: la de /mi-wallet, sin «Registró» ni ninguna columna de una persona de Ordenex", () => {
+  it(`R3/R49: la de /mi-wallet, sin «Registró» ni ninguna columna de una persona de ${NOMBRE_ESPERADO}`, () => {
     expect(encabezados(COLUMNAS_DESCARGA_MI_ESTADO_CUENTA)).toEqual(["Fecha", "Concepto", "Detalle", "Entra", "Sale", "Saldo"]);
     expect(encabezados(COLUMNAS_DESCARGA_DETALLE_GUIA_MI_WALLET)).not.toContain("Mensajero");
     expect(encabezados(COLUMNAS_DESCARGA_MI_ESTADO_CUENTA)).not.toContain("A quién");

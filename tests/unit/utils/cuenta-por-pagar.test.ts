@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Prisma } from "@prisma/client";
 import { calcularSplitPago, derivarCuentaPorPagar } from "@/lib/utils/cuenta-por-pagar";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 44/T5 — tests puros de la regla money-safe del pago al mensajero. Cubre R4 (Decimal
 // exacto, STRING 2 dec), R9 (pagado = min(P,E), pagado <= E y <= P), R14 (cuenta por pagar =
@@ -48,7 +49,7 @@ describe("calcularSplitPago — regla min(P,E) (R9/R10)", () => {
 });
 
 describe("derivarCuentaPorPagar — saldo derivado (R14/R16)", () => {
-  it("R14: cuenta por pagar = devengado - pagado (positivo -> Ordenex debe)", () => {
+  it(`R14: cuenta por pagar = devengado - pagado (positivo -> ${NOMBRE_ESPERADO} debe)`, () => {
     const c = derivarCuentaPorPagar("1000.00", "300.00");
     expect(c).toEqual({
       devengado: "1000.00",

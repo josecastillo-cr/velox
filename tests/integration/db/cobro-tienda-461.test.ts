@@ -7,6 +7,7 @@ import { anularCobroTiendaAction, registrarCobroTiendaAction } from "@/lib/actio
 
 import { HAY_BASE_DE_DATOS, crearPrismaDeTest } from "./_postgres-real";
 import { acreditar459, conCandado459, limpiar459, sembrarPersonas459, type Personas459 } from "./_fixtures/escrituras-459";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 461 / T B.8 — EL COBRO Y SU ANULACION POR LAS SERVER ACTIONS, contra Postgres (COMMITEADO).
@@ -111,7 +112,7 @@ describeSiHayBase("461/T B.8 — cobrar y anular por las actions (Postgres real)
       });
       const fila = await filaDelLibro(p.maestro, cargo.id);
       expect(fila?.descripcion).toBe(`${p.tiendaNombre} · Material 458`);
-      expect(fila?.origen?.texto).toBe("Cobro de Ordenex a una tienda");
+      expect(fila?.origen?.texto).toBe(`Cobro de ${NOMBRE_ESPERADO} a una tienda`);
       const visible = `${fila?.origen?.texto} · ${fila?.descripcion}`;
       expect(visible.split(p.tiendaNombre).length - 1).toBe(1);
     });

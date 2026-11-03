@@ -29,6 +29,7 @@ import {
   LLAMADAS_PROHIBIDAS_EN_DINERO,
   codigoSinComentarios,
 } from "@/tests/fixtures/money-safe";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Ficha 344 (B6) — ABRIR UNA FILA DEL LIBRO DE LA CAJA Y VER LAS ÓRDENES QUE LA COMPONEN.
@@ -420,10 +421,10 @@ describe("Ficha 344 — el concepto que no se reparte (R48)", () => {
     });
     pintar([movimiento({ categoria: "egreso_pago_mensajero", tipo: "egreso" })]);
 
-    await abrir(`Ver las órdenes que componen Ordenex le paga a un mensajero del ${FECHA_FILA}`);
+    await abrir(`Ver las órdenes que componen ${NOMBRE_ESPERADO} le paga a un mensajero del ${FECHA_FILA}`);
 
     const region = await screen.findByRole("region", {
-      name: `Órdenes que componen Ordenex le paga a un mensajero del ${FECHA_FILA}`,
+      name: `Órdenes que componen ${NOMBRE_ESPERADO} le paga a un mensajero del ${FECHA_FILA}`,
     });
 
     // MUTACIÓN QUE ESTE CASO MATA: que la rama `sin_reparto` se quede MUDA (un panel vacío, o

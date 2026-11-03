@@ -59,6 +59,22 @@ const PROHIBIDOS: ReadonlyArray<readonly [nombre: string, patron: RegExp]> = [
 
 const IMPORTA_MARCA = /from\s+["']@\/lib\/marca\/identidad["']/;
 
+/**
+ * FEATURE 493 (R18, P6) — excepcion CERRADA: el ORIGEN publico `https://velox-courier.company` en los
+ * ejemplos de `lib/api/openapi-spec.ts` (`evidenciasUrl`). Es un dominio, no la marca pintada: no sale
+ * de `MARCA` (un dominio no cambia solo porque cambie el nombre comercial). Se quita SOLO esa cadena
+ * exacta y SOLO en ese archivo; un «Velox» escrito a mano en el mismo archivo sigue siendo hallazgo.
+ */
+const DOMINIO_PERMITIDO: Readonly<Record<string, string>> = {
+  "lib/api/openapi-spec.ts": "https://velox-courier.company",
+};
+
+/** El fuente sin la excepcion cerrada de su archivo (si la tiene). */
+function sinExcepcion(rel: string, fuente: string): string {
+  const dominio = DOMINIO_PERMITIDO[rel];
+  return dominio === undefined ? fuente : fuente.split(dominio).join("https://dominio.invalid");
+}
+
 /** Codigo sin comentarios y con finales de linea normalizados. */
 function codigo(fuente: string): string {
   return quitarComentarios(fuente.replace(/\r\n/g, "\n"));
@@ -89,8 +105,18 @@ describe("Feature 492 — R1: los archivos de la ficha no escriben la marca como
     expect(hallazgos('{/* Velox Courier */}\nimport { MARCA } from "@/lib/marca/identidad";')).toEqual([]);
   });
 
+  it("493: la excepcion del dominio es cerrada — solo ese origen y solo en openapi-spec.ts", () => {
+    const fuente = 'const u = "https://velox-courier.company/api/x";\nconst t = "Velox Courier";';
+    // En su archivo, el dominio se admite y la marca a mano sigue siendo hallazgo.
+    expect(hallazgos(sinExcepcion("lib/api/openapi-spec.ts", fuente))).toHaveLength(1);
+    // En cualquier otro archivo de la lista, el dominio tambien es hallazgo.
+    expect(hallazgos(sinExcepcion("lib/config/email.ts", fuente))).toHaveLength(2);
+    // Otro subdominio no entra en la excepcion.
+    expect(hallazgos(sinExcepcion("lib/api/openapi-spec.ts", 'const u = "https://app.velox-courier.company";'))).toHaveLength(1);
+  });
+
   it.each([...LEEN_LA_MARCA, ...PINTAN_SIN_IMPORTAR])("%s: sin literal de identidad", (rel) => {
-    expect(hallazgos(leer(rel))).toEqual([]);
+    expect(hallazgos(sinExcepcion(rel, leer(rel)))).toEqual([]);
   });
 
   it.each(LEEN_LA_MARCA)("%s: importa la marca de lib/marca/identidad", (rel) => {

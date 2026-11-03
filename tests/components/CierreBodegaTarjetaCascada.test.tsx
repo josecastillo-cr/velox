@@ -66,6 +66,7 @@ import { CierresBodegaSolicitadosLista } from "@/app/(app)/cierres-admin/_compon
 import { CierresBodegaResueltosLista } from "@/app/(app)/cierres-admin/_components/CierresBodegaResueltosLista";
 
 import { marcaSinConciliar } from "@/tests/fixtures/marca-conciliacion";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // ---------------------------------------------------------------------------
 // EL PARSEADOR: lee una cadena PINTADA y devuelve céntimos. Deshace exactamente lo que hace el
 // formateador y nada más, para que una cadena mal formada dé un número distinto en vez de
@@ -308,7 +309,7 @@ describe("393 · F4 — la tarjeta del cierre de bodega cuenta la cascada B", ()
     expect(within(cascada).queryByText(EFECTIVO_NO_CUBRE_NOTA)).toBeNull();
   });
 
-  it("la tarjeta NO enseña el margen de Ordenex (R39)", async () => {
+  it(`la tarjeta NO enseña el margen de ${NOMBRE_ESPERADO} (R39)`, async () => {
     // H2: la satélite ve lo suyo; nadie ve un margen que no le toca. Y la tarjeta es la ÚNICA
     // superficie que la satélite alcanza.
     envolver(<CierreBodegaFacturaResumen cierre={cierreBodega()} />);

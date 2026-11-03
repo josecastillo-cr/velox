@@ -10,6 +10,7 @@ import {
   type NaturalezaMovimiento,
 } from "@/lib/utils/caja-tesoreria";
 import { armarServicio, consultaDe } from "../services/_dobles-analitica-financiera";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 173 / T F.1 — GUARDIA: LAS METRICAS DE INGRESO NO SE INFLAN (R51, R52).
 //
@@ -62,10 +63,10 @@ function tercerosDeclaradasPor(metricaId: string): readonly string[] {
 /* R51 — ninguna metrica de ingreso declara dinero de terceros                 */
 /* -------------------------------------------------------------------------- */
 
-describe("R51 · las tres metricas de ingreso de Ordenex no ven el dinero de terceros", () => {
+describe(`R51 · las tres metricas de ingreso de ${NOMBRE_ESPERADO} no ven el dinero de terceros`, () => {
   it("ninguna de las tres declara una categoria de naturaleza terceros", () => {
     for (const id of METRICAS_DE_INGRESO) {
-      expect(tercerosDeclaradasPor(id), `${id} declara dinero que no es de Ordenex`).toEqual([]);
+      expect(tercerosDeclaradasPor(id), `${id} declara dinero que no es de ${NOMBRE_ESPERADO}`).toEqual([]);
     }
   });
 

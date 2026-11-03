@@ -42,7 +42,7 @@ fuentes:
 los clientes.
 
 Es la misma cuenta que la tienda ve en su **Mi wallet**, mirada desde este lado: acá cada concepto se
-lee **desde Ordenex** («Ordenex le cobra a la tienda») y allá la tienda lo lee desde el suyo («Ordenex
+lee **desde Velox Courier** («Velox Courier le cobra a la tienda») y allá la tienda lo lee desde el suyo («Velox Courier
 te cobró»).
 
 ## La tabla de saldos
@@ -63,10 +63,10 @@ encuentra esa búsqueda.
 
 ## El estado de cuenta de una tienda
 
-Es el extracto de la tienda con Ordenex, como el de un banco.
+Es el extracto de la tienda con Velox Courier, como el de un banco.
 
 Arriba, la cifra grande es el **saldo actual** con una frase que dice **quién le debe a quién**:
-«Ordenex le debe ₡12.000 a Tania Tienda» o «Tania Tienda le debe ₡3.000 a Ordenex». Debajo, cuatro
+«Velox Courier le debe ₡12.000 a Tania Tienda» o «Tania Tienda le debe ₡3.000 a Velox Courier». Debajo, cuatro
 cifras del periodo: **Saldo inicial**, **Abonos del periodo** (lo que suma a favor de la tienda),
 **Cargos del periodo** (lo que resta) y **Saldo al final del periodo**. Siempre se cumple: saldo inicial
 más abonos menos cargos es el saldo final. Los movimientos anulados y su anulación **no cuentan** en
@@ -77,11 +77,11 @@ La tabla es el **extracto**. Se entra en **Más recientes**: el último movimien
 - La línea del **saldo inicial** del periodo —lo que la tienda tenía al terminar el día anterior— va
   donde cae en el tiempo: con **Más recientes**, es la **última línea de la última página**; con **Más
   antiguas**, la primera línea de la primera página.
-- Cada movimiento dice su fecha, su concepto (desde Ordenex), el motivo, de dónde viene, si tiene
+- Cada movimiento dice su fecha, su concepto (desde Velox Courier), el motivo, de dónde viene, si tiene
   comprobante y **quién lo registró** («Registró: Ana Admin», o «Automático · Aprobación del cierre por
   Ana Admin»), el **cargo** o el **abono**, y el **saldo** de la tienda justo después de ese movimiento.
 - **De dónde viene** lo dice con nombre —«Cierre del día · 2026-09-12 · Juan Pérez Mora», «Pago de
-  Ordenex a una tienda · 2026-09-14 · SINPE»— y, cuando esa cosa tiene su pantalla, con un enlace
+  Velox Courier a una tienda · 2026-09-14 · SINPE»— y, cuando esa cosa tiene su pantalla, con un enlace
   **Ver** que te lleva a ella (por ejemplo, al cierre).
 - Si el movimiento es un pago, dice **Cómo se pagó**: el método y la referencia («SINPE · referencia
   12345»).
@@ -153,16 +153,16 @@ volvé a descargar.
 Tres acciones, cada una abre el mismo **Registrar un movimiento** de la caja con el concepto y la tienda
 ya elegidos:
 
-- **La tienda le paga a Ordenex** — solo cuando la tienda está **en contra**: registra el pago que ella
-  le hizo a Ordenex (hasta lo que debe, con fecha, motivo, método y comprobante opcional). Su saldo sube.
-- **Ordenex le cobra a la tienda** — siempre: un cobro de Ordenex. Su saldo baja y es ganancia de Ordenex.
-- **Ordenex le paga a la tienda** — lo que se le paga de su saldo a favor, hasta lo que Ordenex le debe.
-  Si la tienda no tiene saldo a favor, el botón está apagado y lo dice: «Ordenex no le debe nada a…».
+- **La tienda le paga a Velox Courier** — solo cuando la tienda está **en contra**: registra el pago que ella
+  le hizo a Velox Courier (hasta lo que debe, con fecha, motivo, método y comprobante opcional). Su saldo sube.
+- **Velox Courier le cobra a la tienda** — siempre: un cobro de Velox Courier. Su saldo baja y es ganancia de Velox Courier.
+- **Velox Courier le paga a la tienda** — lo que se le paga de su saldo a favor, hasta lo que Velox Courier le debe.
+  Si la tienda no tiene saldo a favor, el botón está apagado y lo dice: «Velox Courier no le debe nada a…».
 
 Antes de confirmar, **«Así queda»** enseña cómo quedan el saldo de la tienda y la caja. Al registrar,
 las tarjetas y el extracto de esa tienda se actualizan solos, sin recargar.
 
-Debajo del extracto está la lista de **Pagos de Ordenex a la tienda**, cada uno con su método, su
+Debajo del extracto está la lista de **Pagos de Velox Courier a la tienda**, cada uno con su método, su
 referencia y su comprobante. Un pago registrado por error se **anula** desde ahí (con el motivo) o desde
 **Ver** en su fila del extracto. Si te dice **«Este pago ya estaba anulado»**, es que alguien se te
 adelantó.
@@ -172,21 +172,21 @@ adelantó.
 | En el estado de cuenta dice | Qué es | ¿Salió dinero de la caja? |
 | --- | --- | --- |
 | **Contra-entrega cobrado a los clientes de la tienda** | Lo que el mensajero cobró a los clientes en nombre de la tienda | No: entró, y es de la tienda |
-| **Flete cobrado a la tienda**, **Comisión de contra-entrega cobrada a la tienda**, **IVA del flete cobrado a la tienda**… | El servicio de Ordenex, al aprobarse un cierre | No: se descuenta del saldo y es ganancia de Ordenex |
-| **Ordenex le cobra a la tienda** | Un cobro de Ordenex a la tienda hecho a mano: no se le pagó nada a nadie. Se descuenta de su saldo y **es ganancia de Ordenex** | **No**: el dinero pasa del saldo de la tienda a la ganancia |
-| **Cobro de Ordenex a la tienda anulado** | La anulación de ese cobro: el saldo vuelve a subir | No |
-| **Ordenex paga un gasto de la tienda** | Ordenex le pagó a un tercero en nombre de la tienda (su proveedor, su publicidad, su personal). La descripción dice a quién, el motivo, el método y la referencia | **Sí** |
+| **Flete cobrado a la tienda**, **Comisión de contra-entrega cobrada a la tienda**, **IVA del flete cobrado a la tienda**… | El servicio de Velox Courier, al aprobarse un cierre | No: se descuenta del saldo y es ganancia de Velox Courier |
+| **Velox Courier le cobra a la tienda** | Un cobro de Velox Courier a la tienda hecho a mano: no se le pagó nada a nadie. Se descuenta de su saldo y **es ganancia de Velox Courier** | **No**: el dinero pasa del saldo de la tienda a la ganancia |
+| **Cobro de Velox Courier a la tienda anulado** | La anulación de ese cobro: el saldo vuelve a subir | No |
+| **Velox Courier paga un gasto de la tienda** | Velox Courier le pagó a un tercero en nombre de la tienda (su proveedor, su publicidad, su personal). La descripción dice a quién, el motivo, el método y la referencia | **Sí** |
 | **Pago de un gasto de la tienda anulado** | La devolución de un pago de un gasto que se anuló: el saldo vuelve a subir | Vuelve a entrar |
-| **Ordenex le paga a la tienda** | Lo que se le pagó a la tienda de su saldo | **Sí** |
-| **La tienda le paga a Ordenex** | Lo que la tienda le pagó a Ordenex cuando estaba en contra. Su saldo sube | **Sí**: entró dinero de la tienda |
-| **Pago de la tienda a Ordenex anulado** | La anulación de ese pago: el saldo vuelve a bajar | Vuelve a salir |
+| **Velox Courier le paga a la tienda** | Lo que se le pagó a la tienda de su saldo | **Sí** |
+| **La tienda le paga a Velox Courier** | Lo que la tienda le pagó a Velox Courier cuando estaba en contra. Su saldo sube | **Sí**: entró dinero de la tienda |
+| **Pago de la tienda a Velox Courier anulado** | La anulación de ese pago: el saldo vuelve a bajar | Vuelve a salir |
 | **Corrección a favor de la tienda** / **Corrección en contra de la tienda** | Una corrección hecha a mano | — |
 
 **Un pago de un gasto no cuenta como un pago a la tienda**. Y tanto el cobro como el pago de un gasto
-pueden dejar el saldo **en contra**: entonces la tienda le debe ese dinero a Ordenex.
+pueden dejar el saldo **en contra**: entonces la tienda le debe ese dinero a Velox Courier.
 
 Algunos cobros antiguos eran en realidad pagos de un gasto de la tienda. Se corrigieron en la caja,
-pero **acá se siguen viendo como «Ordenex le cobra a la tienda»**: el saldo de la tienda ya era correcto.
+pero **acá se siguen viendo como «Velox Courier le cobra a la tienda»**: el saldo de la tienda ya era correcto.
 
 ## Cosas que te pueden pasar
 
@@ -204,5 +204,5 @@ fecha de corte: el estado de cuenta con un periodo dice el saldo de ese día exa
 
 ## Lo que esta pantalla NO hace
 
-- **No es la caja de Ordenex.** Eso es **Wallet · Caja**.
+- **No es la caja de Velox Courier.** Eso es **Wallet · Caja**.
 - **No se corrige una entrega desde acá.** Un cargo mal calculado nace de la orden; se arregla allá.

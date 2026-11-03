@@ -22,6 +22,7 @@ import type {
   CierreResultado,
   TotalesIngresoOrdenex,
 } from "@/lib/interfaces/services/ICierreDiaService";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 38 (T13) — módulo cliente de "Cierres del día" del admin. Se mockean las
 // Server Actions (ver detalle / aprobar / rechazar), el toast y el router (refresh)
@@ -469,7 +470,7 @@ describe("CierresAdminModule", () => {
     expect(monto).toHaveClass("text-danger-strong");
   });
 
-  it("el detalle muestra el ingreso de Ordenex del cierre por concepto", async () => {
+  it(`el detalle muestra el ingreso de ${NOMBRE_ESPERADO} del cierre por concepto`, async () => {
     const user = userEvent.setup();
     verDetalleMock.mockResolvedValue({
       ordenesSinGestion: [],
@@ -499,7 +500,7 @@ describe("CierresAdminModule", () => {
     await user.click(screen.getByRole("button", { name: "Ver / decidir" }));
 
     const dialog = await screen.findByRole("dialog", { name: "Detalle del cierre" });
-    const panel = within(dialog).getByRole("region", { name: "Ingreso de Ordenex" });
+    const panel = within(dialog).getByRole("region", { name: `Ingreso de ${NOMBRE_CORTO_ESPERADO}` });
     // Cada concepto va con su IVA incluido, en un solo monto, y el total es el del SERVIDOR.
     // FICHA 359 — la advertencia A1 de la 230 («la columna puede no cuadrar a ojo por ±1/±2»)
     // deja de aplicar aquí: 2.825 + 847,50 + 1.130 = 4.802,50, y es exactamente lo que se lee.

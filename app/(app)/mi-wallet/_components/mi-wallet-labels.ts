@@ -4,6 +4,7 @@ import type {
   WalletTiendaMovimientoCategoria,
   WalletTiendaMovimientoTipo,
 } from "@/lib/types/wallet-tienda";
+import { MARCA } from "@/lib/marca/identidad";
 
 // Feature 43 (T15) — etiquetas i18n-ready y helper de moneda del ledger POR TIENDA,
 // separados de la logica (docs/conventions: textos de UI fuera del componente).
@@ -48,16 +49,16 @@ export const DESGLOSE_MI_WALLET_LABEL = {
   aFavor: "A tu favor",
   // Ficha 457 (design §2, R50): nombra lo que le pagaste a Ordenex y su anulación.
   aFavorHint:
-    "Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular",
-  cargos: "Cargos de Ordenex",
+    `Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a ${MARCA.nombre} y lo que ${MARCA.nombre} te devolvió al anular`,
+  cargos: `Cargos de ${MARCA.nombreCorto}`,
   // FICHA 381 (R37) — la enumeración no es solo de conceptos AUTOMÁTICOS: dentro de este importe
   // puede haber un cobro decidido por una persona, y la tienda tiene que poder relacionarlo con la
   // fila que va a leer en su libro («Ordenex te cobró»).
-  cargosHint: "Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon",
+  cargosHint: `Fletes, comisión, IVA, lo que ${MARCA.nombre} te cobró y los pagos a ${MARCA.nombre} que se anularon`,
   pagado: "Ya pagado",
   // Ficha 459 (T B.17, design §5): el pago de un gasto de la tienda cae en `pagado` (dinero
   // entregado a la tienda a traves de un tercero, decision de la 458 §2.6), y la pista lo nombra.
-  pagadoHint: "Lo que Ordenex te pagó o pagó por ti",
+  pagadoHint: `Lo que ${MARCA.nombre} te pagó o pagó por ti`,
   saldo: "Saldo a favor",
 } as const;
 
@@ -103,26 +104,26 @@ export const TIPO_TIENDA_LABEL: Record<WalletTiendaMovimientoTipo, string> = {
  */
 export const CATEGORIA_MI_WALLET_LABEL: Record<WalletTiendaMovimientoCategoria, string> = {
   cod_recaudado: "Cobrado a tus clientes en contra-entrega",
-  flete: "Ordenex te cobró el flete",
-  flete_devolucion: "Ordenex te cobró el flete por devolución a origen",
-  comision_cod: "Ordenex te cobró la comisión de contra-entrega",
-  iva_flete: "Ordenex te cobró el IVA del flete",
-  iva_flete_devolucion: "Ordenex te cobró el IVA del flete por devolución a origen",
-  iva_comision_cod: "Ordenex te cobró el IVA de la comisión",
+  flete: `${MARCA.nombre} te cobró el flete`,
+  flete_devolucion: `${MARCA.nombre} te cobró el flete por devolución a origen`,
+  comision_cod: `${MARCA.nombre} te cobró la comisión de contra-entrega`,
+  iva_flete: `${MARCA.nombre} te cobró el IVA del flete`,
+  iva_flete_devolucion: `${MARCA.nombre} te cobró el IVA del flete por devolución a origen`,
+  iva_comision_cod: `${MARCA.nombre} te cobró el IVA de la comisión`,
   // FICHA 381 (R33/R34): el cobro decidido por una persona, DISTINTO de una correccion.
-  cobro_manual: "Ordenex te cobró",
-  cobro_tienda_anulado: "Ordenex anuló un cobro y te lo devolvió",
-  pago_tienda: "Ordenex te pagó",
+  cobro_manual: `${MARCA.nombre} te cobró`,
+  cobro_tienda_anulado: `${MARCA.nombre} anuló un cobro y te lo devolvió`,
+  pago_tienda: `${MARCA.nombre} te pagó`,
   // P5: el beneficiario («A Facebook…») vive en la descripcion, que la columna de origen añade.
-  pago_por_cuenta: "Ordenex pagó un gasto por ti",
-  pago_por_cuenta_anulado: "Ordenex anuló un pago hecho por ti",
+  pago_por_cuenta: `${MARCA.nombre} pagó un gasto por ti`,
+  pago_por_cuenta_anulado: `${MARCA.nombre} anuló un pago hecho por ti`,
   // Ficha 457 (design §2, D10, R47): la lectura DESDE LA TIENDA, distinta de la de Ordenex
   // (`CATEGORIA_TIENDA_LABEL`). «Le pagaste a Ordenex» es el nombre reservado por la 461 §7.8.
-  abono_tienda: "Le pagaste a Ordenex",
-  abono_tienda_anulado: "Ordenex anuló el pago que le hiciste",
+  abono_tienda: `Le pagaste a ${MARCA.nombre}`,
+  abono_tienda_anulado: `${MARCA.nombre} anuló el pago que le hiciste`,
   // Ficha 458-B (design §2.3, D7): la anulación de un cobro por rechazo, desde la tienda.
-  flete_devolucion_anulado: "Ordenex anuló el flete por devolución a origen y te lo devolvió",
-  iva_flete_devolucion_anulado: "Ordenex anuló el IVA del flete por devolución a origen y te lo devolvió",
+  flete_devolucion_anulado: `${MARCA.nombre} anuló el flete por devolución a origen y te lo devolvió`,
+  iva_flete_devolucion_anulado: `${MARCA.nombre} anuló el IVA del flete por devolución a origen y te lo devolvió`,
   ajuste_credito: "Corrección a tu favor",
   ajuste_debito: "Corrección en tu contra",
 };

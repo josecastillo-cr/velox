@@ -12,6 +12,7 @@ import {
   LLAMADAS_PROHIBIDAS_EN_DINERO,
   codigoSinComentarios,
 } from "@/tests/fixtures/money-safe";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Feature 173 (T G.1) — la tarjeta de las DOS cifras. Cubre R1 (parte UI), R34, R58, R59,
@@ -273,16 +274,16 @@ describe("CajaResumenCard — la nota de la diferencia (R60)", () => {
 // impuesto), así que la advertencia «no es lo que se les debe: es más» pasó a ser FALSA y R24
 // prohíbe decirla. Lo que se afirma ahora es su sustituto.
 describe("CajaResumenCard — «De las tiendas» (R34 de la 173 → R23/R24 de la 459)", () => {
-  it("R23: rotula la cifra como lo que Ordenex les debe y explica que son los saldos netos", () => {
+  it(`R23: rotula la cifra como lo que ${NOMBRE_ESPERADO} les debe y explica que son los saldos netos`, () => {
     pintar();
 
     const tercera = screen.getByRole("region", { name: CAJA_RESUMEN_LABEL.deTerceros });
     expect(within(tercera).getByText("₡10.000")).toBeInTheDocument();
-    expect(CAJA_RESUMEN_LABEL.deTerceros).toBe("Lo que Ordenex les debe a las tiendas");
+    expect(CAJA_RESUMEN_LABEL.deTerceros).toBe(`Lo que ${NOMBRE_ESPERADO} les debe a las tiendas`);
 
     const texto = within(tercera).getByRole("note").textContent ?? "";
     expect(texto).toBe(
-      "Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que Ordenex les cobró. El detalle de cada tienda está en Wallet → Tiendas.",
+      `Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que ${NOMBRE_ESPERADO} les cobró. El detalle de cada tienda está en Wallet → Tiendas.`,
     );
     // R24: ni «es más» ni «no es lo que se les debe».
     expect(texto).not.toMatch(/es más/i);
@@ -299,7 +300,7 @@ describe("CajaResumenCard — «De las tiendas» (R34 de la 173 → R23/R24 de l
     expect((enlace.textContent ?? "").toLowerCase()).toContain("deuda");
   });
 
-  it("R23: si es negativo, dice en palabras que las tiendas le deben a Ordenex, y cuánto", () => {
+  it(`R23: si es negativo, dice en palabras que las tiendas le deben a ${NOMBRE_ESPERADO}, y cuánto`, () => {
     // El ABSOLUTO lo manda el servidor (`deTercerosAbsoluto`): el navegador no le quita el signo
     // a nada (R28). Los dos importes se pintan: la cifra con su signo y la frase sin él.
     pintar({
@@ -310,7 +311,7 @@ describe("CajaResumenCard — «De las tiendas» (R34 de la 173 → R23/R24 de l
     const tercera = screen.getByRole("region", { name: CAJA_RESUMEN_LABEL.deTerceros });
     expect(within(tercera).getByText("-₡4.780.583,97")).toBeInTheDocument();
     expect(
-      within(tercera).getByText("Las tiendas le deben a Ordenex ₡4.780.583,97."),
+      within(tercera).getByText(`Las tiendas le deben a ${NOMBRE_ESPERADO} ₡4.780.583,97.`),
     ).toBeInTheDocument();
     cleanup();
 
@@ -449,7 +450,7 @@ describe("Ficha 459 — estado «flujo»: sin saldo inicial (R15/R16/R17/R22)", 
     expect(within(region).getByText("₡12.000")).toBeInTheDocument();
     expect(
       within(region).getByText(
-        "Lo que entró menos lo que salió desde el 25 de agosto de 2026. No es el saldo del banco: la app no sabe con cuánto dinero empezó Ordenex.",
+        `Lo que entró menos lo que salió desde el 25 de agosto de 2026. No es el saldo del banco: la app no sabe con cuánto dinero empezó ${NOMBRE_ESPERADO}.`,
       ),
     ).toBeInTheDocument();
   });
@@ -483,7 +484,7 @@ describe("Ficha 459 — estado «flujo»: sin saldo inicial (R15/R16/R17/R22)", 
     expect(within(region).getByText("-₡9.186.220,50")).toBeInTheDocument();
     expect(
       within(region).getByText(
-        "Sale negativo porque parte de los pagos se hicieron con dinero que Ordenex ya tenía antes de usar la app, y ese dinero no está registrado aquí.",
+        `Sale negativo porque parte de los pagos se hicieron con dinero que ${NOMBRE_ESPERADO} ya tenía antes de usar la app, y ese dinero no está registrado aquí.`,
       ),
     ).toBeInTheDocument();
     cleanup();
@@ -573,14 +574,14 @@ describe("Ficha 459 — con filtros, en los dos estados (R20)", () => {
   });
 });
 
-describe("Ficha 459 — el capital de Ordenex junto a la ganancia (R25)", () => {
+describe(`Ficha 459 — el capital de ${NOMBRE_ESPERADO} junto a la ganancia (R25)`, () => {
   it("R25: región propia «Saldo inicial y aportes», con su cifra y su pista, y la ganancia igual", () => {
     pintar({ ...FLUJO, capital: "250000.33", signoCapital: "positivo" });
     const capital = screen.getByRole("region", { name: "Saldo inicial y aportes" });
     expect(within(capital).getByText("₡250.000,33")).toBeInTheDocument();
-    expect(within(capital).getByText("Dinero de Ordenex que no es ganancia.")).toBeInTheDocument();
+    expect(within(capital).getByText(`Dinero de ${NOMBRE_ESPERADO} que no es ganancia.`)).toBeInTheDocument();
     // La ganancia conserva rótulo y valor, y su región no contiene el capital.
-    const ganancia = screen.getByRole("region", { name: "Ganancia de Ordenex" });
+    const ganancia = screen.getByRole("region", { name: `Ganancia de ${NOMBRE_CORTO_ESPERADO}` });
     expect(within(ganancia).getByText("₡2.000")).toBeInTheDocument();
     expect(within(ganancia).queryByText("₡250.000,33")).toBeNull();
     // El capital va DENTRO del bolsillo de Ordenex.
@@ -595,7 +596,7 @@ describe("Ficha 459 — la nota de la diferencia usa el rótulo vigente (design 
       screen.getByText(
         // Ficha 488 (R18): «…no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los
         // aportes.» (antes: «…no incluye el dinero de las tiendas ni el saldo inicial o los aportes.»).
-        "«Flujo de dinero registrado» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de Ordenex» es solo lo que Ordenex gana menos lo que gasta: no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.",
+        `«Flujo de dinero registrado» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de ${NOMBRE_CORTO_ESPERADO}» es solo lo que ${NOMBRE_ESPERADO} gana menos lo que gasta: no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.`,
       ),
     ).toBeInTheDocument();
     cleanup();

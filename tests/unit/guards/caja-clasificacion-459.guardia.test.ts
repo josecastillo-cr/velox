@@ -21,6 +21,7 @@ import {
   WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED,
   type WalletTiendaMovimientoCategoria,
 } from "@/lib/types/wallet-tienda";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FICHA 459 / T A.5 — GUARDIA: **cada concepto de la caja y del libro de las tiendas declara su
@@ -302,7 +303,7 @@ describe("459 — guardia de la clasificacion de la caja y del libro de las tien
       expect(p).toContain("cobro_tienda_anulado (1) ↔ egreso_reverso_cobro_tienda (-1): no mueven igual");
     });
 
-    it("⭑ 457 (R24, DH1): el pago de una tienda a Ordenex clasificado como PROPIO → rojo", () => {
+    it(`⭑ 457 (R24, DH1): el pago de una tienda a ${NOMBRE_ESPERADO} clasificado como PROPIO → rojo`, () => {
       // La mutacion 2 de design §13 de la 457: `ingreso_abono_tienda: "propio"`. Como propio efectivo
       // no mueve «De las tiendas» (0) mientras el credito de la tienda la sube (+1): la ganancia
       // subiria al cobrar lo que ya se conto al aprobar el cierre, y R8 se romperia en cuanto la
@@ -316,7 +317,7 @@ describe("459 — guardia de la clasificacion de la caja y del libro de las tien
       );
     });
 
-    it("⭑ 457 (R24): el pago de una tienda a Ordenex clasificado como CARGO → rojo", () => {
+    it(`⭑ 457 (R24): el pago de una tienda a ${NOMBRE_ESPERADO} clasificado como CARGO → rojo`, () => {
       // La mutacion 3 de design §13 de la 457: `LIQUIDEZ.ingreso_abono_tienda = "cargo_a_tienda"`. Un
       // cargo `ingreso_` BAJA «De las tiendas» (−1) mientras el credito la sube (+1); y la lista de los
       // ocho cargos deja de ser la del contrato.
@@ -330,7 +331,7 @@ describe("459 — guardia de la clasificacion de la caja y del libro de las tien
       expect(p).toContain("ingreso_abono_tienda: cargo que no es propio");
     });
 
-    it("⭑ 457 (R24): las dos parejas del pago de una tienda a Ordenex, declaradas y en el mismo sentido", () => {
+    it(`⭑ 457 (R24): las dos parejas del pago de una tienda a ${NOMBRE_ESPERADO}, declaradas y en el mismo sentido`, () => {
       expect(CONTRAPARTIDA_EN_CAJA.abono_tienda).toBe("ingreso_abono_tienda");
       expect(CONTRAPARTIDA_EN_CAJA.abono_tienda_anulado).toBe("egreso_reverso_abono_tienda");
       expect(TIPO_POR_CATEGORIA_TIENDA.abono_tienda).toBe("credito");

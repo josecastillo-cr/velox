@@ -7,10 +7,14 @@ import { createHmac } from "node:crypto";
 // El secreto NUNCA viaja en la peticion ni en logs (R29): solo su HMAC, que no es
 // invertible. Se usa `crypto` de Node (ya disponible; `hashApiKey` usa `createHash`).
 
+// FEATURE 493 (R17, P4): los nombres pasan a `X-Velox-*` (antes, la marca anterior), sin periodo de doble
+// cabecera (decision del humano, 2026-10-31). LITERALES a proposito, no derivados de `MARCA`: un
+// nombre de cabecera es contrato con el integrador, y un cambio de marca no debe moverlo sin anuncio.
+
 /** Cabecera con la firma: `sha256=<hex>` (R18). */
-export const WEBHOOK_SIGNATURE_HEADER = "X-Ordenex-Signature";
+export const WEBHOOK_SIGNATURE_HEADER = "X-Velox-Signature";
 /** Cabecera con el instante unix de la firma (R18), insumo del anti-replay del consumidor. */
-export const WEBHOOK_TIMESTAMP_HEADER = "X-Ordenex-Timestamp";
+export const WEBHOOK_TIMESTAMP_HEADER = "X-Velox-Timestamp";
 
 /**
  * HMAC-SHA256 hex de `${timestampUnix}.${cuerpo}` con el secreto del owner (R18).

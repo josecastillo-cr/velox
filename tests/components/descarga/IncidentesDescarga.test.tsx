@@ -72,6 +72,7 @@ vi.mock("@/hooks/useToast", () => ({
 }));
 
 import { IncidentesAdminModule } from "@/app/(app)/incidentes/_components/IncidentesAdminModule";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /** URL FIRMADA de evidencia: lo que NO puede acabar en el archivo (R22). */
 const EVIDENCIA_FIRMADA =
@@ -112,13 +113,13 @@ const HISTORICO = [
     estado: "aprobado",
     causa: "perdido",
     indemnizacion: "2500.10",
-    resueltoPorNombre: "Maestra Ordenex",
+    resueltoPorNombre: `Maestra ${NOMBRE_ESPERADO}`,
     resueltoAt: "2026-07-12T10:00:00.000Z",
   }),
   incidente({
     incidenteId: "i4",
     estado: "rechazado",
-    resueltoPorNombre: "Maestra Ordenex",
+    resueltoPorNombre: `Maestra ${NOMBRE_ESPERADO}`,
     resueltoAt: "2026-07-13T10:00:00.000Z",
     motivoRechazo: "No procede",
   }),
@@ -476,7 +477,7 @@ describe("Incidentes · descarga", () => {
         incidenteId: `ih-${i}`,
         estado: "aprobado",
         indemnizacion: "2500.10",
-        resueltoPorNombre: "Maestra Ordenex",
+        resueltoPorNombre: `Maestra ${NOMBRE_ESPERADO}`,
         resueltoAt: `2026-07-${dia}T10:00:00.000Z`,
       });
     const relleno = Array.from({ length: 27 }, (_, i) => resuelto(100 + i, "15"));
@@ -512,7 +513,7 @@ describe("Incidentes · descarga", () => {
     expect(mensaje).toMatch(/Vuelve a intentarlo/);
     // Sin un solo dato del dominio: aquí cada fila lleva ADEMÁS el monto indemnizado y quién
     // lo decidió.
-    for (const dato of ["Ana Pérez", "Maestra Ordenex", "2500.10", "No procede", "REM-i3"]) {
+    for (const dato of ["Ana Pérez", `Maestra ${NOMBRE_ESPERADO}`, "2500.10", "No procede", "REM-i3"]) {
       expect(mensaje).not.toContain(dato);
     }
     expect(descargarBlobMock).not.toHaveBeenCalled();

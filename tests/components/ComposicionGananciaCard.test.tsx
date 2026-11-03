@@ -31,6 +31,7 @@ import {
   LLAMADAS_PROHIBIDAS_EN_DINERO,
   codigoSinComentarios,
 } from "@/tests/fixtures/money-safe";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Feature 231 (T6.2/T6.4) — «Cómo se compone la ganancia de Ordenex».
@@ -220,9 +221,9 @@ describe("DesgloseEgresosCard — render (R11/R12) [re-hospedado de la 45]", () 
     pintarComoLa158();
 
     const lista = listaEgresos();
-    expect(within(lista).getByText("Gastos fijos de Ordenex")).toBeInTheDocument();
+    expect(within(lista).getByText(`Gastos fijos de ${NOMBRE_CORTO_ESPERADO}`)).toBeInTheDocument();
     expect(within(lista).getByText("₡300")).toBeInTheDocument();
-    expect(within(lista).getByText("Gastos de Ordenex")).toBeInTheDocument();
+    expect(within(lista).getByText(`Gastos de ${NOMBRE_CORTO_ESPERADO}`)).toBeInTheDocument();
     expect(within(lista).getByText("₡125,50")).toBeInTheDocument();
     expect(within(lista).getByText("Sueldos")).toBeInTheDocument();
     expect(within(lista).getByText("₡800")).toBeInTheDocument();
@@ -323,7 +324,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
     // Y la resta, en el pie de la tarjeta y no perdida entre las filas.
     const pie = container.querySelector<HTMLElement>('[data-slot="card-footer"]');
     expect(pie, "la tarjeta no tiene pie").not.toBeNull();
-    expect(within(pie as HTMLElement).getByText("Ganancia de Ordenex")).toBeInTheDocument();
+    expect(within(pie as HTMLElement).getByText(`Ganancia de ${NOMBRE_CORTO_ESPERADO}`)).toBeInTheDocument();
     expect(within(pie as HTMLElement).getByText("₡2.949,25")).toBeInTheDocument(); // ficha 488: antes "₡3.519"
   });
 
@@ -364,7 +365,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
       // cobrado a la tienda» ₡30,25).
       { rotulo: "Corrección de caja (suma)", importe: "₡90" },
       // Ficha 461 (R27): la fila del cobro de Ordenex a una tienda; en este fixture vale 0,00.
-      { rotulo: "Ordenex le cobra a una tienda", importe: "₡0" },
+      { rotulo: `${NOMBRE_ESPERADO} le cobra a una tienda`, importe: "₡0" },
       { rotulo: "Total de ingresos", importe: "₡5.140" }, // ficha 488: antes "₡5.709,75"
     ]);
 
@@ -382,18 +383,18 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
     // sumaban ₡2.192 y el total decía ₡2.191, y eso estaba declarado como consecuencia
     // aceptada. Ya no hace falta aceptarla.
     expect(pares(listaEgresos())).toEqual([
-      { rotulo: "Gastos fijos de Ordenex", importe: "₡300" },
-      { rotulo: "Gastos de Ordenex", importe: "₡125,50" },
+      { rotulo: `Gastos fijos de ${NOMBRE_CORTO_ESPERADO}`, importe: "₡300" },
+      { rotulo: `Gastos de ${NOMBRE_CORTO_ESPERADO}`, importe: "₡125,50" },
       { rotulo: "Sueldos", importe: "₡800" },
       { rotulo: "Indemnizaciones", importe: "₡25,25" },
-      { rotulo: "Pagos de Ordenex a mensajeros", importe: "₡700" },
+      { rotulo: `Pagos de ${NOMBRE_ESPERADO} a mensajeros`, importe: "₡700" },
       { rotulo: "Correcciones de caja (resta)", importe: "₡45,75" },
       // Ficha 461 (R27): la fila de los cobros anulados; en este fixture vale 0,00.
       { rotulo: "Cobros a una tienda anulados", importe: "₡0" },
       // Ficha 458-B (design §2.3): las dos filas de la anulacion de un cobro por devolución a origen; aqui 0,00.
       { rotulo: "Fletes por devolución a origen cobrados a una tienda anulados", importe: "₡0" },
       // Ficha 488 (R19): fuera «IVA de fletes por devolución a origen cobrados a una tienda anulados» (₡0).
-      { rotulo: "Otros gastos de Ordenex", importe: "₡194,25" },
+      { rotulo: `Otros gastos de ${NOMBRE_CORTO_ESPERADO}`, importe: "₡194,25" },
       { rotulo: "Total de egresos", importe: "₡2.190,75" },
     ]);
   });
@@ -485,16 +486,16 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
     // reordenar una tarjeta que la gente ya conoce.
     const egresos = rotulos(listaEgresos());
     expect(egresos).toEqual([
-      "Gastos fijos de Ordenex",
-      "Gastos de Ordenex",
+      `Gastos fijos de ${NOMBRE_CORTO_ESPERADO}`,
+      `Gastos de ${NOMBRE_CORTO_ESPERADO}`,
       "Sueldos",
       "Indemnizaciones",
-      "Pagos de Ordenex a mensajeros",
+      `Pagos de ${NOMBRE_ESPERADO} a mensajeros`,
       "Correcciones de caja (resta)",
       "Cobros a una tienda anulados", // ficha 461: tercer nombrado, antes de «Otros»
       "Fletes por devolución a origen cobrados a una tienda anulados", // ficha 458-B
       // Ficha 488 (R19): fuera «IVA de fletes por devolución a origen cobrados a una tienda anulados».
-      "Otros gastos de Ordenex",
+      `Otros gastos de ${NOMBRE_CORTO_ESPERADO}`,
       "Total de egresos",
     ]);
 
@@ -527,7 +528,7 @@ describe("ComposicionGananciaCard — la columna de egresos cuadra (R26)", () =>
     // La fila que D2 añadió: sin ella la resta de la pantalla se equivocaría en el pago a los
     // mensajeros, que no es pequeño. Ficha 339: ese pago ya tiene fila propia, así que aquí
     // queda sólo lo que de verdad sigue sin clasificar (194,25).
-    expect(within(lista).getByText("Otros gastos de Ordenex")).toBeInTheDocument();
+    expect(within(lista).getByText(`Otros gastos de ${NOMBRE_CORTO_ESPERADO}`)).toBeInTheDocument();
     expect(within(lista).getByText("₡194,25")).toBeInTheDocument();
 
     // El total de la columna es `totalEgresos`, que el servidor garantiza idéntico a
@@ -624,7 +625,7 @@ describe("Ficha 339 — cada gasto con su nombre (R1/R2/R3/R5)", () => {
     const lista = listaEgresos();
     // El motivo de la ficha: en producción este concepto era 227.300,00 en nueve movimientos
     // y no aparecía por su nombre en ninguna parte de la tarjeta.
-    expect(within(lista).getByText("Pagos de Ordenex a mensajeros")).toBeInTheDocument();
+    expect(within(lista).getByText(`Pagos de ${NOMBRE_ESPERADO} a mensajeros`)).toBeInTheDocument();
     expect(within(lista).getByText("₡700")).toBeInTheDocument();
   });
 
@@ -670,7 +671,7 @@ describe("Ficha 339 — cada gasto con su nombre (R1/R2/R3/R5)", () => {
 });
 
 describe("Ficha 339 — «Otros» sólo cuando de verdad queda algo (R7/R8/R9/R10)", () => {
-  it("R7: con `hayOtrosEgresos` falso, la fila «Otros gastos de Ordenex» no está en el DOM", () => {
+  it(`R7: con \`hayOtrosEgresos\` falso, la fila «Otros gastos de ${NOMBRE_CORTO_ESPERADO}» no está en el DOM`, () => {
     // Y NO basta con que salga en cero: la fila entera desaparece. Un 0,00 permanente entrena
     // a no mirar esa línea, y el valor de la fila está justo en que aparecer signifique algo.
     pintar({
@@ -678,13 +679,13 @@ describe("Ficha 339 — «Otros» sólo cuando de verdad queda algo (R7/R8/R9/R1
     });
 
     const lista = listaEgresos();
-    expect(within(lista).queryByText("Otros gastos de Ordenex")).toBeNull();
+    expect(within(lista).queryByText(`Otros gastos de ${NOMBRE_CORTO_ESPERADO}`)).toBeNull();
     expect(rotulos(lista)).toEqual([
-      "Gastos fijos de Ordenex",
-      "Gastos de Ordenex",
+      `Gastos fijos de ${NOMBRE_CORTO_ESPERADO}`,
+      `Gastos de ${NOMBRE_CORTO_ESPERADO}`,
       "Sueldos",
       "Indemnizaciones",
-      "Pagos de Ordenex a mensajeros",
+      `Pagos de ${NOMBRE_ESPERADO} a mensajeros`,
       "Correcciones de caja (resta)",
       "Cobros a una tienda anulados", // ficha 461
       "Fletes por devolución a origen cobrados a una tienda anulados", // ficha 458-B
@@ -697,7 +698,7 @@ describe("Ficha 339 — «Otros» sólo cuando de verdad queda algo (R7/R8/R9/R1
     pintar();
 
     const lista = listaEgresos();
-    expect(within(lista).getByText("Otros gastos de Ordenex")).toBeInTheDocument();
+    expect(within(lista).getByText(`Otros gastos de ${NOMBRE_CORTO_ESPERADO}`)).toBeInTheDocument();
     expect(within(lista).getByText("₡194,25")).toBeInTheDocument();
   });
 
@@ -709,7 +710,7 @@ describe("Ficha 339 — «Otros» sólo cuando de verdad queda algo (R7/R8/R9/R1
     pintar({
       composicion: { ...COMPOSICION, otrosEgresos: "194.25", hayOtrosEgresos: false },
     });
-    expect(within(listaEgresos()).queryByText("Otros gastos de Ordenex")).toBeNull();
+    expect(within(listaEgresos()).queryByText(`Otros gastos de ${NOMBRE_CORTO_ESPERADO}`)).toBeNull();
 
     cleanup();
 
@@ -718,7 +719,7 @@ describe("Ficha 339 — «Otros» sólo cuando de verdad queda algo (R7/R8/R9/R1
       composicion: { ...COMPOSICION, otrosEgresos: "0.00", hayOtrosEgresos: true },
     });
     expect(
-      within(listaEgresos()).getByText("Otros gastos de Ordenex"),
+      within(listaEgresos()).getByText(`Otros gastos de ${NOMBRE_CORTO_ESPERADO}`),
     ).toBeInTheDocument();
   });
 
@@ -848,7 +849,7 @@ describe("Ficha 488 — la composición de la ganancia no tiene filas de IVA (R1
     }
   });
 
-  it("R19: los totales de las dos columnas son los del DTO (ingresos y gastos de Ordenex sin IVA)", () => {
+  it(`R19: los totales de las dos columnas son los del DTO (ingresos y gastos de ${NOMBRE_ESPERADO} sin IVA)`, () => {
     pintar();
     expect(pares(listaIngresos()).at(-1)).toEqual({ rotulo: "Total de ingresos", importe: "₡5.140" });
     expect(pares(listaEgresos()).at(-1)).toEqual({ rotulo: "Total de egresos", importe: "₡2.190,75" });

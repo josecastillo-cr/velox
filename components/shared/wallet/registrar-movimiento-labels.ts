@@ -2,6 +2,7 @@ import { money } from "@/lib/config/moneda";
 import type { SaldoTiendaDTO } from "@/lib/types/wallet-tienda";
 
 import { SALDO_SIGNO_LABEL } from "@/app/(app)/wallet/tiendas/_components/saldo-tienda-signo-label";
+import { MARCA } from "@/lib/marca/identidad";
 
 // FICHA 458-C (T C.1–C.3, design §4.1/§4.4/§5.1) — los textos del diálogo ÚNICO «Registrar un
 // movimiento». Fuera del JSX (docs/conventions): una futura pasada de i18n tiene UN solo sitio.
@@ -89,11 +90,11 @@ export const CUENTA_TEXTO = {
 /** Pistas bajo la cuenta, por concepto (textos de la 381, la 459 y la 457, byte a byte). */
 export const PISTA_CUENTA = {
   cobro_tienda:
-    "El cobro se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex. Si la tienda no tiene saldo, queda en contra y se cobra cuando la gestión le vuelva a generar dinero a favor.",
+    `El cobro se descuenta del saldo a favor de la tienda y pasa a ser ganancia de ${MARCA.nombre}. Si la tienda no tiene saldo, queda en contra y se cobra cuando la gestión le vuelva a generar dinero a favor.`,
   pago_por_cuenta_tienda:
-    "Si la tienda no tiene saldo suficiente, su saldo queda en contra: ella le deberá ese dinero a Ordenex.",
+    `Si la tienda no tiene saldo suficiente, su saldo queda en contra: ella le deberá ese dinero a ${MARCA.nombre}.`,
   abono_tienda: "Solo se admite si la tienda tiene saldo en contra, y hasta lo que debe.",
-  pago_tienda: "Solo se admite hasta lo que Ordenex le debe a la tienda.",
+  pago_tienda: `Solo se admite hasta lo que ${MARCA.nombre} le debe a la tienda.`,
   pago_mensajero: "El importe se reparte entre sus cierres pendientes.",
 } as const;
 
@@ -118,9 +119,9 @@ export const APORTE_TEXTO = {
     {
       value: "saldo_inicial",
       label:
-        "Saldo inicial — el dinero que Ordenex tenía al empezar a usar la app. Solo puede haber uno.",
+        `Saldo inicial — el dinero que ${MARCA.nombre} tenía al empezar a usar la app. Solo puede haber uno.`,
     },
-    { value: "aporte", label: "Aporte de capital — dinero de Ordenex que entra después." },
+    { value: "aporte", label: `Aporte de capital — dinero de ${MARCA.nombre} que entra después.` },
   ],
   nombreClase: { saldo_inicial: "Saldo inicial", aporte: "Aporte de capital" },
   yaHaySaldoInicial:
@@ -140,24 +141,24 @@ function fraseSaldoTienda(tienda: string, saldo: SaldoTiendaDTO, debe: string): 
 /** Los avisos de éxito y de rechazo que dependen de la respuesta del SERVIDOR. */
 export const RESPUESTA_TEXTO = {
   cobro: (tienda: string, saldo: SaldoTiendaDTO) =>
-    `Cobro registrado. ${fraseSaldoTienda(tienda, saldo, "La tienda le debe ese dinero a Ordenex.")}`,
+    `Cobro registrado. ${fraseSaldoTienda(tienda, saldo, `La tienda le debe ese dinero a ${MARCA.nombre}.`)}`,
   pagoPorCuenta: (tienda: string, saldo: SaldoTiendaDTO) =>
-    `Pago registrado. ${fraseSaldoTienda(tienda, saldo, "La tienda le debe ese dinero a Ordenex.")}`,
+    `Pago registrado. ${fraseSaldoTienda(tienda, saldo, `La tienda le debe ese dinero a ${MARCA.nombre}.`)}`,
   abono: (tienda: string, saldo: SaldoTiendaDTO) =>
-    `Pago registrado. ${fraseSaldoTienda(tienda, saldo, "La tienda todavía le debe ese dinero a Ordenex.")}`,
+    `Pago registrado. ${fraseSaldoTienda(tienda, saldo, `La tienda todavía le debe ese dinero a ${MARCA.nombre}.`)}`,
   abonoYaRegistrado: (tienda: string, monto: string, saldo: SaldoTiendaDTO) =>
-    `Este pago ya estaba registrado, por ${money(monto)}. ${fraseSaldoTienda(tienda, saldo, "La tienda todavía le debe ese dinero a Ordenex.")}`,
+    `Este pago ya estaba registrado, por ${money(monto)}. ${fraseSaldoTienda(tienda, saldo, `La tienda todavía le debe ese dinero a ${MARCA.nombre}.`)}`,
   sinDeuda: "Esta tienda no tiene saldo en contra: no hay nada que pagar.",
   excedeDeuda: (deuda: string) => `La tienda debe ${money(deuda)}: el pago no puede superar ese importe.`,
   /** 458-C — el pago de Ordenex a una tienda: lo que le queda a favor, del SERVIDOR. */
   pagoTienda: (tienda: string, monto: string, restante: string) =>
-    `Pago de ${money(monto)} a ${tienda} registrado. Ordenex le sigue debiendo ${money(restante)}.`,
+    `Pago de ${money(monto)} a ${tienda} registrado. ${MARCA.nombre} le sigue debiendo ${money(restante)}.`,
   sinSaldoTienda: "Esta tienda no tiene saldo a favor: no hay nada que pagar.",
   excedeSaldoTienda: (disponible: string) =>
-    `Ordenex le debe ${money(disponible)} a esta tienda: el pago no puede superar ese importe.`,
+    `${MARCA.nombre} le debe ${money(disponible)} a esta tienda: el pago no puede superar ese importe.`,
   /** 458-C — el reparto al mensajero: lo imputado y lo que sigue debiéndose, del SERVIDOR. */
   pagoMensajero: (mensajero: string, total: string, restante: string) =>
-    `Pago de ${money(total)} a ${mensajero} registrado. Ordenex le sigue debiendo ${money(restante)} por sus cierres.`,
+    `Pago de ${money(total)} a ${mensajero} registrado. ${MARCA.nombre} le sigue debiendo ${money(restante)} por sus cierres.`,
   sinSaldoMensajero: "Este mensajero no tiene cierres pendientes de pago: no hay nada que pagar.",
   excedeSaldoMensajero: (disponible: string) =>
     `Se le pueden pagar hasta ${money(disponible)} por sus cierres pendientes: el pago no puede superar ese importe.`,
@@ -186,11 +187,11 @@ export const ASI_QUEDA_TEXTO = {
   /** R45 — la línea que el concepto no mueve se dice en palabras. */
   noCambia: "no cambia",
   cuentaTienda: (tienda: string) => `Saldo de ${tienda}`,
-  cuentaMensajero: (mensajero: string) => `Lo que Ordenex le debe a ${mensajero}`,
+  cuentaMensajero: (mensajero: string) => `Lo que ${MARCA.nombre} le debe a ${mensajero}`,
   /** R47 — el saldo de la tienda queda en contra, con su signo, antes de confirmar. */
   saldoEnContra: (tienda: string, saldo: string) =>
-    `Así, ${tienda} queda con el saldo en contra: ${money(saldo)}. Le deberá ese dinero a Ordenex.`,
+    `Así, ${tienda} queda con el saldo en contra: ${money(saldo)}. Le deberá ese dinero a ${MARCA.nombre}.`,
   /** El tope lo decide el servidor (`superaDisponible`). */
-  superaPagoTienda: "El monto supera lo que Ordenex le debe a esta tienda: no se va a poder registrar.",
-  superaAbono: "El monto supera lo que la tienda le debe a Ordenex: no se va a poder registrar.",
+  superaPagoTienda: `El monto supera lo que ${MARCA.nombre} le debe a esta tienda: no se va a poder registrar.`,
+  superaAbono: `El monto supera lo que la tienda le debe a ${MARCA.nombre}: no se va a poder registrar.`,
 } as const;

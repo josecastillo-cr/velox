@@ -39,6 +39,7 @@ import { estado, fila } from "@/tests/fixtures/estado-cuenta";
 import { CATEGORIA_TIENDA_LABEL } from "@/app/(app)/wallet/tiendas/_components/desglose-tienda-labels";
 import { MiEstadoCuenta, ROTULOS_MI_WALLET } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
 import { DESGLOSE_MI_WALLET_LABEL } from "@/app/(app)/mi-wallet/_components/mi-wallet-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const TIENDA_ID = "2c4e6a8b-1d3f-4b5c-9e7a-1c3e5a7b9d0f";
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
@@ -80,8 +81,8 @@ afterEach(() => {
   cleanup();
 });
 
-describe("457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cuenta lo dice desde Ordenex", () => {
-  it("tabla: «La tienda le paga a Ordenex» y «Pago de la tienda a Ordenex anulado», con su origen; sin desplegar ni ids", () => {
+describe(`457/R46/R48/R49/R51 — \`/wallet/tiendas/[tiendaId]\`: el estado de cuenta lo dice desde ${NOMBRE_ESPERADO}`, () => {
+  it(`tabla: «La tienda le paga a ${NOMBRE_ESPERADO}» y «Pago de la tienda a ${NOMBRE_ESPERADO} anulado», con su origen; sin desplegar ni ids`, () => {
     render(
       <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
         <ToastProvider>
@@ -93,10 +94,10 @@ describe("457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cue
       </SWRConfig>,
     );
     const tabla = screen.getByRole("table", { name: "Estado de cuenta de Tienda Norte" });
-    const pago = within(tabla).getByText("La tienda le paga a Ordenex").closest("tr") as HTMLElement;
-    expect(within(pago).getByText("Pago de una tienda a Ordenex")).toBeInTheDocument();
+    const pago = within(tabla).getByText(`La tienda le paga a ${NOMBRE_ESPERADO}`).closest("tr") as HTMLElement;
+    expect(within(pago).getByText(`Pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
     expect(within(pago).getByText("Pago de los fletes · SINPE · 123456")).toBeInTheDocument();
-    const anulado = within(tabla).getByText("Pago de la tienda a Ordenex anulado").closest("tr") as HTMLElement;
+    const anulado = within(tabla).getByText(`Pago de la tienda a ${NOMBRE_ESPERADO} anulado`).closest("tr") as HTMLElement;
     expect(within(anulado).getByText("Anulación · Pago de los fletes · SINPE · 123456")).toBeInTheDocument();
     // R51: ninguna de las dos se despliega (no nacen de un cierre); solo «Ver» abre SU panel.
     for (const f of [pago, anulado]) {
@@ -110,12 +111,12 @@ describe("457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cue
   it("descarga: las mismas palabras que la tabla, sin uuids", () => {
     expect(lineaDeFila(FILA_ABONO, ROTULOS_TIENDA)).toMatchObject({
       fecha: "2026-09-24",
-      movimiento: "La tienda le paga a Ordenex",
+      movimiento: `La tienda le paga a ${NOMBRE_ESPERADO}`,
       abono: "4000.00",
-      origen: "Pago de una tienda a Ordenex",
+      origen: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
       motivo: "Pago de los fletes · SINPE · 123456",
     });
-    expect(lineaDeFila(FILA_ANULADO, ROTULOS_TIENDA).movimiento).toBe("Pago de la tienda a Ordenex anulado");
+    expect(lineaDeFila(FILA_ANULADO, ROTULOS_TIENDA).movimiento).toBe(`Pago de la tienda a ${NOMBRE_ESPERADO} anulado`);
     for (const f of [FILA_ABONO, FILA_ANULADO]) {
       const valores = Object.values(lineaDeFila(f, ROTULOS_TIENDA)).join(" | ");
       expect(valores).not.toMatch(UUID);
@@ -123,9 +124,9 @@ describe("457/R46/R48/R49/R51 — `/wallet/tiendas/[tiendaId]`: el estado de cue
     }
   });
 
-  it("el diccionario desde Ordenex nombra los dos (el filtro de la oficina es el chip «Pagos», D10)", () => {
-    expect(CATEGORIA_TIENDA_LABEL.abono_tienda).toBe("La tienda le paga a Ordenex");
-    expect(CATEGORIA_TIENDA_LABEL.abono_tienda_anulado).toBe("Pago de la tienda a Ordenex anulado");
+  it(`el diccionario desde ${NOMBRE_ESPERADO} nombra los dos (el filtro de la oficina es el chip «Pagos», D10)`, () => {
+    expect(CATEGORIA_TIENDA_LABEL.abono_tienda).toBe(`La tienda le paga a ${NOMBRE_ESPERADO}`);
+    expect(CATEGORIA_TIENDA_LABEL.abono_tienda_anulado).toBe(`Pago de la tienda a ${NOMBRE_ESPERADO} anulado`);
   });
 });
 
@@ -135,7 +136,7 @@ const MI_ABONO = { ...FILA_ABONO, registro: { nombre: null, automatico: null }, 
 const MI_ANULADO = { ...FILA_ANULADO, registro: { nombre: null, automatico: null } };
 
 describe("457/R47/R48/R51 — `/mi-wallet`: la tienda lo lee desde su lado", () => {
-  it("tabla: «Le pagaste a Ordenex» y «Ordenex anuló el pago que le hiciste», con su origen; sin desplegar ni ids", () => {
+  it(`tabla: «Le pagaste a ${NOMBRE_ESPERADO}» y «${NOMBRE_ESPERADO} anuló el pago que le hiciste», con su origen; sin desplegar ni ids`, () => {
     render(
       <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
         <ToastProvider>
@@ -147,10 +148,10 @@ describe("457/R47/R48/R51 — `/mi-wallet`: la tienda lo lee desde su lado", () 
       </SWRConfig>,
     );
     const tabla = screen.getByRole("table", { name: "Estado de cuenta de Tienda Norte" });
-    const pago = within(tabla).getByText("Le pagaste a Ordenex").closest("tr") as HTMLElement;
-    expect(within(pago).getByText("Pago de una tienda a Ordenex")).toBeInTheDocument();
+    const pago = within(tabla).getByText(`Le pagaste a ${NOMBRE_ESPERADO}`).closest("tr") as HTMLElement;
+    expect(within(pago).getByText(`Pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
     expect(within(pago).getByText("Pago de los fletes · SINPE · 123456")).toBeInTheDocument();
-    const anulado = within(tabla).getByText("Ordenex anuló el pago que le hiciste").closest("tr") as HTMLElement;
+    const anulado = within(tabla).getByText(`${NOMBRE_ESPERADO} anuló el pago que le hiciste`).closest("tr") as HTMLElement;
     expect(anulado).toBeInTheDocument();
     // R51: nada que desplegar. 458-D (R78): el pago lleva «Ver comprobante» —ver, no desplegar—.
     for (const f of [pago, anulado]) {
@@ -159,19 +160,19 @@ describe("457/R47/R48/R51 — `/mi-wallet`: la tienda lo lee desde su lado", () 
     }
     // Los nombres desde Ordenex NO se asoman en la pantalla de la tienda (R47).
     const texto = document.body.textContent ?? "";
-    expect(texto).not.toContain("La tienda le paga a Ordenex");
-    expect(texto).not.toContain("Pago de la tienda a Ordenex anulado");
+    expect(texto).not.toContain(`La tienda le paga a ${NOMBRE_ESPERADO}`);
+    expect(texto).not.toContain(`Pago de la tienda a ${NOMBRE_ESPERADO} anulado`);
     expect(texto).not.toMatch(UUID);
     expect(texto).not.toMatch(/abono_tienda/);
   });
 
   it("descarga: las mismas palabras que la tabla, sin uuids", () => {
     expect(lineaDeFila(MI_ABONO, ROTULOS_MI_WALLET)).toMatchObject({
-      movimiento: "Le pagaste a Ordenex",
-      origen: "Pago de una tienda a Ordenex",
+      movimiento: `Le pagaste a ${NOMBRE_ESPERADO}`,
+      origen: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
       motivo: "Pago de los fletes · SINPE · 123456",
     });
-    expect(lineaDeFila(MI_ANULADO, ROTULOS_MI_WALLET).movimiento).toBe("Ordenex anuló el pago que le hiciste");
+    expect(lineaDeFila(MI_ANULADO, ROTULOS_MI_WALLET).movimiento).toBe(`${NOMBRE_ESPERADO} anuló el pago que le hiciste`);
     for (const f of [MI_ABONO, MI_ANULADO]) {
       const valores = Object.values(lineaDeFila(f, ROTULOS_MI_WALLET)).join(" | ");
       expect(valores).not.toMatch(UUID);
@@ -182,16 +183,16 @@ describe("457/R47/R48/R51 — `/mi-wallet`: la tienda lo lee desde su lado", () 
   it("filtro: los dos caen en el chip «Pagos» de la tienda (D10), rotulados desde la tienda", () => {
     expect(MI_ABONO.chip).toBe("pagos");
     expect(MI_ANULADO.chip).toBe("pagos");
-    expect(ROTULOS_MI_WALLET.concepto(MI_ABONO)).toBe("Le pagaste a Ordenex");
-    expect(ROTULOS_MI_WALLET.concepto(MI_ANULADO)).toBe("Ordenex anuló el pago que le hiciste");
+    expect(ROTULOS_MI_WALLET.concepto(MI_ABONO)).toBe(`Le pagaste a ${NOMBRE_ESPERADO}`);
+    expect(ROTULOS_MI_WALLET.concepto(MI_ANULADO)).toBe(`${NOMBRE_ESPERADO} anuló el pago que le hiciste`);
   });
 
   it("R50: las pistas de la cabecera de tres importes nombran el pago y su anulación, literales (la cabecera se retiró con el libro, 458-D; los textos quedan)", () => {
     expect(DESGLOSE_MI_WALLET_LABEL.aFavorHint).toBe(
-      "Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular",
+      `Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a ${NOMBRE_ESPERADO} y lo que ${NOMBRE_ESPERADO} te devolvió al anular`,
     );
     expect(DESGLOSE_MI_WALLET_LABEL.cargosHint).toBe(
-      "Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon",
+      `Fletes, comisión, IVA, lo que ${NOMBRE_ESPERADO} te cobró y los pagos a ${NOMBRE_ESPERADO} que se anularon`,
     );
   });
 });

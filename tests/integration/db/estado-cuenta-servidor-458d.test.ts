@@ -21,6 +21,7 @@ import { derivarSaldoTienda } from "@/lib/utils/saldo-tienda";
 import { HAY_BASE_DE_DATOS, crearPrismaDeTest } from "./_postgres-real";
 import { cargarCatalogo459, enTransaccionRevertida459, montarServicios459 } from "./_fixtures/caja-459";
 import { CRONOLOGICO, T4, leerEstadoCuenta, montarEstadoCuenta, sembrarEscenario458 } from "./_fixtures/wallet-458";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-D (servidor) — el ESTADO DE CUENTA ampliado, contra Postgres (lección «probar el WHERE
@@ -366,7 +367,7 @@ describeSiHayBase("458-D servidor — el estado de cuenta ampliado contra Postgr
     expect(tienda.enteroC.saldoFinal).toBe(derivado);
   });
 
-  it("R35/D2: la tienda no ve nombres de la gente de Ordenex ni «Anular…»; conserva el motivo y el dia de la anulacion", () => {
+  it(`R35/D2: la tienda no ve nombres de la gente de ${NOMBRE_ESPERADO} ni «Anular…»; conserva el motivo y el dia de la anulacion`, () => {
     const { tienda, ids } = m();
     for (const f of tienda.enteroC.filas) {
       expect(f.registro).toEqual({ nombre: null, automatico: null });

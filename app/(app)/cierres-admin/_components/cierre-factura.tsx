@@ -140,6 +140,7 @@ import { FULFILLMENT_COL } from "./cierre-labels";
 // Feature 213 (T6/T7): el desglose de pago se formatea en UN solo sitio (R25).
 import { desglosePantalla } from "./desglose-pago";
 import type { OrigenFlete } from "@/lib/utils/ingreso-ordenex";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * Pega la marca del origen a un importe de flete. Sin marca (`"normal"`, el caso de casi
@@ -897,7 +898,7 @@ function HojaResumen({
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <div className="flex flex-wrap items-center gap-2 md:gap-2.5">
             <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-brand">
-              Ordenex
+              {MARCA.nombre}
             </span>
             <span className="text-base font-semibold text-foreground">{titulo}</span>
             <span className="font-mono text-xs text-muted-foreground">

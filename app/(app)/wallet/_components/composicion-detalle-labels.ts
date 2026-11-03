@@ -1,4 +1,5 @@
 import type { WalletEgresoNombrado } from "@/lib/types/wallet";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * Ficha 339 (T5.1, design §5.2/§5.5/§5.7) — textos del DETALLE de una fila de la tarjeta
@@ -68,7 +69,7 @@ export const COMPOSICION_DETALLE_ERROR =
  * singulares. El singular del libro de cada uno vive en `CATEGORIA_LABEL`.
  */
 export const EGRESO_NOMBRADO_LABEL: Record<WalletEgresoNombrado, string> = {
-  egreso_pago_mensajero: "Pagos de Ordenex a mensajeros",
+  egreso_pago_mensajero: `Pagos de ${MARCA.nombre} a mensajeros`,
   egreso_ajuste: "Correcciones de caja (resta)",
   // La fila de la anulacion de un cobro de Ordenex a una tienda (R27); en el libro, cada fila se
   // rotula «Cobro a una tienda anulado».

@@ -21,6 +21,7 @@ import {
   WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED,
   type WalletTiendaMovimientoCategoria,
 } from "@/lib/types/wallet-tienda";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 171 (T2.1, R13/R20) — el desglose por tienda dice lo MISMO que `/mi-wallet` para el mismo
 // tipo, origen y signo, y lo mismo que la tabla de saldos para el mismo signo.
@@ -42,14 +43,14 @@ const DESDE_ORDENEX: Record<WalletTiendaMovimientoCategoria, string> = {
   iva_flete: "IVA del flete cobrado a la tienda",
   iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda",
   iva_comision_cod: "IVA de la comisión cobrado a la tienda",
-  cobro_manual: "Ordenex le cobra a la tienda",
-  cobro_tienda_anulado: "Cobro de Ordenex a la tienda anulado",
-  pago_tienda: "Ordenex le paga a la tienda",
-  pago_por_cuenta: "Ordenex paga un gasto de la tienda",
+  cobro_manual: `${NOMBRE_ESPERADO} le cobra a la tienda`,
+  cobro_tienda_anulado: `Cobro de ${NOMBRE_ESPERADO} a la tienda anulado`,
+  pago_tienda: `${NOMBRE_ESPERADO} le paga a la tienda`,
+  pago_por_cuenta: `${NOMBRE_ESPERADO} paga un gasto de la tienda`,
   pago_por_cuenta_anulado: "Pago de un gasto de la tienda anulado",
   // Ficha 457 (design §2, D10): el nombre reservado por la 461 y el patron de «… de la tienda anulado».
-  abono_tienda: "La tienda le paga a Ordenex",
-  abono_tienda_anulado: "Pago de la tienda a Ordenex anulado",
+  abono_tienda: `La tienda le paga a ${NOMBRE_ESPERADO}`,
+  abono_tienda_anulado: `Pago de la tienda a ${NOMBRE_ESPERADO} anulado`,
   // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, desde Ordenex.
   flete_devolucion_anulado: "Cobro por devolución a origen anulado",
   iva_flete_devolucion_anulado: "IVA del cobro por devolución a origen anulado",
@@ -73,7 +74,7 @@ describe("etiquetas del desglose por tienda — R20: tipo, origen y moneda son l
   });
 });
 
-describe("⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde Ordenex (R43, design §7.4)", () => {
+describe(`⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde ${NOMBRE_ESPERADO} (R43, design §7.4)`, () => {
   it("dice exactamente los 14 textos aprobados, y el seed es exactamente esas 14 claves", () => {
     expect(CATEGORIA_TIENDA_LABEL).toEqual(DESDE_ORDENEX);
     expect([...WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED].sort()).toEqual(
@@ -83,8 +84,8 @@ describe("⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde
 
   it("NO es el diccionario de /mi-wallet: aquel lee desde la tienda (P4, R44)", () => {
     expect(CATEGORIA_TIENDA_LABEL).not.toBe(miWalletLabels.CATEGORIA_MI_WALLET_LABEL);
-    expect(CATEGORIA_TIENDA_LABEL.cobro_manual).toBe("Ordenex le cobra a la tienda");
-    expect(miWalletLabels.CATEGORIA_MI_WALLET_LABEL.cobro_manual).toBe("Ordenex te cobró");
+    expect(CATEGORIA_TIENDA_LABEL.cobro_manual).toBe(`${NOMBRE_ESPERADO} le cobra a la tienda`);
+    expect(miWalletLabels.CATEGORIA_MI_WALLET_LABEL.cobro_manual).toBe(`${NOMBRE_ESPERADO} te cobró`);
     // Y el viejo diccionario compartido ya no existe en /mi-wallet: nadie puede volver a importarlo.
     expect("CATEGORIA_TIENDA_LABEL" in miWalletLabels).toBe(false);
     expect("CATEGORIA_TIENDA_OPTIONS" in miWalletLabels).toBe(false);
@@ -118,7 +119,7 @@ describe("⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde
     }
   });
 
-  it("458-A (R13): las opciones son los conceptos con movimientos, con su número y el nombre desde Ordenex (R43)", () => {
+  it(`458-A (R13): las opciones son los conceptos con movimientos, con su número y el nombre desde ${NOMBRE_ESPERADO} (R43)`, () => {
     // Reescrito en la 458-A (TA.3): ya no salen del SEED (R95). Se le pasan todos los conceptos del
     // catálogo como «con movimientos» y cada uno sale con su nombre desde Ordenex y su cuenta.
     const lista = opcionesDeConceptos(
@@ -164,22 +165,22 @@ describe("textos propios del desglose por tienda (R7, P1; 461 R45)", () => {
       "saldoHint",
     ]);
     expect(DESGLOSE_TIENDA_LABEL.aFavor).toBe("A favor de la tienda");
-    expect(DESGLOSE_TIENDA_LABEL.cargos).toBe("Cargos de Ordenex");
+    expect(DESGLOSE_TIENDA_LABEL.cargos).toBe(`Cargos de ${NOMBRE_CORTO_ESPERADO}`);
     expect(DESGLOSE_TIENDA_LABEL.pagado).toBe("Pagado a la tienda");
     expect(DESGLOSE_TIENDA_LABEL.saldo).toBe("Saldo a favor");
   });
 
-  it("⭑ 461 R45: las pistas nombran el cobro y su anulación con la palabra de su fila, desde Ordenex", () => {
+  it(`⭑ 461 R45: las pistas nombran el cobro y su anulación con la palabra de su fila, desde ${NOMBRE_ESPERADO}`, () => {
     expect(DESGLOSE_TIENDA_LABEL.aFavorHint).toBe(
-      "Contra-entrega cobrado, correcciones a favor, pagos de la tienda a Ordenex y devoluciones por anulaciones",
+      `Contra-entrega cobrado, correcciones a favor, pagos de la tienda a ${NOMBRE_ESPERADO} y devoluciones por anulaciones`,
     );
     expect(DESGLOSE_TIENDA_LABEL.cargosHint).toBe(
-      "Fletes, comisión, IVA, los cobros de Ordenex a la tienda y sus pagos a Ordenex anulados",
+      `Fletes, comisión, IVA, los cobros de ${NOMBRE_ESPERADO} a la tienda y sus pagos a ${NOMBRE_ESPERADO} anulados`,
     );
-    expect(DESGLOSE_TIENDA_LABEL.pagadoHint).toBe("Lo que Ordenex le pagó a la tienda o pagó por ella");
+    expect(DESGLOSE_TIENDA_LABEL.pagadoHint).toBe(`Lo que ${NOMBRE_ESPERADO} le pagó a la tienda o pagó por ella`);
     // «cobros de Ordenex a la tienda» ↔ la fila «Ordenex le cobra a la tienda» / «Cobro de Ordenex a la tienda anulado».
-    expect(DESGLOSE_TIENDA_LABEL.cargosHint).toMatch(/cobros de Ordenex a la tienda/);
-    expect(CATEGORIA_TIENDA_LABEL.cobro_tienda_anulado).toMatch(/^Cobro de Ordenex a la tienda/);
+    expect(DESGLOSE_TIENDA_LABEL.cargosHint).toMatch(new RegExp(`cobros de ${NOMBRE_ESPERADO} a la tienda`));
+    expect(CATEGORIA_TIENDA_LABEL.cobro_tienda_anulado).toMatch(new RegExp(`^Cobro de ${NOMBRE_ESPERADO} a la tienda`));
     for (const texto of Object.values(DESGLOSE_TIENDA_LABEL)) expect(texto).not.toMatch(/\bCOD\b/);
   });
 

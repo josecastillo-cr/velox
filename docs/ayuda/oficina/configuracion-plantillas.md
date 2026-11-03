@@ -48,7 +48,7 @@ Lo que escribas **lo va a leer un cliente**. Tres cosas que conviene revisar:
 
 1. **Los campos existen.** Si escribís `{{clientee}}`, no se sustituye por nada.
 2. **Se lee bien sin los datos.** Leé la frase imaginando que un campo sale vacío.
-3. **El tono.** Es la voz de Ordenex ante el cliente, no una nota interna.
+3. **El tono.** Es la voz de Velox Courier ante el cliente, no una nota interna.
 
 ## Lo que esta pantalla NO hace
 

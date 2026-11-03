@@ -1,4 +1,4 @@
-# Feature 106 — OpenAPI 3.1 del canal integrador por API key (Ordenex).
+# Feature 106 — OpenAPI 3.1 del canal integrador por API key (Velox Courier).
 # GENERADO desde lib/api/openapi-spec.ts (fuente de verdad). No editar a mano:
 # regenerar con `pnpm tsx <script>` si cambia el objeto TS.
 openapi: 3.1.0
@@ -716,7 +716,7 @@ paths:
         "422":
           $ref: "#/components/responses/ValidationError"
 # Feature 256/R24 — WEBHOOKS SALIENTES. Sección de NIVEL SUPERIOR de OpenAPI 3.1 (fuera de
-# `paths:`): lo que Ordenex ENVÍA al callback del integrador, no lo que el integrador pide.
+# `paths:`): lo que Velox Courier ENVÍA al callback del integrador, no lo que el integrador pide.
 # Espejo textual de `openApiSpec.webhooks` (lib/api/openapi-spec.ts).
 #
 # ⏳ 2026-08-22 (FEATURE 268/R28/R29/R30) — AQUÍ DECÍA, y ya no es cierto:
@@ -746,6 +746,7 @@ components:
     # algo que el integrador llame. Se publica la FORMA, no una operacion.
     WebhookOrdenEstadoActualizado:
       type: object
+      description: "Cuerpo del evento `orden.estado_actualizado` que se entrega por POST al callback del integrador. Cada entrega va firmada con dos cabeceras: `X-Velox-Timestamp` (instante unix en segundos de la firma) y `X-Velox-Signature` (`sha256=<hex>`: HMAC-SHA256 de `${timestamp}.${cuerpo}` con el secreto del webhook). Verificá la firma sobre el cuerpo crudo y en tiempo constante antes de parsear el JSON."
       required:
         - evento
         - eventoId
@@ -958,7 +959,7 @@ components:
             # ⏳ 2026-09-10 (feature 406/R14): AQUI IBA el `orden.id` (un uuid), y ese enlace
             # respondia 404 SIEMPRE — el `{id}` de esa ruta nunca significo `orden.id`. El ultimo
             # segmento es ahora el `numGuia` que ESTE MISMO ejemplo declara arriba.
-            evidenciasUrl: "https://app.ordenex.co/api/ordenes/api-key/orden/100235"
+            evidenciasUrl: "https://velox-courier.company/api/ordenes/api-key/orden/100235"
     # FICHA 454 (T1.20, R33/R36) — PAYLOAD de los eventos de ORDEN que NO son un cambio de estado.
     # Mismo callback y misma firma que `orden.estado_actualizado`. Se publica la FORMA, no una
     # operacion. Espejo de `openApiSpec.components.schemas.WebhookOrdenEvento`.
@@ -1319,7 +1320,7 @@ components:
         - ivaComision
         - fulfillment
       additionalProperties: false
-      description: "Los CINCO conceptos que Ordenex factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes en texto crudo con dos decimales y punto decimal, sin símbolo de moneda y sin separador de miles (`\"2500.00\"`) — el mismo dialecto que la cotización y el `costoEnvio` de la carga. Un `\"0.00\"` es un CERO AFIRMADO (por ejemplo, una orden que no cobra comisión), nunca un dato faltante: dentro de este objeto ningún concepto es `null` y ninguno se omite. **NO hay ningún campo que sume los cinco, ni `total` ni equivalente**: sumalos vos, que sabés qué estás sumando."
+      description: "Los CINCO conceptos que Velox Courier factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes en texto crudo con dos decimales y punto decimal, sin símbolo de moneda y sin separador de miles (`\"2500.00\"`) — el mismo dialecto que la cotización y el `costoEnvio` de la carga. Un `\"0.00\"` es un CERO AFIRMADO (por ejemplo, una orden que no cobra comisión), nunca un dato faltante: dentro de este objeto ningún concepto es `null` y ninguno se omite. **NO hay ningún campo que sume los cinco, ni `total` ni equivalente**: sumalos vos, que sabés qué estás sumando."
       properties:
         flete:
           type: string
@@ -1941,7 +1942,7 @@ components:
         ambiguo, distrito sin zona asignada, algún nivel de la terna RETIRADO del catálogo, o
         `monto_cobrar` con formato inválido.
 
-        RETIRADO DEL CATÁLOGO (desde 2026-09-06). Ordenex puede retirar una provincia, un cantón
+        RETIRADO DEL CATÁLOGO (desde 2026-09-06). Velox Courier puede retirar una provincia, un cantón
         o un distrito sin borrarlo: deja de admitirse en cargas y cotizaciones nuevas, y las
         órdenes que ya lo referencian no se tocan. La fila sale con `resultado: "error"` y un
         mensaje PROPIO, distinto de «no encontrado» y de «ambiguo», para que no lo confundas con

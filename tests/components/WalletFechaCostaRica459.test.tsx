@@ -52,6 +52,7 @@ import { ROTULOS_MENSAJERO } from "@/app/(app)/wallet/mensajeros/_components/Est
 import { lineaDeFila } from "@/components/shared/estado-cuenta/estado-cuenta-lineas";
 import { MiEstadoCuenta, ROTULOS_MI_WALLET } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
 import { fechaDiaMovimientoCR } from "@/lib/utils/fecha-dia-iso";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /** 22:00 del 24/09/2026 en Costa Rica (UTC-6). */
 const NOCHE_CR = "2026-09-25T04:00:00.000Z";
@@ -128,7 +129,7 @@ describe("459/F1 — /wallet: el libro de la caja y su descarga", () => {
     expect(within(fila).queryByText(DIA_UTC)).toBeNull();
     expect(
       screen.getByRole("button", {
-        name: "Ver Ordenex paga un gasto de una tienda del 2026-09-24 por ₡10.000",
+        name: `Ver ${NOMBRE_ESPERADO} paga un gasto de una tienda del 2026-09-24 por ₡10.000`,
       }),
     ).toBeInTheDocument();
     // El pago de la liquidación sigue en SU día.

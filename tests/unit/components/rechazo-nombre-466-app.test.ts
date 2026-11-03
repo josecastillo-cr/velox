@@ -54,6 +54,7 @@ import {
   COBRO_RECHAZO_TEXTO,
   MOTIVO_NO_ANULABLE_TEXTO,
 } from "@/components/shared/wallet/detalle-movimiento-panel-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 describe("466 · R1 — conceptos de dinero en la wallet (C5-C14, C16-C24)", () => {
   it("composicion: los dos reversos del cobro (C5, C6)", () => {
@@ -76,15 +77,15 @@ describe("466 · R1 — conceptos de dinero en la wallet (C5-C14, C16-C24)", () 
   });
 
   it("Mi wallet, la lectura desde la tienda (C11-C14)", () => {
-    expect(CATEGORIA_MI_WALLET_LABEL.flete_devolucion).toBe("Ordenex te cobró el flete por devolución a origen");
+    expect(CATEGORIA_MI_WALLET_LABEL.flete_devolucion).toBe(`${NOMBRE_ESPERADO} te cobró el flete por devolución a origen`);
     expect(CATEGORIA_MI_WALLET_LABEL.iva_flete_devolucion).toBe(
-      "Ordenex te cobró el IVA del flete por devolución a origen",
+      `${NOMBRE_ESPERADO} te cobró el IVA del flete por devolución a origen`,
     );
     expect(CATEGORIA_MI_WALLET_LABEL.flete_devolucion_anulado).toBe(
-      "Ordenex anuló el flete por devolución a origen y te lo devolvió",
+      `${NOMBRE_ESPERADO} anuló el flete por devolución a origen y te lo devolvió`,
     );
     expect(CATEGORIA_MI_WALLET_LABEL.iva_flete_devolucion_anulado).toBe(
-      "Ordenex anuló el IVA del flete por devolución a origen y te lo devolvió",
+      `${NOMBRE_ESPERADO} anuló el IVA del flete por devolución a origen y te lo devolvió`,
     );
   });
 
@@ -93,10 +94,10 @@ describe("466 · R1 — conceptos de dinero en la wallet (C5-C14, C16-C24)", () 
     expect(ACCION_AUTOMATICA_LABEL.cobro_por_rechazo).toBe("Cobro por devolución a origen aprobado");
     expect(MOTIVO_NO_ANULABLE_TEXTO.no_aprobado).toBe("el cobro por devolución a origen no está aprobado");
     expect(COBRO_RECHAZO_TEXTO.vigente).toBe(
-      "Es un cobro a la tienda por el flete de una devolución a origen: la ganancia de Ordenex sube y el saldo de la tienda baja, sin dinero nuevo en la caja.",
+      `Es un cobro a la tienda por el flete de una devolución a origen: la ganancia de ${NOMBRE_ESPERADO} sube y el saldo de la tienda baja, sin dinero nuevo en la caja.`,
     );
     expect(COBRO_RECHAZO_TEXTO.anulado).toBe(
-      "Este cobro por devolución a origen se anuló: la ganancia de Ordenex bajó y el saldo de la tienda volvió a subir. El cobro sigue aprobado en su cola y no se vuelve a ofrecer.",
+      `Este cobro por devolución a origen se anuló: la ganancia de ${NOMBRE_ESPERADO} bajó y el saldo de la tienda volvió a subir. El cobro sigue aprobado en su cola y no se vuelve a ofrecer.`,
     );
   });
 
@@ -123,7 +124,7 @@ describe("466 · R4, R5 — cierres y tarifas (C29-C35, E8-E10)", () => {
     expect(PAGO_ZONA_TEXTO.rechazado).toBe("Devolución a origen por rechazo");
     expect(PAGO_ZONA_TEXTO.entregado).toBe("Entregado");
     expect(PAGO_ZONA_TEXTO.seccionAyuda).toBe(
-      "Lo que Ordenex paga por cada gestión en esta zona: la entrega se le paga al mensajero; " +
+      `Lo que ${NOMBRE_ESPERADO} paga por cada gestión en esta zona: la entrega se le paga al mensajero; ` +
         "una Devolución a origen por rechazo es ingreso de la bodega responsable del mensajero.",
     );
   });
@@ -144,7 +145,7 @@ describe("466 · R4, R5 — cierres y tarifas (C29-C35, E8-E10)", () => {
       "Se le factura a la tienda, pero no sale de lo recaudado: una devolución a origen no cobra contra entrega.",
     );
     expect(NETO_ORDENEX_NOTA).toBe(
-      "Lo que Ordenex facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.",
+      `Lo que ${NOMBRE_ESPERADO} facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.`,
     );
   });
 

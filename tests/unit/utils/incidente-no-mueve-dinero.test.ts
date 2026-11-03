@@ -56,7 +56,7 @@ describe("R17 — el ingreso de BODEGA por rechazo no se cobra por un incidente"
   });
 });
 
-describe("R17 — el ingreso de ORDENEX no factura nada por un incidente", () => {
+describe("R17 — el ingreso de la empresa no factura nada por un incidente", () => {
   it("derivarIngresoOrden('incidente') = {} (ni flete, ni comision, ni sus IVA)", () => {
     const derivado = derivarIngresoOrden(
       {

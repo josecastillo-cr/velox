@@ -28,6 +28,7 @@ import {
   RECIBIDO_LABEL,
   SIN_CONCILIAR_LABEL,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * 💰 FICHA 393 (2026-09-08) — GUARDIA PERENNE DEL VOCABULARIO DEL CIERRE DE BODEGA.
@@ -513,9 +514,9 @@ describe("393 — el VALOR de los rótulos y las notas, escrito a mano (R19/R23/
     ["CASCADA_CENTRAL_TITULO", CASCADA_CENTRAL_TITULO, "Lo que va a la central"],
     ["PARA_LA_TIENDA_LABEL", PARA_LA_TIENDA_LABEL, "Para la tienda"],
     ["PARA_LA_CENTRAL_LABEL", PARA_LA_CENTRAL_LABEL, "Para la central"],
-    ["NETO_ORDENEX_LABEL", NETO_ORDENEX_LABEL, "Neto de Ordenex"],
+    ["NETO_ORDENEX_LABEL", NETO_ORDENEX_LABEL, `Neto de ${NOMBRE_CORTO_ESPERADO}`],
     ["COBRADO_SOBRE_RECAUDADO_LABEL", COBRADO_SOBRE_RECAUDADO_LABEL, "Cobrado sobre lo recaudado"],
-    ["FACTURADO_ORDENEX_LABEL", FACTURADO_ORDENEX_LABEL, "Lo que Ordenex facturó"],
+    ["FACTURADO_ORDENEX_LABEL", FACTURADO_ORDENEX_LABEL, `Lo que ${NOMBRE_ESPERADO} facturó`],
     ["GANA_BODEGA_SATELITE_LABEL", GANA_BODEGA_SATELITE_LABEL, "Gana la bodega satélite"],
   ])("%s dice exactamente lo aprobado", (_nombre, constante, literal) => {
     expect(constante).toBe(literal);

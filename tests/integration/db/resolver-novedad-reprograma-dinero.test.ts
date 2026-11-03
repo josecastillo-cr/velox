@@ -10,6 +10,7 @@ import {
   derivarIngresoOrden,
 } from "@/lib/utils/ingreso-ordenex";
 import { conPagos } from "@/tests/fixtures/cierre-pagos";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 100 (T5.3) [💰] — money-critical: la gestion sintetica `reprogramada` que crea la
 // reprogramacion de la tienda (`GestionOrdenRepository.reprogramarDesdeDevuelta`, `cierre_id null`,
@@ -95,7 +96,7 @@ describe("Feature 100 [💰] T5.3 — la gestion sintetica `reprogramada` aporta
     expect(ingresoBodegaPorResultado("reprogramado", TARIFA_MENSAJERO)).toBe("0.00");
   });
 
-  it("ingreso de Ordenex (feed de wallet 42/69): reprogramada NO aporta a ningun concepto -> 0 movimientos", () => {
+  it(`ingreso de ${NOMBRE_ESPERADO} (feed de wallet 42/69): reprogramada NO aporta a ningun concepto -> 0 movimientos`, () => {
     // derivarIngresoOrden devuelve {} para reprogramada (u otro en transito): ningun concepto.
     const derivado = derivarIngresoOrden(
       { resultado: "reprogramado", esCentral: false, esZonaEspecial: false, montoCobrar: "10000.00", cobraComision: true },

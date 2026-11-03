@@ -182,7 +182,7 @@ export class WebhookEstadoService {
       data: this.armarData(datos),
     });
 
-    // R18: firma sobre `${timestamp}.${cuerpo}`; cabeceras X-Ordenex-Signature/-Timestamp.
+    // R18: firma sobre `${timestamp}.${cuerpo}`; cabeceras X-Velox-Signature/-Timestamp (493/R17).
     const timestampUnix = Math.floor(this.now().getTime() / 1000);
     const headers = cabecerasFirma(secret, timestampUnix, cuerpo);
 

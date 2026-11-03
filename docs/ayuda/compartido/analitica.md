@@ -44,7 +44,7 @@ tienda y mensajero.
 **Operativo.** El panel con su propio rango — hoy, la semana, 30 días o personalizado — y su
 comparativa por categoría.
 
-Y el bloque **financiero**: qué cobró Ordenex, cómo se compone la ganancia y la conciliación de los
+Y el bloque **financiero**: qué cobró Velox Courier, cómo se compone la ganancia y la conciliación de los
 cierres. Sus cifras de dinero son solo para maestro y admin, y la de la caja se llama igual que en
 **Wallet · Caja**: **Flujo de dinero registrado** mientras no haya un saldo inicial registrado, o
 **Dinero en caja** cuando lo hay.

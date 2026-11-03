@@ -92,6 +92,7 @@ import {
   inputDeWallet,
 } from "@/app/(app)/wallet/_components/wallet-filtros-input";
 import { elegirSoloLosMovimientos } from "@/tests/fixtures/descarga-detalle-por-orden";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 function mov(n: number, over: Partial<WalletMovimientoDTO> = {}): WalletMovimientoDTO {
   return {
@@ -699,7 +700,7 @@ describe("463 R12 (revisión B2) — el detalle de una fila de la composición e
     await user.click(within(zonaLibro()).getByRole("button", { name: "Más antiguas" }));
     await waitFor(() => expect(H.listar).toHaveBeenLastCalledWith(expect.objectContaining({ sortDir: "asc" })));
 
-    await user.click(screen.getByRole("button", { name: "Ver los movimientos de Pagos de Ordenex a mensajeros" }));
+    await user.click(screen.getByRole("button", { name: `Ver los movimientos de Pagos de ${NOMBRE_ESPERADO} a mensajeros` }));
     await waitFor(() => expect(H.fila).toHaveBeenCalledTimes(1));
 
     // El conjunto del detalle es el del importe de esa fila: el periodo de la wallet y nada del libro.

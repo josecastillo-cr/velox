@@ -57,6 +57,7 @@ import { COLUMNAS_DESCARGA_WALLET_CAJA } from "@/app/(app)/wallet/_components/wa
 import { filaDeLibroCaja as filaDescargaMovimientoCaja } from "@/tests/fixtures/libro-kardex";
 import { opcionesDeConceptos } from "@/components/shared/wallet/conceptos-filtro";
 import { CATEGORIA_LABEL as CATEGORIA_LABEL_458, CATEGORIA_TODAS_OPTION } from "@/app/(app)/wallet/_components/wallet-labels";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const PAGO_ID = "0b6c1f7e-7a44-4b43-9c1a-5e0f2d9a1c11";
 const APORTE_ID = "9f2e3d4c-1b2a-4c3d-8e9f-0a1b2c3d4e5f";
@@ -139,7 +140,7 @@ describe("FICHA 459 — el cobro reclasificado en el libro y en su descarga (T C
   it("se lee con el concepto del pago por cuenta, dueño «Tienda» y el origen legible", () => {
     render(<WalletLedger movimientos={[RECLASIFICADO]} />);
     const f = filaPorDescripcion(/pago FACEBOOK/);
-    expect(within(f).getByText("Ordenex paga un gasto de una tienda")).toBeInTheDocument();
+    expect(within(f).getByText(`${NOMBRE_ESPERADO} paga un gasto de una tienda`)).toBeInTheDocument();
     expect(
       within(f).getByText("Cobro reclasificado como pago de un gasto de la tienda · Nuform · pago FACEBOOK"),
     ).toBeInTheDocument();
@@ -150,7 +151,7 @@ describe("FICHA 459 — el cobro reclasificado en el libro y en su descarga (T C
     // Ficha 468: «Concepto», «Detalle» (que empieza por el origen legible) y «Es dinero de».
     const f = filaDescargaMovimientoCaja(RECLASIFICADO);
     expect(f.detalle).toBe("Cobro reclasificado como pago de un gasto de la tienda · Nuform · pago FACEBOOK");
-    expect(f.concepto).toBe("Ordenex paga un gasto de una tienda");
+    expect(f.concepto).toBe(`${NOMBRE_ESPERADO} paga un gasto de una tienda`);
     expect(f.esDineroDe).toBe("Tienda");
     expect(Object.keys(f).sort()).toEqual(COLUMNAS_DESCARGA_WALLET_CAJA.map((c) => c.clave).sort());
   });
@@ -189,19 +190,19 @@ const ESPERADO: ReadonlyArray<{
     movimiento: SALDO_INICIAL,
     concepto: "Aporte de dinero a la caja",
     origen: "Aporte de dinero a la caja · Saldo inicial · Arranque",
-    dueno: "Ordenex (capital)",
+    dueno: `${NOMBRE_CORTO_ESPERADO} (capital)`,
   },
   {
     caso: "anulación del saldo inicial",
     movimiento: REVERSO_APORTE,
     concepto: "Aporte de dinero a la caja anulado",
     origen: "Aporte de dinero a la caja · Anulación · Saldo inicial · Arranque",
-    dueno: "Ordenex (capital)",
+    dueno: `${NOMBRE_CORTO_ESPERADO} (capital)`,
   },
   {
     caso: "pago por cuenta",
     movimiento: PAGO_VIGENTE,
-    concepto: "Ordenex paga un gasto de una tienda",
+    concepto: `${NOMBRE_ESPERADO} paga un gasto de una tienda`,
     origen: "Pago de un gasto de una tienda · Tienda Norte · A Facebook · Pauta · SINPE · REF-1",
     dueno: "Tienda",
   },
@@ -241,7 +242,7 @@ describe("FICHA 459 — concepto, origen y dueño del capital y del pago por cue
       CATEGORIA_TODAS_OPTION,
     );
     const opciones = new Map(lista.map((o) => [o.value, o.label.replace(/ \(1\)$/, "")]));
-    expect(opciones.get("egreso_pago_por_cuenta_tienda")).toBe("Ordenex paga un gasto de una tienda");
+    expect(opciones.get("egreso_pago_por_cuenta_tienda")).toBe(`${NOMBRE_ESPERADO} paga un gasto de una tienda`);
     expect(opciones.get("ingreso_reverso_pago_por_cuenta_tienda")).toBe("Pago de un gasto de una tienda anulado");
     expect(opciones.get("ingreso_aporte_capital")).toBe("Aporte de dinero a la caja");
     expect(opciones.get("egreso_reverso_aporte_capital")).toBe("Aporte de dinero a la caja anulado");

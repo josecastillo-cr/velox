@@ -19,6 +19,7 @@ import {
 import { sembrarPersonas461 } from "./_fixtures/personas-461";
 import { soloEjecutable } from "./_fixtures/sql-ejecutable";
 import { intentarSql as intentar } from "./_fixtures/sqlstate-461";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 457 / T1.5 — LAS DOS MIGRACIONES DEL PAGO DE UNA TIENDA A ORDENEX, contra Postgres (R75, R76).
@@ -75,7 +76,7 @@ const VALORES_457 = {
   historial_accion_entidad: ["abono_tienda"],
 } as const;
 
-describeSiHayBase("457/T1.5 — las migraciones del pago de una tienda a Ordenex contra Postgres", () => {
+describeSiHayBase(`457/T1.5 — las migraciones del pago de una tienda a ${NOMBRE_ESPERADO} contra Postgres`, () => {
   let prisma: PrismaClient;
 
   beforeAll(() => {

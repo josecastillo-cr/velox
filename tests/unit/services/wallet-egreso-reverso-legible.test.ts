@@ -8,6 +8,7 @@ import type {
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import { WalletEgresoService } from "@/lib/services/WalletEgresoService";
 import type { WalletMovimientoDTO } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Ficha 458-A (TA.6, R4, C4.2 de design §1.1) — el texto del reverso de un egreso NO cae al id
 // interno cuando el egreso no tiene descripcion: cae al NOMBRE del concepto.
@@ -53,9 +54,9 @@ describe("458-A R4 — el reverso de un egreso sin descripción se lee por su co
     expect(d).not.toMatch(UUID);
   });
 
-  it("gasto de Ordenex sin descripción → «Reverso de: Gasto de Ordenex»", async () => {
+  it(`gasto de ${NOMBRE_ESPERADO} sin descripción → «Reverso de: Gasto de ${NOMBRE_CORTO_ESPERADO}»`, async () => {
     expect(await descripcionDelReverso(original({ categoria: "egreso_gasto_variable" }))).toBe(
-      "Reverso de: Gasto de Ordenex",
+      `Reverso de: Gasto de ${NOMBRE_CORTO_ESPERADO}`,
     );
   });
 

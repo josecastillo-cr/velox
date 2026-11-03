@@ -1,3 +1,4 @@
+import { MARCA } from "@/lib/marca/identidad";
 import { z } from "zod";
 
 import type {
@@ -529,8 +530,8 @@ export const ACCION_LABELS: Record<HistorialAccionTipo, string> = {
   aporte_capital_registrado: "Registró un aporte de dinero a la caja",
   aporte_capital_anulado: "Anuló un aporte de dinero a la caja",
   // Ficha 457 (design §2/§9): desde Ordenex, diciendo quien le paga a quien (HD3 de la 461).
-  abono_tienda_registrado: "Registró un pago de una tienda a Ordenex",
-  abono_tienda_anulado: "Anuló un pago de una tienda a Ordenex",
+  abono_tienda_registrado: `Registró un pago de una tienda a ${MARCA.nombre}`,
+  abono_tienda_anulado: `Anuló un pago de una tienda a ${MARCA.nombre}`,
   // Ficha 458-B (R63/R64): verbo en pasado con la persona como sujeto, como el resto del catálogo.
   cobro_rechazo_tienda_anulado: "Anuló un cobro por devolución a origen a una tienda",
   egreso_caja_anulado: "Anuló un gasto de la caja",
@@ -595,7 +596,7 @@ export const ENTIDAD_LABELS: Record<HistorialAccionEntidad, string> = {
   pago_por_cuenta_tienda: "Pago de un gasto de una tienda",
   aporte_capital: "Aporte de dinero a la caja",
   // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
-  abono_tienda: "Pago de una tienda a Ordenex",
+  abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
 };
 
 /** Los tipos de UNA categoria. Es la traduccion `categoria -> accion IN (…)` del borde (R17). */

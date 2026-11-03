@@ -23,6 +23,7 @@ import {
   type ImagenAdjunta,
   type TurnoAsistente,
 } from "@/providers/AsistenteProvider";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * ⭑ FICHA 436 (T15, T16 — R22, R25, R27, R28, R29) — EL PANEL DEL ASISTENTE.
@@ -211,7 +212,7 @@ function CuerpoDelPanel() {
         <div className="min-w-0 flex-1">
           <SheetTitle className="text-sm font-semibold">Asistente</SheetTitle>
           <SheetDescription className="text-xs">
-            Responde sobre cómo usar Ordenex
+            Responde sobre cómo usar {MARCA.nombre}
           </SheetDescription>
         </div>
         <button
@@ -260,7 +261,7 @@ function CuerpoDelPanel() {
       >
         {turnos.length === 0 && errorPrevio === null ? (
           <p className="text-sm text-muted-foreground">
-            Preguntá lo que no te cuadre de esta pantalla. Respondo sobre cómo se usa Ordenex; no
+            Preguntá lo que no te cuadre de esta pantalla. Respondo sobre cómo se usa {MARCA.nombre}; no
             veo tus órdenes ni tu dinero.
           </p>
         ) : null}

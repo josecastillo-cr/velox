@@ -27,6 +27,7 @@ import {
 } from "@/app/(app)/mi-wallet/_components/mi-wallet-labels";
 import { ACCION_LABELS, ENTIDAD_LABELS } from "@/lib/types/historial-accion";
 import { ORIGEN_PAGO_LABEL } from "@/app/(app)/wallet/mensajeros/_components/wallet-mensajeros-labels";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // GUARDIA — FICHA 461 (T C.6, design §7.8/§7.9/§14.3; R47/R48/R50) — LOS NOMBRES RETIRADOS NO VUELVEN
@@ -60,7 +61,7 @@ const RAIZ = path.resolve(__dirname, "../../..");
 /** design §7.9 — nombres completos retirados de un concepto, origen, grupo o acción. */
 export const NOMBRES_RETIRADOS_461: readonly string[] = [
   "Cobrar un costo a una tienda",
-  "Cobro de Ordenex",
+  `Cobro de ${NOMBRE_ESPERADO}`,
   "Cobro de un costo",
   "Pago por cuenta de una tienda",
   "Pago por cuenta de la tienda",
@@ -107,18 +108,18 @@ export const NOMBRES_TOMADOS_457: ReadonlyArray<{
   tambien?: readonly string[];
 }> = [
   {
-    nombre: "Una tienda le paga a Ordenex",
+    nombre: `Una tienda le paga a ${NOMBRE_ESPERADO}`,
     diccionario: "CATEGORIA_LABEL",
     clave: "ingreso_abono_tienda",
     tambien: ["CONCEPTOS_MANUALES.label.abono_tienda"],
   },
   {
-    nombre: "Pago de una tienda a Ordenex anulado",
+    nombre: `Pago de una tienda a ${NOMBRE_ESPERADO} anulado`,
     diccionario: "CATEGORIA_LABEL",
     clave: "egreso_reverso_abono_tienda",
   },
-  { nombre: "La tienda le paga a Ordenex", diccionario: "CATEGORIA_TIENDA_LABEL", clave: "abono_tienda" },
-  { nombre: "Le pagaste a Ordenex", diccionario: "CATEGORIA_MI_WALLET_LABEL", clave: "abono_tienda" },
+  { nombre: `La tienda le paga a ${NOMBRE_ESPERADO}`, diccionario: "CATEGORIA_TIENDA_LABEL", clave: "abono_tienda" },
+  { nombre: `Le pagaste a ${NOMBRE_ESPERADO}`, diccionario: "CATEGORIA_MI_WALLET_LABEL", clave: "abono_tienda" },
 ];
 
 /** Un reservado FICTICIO para las contrapruebas: ningún concepto de hoy lo toma. */
@@ -267,13 +268,13 @@ describe("461/R47/R48 — ningún diccionario de la wallet ni del historial usa 
       "CATEGORIA_LABEL (459): «Gasto variable» es un nombre retirado o reservado",
     ]);
     expect(hallazgosEnDiccionario("ORIGEN_LABEL (459)", ["Manual", "Gasto", "Cierre del día"])).toHaveLength(2);
-    expect(hallazgosEnDiccionario("DUENO_LABEL (mutado)", ["Ordenex", "Cobro de Ordenex"])).toHaveLength(1);
+    expect(hallazgosEnDiccionario("DUENO_LABEL (mutado)", [`${NOMBRE_CORTO_ESPERADO}`, `Cobro de ${NOMBRE_ESPERADO}`])).toHaveLength(1);
     // Un nombre reservado para una ficha futura tampoco puede colarse en ningún concepto de hoy (R48).
     expect(hallazgosEnDiccionario("CATEGORIA_LABEL (mutado)", [RESERVADO_FICTICIO])).toHaveLength(1);
     // La frase de la 459 dentro de una frase de efecto (mutación 13).
     expect(
       hallazgosEnDiccionario("FRASE_DEL_EFECTO (459)", [
-        "No sale ni entra dinero: es un cobro de Ordenex a la tienda que baja su saldo. La caja y la ganancia no cambian.",
+        `No sale ni entra dinero: es un cobro de ${NOMBRE_ESPERADO} a la tienda que baja su saldo. La caja y la ganancia no cambian.`,
       ]),
     ).toHaveLength(1);
   });
@@ -313,22 +314,22 @@ describe("457/R53 — los nombres que la 461 reservó quedan tomados EXACTAMENTE
     expect(quienesDicen(t.nombre).sort()).toEqual([`${t.diccionario}.${t.clave}`, ...(t.tambien ?? [])].sort());
   });
 
-  it("⭑ frontend 457: el concepto del diálogo que dice «Una tienda le paga a Ordenex» es EXACTAMENTE el `abono_tienda`", () => {
-    expect(DICCIONARIOS_POR_NOMBRE["CONCEPTOS_MANUALES.label"].abono_tienda).toBe("Una tienda le paga a Ordenex");
+  it(`⭑ frontend 457: el concepto del diálogo que dice «Una tienda le paga a ${NOMBRE_ESPERADO}» es EXACTAMENTE el \`abono_tienda\``, () => {
+    expect(DICCIONARIOS_POR_NOMBRE["CONCEPTOS_MANUALES.label"].abono_tienda).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
     // Los otros tres tomados NO son nombre de ningún concepto del diálogo.
     for (const t of NOMBRES_TOMADOS_457.filter((x) => x.tambien === undefined)) {
       expect(quienesDicen(t.nombre).filter((q) => q.startsWith("CONCEPTOS_MANUALES")), t.nombre).toEqual([]);
     }
   });
 
-  it("el quinto reservado («Pago a Ordenex anulado») quedó sin uso: nadie lo dice (D10 de la 457)", () => {
-    expect(quienesDicen("Pago a Ordenex anulado")).toEqual([]);
+  it(`el quinto reservado («Pago a ${NOMBRE_ESPERADO} anulado») quedó sin uso: nadie lo dice (D10 de la 457)`, () => {
+    expect(quienesDicen(`Pago a ${NOMBRE_ESPERADO} anulado`)).toEqual([]);
   });
 
   it("CONTRAPRUEBA: un tomado puesto ADEMÁS en otra clave se detecta (dos claves lo dirían)", () => {
-    const mutado = { ...CATEGORIA_TIENDA_LABEL, cobro_manual: "La tienda le paga a Ordenex" };
+    const mutado = { ...CATEGORIA_TIENDA_LABEL, cobro_manual: `La tienda le paga a ${NOMBRE_ESPERADO}` };
     const claves = Object.entries(mutado)
-      .filter(([, v]) => v === "La tienda le paga a Ordenex")
+      .filter(([, v]) => v === `La tienda le paga a ${NOMBRE_ESPERADO}`)
       .map(([k]) => k)
       .sort();
     expect(claves).toEqual(["abono_tienda", "cobro_manual"]);
@@ -391,25 +392,25 @@ describe("461/R47/R48 — los archivos de la wallet y del historial no citan un 
     const conceptosDe459 = `
 export const GRUPO_CONCEPTO_LABEL = { sale: "Sale dinero de la caja", entra: "Entra dinero a la caja", no_mueve: "No mueve la caja" };
 export const FRASE_DEL_EFECTO = {
-  cobro_tienda: "No sale ni entra dinero: es un cobro de Ordenex a la tienda que baja su saldo. La caja y la ganancia no cambian.",
+  cobro_tienda: "No sale ni entra dinero: es un cobro de ${NOMBRE_ESPERADO} a la tienda que baja su saldo. La caja y la ganancia no cambian.",
 };
-const label = "Cobrar un costo a una tienda"; // «Cobro de Ordenex» es el rótulo de la tienda
+const label = "Cobrar un costo a una tienda"; // «Cobro de ${NOMBRE_ESPERADO}» es el rótulo de la tienda
 `;
     const h = hallazgosEnCodigo(conceptosDe459, "conceptos-459.ts");
     expect(h).toContain("conceptos-459.ts: frase «no mueve la caja»");
     expect(h).toContain("conceptos-459.ts: frase «La caja y la ganancia no cambian»");
     expect(h).toContain("conceptos-459.ts: nombre «No mueve la caja»");
     expect(h).toContain("conceptos-459.ts: nombre «Cobrar un costo a una tienda»");
-    expect(h).toContain("conceptos-459.ts: nombre «Cobro de Ordenex»");
+    expect(h).toContain(`conceptos-459.ts: nombre «Cobro de ${NOMBRE_ESPERADO}»`);
     expect(hallazgosEnCodigo(`manual: "Manual", gasto: "Gasto",`)).toHaveLength(2);
     expect(hallazgosEnCodigo(`x: "${RESERVADO_FICTICIO}"`)).toHaveLength(1);
   });
 
   it("y NO ladra ante los nombres nuevos ni ante la prosa que los rodea", () => {
     const sano = `
-export const CATEGORIA_LABEL = { ingreso_cobro_tienda: "Ordenex le cobra a una tienda", manual: "Registrado a mano", gasto: "Gasto o sueldo registrado a mano" };
-// el cobro de un costo de la 381 pasó a ser el cobro de Ordenex a una tienda; un gasto variable es un gasto de Ordenex
-const pista = "Fletes, comisión, IVA y lo que Ordenex te cobró";
+export const CATEGORIA_LABEL = { ingreso_cobro_tienda: "${NOMBRE_ESPERADO} le cobra a una tienda", manual: "Registrado a mano", gasto: "Gasto o sueldo registrado a mano" };
+// el cobro de un costo de la 381 pasó a ser el cobro de ${NOMBRE_ESPERADO} a una tienda; un gasto variable es un gasto de ${NOMBRE_ESPERADO}
+const pista = "Fletes, comisión, IVA y lo que ${NOMBRE_ESPERADO} te cobró";
 `;
     expect(hallazgosEnCodigo(sano)).toEqual([]);
   });
@@ -438,14 +439,14 @@ describe("461/R47/R56 — la ayuda no cita ningún nombre retirado ni afirma que
 
   it("CONTRAPRUEBA: la ayuda de la 459 la pone roja", () => {
     const de459 = [
-      "| **Pago por cuenta de la tienda** | Ordenex le pagó a un tercero | **Sí** |",
-      "| **Cobro de Ordenex** | Un cargo de Ordenex a la tienda | **No** |",
+      `| **Pago por cuenta de la tienda** | ${NOMBRE_ESPERADO} le pagó a un tercero | **Sí** |`,
+      `| **Cobro de ${NOMBRE_ESPERADO}** | Un cargo de ${NOMBRE_ESPERADO} a la tienda | **No** |`,
       "Los **cobros de un costo a una tienda** bajan el saldo de la tienda **sin pasar por la caja**.",
       "| **No mueve la caja** | Cobrar un costo a una tienda |",
     ].join("\n");
     const h = hallazgosEnDocumento(de459);
     expect(h).toContain("doc.md: nombre «Pago por cuenta de la tienda»");
-    expect(h).toContain("doc.md: nombre «Cobro de Ordenex»");
+    expect(h).toContain(`doc.md: nombre «Cobro de ${NOMBRE_ESPERADO}»`);
     expect(h).toContain("doc.md: nombre «No mueve la caja»");
     expect(h).toContain("doc.md: frase «no mueve la caja»");
     // La frase de «sin pasar por la caja» se caza aunque el documento la partiera con negritas: se
@@ -459,7 +460,7 @@ describe("461/R47/R56 — la ayuda no cita ningún nombre retirado ni afirma que
   it("y NO ladra ante los nombres nuevos", () => {
     expect(
       hallazgosEnDocumento(
-        "| **Ordenex le cobra a la tienda** | **Ordenex te cobró** | «Ordenex paga un gasto de una tienda» | `Registrado a mano` |",
+        `| **${NOMBRE_ESPERADO} le cobra a la tienda** | **${NOMBRE_ESPERADO} te cobró** | «${NOMBRE_ESPERADO} paga un gasto de una tienda» | \`Registrado a mano\` |`,
       ),
     ).toEqual([]);
   });

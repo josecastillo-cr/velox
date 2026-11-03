@@ -1,3 +1,4 @@
+import { MARCA } from "@/lib/marca/identidad";
 import type { WalletMovimientoCategoria } from "@/lib/types/wallet";
 
 /**
@@ -11,10 +12,10 @@ import type { WalletMovimientoCategoria } from "@/lib/types/wallet";
  */
 const NOMBRE_EGRESO: Partial<Record<WalletMovimientoCategoria, string>> = {
   egreso_sueldo: "Sueldo",
-  egreso_gasto_variable: "Gasto de Ordenex",
-  egreso_gasto_fijo: "Gasto fijo de Ordenex",
-  egreso_gasto: "Otro gasto de Ordenex",
-  egreso_indemnizacion: "Indemnización que Ordenex paga por un incidente",
+  egreso_gasto_variable: `Gasto de ${MARCA.nombreCorto}`,
+  egreso_gasto_fijo: `Gasto fijo de ${MARCA.nombreCorto}`,
+  egreso_gasto: `Otro gasto de ${MARCA.nombreCorto}`,
+  egreso_indemnizacion: `Indemnización que ${MARCA.nombre} paga por un incidente`,
   egreso_pago_iva: "Pago de IVA", // ficha 488
 };
 

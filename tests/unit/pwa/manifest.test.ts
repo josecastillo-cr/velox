@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 64 (PWA) + feature 164 (screenshots) — guardia del manifest.
 //
 // Un manifest que declara un archivo inexistente, o unas dimensiones que no son las del PNG
@@ -107,7 +108,7 @@ describe("manifest — screenshots del diálogo de instalación", () => {
     }
   });
 
-  it("feature 492 (revision m1): las leyendas nombran la marca Velox Courier, no Ordenex", () => {
+  it(`feature 492 (revision m1): las leyendas nombran la marca Velox Courier, no ${MARCA_RETIRADA}`, () => {
     // Se ven en el dialogo de instalacion junto a las capturas. Literales de contrato.
     expect(screenshots.map((s) => [s.src, s.label])).toEqual([
       ["/screenshots/inicio-narrow.png", "Pantalla de inicio de Velox Courier"],

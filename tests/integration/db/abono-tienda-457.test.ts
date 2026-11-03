@@ -27,6 +27,7 @@ import {
   sembrarPersonas459,
   type Personas459,
 } from "./_fixtures/escrituras-459";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 457 / T5.1 — el pago de una tienda a Ordenex, POR LA ACTION, contra Postgres.
@@ -44,7 +45,7 @@ const describeSiHayBase = HAY_BASE_DE_DATOS ? describe : describe.skip;
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
-describeSiHayBase("457/T5.1 — pago de una tienda a Ordenex por la action (Postgres real)", () => {
+describeSiHayBase(`457/T5.1 — pago de una tienda a ${NOMBRE_ESPERADO} por la action (Postgres real)`, () => {
   let prisma: PrismaClient;
 
   beforeAll(() => {
@@ -438,7 +439,7 @@ describeSiHayBase("457/T5.1 — pago de una tienda a Ordenex por la action (Post
     });
   }, 120_000);
 
-  it("R74: el pago de una tienda NO aparece en los pagos de Ordenex a la tienda, ni en su suma, ni lo ve el backfill de la 173 ni las migraciones de datos", async () => {
+  it(`R74: el pago de una tienda NO aparece en los pagos de ${NOMBRE_ESPERADO} a la tienda, ni en su suma, ni lo ve el backfill de la 173 ni las migraciones de datos`, async () => {
     await conPersonas(async (p) => {
       await endeudar457(prisma, p.tiendaId, "10000.00");
       const r = await registrarAbonoTiendaAction(entrada(p), deps(p.maestro));

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Ficha 488 (T F.7, R37) — la ayuda de la caja explica el IVA por pagar, que la ganancia no incluye el
 // IVA, el Pago de IVA y su anulación, y ya no dice que anular un cobro por devolución a origen baja la
@@ -16,7 +17,7 @@ describe("488 — la ayuda de la caja (R37)", () => {
   });
 
   it("dice que la ganancia no incluye el IVA", () => {
-    expect(AYUDA).toMatch(/ganancia de Ordenex\*\* no incluye el IVA/);
+    expect(AYUDA).toMatch(new RegExp(`ganancia de ${NOMBRE_ESPERADO}\\*\\* no incluye el IVA`));
   });
 
   it("ya no dice que anular un cobro por devolución a origen baja la ganancia en el IVA", () => {
@@ -26,8 +27,8 @@ describe("488 — la ayuda de la caja (R37)", () => {
     expect(AYUDA).toContain("La **ganancia baja** en el flete y el **IVA por pagar**");
   });
 
-  it("el diálogo tiene once conceptos y «Pago de IVA» está en «Sale dinero de Ordenex»", () => {
+  it(`el diálogo tiene once conceptos y «Pago de IVA» está en «Sale dinero de ${NOMBRE_ESPERADO}»`, () => {
     expect(AYUDA).toContain("**once conceptos en tres grupos**");
-    expect(AYUDA).toMatch(/\| \*\*Sale dinero de Ordenex\*\* \| Gasto de Ordenex · Sueldo · Pago de IVA ·/);
+    expect(AYUDA).toMatch(new RegExp(`\\| \\*\\*Sale dinero de ${NOMBRE_ESPERADO}\\*\\* \\| Gasto de ${NOMBRE_CORTO_ESPERADO} · Sueldo · Pago de IVA ·`));
   });
 });

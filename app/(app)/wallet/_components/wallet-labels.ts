@@ -12,6 +12,7 @@ import { TIPO_EGRESO_MANUAL_SEED } from "@/lib/types/wallet";
 import type { MotivoNoAnulable } from "@/lib/types/wallet-tienda";
 import { fechaLegible } from "@/lib/utils/dia-reparto-textos";
 import { proximoCobro, type PeriodicidadUnidad } from "@/lib/utils/periodicidad";
+import { MARCA } from "@/lib/marca/identidad";
 
 // Feature 42 (T12) — etiquetas i18n-ready y helper de moneda de la wallet, separados
 // de la lógica (docs/conventions: textos de UI fuera del componente). Money-safe (R21/
@@ -76,7 +77,7 @@ export const CAJA_RESUMEN_LABEL = {
   flujo: "Flujo de dinero registrado",
   /** R15 — desde que dia cuenta y que NO es el saldo del banco. `dia` ya viene legible. */
   flujoPista: (dia: string) =>
-    `Lo que entró menos lo que salió desde el ${dia}. No es el saldo del banco: la app no sabe con cuánto dinero empezó Ordenex.`,
+    `Lo que entró menos lo que salió desde el ${dia}. No es el saldo del banco: la app no sabe con cuánto dinero empezó ${MARCA.nombre}.`,
   /** El libro de la caja esta vacio (`flujoDesde` null): no hay «desde» que decir. */
   flujoVacio: "Todavía no hay movimientos registrados.",
   /** R18 — estado «saldo», sin filtros. */
@@ -87,23 +88,23 @@ export const CAJA_RESUMEN_LABEL = {
   enCajaPeriodo: "Movimiento neto del periodo",
   entradas: "Entró",
   salidas: "Salió",
-  ganancia: "Ganancia de Ordenex",
+  ganancia: `Ganancia de ${MARCA.nombreCorto}`,
   // Ficha 488 (design §6, R11/R18): la ganancia ya no lleva el IVA, y la pista lo dice.
-  gananciaPista: "Lo que Ordenex gana menos lo que gasta, sin el IVA",
+  gananciaPista: `Lo que ${MARCA.nombre} gana menos lo que gasta, sin el IVA`,
   /** Ficha 488 (R12) — la linea pequena bajo la cifra de la ganancia: «IVA cobrado a las tiendas: ₡X». */
   ivaCobrado: "IVA cobrado a las tiendas",
   /** Ficha 488 (R13) — el TERCER bolsillo: el IVA que se le debe a Hacienda. No es de Ordenex. */
   ivaPorPagar: "IVA por pagar",
   ivaPorPagarPista:
-    "El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de Ordenex.",
-  ingresosPropios: "Ingresos de Ordenex",
-  egresosPropios: "Gastos de Ordenex",
+    `El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de ${MARCA.nombre}.`,
+  ingresosPropios: `Ingresos de ${MARCA.nombreCorto}`,
+  egresosPropios: `Gastos de ${MARCA.nombreCorto}`,
   /** R23 — desde esta ficha «De las tiendas» ES lo que Ordenex les debe. */
-  deTerceros: "Lo que Ordenex les debe a las tiendas",
+  deTerceros: `Lo que ${MARCA.nombre} les debe a las tiendas`,
   deTercerosEnlace: "Ver la deuda de cada tienda",
   /** R25 — el capital de Ordenex, cifra propia junto a la ganancia. */
   capital: "Saldo inicial y aportes",
-  capitalPista: "Dinero de Ordenex que no es ganancia.",
+  capitalPista: `Dinero de ${MARCA.nombre} que no es ganancia.`,
   // Feature 200 (tanda 1) — el TERCER tile de la cabecera. No es dinero: es cuántos registros
   // hay en el conjunto que se está mirando, y por eso se pinta en color neutro y sin insignia
   // de signo. La pista no nombra el control que recorta el conjunto: dice lo que la persona
@@ -114,7 +115,7 @@ export const CAJA_RESUMEN_LABEL = {
 
 /** R17 — estado «flujo», sin filtros y la cifra principal negativa. */
 export const CAJA_RESUMEN_AVISO_FLUJO_NEGATIVO =
-  "Sale negativo porque parte de los pagos se hicieron con dinero que Ordenex ya tenía antes de usar la app, y ese dinero no está registrado aquí.";
+  `Sale negativo porque parte de los pagos se hicieron con dinero que ${MARCA.nombre} ya tenía antes de usar la app, y ese dinero no está registrado aquí.`;
 
 /** R19 — estado «saldo», sin filtros y la cifra principal negativa. */
 export const CAJA_RESUMEN_AVISO_SALDO_NEGATIVO =
@@ -122,7 +123,7 @@ export const CAJA_RESUMEN_AVISO_SALDO_NEGATIVO =
 
 /** R23 — «De las tiendas» negativo: son las tiendas las que le deben a Ordenex, y cuánto. */
 export function CAJA_RESUMEN_TIENDAS_DEBEN(monto: string): string {
-  return `Las tiendas le deben a Ordenex ${monto}.`;
+  return `Las tiendas le deben a ${MARCA.nombre} ${monto}.`;
 }
 
 /**
@@ -135,7 +136,7 @@ export function CAJA_RESUMEN_TIENDAS_DEBEN(monto: string): string {
  * eso este comentario no la repite) y la suma nombra tambien lo que Ordenex les cobro.
  */
 export const CAJA_RESUMEN_AVISO_TERCEROS =
-  "Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que Ordenex les cobró. El detalle de cada tienda está en Wallet → Tiendas.";
+  `Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que ${MARCA.nombre} les cobró. El detalle de cada tienda está en Wallet → Tiendas.`;
 
 /** El dia del «desde» en palabras y con año: «25 de agosto de 2026» (design §3.1). */
 function diaLegibleConAnio(fecha: string): string {
@@ -195,7 +196,7 @@ export const CAJA_TIENDAS_HREF = "/wallet/tiendas";
 export function CAJA_RESUMEN_NOTA_DIFERENCIA(rotulo: string): string {
   return (
     `«${rotulo}» cuenta todo el dinero, también el que es de las tiendas. ` +
-    `«${CAJA_RESUMEN_LABEL.ganancia}» es solo lo que Ordenex gana menos lo que gasta: no incluye ` +
+    `«${CAJA_RESUMEN_LABEL.ganancia}» es solo lo que ${MARCA.nombre} gana menos lo que gasta: no incluye ` +
     `el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.`
   );
 }
@@ -219,7 +220,7 @@ export const CAJA_RESUMEN_AVISO_PERIODO =
 export const CAJA_COMPOSICION_LABEL = {
   barra: "Reparto del dinero en caja",
   tiendas: "De las tiendas",
-  ordenex: "De Ordenex",
+  ordenex: `De ${MARCA.nombreCorto}`,
   // Ficha 488 (decision 1a, R13–R15) — el tercer bolsillo de la barra.
   iva: "IVA por pagar",
 } as const;
@@ -239,15 +240,15 @@ export const CAJA_COMPOSICION_MENSAJE: Record<ModoComposicionCaja, string | null
   dos_bolsillos: null,
   // R16 de la 231: con todas sus letras. Es el aviso mas importante de la pantalla.
   solo_tiendas:
-    "Lo de Ordenex (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.",
+    `Lo de ${MARCA.nombre} (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.`,
   // R17 de la 231 (D4): el espejo — «De las tiendas» negativo.
   // Ficha 488 (R17): ya no dice que «todo» es de Ordenex, porque con IVA por pagar positivo parte
   // de la caja es IVA que se le debe a Hacienda.
   solo_ordenex:
-    "Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.",
+    `Las tiendas le deben a ${MARCA.nombre}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
   // R18 de la 231: nada que repartir. Ni se enuncia porcentaje ni se pinta segmento alguno.
   sin_reparto:
-    "No hay nada que repartir: ni Ordenex ni las tiendas tienen dinero a favor en la caja.",
+    `No hay nada que repartir: ni ${MARCA.nombre} ni las tiendas tienen dinero a favor en la caja.`,
 };
 
 /**
@@ -278,10 +279,10 @@ export function composicionCajaNombreAccesible(resumen: CajaResumenDTO): string 
  * UNA fila del libro, no un conjunto.
  */
 export const DUENO_LABEL: Record<NaturalezaMovimiento, string> = {
-  propio: "Ordenex",
+  propio: `${MARCA.nombreCorto}`,
   terceros: "Tienda",
   // Ficha 459 (design §5) — el saldo inicial y los aportes de capital.
-  capital: "Ordenex (capital)",
+  capital: `${MARCA.nombreCorto} (capital)`,
   // Ficha 488 (design §6, R29) — los movimientos de IVA: se le deben a Hacienda.
   iva: "IVA por pagar",
 };
@@ -306,16 +307,16 @@ export const DOCUMENTO_CAJA_NOMBRE: Record<
   // Ficha 461 (design §7): los nombres desde Ordenex, en minuscula porque van dentro de «Anular …».
   pago_por_cuenta_tienda: "el pago de un gasto de una tienda",
   aporte_capital: "el aporte de dinero a la caja",
-  cobro_tienda: "el cobro de Ordenex a una tienda",
+  cobro_tienda: `el cobro de ${MARCA.nombre} a una tienda`,
   ajuste_caja: "la corrección de caja",
   // Ficha 457 (design §2/§8.5).
-  abono_tienda: "el pago de una tienda a Ordenex",
+  abono_tienda: `el pago de una tienda a ${MARCA.nombre}`,
   // Ficha 458-B (design §3.6): los egresos sin documento, la indemnización y el cobro por rechazo.
   egreso_caja: "el gasto de la caja",
   indemnizacion: "la indemnización por un incidente",
   rechazo_tienda_cobro: "el cobro por devolución a origen a una tienda",
   // Ficha 458-C (revision B3): el pago de Ordenex a una tienda (172) y el premio del ranking (293).
-  pago_tienda: "el pago de Ordenex a una tienda",
+  pago_tienda: `el pago de ${MARCA.nombre} a una tienda`,
   premio_del_ranking: "el premio del ranking",
 };
 
@@ -399,7 +400,7 @@ export const CATEGORIA_TODAS_OPTION = { value: "", label: "Todas las categorías
 // Ficha 461 (design §7.1): «Gasto de Ordenex», el mismo nombre que el concepto del dialogo y que
 // `CATEGORIA_LABEL.egreso_gasto_variable`; el nombre de la 45 queda retirado (design §7.9).
 export const TIPO_EGRESO_MANUAL_LABEL: Record<TipoEgresoManual, string> = {
-  gasto_variable: "Gasto de Ordenex",
+  gasto_variable: `Gasto de ${MARCA.nombreCorto}`,
   sueldo: "Sueldo",
   // Ficha 488 (design §6, R21).
   pago_iva: "Pago de IVA",

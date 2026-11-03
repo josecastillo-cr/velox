@@ -39,6 +39,7 @@ vi.mock("@/lib/actions/estado-cuenta", () => ({
 vi.mock("@/lib/actions/wallet-comprobante", () => ({ verComprobanteAction: vi.fn(), adjuntarComprobanteAction: vi.fn() }));
 
 import { MiEstadoCuenta } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /** El cobro tal como el servidor lo devuelve en el estado de cuenta de ESA tienda (vista tienda). */
 const COBRO: FilaEstadoCuentaDTO = fila({
@@ -99,7 +100,7 @@ describe("/mi-wallet — el cobro aparece en el estado de cuenta de la tienda (3
   it("pinta la fila con su día, su nombre, su importe (un CARGO) y su origen con el motivo", () => {
     montar([FLETE, COBRO]);
 
-    const fila = filaCon("Ordenex te cobró");
+    const fila = filaCon(`${NOMBRE_ESPERADO} te cobró`);
     expect(within(fila).getByText("2026-09-08")).toBeInTheDocument();
     // Un cobro BAJA el disponible de la tienda: va en la columna «Cargo», como un flete.
     expect(within(fila).getByText("₡15.000")).toHaveClass("text-danger-strong");
@@ -109,15 +110,15 @@ describe("/mi-wallet — el cobro aparece en el estado de cuenta de la tienda (3
 
   it("y no se come las otras filas del libro: el flete sigue estando", () => {
     montar([FLETE, COBRO]);
-    expect(screen.getByText("Ordenex te cobró")).toBeInTheDocument();
-    expect(screen.getByText("Ordenex te cobró el flete")).toBeInTheDocument();
+    expect(screen.getByText(`${NOMBRE_ESPERADO} te cobró`)).toBeInTheDocument();
+    expect(screen.getByText(`${NOMBRE_ESPERADO} te cobró el flete`)).toBeInTheDocument();
     // cabecera + saldo inicial + dos movimientos
     expect(within(screen.getByRole("table")).getAllByRole("row")).toHaveLength(4);
   });
 
   it("el cobro se distingue de una corrección: son dos nombres distintos en la misma tabla", () => {
     montar([COBRO, { ...FLETE, categoria: "ajuste_debito", origenTipo: "manual", chip: "correcciones" }]);
-    expect(screen.getByText("Ordenex te cobró")).toBeInTheDocument();
+    expect(screen.getByText(`${NOMBRE_ESPERADO} te cobró`)).toBeInTheDocument();
     expect(screen.getByText("Corrección en tu contra")).toBeInTheDocument();
   });
 
@@ -128,7 +129,7 @@ describe("/mi-wallet — el cobro aparece en el estado de cuenta de la tienda (3
 
   it("la fila del cobro no ofrece abrirse: no nace de un cierre y no hay órdenes detrás", () => {
     montar([COBRO, FLETE]);
-    expect(within(filaCon("Ordenex te cobró")).queryByRole("button", { name: /^Ver las órdenes/ })).toBeNull();
+    expect(within(filaCon(`${NOMBRE_ESPERADO} te cobró`)).queryByRole("button", { name: /^Ver las órdenes/ })).toBeNull();
     // Pintar la tabla no dispara la lectura del detalle.
     expect(detalleMock).not.toHaveBeenCalled();
     expect(detalleCompletoMock).not.toHaveBeenCalled();
@@ -144,7 +145,7 @@ describe("/mi-wallet — la tienda puede filtrar por el cobro (381/R35 → chip 
     // FICHA 467: el chip es una opción de la casilla «Tipo de movimiento».
     await elegirEnBarra(user, document.body, "Tipo de movimiento", "Cobros");
     await waitFor(() => expect(verMiEstadoCuentaMock).toHaveBeenCalledWith({ chip: "cobros", page: 1, pageSize: 20 }));
-    await waitFor(() => expect(screen.queryByText("Ordenex te cobró el flete")).toBeNull());
-    expect(screen.getByText("Ordenex te cobró")).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText(`${NOMBRE_ESPERADO} te cobró el flete`)).toBeNull());
+    expect(screen.getByText(`${NOMBRE_ESPERADO} te cobró`)).toBeInTheDocument();
   });
 });

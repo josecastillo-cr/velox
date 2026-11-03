@@ -37,7 +37,7 @@ function crear(fetchImpl: typeof fetch, extra: { anulacion?: string; cache?: Cac
 
 describe("474/R48 — exito", () => {
   it("GET a /v21.0/app con Authorization Bearer y el token FUERA de la URL", async () => {
-    const fetchImpl = vi.fn(async () => respuesta(200, { id: "1234567890", name: "Ordenex" }));
+    const fetchImpl = vi.fn(async () => respuesta(200, { id: "1234567890", name: "Meta app de prueba" }));
     const { r } = crear(fetchImpl as unknown as typeof fetch);
     const out = await r.resolver();
     expect(out).toEqual({ ok: true, appId: "1234567890", origen: "meta" });

@@ -17,6 +17,7 @@ import { WalletAnulacionService } from "@/lib/services/WalletAnulacionService";
 import { anularMovimientoAction } from "@/lib/actions/wallet-anulacion";
 import type { WalletMovimientoDTO } from "@/lib/types/wallet";
 import { NATURALEZA_POR_CATEGORIA } from "@/lib/utils/caja-tesoreria";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-B / TB.9 (R63–R67, R72, R82) — la anulacion con motivo de un EGRESO de caja y la accion
@@ -110,7 +111,7 @@ describe("458-B — EgresoCajaAnulacionService.anular (R63–R67, R82)", () => {
     await m.servicio.anular(PETICION, MAESTRO);
     const fila = (m.walletRepo.crearMovimientos as unknown as { mock: { calls: [unknown, CrearMovimientoInput[]][] } })
       .mock.calls[0][1][0];
-    expect(fila.descripcion).toBe("Anulación de: Gasto fijo de Ordenex");
+    expect(fila.descripcion).toBe(`Anulación de: Gasto fijo de ${NOMBRE_CORTO_ESPERADO}`);
     expect(fila.descripcion).not.toContain("egr-1");
   });
 
@@ -126,7 +127,7 @@ describe("458-B — EgresoCajaAnulacionService.anular (R63–R67, R82)", () => {
       monto: "6500.00",
       origenTipo: "orden_incidente",
       origenId: "inc-9",
-      descripcion: "Anulación de: Indemnización que Ordenex paga por un incidente",
+      descripcion: `Anulación de: Indemnización que ${NOMBRE_ESPERADO} paga por un incidente`,
     });
   });
 

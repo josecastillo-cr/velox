@@ -7,6 +7,7 @@ import { contextoPara } from "@/lib/asistente/contexto";
 import { leerCatalogoAyuda } from "@/lib/ayuda/catalogo";
 import { partirFrontmatter } from "@/lib/ayuda/frontmatter";
 import type { RolValue } from "@prisma/client";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const DIR_AYUDA = path.resolve(__dirname, "../../..", "docs", "ayuda");
 
@@ -134,11 +135,11 @@ describe("458-C (bloque C) — la oficina puede preguntar cómo registrar, ver y
     // tres grupos**» y la lista de «Sale dinero de Ordenex» sin el Pago de IVA).
     expect(caja).toContain("**Registrar un movimiento** abre un diálogo con **once conceptos en tres grupos**");
     expect(caja).toContain(
-      "**Sale dinero de Ordenex** | Gasto de Ordenex · Sueldo · Pago de IVA · Ordenex paga un gasto de una tienda · Corrección de caja (resta) · Ordenex le paga a una tienda · Ordenex le paga a un mensajero",
+      `**Sale dinero de ${NOMBRE_ESPERADO}** | Gasto de ${NOMBRE_CORTO_ESPERADO} · Sueldo · Pago de IVA · ${NOMBRE_ESPERADO} paga un gasto de una tienda · Corrección de caja (resta) · ${NOMBRE_ESPERADO} le paga a una tienda · ${NOMBRE_ESPERADO} le paga a un mensajero`,
     );
     expect(caja).toContain("**a quién se le pagó** —la persona o el proveedor, con su nombre libre—. **Es obligatorio.**");
     expect(caja).toContain("la cuenta, que se elige **buscando por su nombre**");
-    expect(caja).toContain("Solo se admite **hasta lo que Ordenex le debe** a esa tienda.");
+    expect(caja).toContain(`Solo se admite **hasta lo que ${NOMBRE_ESPERADO} le debe** a esa tienda.`);
   });
 
   it.each(OFICINA)("%s: «Así queda» con el antes y el después, «no cambia» y el aviso de saldo en contra", (rol) => {
@@ -154,7 +155,7 @@ describe("458-C (bloque C) — la oficina puede preguntar cómo registrar, ver y
     expect(caja).toContain("## Ver un movimiento");
     expect(caja).toContain("**Ver**, en cada fila del libro, abre su detalle a un costado");
     expect(caja).toContain("se anulan desde el detalle de su fila: **Ver** y luego **Anular…**");
-    expect(caja).toContain("Al anular un **gasto de Ordenex**, un **sueldo** o un **gasto fijo cobrado**");
+    expect(caja).toContain(`Al anular un **gasto de ${NOMBRE_ESPERADO}**, un **sueldo** o un **gasto fijo cobrado**`);
     expect(caja).toContain("aparece **Adjuntar comprobante**, **una sola vez**");
     // D11: «Reversar» ya no existe en la ayuda de la caja.
     expect(caja).not.toMatch(/Reversar|Reversado/);
@@ -213,9 +214,9 @@ describe("458-D (bloque D) — la oficina puede preguntar por los estados de cue
   it.each(OFICINA)("%s: las tres acciones de la tienda y cuándo aparece cada una", (rol) => {
     const tiendas = cuerpoEnContexto(rol, "oficina/wallet-tiendas");
     expect(tiendas).toContain("## Registrar desde el estado de cuenta");
-    expect(tiendas).toContain("**La tienda le paga a Ordenex** — solo cuando la tienda está **en contra**");
-    expect(tiendas).toContain("**Ordenex le cobra a la tienda** — siempre");
-    expect(tiendas).toContain("el botón está apagado y lo dice: «Ordenex no le debe nada a…»");
+    expect(tiendas).toContain(`**La tienda le paga a ${NOMBRE_ESPERADO}** — solo cuando la tienda está **en contra**`);
+    expect(tiendas).toContain(`**${NOMBRE_ESPERADO} le cobra a la tienda** — siempre`);
+    expect(tiendas).toContain(`el botón está apagado y lo dice: «${NOMBRE_ESPERADO} no le debe nada a…»`);
     // Lo retirado no vuelve a la ayuda: ni el desglose ni su filtro de cierre por selector.
     expect(tiendas).not.toContain("## El desglose");
     expect(tiendas).not.toContain("## Filtrar el desglose");
@@ -226,7 +227,7 @@ describe("458-D (bloque D) — la oficina puede preguntar por los estados de cue
     expect(mensajeros).toContain("## El estado de cuenta de un mensajero");
     // FICHA 467: los chips son la casilla «Tipo de movimiento» (sin «Todo»).
     expect(mensajeros).toContain("**Tipo de movimiento** ofrece **Cierres · Pagos · Premios · Correcciones**");
-    expect(mensajeros).toContain("**Ordenex le paga al mensajero**, en las acciones de su estado de cuenta");
+    expect(mensajeros).toContain(`**${NOMBRE_ESPERADO} le paga al mensajero**, en las acciones de su estado de cuenta`);
     expect(mensajeros).toContain("## Anular un pago");
     expect(mensajeros).toContain("Es **la misma anulación que la de Cierres**");
     expect(mensajeros).not.toContain("## Filtrar el desglose por cierre");
@@ -330,15 +331,15 @@ describe("458-D (bloque D) — la tienda puede preguntar cómo ve el comprobante
     expect(wallet).toContain("lo podés abrir desde la fila con **Ver comprobante**");
     expect(wallet).toContain("Solo ves los de tu tienda.");
     expect(wallet).toContain("**No se sube ni se cambia ningún comprobante.** Los guarda la oficina; acá solo se ven.");
-    expect(wallet).not.toContain("No se abre el comprobante de un pago que Ordenex hizo por ti");
+    expect(wallet).not.toContain(`No se abre el comprobante de un pago que ${NOMBRE_ESPERADO} hizo por ti`);
   });
 
   // Cierre de pantalla de la 458-D (T D.5, R34/R35): `/mi-wallet` es el estado de cuenta de la tienda.
   it("adminTienda: Mi wallet es su estado de cuenta: la frase del saldo, el extracto, los chips y el cierre", () => {
     const wallet = cuerpoEnContexto("adminTienda", "tienda/mi-wallet");
     expect(wallet).toContain("La cifra grande es tu **saldo actual**, con una frase que dice **quién le debe a quién**");
-    expect(wallet).toContain("**Ordenex te debe ₡…**");
-    expect(wallet).toContain("**Le debés ₡… a Ordenex**");
+    expect(wallet).toContain(`**${NOMBRE_ESPERADO} te debe ₡…**`);
+    expect(wallet).toContain(`**Le debés ₡… a ${NOMBRE_ESPERADO}**`);
     expect(wallet).toContain("## Tu estado de cuenta");
     // FICHA 463 (R34/R38/R39): se entra en «Más recientes» y el saldo inicial va donde cae en el tiempo.
     expect(wallet).toContain("La línea del **saldo inicial**");
@@ -352,7 +353,7 @@ describe("458-D (bloque D) — la tienda puede preguntar cómo ve el comprobante
     expect(wallet).toContain("Y podés **descargar tu estado de cuenta**");
     // Cierre de la 458-D (172 R55/N1): VUELVE el resumen de tres cifras, cuadrando con la tarjeta.
     expect(wallet).toContain("## El resumen: a tu favor, cargos y ya pagado");
-    expect(wallet).toContain("| **Ya pagado** | Lo que Ordenex te pagó o pagó por ti |");
+    expect(wallet).toContain(`| **Ya pagado** | Lo que ${NOMBRE_ESPERADO} te pagó o pagó por ti |`);
     expect(wallet).toContain("mismo número que el **saldo actual** de la tarjeta de abajo");
     expect(wallet).toContain("sigue contando** en «Ya pagado»");
     // El filtro por concepto se fue con el libro y no vuelve.
@@ -361,7 +362,7 @@ describe("458-D (bloque D) — la tienda puede preguntar cómo ve el comprobante
     expect(wallet).not.toContain("Registró:");
     // Revisión m3/m4 (R25 en /mi-wallet, decisión del leader): «Anulado por Ordenex» con día y hora; y
     // la ayuda dice solo lo que hay (las filas no nombran «de qué orden» vienen).
-    expect(wallet).toContain("Ordenex**, el día y la hora (de Costa Rica) en que se anuló y el motivo.");
+    expect(wallet).toContain(`${NOMBRE_ESPERADO}**, el día y la hora (de Costa Rica) en que se anuló y el motivo.`);
     expect(wallet).toContain("se ven desplegando su fila; los pagos, cobros y correcciones no vienen de una orden.");
     expect(wallet).not.toContain("Cada línea dice de qué orden y de qué cierre viene");
   });

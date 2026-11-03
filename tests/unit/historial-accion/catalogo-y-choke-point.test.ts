@@ -24,6 +24,7 @@ import {
   ETIQUETA_ORDEN_SIN_GUIA,
   etiquetaDeEntidad,
 } from "@/lib/types/historial-accion-etiquetas";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // FICHA 362 / T0 — LOS CIMIENTOS: el catalogo, el punto unico de escritura, la etiqueta congelada
 // y el actor congelado.
@@ -396,14 +397,14 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_registrado");
   });
 
-  it("⭑ FICHA 457 (R61–R64): los dos tipos del pago de una tienda a Ordenex son DINERO, con entidad propia y sus textos", () => {
+  it(`⭑ FICHA 457 (R61–R64): los dos tipos del pago de una tienda a ${NOMBRE_ESPERADO} son DINERO, con entidad propia y sus textos`, () => {
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_registrado");
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_anulado");
     expect(CATEGORIA_POR_ACCION.abono_tienda_registrado).toBe("mueve_dinero");
     expect(CATEGORIA_POR_ACCION.abono_tienda_anulado).toBe("mueve_dinero");
     // Literales a proposito (design §2/§9): el texto ES el contrato de la pantalla.
-    expect(ACCION_LABELS.abono_tienda_registrado).toBe("Registró un pago de una tienda a Ordenex");
-    expect(ACCION_LABELS.abono_tienda_anulado).toBe("Anuló un pago de una tienda a Ordenex");
+    expect(ACCION_LABELS.abono_tienda_registrado).toBe(`Registró un pago de una tienda a ${NOMBRE_ESPERADO}`);
+    expect(ACCION_LABELS.abono_tienda_anulado).toBe(`Anuló un pago de una tienda a ${NOMBRE_ESPERADO}`);
     // Distintos entre si (R62) y de los tipos de anulacion que ya existen.
     expect(ACCION_LABELS.abono_tienda_anulado).not.toBe(ACCION_LABELS.abono_tienda_registrado);
     expect(ACCION_LABELS.abono_tienda_anulado).not.toBe(ACCION_LABELS.pago_anulado);
@@ -411,7 +412,7 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     expect(ACCION_LABELS.abono_tienda_anulado).not.toBe(ACCION_LABELS.cobro_tienda_anulado);
     // La entidad es el DOCUMENTO, 1:1 con su tabla (criterio de la 381/459), con su texto.
     expect(HISTORIAL_ACCION_ENTIDADES).toContain("abono_tienda");
-    expect(ENTIDAD_LABELS.abono_tienda).toBe("Pago de una tienda a Ordenex");
+    expect(ENTIDAD_LABELS.abono_tienda).toBe(`Pago de una tienda a ${NOMBRE_ESPERADO}`);
     // Se admiten como valor de filtro del listado (R64), y un inventado NO.
     expect(filtroHistorialAccionSchema.safeParse({ accion: ["abono_tienda_registrado"] }).success).toBe(true);
     expect(filtroHistorialAccionSchema.safeParse({ accion: ["abono_tienda_anulado"] }).success).toBe(true);

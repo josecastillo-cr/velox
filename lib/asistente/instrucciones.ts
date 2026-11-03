@@ -1,3 +1,4 @@
+import { MARCA } from "@/lib/marca/identidad";
 import type { RolValue } from "@prisma/client";
 
 import { ROL_LABELS } from "@/lib/auth/rol-label";
@@ -57,10 +58,10 @@ export function pareceNoLoSe(respuesta: string): boolean {
  * antes de componer nada (R13), y ese rechazo tiene su propio test.
  */
 export const QUIEN_PREGUNTA: Record<RolValue, string> = {
-  maestro: "trabaja en la oficina de Ordenex y ve el portal interno entero",
-  admin: "trabaja en la oficina de Ordenex",
+  maestro: `trabaja en la oficina de ${MARCA.nombre} y ve el portal interno entero`,
+  admin: `trabaja en la oficina de ${MARCA.nombre}`,
   mensajero: "reparte y recoge paquetes en la calle, con el teléfono en la mano",
-  adminTienda: "administra una tienda que le manda envíos a Ordenex",
+  adminTienda: `administra una tienda que le manda envíos a ${MARCA.nombre}`,
   adminSatelite: "administra una bodega satélite",
   apiKey: "es una cuenta de máquina",
 };
@@ -88,11 +89,11 @@ export const QUIEN_PREGUNTA: Record<RolValue, string> = {
  */
 export function instruccionesDelSistema(rol: RolValue): string {
   return [
-    "Sos el asistente de ayuda de Ordenex, una empresa de mensajería de Costa Rica.",
+    `Sos el asistente de ayuda de ${MARCA.nombre}, una empresa de mensajería de Costa Rica.`,
     "Respondés preguntas sobre CÓMO SE USA LA APLICACIÓN, y nada más.",
     "Hablás en español de Costa Rica, en segunda persona («tenés», «podés»), claro y corto.",
     "",
-    `QUIÉN TE PREGUNTA. Esta persona entra a Ordenex como ${ROL_LABELS[rol]}: ${QUIEN_PREGUNTA[rol]}.`,
+    `QUIÉN TE PREGUNTA. Esta persona entra a ${MARCA.nombre} como ${ROL_LABELS[rol]}: ${QUIEN_PREGUNTA[rol]}.`,
     "Eso lo dice su sesión, no ella: no se lo preguntes y no lo deduzcas de lo que te cuente.",
     "Explicale los pasos TAL Y COMO LOS VE ELLA, con las pantallas que tiene. Y NO le digas que",
     "algo «no lo puede hacer desde su cuenta» a menos que lo diga la documentación de abajo: si no",

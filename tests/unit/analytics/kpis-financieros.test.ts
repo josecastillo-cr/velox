@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { sumarMontos } from "@/lib/utils/kpis-financieros";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 vi.mock("@/lib/actions/wallet", () => ({ verResumenCajaAction: vi.fn() }));
 vi.mock("@/lib/actions/wallet-tienda", () => ({ listarSaldosTiendasCompletoAction: vi.fn() }));
@@ -220,7 +221,7 @@ describe("Ficha 459 · el rótulo de la cifra principal de la caja (T A.9)", () 
       estado: "ok",
       etiqueta: "Flujo de dinero registrado",
       pista:
-        "Lo que entró menos lo que salió desde el 25 de agosto de 2026. No es el saldo del banco: la app no sabe con cuánto dinero empezó Ordenex.",
+        `Lo que entró menos lo que salió desde el 25 de agosto de 2026. No es el saldo del banco: la app no sabe con cuánto dinero empezó ${NOMBRE_ESPERADO}.`,
       monto: RESUMEN.enCaja,
     });
     expect(JSON.stringify(kpi)).not.toMatch(/dinero en caja/i);
@@ -267,7 +268,7 @@ describe("Ficha 459 · el rótulo de la cifra principal de la caja (T A.9)", () 
 
     const kpi = kpiDe(await cargarKpisFinancieros(), "porPagarTiendas") as { pista?: string };
 
-    expect(kpi.pista).toBe("Suma del saldo de cada tienda, ya descontado lo de Ordenex");
+    expect(kpi.pista).toBe(`Suma del saldo de cada tienda, ya descontado lo de ${NOMBRE_ESPERADO}`);
     expect(kpi.pista ?? "").not.toMatch(/bruto|contra-entrega|COD/i);
   });
 });

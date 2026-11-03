@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { CONCEPTO_REGISTRO_SEED, type ConceptoRegistro } from "@/lib/types/efecto-movimiento";
 import type { AgregadoCajaRow } from "@/lib/types/wallet";
 import { EFECTO_POR_TIPO, efectoDeMovimiento, type EstadoActualParaEfecto } from "@/lib/utils/efecto-movimiento";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-B / TB.12 (R44–R47) — «Así queda», puro. Un caso por concepto sobre la MISMA caja.
@@ -40,7 +41,7 @@ function efecto(concepto: ConceptoRegistro, monto: string, cuenta: EstadoActualP
 }
 
 describe("458-B/TB.12 — un caso por concepto (R44, R45 «no cambia»)", () => {
-  it("gasto de Ordenex y sueldo: baja la cifra y la ganancia; las tiendas y el capital no cambian", () => {
+  it(`gasto de ${NOMBRE_ESPERADO} y sueldo: baja la cifra y la ganancia; las tiendas y el capital no cambian`, () => {
     for (const c of ["gasto_ordenex", "sueldo"] as const) {
       expect(efecto(c, "100").lineas).toEqual({
         cuenta: null,
@@ -116,7 +117,7 @@ describe("458-B/TB.12 — un caso por concepto (R44, R45 «no cambia»)", () => 
     expect(l.capital).toEqual(NO("500.00"));
   });
 
-  it("una tienda le paga a Ordenex: sube la cifra y «De las tiendas», y la deuda de la tienda baja", () => {
+  it(`una tienda le paga a ${NOMBRE_ESPERADO}: sube la cifra y «De las tiendas», y la deuda de la tienda baja`, () => {
     const l = efecto("tienda_paga_a_ordenex", "100", TIENDA_EN_CONTRA).lineas;
     expect(l.cuenta).toEqual({ tipo: "tienda", ...SI("-300.00", "-200.00") });
     expect(l.cifraPrincipal).toMatchObject(SI("7500.00", "7600.00"));
@@ -165,7 +166,7 @@ describe("458-B/TB.12 — avisos (R47, tope del servidor)", () => {
     expect(efecto("pago_a_tienda", "1", TIENDA_EN_CONTRA).superaDisponible).toBe(true);
   });
 
-  it("una tienda le paga a Ordenex: supera si pasa de la deuda o si no debe nada", () => {
+  it(`una tienda le paga a ${NOMBRE_ESPERADO}: supera si pasa de la deuda o si no debe nada`, () => {
     expect(efecto("tienda_paga_a_ordenex", "300", TIENDA_EN_CONTRA).superaDisponible).toBe(false); // salda exacto
     expect(efecto("tienda_paga_a_ordenex", "300.01", TIENDA_EN_CONTRA).superaDisponible).toBe(true);
     expect(efecto("tienda_paga_a_ordenex", "1", TIENDA_A_FAVOR).superaDisponible).toBe(true);

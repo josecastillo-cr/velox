@@ -34,6 +34,7 @@ import {
   sembrarPersonas459,
   type Personas459,
 } from "./_fixtures/escrituras-459";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 459 / T B.13 — CONCURRENCIA (R42, R50, R70), contra Postgres, con filas COMMITEADAS.
@@ -111,7 +112,7 @@ describeSiHayBase("459/T B.13 — concurrencia del pago por cuenta y del saldo i
     });
   }
 
-  it("R42: el pago de Ordenex a la tienda ESPERA al pago por cuenta y se evalua sobre el saldo ya rebajado", async () => {
+  it(`R42: el pago de ${NOMBRE_ESPERADO} a la tienda ESPERA al pago por cuenta y se evalua sobre el saldo ya rebajado`, async () => {
     await conPersonas(async (p) => {
       await acreditar459(prisma, p.tiendaId, "10000.00");
 
