@@ -56,6 +56,7 @@ function fakeRepo(overrides: Partial<ICierresAdminRepository> = {}): ICierresAdm
     // Merge 238 <- dev (2026-08-19): la confirmacion fisica al aprobar amplio el contrato del
     // repositorio. Esta suite no toca esa ruta; stub neutro (ningun retornable que confirmar).
     findGestionesRetornablesDelCierre: vi.fn(async () => []),
+    findBarridasDelCierre: vi.fn(async () => []), // ficha 497: sin barridas del corte
     findGestionesPorAlcanceCompleto: vi.fn(async () => []),
     findCatalogoFiltros: vi.fn(async () => ({ zonas: [], mensajeros: [], mensajerosFiltro: [] })),
     findGestionEditableEnCierre: vi.fn(async () => editable()),

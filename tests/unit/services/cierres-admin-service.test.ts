@@ -117,6 +117,7 @@ function fakeRepo(overrides: Partial<Repo> = {}): Repo {
     // Feature 238 (T1.3): el conjunto esperado de la confirmacion fisica. Doble VACIO por
     // defecto: sin nada que devolver, la guardia de la 238 deja el camino de esta suite intacto.
     findGestionesRetornablesDelCierre: vi.fn(async () => []),
+    findBarridasDelCierre: vi.fn(async () => []), // ficha 497: sin barridas del corte
     // Feature 230 (T2.1): el doble implementa la interfaz ENTERA. Estos casos no ejercitan la
     // descarga detallada; devolver el conjunto vacio deja el camino de la 38 intacto.
     findGestionesPorAlcanceCompleto: vi.fn(async () => []),
@@ -1307,6 +1308,7 @@ describe("Feature 238 · aprobarCierre — alcance de la confirmacion fisica (R3
     // guardia contestara «te faltan 3 paquetes» estaria revelando el contenido de un cierre ajeno.
     const repo = fakeRepo({
       findGestionesRetornablesDelCierre: vi.fn(async () => []),
+      findBarridasDelCierre: vi.fn(async () => []), // ficha 497: sin barridas del corte
       resolverCierre: vi.fn(async () => "fuera_de_alcance" as const),
     });
     const { service } = newService({ repo });
@@ -1371,6 +1373,8 @@ describe("CierresAdminService.aprobarCierre — alimenta el ledger por tienda (f
           rol: { value: "admin" },
         })),
       },
+      // Ficha 497: la cobertura de la confirmacion fisica lee las barridas del cierre. Cierre NORMAL: ninguna.
+      cierreSinGestion: { findMany: vi.fn().mockResolvedValue([]) },
       // Feature 109/R20: cierre NORMAL (sin ordenes `sin_gestionar`) -> la liberacion afecta 0 filas.
       orden: {
         findMany: vi.fn().mockResolvedValue([]),
@@ -1569,6 +1573,8 @@ describe("CierresAdminService.aprobarCierre — alimenta el pago al mensajero (f
         })),
       },
       gestionOrden: { findMany: vi.fn().mockResolvedValue([]) }, // el pago no depende de gestiones (snapshot)
+      // Ficha 497: la cobertura de la confirmacion fisica lee las barridas del cierre. Cierre NORMAL: ninguna.
+      cierreSinGestion: { findMany: vi.fn().mockResolvedValue([]) },
       // Feature 109/R20: cierre NORMAL -> la liberacion de `sin_gestionar` no encuentra ordenes.
       orden: {
         findMany: vi.fn().mockResolvedValue([]),
