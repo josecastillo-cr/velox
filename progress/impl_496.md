@@ -19,7 +19,7 @@ en `:4363`, `IOrdenRepository` en `:2066`, service en `:84`, `GestionOrdenReposi
 | T4 | `57d0c899` | `TRANSICIONES` con `liberaAsignacion` obligatorio (true/false) y paso al repo; unit del service con `true`/`false` en 4.ª posición. Typecheck verde; R1, R6, R8 verdes; `devolucion-rechazadas-flow` verde sin tocarlo. |
 | T5 | `26ddd08c` | `findMisAsignacionesByIds`: `deletedAt` fuera del OR; rama 2 = sin mensajero + `recoleccion_tienda` mía (literal con `satisfies OrdenHistorialOrigenTipo`). JSDoc de repo e interfaz. R10, R12 verdes; `recoleccion-tienda-service` verde sin tocarlo. |
 | T6 | `f6c7be42` | `tests/integration/db/recoleccion-central-libera-496-migration.test.ts`: objetivo + 6 hermanas (a posterior, b devolución, c borrada, d sin recolección ni mensajero, e otro tipo, f otro estado). Rojo: ENOENT (carpeta inexistente). |
-| T7 | `2aec0f11` | `db/migrations/20261102150000_recoleccion_central_libera_496/{migration.sql,down.sql}` (LF). Cast explícito `::"orden_historial_origen_tipo"`. T6 verde. |
+| T7 | `2aec0f11` | `db/migrations/20261102150000_recoleccion_central_libera_496/{migration.sql,down.sql}` (LF). T6 verde. (El cast explícito al enum se quitó en la revisión: ver «Revisión».) |
 | T8 | — | 15 mutaciones, todas rojas (tabla abajo). |
 | T9 | `056f94ed` | Nota bajo la R18 de `specs/138-recepcion-bodega-central/requirements.md`. |
 | T10 | `3a53639a` | Gate (abajo). Dos guardias rojas eran mías y se corrigieron en este commit. |
@@ -48,10 +48,10 @@ typecheck estuvo rojo por esa llamada (en runtime no afecta: `count = 0` no usa 
 | R10 | `recepcion-central-libera-496.test.ts` | «⭑ R10: Recolectadas hoy trae la recibida (sin mensajero) y la asignada a mí» |
 | R11 | `recepcion-central-libera-496.test.ts` | «⭑ R11: Recolectadas hoy no trae la mía asignada a otro» |
 | R12 | `recepcion-central-libera-496.test.ts` | «⭑ R12: no trae la sin mensajero recolectada por otro (ni la que no tiene recolección)» |
-| R13 | `recepcion-central-libera-496.test.ts` | «⭑ R13: no trae la recolectada borrada (con y sin mensajero)» |
+| R13 | `recepcion-central-libera-496.test.ts` | «⭑ R13: no trae la recolectada borrada (con y sin mensajero)» (con control: la hermana viva sí sale) |
 | R14 | `tests/integration/db/recoleccion-central-libera-496-migration.test.ts` | «⭑ R14: libera la orden objetivo, sin historial» |
 | R15 | `recoleccion-central-libera-496-migration.test.ts` | «⭑ R15: no toca a las hermanas (columna a columna)» |
-| R16 | `recoleccion-central-libera-496-migration.test.ts` | «⭑ R16: down repone al mensajero y nada más» |
+| R16 | `recoleccion-central-libera-496-migration.test.ts` | «⭑ R16: down repone al mensajero y nada más» (incluye la hermana (g): sin mensajero, con recolección y fila posterior: no se repone) |
 | R17 | `recoleccion-central-libera-496-migration.test.ts` | «⭑ R17: base sin objetivo y segunda aplicación: 0 filas» |
 
 Ningún R sin test.
@@ -106,21 +106,58 @@ del archivo. Todas: `diff_restaurado = vacío`, `skipped = 0`. Ninguna corrió a
     - `tests/unit/guards/censo-order-status-rename.test.ts`: los comentarios del test de la migración decían «en_ruta» a secas (value retirado).
     - `tests/unit/tablero-dia/asignado-at-solo-lectura.guardia.test.ts` (guardia de DINERO): la migración 496 escribe `asignado_at`. Entra en la lista blanca mirada a mano, con un caso nuevo que acota el permiso (solo `= NULL`, en la misma sentencia que `mensajero_asignado_id = NULL`; el denominador del ranking exige mensajero no nulo, `RankingRepository`). **Para el reviewer/humano: es una ampliación de una guardia de dinero.**
   - `tests/unit/guards/marca-fuente-unica-493.guardia.test.ts`: timeout de 20 s en el gate; aislado 19/19 verdes → intermitente por carga.
-  - **Rojos ajenos (6 archivos de `integration/db`), repetidos aislados y siguen rojos (39 tests):**
-    `ayuda-tienda-migration`, `cobertura-repository`, `corregir-datos-cliente.repo`,
-    `geografia-catalogo-activo`, `orden-traspaso-migration`, `zona-reconciliacion-ordenes`.
-    Causa medida: «Unique constraint failed» en `tx.zonaDistrito.create()/createMany()` y
-    `tx.distrito.create()`, más dos censos que esperan N y ven N+1. La base local compartida tiene el
-    índice `zona_distrito_distrito_id_key` y las dos migraciones de la 499 (no presentes en este árbol).
-    No los toca esta ficha; no se arreglaron ni se añadieron al baseline.
+  - **Rojos de `integration/db` (6 archivos). ATRIBUCIÓN CORREGIDA en la revisión: 2 propios + 4 ajenos.**
+    El informe original los daba los 6 por ajenos; era un error.
+    - **Propios (2), leen el ÁRBOL `db/migrations/`, no la base** — corregidos en la revisión:
+      `orden-traspaso-migration` (lista `posteriores`: ve 37, espera 36; la carpeta nueva de la 496) y
+      `ayuda-tienda-migration` (censo de columnas del enum: la línea del up terminaba en
+      `::"orden_historial_origen_tipo"` y casaba el patrón `/"orden_historial_origen_tipo",?$/`).
+    - **Ajenos (4), de la 499 en la base compartida:** `cobertura-repository`,
+      `corregir-datos-cliente.repo`, `geografia-catalogo-activo`, `zona-reconciliacion-ordenes`.
+      Causa medida: «Unique constraint failed» en `tx.zonaDistrito.create()/createMany()` y
+      `tx.distrito.create()`; la base tiene el índice `zona_distrito_distrito_id_key` y las dos
+      migraciones de la 499 (no presentes en este árbol). No se arreglaron ni se añadieron al baseline.
   - No se volvió a correr el gate tras `3a53639a` (regla: una vez); lo corregido se verificó aislado.
 
 ## Abiertos
 
-1. Gate rojo por la 499 en la base compartida (6 archivos ajenos). Se resolverá cuando la 499 esté
+1. Gate rojo por la 499 en la base compartida (4 archivos ajenos). Se resolverá cuando la 499 esté
    en el árbol o la base vuelva a su estado; repetir `--rapido` tras eso.
 2. Guardia de dinero `asignado-at-solo-lectura` ampliada con la migración 496: confirmación del
    reviewer/humano.
 3. T11 (verificación en producción tras el deploy): la hace el leader con el humano.
 
-Veredicto: implementación completa y R1–R17 trazados a tests verdes con mutaciones rojas; gate `INIT_EXIT=1` solo por rojos ajenos (499 en la base compartida) tras corregir dos guardias propias.
+## Revisión (review_496.md, 2026-11-02)
+
+**B1 — dos rojos propios.**
+- `tests/integration/db/orden-traspaso-migration.test.ts`: `20261102150000_recoleccion_central_libera_496`
+  declarada en `posteriores` con su comentario de ficha (la igualdad exacta se queda).
+- `tests/integration/db/ayuda-tienda-migration.test.ts`: **vía (a)**, cambiar la migración y no el
+  test. Se quitó el cast `::"orden_historial_origen_tipo"` de `migration.sql` y de `down.sql`
+  (simetría). Por qué (a) y no (b): la línea NO era una declaración de columna, así que el censo
+  tenía razón en no querer verla, y relajar o afinar el patrón de una guardia ajena para dar cabida a
+  un estilo opcional es abrirle hueco. El cast sobraba: Postgres resuelve el literal al tipo enum de
+  `origen_tipo` (el test de la migración lo ejecuta contra Postgres y pasa). Un comentario en
+  `migration.sql` lo deja dicho.
+  - Base local (la migración ya estaba aplicada): medido antes que el `down` tocaría 0 filas;
+    `prisma db execute --file=…/down.sql` → borrada su fila de `_prisma_migrations` →
+    `migrate status` la lista pendiente → `prisma migrate deploy` → aplicada (`finished_at` no nulo).
+    No se usó `db:rollback`.
+
+**m1 — la parte estricta del `down.sql`.** Hermana (g) nueva: en central, sin mensajero, con
+`recoleccion_tienda` de M1 y una fila `ajuste_estado` POSTERIOR a la recepción; R16 afirma que sigue
+sin mensajero. Conteos de siembra actualizados (7 hermanas, 18 filas de historial). Mutación: quitar
+del `down.sql` `AND u.origen_tipo = 'recepcion_bodega_central' AND so.value = 'en_ruta_bodega_central'`
+→ **R16 rojo**; restaurado (`cmp` igual).
+
+**m5 — control positivo en R13.** Hermana viva, idéntica a la borrada sin mensajero salvo el
+borrado: el resultado debe ser exactamente `[viva]`. Mutación `id: { in: [] }` en
+`findMisAsignacionesByIds` (todo vacío) → **R13 rojo** (antes habría pasado); restaurado, `git diff` vacío.
+
+**Aislados tras la revisión** (`vitest run`): `orden-traspaso-migration`, `ayuda-tienda-migration`,
+`recoleccion-central-libera-496-migration`, `recepcion-central-libera-496`,
+`asignado-at-solo-lectura.guardia`, `censo-order-status-rename` → **6 archivos, 80 tests verdes, 0 skipped**.
+`tsc --noEmit` verde; `eslint` de los archivos tocados sin issues. Gate no corrido (lo corre el
+leader tras mergear la 499).
+
+Veredicto: implementación completa y R1–R17 trazados a tests verdes con mutaciones rojas; tras la revisión, los rojos del gate que quedan son solo los 4 ajenos de la 499 en la base compartida.
