@@ -356,3 +356,194 @@ Comando: `./init.sh --rapido > progress/gate_498_backend.log 2>&1; echo "INIT_EX
 
 **Veredicto:** backend de la 498 (T0–T6) hecho y verde en `--rapido` ampliado; T7 (frontend) puede empezar
 con los contratos de arriba; quedan para T7/T8 las etiquetas provisionales y las mutaciones 1 y 11.
+
+---
+
+# Ficha 498 — frontend (T7.1–T7.5)
+
+Agente: frontend_dev. Mismo worktree y rama. Búsqueda: MCP `codebase-memory`
+(`R-job-singularis-projects-ordenex`) para lo que existía en `dev`; lo de la 498 se leyó en el
+worktree (el índice no lo tiene).
+
+## Decisión del humano (2026-11-03)
+
+Las etiquetas de las dos categorías quedan **confirmadas**: «Diferencia de la satélite (faltó)» y
+«Diferencia de la satélite (sobró o pagó)». Ya no son provisionales. La guardia «ningún nombre se
+repite» de `wallet-labels.test.ts` sigue intacta.
+
+## T7.1 — Caja
+
+- `BarraComposicionCaja.tsx`: `COLOR_POR_COBRAR_SATELITES = "bg-chart-16"`; dos `Record` totales nuevos
+  por modo (`SEGMENTOS_CON_POR_COBRAR_POR_MODO`, `SEGMENTOS_CON_IVA_Y_POR_COBRAR_POR_MODO`), elegidos por
+  los dos signos del servidor en `segmentosDe`. Con P ≤ 0 las listas son las de antes (R39). Nombre
+  accesible: añade «Por cobrar a satélites: ₡X.» solo si el signo es positivo (con 0/negativo, el de antes).
+- **Decisión** (design §8.2 ambiguo): en `sin_reparto` con IVA, la lista era `[iva(porcentaje)]`; con P > 0
+  queda `[por_cobrar(porcentaje), iva(resto)]` para que el último ocupe el resto y no abra hueco.
+- `CajaResumenCard.tsx`: cuarto bolsillo `data-bolsillo="por-cobrar-satelites"`, siempre visible, insignia
+  de signo y pista por `Record` total sobre el signo (positivo/negativo literales de R37; cero sin pista).
+  La rejilla pasa de `md:grid-cols-3` a `md:grid-cols-2 xl:grid-cols-4`.
+- `WalletLedger.tsx`: `DUENO_PUNTO.por_cobrar_satelite = COLOR_POR_COBRAR_SATELITES` (el mismo token).
+- Etiquetas de categoría y origen: ya estaban en `lib/constants/wallet-rotulos.ts` (backend); no entran en
+  `wallet-conceptos-manuales.ts` (test que lo fija en `WalletLedgerSatelite498.test.tsx`).
+- **Contraste** (aritmética del repo, `tests/fixtures/contraste`, contra la pista `--muted`, hex leídos de
+  `app/globals.css`): `bg-chart-16` = `#6d28d9` claro / `#c4b5fd` oscuro → **6.45:1 claro · 7.84:1 oscuro**
+  (≥ 3:1, WCAG 1.4.11). Se descartaron `chart-4/5/8/9` (< 3:1 en claro) y `chart-17/20` (se leen como
+  peligro). Lo fija `BarraComposicionCaja498.test.tsx` con autocomprobación (`chart-4` falla).
+- Fixture de `CajaResumenCard.test.tsx` (R64 «ningún importe se lee ₡0»): el bolsillo nuevo se pinta
+  siempre, así que el caso lleva `porCobrarSatelites: "8.00"`. Ninguna aserción cambió.
+
+## T7.2 — Conciliación y saldos
+
+- `MarcarRecibidoDialog`: props `recaudado` y `debe: { monto, positivo } | null` (sustituyen a
+  `declarado`). Prefijo = `debe.monto` si `positivo`, `"0"` si no; `null` → campo vacío (nunca el
+  efectivo). Banda «Debe» (el aporte tal cual), lo recaudado por método y el texto literal de R16a; un
+  solo `input` de monto (R16b). El cliente admite además el cero literal (`/^0(\.0{1,2})?$/`, el mismo de
+  `montoCeroSchema`): si no, el botón quedaba deshabilitado y el 0 nunca llegaba al servidor.
+  `recibido_cero_con_aporte` → `role="alert"` con el texto de §4.4 bis; el diálogo queda abierto.
+- `ConciliacionAcciones`: `con_asientos` → aviso `role="alert"` con el literal de R21 DENTRO del diálogo de
+  «Desmarcar», que queda abierto; no se relee nada (no cambió nada). La nota del diálogo es la de R43.
+- `ConciliacionSatelite`: la columna «Declarado» (efectivo) se sustituye por tres bloques: «Recaudado»
+  (efectivo, SINPE, transferencia, total), «De la satélite» (pago a sus mensajeros, su ganancia por
+  rechazos) y «Debe y recibido» (Debe, Monto recibido, Falta por recibir; el vocabulario de la
+  conciliación se reexporta de `cierre-labels`, no se redefine). Rótulo «Saldada con la regla anterior».
+  El aviso de diferencia dice «Debía …» con `debe`.
+- `SaldosSatelitesTable` + descarga: columna «Sin consolidar» (importe y «N cierres»; «—» sin cierres) y,
+  en la descarga, «Sin consolidar» y «Cierres sin consolidar». La marca de bodega «Recibido incompleto»
+  ya no se enciende si hay cierres sin consolidar (con ellos lo pendiente no es solo una diferencia).
+- Descarga de consolidaciones: «Declarado» (efectivo) → «Debe» (`c.debe`), y se añaden «Efectivo», «Pago
+  a sus mensajeros», «Su ganancia por rechazos» y «Saldada con la regla anterior».
+- Estado de cuenta: las filas con `origenTipo: "cierre_dia"` se rotulan «Cierre del día sin consolidar».
+- Nota al pie de Saldos (era falsa desde la 498): «El saldo todavía no está en la caja. Es lo que cada
+  bodega le debe a la central: entra a la caja … cuando se marca recibida su consolidación…».
+- Tono: los textos literales de R16a/R21/R43 están en tuteo; el resto de `conciliacion-labels.ts` estaba en
+  voseo. Para no mezclar dentro del mismo diálogo se pasaron a tuteo los textos de ese módulo
+  (`forbidden`, `unauthenticated`, `fallo`, error del monto, pista del monto).
+
+### Suites existentes que fijaban la regla revocada (sustituidas por su inverso, con la cita)
+
+`tests/integration/wallet-satelites.test.tsx` (nota de Saldos, «Declarado» = efectivo, nota «Desmarcar no
+mueve dinero», precarga con lo declarado, aviso de la diferencia) y
+`tests/unit/descarga/saldos-satelites-descarga-columnas.test.ts` («Declarado es el EFECTIVO», decisión Q2
+revocada el 2026-11-02). Fixtures completados con los campos nuevos del DTO (`debe`, `debePositivo`, …) en
+`wallet-satelites.test.tsx`, `EstadoCuentaSatelite.test.tsx` y `wallet-sin-uuid.guardia.test.tsx` (los
+fixtures sin tipo no los pedía el typecheck). Censo de columnas: `WalletListados464.test.tsx`.
+
+## T7.3 — Textos
+
+- `conciliacion-labels.ts`: `DESMARCAR_NO_MUEVE_DINERO_*` retirados; `NOTA_CONCILIACION_ASIENTA` = nota
+  literal de R43. Comentarios reescritos en `ConciliacionAcciones.tsx`, `MarcarRecibidoDialog.tsx`,
+  `CierresBodegaAdminModule.tsx` (comentario de la cabecera y el JSX de la sección) y `cierre-labels.ts`.
+- Guardia `aporte-satelite-fuente-unica-498` extendida: R43 sobre los archivos de la conciliación de
+  `app/` y `components/` (por carpeta) y `docs/ayuda/oficina/wallet-{satelites,caja}.md`; la nota
+  literal; `DESMARCAR_NO_MUEVE_DINERO` no vuelve; `saldoDe(` también en `components/`. Rojo medido antes
+  de T7.4 (la ayuda vieja) y con dos copias sembradas (ayuda y componente): `1 failed | 13 passed` cada una.
+
+## T7.4 — Ayuda
+
+`wallet-satelites.md` y `wallet-caja.md` reescritas según design §10, sin cifras de producción (se retiró
+«Por qué la cifra es solo el EFECTIVO» con sus cifras). **Desviación:** la fuente `lib/utils/ingreso-ordenex.ts`
+que pedía design §10 no se añadió: `marca-fuente-unica-493` rechaza «ordenex» en `docs/ayuda/**`
+(nombre de marca retirado).
+
+## Hueco de contrato (para el leader): `/cierres-admin` no tiene «lo que debe»
+
+`ConciliacionAcciones` también se monta en la cola de `/cierres-admin` (`CierresBodegaAdminModule.tsx`),
+con `CierreBodegaResumen`, que **no** trae `debe` ni `debePositivo` (solo los ganó
+`ConsolidacionSateliteDTO`). R16 pide «nunca su efectivo» y design §8.4 que el signo lo decida el
+servidor. Sin el dato no se inventa: allí el diálogo se monta con `debe={null}` → campo **vacío**, sin
+banda «Debe», con lo recaudado por método y el texto de R16a. Para cerrar R16 en esa pantalla, el
+backend tiene que añadir `debe`/`debePositivo` (y `saldadaReglaAnterior`) a `CierreBodegaResumen`; el
+frontend solo cambia `debe={null}` por `{ monto, positivo }`.
+
+## Gate del frontend
+
+Comando: `./init.sh --rapido > progress/gate_498_frontend.log 2>&1; echo "INIT_EXIT=$?" >> …` (sobre
+`5d014e4e`).
+
+- **`INIT_EXIT=0`**, modo rápido AMPLIADO.
+- Relacionados: `Test Files 856 passed (856) · Tests 11191 passed | 17 skipped` (los 17 son de
+  `AnaliticaPage.test.tsx`, como en el gate del backend).
+- **`tests/integration/db`: 471 archivos, 4 390 tests, 0 skipped** (`1 failed | 4389 passed`).
+- Guardias: 282 archivos, `1 failed | 3884 passed`.
+- Rojos en paralelo, verdes aislados (el gate los repitió y los dio por intermitentes):
+  `integration/db/zona-distrito-499-migration.test.ts` (ajena) y
+  `unit/guards/marca-fuente-unica-493.guardia.test.ts` (repetida a mano después: `19 passed`).
+- Guardias a mano: `aporte-satelite-fuente-unica-498`, `ayuda-columna-retirada`,
+  `ayuda-md-viajan-a-produccion`, `ayuda-pantalla-ruta-existe`, `ayuda-render-sin-filtracion`,
+  `marca-fuente-unica-493`, `nombres-wallet-461`, `wallet-barra-unica-467` → `8 files · 124 passed`.
+- typecheck 0 errores (también tras matar el dev server); eslint sobre los archivos tocados: 0.
+
+## T7.5 — Ver la app
+
+Dev server propio (`next dev --webpack -p 3498`: Turbopack se cae con el junction de `node_modules`,
+«Symlink [project]/node_modules is invalid»). Recorrido con Playwright como `admin.qa`.
+
+**Login.** El `QA_PASSWORD` del `.env` (worktree y repo principal, iguales) **no** coincide con el hash de
+la base: las cuentas QA se rotaron con otra clave (su `updated_at` es de hoy). Sin correr el seed de
+usuarios: se guardó el `password_hash` y el `updated_at` de `admin.qa`, se puso uno temporal y al terminar
+se restauraron **los dos exactos** (comprobado: hash igual; `updated_at` = 2026-11-02 21:34:58.225, el
+mismo instante que las otras cuentas QA). Las filas de `login_attempt` de Playwright se borraron (conteo de
+vuelta a 1135). **Aviso para el humano:** el `QA_PASSWORD` del `.env` ya no sirve en la base local.
+
+**Siembra** (base local, ids fijos): una consolidación `49800000-0000-4000-8000-000000000001` en QUEPOS
+(estado `solicitado`, 6 000 de efectivo, sin SINPE ni descuentos) con el único cierre satélite aprobado
+suelto de la base (`50ffdfa2-…`, sin filas en los libros antes de empezar).
+
+Lo visto (texto leído con `innerText`):
+
+- `/wallet/satelites`: columnas «Bodega · Pendiente · Sin consolidar · Más antigua sin conciliar · Última
+  recibida». Con el cierre suelto (tras limpiar): QUEPOS «₡6.000 | ₡6.000 · 1 cierre | al día». Nota al
+  pie nueva. Estado de cuenta: fila «Cierre del día sin consolidar · ₡6.000».
+- Consolidación sin marcar: tres bloques (Efectivo ₡6.000 · SINPE ₡0 · Transferencia ₡0 · Total ₡6.000 |
+  Pago a sus mensajeros ₡0 · Su ganancia por rechazos ₡0 | Debe ₡6.000 · Monto recibido — · Falta por
+  recibir ₡6.000) y la nota literal de R43.
+- Diálogo de marcar: banda «Debe ₡6.000», recaudado por método, texto literal de R16a, **campo = 6000.00**.
+  Con «0»: alerta «Esta consolidación tiene dinero por entregar: el monto recibido no puede ser 0.», el
+  diálogo sigue abierto y la base no cambió. Con 5 000: «Recibido incompleto», «Debía ₡6.000 y se
+  recibieron ₡5.000. La diferencia de ₡1.000…», pendiente ₡1.000.
+  En la base: 7 filas de caja y 7 de tienda con origen el cierre (COD 6 000, flete 3 000, flete devolución
+  1 000, comisión 210, IVAs 390/130/27,30), 0 de pago al mensajero (el cierre no lo tiene), una fila de
+  ajuste `marca` 1 000 y **un** `egreso_diferencia_satelite` de 1 000.
+- Corregir a 5 600: el campo nace con 5000.00; queda «Monto recibido ₡5.600 · Falta ₡400»; en la base, fila
+  `correccion` −600 y un `ingreso_diferencia_satelite` de 600 (solo la variación; ningún asiento nuevo).
+- Desmarcar: el diálogo dice «Ahora mismo consta recibida por ₡5.600.» y la nota de R43; al confirmar,
+  «Ya entró a la caja: corrige el monto en vez de revertir», el diálogo sigue abierto y nada cambió.
+- `/wallet`: bloque «Por cobrar a satélites · Positivo · ₡400 · Lo que las satélites entregaron de menos al
+  conciliar y aún no han pagado.» (= 1 000 − 600). Libro: dos filas con dueño «Satélite»: «Diferencia de la
+  satélite (sobró o pagó) · Conciliación de satélite · Entra ₡600» y «Diferencia de la satélite (faltó) ·
+  … · Sale ₡1.000». La barra no se ve: la base local está en estado «flujo» (sin saldo inicial) y no se
+  registró uno (memoria «ver la app ensucia la base»); la cubre `BarraComposicionCaja498.test.tsx`.
+- **Contraste, valor computado final** del punto de dueño en la app: claro `rgb(109, 40, 217)` = `#6d28d9`;
+  oscuro (con el propio conmutador de tema, esperando 2,5 s) `rgb(196, 181, 253)` = `#c4b5fd`, con la pista
+  `bg-muted` medida junto al punto en `rgb(22, 41, 74)` = `#16294a`. Son los hex de los que salen 6.45:1 y
+  7.84:1. (Un primer intento poniendo `.dark` en `<html>` daba el color claro: el tema vive en un
+  contenedor propio; esa medida se descartó.)
+- Ajeno a la ficha: al entrar como admin se abre el modal «Confirmá el SINPE de GAM» (se cerró con Escape).
+
+**Limpieza** (comprobada por consulta después): 0 filas en `conciliacion_bodega_ajuste`, 0 en los tres
+libros con origen el cierre, 0 `…_diferencia_satelite` en toda la caja, 0 `historial_accion` de la
+consolidación, la consolidación borrada y el cierre otra vez suelto (`cierre_bodega_id` NULL); 0 filas de
+`login_attempt` de Playwright; `admin.qa` restaurado. El log del dev server (imprime los argumentos del
+login) se borró.
+
+## Mapa R<n> → test (frontend)
+
+| R | Test |
+| --- | --- |
+| R15a (texto) | `tests/components/Conciliacion498.test.tsx` «R15a — recibido 0 con dinero por entregar» |
+| R16 | `Conciliacion498.test.tsx` «R16 — el diálogo propone lo que DEBE, o 0; nunca el efectivo» y «R16 — Marcar recibido abre…»; `wallet-satelites.test.tsx` (precarga) |
+| R16a, R16b | `Conciliacion498.test.tsx` «R16a/R16b» (marcar y corregir; un solo `input`) |
+| R21 | `Conciliacion498.test.tsx` «R21 — revertir una consolidación que ya entró a la caja» |
+| R22 (pantalla) | `Conciliacion498.test.tsx` «sin asientos (R22)…» |
+| R37 | `tests/components/CajaResumenCard498.test.tsx` |
+| R38, R39 | `tests/components/BarraComposicionCaja498.test.tsx` (+ contraste del token) |
+| R40 | `tests/components/WalletLedgerSatelite498.test.tsx` (libro y descarga) |
+| R41 | `Conciliacion498.test.tsx` «R41 — los tres bloques» y «el aviso… DEBÍA»; `wallet-satelites.test.tsx`; `saldos-satelites-descarga-columnas.test.ts` |
+| R41a | `Conciliacion498.test.tsx` «R41a»; descarga en `saldos-satelites-descarga-columnas.test.ts` |
+| R42 | `Conciliacion498.test.tsx` «R42»; `saldos-satelites-descarga-columnas.test.ts`; `WalletListados464.test.tsx` |
+| R43 | `aporte-satelite-fuente-unica-498.guardia` (lib + app + components + ayuda, nota literal); `Conciliacion498.test.tsx`; `wallet-satelites.test.tsx` |
+| R44 | guardias de ayuda (`ayuda-*`, `marca-fuente-unica-493`, `nombres-wallet-461`) + revisión contra design §10 |
+
+Mutaciones medidas contra los tests nuevos (restauradas, diff limpio): prefijar `debe.monto` sin mirar
+`positivo` → `3 failed | 18 passed (21)`; `con_asientos` por toast en vez del aviso en el diálogo →
+`1 failed | 20 passed (21)`.
