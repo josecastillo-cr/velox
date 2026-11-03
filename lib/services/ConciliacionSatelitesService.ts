@@ -167,6 +167,8 @@ export class ConciliacionSatelitesService implements IConciliacionSatelitesServi
         return { status: "no_encontrada" };
       case "con_asientos":
         return { status: "con_asientos" }; // FICHA 498 (R20)
+      case "saldada_regla_anterior":
+        return { status: "saldada_regla_anterior" }; // FICHA 498 (revision m2)
       default: {
         const _n: never = res;
         return _n;

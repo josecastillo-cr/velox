@@ -526,9 +526,12 @@ export async function crearEscenario(
    * esto despues de aprobar: las MISMAS filas que la aprobacion escribia antes. Idempotente.
    */
   async function asentar(cierreId: string): Promise<void> {
-    // Solo un cierre APROBADO tiene dinero que asentar (como al conciliar, que solo toma aprobados).
+    // Solo un cierre APROBADO tiene dinero que asentar (como al conciliar, que solo toma aprobados). Si
+    // no lo esta, se LANZA: un `return` mudo dejaria un test de dinero verde sin dinero (revision m6).
     const c = await tx.cierreDia.findUnique({ where: { id: cierreId }, select: { estado: true } });
-    if (c?.estado !== "aprobado") return;
+    if (c?.estado !== "aprobado") {
+      throw new Error(`escenario 454: asentar(${cierreId}) sobre un cierre ${c?.estado ?? "inexistente"}, no aprobado`);
+    }
     await asentarCierreDia(tx, cierreId, dependenciasRealesDeAsiento(cliente));
   }
 

@@ -92,7 +92,14 @@ export type MarcaConciliacionResult =
  * FICHA 498 (design §4.6, R20): revertir gana un desenlace propio. `con_asientos` = la consolidacion
  * ya entro a la caja (filas de sus cierres en los libros o filas de ajuste): no se revierte nada.
  */
-export type RevertirConciliacionResult = "updated" | "conflict" | "fuera_de_alcance" | "con_asientos";
+export type RevertirConciliacionResult =
+  | "updated"
+  | "conflict"
+  | "fuera_de_alcance"
+  | "con_asientos"
+  // FICHA 498 (revision m2): saldada con la regla anterior (Q4). No se revierte: su marca de
+  // regularizacion exige `conciliado_at` (CHECK de M4) y el humano la dio por saldada. Se corrige.
+  | "saldada_regla_anterior";
 
 export interface ICierresBodegaAdminRepository {
   /**

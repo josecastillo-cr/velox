@@ -368,7 +368,34 @@ describeSiHayBase("498 — marcar recibida asienta y escribe la diferencia (Post
       await marcar(e, cbSin, "0.00");
       const sinAsientos = await repoDe(e).revertirConciliacion({ id: cbSin, actorUsuarioId: e.maestroId });
       const filaSin = await e.tx.cierreBodega.findUniqueOrThrow({ where: { id: cbSin }, select: { estado: true, conciliadoAt: true } });
-      return { conAsientos, antes, despues, sinAsientos, filaSin };
+      // Revision m2: una SALDADA con la regla anterior y SIN asientos (sin cierres): antes daba 23514 (CHECK
+      // de M4) → error interno. Ahora es un desenlace de dominio y no cambia nada.
+      const cbSaldada = await sembrarConsolidacion(e.tx, {
+        zonaId: e.zonaSateliteId,
+        usuarioId: e.maestroId,
+        general: "300",
+        recibido: "300",
+      });
+      await e.tx.$executeRawUnsafe(`UPDATE cierre_bodega SET esperado_regla_anterior = monto_recibido WHERE id = $1`, cbSaldada);
+      const fotoSaldada = async () =>
+        JSON.stringify(
+          await e.tx.cierreBodega.findUniqueOrThrow({
+            where: { id: cbSaldada },
+            select: { estado: true, conciliadoAt: true, montoRecibido: true, esperadoReglaAnterior: true },
+          }),
+        );
+      const saldadaAntes = await fotoSaldada();
+      const saldada = await repoDe(e).revertirConciliacion({ id: cbSaldada, actorUsuarioId: e.maestroId });
+      return {
+        conAsientos,
+        antes,
+        despues,
+        sinAsientos,
+        filaSin,
+        saldada,
+        saldadaIgual: (await fotoSaldada()) === saldadaAntes,
+        historialSaldada: await e.tx.historialAccion.count({ where: { entidadId: cbSaldada } }),
+      };
     });
   }
 
@@ -543,6 +570,12 @@ describeSiHayBase("498 — marcar recibida asienta y escribe la diferencia (Post
     it("⭑ R20: con asientos → `con_asientos` y NADA cambia (ni la fila, ni el historial, ni los libros)", () => {
       expect(revertir.conAsientos).toBe("con_asientos");
       expect(revertir.despues).toEqual(revertir.antes);
+    });
+
+    it("⭑ revision m2: revertir una SALDADA con la regla anterior sin asientos → `saldada_regla_anterior`, sin cambios", () => {
+      expect(revertir.saldada).toBe("saldada_regla_anterior");
+      expect(revertir.saldadaIgual).toBe(true);
+      expect(revertir.historialSaldada).toBe(0);
     });
 
     it("R22: una conciliada SIN asientos se revierte como antes de la ficha", () => {

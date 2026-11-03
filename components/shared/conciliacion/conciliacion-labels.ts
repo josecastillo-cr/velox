@@ -101,6 +101,8 @@ export const CONCILIACION_RESPUESTA = {
   reciboCeroConAporte: "Esta consolidación tiene dinero por entregar: el monto recibido no puede ser 0.",
   /** FICHA 498 (R21) — revertir una consolidación que ya entró a la caja: no cambió nada. */
   conAsientos: "Ya entró a la caja: corrige el monto en vez de revertir",
+  /** FICHA 498 (revisión m2) — revertir una consolidación saldada con la regla anterior: no cambió nada. */
+  saldadaReglaAnterior: "Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el correcto, corrígelo.",
 } as const;
 
 /** Tope de la nota, el MISMO que el `.max(500)` del schema del borde. */

@@ -542,7 +542,7 @@ login) se borró.
 | R41a | `Conciliacion498.test.tsx` «R41a»; descarga en `saldos-satelites-descarga-columnas.test.ts` |
 | R42 | `Conciliacion498.test.tsx` «R42»; `saldos-satelites-descarga-columnas.test.ts`; `WalletListados464.test.tsx` |
 | R43 | `aporte-satelite-fuente-unica-498.guardia` (lib + app + components + ayuda, nota literal); `Conciliacion498.test.tsx`; `wallet-satelites.test.tsx` |
-| R44 | guardias de ayuda (`ayuda-*`, `marca-fuente-unica-493`, `nombres-wallet-461`) + revisión contra design §10 |
+| R44 | `tests/unit/docs/ayuda-wallet-satelites-498.test.ts` (revisión B2: cada punto de R44 en `wallet-satelites.md`/`wallet-caja.md`, ninguna frase de la regla vieja, autocomprobación) + guardias de ayuda (`ayuda-*`, `marca-fuente-unica-493`, `nombres-wallet-461`) |
 
 Mutaciones medidas contra los tests nuevos (restauradas, diff limpio): prefijar `debe.monto` sin mirar
 `positivo` → `3 failed | 18 passed (21)`; `con_asientos` por toast en vez del aviso en el diálogo →
@@ -784,3 +784,31 @@ propone lo que debe (o 0 si el servidor dice que no debe nada) y pinta la banda 
   → campo `0`. **Mutación** (volver a `debe={null}`): `2 failed (2)`; restaurado, diff limpio.
 - Suites que montan el módulo: 21 archivos, 273 en verde.
 - Gate final (`progress/gate_498_final.log`, sobre `98cff68e`): **`INIT_EXIT=0`**. Relacionados 864 archivos, `11292 passed | 17 skipped` (AnaliticaPage). Guardias 282 archivos, 3885 en verde. `integration/db`: 4390 tests, `1 failed | 4387 passed | 2 skipped`; los 2 skipped son de `454/caracterizacion/corte-concurrencia` en la corrida en paralelo. Ese archivo y `abono-tienda-457-concurrencia` (el rojo) se repitieron aislados: `10 passed`, sin skipped. Se anotan como intermitentes. Guardias a mano (las 8 de antes): 124 en verde.
+
+## Revisión (`progress/review_498.md`, RECHAZADO con B1 y B2) — arreglos
+
+- **B1** `specs/498-satelite-dinero-al-conciliar/tasks.md`: 39 tasks en `[x]` (T0.1–T7.5, T8.1, T8.3),
+  comprobadas contra esta bitácora. Quedan `[ ]` con nota: **T8.2** (el gate está verde; falta abrir el PR
+  contra `dev` y mirar `gh pr checks`, lo hace el leader) y **T8.4** (pendiente por diseño: medición en
+  producción el día de la release, SQL ya escrito arriba).
+- **B2 (R44)** `tests/unit/docs/ayuda-wallet-satelites-498.test.ts` (16 casos): 13 puntos de R44 como
+  frases/rótulos (dinero al conciliar y no al aprobar, deuda sobre todos los métodos menos lo de la
+  satélite, recibido = total, 0 solo sin nada que entregar, «Sin consolidar», «Saldada con la regla
+  anterior», revertir con asientos, nota de R43, bloque y pistas de «Por cobrar a satélites», dueño
+  «Satélite», excepción de la caja) y seis frases de la regla vieja prohibidas en los dos archivos.
+  Autocomprobación en el propio test (frase vieja sembrada y punto quitado). Mutación real: añadir
+  «## Desmarcar no mueve dinero» a `wallet-satelites.md` → `× ⭑ no queda ninguna frase de la regla
+  vieja … · 2 failed | 14 passed` (el otro rojo es el punto cuyo párrafo cambió de sitio en la prueba);
+  restaurado, `git status docs` limpio. Fila R44 del mapa actualizada.
+- **m2** revertir una saldada con la regla anterior SIN asientos: nuevo desenlace de dominio
+  **`saldada_regla_anterior`** (repositorio `RevertirConciliacionResult`, servicio
+  `RevertirConciliacionServiceResult`, acción por tipo) y texto `CONCILIACION_RESPUESTA.saldadaReglaAnterior`
+  («Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el
+  correcto, corrígelo.»). Sin UI nueva: `ConciliacionAcciones` lo cae hoy en su rama genérica
+  (`CONCILIACION_RESPUESTA.fallo`); el frontend puede pintar el texto propio con una rama. Test:
+  `498-conciliar-asienta-sql-real` «revisión m2» (desenlace, fila sin cambios, sin historial) y el
+  servicio lo propaga. Sin el corte, el mismo caso da `DriverAdapterError … viola … 
+  «cierre_bodega_esperado_regla_anterior_check»` (medido quitando el `return`; restaurado).
+- **m6** `asentar()` del escenario 454 LANZA si el cierre no está `aprobado` (antes `return` mudo). Sus
+  seis usuarios siguen verdes (21/21).
+- m1 (preview pudo migrar la M3 vieja), m3, m4, m5: no pedidos en esta tanda; quedan anotados en la revisión.

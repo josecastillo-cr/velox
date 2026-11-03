@@ -78,7 +78,9 @@ export type RevertirConciliacionServiceResult =
   | { status: "conflict" }
   | { status: "no_encontrada" }
   | { status: "forbidden" }
-  | { status: "con_asientos" };
+  | { status: "con_asientos" }
+  // FICHA 498 (revision m2): saldada con la regla anterior: no se revierte, se corrige.
+  | { status: "saldada_regla_anterior" };
 
 export interface IConciliacionSatelitesService {
   listarSaldosSatelites(

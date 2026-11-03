@@ -19,7 +19,7 @@ import {
   type DependenciasAsiento,
 } from "@/lib/repositories/asentar-cierre-dia";
 import type { CrearMovimientoInput } from "@/lib/interfaces/repositories/IWalletMovimientoRepository";
-import { aporteDeConsolidacion } from "@/lib/utils/conciliacion-satelite";
+import { aporteDeConsolidacion, esSaldadaReglaAnterior } from "@/lib/utils/conciliacion-satelite";
 import type { CierreBodegaResumenRow } from "@/lib/interfaces/repositories/ICierreBodegaRepository";
 import type { CierreGestionPendienteRow } from "@/lib/interfaces/repositories/ICierreDiaRepository";
 import {
@@ -646,6 +646,16 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
       // ⭑ FICHA 498 (design §4.6, R20): si el dinero YA entro a la caja, no se revierte NADA —ni la
       // marca, ni el historial, ni los libros—. Se corrige el monto en vez de revertir (R21).
       if (await this.tieneAsientos(tx, id)) return "con_asientos" as const;
+      // FICHA 498 (revision m2): una saldada con la regla anterior (Q4) no se revierte. Sin este corte,
+      // el `updateMany` de abajo violaria el CHECK `cierre_bodega_esperado_regla_anterior_check` de M4
+      // (`conciliado_at = NULL` con la marca puesta) y saldria como error interno. Desenlace de dominio.
+      const regularizada = await tx.cierreBodega.findUnique({
+        where: { id },
+        select: { esperadoReglaAnterior: true },
+      });
+      if (regularizada !== null && esSaldadaReglaAnterior(regularizada)) {
+        return "saldada_regla_anterior" as const;
+      }
 
       // El monto ANTES del borrado: es lo que la fila del historial tiene que documentar.
       const previo = await tx.cierreBodega.findUnique({

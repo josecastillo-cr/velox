@@ -433,6 +433,16 @@ describe("498 — `recibido_cero_con_aporte`, `con_asientos` y el rol primero (R
     });
   });
 
+  it("revision m2: revertir PROPAGA `saldada_regla_anterior`", async () => {
+    const { service } = newService(
+      fakeSaldos(),
+      fakeEscrituras({ revertirConciliacion: vi.fn(async () => "saldada_regla_anterior" as const) }),
+    );
+    expect(await service.revertirConciliacion({ cierreBodegaId: ID, actorUsuarioId: "x" } as never, MAESTRO_498)).toEqual({
+      status: "saldada_regla_anterior",
+    });
+  });
+
   it("⭑ R20: revertir PROPAGA `con_asientos`", async () => {
     const { service } = newService(
       fakeSaldos(),
