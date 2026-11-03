@@ -253,6 +253,29 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
 
 // --- listar cola + historico (R15/R13/R23) ---
 
+describe("FICHA 498 (R16/R41a) — la cola de /cierres-admin lleva lo que debe, tal cual del repositorio", () => {
+  it("⭑ `debe`, `debePositivo` y `saldadaReglaAnterior` viajan sin recalcularse", async () => {
+    const repo = fakeRepo({
+      findCierresBodega: vi.fn(async () => [
+        { ...bodegaResumenRow({ cierreBodegaId: "a", estado: "solicitado" }), debe: "1234.56", debePositivo: true, saldadaReglaAnterior: false },
+        {
+          ...bodegaResumenRow({ cierreBodegaId: "b", estado: "aprobado", resueltoAt: "2026-07-12T12:00:00.000Z" }),
+          debe: "-20.00",
+          debePositivo: false,
+          saldadaReglaAnterior: true,
+        },
+      ]),
+    });
+    const { service } = newService({ repo });
+    const r = await service.listarCierresBodegaAdmin(MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    const [a] = r.pendientes;
+    const [b] = r.historico;
+    expect([a.debe, a.debePositivo, a.saldadaReglaAnterior]).toEqual(["1234.56", true, false]);
+    expect([b.debe, b.debePositivo, b.saldadaReglaAnterior]).toEqual(["-20.00", false, true]);
+  });
+});
+
 describe("CierresBodegaAdminService.listarCierresBodegaAdmin (R15/R13/R23)", () => {
   it("R15: parte pendientes (solicitado) del historico (aprobado/rechazado)", async () => {
     const repo = fakeRepo({

@@ -87,4 +87,16 @@ describe("498/R27 — la tarjeta del cierre de bodega (mapper `toBodegaResumenRo
     const r = toBodegaResumenRow(fila({ esperadoReglaAnterior: D("6500.00") }));
     expect(r.faltaPorRecibir).toBe("0.00");
   });
+
+  it("⭑ R16/R41a (cola de /cierres-admin): la cabecera trae `debe`, `debePositivo` y `saldadaReglaAnterior`", () => {
+    // No saldada: debe = «Para la central» (10 000 − 3 000 = 7 000), positivo.
+    const normal = toBodegaResumenRow(fila());
+    expect([normal.debe, normal.debePositivo, normal.saldadaReglaAnterior]).toEqual(["7000.00", true, false]);
+    // Saldada con la regla anterior: debe = su reconocido (6 500), no el aporte.
+    const saldada = toBodegaResumenRow(fila({ esperadoReglaAnterior: D("6500.00") }));
+    expect([saldada.debe, saldada.debePositivo, saldada.saldadaReglaAnterior]).toEqual(["6500.00", true, true]);
+    // Aporte negativo (pago 12 000 > general 10 000): debe −2 000 y NO es positivo (el dialogo propone 0).
+    const negativo = toBodegaResumenRow(fila({ totalPagoMensajero: D("12000.00"), montoRecibido: null, conciliadoAt: null, estado: "solicitado" }));
+    expect([negativo.debe, negativo.debePositivo]).toEqual(["-2000.00", false]);
+  });
 });

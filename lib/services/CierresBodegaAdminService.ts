@@ -518,6 +518,10 @@ function toResumen(row: CierreBodegaResumenRow): CierreBodegaResumen {
     conciliado: row.conciliado,
     montoRecibido: row.montoRecibido,
     faltaPorRecibir: row.faltaPorRecibir,
+    // FICHA 498 (R16/R41a): lo que debe, tal cual del mapper del repositorio (misma fuente).
+    debe: row.debe,
+    debePositivo: row.debePositivo,
+    saldadaReglaAnterior: row.saldadaReglaAnterior,
     conciliadoAt: row.conciliadoAt,
     conciliadoPorNombre: row.conciliadoPorNombre,
     conciliadoNota: row.conciliadoNota,

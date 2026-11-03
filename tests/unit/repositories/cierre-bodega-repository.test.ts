@@ -302,6 +302,10 @@ describe("CierreBodegaRepository.findCierresBodegaByZona (F1.4-h)", () => {
       conciliado: true,
       montoRecibido: "10.00",
       faltaPorRecibir: "-8.50",
+      // FICHA 498 (R16/R41a): lo que debe = «Para la central» 1.50 (no saldada), y es positivo.
+      debe: "1.50",
+      debePositivo: true,
+      saldadaReglaAnterior: false,
       conciliadoAt: "2026-07-12T12:00:00.000Z",
       conciliadoPorNombre: "Ana Rojas",
       conciliadoNota: null,

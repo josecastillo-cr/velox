@@ -79,6 +79,15 @@ export interface CierreBodegaResumenRow {
    * (o el aporte reconocido de una saldada con la regla anterior). Puede ser NEGATIVO.
    */
   faltaPorRecibir: string;
+  /**
+   * ⭑ FICHA 498 (R16, R41a) — lo que DEBE: el aporte reconocido (`aporteDeConsolidacion`, la MISMA
+   * fuente que `ConsolidacionSateliteDTO.debe`). STRING con signo. El dialogo de marcar lo propone.
+   */
+  debe: string;
+  /** FICHA 498 (§8.4, R16) — `debe > 0`, decidido en el SERVIDOR. Si es `false`, el dialogo propone 0. */
+  debePositivo: boolean;
+  /** FICHA 498 (R41a) — saldada con la regla anterior. */
+  saldadaReglaAnterior: boolean;
   conciliadoAt: string | null; // ISO
   conciliadoPorNombre: string | null;
   /**

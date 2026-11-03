@@ -191,6 +191,10 @@ describe("CierresBodegaAdminRepository.findCierresBodega (R15)", () => {
       conciliado: false,
       montoRecibido: null,
       faltaPorRecibir: "1.50",
+      // FICHA 498 (R16/R41a): la cola de `/cierres-admin` recibe lo que debe, del MISMO mapper.
+      debe: "1.50",
+      debePositivo: true,
+      saldadaReglaAnterior: false,
       conciliadoAt: null,
       conciliadoPorNombre: null,
       conciliadoNota: null,
