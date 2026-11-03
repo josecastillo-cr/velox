@@ -198,6 +198,7 @@ function makeDb() {
         const c = cierres.find((x) => x.id === where.id);
         if (c === undefined) return null;
         return {
+          destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
           totalGeneral: c.totalGeneral ?? new Prisma.Decimal("0.00"),
           solicitadoAt: c.solicitadoAt ?? new Date("2026-09-02T12:00:00Z"),
           mensajero: { nombre: "Mensa", primerApellido: "Uno" },

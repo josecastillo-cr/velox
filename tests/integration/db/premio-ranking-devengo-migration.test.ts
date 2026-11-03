@@ -95,7 +95,8 @@ describe("T1.5 — los dos SEED tipados ganan su valor y conservan los previos",
     expect(WALLET_ORIGEN_TIPO_SEED).toContain("ranking_snapshot_fila");
     // 8 al cerrar la 293; la 459 anadio DESPUES tres origenes (sus documentos y el reclasificado) y
     // la 461 otros dos (el cobro de Ordenex a una tienda y las lineas completadas por su migracion), y
-    // la 457 uno (el documento del pago de una tienda a Ordenex).
+    // la 457 uno (el documento del pago de una tienda a Ordenex), y la 498 uno (el ajuste de la
+    // conciliacion de una satelite).
     const AGREGADOS_DESPUES = [
       "pago_por_cuenta_tienda",
       "aporte_capital",
@@ -103,6 +104,7 @@ describe("T1.5 — los dos SEED tipados ganan su valor y conservan los previos",
       "cobro_tienda",
       "cobro_tienda_completado",
       "abono_tienda",
+      "conciliacion_bodega_ajuste",
     ];
     expect(WALLET_ORIGEN_TIPO_SEED.filter((v) => !AGREGADOS_DESPUES.includes(v))).toHaveLength(8);
     for (const previo of [

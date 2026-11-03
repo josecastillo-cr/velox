@@ -244,12 +244,12 @@ export class SaldosSatelitesRepository implements ISaldosSatelitesRepository {
     if (zonaIds.length === 0) return new Map();
     const [aportes, consolidaciones] = await Promise.all([
       this.prisma.$queryRaw<
-        { zona_id: string; aportes: Prisma.Decimal | null; sin_consolidar: Prisma.Decimal | null; cierres: bigint }[]
+        { zona_id: string; aportes: Prisma.Decimal | null; sin_consolidar: Prisma.Decimal | null; cierres: number }[]
       >`
         SELECT c.destino_zona_id AS zona_id,
                SUM(${aporteCierreSql("c")}) AS aportes,
                SUM(${aporteCierreSql("c")}) FILTER (WHERE ${sinConsolidarSql("c", "cb")}) AS sin_consolidar,
-               COUNT(*) FILTER (WHERE ${sinConsolidarSql("c", "cb")}) AS cierres
+               (COUNT(*) FILTER (WHERE ${sinConsolidarSql("c", "cb")}))::int AS cierres
           FROM cierre_dia c
           LEFT JOIN cierre_bodega cb ON cb.id = c.cierre_bodega_id
          WHERE ${cuentaEnLaDeudaSql("c")}
@@ -283,7 +283,7 @@ export class SaldosSatelitesRepository implements ISaldosSatelitesRepository {
         deuda: deudaDeZona(deCierres.plus(reconocido), recibido),
         sinConsolidar:
           a?.sin_consolidar === null || a === undefined ? cero : new Prisma.Decimal(a.sin_consolidar),
-        cierresSinConsolidar: a === undefined ? 0 : Number(a.cierres),
+        cierresSinConsolidar: a === undefined ? 0 : a.cierres, // `::int` en el SQL: un conteo, no dinero
         efectivo: g?._sum.totalEfectivo ?? cero,
         general: g?._sum.totalGeneral ?? cero,
         recibido,

@@ -75,6 +75,8 @@ describeSiHayBase("455/C08 — dinero de la aprobacion con los cinco resultados 
 
       const indemnizaciones = [{ gestionId: gInc, monto: "3000.00" }];
       const aprobacion = await e.aprobar(cierreId, e.actorAdminSatelite, indemnizaciones);
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+      await e.asentar(cierreId);
 
       const movimientos = async () => {
         const caja = await e.tx.walletMovimiento.findMany({
@@ -96,6 +98,8 @@ describeSiHayBase("455/C08 — dinero de la aprobacion con los cinco resultados 
       };
       const trasAprobar = await movimientos();
       const reaprobacion = await e.aprobar(cierreId, e.actorAdminSatelite, indemnizaciones);
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+      await e.asentar(cierreId);
       const trasReaprobar = await movimientos();
       const finales: Record<string, string> = {};
       for (const [n, o] of Object.entries({ ent, rec1, rec2, dev, rep, inc })) {
