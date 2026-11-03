@@ -14,7 +14,7 @@ Rama `fix/499-distrito-una-sola-zona` (worktree `wt-499`), partiendo de `d334efb
 | F.3 | `4c1ec09e`, `93dfe614` | `mensajeDeDistritos` en `CrearZonaForm`: 1 mensaje tal cual; N > 1, el primero sin punto final + « (y N−1 más).». Va antes de `nombre`/`esCentral`. `conflict` → «Ya existe una zona con ese nombre.». Pregunta abierta 1 del requirements marcada como respondida. En `ZonaCentralConfirmacion.test.tsx` y `ZonaNombreNoImprimible.test.tsx` el caso «un validation_error de OTRO campo conserva el genérico» usaba `distritoIds` como «otro campo»; desde R23 ya no lo es y pasa a `tarifas` (lo medido no cambia). |
 | F.4 | — | Ver la app (abajo). Sin cambios de código. |
 | tasks | `e10c5603` | `[x]` en F.1-F.4. |
-| F.5 | ver «Gate» | `./init.sh --rapido`. |
+| F.5 | `8939ab30` | `./init.sh --rapido` (ver «Gate»): el único rojo nuevo, el censo de migraciones de la 427, arreglado. |
 
 Nota de diseño: el design §6.2 dice que el módulo «le pasa a `CrearZonaForm` el `zonaPropiaId`». Se
 deriva dentro del formulario de `initial.zonaId`, que es exactamente el valor que el módulo pone al
@@ -107,10 +107,36 @@ después iguales: `zona` 50, `zona_distrito` 297, `tarifa_zona_mensajero` 39, `h
   `ZonaDistritoEspecial`, `ZonaCentralConfirmacion`, `CrearZonaFormReconciliacion`,
   `ZonaNombreNoImprimible`: verdes.
 
-GATE_PLACEHOLDER
+## Gate (F.5, y cierra el B.10)
+
+`./init.sh --rapido > progress/gate_499_1.log 2>&1; echo "INIT_EXIT=$?" >> …`, una sola vez, sobre
+`e10c5603`. **`INIT_EXIT=1`.** Modo rápido AMPLIADO (hay migraciones y `db/schema.prisma`).
+
+| Paso | Resultado |
+|---|---|
+| typecheck, lint | verdes |
+| `DATABASE_URL` | resuelta: «los 372 archivos de tests contra Postgres SI se ejecutan» |
+| relacionados (`--changed origin/dev`) | 700 archivos, 9039 verdes, **26 skipped** (los mismos 26 del related del backend y del `tests/components/` entero de esta mitad) |
+| guardias | 280 archivos, 3859 verdes, 0 skipped |
+| `tests/integration/db` entero | 458 verdes, 2 rojos, 0 skipped |
+| rojos repetidos aislados | `cierre-rechazado-aviso-dedupe.test.ts` (412/R10) verde aislado → **intermitente** (la carrera 412 conocida); `orden-traspaso-migration.test.ts` rojo también aislado → **rojo nuevo** |
+
+El rojo nuevo era de esta rama y determinista: «427/T2 … su timestamp es POSTERIOR al de la última
+migración anterior del árbol» es un censo que exige declarar cada migración posterior a la de la 427,
+y las dos de la 499 (`20261102130000_zona_distrito_limpieza_499`, `20261102130100_zona_distrito_unico_499`)
+no estaban: `expected [ …(38) ] to deeply equal [ …(36) ]`. Arreglo en `8939ab30` (las dos entradas,
+con su comentario; ninguna toca `orden_traspaso_mensajero`). Tras el arreglo, aislados:
+`orden-traspaso-migration` 15/15 y `cierre-rechazado-aviso-dedupe` 6/6; `tsc` 0 errores y eslint
+limpio sobre el archivo. **El gate no se volvió a correr entero** (orden del leader: una vez). F.5
+queda sin `[x]` en `tasks.md` hasta que el leader decida si hace falta otra pasada.
+
+Los tests de zonas pasan aquí contra el índice único: los 4 reescritos en B.9, los dos nuevos de
+integración de la 499 y `zona-guardado-conserva-inactivos` están entre los 458 verdes.
 
 ## Abiertos
 
+0. Gate con `INIT_EXIT=1` en su única pasada; el rojo nuevo (censo de la 427) está arreglado y verde
+   aislado, pero no hay una segunda pasada entera que lo confirme.
 1. El texto técnico «uno o mas distritoIds no existen» llega ahora también al toast (arriba).
 2. Tras un rechazo por conflicto, el formulario abierto no relee el árbol (arriba).
 3. Lo del backend sigue en pie: base local compartida con el índice ya aplicado, `db:rollback` que no
