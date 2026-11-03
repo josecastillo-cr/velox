@@ -720,6 +720,19 @@ function mensajeGuardado(
   return `${base}. ${retenidas}`;
 }
 
+/**
+ * ⭑ FICHA 499 (R23) — el toast de los distritos que ya están en otra zona.
+ *
+ * Con un mensaje, el mensaje tal cual. Con N > 1, el primero sin su punto final y « (y N−1 más).»:
+ * pegarlo entero daría «…zona Este. y 2 más.». Los N completos se pintan bajo el selector; el
+ * toast solo avisa de que hay más. `undefined` si no hay ninguno, para caer al siguiente campo.
+ */
+function mensajeDeDistritos(mensajes: string[] | undefined): string | undefined {
+  if (!mensajes || mensajes.length === 0) return undefined;
+  if (mensajes.length === 1) return mensajes[0];
+  return `${mensajes[0].replace(/\.$/, "")} (y ${mensajes.length - 1} más).`;
+}
+
 /** Mensaje legible para los estados de error de crear/actualizar zona. */
 function mensajeDeError(err: ZonaActionError): string {
   switch (err.status) {
@@ -741,13 +754,18 @@ function mensajeDeError(err: ZonaActionError): string {
       //
       // `nombre` va antes que `esCentral` porque el servidor nunca los devuelve juntos: el corte
       // del nombre vive en `prepararDatos` y la marca de zona central se decide después.
+      //
+      // ⭑ FICHA 499 (R23) — los distritos de otra zona van ANTES que los dos: el servidor los
+      // redacta, uno por conflicto y ya ordenados, y bajo el selector se pintan todos.
       return (
+        mensajeDeDistritos(err.fieldErrors.distritoIds) ??
         err.fieldErrors.nombre?.[0] ??
         err.fieldErrors.esCentral?.[0] ??
         "Revisa los campos: el formulario está incompleto."
       );
     case "conflict":
-      return "Ya existe una zona con ese nombre o un distrito ya está asignado.";
+      // FICHA 499 (R24): un distrito de otra zona llega como `validation_error`, nunca aquí.
+      return "Ya existe una zona con ese nombre.";
     case "unauthenticated":
       return "Tu sesión expiró.";
     case "forbidden":
