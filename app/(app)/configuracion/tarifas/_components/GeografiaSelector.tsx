@@ -13,7 +13,10 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
-import type { ProvinciaArbolDTO } from "@/lib/actions/geografia";
+import type {
+  DistritoArbolDTO,
+  ProvinciaArbolDTO,
+} from "@/lib/actions/geografia";
 import { filtrarArbolGeografico } from "@/app/(app)/configuracion/_shared/filtrar-arbol-geografico";
 import {
   estadoGeografico,
@@ -32,13 +35,28 @@ interface TriState {
   indeterminate: boolean;
 }
 
+/**
+ * ⭑ FICHA 499 (R17) — un distrito con zona distinta de la que se edita queda BLOQUEADO. Desde la
+ * 499 la base solo admite una zona por distrito y el guardado que lo intente se rechaza entero, así
+ * que el selector no deja ni elegirlo. Al crear (`zonaPropiaId === null`) cualquier zona bloquea.
+ */
+function zonasAjenas(
+  d: DistritoArbolDTO,
+  zonaPropiaId: string | null,
+): DistritoArbolDTO["zonas"] {
+  return d.zonas.filter((z) => z.id !== zonaPropiaId);
+}
+
 export function GeografiaSelector({
   provincias,
+  zonaPropiaId,
   onSelectedChange,
   onEspecialesChange,
   initialSelected,
 }: Readonly<{
   provincias: ProvinciaArbolDTO[];
+  /** 499: la zona que se edita, o `null` al crear. Un distrito con zona distinta de ésta se bloquea. */
+  zonaPropiaId: string | null;
   /** Reporta al padre los distritos (hojas) seleccionados en cada cambio. */
   onSelectedChange?: (distritoIds: string[]) => void;
   /**
@@ -69,20 +87,26 @@ export function GeografiaSelector({
 
   // Mapas id -> distritos hoja de cada grupo (sobre el arbol COMPLETO, no el
   // filtrado, para que la cascada abarque también lo oculto por la búsqueda).
+  //
+  // ⭑ FICHA 499 (R19/R20) — SOLO LOS SELECCIONABLES. Un distrito bloqueado (de otra zona) no entra
+  // en la lista de su grupo: así `toggleGrupo` no lo marca nunca y `stateFor` calcula el estado del
+  // grupo sin él. Un grupo con la lista vacía pinta su casilla deshabilitada.
   const { provDistIds, cantDistIds } = useMemo(() => {
     const prov = new Map<string, string[]>();
     const cant = new Map<string, string[]>();
     for (const p of provincias) {
       const pIds: string[] = [];
       for (const c of p.cantones) {
-        const cIds = c.distritos.map((d) => d.id);
+        const cIds = c.distritos
+          .filter((d) => zonasAjenas(d, zonaPropiaId).length === 0)
+          .map((d) => d.id);
         cant.set(c.id, cIds);
         pIds.push(...cIds);
       }
       prov.set(p.id, pIds);
     }
     return { provDistIds: prov, cantDistIds: cant };
-  }, [provincias]);
+  }, [provincias, zonaPropiaId]);
 
   function stateFor(ids: string[]): TriState {
     if (ids.length === 0) return { checked: false, indeterminate: false };
@@ -182,7 +206,8 @@ export function GeografiaSelector({
           <p className="p-2 text-sm text-muted-foreground">Sin resultados.</p>
         ) : (
           filtradas.map((p) => {
-            const pState = stateFor(provDistIds.get(p.id) ?? []);
+            const pIds = provDistIds.get(p.id) ?? [];
+            const pState = stateFor(pIds);
             return (
               <Collapsible
                 key={`${p.id}:${query.trim().length > 0}`}
@@ -193,7 +218,8 @@ export function GeografiaSelector({
                   <Checkbox
                     checked={pState.checked}
                     indeterminate={pState.indeterminate}
-                    onCheckedChange={() => toggleGrupo(provDistIds.get(p.id) ?? [])}
+                    disabled={pIds.length === 0}
+                    onCheckedChange={() => toggleGrupo(pIds)}
                     aria-label={`Seleccionar todos los distritos de ${p.nombre}`}
                   />
                   <CollapsibleTrigger className="flex flex-1 items-center gap-1.5 text-left text-sm font-medium">
@@ -208,7 +234,8 @@ export function GeografiaSelector({
 
                 <CollapsibleContent className="ml-5 border-l border-border pl-2">
                   {p.cantones.map((c) => {
-                    const cState = stateFor(cantDistIds.get(c.id) ?? []);
+                    const cIds = cantDistIds.get(c.id) ?? [];
+                    const cState = stateFor(cIds);
                     return (
                       <Collapsible
                         key={`${c.id}:${query.trim().length > 0}`}
@@ -219,7 +246,8 @@ export function GeografiaSelector({
                           <Checkbox
                             checked={cState.checked}
                             indeterminate={cState.indeterminate}
-                            onCheckedChange={() => toggleGrupo(cantDistIds.get(c.id) ?? [])}
+                            disabled={cIds.length === 0}
+                            onCheckedChange={() => toggleGrupo(cIds)}
                             aria-label={`Seleccionar todos los distritos de ${c.nombre}`}
                           />
                           <CollapsibleTrigger className="flex flex-1 items-center gap-1.5 text-left text-sm">
@@ -247,6 +275,9 @@ export function GeografiaSelector({
                         <CollapsibleContent className="ml-5 border-l border-border pl-2">
                           {c.distritos.map((d) => {
                             const esEspecial = especiales.has(d.id);
+                            // FICHA 499 (R17/R18): bloqueado si tiene zona distinta de la propia.
+                            const ajenas = zonasAjenas(d, zonaPropiaId);
+                            const bloqueado = ajenas.length > 0;
                             return (
                               <div
                                 key={d.id}
@@ -258,16 +289,26 @@ export function GeografiaSelector({
                                     el botón de especial es una acción distinta y
                                     dentro del label cada click también marcaría
                                     el distrito para la zona. */}
-                                <label className="flex flex-1 cursor-pointer items-center gap-2">
+                                {/* FICHA 499 (R17): la etiqueta sale de `d.zonas` y nombra solo
+                                    las zonas que NO son la propia; es el motivo del bloqueo. */}
+                                <label
+                                  className={cn(
+                                    "flex flex-1 items-center gap-2",
+                                    bloqueado
+                                      ? "cursor-not-allowed text-muted-foreground"
+                                      : "cursor-pointer",
+                                  )}
+                                >
                                   <Checkbox
                                     checked={selDist.has(d.id)}
+                                    disabled={bloqueado}
                                     onCheckedChange={() => toggleDistrito(d.id)}
                                     aria-label={`Seleccionar distrito ${d.nombre}`}
                                   />
                                   <span>{d.nombre}</span>
-                                  {d.zonaNombre ? (
+                                  {bloqueado ? (
                                     <span className="text-xs text-muted-foreground">
-                                      (zona: {d.zonaNombre})
+                                      (zona: {ajenas.map((z) => z.nombre).join(", ")})
                                     </span>
                                   ) : null}
                                 </label>

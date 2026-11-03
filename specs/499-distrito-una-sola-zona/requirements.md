@@ -154,3 +154,7 @@ Las tareas están en `tasks.md` y las mutaciones en design §9.
    primer mensaje ya termina en punto, así que pegarlo tal cual da «San Pedro ya está en la zona Este. y 2
    más.». Mientras no se diga otra cosa, el design §6.4 fija **«San Pedro ya está en la zona Este (y 2
    más).»** (se quita el punto final del primero). ¿Vale ese texto?
+
+   **Respondida (2026-11-02, decisión cerrada):** sí. Con N > 1 el toast es el primer mensaje sin su
+   punto final seguido de « (y N−1 más).», por ejemplo «San Pedro ya está en la zona Este (y 2 más).».
+   Implementado en F.3 (`mensajeDeDistritos` en `CrearZonaForm.tsx`).

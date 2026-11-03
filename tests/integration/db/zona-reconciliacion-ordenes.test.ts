@@ -391,29 +391,10 @@ describeSiHayBase("⭑ 366/T5 — la reconciliacion de la zona de las ordenes, c
     expect(medido.historial).toEqual([]);
   });
 
-  it("R3: un distrito que queda en DOS zonas a la vez es ambiguo -> no mueve ninguna orden", async () => {
-    const medido = await conEscenario(async (e) => {
-      // El esquema lo permite: `@@unique([zonaId, distritoId])`, no por `distritoId` solo.
-      const ambiguo = await e.crearDistrito([e.zonas.A.id, e.zonas.B.id]);
-      const orden = await e.crearOrden({ distritoId: ambiguo, zonaId: e.zonas.C.id });
-
-      const res = await e.repo.update(
-        e.zonas.A.id,
-        datosDeZona(e.zonas.A.nombre, [ambiguo]),
-        USUARIO,
-      );
-      return {
-        reconciliadas: reconciliadasDe(res),
-        zonaFinal: await e.zonaDe(orden),
-        zonaC: e.zonas.C.id,
-        historial: await e.historialDe([orden]),
-      };
-    });
-
-    expect(medido.zonaFinal).toBe(medido.zonaC);
-    expect(medido.reconciliadas).toBe(0);
-    expect(medido.historial).toEqual([]);
-  });
+  // FICHA 499: aqui estaba «R3: un distrito que queda en DOS zonas a la vez es ambiguo -> no mueve
+  // ninguna orden». El indice `zona_distrito_distrito_id_key` hace imposible sembrar ese estado
+  // contra Postgres. La rama `null` del colapso la siguen cubriendo los unitarios con dobles de
+  // `tests/unit/repositories/zona-repository.test.ts` y los de `zonaUnicaDeDistrito`.
 
   // ═══════════════════════════════════════════════════════════════════════════════════════════
   // El corte de elegibilidad (R6/R7/R8) — cada exclusion, con su contraparte incluida
@@ -598,12 +579,15 @@ describeSiHayBase("⭑ 366/T5 — la reconciliacion de la zona de las ordenes, c
     expect(medido.reconciliadas).toBe(1);
   });
 
-  it("⭑ R5/R11: un distrito RECIEN QUITADO de esta zona se re-evalua en ESTE mismo guardado", async () => {
-    // `quitado` estaba en A y en B; este guardado lo saca de A, asi que pasa a resolver B —y sus
-    // ordenes se van a B sin necesidad de guardar B—. Es lo que distingue LA UNION de «solo la
-    // lista final». De paso: las dos zonas resueltas de este guardado comparten `lote_id` (R11).
+  it("⭑ R5/R11: un distrito RECIEN QUITADO de esta zona se re-evalua y, sin zona, no mueve nada", async () => {
+    // FICHA 499: antes `quitado` estaba en A Y en B, y este guardado lo hacia resolver B (sus
+    // ordenes se iban a B) con DOS zonas resueltas compartiendo `lote_id`. El indice
+    // `zona_distrito_distrito_id_key` hace imposible ese estado: un distrito quitado de su UNICA
+    // zona queda sin zona y resuelve `null`. La UNION de antes y despues (R5) y el lote unico con
+    // dos grupos (R11) los siguen probando los unitarios con dobles de
+    // `tests/unit/repositories/zona-repository.test.ts`. Aqui queda lo que la base aun admite.
     const medido = await conEscenario(async (e) => {
-      const quitado = await e.crearDistrito([e.zonas.A.id, e.zonas.B.id]);
+      const quitado = await e.crearDistrito([e.zonas.A.id]);
       const queSigue = await e.crearDistrito([e.zonas.A.id]);
       const ordenQuitado = await e.crearOrden({ distritoId: quitado, zonaId: e.zonas.A.id });
       const ordenQueSigue = await e.crearOrden({ distritoId: queSigue, zonaId: e.zonas.C.id });
@@ -623,12 +607,11 @@ describeSiHayBase("⭑ 366/T5 — la reconciliacion de la zona de las ordenes, c
       };
     });
 
-    expect(medido.zonaDelQuitado).toBe(medido.zonaB);
+    // Sin zona: no se inventa una, y la orden se queda donde estaba, sin rastro.
+    expect(medido.zonaDelQuitado).toBe(medido.zonaA);
     expect(medido.zonaDelQueSigue).toBe(medido.zonaA);
-    expect(medido.reconciliadas).toBe(2);
-    // R11: DOS zonas resueltas distintas, UN solo lote.
-    expect(medido.historial).toHaveLength(2);
-    expect(new Set(medido.historial.map((f) => f.loteId)).size).toBe(1);
+    expect(medido.reconciliadas).toBe(1);
+    expect(medido.historial).toHaveLength(1);
   });
 
   it("R11: DOS guardados distintos producen lotes DISTINTOS", async () => {
@@ -791,7 +774,10 @@ describeSiHayBase("⭑ 366/T5 — la reconciliacion de la zona de las ordenes, c
     // B porque este guardado lo saca de A. Sin el corte, la orden se iba a B y quedaba sin bodega
     // que pudiera asignarla y sin transicion de salida.
     const medido = await conEscenario(async (e) => {
-      const distrito = await e.crearDistrito([e.zonas.A.id, e.zonas.B.id]);
+      // FICHA 499: antes el distrito estaba en A Y en B y el guardado lo sacaba de A. Con el
+      // indice unico, el mismo efecto es: el distrito ya es SOLO de B, la orden sigue en A, y es
+      // el guardado de B el que la reconciliaria.
+      const distrito = await e.crearDistrito([e.zonas.B.id]);
       const enEstante = await e.crearOrden({
         distritoId: distrito,
         zonaId: e.zonas.A.id,
@@ -806,7 +792,11 @@ describeSiHayBase("⭑ 366/T5 — la reconciliacion de la zona de las ordenes, c
         estatusValue: "en_bodega_central",
       });
 
-      const res = await e.repo.update(e.zonas.A.id, datosDeZona(e.zonas.A.nombre, []), USUARIO);
+      const res = await e.repo.update(
+        e.zonas.B.id,
+        datosDeZona(e.zonas.B.nombre, [distrito]),
+        USUARIO,
+      );
 
       return {
         reconciliadas: reconciliadasDe(res),
@@ -836,14 +826,21 @@ describeSiHayBase("⭑ 366/T5 — la reconciliacion de la zona de las ordenes, c
     // manda, y `recibirEnSatelite` acota su guarda por `zonaId` — sin reconciliar, la bodega
     // correcta no puede recibirlo (41 de 42 ordenes represadas el 2026-09-03).
     const medido = await conEscenario(async (e) => {
-      const distrito = await e.crearDistrito([e.zonas.A.id, e.zonas.B.id]);
+      // FICHA 499: antes el distrito estaba en A Y en B y el guardado lo sacaba de A. Con el
+      // indice unico, el mismo efecto es: el distrito ya es SOLO de B, la orden sigue en A, y es
+      // el guardado de B el que la reconciliaria.
+      const distrito = await e.crearDistrito([e.zonas.B.id]);
       const enTransito = await e.crearOrden({
         distritoId: distrito,
         zonaId: e.zonas.A.id,
         estatusValue: "en_ruta_bodega_satelite",
       });
 
-      const res = await e.repo.update(e.zonas.A.id, datosDeZona(e.zonas.A.nombre, []), USUARIO);
+      const res = await e.repo.update(
+        e.zonas.B.id,
+        datosDeZona(e.zonas.B.nombre, [distrito]),
+        USUARIO,
+      );
 
       return {
         reconciliadas: reconciliadasDe(res),
@@ -1148,15 +1145,18 @@ describeSiHayBase("⭑ 366/T5 — la reconciliacion de la zona de las ordenes, c
     // rechazo es EXACTAMENTE el `zonaId` que aqui se afirma. Montar el servicio entero (mensajero
     // de la zona, lote, carrera) mediria su orquestacion, no este corte.
     const medido = await conEscenario(async (e) => {
-      const distrito = await e.crearDistrito([e.zonas.A.id, e.zonas.B.id]);
+      // FICHA 499: antes el distrito estaba en A Y en B y el guardado lo sacaba de A. Con el
+      // indice unico, el mismo efecto es: el distrito ya es SOLO de B, la orden sigue en A, y es
+      // el guardado de B el que la reconciliaria.
+      const distrito = await e.crearDistrito([e.zonas.B.id]);
       const enEstante = await e.crearOrden({
         distritoId: distrito,
         zonaId: e.zonas.A.id,
         estatusValue: "en_bodega_satelite",
       });
 
-      // El distrito sale de A: pasa a resolver B. Sin el corte de la 377, la orden se iria a B.
-      await e.repo.update(e.zonas.A.id, datosDeZona(e.zonas.A.nombre, []), USUARIO);
+      // El distrito resuelve B. Sin el corte de la 377, la orden se iria a B.
+      await e.repo.update(e.zonas.B.id, datosDeZona(e.zonas.B.nombre, [distrito]), USUARIO);
 
       const ordenRepo = new OrdenRepository(clienteConTransaccionAnidada(e.tx));
       const filtro = { estatusValues: [...ESTADOS_BODEGA_SATELITE] };

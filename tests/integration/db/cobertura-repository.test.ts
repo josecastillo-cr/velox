@@ -126,7 +126,10 @@ describeSiHayBase("465 — CoberturaRepository contra Postgres real", () => {
 
     const dCero = await distrito("Cero Zonas", cantonVivo.id, { zonaEspecial: null });
     const dUna = await distrito("Una Zona", cantonVivo.id, { zonaEspecial: true });
-    const dDos = await distrito("Dos Zonas", cantonVivo.id);
+    // FICHA 499: era «Dos Zonas» (en Z1 y Z2). El indice `zona_distrito_distrito_id_key` ya no
+    // admite un distrito en dos zonas; `varias_zonas` lo cubren `tests/unit/utils/
+    // cobertura-distrito.test.ts` y `cobertura-vs-resolve-geo.test.ts` (R25).
+    const dDos = await distrito("Otra De Z1", cantonVivo.id);
     const dCentral = await distrito("En La Central", cantonVivo.id);
     const dRetirado = await distrito("Retirado Propio", cantonVivo.id, { activo: false });
     const dBajoCanton = await distrito("Bajo Cantón Retirado", cantonRetirado.id);
@@ -135,7 +138,6 @@ describeSiHayBase("465 — CoberturaRepository contra Postgres real", () => {
       data: [
         { zonaId: z1, distritoId: dUna },
         { zonaId: z1, distritoId: dDos },
-        { zonaId: z2, distritoId: dDos },
         { zonaId: central.id, distritoId: dCentral },
         { zonaId: z3, distritoId: dRetirado },
         { zonaId: z1, distritoId: dBajoCanton },
@@ -172,7 +174,7 @@ describeSiHayBase("465 — CoberturaRepository contra Postgres real", () => {
     );
     // Anti-vacuidad: los SEIS distritos sembrados, incluidos los dos no disponibles.
     expect([...mias.keys()].sort()).toEqual(
-      ["Bajo Cantón Retirado", "Cero Zonas", "Dos Zonas", "En La Central", "Retirado Propio", "Una Zona"].sort(),
+      ["Bajo Cantón Retirado", "Cero Zonas", "En La Central", "Otra De Z1", "Retirado Propio", "Una Zona"].sort(),
     );
 
     const nombresZona = (r: DistritoCoberturaRow | undefined) => (r?.zonas ?? []).map((z) => z.id).sort();
@@ -186,8 +188,9 @@ describeSiHayBase("465 — CoberturaRepository contra Postgres real", () => {
       zonas: [{ id: semilla.z1, nombre: `${SUFIJO}-Z1`, esCentral: false }],
     });
 
-    // Dos zonas: llegan LAS DOS (no colapsadas a null como en `listArbol`).
-    expect(nombresZona(mias.get("Dos Zonas"))).toEqual([semilla.z1, semilla.z2].sort());
+    // FICHA 499: el caso «dos zonas llegan LAS DOS» ya no se puede sembrar contra Postgres (el
+    // indice unico lo rechaza). Queda el de una zona compartida con otro distrito.
+    expect(nombresZona(mias.get("Otra De Z1"))).toEqual([semilla.z1]);
 
     expect(mias.get("En La Central")!.zonas).toEqual([
       { id: semilla.centralId, nombre: semilla.centralNombre, esCentral: true },

@@ -152,6 +152,14 @@ export interface DistritoArbolDTO {
   zonaId: string | null;
   zonaNombre: string | null;
   /**
+   * ⭑ FICHA 499 (R15) — TODAS las zonas a las que esta asignado el distrito, por `nombre` con el
+   * comparador español. Vacia si no tiene zona. Con el indice `zona_distrito_distrito_id_key` en la
+   * base solo cabe una, pero la lista no colapsa: es lo que lee el selector para bloquear un
+   * distrito de otra zona y la preseleccion de «Editar» (`zonas.some(z => z.id === zona)`).
+   * `zonaId`/`zonaNombre` se quedan con su colapso (R16) para sus lectores de siempre.
+   */
+  zonas: { id: string; nombre: string }[];
+  /**
    * Marca de zona especial. La columna es `BOOLEAN NULL` (null = nadie lo decidio todavia), pero
    * hacia la UI se normaliza a dos valores con la unica lectura correcta: `zona_especial IS TRUE`.
    */

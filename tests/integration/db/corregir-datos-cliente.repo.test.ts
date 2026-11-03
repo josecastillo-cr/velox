@@ -423,7 +423,8 @@ describeSiHayBase("⭑ 312/B3 — corregirDatosCliente contra Postgres real", ()
 
   /**
    * Siembra el catalogo geografico que estos casos necesitan, DENTRO de la transaccion que se
-   * revierte: dos zonas y cuatro distritos que cubren las tres respuestas del colapso de la N:M.
+   * revierte: una zona de destino y los distritos que cubren las respuestas del colapso de la N:M
+   * que la base todavia admite (una zona y ninguna; la de dos la cerro la ficha 499).
    *
    * Se crea a mano y no se busca en la base sembrada a proposito: un distrito con 2 zonas o con 0
    * no tiene por que existir en los datos reales, y un test que dependa de que exista se salta
@@ -443,10 +444,6 @@ describeSiHayBase("⭑ 312/B3 — corregirDatosCliente contra Postgres real", ()
     const zonaDestino = await tx.zona.create({
       data: { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba", nombre: `Z-327-destino-${sufijo}`, esCentral: false },
       select: { id: true, nombre: true },
-    });
-    const zonaExtra = await tx.zona.create({
-      data: { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba", nombre: `Z-327-extra-${sufijo}`, esCentral: false },
-      select: { id: true },
     });
     const crearDistrito = async (
       nombre: string,
@@ -473,8 +470,9 @@ describeSiHayBase("⭑ 312/B3 — corregirDatosCliente contra Postgres real", ()
       unaZona: await crearDistrito("D-una-zona", [zonaDestino.id]),
       // CERO zonas -> no resuelve.
       sinZona: await crearDistrito("D-sin-zona", []),
-      // DOS zonas -> ambiguo, tampoco resuelve.
-      dosZonas: await crearDistrito("D-dos-zonas", [zonaDestino.id, zonaExtra.id]),
+      // FICHA 499: aqui habia un distrito en DOS zonas (ambiguo). El indice
+      // `zona_distrito_distrito_id_key` ya no admite sembrarlo; el caso ambiguo lo cubre
+      // `tests/unit/services/corregir-datos-cliente-service.test.ts` («un distrito AMBIGUO»).
       // Especial, con UNA zona: la marca es del distrito, no de su zona.
       especial: await crearDistrito("D-especial", [zonaDestino.id], true),
       // Colgado de la zona CENTRAL: comprueba que `esCentral` viaja de la ZONA, no del distrito.
@@ -761,14 +759,15 @@ describeSiHayBase("⭑ 312/B3 — corregirDatosCliente contra Postgres real", ()
   /* ---------------------------------------------------------------------- */
 
   it("⭑ 327 caso 7 (R7): el distrito resuelve UNA zona, o ninguna; nunca se inventa una", async () => {
-    // Las TRES respuestas del colapso, medidas contra filas reales de `zona_distrito`. Que
-    // `zonaUnicaDeDistrito` devolviera `zonas[0]` pondria rojo el caso de las dos zonas — y ese es
-    // el bug que factura por la zona equivocada sin romper nada.
+    // Las respuestas del colapso que la base admite, medidas contra filas reales de
+    // `zona_distrito` (FICHA 499: la de dos zonas ya no se puede sembrar). Que
+    // `zonaUnicaDeDistrito` devolviera `zonas[0]` es el bug que factura por la zona equivocada sin
+    // romper nada: lo vigilan ahora los unitarios con dobles (`zona-repository.test.ts`,
+    // `corregir-datos-cliente-service.test.ts`) y, en la base, el propio indice de la 499.
     const r = await conOrdenUbicada({}, async (ctx) => ({
       geo: ctx.geo,
       una: await ctx.repo.findDistritoParaCorreccion(ctx.geo.unaZona),
       sin: await ctx.repo.findDistritoParaCorreccion(ctx.geo.sinZona),
-      dos: await ctx.repo.findDistritoParaCorreccion(ctx.geo.dosZonas),
       especial: await ctx.repo.findDistritoParaCorreccion(ctx.geo.especial),
       central: await ctx.repo.findDistritoParaCorreccion(ctx.geo.enZonaCentral),
       inexistente: await ctx.repo.findDistritoParaCorreccion(
@@ -795,9 +794,7 @@ describeSiHayBase("⭑ 312/B3 — corregirDatosCliente contra Postgres real", ()
     expect(r.sin?.zonaNombre).toBeNull();
     expect(r.sin?.esCentral).toBe(false);
 
-    // DOS zonas -> `null` TAMBIEN. No se elige la primera.
-    expect(r.dos?.zonaId).toBeNull();
-    expect(r.dos?.esCentral).toBe(false);
+    // FICHA 499: «DOS zonas -> `null` TAMBIEN» se quito (ver `sembrarGeografia`).
 
     // La marca especial es del DISTRITO y viaja aunque la zona sea la misma.
     expect(r.especial?.esZonaEspecial).toBe(true);

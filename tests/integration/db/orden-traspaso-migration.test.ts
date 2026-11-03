@@ -197,6 +197,11 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       // dinamico) y el CHECK tipo<->categoria de la caja ampliado. Ninguna toca `orden_traspaso_mensajero`.
       "20261023120000_iva_por_pagar_488_enums",
       "20261023120100_iva_por_pagar_488_checks",
+      // Ficha 499 (2026-11-02): la limpieza de los distritos en más de una zona (con su respaldo en
+      // el esquema `respaldo`) y el índice único `zona_distrito_distrito_id_key`. Ninguna toca
+      // `orden_traspaso_mensajero`.
+      "20261102130000_zona_distrito_limpieza_499",
+      "20261102130100_zona_distrito_unico_499",
       // Ficha 496 (2026-11-02): migracion de SOLO datos que libera el trio de asignacion de las
       // recolecciones ya recibidas en la central (UPDATE sobre `orden`). No toca `orden_traspaso_mensajero`.
       "20261102150000_recoleccion_central_libera_496",

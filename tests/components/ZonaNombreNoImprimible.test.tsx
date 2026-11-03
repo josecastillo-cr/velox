@@ -103,6 +103,7 @@ function arbol(): ProvinciaArbolDTO[] {
               nombre: "Carmen",
               zonaId: null,
               zonaNombre: null,
+              zonas: [],
               zonaEspecial: false,
               activo: true,
             },
@@ -198,9 +199,10 @@ describe("392 — el aviso del nombre que la etiqueta no puede imprimir", () => 
 
   it("un validation_error de OTRO campo conserva el mensaje genérico", async () => {
     // La ficha no borra el genérico: lo aparta cuando hay un motivo del nombre.
+    // ⚠️ FICHA 499 (R23): `distritoIds` ya se reenvía al toast; el «otro campo» pasa a ser `tarifas`.
     crearZonaMock.mockResolvedValue({
       status: "validation_error",
-      fieldErrors: { distritoIds: ["uno o mas distritoIds no existen"] },
+      fieldErrors: { tarifas: ["uno o mas vehiculoId no existen"] },
     });
     const user = userEvent.setup();
     renderForm({ mode: "crear" });
