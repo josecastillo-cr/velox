@@ -65,6 +65,35 @@ function zonaOk(res: CreateZonaResult) {
 }
 
 describe("ZonaRepository.create", () => {
+  it("⭑ 499/R13: el rechazo del indice `zona_distrito_distrito_id_key` dentro de create da `conflictos: null`", async () => {
+    // La red final de `create` (revision 499, m2). La forma del error es la MEDIDA en B.2: P2002 sin
+    // `meta.target`, con el nombre del indice en `meta.driverAdapterError.cause.originalMessage`.
+    const tx = buildTx();
+    tx.zona.create.mockResolvedValue({ id: "z1", nombre: "GAM", cobroVehiculo: false, esCentral: false });
+    tx.zonaDistrito.createMany.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError("Unique constraint failed on the (not available)", {
+        code: "P2002",
+        clientVersion: "7.8.0",
+        meta: {
+          modelName: "ZonaDistrito",
+          driverAdapterError: {
+            name: "DriverAdapterError",
+            cause: {
+              originalCode: "23505",
+              originalMessage: "llave duplicada viola restricción de unicidad «zona_distrito_distrito_id_key»",
+              kind: "UniqueConstraintViolation",
+            },
+          },
+        },
+      }),
+    );
+    const res = await repoOf(buildPrisma(tx)).create(
+      { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba", nombre: "GAM", cobroVehiculo: false, esCentral: false, distritoIds: ["d1"], tarifas: [] },
+      null,
+    );
+    expect(res).toEqual({ estado: "distrito_en_otra_zona", conflictos: null });
+  });
+
   it("crea zona + N:M + tarifas en transaccion y devuelve el DTO", async () => {
     const tx = buildTx();
     tx.zona.create.mockResolvedValue({ id: "z1", nombre: "GAM", cobroVehiculo: false, esCentral: false });
