@@ -4,7 +4,7 @@
 - Hotfix portados (`progress/prompt-hotfix-portable.md`, inventarios `progress/inventario_hotfix_*.md`): ramas desde `dev`, `--rapido`, salen con la próxima release (decisiones del humano). Mediciones de prod en el scratchpad de la sesión, NO en el repo.
   - 495: MERGEADA (#879).
   - 496: MERGEADA (#880). Tras deploy: consulta H1 = 0.
-  - 497 (confirmación física de barridas): wt-497, backend_dev en curso; luego frontend_dev + gate + reviewer.
+  - 497 (confirmación física de barridas): wt-497, backend HECHO (`d51ebf62`, progress/impl_497_backend.md); frontend_dev en curso (merge de dev + UI + gate `progress/gate_497_1.log`). Falta: reviewer, PR, merge. Desvío R16 (barrida sin guía → mensaje «sin guía») a validar en revisión.
   - 498 (dinero satélite al conciliar): spec APROBADO (64 req.); empieza con la 497 mergeada. Lleva migración «saldada con la regla anterior».
   - 500 (resto de H5): sin spec; espera a 498.
 - Cada migración nueva debe declararse en `posteriores` de `tests/integration/db/orden-traspaso-migration.test.ts`.
