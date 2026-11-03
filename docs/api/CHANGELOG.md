@@ -23,7 +23,7 @@
 
 ## 2026-11-02 — ⚠️ RUPTURA — La empresa pasa a llamarse Velox Courier: cabeceras de la firma, dominio y encabezados de descarga
 
-> **Fecha de despliegue: PENDIENTE — se avisará con antelación y se escribirá aquí.** Este cambio
+> **Fecha de despliegue: 2026-11-03.** Este cambio
 > **rompe** a quien verifique la firma de los webhooks y a quien llame al dominio anterior. No hay
 > periodo de doble cabecera: Velox Courier pausa las entregas a su callback antes del despliegue y
 > las reanuda cuando usted confirma que su verificador lee las cabeceras nuevas.
