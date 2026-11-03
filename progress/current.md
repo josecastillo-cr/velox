@@ -1,4 +1,5 @@
 # ESTADO 2026-11-03 — RELEASE DESPLEGADA (PR #882, b8a9cf43, dpl_9RHvJqPYjfu1Pvcr2TGMTCoxzv1P); in_progress = 0
+- 2026-11-03 (sesión nueva): 498 en `in_progress` (13fd57fc). Worktree `R:/w498`, rama `fix/498-satelite-dinero-al-conciliar`; backend_dev (Opus) haciendo T0–T6. Después: frontend_dev (T7), mutaciones y gate (T8), reviewer. Gate de arranque verde: `progress/gate_498_arranque.log`.
 
 - En prod: 492, 493 (marca Velox Courier), 495, 496, 497, 499 (hotfix portados). Detalle y verificación en docs/release.md. dev = prod.
 - Mañana: 498 (spec aprobado, 64 req.; dinero satélite al conciliar, lleva migración «saldada con la regla anterior» con medición previa en prod), luego spec de la 500 (resto de H5), 501 (fechas de Pagos registrados, pending), 494 (marca en identificadores, pending).
