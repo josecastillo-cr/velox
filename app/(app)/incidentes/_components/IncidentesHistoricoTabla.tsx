@@ -23,6 +23,9 @@ import {
   filaDescargaIncidenteHistorico,
 } from "./incidentes-descarga-columnas";
 import { descargarDatos } from "@/components/shared/descarga-datos";
+// FICHA 495 — las fechas del incidente son `timestamp`: se pintan en el día de Costa Rica, con la
+// misma función que usa su descarga (`incidentes-descarga-columnas.ts`).
+import { fechaDiaInstanteCR } from "@/lib/utils/fecha-dia-iso";
 
 /**
  * Feature 170 — FASE 2 (T I.2, R43/R44/R52): el HISTÓRICO de incidentes resueltos (feature
@@ -190,7 +193,7 @@ function columnasHistorico(
     {
       id: "resueltoAt",
       value: "Fecha resuelta",
-      render: (i) => i.resueltoAt?.slice(0, 10) ?? "—",
+      render: (i) => (i.resueltoAt ? fechaDiaInstanteCR(i.resueltoAt) : "—"),
     },
     { id: "motivoRechazo", value: "Motivo", render: (i) => i.motivoRechazo ?? "—" },
     {
