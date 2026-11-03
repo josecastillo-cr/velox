@@ -99,7 +99,7 @@ interface Sembrado {
   hermanas: Record<string, string>;
 }
 
-/** La orden objetivo y SEIS hermanas que la migración no debe tocar (R15) o reponer (R16). */
+/** La orden objetivo y SIETE hermanas que la migración no debe tocar (R15) o reponer (R16). */
 async function sembrar(tx: TxDeTest, conObjetivo = true): Promise<Sembrado> {
   const base = await sembrarBase(tx);
   const m1 = base.mensajero1;
@@ -136,6 +136,13 @@ async function sembrar(tx: TxDeTest, conObjetivo = true): Promise<Sembrado> {
   // (f) Recorrido completo pero ya NO está en en_bodega_central.
   hermanas.f = await crearOrden(tx, base, { clave: "f-otro-estado", estatus: "en_reparto", mensajeroId: m1 });
   await recorridoCompleto(tx, base, hermanas.f, m1);
+
+  // (g) Revisión 496 (m1) — la parte ESTRICTA del down: en central, SIN mensajero, con
+  //     `recoleccion_tienda` de M1 y una fila POSTERIOR a la recepción (la central la movió después).
+  //     El up no la toca (no tiene mensajero) y el down NO debe reponerle a M1.
+  hermanas.g = await crearOrden(tx, base, { clave: "g-sin-mensajero-posterior", estatus: "en_bodega_central", mensajeroId: null });
+  await recorridoCompleto(tx, base, hermanas.g, m1);
+  await fila(tx, base, hermanas.g, "en_bodega_central", "en_bodega_central", "ajuste_estado", base.maestro, "11:00");
 
   let objetivo = "";
   if (conObjetivo) {
@@ -194,8 +201,8 @@ describeSiHayBase("496 — migración de datos: liberar recolecciones ya recibid
     expect(r.n).toBe(1);
     expect(r.despues.trio).toEqual([null, null, null]);
     expect(r.despues.historial).toBe(r.antes.historial);
-    // Siembra comprobada: a 2 + b 1 + c 3 + d 1 + e 1 + f 3 + objetivo 3.
-    expect(r.antes.historial).toBe(14);
+    // Siembra comprobada: a 2 + b 1 + c 3 + d 1 + e 1 + f 3 + g 4 + objetivo 3.
+    expect(r.antes.historial).toBe(18);
   });
 
   it("⭑ R15: no toca a las hermanas (columna a columna)", async () => {
@@ -208,7 +215,7 @@ describeSiHayBase("496 — migración de datos: liberar recolecciones ya recibid
       await tx.$executeRawUnsafe(UP);
       return { antes, despues: await fotos(tx, ids), n: ids.length };
     });
-    expect(Object.keys(r.antes)).toHaveLength(6);
+    expect(Object.keys(r.antes)).toHaveLength(7);
     expect(r.despues).toEqual(r.antes);
   });
 
@@ -226,6 +233,7 @@ describeSiHayBase("496 — migración de datos: liberar recolecciones ya recibid
         liberada,
         repuesta: await trio(tx, s.objetivo),
         d: await trio(tx, s.hermanas.d),
+        g: await trio(tx, s.hermanas.g),
         hermanasAntes,
         hermanasDespues: await fotos(tx, Object.values(s.hermanas)),
         m1: s.base.mensajero1,
@@ -236,6 +244,8 @@ describeSiHayBase("496 — migración de datos: liberar recolecciones ya recibid
     expect(r.repuesta).toEqual([r.m1, null, null]);
     // (d) no tiene `recoleccion_tienda`: sigue sin mensajero.
     expect(r.d).toEqual([null, null, null]);
+    // (g) tiene recolección de M1 pero su última fila es POSTERIOR a la recepción: no se repone.
+    expect(r.g).toEqual([null, null, null]);
     expect(r.hermanasDespues).toEqual(r.hermanasAntes);
   });
 
@@ -253,7 +263,7 @@ describeSiHayBase("496 — migración de datos: liberar recolecciones ya recibid
       const segunda = await tx.$executeRawUnsafe(UP);
       return { nSinObjetivo, primera, segunda, hermanas: Object.keys(hermanas).length };
     });
-    expect(r.hermanas).toBe(6);
+    expect(r.hermanas).toBe(7);
     expect(r.nSinObjetivo).toBe(0);
     expect(r.primera).toBe(1);
     expect(r.segunda).toBe(0);

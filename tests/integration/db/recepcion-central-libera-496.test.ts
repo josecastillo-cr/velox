@@ -441,9 +441,14 @@ describeSiHayBase("496 — la recepción central de una recolección libera al m
         deletedAt: borrada,
       });
       await recorridoDeRecoleccion(tx, base, conMensajero.id, base.mensajero1);
-      return recolectadas(tx, base.mensajero1, [sinMensajero.id, conMensajero.id]);
+      // Control (revisión 496, m5): la hermana VIVA, idéntica a `sinMensajero` salvo el borrado, SÍ
+      // sale. Así el `[]` de las borradas no puede venir de otra causa.
+      const viva = await crearOrden(tx, base, { clave: "r13-viva", estatus: "en_bodega_central", mensajeroId: null });
+      await recorridoDeRecoleccion(tx, base, viva.id, base.mensajero1);
+      const filas = await recolectadas(tx, base.mensajero1, [sinMensajero.id, conMensajero.id, viva.id]);
+      return { ids: filas.map((f) => f.id), viva: viva.id };
     });
-    expect(r).toEqual([]);
+    expect(r.ids).toEqual([r.viva]);
   });
 });
 
