@@ -256,6 +256,9 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       ivaPorPagar: "0.00",
       signoIvaPorPagar: "cero",
       porcentajeIva: "0.00",
+      porCobrarSatelites: "0.00", // ficha 498
+      signoPorCobrarSatelites: "cero",
+      porcentajePorCobrar: "0.00",
     });
     // Lo que la feature existe para conseguir: los ₡5000 de contra-entrega estan en la caja y
     // NO estan en la ganancia. Si `verResumenCaja` ignorara la naturaleza, serian iguales.

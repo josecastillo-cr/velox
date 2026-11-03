@@ -323,6 +323,7 @@ describe("R23 — camino 3 (bodega): `CierresBodegaAdminRepository.findCierreBod
           montoRecibido: null,
           conciliadoAt: null,
           conciliadoNota: null,
+          esperadoReglaAnterior: null, // ficha 498 (fixture): no saldada con la regla anterior
           conciliadoPorUsuario: null,
           zona: { nombre: "Cartago" },
           solicitadoPorUsuario: { nombre: "Sara" },

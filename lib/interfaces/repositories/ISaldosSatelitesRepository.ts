@@ -64,8 +64,9 @@ export interface ISaldosSatelitesRepository {
    * ⭑ R20/R23 — las TRES cifras de cabecera de `/wallet/satelites`, ya cuadradas.
    *
    * Existe porque la pantalla NO PUEDE sumarlas (R20: nada de aritmetica de dinero en el
-   * navegador) y las tres son sumas sobre el conjunto entero de bodegas. Es la MISMA formula
-   * (`saldoDe`) aplicada a tres poblaciones distintas, no tres reglas nuevas.
+   * navegador) y las tres son sumas sobre el conjunto entero de bodegas. FICHA 498 (R25): el
+   * pendiente sale de las MISMAS agregaciones que las filas (`deudaDeZona`), y la diferencia de cada
+   * consolidacion de `faltaPorRecibir` sobre su aporte reconocido.
    */
   findResumen(ahora?: Date): Promise<ResumenSatelitesDTO>;
 }

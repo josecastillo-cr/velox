@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
 import { ConfirmacionFisicaNoAplicableError } from "@/lib/repositories/CierresAdminRepository";
+import { asentarCierreDia, dependenciasRealesDeAsiento } from "@/lib/repositories/asentar-cierre-dia";
 import type { ResolverCierreInput } from "@/lib/interfaces/repositories/ICierresAdminRepository";
 import { HAY_BASE_DE_DATOS, clienteConSavepoint } from "./_postgres-real";
 import {
@@ -102,6 +103,17 @@ async function huellaDeDinero(e: Escenario, cierreId: string) {
   return filas.map((f) => `${f.t}|${f.tipo}|${f.categoria}|${f.monto}`).sort();
 }
 
+/**
+ * FICHA 498 (fixture): desde la 498 aprobar un cierre SATELITE no escribe dinero (R1); su dinero entra
+ * al CONCILIAR la consolidacion, por el MISMO procedimiento (`asentarCierreDia`). R39 compara el dinero
+ * del cierre con y sin barridas: se asienta aqui, tras aprobar, para que la huella exista y la
+ * comparacion siga diciendo algo. Ninguna asercion cambia.
+ */
+async function huellaAlAsentar(e: Escenario, cierreId: string) {
+  await asentarCierreDia(e.tx, cierreId, dependenciasRealesDeAsiento(e.cliente));
+  return huellaDeDinero(e, cierreId);
+}
+
 async function totalesDe(e: Escenario, cierreId: string) {
   const c = await e.tx.cierreDia.findUniqueOrThrow({
     where: { id: cierreId },
@@ -186,7 +198,7 @@ describeSiHayBase("497 — aprobar un cierre con barridas exige confirmarlas (Po
         ),
         congeladosAntes,
         congeladosDespues: await congeladosDe(e, cierreId),
-        huella: await huellaDeDinero(e, cierreId),
+        huella: await huellaAlAsentar(e, cierreId),
         totales: await totalesDe(e, cierreId),
       };
     });
@@ -203,7 +215,7 @@ describeSiHayBase("497 — aprobar un cierre con barridas exige confirmarlas (Po
         barridasLeidas,
         exacta,
         status: r.status,
-        huella: await huellaDeDinero(e, cierreId),
+        huella: await huellaAlAsentar(e, cierreId),
         totales: await totalesDe(e, cierreId),
       };
     });

@@ -126,6 +126,9 @@ const A_QUIEN_POR_ORIGEN: Record<WalletOrigenTipo, readonly RamaDeCuenta[] | "an
   cobro_tienda: [DEBITO_DE_TIENDA],
   cobro_tienda_completado: [DEBITO_DE_TIENDA],
   abono_tienda: [ABONO],
+  // Ficha 498: la diferencia de la satelite al conciliar. La satelite no es una cuenta de tienda ni de
+  // mensajero, asi que no hay rama: la fila no aparece al filtrar por una cuenta.
+  conciliacion_bodega_ajuste: [],
 };
 
 const ORIGENES = Object.keys(A_QUIEN_POR_ORIGEN) as WalletOrigenTipo[];

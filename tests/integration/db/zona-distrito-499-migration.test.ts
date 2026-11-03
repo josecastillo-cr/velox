@@ -309,7 +309,9 @@ describeSiHayBase("499/B.3 — las migraciones de un distrito en una sola zona (
   it("R8: up, down, up — el down devuelve lo respaldado y el segundo up da el mismo estado", async () => {
     const m = await enTransaccionRevertida(prisma, async (tx) => {
       await prepararMundo(tx);
-      // El mundo de partida SIN el esquema de respaldo, como en una base nunca migrada.
+      // El mundo de partida SIN el esquema de respaldo, como en una base nunca migrada. Ficha 498: su
+      // respaldo (`asientos_satelite_498`, posterior) tambien vive aqui; se quita dentro de la tx.
+      await correr(tx, `DROP TABLE IF EXISTS respaldo.asientos_satelite_498`);
       await correr(tx, `DROP TABLE respaldo.zona_distrito_499`);
       await correr(tx, `DROP SCHEMA IF EXISTS respaldo`);
       const c = await sembrarCasos(tx);
@@ -360,7 +362,9 @@ describeSiHayBase("499/B.3 — las migraciones de un distrito en una sola zona (
       // La zona n2 desaparece despues de migrar: sus filas respaldadas ya no tienen a donde volver.
       await tx.zonaDistrito.deleteMany({ where: { zonaId: c.n2 } });
       await tx.zona.delete({ where: { id: c.n2 } });
-      // Otra tabla en el esquema `respaldo`, ajena a esta ficha.
+      // Otra tabla en el esquema `respaldo`, ajena a esta ficha. Ficha 498: la suya (posterior) se
+      // quita dentro de la tx para que «la otra» sea una sola y la comparacion siga siendo exacta.
+      await correr(tx, `DROP TABLE IF EXISTS respaldo.asientos_satelite_498`);
       const otra = `otra_${unico().replace(/[^a-z0-9]/gi, "_")}`;
       await correr(tx, `CREATE TABLE respaldo.${otra} (id int)`);
 

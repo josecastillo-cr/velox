@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Landmark, ReceiptText, TriangleAlert } from "lucide-react";
+import { HandCoins, Landmark, ReceiptText, TriangleAlert } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +78,13 @@ import {
 //  - Un TERCER bolsillo, «IVA por pagar», hermano de los otros dos, siempre visible —en «flujo» y en
 //    «saldo», con o sin filtros— con su importe, su insignia de signo y una pista que dice que no es
 //    ganancia de Ordenex (R13). Superficie neutra: es dinero que se debe, no una alarma.
+//
+// ── Ficha 498 (T7.1, design §8.3) — EL CUARTO BOLSILLO, «POR COBRAR A SATÉLITES» ──
+//
+//  - Hermano de los otros tres y SIEMPRE visible, también con 0 (R37): la diferencia de una
+//    satélite al conciliar es dinero que la caja esperaba y no entró (o que entró de más).
+//  - La pista la decide el SIGNO del servidor: positivo y negativo con su texto literal; cero sin
+//    pista. Superficie neutra, como el IVA: es una cuenta pendiente, no una alarma.
 
 /**
  * Feature 200 (tanda 2) — las insignias de signo usan las variantes SEMANTICAS de la
@@ -134,6 +141,16 @@ const BOLSILLO_ORDENEX: Record<ModoComposicionCaja, SuperficieOrdenex> = {
   },
 };
 
+/**
+ * Ficha 498 (R37) — la pista del bolsillo «Por cobrar a satélites» por signo. `Record` TOTAL: un
+ * signo nuevo no compila sin decidir qué se dice. En cero, nada (`null`).
+ */
+const PISTA_POR_COBRAR: Record<WalletBalanceSigno, string | null> = {
+  positivo: CAJA_RESUMEN_LABEL.porCobrarSatelitesPistaPositivo,
+  negativo: CAJA_RESUMEN_LABEL.porCobrarSatelitesPistaNegativo,
+  cero: null,
+};
+
 /** Tipografia de la cifra grande de la caja. */
 const CIFRA_GRANDE = "text-3xl font-semibold tracking-tight tabular-nums";
 
@@ -187,6 +204,8 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
   const badgeGanancia = SIGNO_BADGE[resumen.signoGanancia];
   const badgeCapital = SIGNO_BADGE[resumen.signoCapital];
   const badgeIva = SIGNO_BADGE[resumen.signoIvaPorPagar];
+  const badgePorCobrar = SIGNO_BADGE[resumen.signoPorCobrarSatelites];
+  const pistaPorCobrar = PISTA_POR_COBRAR[resumen.signoPorCobrarSatelites];
   const ordenex = conBarra ? BOLSILLO_ORDENEX[resumen.modoComposicion] : ORDENEX_NEUTRO;
   // R16/R17/R18 de la 231: lo que hay que decir cuando la barra no se puede partir. Solo con barra.
   const mensajeModo = conBarra ? CAJA_COMPOSICION_MENSAJE[resumen.modoComposicion] : null;
@@ -252,8 +271,9 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
         {/* 2 — la barra (R2 de la 231), SOLO en estado «saldo» (R22 de la 459). */}
         {conBarra ? <BarraComposicionCaja resumen={resumen} /> : null}
 
-        {/* 3 — los bolsillos, hermanos y a la vez (R3). Ficha 488: tres, con el IVA por pagar. */}
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-3">
+        {/* 3 — los bolsillos, hermanos y a la vez (R3). Ficha 488: tres, con el IVA por pagar.
+            Ficha 498: cuatro, con «Por cobrar a satélites». */}
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
           <section
             aria-label={CAJA_RESUMEN_LABEL.deTerceros}
             data-bolsillo="tiendas"
@@ -381,6 +401,31 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             <span className="text-xs text-muted-foreground">
               {CAJA_RESUMEN_LABEL.ivaPorPagarPista}
             </span>
+          </section>
+
+          {/* Ficha 498 (R37): el cuarto bolsillo. Siempre visible, también con 0. */}
+          <section
+            aria-label={CAJA_RESUMEN_LABEL.porCobrarSatelites}
+            data-bolsillo="por-cobrar-satelites"
+            className={cn(BOLSILLO, SUPERFICIE_NEUTRA)}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center justify-center rounded-md bg-muted p-2 text-muted-foreground">
+                <HandCoins className="size-4" aria-hidden="true" />
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">
+                {CAJA_RESUMEN_LABEL.porCobrarSatelites}
+              </span>
+              <Badge variant={badgePorCobrar.variant}>{badgePorCobrar.label}</Badge>
+            </div>
+            <span className={cn(CIFRA_BOLSILLO, "text-foreground")}>
+              {money(resumen.porCobrarSatelites)}
+            </span>
+            {pistaPorCobrar === null ? null : (
+              <span data-pista="por-cobrar-satelites" className="text-xs text-muted-foreground">
+                {pistaPorCobrar}
+              </span>
+            )}
           </section>
         </div>
 

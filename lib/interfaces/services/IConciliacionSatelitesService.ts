@@ -65,7 +65,22 @@ export type MarcaConciliacionServiceResult =
   | { status: "ok"; cierreBodegaId: string }
   | { status: "conflict" }
   | { status: "no_encontrada" }
-  | { status: "forbidden" };
+  | { status: "forbidden" }
+  // FICHA 498 (Q5, R15a): recibido 0 con aporte reconocido positivo. No cambio nada.
+  | { status: "recibido_cero_con_aporte" };
+
+/**
+ * FICHA 498 (R20/R21): revertir gana `con_asientos` — la consolidacion ya entro a la caja y no se
+ * revierte nada; la pantalla pide corregir el monto en vez de revertir.
+ */
+export type RevertirConciliacionServiceResult =
+  | { status: "ok"; cierreBodegaId: string }
+  | { status: "conflict" }
+  | { status: "no_encontrada" }
+  | { status: "forbidden" }
+  | { status: "con_asientos" }
+  // FICHA 498 (revision m2): saldada con la regla anterior: no se revierte, se corrige.
+  | { status: "saldada_regla_anterior" };
 
 export interface IConciliacionSatelitesService {
   listarSaldosSatelites(
@@ -85,23 +100,28 @@ export interface IConciliacionSatelitesService {
     actor: Actor,
   ): Promise<ListarConsolidacionesSateliteCompletoServiceResult>;
   /**
-   * R9/R13/R14 — marca la consolidacion como RECIBIDA con su monto. NO escribe en ningun libro de
-   * dinero: la marca es seguimiento, no contabilidad.
+   * R9/R13 — marca la consolidacion como RECIBIDA con su monto. ⭑ FICHA 498 (R8-R15): marcar
+   * ASIENTA el dinero de sus cierres en la caja y escribe la diferencia; despues ya no se desmarca,
+   * se corrige. `recibido_cero_con_aporte` si el monto es 0 y hay dinero por entregar.
    */
   marcarRecibida(
     input: MarcarConsolidacionRecibidaInput,
     actor: Actor,
   ): Promise<MarcaConciliacionServiceResult>;
-  /** R12/R13 — deshace la marca. El monto que se borra queda en el historial. */
+  /**
+   * R12/R13 — deshace la marca. El monto que se borra queda en el historial. ⭑ FICHA 498 (R20/R22):
+   * solo si la consolidacion NO tiene asientos; si los tiene, `con_asientos` sin cambiar nada.
+   */
   revertirConciliacion(
     input: RevertirConciliacionInputBorde,
     actor: Actor,
-  ): Promise<MarcaConciliacionServiceResult>;
+  ): Promise<RevertirConciliacionServiceResult>;
   /**
    * ⭑ FICHA 473 (R1-R9) — CORRIGE el monto recibido de una consolidacion YA conciliada, sin pasar
    * por «Pendiente de conciliar». Mismo input que marcar (los campos son identicos) y mismo
    * resultado: `conflict` si ya no esta conciliada o su monto cambio entre lectura y escritura,
-   * `no_encontrada` si no existe, `forbidden` sin acceso total. NO escribe en libros de dinero.
+   * `no_encontrada` si no existe, `forbidden` sin acceso total. ⭑ FICHA 498 (R17-R19): escribe la
+   * diferencia solo por la variacion; `recibido_cero_con_aporte` con la misma regla que marcar.
    */
   corregirRecibida(
     input: MarcarConsolidacionRecibidaInput,

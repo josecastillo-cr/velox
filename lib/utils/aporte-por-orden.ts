@@ -97,6 +97,9 @@ export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
   // FICHA 488 (design §4.4): el Pago de IVA y su anulacion los decide una persona.
   egreso_pago_iva: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   ingreso_reverso_pago_iva: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
+  // Ficha 498: la diferencia de la satelite nace de la CONSOLIDACION, no de un cierre: sin reparto.
+  egreso_diferencia_satelite: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
+  ingreso_diferencia_satelite: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
 };
 
 /**

@@ -348,9 +348,11 @@ describe("173/T B.4 — R48: la idempotencia no es un `if` (estructural)", () =>
   });
 
   it("el enganche de la aprobacion no pregunta si el contra-entrega ya existe", () => {
-    const codigo = codigoDe("lib/repositories/CierresAdminRepository.ts");
+    // FICHA 498: el enganche se MOVIO, literal, a `asentarCierreDia` (lo comparten la aprobacion y la
+    // conciliacion); `CAJA_COD_FEED` pasa como `deps.cajaCodFeed`. Se mira ahi.
+    const codigo = codigoDe("lib/repositories/asentar-cierre-dia.ts");
     const bloque = codigo.slice(
-      codigo.indexOf("CAJA_COD_FEED.construirIngresoCod"),
+      codigo.indexOf("deps.cajaCodFeed.construirIngresoCod"),
       codigo.indexOf("construirMovimientosDePago"),
     );
 

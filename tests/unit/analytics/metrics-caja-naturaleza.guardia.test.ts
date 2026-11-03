@@ -456,7 +456,9 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     const declaradas = [...(getMetrica("dinero_en_caja")?.definicion.categorias ?? [])].sort();
     expect(declaradas).toEqual(Object.keys(NATURALEZA_POR_CATEGORIA).sort());
     expect(declaradas).toEqual([...WALLET_MOVIMIENTO_CATEGORIA_SEED].sort());
-    expect(declaradas).toHaveLength(29); // ficha 459: 17 + 4; ficha 461 (R29): + 2; ficha 457 (R52): + 2; ficha 458-B: + 2; ficha 488: + 2
+    expect(declaradas).toHaveLength(31); // ficha 459: 17 + 4; ficha 461 (R29): + 2; ficha 457 (R52): + 2; ficha 458-B: + 2; ficha 488: + 2; ficha 498: + 2
+    expect(declaradas).toContain("egreso_diferencia_satelite"); // ficha 498
+    expect(declaradas).toContain("ingreso_diferencia_satelite"); // ficha 498
     expect(declaradas).toContain("egreso_pago_iva"); // ficha 488 (R32)
     expect(declaradas).toContain("ingreso_reverso_pago_iva"); // ficha 488 (R32)
     expect(declaradas).toContain("egreso_reverso_flete_devolucion"); // ficha 458-B
@@ -508,8 +510,10 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     // Ficha 459: + los dos de terceros del pago por cuenta y los dos de CAPITAL, que tampoco son
     // ganancia. Ficha 457 (R52, D11): + el pago de una tienda a Ordenex y su anulacion, que son de
     // TERCEROS (DH1) y por eso `ganancia_ordenex` no los ve: 9 categorias. Ficha 488 (R31): + las SEIS
-    // de dueño `iva` (los tres IVA, el reverso del IVA, el Pago de IVA y su anulacion): 15.
+    // de dueño `iva` (los tres IVA, el reverso del IVA, el Pago de IVA y su anulacion): 15. Ficha 498:
+    // + las DOS diferencias de la satelite (dueño `por_cobrar_satelite`, no ganancia): 17.
     expect(enCaja.filter((c) => !ganancia.has(c)).sort()).toEqual([
+      "egreso_diferencia_satelite",
       "egreso_pago_iva",
       "egreso_pago_por_cuenta_tienda",
       "egreso_pago_tienda",
@@ -519,6 +523,7 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
       "ingreso_abono_tienda",
       "ingreso_aporte_capital",
       "ingreso_cod_recaudado",
+      "ingreso_diferencia_satelite",
       "ingreso_iva_comision_cod",
       "ingreso_iva_flete",
       "ingreso_iva_flete_devolucion",

@@ -10,6 +10,7 @@ import { AporteCapitalRepository } from "@/lib/repositories/AporteCapitalReposit
 import { CierreDelDiaRepository } from "@/lib/repositories/CierreDelDiaRepository";
 import { CierreDiaRepository } from "@/lib/repositories/CierreDiaRepository";
 import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
+import { asentarCierreDia, dependenciasRealesDeAsiento } from "@/lib/repositories/asentar-cierre-dia";
 import { GastoFijoCobroRepository } from "@/lib/repositories/GastoFijoCobroRepository";
 import { LiquidacionPagoRepository } from "@/lib/repositories/LiquidacionPagoRepository";
 import { LiquidacionRepartoRepository } from "@/lib/repositories/LiquidacionRepartoRepository";
@@ -592,6 +593,11 @@ export async function sembrarEscenario459(
     [{ gestionId: g4, numGuia: o4.numGuia }],
   );
   afirmarOk(pasos, "aprobarCierre", aprobacion);
+  // FICHA 498 (fixture): desde la 498 aprobar un cierre SATELITE no escribe dinero (R1); su dinero entra
+  // al CONCILIAR la consolidacion, por el MISMO procedimiento. Este escenario mide la caja y los saldos
+  // CON el dinero del cierre dentro: se asienta aqui, tras aprobar, con `asentarCierreDia` (las mismas
+  // filas, en el mismo orden, que la aprobacion escribia antes). Ninguna cifra del escenario cambia.
+  await asentarCierreDia(tx, cierreId, dependenciasRealesDeAsiento(clienteConSavepoint(tx)));
 
   // ── Cobro por devolución a origen de tienda (337), fuera de todo cierre ───────────────────────────────
   const o6 = await sembrarOrden({

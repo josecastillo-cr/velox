@@ -256,6 +256,13 @@ beforeEach(() => {
         conciliadoPorNombre: null,
         nota: null,
         cantidadCierres: 1,
+        // Ficha 498 (fixture): los campos nuevos del DTO; sin SINPE ni descuentos, debe = efectivo.
+        totalPagoMensajero: "0.00",
+        totalIngresoBodegaRechazos: "0.00",
+        paraLaCentral: "8500.00",
+        debe: "8500.00",
+        debePositivo: true,
+        saldadaReglaAnterior: false,
       },
     ],
     total: 1,
@@ -352,6 +359,8 @@ const SUPERFICIES: { nombre: string; montar: () => Promise<void> }[] = [
                   zonaId: BODEGA,
                   zonaNombre: "FGAM Puntarenas",
                   saldoSinConciliar: "8500.00",
+                  sinConsolidar: "0.00", // ficha 498
+                  cierresSinConsolidar: 0,
                   totalEfectivo: "8500.00",
                   totalConsolidado: "8500.00",
                   totalRecibido: "0.00",

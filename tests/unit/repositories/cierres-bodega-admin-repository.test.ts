@@ -34,6 +34,7 @@ function bodegaDbRow(overrides: Record<string, unknown> = {}) {
     montoRecibido: null,
     conciliadoAt: null,
     conciliadoNota: null,
+    esperadoReglaAnterior: null, // ficha 498 (fixture): no saldada con la regla anterior
     zona: { nombre: "Cartago" },
     solicitadoPorUsuario: { nombre: "Sara Satelite" },
     conciliadoPorUsuario: null,
@@ -184,11 +185,16 @@ describe("CierresBodegaAdminRepository.findCierresBodega (R15)", () => {
       paraLaCentral: "1.50",
       efectivoCubreDescuentos: false,
       // ⭑ FICHA 431 (R26/R28): el maestro lee la marca del MISMO mapper que la satelite. Esta
-      // fila es `solicitado` —sin conciliar—, asi que falta por llegar el EFECTIVO ENTERO
-      // (10.00) y NO cero: ese es el numero que la pantalla de saldos suma.
+      // fila es `solicitado` —sin conciliar—, asi que falta por llegar todo lo que debe.
+      // ⭑ FICHA 498 (R26, decision del humano del 2026-11-02): lo que debe es «Para la central»
+      // (1.50), no el efectivo (antes "10.00").
       conciliado: false,
       montoRecibido: null,
-      faltaPorRecibir: "10.00",
+      faltaPorRecibir: "1.50",
+      // FICHA 498 (R16/R41a): la cola de `/cierres-admin` recibe lo que debe, del MISMO mapper.
+      debe: "1.50",
+      debePositivo: true,
+      saldadaReglaAnterior: false,
       conciliadoAt: null,
       conciliadoPorNombre: null,
       conciliadoNota: null,

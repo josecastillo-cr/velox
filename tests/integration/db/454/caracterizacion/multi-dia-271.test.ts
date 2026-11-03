@@ -35,6 +35,10 @@ describeSiHayBase("454/C18 — multi-dia: cada aprobacion toca solo lo suyo (Pos
       const c2 = await e.solicitarCierreOk();
 
       const aprobC2 = await e.aprobar(c2);
+
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+
+      await e.asentar(c2);
       const trasC2 = {
         a: await e.ordenDe(a.ordenId),
         g1: await e.tx.gestionOrden.findUniqueOrThrow({ where: { id: g1 }, select: { cierreId: true } }),
@@ -42,6 +46,8 @@ describeSiHayBase("454/C18 — multi-dia: cada aprobacion toca solo lo suyo (Pos
         dineroC1: await e.tx.walletMovimiento.count({ where: { origenId: c1.id } }),
       };
       const aprobC1 = await e.aprobar(c1.id);
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+      await e.asentar(c1.id);
       const trasC1 = { a: await e.ordenDe(a.ordenId), dineroC1: await e.tx.walletMovimiento.count({ where: { origenId: c1.id } }) };
       return { mensajeroId: e.mensajeroId, c1: c1.id, resolicitud, aprobC2: aprobC2.status, trasC2, aprobC1: aprobC1.status, trasC1 };
     });

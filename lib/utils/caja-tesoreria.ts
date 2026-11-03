@@ -108,6 +108,10 @@ export const NATURALEZA_POR_CATEGORIA: Record<WalletMovimientoCategoria, Natural
   egreso_reverso_iva_flete_devolucion: "iva",
   egreso_pago_iva: "iva",
   ingreso_reverso_pago_iva: "iva",
+  // Ficha 498 (design §8.1, R33): la diferencia de la satelite al conciliar. Dueño propio: no es
+  // ganancia, ni de las tiendas, ni capital, ni IVA; es lo que las satelites deben (o se les debe).
+  egreso_diferencia_satelite: "por_cobrar_satelite",
+  ingreso_diferencia_satelite: "por_cobrar_satelite",
 };
 
 /**
@@ -176,6 +180,9 @@ export const LIQUIDEZ_POR_CATEGORIA: Record<WalletMovimientoCategoria, LiquidezM
   // principal y SUBIRIA «De las tiendas» sin que ninguna tienda cobrara nada (mutacion m4).
   egreso_pago_iva: "efectivo",
   ingreso_reverso_pago_iva: "efectivo",
+  // Ficha 498 (design §8.1, R33): dinero que entra o sale de verdad (o deja de entrar).
+  egreso_diferencia_satelite: "efectivo",
+  ingreso_diferencia_satelite: "efectivo",
 };
 
 /**
@@ -210,6 +217,9 @@ type Acumulado = {
   egresosIva: Prisma.Decimal;
   cargosIva: Prisma.Decimal;
   reversosIvaCobrado: Prisma.Decimal;
+  // Ficha 498 (design §8.1): el dueño `por_cobrar_satelite` (las diferencias de la satelite).
+  ingresosPorCobrar: Prisma.Decimal;
+  egresosPorCobrar: Prisma.Decimal;
 };
 
 function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
@@ -228,6 +238,8 @@ function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
     egresosIva: new Prisma.Decimal(0),
     cargosIva: new Prisma.Decimal(0),
     reversosIvaCobrado: new Prisma.Decimal(0),
+    ingresosPorCobrar: new Prisma.Decimal(0),
+    egresosPorCobrar: new Prisma.Decimal(0),
   };
 
   for (const fila of filas) {
@@ -241,27 +253,58 @@ function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
     if (esIngreso) {
       if (esCargo) acc.cargosATiendas = acc.cargosATiendas.add(monto);
       else acc.entradasEfectivo = acc.entradasEfectivo.add(monto);
-      // Ficha 488: los cuatro dueños EXPLICITOS (antes, el `else` era capital y el IVA caia en propio).
-      if (dueno === "propio") acc.ingresosPropios = acc.ingresosPropios.add(monto);
-      else if (dueno === "terceros") acc.ingresosTerceros = acc.ingresosTerceros.add(monto);
-      else if (dueno === "capital") acc.ingresosCapital = acc.ingresosCapital.add(monto);
-      else if (dueno === "iva") {
-        acc.ingresosIva = acc.ingresosIva.add(monto);
-        // R5: solo el IVA COBRADO a una tienda (cargo); la anulacion de un Pago de IVA (efectivo) no.
-        if (esCargo) acc.cargosIva = acc.cargosIva.add(monto);
+      // Ficha 488: los dueños EXPLICITOS. Ficha 498 (R34): `switch` exhaustivo — un dueño nuevo no
+      // compila sin decidir su cubeta (con la cadena `if / else if` caia en silencio en ninguna).
+      switch (dueno) {
+        case "propio":
+          acc.ingresosPropios = acc.ingresosPropios.add(monto);
+          break;
+        case "terceros":
+          acc.ingresosTerceros = acc.ingresosTerceros.add(monto);
+          break;
+        case "capital":
+          acc.ingresosCapital = acc.ingresosCapital.add(monto);
+          break;
+        case "iva":
+          acc.ingresosIva = acc.ingresosIva.add(monto);
+          // R5: solo el IVA COBRADO a una tienda (cargo); la anulacion de un Pago de IVA (efectivo) no.
+          if (esCargo) acc.cargosIva = acc.cargosIva.add(monto);
+          break;
+        case "por_cobrar_satelite":
+          acc.ingresosPorCobrar = acc.ingresosPorCobrar.add(monto);
+          break;
+        default: {
+          const _n: never = dueno;
+          throw new Error(`dueño de caja sin cubeta: ${String(_n)}`);
+        }
       }
     } else {
       // Ficha 461 (R22): un egreso «cargo» es el reverso de un cargo: no es dinero que salga.
       if (esCargo) acc.reversosDeCargos = acc.reversosDeCargos.add(monto);
       else acc.salidas = acc.salidas.add(monto);
-      if (dueno === "propio") acc.egresosPropios = acc.egresosPropios.add(monto);
-      else if (dueno === "terceros") acc.egresosTerceros = acc.egresosTerceros.add(monto);
-      else if (dueno === "capital") acc.egresosCapital = acc.egresosCapital.add(monto);
-      else if (dueno === "iva") {
-        acc.egresosIva = acc.egresosIva.add(monto);
-        // R5/R10: la anulacion del IVA de un cobro (reverso de CARGO) netea el IVA cobrado; el Pago de
-        // IVA (efectivo) no lo toca.
-        if (esCargo) acc.reversosIvaCobrado = acc.reversosIvaCobrado.add(monto);
+      switch (dueno) {
+        case "propio":
+          acc.egresosPropios = acc.egresosPropios.add(monto);
+          break;
+        case "terceros":
+          acc.egresosTerceros = acc.egresosTerceros.add(monto);
+          break;
+        case "capital":
+          acc.egresosCapital = acc.egresosCapital.add(monto);
+          break;
+        case "iva":
+          acc.egresosIva = acc.egresosIva.add(monto);
+          // R5/R10: la anulacion del IVA de un cobro (reverso de CARGO) netea el IVA cobrado; el Pago
+          // de IVA (efectivo) no lo toca.
+          if (esCargo) acc.reversosIvaCobrado = acc.reversosIvaCobrado.add(monto);
+          break;
+        case "por_cobrar_satelite":
+          acc.egresosPorCobrar = acc.egresosPorCobrar.add(monto);
+          break;
+        default: {
+          const _n: never = dueno;
+          throw new Error(`dueño de caja sin cubeta: ${String(_n)}`);
+        }
       }
     }
   }
@@ -274,8 +317,9 @@ function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
 //
 // Todo lo que sigue son SUMAS POR CUBETA y UNA DIVISION sobre importes que `derivarBalance`
 // ya derivo. Ninguna resta con signo nueva: la guardia `caja-derivaciones.guardia.test.ts`
-// exige que este modulo llame a `derivarBalance` exactamente SEIS veces (ficha 459: cuatro; ficha
-// 488: + el IVA por pagar y el IVA cobrado) y que no declare por su cuenta ni el signo ni la resta.
+// exige que este modulo llame a `derivarBalance` exactamente SIETE veces (ficha 459: cuatro; ficha
+// 488: + el IVA por pagar y el IVA cobrado; ficha 498: + «Por cobrar a satelites») y que no declare
+// por su cuenta ni el signo ni la resta.
 // ═════════════════════════════════════════════════════════════════════════════════════════
 
 /** La porcion vacia de la barra, como STRING con la misma escala que el resto. */
@@ -320,15 +364,25 @@ function derivarReparto(
   deTerceros: Prisma.Decimal,
   // Ficha 488 (R14): el IVA por pagar, el tercer bolsillo.
   ivaPorPagar: Prisma.Decimal,
-): { porcentajeTiendas: string; porcentajeIva: string; modoComposicion: ModoComposicionCaja } {
+  // Ficha 498 (design §8.2, R38/R39): «Por cobrar a satelites», el cuarto. Entra en S solo si es
+  // positivo; con P <= 0, S y todas las porciones son IDENTICAS a las de antes (R39). El MODO se
+  // sigue derivando solo de G y T, y G no se descuenta (R38).
+  porCobrar: Prisma.Decimal,
+): {
+  porcentajeTiendas: string;
+  porcentajeIva: string;
+  porcentajePorCobrar: string;
+  modoComposicion: ModoComposicionCaja;
+} {
   // S: una SUMA por cubeta de los bolsillos positivos. Sin restas.
   let positivos = new Prisma.Decimal(0);
-  for (const bolsillo of [ganancia, deTerceros, ivaPorPagar]) {
+  for (const bolsillo of [ganancia, deTerceros, ivaPorPagar, porCobrar]) {
     if (bolsillo.gt(0)) positivos = positivos.add(bolsillo);
   }
   const porcentajes = {
     porcentajeTiendas: porcion(deTerceros, positivos),
     porcentajeIva: porcion(ivaPorPagar, positivos),
+    porcentajePorCobrar: porcion(porCobrar, positivos),
   };
   if (ganancia.lt(0) && deTerceros.gt(0)) return { ...porcentajes, modoComposicion: "solo_tiendas" };
   if (deTerceros.lt(0) && ganancia.gt(0)) return { ...porcentajes, modoComposicion: "solo_ordenex" };
@@ -394,12 +448,23 @@ export function derivarCaja(
   const iva = derivarBalance(acc.ingresosIva, acc.egresosIva);
   // Ficha 488 (R5, P2): el IVA cobrado (los cargos de IVA), neto SOLO de las anulaciones del IVA de un cobro.
   const ivaCobrado = derivarBalance(acc.cargosIva, acc.reversosIvaCobrado);
+  // Ficha 498 (design §8.1, R33/R35): «Por cobrar a satelites». Los argumentos van INVERTIDOS a
+  // proposito: el bolsillo SUBE con el egreso de diferencia (llego menos) y BAJA con el ingreso (pago,
+  // o llego de mas). Identidad R35, por construccion: las cinco particiones por dueño cubren todas las
+  // categorias y las diferencias son efectivo, asi que
+  //   Entro − Salio = (G + C) + T + I + (ingP − egP) = deOrdenex + T + I − P.
+  const porCobrar = derivarBalance(acc.egresosPorCobrar, acc.ingresosPorCobrar);
 
   // «De Ordenex» (R11, P2) = ganancia + capital. Una SUMA, no una resta.
   const deOrdenex = new Prisma.Decimal(propio.balance).add(new Prisma.Decimal(capital.balance));
   const deTerceros = new Prisma.Decimal(terceros.balance);
 
-  const reparto = derivarReparto(deOrdenex, deTerceros, new Prisma.Decimal(iva.balance));
+  const reparto = derivarReparto(
+    deOrdenex,
+    deTerceros,
+    new Prisma.Decimal(iva.balance),
+    new Prisma.Decimal(porCobrar.balance),
+  );
 
   return {
     entradas: caja.ingresos,
@@ -425,6 +490,9 @@ export function derivarCaja(
     ivaPorPagar: iva.balance,
     signoIvaPorPagar: iva.signo,
     porcentajeIva: reparto.porcentajeIva,
+    porCobrarSatelites: porCobrar.balance,
+    signoPorCobrarSatelites: porCobrar.signo,
+    porcentajePorCobrar: reparto.porcentajePorCobrar,
   };
 }
 

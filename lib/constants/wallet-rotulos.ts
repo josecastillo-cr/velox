@@ -66,6 +66,12 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   // Ficha 488 (design §6): el pago a Hacienda del IVA cobrado a las tiendas, y su anulacion.
   egreso_pago_iva: "Pago de IVA",
   ingreso_reverso_pago_iva: "Pago de IVA anulado",
+  // Ficha 498 (design §8.3): la diferencia de la satelite al conciliar. DESVIACION del design (que pedia
+  // el mismo texto para las dos): la guardia «ningun nombre se repite» de `wallet-labels.test.ts` lo
+  // prohibe —el filtro por concepto ofreceria dos opciones iguales—. Texto PROVISIONAL del backend;
+  // lo confirma T7.1.
+  egreso_diferencia_satelite: "Diferencia de la satélite (faltó)",
+  ingreso_diferencia_satelite: "Diferencia de la satélite (sobró o pagó)",
 };
 
 /**
@@ -98,6 +104,8 @@ export const ORIGEN_LABEL: Record<WalletOrigenTipo, string> = {
   cobro_tienda_completado: `Cobro de ${MARCA.nombre} a una tienda (línea de caja completada al corregir)`,
   // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
   abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
+  // Ficha 498 (design §8.3): la fila de ajuste de la conciliacion de una satelite.
+  conciliacion_bodega_ajuste: "Conciliación de satélite",
 };
 
 /**
@@ -131,6 +139,8 @@ export const ORIGEN_TIENDA_LABEL: Record<WalletOrigenTipo, string> = {
   aporte_capital: "Aporte de dinero a la caja",
   cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
   cobro_tienda_completado: `Cobro de ${MARCA.nombre} a una tienda (línea de caja completada al corregir)`,
+  // Ficha 498 (design §8.3): el texto de la caja. Hoy no escribe en este libro, pero el mapa es total.
+  conciliacion_bodega_ajuste: "Conciliación de satélite",
 };
 
 /**
@@ -158,6 +168,8 @@ export const ORIGEN_PAGO_LABEL: Record<WalletOrigenTipo, string> = {
   cobro_tienda: `Cobro de ${MARCA.nombre} a una tienda`,
   cobro_tienda_completado: `Cobro de ${MARCA.nombre} a una tienda (línea de caja completada al corregir)`,
   abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
+  // Ficha 498 (design §8.3): la fila de ajuste de la conciliacion de una satelite.
+  conciliacion_bodega_ajuste: "Conciliación de satélite",
 };
 
 /**

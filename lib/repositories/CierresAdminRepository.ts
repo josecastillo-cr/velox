@@ -32,6 +32,7 @@ import type { IWalletMensajeroFeedService } from "@/lib/interfaces/services/IWal
 import type { IWalletIndemnizacionFeedService } from "@/lib/interfaces/services/IWalletIndemnizacionFeedService";
 import type { ICajaCodFeedService } from "@/lib/interfaces/services/ICajaCodFeedService";
 import { CajaCodFeedService } from "@/lib/services/CajaCodFeedService";
+import { asentarCierreDia, type DependenciasAsiento } from "@/lib/repositories/asentar-cierre-dia";
 import type { CierreEstado } from "@/lib/types/cierre";
 import { nombreDeEstado } from "@/lib/types/order-status";
 import type {
@@ -540,6 +541,21 @@ function toResumenRow(r: CierreResumenRow): CierreAdminResumenRow {
  * Mensaje SIN PII (patron `TransicionIlegalError`): solo el id del cierre, ni gestiones ni
  * montos ni actores.
  */
+/**
+ * FICHA 498 (design §4.2, R4) — el cierre que se aprueba tiene un `destino_tipo` que la aprobacion
+ * no sabe tratar. Se LANZA para que la `$transaction` revierta la aprobacion entera en vez de elegir
+ * una rama por defecto (asentar o no asentar el dinero en silencio). En runtime cubre tambien un doble
+ * de test que no traiga `destinoTipo`: falla con nombre en vez de saltarse el dinero.
+ *
+ * Mensaje SIN PII (patron `IndemnizacionNoAplicableError`): solo el id del cierre.
+ */
+export class DestinoDeCierreDesconocidoError extends Error {
+  constructor(readonly cierreId: string) {
+    super(`destino desconocido para el cierre ${cierreId}`);
+    this.name = "DestinoDeCierreDesconocidoError";
+  }
+}
+
 export class IndemnizacionNoAplicableError extends Error {
   constructor(readonly cierreId: string) {
     super(`indemnizacion no aplicable a una gestion del cierre ${cierreId}`);
@@ -960,7 +976,24 @@ export class CierresAdminRepository implements ICierresAdminRepository {
     // demas; el repo orquesta la tx, el feed construye el movimiento leyendo lo que esta misma
     // tx acaba de escribir, y el repo de la 42 lo inserta idempotentemente.
     private readonly walletIndemnizacionFeedService: IWalletIndemnizacionFeedService,
-  ) {}
+  ) {
+    // FICHA 498 (design §4.2): las siete dependencias de siempre, en el mismo orden (ni
+    // `lib/actions/cierres-admin.ts` ni las suites que construyen este repositorio cambian), mas el
+    // feed del COD, compuestas UNA vez para el procedimiento compartido de asiento.
+    this.depsAsiento = {
+      walletMovimientoRepo,
+      walletFeedService,
+      walletTiendaMovimientoRepo,
+      walletTiendaFeedService,
+      pagoMensajeroMovimientoRepo,
+      walletMensajeroFeedService,
+      walletIndemnizacionFeedService,
+      cajaCodFeed: CAJA_COD_FEED,
+    };
+  }
+
+  /** FICHA 498: lo que `asentarCierreDia` necesita, compuesto en el constructor. */
+  private readonly depsAsiento: DependenciasAsiento;
 
   /**
    * Feature 158 (T1.12, R19/R21/R25): las gestiones `incidente` del cierre, con el ALCANCE en el
@@ -1885,68 +1918,30 @@ export class CierresAdminRepository implements ICierresAdminRepository {
           }
         }
 
-        const movs = await this.walletFeedService.construirMovimientosDeIngreso(cierreId, tx);
-        await this.walletMovimientoRepo.crearMovimientos(tx, movs); // R6/R13: idempotente
-        // Feature 43/T10 (R5/R7/R12/R13): TRAS alimentar la 42, alimenta el LEDGER por tienda
-        // en la MISMA tx (todo-o-nada: si falla, rollback de la aprobacion Y de la 42).
-        const movsTienda = await this.walletTiendaFeedService.construirMovimientosPorTienda(
-          cierreId,
-          tx,
-        );
-        await this.walletTiendaMovimientoRepo.crearMovimientos(tx, movsTienda); // R6/R13: idempotente
-
-        // Feature 173/T B.2 (design §3.1, R11/R12/R15): TRAS acreditar el ledger por tienda, el
-        // CONTRA-ENTREGA entra en la CAJA PRINCIPAL, en la MISMA tx (todo-o-nada: si el insert
-        // falla, la aprobacion entera revierte y no queda un cierre aprobado sin su COD).
+        // FICHA 498 (T3.1/T3.3, design §4.1/§4.2, R1-R4) — EL DINERO MIRA EL DESTINO. Los cinco
+        // escritores se MOVIERON, literales y en el mismo orden, a `asentarCierreDia`
+        // (lib/repositories/asentar-cierre-dia.ts), que comparten la aprobacion y la conciliacion.
         //
-        // El orden respecto a la linea de arriba NO es estetico y no se sostiene en este
-        // comentario: el feed LEE del ledger los creditos que `crearMovimientos` acaba de
-        // escribir (R12), asi que invertirlo dejaria la caja sin el ingreso.
-        // `cierres-admin-caja-cod.test.ts` lo afirma midiendo el orden real de las llamadas.
-        //
-        // La guardia es la transcripcion literal del antecedente de R13 —«si un cierre no
-        // acredita contra-entrega alguno»—: la acreditacion es exactamente el credito
-        // `cod_recaudado` que el feed de la 43 acaba de construir. Si no lo hay, no hay nada
-        // que leer ni que emitir. NO decide el MONTO (eso sale del ledger y solo del ledger):
-        // decide si hay algo que preguntar.
-        const acreditoCod = movsTienda.some(
-          (m) => m.tipo === "credito" && m.categoria === "cod_recaudado",
-        );
-        if (acreditoCod) {
-          const ingresoCod = await CAJA_COD_FEED.construirIngresoCod(cierreId, tx);
-          if (ingresoCod.length > 0) {
-            // R14/R48: idempotente por el indice unico parcial (origen_tipo, origen_id,
-            // categoria) de la 42. Re-aprobar NO emite un segundo ingreso, y la barrera es la
-            // base, no un `if` de aqui.
-            await this.walletMovimientoRepo.crearMovimientos(tx, ingresoCod);
+        // El destino se lee AQUI, dentro de la transaccion y despues de la transicion (R4): no el
+        // `alcance` del actor, que no es el destino del cierre. `switch` exhaustivo: un destino nuevo
+        // no compila sin decidir su rama, y un valor fuera del tipo (un doble sin `destinoTipo`)
+        // revierte la aprobacion con nombre en vez de saltarse el dinero.
+        const destino = await tx.cierreDia.findUnique({
+          where: { id: cierreId },
+          select: { destinoTipo: true },
+        });
+        const destinoTipo = destino?.destinoTipo;
+        switch (destinoTipo) {
+          case "bodega_central":
+            await asentarCierreDia(tx, cierreId, this.depsAsiento); // R3: mismas filas, mismo orden
+            break;
+          case "bodega_satelite":
+            break; // R1: el dinero de la satelite entra a la caja AL CONCILIAR su consolidacion
+          default: {
+            const _exhaustivo: never | undefined = destinoTipo;
+            void _exhaustivo;
+            throw new DestinoDeCierreDesconocidoError(cierreId); // R4: nunca una rama por defecto
           }
-        }
-
-        // Feature 44/T10 (R5/R7/R11/R12/R17): TRAS 42 y 43, alimenta el LIBRO del pago por
-        // mensajero EN LA MISMA tx (todo-o-nada). El feed lee el cierre una vez y devuelve el
-        // libro (devengo + pago) Y el egreso egreso_pago_mensajero=P para la caja 42 (Qa=SI).
-        const movsMensajero = await this.walletMensajeroFeedService.construirMovimientosDePago(
-          cierreId,
-          tx,
-        );
-        await this.pagoMensajeroMovimientoRepo.crearMovimientos(tx, movsMensajero.libro); // R6/R12: idempotente
-        // Qa (R17): el egreso del costo total P se inserta con el repo de la 42, idempotente por
-        // el constraint existente (origen_tipo, origen_id, categoria) -> un egreso por cierre. Se
-        // toca la caja 42 SOLO si hay egreso (P>0); si P=0 el feed no lo emite y no se re-inserta.
-        if (movsMensajero.egresoCaja.length > 0) {
-          await this.walletMovimientoRepo.crearMovimientos(tx, movsMensajero.egresoCaja);
-        }
-
-        // Feature 158 (T1.14, R26/R27/R28): TRAS 42/43/44, el EGRESO de indemnizacion, en la
-        // MISMA tx. El feed lee de la base la suma de `gestion_orden.indemnizacion` de las
-        // gestiones `incidente` de ESTE cierre —lo que el bloque de arriba acaba de escribir—
-        // y devuelve 0 o 1 movimiento. Cierre sin incidentes -> lista vacia -> ni una fila en
-        // 0.00 (R27). Se inserta con el repo de la 42, idempotente por el indice unico parcial
-        // `(origen_tipo, origen_id, categoria)`: reintentar la aprobacion NO duplica (R28).
-        const egresoIndemnizacion =
-          await this.walletIndemnizacionFeedService.construirEgresoIndemnizacion(cierreId, tx);
-        if (egresoIndemnizacion.length > 0) {
-          await this.walletMovimientoRepo.crearMovimientos(tx, egresoIndemnizacion);
         }
 
         // Feature 109 (T3.1, R16-R19/R22/R27): LIBERA a bodega las ordenes `sin_gestionar` del

@@ -169,6 +169,26 @@ describeSiHayBase("431/T9 — el saldo sin conciliar, con filas reales", () => {
       },
       select: { id: true },
     });
+    // ⭑ FICHA 498 (fixture): la deuda sale de los APORTES de los cierres de cada consolidacion, no del
+    // snapshot. Cada consolidacion NO rechazada lleva su cierre aprobado con los mismos totales (pago 0:
+    // aporte = general). La rechazada no lleva cierre: lo que aporta una rechazada (Q3, «sin
+    // consolidar») se mide en `498-deuda-satelite-sql-real.test.ts`.
+    if (estado !== "rechazado") {
+      await tx.cierreDia.create({
+        data: {
+          mensajeroId: usuarioId,
+          estado: "aprobado",
+          destinoTipo: "bodega_satelite",
+          destinoZonaId: zonaId,
+          cierreBodegaId: fila.id,
+          totalEfectivo: new Prisma.Decimal(s.efectivo),
+          totalSimpe: new Prisma.Decimal(s.simpe),
+          totalGeneral: new Prisma.Decimal(s.efectivo).plus(new Prisma.Decimal(s.simpe)),
+          solicitadoAt,
+          resueltoAt: solicitadoAt,
+        },
+      });
+    }
     return fila.id;
   }
 
@@ -214,10 +234,12 @@ describeSiHayBase("431/T9 — el saldo sin conciliar, con filas reales", () => {
     // cualquier aserción que no lo mire.
     expect(r, "la bodega sembrada no aparece en el listado de saldos").not.toBeNull();
 
-    // ⭑ EL NUMERO. 1000 + 0 + 15 = 1015.00. Si la formula usara `total_general`, seria
-    // 1400 + 200 + 115 = 1715.00; si excluyera lo ya conciliado, seria 1000.00; y si no filtrara
-    // las rechazadas, seria 11014.00. Los tres errores dan numeros DISTINTOS de este.
-    expect(r!.saldoSinConciliar).toBe("1015.00");
+    // ⭑ EL NUMERO. FICHA 498 (R23, decision del humano del 2026-11-02 que REVOCA la Q2 del
+    // 2026-09-16): la deuda cuenta TODOS los metodos de pago — el aporte de cada cierre, aqui su
+    // general—: 1400 + (1000 − 800) + (600 − 485) = 1715.00. Antes de la ficha era 1015.00 (solo el
+    // efectivo). Si excluyera lo ya conciliado seria 1400.00; si no filtrara las rechazadas, otra
+    // cifra: los errores siguen dando numeros DISTINTOS de este.
+    expect(r!.saldoSinConciliar).toBe("1715.00");
 
     // El contexto que viaja al lado, para que la resta sea auditable desde la pantalla.
     expect(r!.totalEfectivo).toBe("2300.00"); // 1000 + 800 + 500 (la rechazada, fuera)
@@ -230,10 +252,10 @@ describeSiHayBase("431/T9 — el saldo sin conciliar, con filas reales", () => {
     expect(r!.fechaDeLaMasAntigua).not.toBeNull();
   });
 
-  it("⭑ R17/Q2: el SINPE NO cuenta — dos bodegas con el mismo general y distinto efectivo", async () => {
-    // El caso que hace visible la decision del humano sobre Q2. Las dos bodegas consolidaron
-    // ₡1.000 y ninguna esta conciliada; la unica diferencia es COMO se recaudo. La que lo recaudo
-    // todo en SINPE no debe NADA: ese dinero ya esta en una cuenta.
+  // ⭑ FICHA 498 — SUSTITUYE al caso de la 431 «el SINPE NO cuenta». La decision Q2 del 2026-09-16 la
+  // REVOCO el humano el 2026-11-02: la deuda usa `paraLaCentral` sobre TODOS los metodos de pago, y
+  // el SINPE que llego directo a la central se CONFIRMA al marcar (lo recibido es el total).
+  it("⭑ 498/R23: el SINPE SI cuenta — dos bodegas con el mismo general y distinto efectivo deben lo mismo", async () => {
     const r = await enTransaccionRevertida(prisma, async (tx) => {
       await serializarEscriturasReales(tx);
       const usuarioId = await algunUsuarioId(tx);
@@ -259,9 +281,9 @@ describeSiHayBase("431/T9 — el saldo sin conciliar, con filas reales", () => {
     // Mismo consolidado…
     expect(r.efectivo!.totalConsolidado).toBe("1000.00");
     expect(r.sinpe!.totalConsolidado).toBe("1000.00");
-    // …y saldos OPUESTOS. Con `total_general` los dos serian "1000.00" y este caso moriria.
+    // …y la MISMA deuda: el aporte no distingue el metodo. Con el efectivo, la de SINPE daria "0.00".
     expect(r.efectivo!.saldoSinConciliar).toBe("1000.00");
-    expect(r.sinpe!.saldoSinConciliar).toBe("0.00");
+    expect(r.sinpe!.saldoSinConciliar).toBe("1000.00");
   });
 
   it("R18: recibido de MAS -> el saldo queda NEGATIVO y no se recorta a cero", async () => {
@@ -376,9 +398,10 @@ describeSiHayBase("431/T9 — el saldo sin conciliar, con filas reales", () => {
       general: "623.45",
     });
     expect(conciliada!.montoRecibido).toBe("485.00");
-    // ⭑ SOBRE EL EFECTIVO: 500 − 485 = 15. Con `general` serian 138.45 y la suma de esta columna
-    // dejaria de cuadrar con el saldo de la bodega.
-    expect(conciliada!.faltaPorRecibir).toBe("15.00");
+    // ⭑ FICHA 498 (R26, decision del humano del 2026-11-02): SOBRE LO QUE DEBE («Para la central»,
+    // aqui el general): 623.45 − 485 = 138.45 (antes de la ficha, 15.00 sobre el efectivo). La suma
+    // de la columna sigue cuadrando con el saldo de la bodega (abajo).
+    expect(conciliada!.faltaPorRecibir).toBe("138.45");
 
     expect(pendiente, "falta la consolidacion pendiente").toBeDefined();
     expect(pendiente!.montoRecibido).toBeNull(); // `null`, no "0.00"
@@ -389,7 +412,7 @@ describeSiHayBase("431/T9 — el saldo sin conciliar, con filas reales", () => {
     const suma = r
       .reduce((acc, c) => acc.plus(new Prisma.Decimal(c.faltaPorRecibir)), new Prisma.Decimal(0))
       .toFixed(2);
-    expect(suma).toBe("215.00");
+    expect(suma).toBe("338.45"); // ficha 498: 138.45 + 200 (antes 15 + 200)
   });
 
   it("R24: `soloSinConciliar` recorta a la cola, y sin el vienen las dos poblaciones", async () => {
@@ -521,8 +544,8 @@ describeSiHayBase("431/T9 — el saldo sin conciliar, con filas reales", () => {
     });
 
     expect(r.fila, "falta la bodega sembrada").not.toBeNull();
-    // La FILA de la tabla dice 1015.00 (1000 + 15). Con `total_general` diria 1415.00.
-    expect(r.fila!.saldoSinConciliar).toBe("1015.00");
+    // La FILA de la tabla: FICHA 498 (R23), todos los metodos: 1400 + 15 = 1415.00 (antes 1015.00).
+    expect(r.fila!.saldoSinConciliar).toBe("1415.00");
 
     // ⚠️ LA BASE ES COMPARTIDA: puede haber otras zonas satelite sembradas por otra suite, asi
     // que el resumen NO se compara contra un literal —seria un test que depende de lo que otro

@@ -223,6 +223,8 @@ describe("DOWN — deja la base como estaba (R40)", () => {
       "cobro_tienda_completado",
       // 457: el documento del pago de una tienda a Ordenex (`abono-tienda-457-migration.test.ts`)
       "abono_tienda",
+      // 498: la fila de ajuste de la conciliacion de una satelite (`498-satelite-migraciones.test.ts`)
+      "conciliacion_bodega_ajuste",
     ];
     expect(valores).toEqual(
       WALLET_ORIGEN_TIPO_SEED.filter(

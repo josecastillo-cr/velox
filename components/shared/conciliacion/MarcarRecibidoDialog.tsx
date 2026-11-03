@@ -29,10 +29,17 @@ import {
 // `components/shared/liquidacion/RegistrarPagoDialog`.
 //
 // ── MONEY-SAFE (R20): CERO `Number(`, CERO `parseFloat` y CERO restas en este archivo.
-// El declarado entra como STRING del servidor, PREFIJA el campo tal cual y sale como STRING. La
+// Lo que debe entra como STRING del servidor, PREFIJA el campo tal cual y sale como STRING. La
 // única comparación de dinero es la de FORMA del monto, y la hace `montoValido` por texto.
 //
-// ── EL MONTO NACE PRECARGADO CON LO DECLARADO, Y ES LA DECISIÓN DE DISEÑO DEL DIÁLOGO
+// ── FICHA 498 (design §8.4, R16/R16a/R16b) — LO QUE DEBE, NO EL EFECTIVO
+// El campo nace con `debe` (el aporte reconocido de la consolidación) si el SERVIDOR dice que es
+// positivo, y con `0` si no (el único caso en que el recibido 0 se admite, Q5). Nunca con el
+// efectivo: lo recibido es el TOTAL que llegó a la central —lo que entregó la satélite más el SINPE
+// o la transferencia consignados directo a la central—, y el diálogo lo dice con el texto literal
+// de R16a, con lo recaudado por método a la vista. UN solo campo de monto (R16b).
+//
+// ── EL MONTO NACE PRECARGADO, Y ES LA DECISIÓN DE DISEÑO DEL DIÁLOGO
 // El caso abrumadoramente mayoritario es que el bulto llegue entero: en producción, 32 de 32
 // consolidaciones en dos semanas. Con el campo vacío, cada conciliación normal costaría teclear
 // un importe de seis cifras, y ahí es donde se cuelan los errores de tecleo en una marca que
@@ -45,7 +52,7 @@ import {
 // es teclear, no mirar.
 //
 // ── QUÉ NO HACE ESTE DIÁLOGO
-// No compara el monto contra el declarado ni avisa de la diferencia: recibir MENOS es legítimo
+// No compara el monto contra lo que debe ni avisa de la diferencia: recibir MENOS es legítimo
 // (R18, es el caso entero de la ficha) y recibir MÁS también (llegó de más, §1.2). Un aviso de
 // «no coincide» convertiría el caso que hay que poder registrar en algo que parece un error.
 
@@ -55,6 +62,22 @@ export interface MarcarRecibidoCampos {
   nota?: string;
 }
 
+/** FICHA 498 (R16a) — lo recaudado por método, STRINGs del servidor. Solo se pintan. */
+export interface RecaudadoPorMetodo {
+  efectivo: string;
+  simpe: string;
+  transferencia: string;
+}
+
+/** FICHA 498 (R16) — lo que debe la consolidación y si es positivo, AMBOS decididos por el servidor. */
+export interface DebeDeLaConsolidacion {
+  monto: string;
+  positivo: boolean;
+}
+
+/** FICHA 498 (Q5) — el cero escrito como lo admite el borde (`montoCeroSchema`): 0, 0.0 o 0.00. */
+const MONTO_CERO = /^0(\.0{1,2})?$/;
+
 export interface MarcarRecibidoDialogProps {
   /** Visibilidad controlada por el padre (mismo contrato que `Modal`). */
   open: boolean;
@@ -63,14 +86,17 @@ export interface MarcarRecibidoDialogProps {
   bodega: string;
   /** Día de la consolidación, YA formateado por quien lo monta (aquí no se formatean fechas). */
   fecha: string;
+  /** FICHA 498 (R16a) — lo recaudado por método, pintado encima del campo. */
+  recaudado: RecaudadoPorMetodo;
   /**
-   * `total_efectivo` de la consolidación, STRING del servidor. Es lo que la bodega DECLARÓ que
-   * metió en el bulto, y lo que prefija el campo. No se opera con él: sólo se pinta y se copia.
+   * FICHA 498 (R16) — lo que debe (aporte reconocido) y su signo, del servidor. Prefija el campo:
+   * `monto` si es positivo, `0` si no. `null` cuando quien monta no lo tiene del servidor: el campo
+   * arranca VACÍO —nunca con el efectivo— y la banda «Debe» no se pinta.
    */
-  declarado: string;
+  debe: DebeDeLaConsolidacion | null;
   /**
    * El monto ya marcado, si se está CORRIGIENDO una conciliación existente. Cuando llega, el
-   * campo arranca con él —no con lo declarado— porque corregir es partir de lo que se dijo antes,
+   * campo arranca con él —no con lo que debe— porque corregir es partir de lo que se dijo antes,
    * y el título cambia para que nadie crea que está marcando algo que ya estaba marcado.
    */
   montoActual?: string | null;
@@ -102,6 +128,9 @@ function avisoDe(resultado: MarcaConciliacionActionResult): string {
       return CONCILIACION_RESPUESTA.noEncontrada;
     case "forbidden":
       return CONCILIACION_RESPUESTA.forbidden;
+    // FICHA 498 (R15a): recibido 0 con dinero por entregar. No cambió nada; el diálogo queda abierto.
+    case "recibido_cero_con_aporte":
+      return CONCILIACION_RESPUESTA.reciboCeroConAporte;
     case "unauthenticated":
       return CONCILIACION_RESPUESTA.unauthenticated;
     case "validation_error":
@@ -115,7 +144,8 @@ export function MarcarRecibidoDialog({
   onOpenChange,
   bodega,
   fecha,
-  declarado,
+  recaudado,
+  debe,
   montoActual = null,
   notaActual = null,
   onMarcar,
@@ -126,8 +156,9 @@ export function MarcarRecibidoDialog({
   const idBase = useId();
   const campoId = (nombre: string) => `${idBase}-${nombre}`;
 
-  // El valor de partida: lo ya marcado si se corrige, lo declarado si se marca por primera vez.
-  const partida = montoActual ?? declarado;
+  // El valor de partida: lo ya marcado si se corrige; si se marca por primera vez, lo que debe (o 0
+  // si el servidor dice que no debe nada, R16). Sin ese dato, vacío: nunca el efectivo.
+  const partida = montoActual ?? (debe === null ? "" : debe.positivo ? debe.monto : "0");
 
   const [monto, setMonto] = useState(partida);
   const [nota, setNota] = useState(notaActual ?? "");
@@ -141,8 +172,9 @@ export function MarcarRecibidoDialog({
   // cascada, que en este repo es error de lint (`react-hooks/set-state-in-effect`).
   //
   // A diferencia de `RegistrarPagoDialog`, aquí el formulario SÍ se reinicia en cada apertura y
-  // es correcto: esta acción no lleva clave de idempotencia porque no escribe en ningún libro de
-  // dinero (R14) y su guarda es el propio estado —marcar dos veces responde `conflict` (R11)—.
+  // es correcto: esta acción no lleva clave de idempotencia porque su guarda es el propio estado
+  // —marcar dos veces responde `conflict` (R11)— y el asiento de la 498 vive en la MISMA
+  // transacción que la marca, así que tampoco se duplica.
   // Conservar un borrador entre aperturas haría que abrir OTRA consolidación heredara el monto
   // tecleado para la anterior, que en una pantalla de dinero es peor que volver a teclear.
   if (open !== abiertoAntes) {
@@ -157,10 +189,11 @@ export function MarcarRecibidoDialog({
   }
 
   const notaLimpia = nota.trim();
-  // Misma forma que revalida el borde (`montoPositivoSchema`): > 0 y hasta dos decimales. Sin
-  // tope por arriba, porque el schema compartido tampoco lo tiene: el cliente no puede ser más
-  // estricto que su propio servidor.
-  const montoOk = montoValido(monto);
+  // Misma forma que revalida el borde: `montoPositivoSchema` (> 0, hasta dos decimales) o, desde la
+  // 498 (Q5), el cero literal. Sin tope por arriba, porque el schema compartido tampoco lo tiene: el
+  // cliente no puede ser más estricto que su propio servidor. Si el cero se admite para ESTA
+  // consolidación lo decide el servidor (`recibido_cero_con_aporte`).
+  const montoOk = montoValido(monto) || MONTO_CERO.test(monto.trim());
   const notaOk = notaLimpia.length <= CONCILIACION_NOTA_MAX;
   const formularioValido = montoOk && notaOk;
 
@@ -224,16 +257,40 @@ export function MarcarRecibidoDialog({
       size="md"
     >
       <div className="flex flex-col gap-4">
-        {/* LO DECLARADO, en su propia banda: es el número contra el que se compara mentalmente
-            lo que se contó, así que tiene que leerse sin buscarlo. `tabular-nums` para que las
-            cifras se alineen con las del campo de abajo. */}
-        <div className="flex items-center justify-between gap-3 rounded-lg bg-muted px-3 py-2.5">
-          <span className="text-sm text-muted-foreground">
-            {MARCAR_RECIBIDO_TEXTO.declarado}
-          </span>
-          <strong className="text-base font-semibold tabular-nums text-foreground">
-            {money(declarado)}
-          </strong>
+        {/* LO QUE DEBE, en su propia banda: es el número contra el que se compara mentalmente
+            lo que llegó, así que tiene que leerse sin buscarlo. Se pinta TAL CUAL (también si es
+            cero o negativo). `tabular-nums` para que las cifras se alineen con las del campo. */}
+        {debe === null ? null : (
+          <div
+            data-banda="debe"
+            className="flex items-center justify-between gap-3 rounded-lg bg-muted px-3 py-2.5"
+          >
+            <span className="text-sm text-muted-foreground">{MARCAR_RECIBIDO_TEXTO.debe}</span>
+            <strong className="text-base font-semibold tabular-nums text-foreground">
+              {money(debe.monto)}
+            </strong>
+          </div>
+        )}
+
+        {/* FICHA 498 (R16a) — lo recaudado por método y el texto literal: lo recibido es el TOTAL. */}
+        <div className="flex flex-col gap-2">
+          <dl
+            aria-label={MARCAR_RECIBIDO_TEXTO.recaudado}
+            data-bloque="recaudado"
+            className="grid grid-cols-3 gap-2 text-sm"
+          >
+            {(["efectivo", "simpe", "transferencia"] as const).map((metodo) => (
+              <div key={metodo} className="flex flex-col gap-0.5 rounded-md border px-2.5 py-1.5">
+                <dt className="text-xs text-muted-foreground">
+                  {MARCAR_RECIBIDO_TEXTO.metodo[metodo]}
+                </dt>
+                <dd className="font-medium tabular-nums text-foreground">
+                  {money(recaudado[metodo])}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <p className="text-sm text-muted-foreground">{MARCAR_RECIBIDO_TEXTO.recibidoEsTotal}</p>
         </div>
 
         {aviso ? (
@@ -245,7 +302,11 @@ export function MarcarRecibidoDialog({
         <FormField
           id={campoId("monto")}
           label={MARCAR_RECIBIDO_TEXTO.montoRecibido}
-          hint={MARCAR_RECIBIDO_TEXTO.montoAyuda}
+          hint={
+            debe === null || esCorreccion
+              ? MARCAR_RECIBIDO_TEXTO.montoAyudaSinDebe
+              : MARCAR_RECIBIDO_TEXTO.montoAyuda
+          }
           required
           error={errorMonto}
         >

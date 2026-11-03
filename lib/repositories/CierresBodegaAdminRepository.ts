@@ -10,7 +10,16 @@ import type {
   ResolverCierreBodegaInput,
   ResolverCierreBodegaResult,
   RevertirConciliacionInput,
+  RevertirConciliacionResult,
 } from "@/lib/interfaces/repositories/ICierresBodegaAdminRepository";
+import {
+  asentarCierreDia,
+  dependenciasRealesDeAsiento,
+  type AsientoPrismaClient,
+  type DependenciasAsiento,
+} from "@/lib/repositories/asentar-cierre-dia";
+import type { CrearMovimientoInput } from "@/lib/interfaces/repositories/IWalletMovimientoRepository";
+import { aporteDeConsolidacion, esSaldadaReglaAnterior } from "@/lib/utils/conciliacion-satelite";
 import type { CierreBodegaResumenRow } from "@/lib/interfaces/repositories/ICierreBodegaRepository";
 import type { CierreGestionPendienteRow } from "@/lib/interfaces/repositories/ICierreDiaRepository";
 import {
@@ -57,6 +66,8 @@ const ESTADO_SOLICITADO = "solicitado";
 const ESTADO_APROBADO = "aprobado";
 
 // Feature 69/T23: el detalle sale del SNAPSHOT -> el cliente necesita `cierreDetail`.
+// FICHA 498 (design §4.3): + lo que necesitan los repositorios REALES de los tres libros, que este
+// repositorio construye por defecto para asentar al conciliar (R6).
 type CierresBodegaAdminPrismaClient = Pick<
   PrismaClient,
   | "cierreBodega"
@@ -68,7 +79,18 @@ type CierresBodegaAdminPrismaClient = Pick<
   | "historialAccion"
   | "usuario"
   | "zona"
->;
+> &
+  AsientoPrismaClient;
+
+type TxConciliacion = Prisma.TransactionClient;
+
+/** FICHA 498: el snapshot del que sale el aporte reconocido de una consolidacion (§4.4). */
+const APORTE_SELECT = {
+  totalGeneral: true,
+  totalPagoMensajero: true,
+  totalIngresoBodegaRechazos: true,
+  esperadoReglaAnterior: true,
+} as const;
 
 // Proyeccion de la cabecera de un cierre_dia incluido en el detalle (mensajero +
 // totales snapshot).
@@ -204,7 +226,17 @@ function colaBodegaWhere(filtros?: FiltrosCierresBodega): Prisma.CierreBodegaWhe
  * gestiones sin cierre); sale del SNAPSHOT `cierre_detail` con las mismas piezas que T18.
  */
 export class CierresBodegaAdminRepository implements ICierresBodegaAdminRepository {
-  constructor(private readonly prisma: CierresBodegaAdminPrismaClient) {}
+  /**
+   * FICHA 498 (design §4.3, R6): las dependencias del asiento tienen VALOR POR DEFECTO, las reales.
+   * Los dos composition roots (`lib/actions/conciliacion-satelites.ts` y `lib/actions/cierre-bodega.ts`)
+   * construyen con `prisma` y nada mas: si las dependencias fueran obligatorias, un tercer
+   * constructor que las olvidara dejaria la marca muda con la suite verde (memoria «el composition
+   * root que no inyecta»). Lo mide `498-composition-root-asiento.int.test.ts` contando FILAS.
+   */
+  constructor(
+    private readonly prisma: CierresBodegaAdminPrismaClient,
+    private readonly depsAsiento: DependenciasAsiento = dependenciasRealesDeAsiento(prisma),
+  ) {}
 
   /** R15: todos los cierres de bodega, mas reciente primero, totales -> STRING. */
   async findCierresBodega(): Promise<CierreBodegaResumenRow[]> {
@@ -512,8 +544,13 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
    * silencio. Las columnas NUEVAS son las que llevan el SIGNIFICADO y el monto; estas son el
    * espejo heredado del acto.
    *
-   * NO ESCRIBE EN NINGUN LIBRO DE DINERO (R14). La unica tabla que toca ademas de `cierre_bodega`
-   * es `historial_accion`, que no es un libro: es el rastro.
+   * ⭑ FICHA 498 (design §4.4, R8-R15) — MARCAR ASIENTA EL DINERO EN LA CAJA. Desde la decision del
+   * humano del 2026-11-02 marcar deja de ser solo seguimiento: en la MISMA transaccion asienta cada
+   * cierre satelite aprobado de la consolidacion en los tres libros (`asentarCierreDia`, el mismo
+   * procedimiento que la aprobacion de un cierre central) y escribe la DIFERENCIA (una fila de ajuste
+   * y un movimiento de caja) si lo recibido no es lo esperado. Las filas toman la fecha de esta
+   * transaccion (R13). Cualquier fallo revierte la marca entera (R14). Por eso ya no se puede
+   * desmarcar: si el monto no es el correcto, se corrige.
    */
   async marcarConciliado(input: MarcarConciliadoInput): Promise<MarcaConciliacionResult> {
     const { id, montoRecibido, nota, actorUsuarioId } = input;
@@ -523,6 +560,10 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
     const ahora = new Date();
 
     const resultado = await this.prisma.$transaction(async (tx) => {
+      // FICHA 498 (Q5, §4.4 bis, R15a): recibido 0 SOLO si no hay nada que entregar. Antes de tocar
+      // nada: si el aporte reconocido es positivo, la transaccion termina sin escribir.
+      if (await this.ceroConAporte(tx, id, monto)) return "recibido_cero_con_aporte" as const;
+
       // R11: aplica SOLO si sigue pendiente de conciliar. Los DOS predicados, no uno: el estado es
       // lo que las pantallas leen y `conciliado_at` es EL predicado de la marca.
       const res = await tx.cierreBodega.updateMany({
@@ -538,6 +579,22 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
         },
       });
       if (res.count !== 1) return null;
+
+      // FICHA 498 (R8): asienta cada cierre satelite APROBADO de esta consolidacion, completo (R12).
+      // Idempotente: un cierre que ya tenia sus filas (aprobado con la regla vieja) no se duplica.
+      const cierres = await tx.cierreDia.findMany({
+        where: { cierreBodegaId: id, estado: "aprobado", destinoTipo: "bodega_satelite" },
+        select: { id: true },
+        orderBy: [{ solicitadoAt: "asc" }, { id: "asc" }],
+      });
+      for (const c of cierres) await asentarCierreDia(tx, c.id, this.depsAsiento);
+      // R9/R10/R11: la diferencia, contra el aporte de ESTA consolidacion.
+      await this.escribirDiferencia(tx, {
+        cierreBodegaId: id,
+        evento: "marca",
+        recibido: monto,
+        actorUsuarioId,
+      });
 
       const cierre = await tx.cierreBodega.findUnique({
         where: { id },
@@ -561,7 +618,7 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
       ]);
       return "updated" as const;
     });
-    if (resultado === "updated") return "updated";
+    if (resultado !== null) return resultado;
 
     const existe = await this.prisma.cierreBodega.count({ where: { id } });
     return existe > 0 ? "conflict" : "fuera_de_alcance"; // R11 vs no existe
@@ -582,10 +639,24 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
    * ⚠️ CONSECUENCIA DECLARADA: al vaciar `resuelto_at`, la analitica financiera deja de contar este
    * cierre en su periodo. Es lo correcto —no se recibio— y esta escrito para que no sorprenda.
    */
-  async revertirConciliacion(input: RevertirConciliacionInput): Promise<MarcaConciliacionResult> {
+  async revertirConciliacion(input: RevertirConciliacionInput): Promise<RevertirConciliacionResult> {
     const { id, actorUsuarioId } = input;
 
     const resultado = await this.prisma.$transaction(async (tx) => {
+      // ⭑ FICHA 498 (design §4.6, R20): si el dinero YA entro a la caja, no se revierte NADA —ni la
+      // marca, ni el historial, ni los libros—. Se corrige el monto en vez de revertir (R21).
+      if (await this.tieneAsientos(tx, id)) return "con_asientos" as const;
+      // FICHA 498 (revision m2): una saldada con la regla anterior (Q4) no se revierte. Sin este corte,
+      // el `updateMany` de abajo violaria el CHECK `cierre_bodega_esperado_regla_anterior_check` de M4
+      // (`conciliado_at = NULL` con la marca puesta) y saldria como error interno. Desenlace de dominio.
+      const regularizada = await tx.cierreBodega.findUnique({
+        where: { id },
+        select: { esperadoReglaAnterior: true },
+      });
+      if (regularizada !== null && esSaldadaReglaAnterior(regularizada)) {
+        return "saldada_regla_anterior" as const;
+      }
+
       // El monto ANTES del borrado: es lo que la fila del historial tiene que documentar.
       const previo = await tx.cierreBodega.findUnique({
         where: { id },
@@ -629,7 +700,7 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
       ]);
       return "updated" as const;
     });
-    if (resultado === "updated") return "updated";
+    if (resultado !== null) return resultado;
 
     const existe = await this.prisma.cierreBodega.count({ where: { id } });
     return existe > 0 ? "conflict" : "fuera_de_alcance"; // R12 vs no existe
@@ -651,7 +722,10 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
    * historial llevaria un `valor_anterior` falso.
    *
    * D3: reescribe `conciliado_at`/`resuelto_at` igual que el rodeo Desmarcar + Marcar que sustituye.
-   * NO ESCRIBE EN NINGUN LIBRO DE DINERO (R12).
+   *
+   * ⭑ FICHA 498 (design §4.5, R17-R19): escribe la DIFERENCIA solo por la VARIACION contra el aporte
+   * reconocido (una fila de ajuste `correccion` + un movimiento de caja). No vuelve a asentar los
+   * cierres y no modifica ni borra ningun movimiento ni ajuste anterior.
    */
   async corregirConciliacion(input: CorregirConciliacionInput): Promise<MarcaConciliacionResult> {
     const { id, montoRecibido, nota, actorUsuarioId } = input;
@@ -660,6 +734,9 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
     const ahora = new Date();
 
     const resultado = await this.prisma.$transaction(async (tx) => {
+      // FICHA 498 (Q5, R15a): la misma regla del recibido 0 que al marcar, antes de tocar nada.
+      if (await this.ceroConAporte(tx, id, monto)) return "recibido_cero_con_aporte" as const;
+
       // El monto ANTERIOR, leido en la misma transaccion: va al historial y al compare-and-swap.
       const previo = await tx.cierreBodega.findUnique({
         where: { id },
@@ -690,6 +767,15 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
       });
       if (res.count !== 1) return null;
 
+      // FICHA 498 (R17/R18): solo la variacion. `asentada` incluye la marca y las correcciones
+      // previas; el CAS de arriba serializa dos correcciones concurrentes.
+      await this.escribirDiferencia(tx, {
+        cierreBodegaId: id,
+        evento: "correccion",
+        recibido: monto,
+        actorUsuarioId,
+      });
+
       const actor = await resolverActorCongelado(tx, actorUsuarioId);
       await appendAccion(tx, [
         {
@@ -710,9 +796,102 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
       ]);
       return "updated" as const;
     });
-    if (resultado === "updated") return "updated";
+    if (resultado !== null) return resultado;
 
     const existe = await this.prisma.cierreBodega.count({ where: { id } });
     return existe > 0 ? "conflict" : "fuera_de_alcance"; // R6/R8 vs R7
   }
+
+  /**
+   * FICHA 498 (Q5, design §4.4 bis, R15a/R15b): ¿es un recibido 0 sobre una consolidacion con aporte
+   * reconocido POSITIVO? El aporte se lee del snapshot DENTRO de la transaccion de la marca. Con
+   * aporte 0 o negativo el 0 se acepta y sigue el camino normal (R11 / ingreso de diferencia).
+   * Si la consolidacion no existe devuelve `false`: el `WHERE` de la escritura lo resuelve.
+   */
+  private async ceroConAporte(tx: TxConciliacion, id: string, monto: Prisma.Decimal): Promise<boolean> {
+    if (!monto.isZero()) return false;
+    const row = await tx.cierreBodega.findUnique({ where: { id }, select: APORTE_SELECT });
+    return row !== null && aporteDeConsolidacion(row).greaterThan(0);
+  }
+
+  /**
+   * FICHA 498 (design §4.4 pasos 1-7, R9-R12, R17-R19) — escribe la DIFERENCIA de la satelite, si la
+   * hay. Lo comparten marcar (`evento = marca`) y corregir (`evento = correccion`).
+   *
+   *   esperado = aporte reconocido (`aporteDeConsolidacion`: «Para la central» o, en una saldada con
+   *              la regla anterior, su `esperado_regla_anterior`);
+   *   asentada = Σ diferencia de las filas de ajuste YA escritas para esta consolidacion;
+   *   delta    = esperado − recibido − asentada.
+   *
+   * delta 0 → nada. Si no: UNA fila de ajuste (append-only) y UN movimiento de caja con origen en
+   * ella — egreso `egreso_diferencia_satelite` por delta si es positivo (llego de menos), ingreso
+   * `ingreso_diferencia_satelite` por |delta| si es negativo. Sin `fechaMovimiento` (R13).
+   */
+  private async escribirDiferencia(
+    tx: TxConciliacion,
+    d: {
+      cierreBodegaId: string;
+      evento: "marca" | "correccion";
+      recibido: Prisma.Decimal;
+      actorUsuarioId: string;
+    },
+  ): Promise<void> {
+    const row = await tx.cierreBodega.findUniqueOrThrow({
+      where: { id: d.cierreBodegaId },
+      select: APORTE_SELECT,
+    });
+    const esperado = aporteDeConsolidacion(row);
+    const suma = await tx.conciliacionBodegaAjuste.aggregate({
+      where: { cierreBodegaId: d.cierreBodegaId },
+      _sum: { diferencia: true },
+    });
+    const asentada = suma._sum.diferencia ?? new Prisma.Decimal(0);
+    const delta = esperado.minus(d.recibido).minus(asentada);
+    if (delta.isZero()) return; // R11/R18
+
+    const ajuste = await tx.conciliacionBodegaAjuste.create({
+      data: {
+        cierreBodegaId: d.cierreBodegaId,
+        evento: d.evento,
+        montoEsperado: esperado,
+        montoRecibido: d.recibido,
+        diferencia: delta,
+        creadoPor: d.actorUsuarioId,
+      },
+      select: { id: true },
+    });
+    const llegoDeMenos = delta.greaterThan(0);
+    const mov: CrearMovimientoInput = {
+      tipo: llegoDeMenos ? "egreso" : "ingreso",
+      categoria: llegoDeMenos ? "egreso_diferencia_satelite" : "ingreso_diferencia_satelite",
+      monto: delta.abs().toFixed(2),
+      origenTipo: "conciliacion_bodega_ajuste",
+      origenId: ajuste.id,
+      descripcion: null,
+      registradoPor: null,
+    };
+    const escritas = await this.depsAsiento.walletMovimientoRepo.crearMovimientos(tx, [mov]);
+    // El origen es una fila de ajuste RECIEN creada: un 0 aqui solo puede ser un fallo. Se lanza para
+    // que la marca entera revierta (R14) en vez de dejar un ajuste sin su movimiento.
+    if (escritas !== 1) {
+      throw new Error(`ficha 498: la diferencia de la consolidacion ${d.cierreBodegaId} no se escribio`);
+    }
+  }
+
+  /**
+   * FICHA 498 (design §4.6, R20): ¿la consolidacion tiene asientos? Alguna fila de ajuste, o alguna
+   * fila de los tres libros con origen `cierre_dia` en uno de sus cierres.
+   */
+  private async tieneAsientos(tx: TxConciliacion, id: string): Promise<boolean> {
+    if ((await tx.conciliacionBodegaAjuste.count({ where: { cierreBodegaId: id } })) > 0) return true;
+    const cierres = (
+      await tx.cierreDia.findMany({ where: { cierreBodegaId: id }, select: { id: true } })
+    ).map((c) => c.id);
+    if (cierres.length === 0) return false;
+    const deCierres = { origenTipo: "cierre_dia" as const, origenId: { in: cierres } };
+    if ((await tx.walletMovimiento.count({ where: deCierres })) > 0) return true;
+    if ((await tx.walletTiendaMovimiento.count({ where: deCierres })) > 0) return true;
+    return (await tx.pagoMensajeroMovimiento.count({ where: deCierres })) > 0;
+  }
 }
+

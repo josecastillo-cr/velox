@@ -610,7 +610,7 @@ export const RECIBIDO_LABEL = "Recibido";
 export const RECIBIDO_INCOMPLETO_LABEL = "Recibido incompleto";
 /** Cuánto contó de verdad quien recibió el bulto. */
 export const MONTO_RECIBIDO_LABEL = "Monto recibido";
-/** `total_efectivo` − lo recibido. Puede ser negativo (llegó de más). */
+/** Ficha 498: lo que debe (aporte reconocido) − lo recibido. Puede ser negativo (llegó de más). */
 export const FALTA_POR_RECIBIR_LABEL = "Falta por recibir";
 /** El conjunto de lo que todavía no se ha marcado. */
 export const SIN_CONCILIAR_LABEL = "Sin conciliar";

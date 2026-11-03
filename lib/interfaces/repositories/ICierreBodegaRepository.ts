@@ -73,11 +73,21 @@ export interface CierreBodegaResumenRow {
   /** `null` = sin conciliar. NUNCA `"0.00"` por ausencia: cero recibido es otra cosa. */
   montoRecibido: string | null;
   /**
-   * R17/R18/R20 — `total_efectivo` − COALESCE(`monto_recibido`, 0), DERIVADO EN EL SERVIDOR con
-   * la MISMA funcion que usa `/wallet/satelites` (`lib/utils/conciliacion-satelite.saldoDe`).
-   * La pantalla NO resta dinero. Puede ser NEGATIVO (llego de mas) y se emite con su signo.
+   * FICHA 498 (R26/R27) — aporte reconocido − COALESCE(`monto_recibido`, 0), DERIVADO EN EL SERVIDOR
+   * con la MISMA funcion que usa `/wallet/satelites` (`faltaPorRecibir` de
+   * `lib/utils/conciliacion-satelite.ts`). Ya no es el efectivo: Recibido + Falta = «Para la central»
+   * (o el aporte reconocido de una saldada con la regla anterior). Puede ser NEGATIVO.
    */
   faltaPorRecibir: string;
+  /**
+   * ⭑ FICHA 498 (R16, R41a) — lo que DEBE: el aporte reconocido (`aporteDeConsolidacion`, la MISMA
+   * fuente que `ConsolidacionSateliteDTO.debe`). STRING con signo. El dialogo de marcar lo propone.
+   */
+  debe: string;
+  /** FICHA 498 (§8.4, R16) — `debe > 0`, decidido en el SERVIDOR. Si es `false`, el dialogo propone 0. */
+  debePositivo: boolean;
+  /** FICHA 498 (R41a) — saldada con la regla anterior. */
+  saldadaReglaAnterior: boolean;
   conciliadoAt: string | null; // ISO
   conciliadoPorNombre: string | null;
   /**

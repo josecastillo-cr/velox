@@ -15,7 +15,7 @@ import type { AutoriaDeFilaDTO } from "@/lib/types/libro-caja-autoria";
 import type { NaturalezaMovimiento, WalletMovimientoDTO } from "@/lib/types/wallet";
 import { cn } from "@/lib/utils";
 
-import { COLOR_IVA_POR_PAGAR } from "./BarraComposicionCaja";
+import { COLOR_IVA_POR_PAGAR, COLOR_POR_COBRAR_SATELITES } from "./BarraComposicionCaja";
 import { DetalleMovimientoCierre } from "./DetalleMovimientoCierre";
 import { DETALLE_MOVIMIENTO_NOMBRE } from "./detalle-movimiento-labels";
 import {
@@ -125,6 +125,9 @@ const DUENO_PUNTO: Record<NaturalezaMovimiento, string> = {
   capital: "bg-info",
   // Ficha 488 (design §6.3, R29): el IVA por pagar, con el MISMO token que su porcion de la barra.
   iva: COLOR_IVA_POR_PAGAR,
+  // Ficha 498 (design §8.3, R40): la diferencia de la satelite, con el MISMO token que su porcion
+  // de la barra (contraste medido en los dos temas junto a `COLOR_POR_COBRAR_SATELITES`).
+  por_cobrar_satelite: COLOR_POR_COBRAR_SATELITES,
 };
 
 function DuenoCelda({ dueno }: { dueno: NaturalezaMovimiento }) {

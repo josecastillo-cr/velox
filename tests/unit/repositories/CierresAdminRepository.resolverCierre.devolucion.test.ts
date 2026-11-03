@@ -104,6 +104,7 @@ function buildDevolucionPrisma(
       count: vi.fn(),
       // FICHA 362: `resolverCierre` lee el total y el mensajero para congelar la fila del registro.
       findUnique: vi.fn().mockResolvedValue({
+        destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
         totalGeneral: new Prisma.Decimal("0.00"),
         solicitadoAt: new Date("2026-09-02T12:00:00Z"),
         mensajero: { nombre: "Mensa", primerApellido: "Uno" },
@@ -123,8 +124,10 @@ function buildDevolucionPrisma(
     gestionOrden: gestionOrdenSinDevoluciones(),
     ordenHistorialEstado: { createMany: vi.fn() },
   };
-  prisma.cierreDia.findUnique.mockResolvedValue(
-    opts.mensajeroId === null ? null : { mensajeroId: opts.mensajeroId ?? "m1" },
+  const cierreLeido = opts.mensajeroId === null ? null : { mensajeroId: opts.mensajeroId ?? "m1" };
+  // Ficha 498 (fixture): la lectura del DESTINO (R4) responde `bodega_central`; las demas, lo de siempre.
+  prisma.cierreDia.findUnique.mockImplementation(async (args?: { select?: { destinoTipo?: boolean } }) =>
+    args?.select?.destinoTipo ? { destinoTipo: "bodega_central" } : cierreLeido,
   );
   prisma.orden.findMany.mockResolvedValue(rechazadas);
   // 2026-08-19 (feature 239/T2.5): la escritura de `gestion_aprobada` —la unica sin `id` en el

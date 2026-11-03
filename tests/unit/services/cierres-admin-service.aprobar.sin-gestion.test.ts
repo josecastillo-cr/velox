@@ -114,6 +114,7 @@ function buildTx(
     cierreDia: {
       updateMany: vi.fn(async () => ({ count: 1 })),
       findUnique: vi.fn(async () => ({
+        destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
         mensajeroId: MENSAJERO_ID,
         totalPagoMensajero: new Prisma.Decimal("1500.00"),
         totalEfectivo: new Prisma.Decimal("10000.00"),

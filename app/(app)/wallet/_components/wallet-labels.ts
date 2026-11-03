@@ -97,6 +97,15 @@ export const CAJA_RESUMEN_LABEL = {
   ivaPorPagar: "IVA por pagar",
   ivaPorPagarPista:
     `El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de ${MARCA.nombre}.`,
+  /**
+   * Ficha 498 (design §8.3, R37) — el CUARTO bloque, siempre visible. Su pista depende del signo que
+   * manda el servidor: positivo y negativo tienen texto LITERAL de R37; en cero no hay pista (como
+   * el bloque del IVA en cero).
+   */
+  porCobrarSatelites: "Por cobrar a satélites",
+  porCobrarSatelitesPistaPositivo:
+    "Lo que las satélites entregaron de menos al conciliar y aún no han pagado.",
+  porCobrarSatelitesPistaNegativo: "La central les debe a las satélites.",
   ingresosPropios: `Ingresos de ${MARCA.nombreCorto}`,
   egresosPropios: `Gastos de ${MARCA.nombreCorto}`,
   /** R23 — desde esta ficha «De las tiendas» ES lo que Ordenex les debe. */
@@ -223,6 +232,8 @@ export const CAJA_COMPOSICION_LABEL = {
   ordenex: `De ${MARCA.nombreCorto}`,
   // Ficha 488 (decision 1a, R13–R15) — el tercer bolsillo de la barra.
   iva: "IVA por pagar",
+  // Ficha 498 (design §8.2, R38) — el cuarto: solo se pinta si es positivo.
+  porCobrar: "Por cobrar a satélites",
 } as const;
 
 /**
@@ -266,7 +277,12 @@ export function composicionCajaNombreAccesible(resumen: CajaResumenDTO): string 
     `${CAJA_COMPOSICION_LABEL.tiendas}: ${money(resumen.deTerceros)}. ` +
     `${CAJA_COMPOSICION_LABEL.ordenex}: ${money(resumen.deOrdenex)} (ganancia y aportes). ` +
     // Ficha 488 (R15): el tercer bolsillo, con su importe.
-    `${CAJA_COMPOSICION_LABEL.iva}: ${money(resumen.ivaPorPagar)}.`
+    `${CAJA_COMPOSICION_LABEL.iva}: ${money(resumen.ivaPorPagar)}.` +
+    // Ficha 498 (R38): el cuarto, SOLO cuando la barra lo pinta (signo positivo del servidor). Con
+    // cero o negativo el nombre accesible es el de antes, igual que la barra (R39).
+    (resumen.signoPorCobrarSatelites === "positivo"
+      ? ` ${CAJA_COMPOSICION_LABEL.porCobrar}: ${money(resumen.porCobrarSatelites)}.`
+      : "")
   );
 }
 
@@ -285,6 +301,8 @@ export const DUENO_LABEL: Record<NaturalezaMovimiento, string> = {
   capital: `${MARCA.nombreCorto} (capital)`,
   // Ficha 488 (design §6, R29) — los movimientos de IVA: se le deben a Hacienda.
   iva: "IVA por pagar",
+  // Ficha 498 (design §8.3, R40) — la diferencia de la satelite al conciliar.
+  por_cobrar_satelite: "Satélite",
 };
 
 export { ORIGEN_LABEL } from "@/lib/constants/wallet-rotulos";

@@ -77,6 +77,9 @@ const CONCEPTOS_ESPERADOS: Record<WalletMovimientoCategoria, string> = {
   // Ficha 488 (design §6, R29): el Pago de IVA y su anulacion.
   egreso_pago_iva: "Pago de IVA",
   ingreso_reverso_pago_iva: "Pago de IVA anulado",
+  // Ficha 498 (design §8.3).
+  egreso_diferencia_satelite: "Diferencia de la satélite (faltó)",
+  ingreso_diferencia_satelite: "Diferencia de la satélite (sobró o pagó)",
 };
 
 /** design §7.3 — los 13 origenes del libro de la caja (+ el de la 457: 14). */
@@ -96,18 +99,21 @@ const ORIGENES_ESPERADOS: Record<WalletOrigenTipo, string> = {
   cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
   // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
   abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
+  // Ficha 498 (design §8.3).
+  conciliacion_bodega_ajuste: "Conciliación de satélite",
 };
 
 describe(`461 — CATEGORIA_LABEL: cada concepto de la caja, desde ${NOMBRE_ESPERADO} (R42, design §7.2)`, () => {
   // Ficha 488: 27 → 29 (+ «Pago de IVA» y «Pago de IVA anulado»).
-  it("dice exactamente los 29 textos aprobados (23 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488), y el seed es exactamente esas 29 claves", () => {
+  // Ficha 498: 29 → 31 (+ las dos diferencias de la satelite).
+  it("dice exactamente los 31 textos aprobados (23 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488 + 2 de la 498), y el seed es exactamente esas 31 claves", () => {
     expect(CATEGORIA_LABEL).toEqual(CONCEPTOS_ESPERADOS);
     // Anti-vacuidad: la igualdad de arriba compara contra una lista escrita a mano; esta linea
     // afirma que esa lista cubre el catalogo ENTERO y no un subconjunto que casara por casualidad.
     expect([...WALLET_MOVIMIENTO_CATEGORIA_SEED].sort()).toEqual(
       Object.keys(CONCEPTOS_ESPERADOS).sort(),
     );
-    expect(WALLET_MOVIMIENTO_CATEGORIA_SEED).toHaveLength(29); // ficha 488: antes 27
+    expect(WALLET_MOVIMIENTO_CATEGORIA_SEED).toHaveLength(31); // ficha 498: antes 29 (488: antes 27)
   });
 
   it(`⭑ 457 (R45/R53): el pago de una tienda a ${NOMBRE_ESPERADO} y su anulacion, con los nombres reservados por la 461`, () => {
@@ -144,7 +150,7 @@ describe(`461 — CATEGORIA_LABEL: cada concepto de la caja, desde ${NOMBRE_ESPE
     );
   });
 
-  it("el filtro por concepto ofrece los 29 con SU nombre (R42; 457/R45; 458-B; 488), tras la opcion «todas»", () => {
+  it("el filtro por concepto ofrece los 31 con SU nombre (R42; 457/R45; 458-B; 488; 498), tras la opcion «todas»", () => {
     // 458-A (TA.3): el filtro ofrece los conceptos CON movimientos; con los 27 presentes, los 27.
     const lista = opcionesDeConceptos(
       WALLET_MOVIMIENTO_CATEGORIA_SEED.map((categoria) => ({ categoria, movimientos: 1 })),
@@ -154,7 +160,7 @@ describe(`461 — CATEGORIA_LABEL: cada concepto de la caja, desde ${NOMBRE_ESPE
     );
     expect(lista[0]).toEqual({ value: "", label: "Todas las categorías" });
     const opciones = new Map(lista.slice(1).map((o) => [o.value, o.label]));
-    expect(opciones.size).toBe(29); // ficha 488: antes 27
+    expect(opciones.size).toBe(31); // ficha 498: antes 29 (488: antes 27)
     for (const [clave, texto] of Object.entries(CONCEPTOS_ESPERADOS)) {
       expect(opciones.get(clave), clave).toBe(`${texto} (1)`);
     }
@@ -165,7 +171,7 @@ describe(`461 — ORIGEN_LABEL: cada origen de la caja, desde ${NOMBRE_ESPERADO}
   it("dice exactamente los 14 textos aprobados (13 de la 461 + 1 de la 457), y el seed es exactamente esas 14 claves", () => {
     expect(ORIGEN_LABEL).toEqual(ORIGENES_ESPERADOS);
     expect([...WALLET_ORIGEN_TIPO_SEED].sort()).toEqual(Object.keys(ORIGENES_ESPERADOS).sort());
-    expect(WALLET_ORIGEN_TIPO_SEED).toHaveLength(14);
+    expect(WALLET_ORIGEN_TIPO_SEED).toHaveLength(15); // ficha 498: + conciliacion_bodega_ajuste
   });
 
   it("las dos lineas del cobro se distinguen: la completada dice que se completo al corregir (R37)", () => {
@@ -294,6 +300,7 @@ describe("488 — el Pago de IVA y el dueño «IVA por pagar» (R21, R29)", () =
       terceros: "Tienda",
       capital: `${NOMBRE_CORTO_ESPERADO} (capital)`,
       iva: "IVA por pagar",
+      por_cobrar_satelite: "Satélite", // ficha 498 (design §8.3, R40)
     });
   });
 

@@ -19,7 +19,11 @@ import { ConsolidacionParcialError } from "@/lib/utils/consolidacion-parcial";
 // ⭑ FICHA 431 (R17/R18): la MISMA resta que deriva el saldo de `/wallet/satelites`. Se importa
 // en vez de reescribirse para que la satelite y la central no puedan leer cifras distintas de la
 // misma consolidacion (ver la cabecera del modulo).
-import { saldoDe } from "@/lib/utils/conciliacion-satelite";
+import {
+  aporteDeConsolidacion,
+  esSaldadaReglaAnterior,
+  faltaPorRecibir,
+} from "@/lib/utils/conciliacion-satelite";
 // Feature 393 (design §2.3): las dos derivaciones de la cascada «lo que va a la central».
 // La resta vive en la funcion pura; el repositorio solo la llama.
 import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-ordenex";
@@ -83,6 +87,8 @@ export const BODEGA_RESUMEN_SELECT = {
   montoRecibido: true,
   conciliadoAt: true,
   conciliadoNota: true,
+  // FICHA 498 (Q4, §3.5): el aporte reconocido de una saldada con la regla anterior.
+  esperadoReglaAnterior: true,
   zona: { select: { nombre: true } },
   solicitadoPorUsuario: { select: { nombre: true } },
   conciliadoPorUsuario: { select: NOMBRE_USUARIO_SELECT },
@@ -107,6 +113,7 @@ export function toBodegaResumenRow(r: BodegaResumenRow): CierreBodegaResumenRow 
   const totales = totalesToString(r);
   const pagoMensajero = r.totalPagoMensajero.toFixed(2);
   const ganaBodega = r.totalIngresoBodegaRechazos.toFixed(2);
+  const debe = aporteDeConsolidacion(r); // FICHA 498: el aporte reconocido, UNA vez por fila
   return {
     cierreBodegaId: r.id,
     zonaId: r.zonaId,
@@ -131,9 +138,15 @@ export function toBodegaResumenRow(r: BodegaResumenRow): CierreBodegaResumenRow 
     // discrepar sobre si el dinero llego.
     conciliado: r.conciliadoAt !== null,
     montoRecibido: r.montoRecibido === null ? null : r.montoRecibido.toFixed(2),
-    // R17/R18/R20: la MISMA `saldoDe` que usa `/wallet/satelites`, sobre el EFECTIVO. La resta
-    // se hace aqui con `Prisma.Decimal`; la pantalla no resta dinero.
-    faltaPorRecibir: saldoDe(r.totalEfectivo, r.montoRecibido).toFixed(2),
+    // FICHA 498 (R26/R27): la MISMA `faltaPorRecibir` que usa `/wallet/satelites`, sobre el APORTE
+    // RECONOCIDO («Para la central», o el de la regularizacion en una saldada). Asi «Recibido + Falta
+    // por recibir = Para la central» sale por construccion. La pantalla no resta dinero.
+    faltaPorRecibir: faltaPorRecibir(debe, r.montoRecibido).toFixed(2),
+    // FICHA 498 (R16/R41a): lo que debe, de la MISMA `aporteDeConsolidacion` que `/wallet/satelites`.
+    // Lo necesita el dialogo de marcar de la cola de `/cierres-admin`, que monta `ConciliacionAcciones`.
+    debe: debe.toFixed(2),
+    debePositivo: debe.greaterThan(0),
+    saldadaReglaAnterior: esSaldadaReglaAnterior(r),
     conciliadoAt: r.conciliadoAt ? r.conciliadoAt.toISOString() : null,
     conciliadoPorNombre:
       r.conciliadoPorUsuario === null ? null : nombreCompletoUsuario(r.conciliadoPorUsuario),

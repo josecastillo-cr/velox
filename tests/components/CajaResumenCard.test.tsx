@@ -44,6 +44,10 @@ const RESUMEN: CajaResumenDTO = {
   ivaPorPagar: "0.00",
   signoIvaPorPagar: "cero",
   porcentajeIva: "0.00",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos",
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0.
   capital: "0.00",
@@ -404,6 +408,9 @@ describe("CajaResumenCard — money-safe en el navegador (R64)", () => {
       ivaCobrado: "7.00",
       ivaPorPagar: "6.00",
       signoIvaPorPagar: "positivo",
+      // Ficha 498 (R37): «Por cobrar a satélites» se pinta SIEMPRE; por la misma razón, no en `0.00`.
+      porCobrarSatelites: "8.00",
+      signoPorCobrarSatelites: "positivo",
     });
 
     expect(screen.getByText("₡12.345.678.901,99")).toBeInTheDocument();
