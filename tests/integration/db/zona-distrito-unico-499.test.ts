@@ -378,6 +378,36 @@ describeSiHayBase("⭑ 499 — un distrito en una sola zona (Postgres real)", ()
     expect(m.final).toEqual(m.esperado);
   });
 
+  it("R10: actualizar con conflicto pidiendo la marca NO se la quita a la central ajena", async () => {
+    // Revision 499 (m3): el caso R10 de arriba arranca sin centrales, asi que leer los conflictos
+    // DESPUES del `updateMany` que apaga «las otras centrales» no lo ponia rojo. Aqui hay una
+    // central ajena: con esa mutacion el callback devuelve sin lanzar y la marca se pierde.
+    const m = await enTransaccionRevertida(prisma, async (tx) => {
+      await serializarEscriturasReales(tx);
+      await sinCentrales(tx);
+      const central = await sembrarZona(tx, "C", true);
+      const x = await sembrarZona(tx, "X");
+      const y = await sembrarZona(tx, "Y");
+      const dx = await sembrarDistrito(tx, [x.id]);
+      const historialAntes = await tx.historialAccion.count();
+      const res = await repo(tx).update(
+        y.id,
+        { nombre: y.nombre, cobroVehiculo: false, esCentral: true, distritoIds: [dx], tarifas: [] },
+        ACTOR.usuarioId,
+      );
+      return {
+        res,
+        centralSigue: (await tx.zona.findUniqueOrThrow({ where: { id: central.id } })).esCentral,
+        ySigueSinMarca: !(await tx.zona.findUniqueOrThrow({ where: { id: y.id } })).esCentral,
+        historial: (await tx.historialAccion.count()) - historialAntes,
+      };
+    });
+    expect(m.res.estado).toBe("distrito_en_otra_zona");
+    expect(m.centralSigue).toBe(true);
+    expect(m.ySigueSinMarca).toBe(true);
+    expect(m.historial).toBe(0);
+  });
+
   it("R14: una zona que no existe responde `not_found` aunque el distrito este en otra", async () => {
     const res = await enTransaccionRevertida(prisma, async (tx) => {
       await serializarEscriturasReales(tx);
