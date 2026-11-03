@@ -197,6 +197,9 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       // dinamico) y el CHECK tipo<->categoria de la caja ampliado. Ninguna toca `orden_traspaso_mensajero`.
       "20261023120000_iva_por_pagar_488_enums",
       "20261023120100_iva_por_pagar_488_checks",
+      // Ficha 496 (2026-11-02): migracion de SOLO datos que libera el trio de asignacion de las
+      // recolecciones ya recibidas en la central (UPDATE sobre `orden`). No toca `orden_traspaso_mensajero`.
+      "20261102150000_recoleccion_central_libera_496",
     ]);
   });
 });

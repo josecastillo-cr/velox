@@ -4,6 +4,8 @@
 -- central desde en_ruta_bodega_central. Solo datos: sin cambio de esquema.
 -- No escribe historial ni toca updated_at. Desempate de "ultima fila": created_at DESC, id DESC.
 -- Idempotente: tras aplicarse, las objetivo ya no tienen mensajero y salen de `candidatas`.
+-- Sin cast explicito al enum: Postgres resuelve el literal al tipo de origen_tipo. (Un cast al final
+-- de linea lo contaria como columna el censo de ayuda-tienda-migration.test.ts.)
 WITH candidatas AS (
   SELECT o.id
   FROM orden o
@@ -24,5 +26,5 @@ SET mensajero_asignado_id = NULL,
 FROM ult u
 JOIN order_status so ON so.id = u.estatus_origen_id
 WHERE u.orden_id = o.id
-  AND u.origen_tipo = 'recepcion_bodega_central'::"orden_historial_origen_tipo"
+  AND u.origen_tipo = 'recepcion_bodega_central'
   AND so.value = 'en_ruta_bodega_central';

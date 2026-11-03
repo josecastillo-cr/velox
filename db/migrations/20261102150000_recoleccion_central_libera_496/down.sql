@@ -22,7 +22,7 @@ rec AS (
   SELECT DISTINCT ON (h.orden_id) h.orden_id, h.actor_usuario_id
   FROM orden_historial_estado h
   WHERE h.orden_id IN (SELECT id FROM candidatas)
-    AND h.origen_tipo = 'recoleccion_tienda'::"orden_historial_origen_tipo"
+    AND h.origen_tipo = 'recoleccion_tienda'
   ORDER BY h.orden_id, h.created_at DESC, h.id DESC
 )
 UPDATE orden o
@@ -31,6 +31,6 @@ FROM ult u
 JOIN order_status so ON so.id = u.estatus_origen_id
 JOIN rec r ON r.orden_id = u.orden_id
 WHERE u.orden_id = o.id
-  AND u.origen_tipo = 'recepcion_bodega_central'::"orden_historial_origen_tipo"
+  AND u.origen_tipo = 'recepcion_bodega_central'
   AND so.value = 'en_ruta_bodega_central'
   AND r.actor_usuario_id IS NOT NULL;
