@@ -114,7 +114,8 @@ describeSiHayBase("498 — la deuda de una satelite (Postgres real)", () => {
 
       const aporte = async (id: string) =>
         aporteAMano(await e.tx.cierreDia.findUniqueOrThrow({ where: { id }, select: SNAPSHOT_SELECT }));
-      const [aA, aB, aC, aD, aE] = [await aporte(cA), await aporte(cB), await aporte(cC), await aporte(cD), await aporte(cE)];
+      // E no entra: es saldada con la regla anterior y aporta su reconocido, no sus cierres.
+      const [aA, aB, aC, aD] = [await aporte(cA), await aporte(cB), await aporte(cC), await aporte(cD)];
       // La formula de R23, a mano: E aporta su reconocido (= recibido) y no sus cierres.
       const deuda = aA.plus(aB).plus(aC).plus(aD).plus(recibidoE).minus(recibidoD).minus(recibidoE);
       const sinConsolidar = aA.plus(aC);

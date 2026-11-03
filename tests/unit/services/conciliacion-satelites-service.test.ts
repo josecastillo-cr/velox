@@ -408,3 +408,65 @@ describe("431/T8 — las lecturas: paginacion, recorte y tope de descarga", () =
     expect(r.items[0].totalEfectivo).toBe("2300.00");
   });
 });
+
+// ---------------------------------------------------------------------------------------------
+// FICHA 498 (T3.6b, T3.8; R15a, R20, R45) — los desenlaces nuevos y el rol en los caminos nuevos
+// ---------------------------------------------------------------------------------------------
+
+describe("498 — `recibido_cero_con_aporte`, `con_asientos` y el rol primero (R15a, R20, R45)", () => {
+  const ID = "6c2f2f8a-3b0e-4b0e-9a55-498000000001";
+  const MAESTRO_498: Actor = { usuarioId: "u-maestro-498", rol: "maestro" };
+
+  it("⭑ R15a: marcar y corregir PROPAGAN `recibido_cero_con_aporte` (no lo convierten en `no_encontrada`)", async () => {
+    const { service } = newService(
+      fakeSaldos(),
+      fakeEscrituras({
+        marcarConciliado: vi.fn(async () => "recibido_cero_con_aporte" as const),
+        corregirConciliacion: vi.fn(async () => "recibido_cero_con_aporte" as const),
+      }),
+    );
+    expect(await service.marcarRecibida({ cierreBodegaId: ID, montoRecibido: "0" }, MAESTRO_498)).toEqual({
+      status: "recibido_cero_con_aporte",
+    });
+    expect(await service.corregirRecibida({ cierreBodegaId: ID, montoRecibido: "0" }, MAESTRO_498)).toEqual({
+      status: "recibido_cero_con_aporte",
+    });
+  });
+
+  it("⭑ R20: revertir PROPAGA `con_asientos`", async () => {
+    const { service } = newService(
+      fakeSaldos(),
+      fakeEscrituras({ revertirConciliacion: vi.fn(async () => "con_asientos" as const) }),
+    );
+    expect(await service.revertirConciliacion({ cierreBodegaId: ID }, MAESTRO_498)).toEqual({ status: "con_asientos" });
+  });
+
+  it("los desenlaces de siempre siguen traduciendose igual (fuera_de_alcance → no_encontrada)", async () => {
+    const { service } = newService(
+      fakeSaldos(),
+      fakeEscrituras({
+        marcarConciliado: vi.fn(async () => "fuera_de_alcance" as const),
+        revertirConciliacion: vi.fn(async () => "conflict" as const),
+      }),
+    );
+    expect(await service.marcarRecibida({ cierreBodegaId: ID, montoRecibido: "1.00" }, MAESTRO_498)).toEqual({
+      status: "no_encontrada",
+    });
+    expect(await service.revertirConciliacion({ cierreBodegaId: ID }, MAESTRO_498)).toEqual({ status: "conflict" });
+  });
+
+  it("⭑ R45: con `adminSatelite`, marcar (tambien con 0), corregir y revertir son `forbidden` y el repositorio NO se llama", async () => {
+    const { service, escrituras } = newService(
+      fakeSaldos(),
+      fakeEscrituras({
+        marcarConciliado: vi.fn(async () => "recibido_cero_con_aporte" as const),
+        revertirConciliacion: vi.fn(async () => "con_asientos" as const),
+      }),
+    );
+    expect((await service.marcarRecibida({ cierreBodegaId: ID, montoRecibido: "0" }, ADMIN_SATELITE)).status).toBe("forbidden");
+    expect((await service.marcarRecibida({ cierreBodegaId: ID, montoRecibido: "10.00" }, ADMIN_SATELITE)).status).toBe("forbidden");
+    expect((await service.corregirRecibida({ cierreBodegaId: ID, montoRecibido: "0" }, ADMIN_SATELITE)).status).toBe("forbidden");
+    expect((await service.revertirConciliacion({ cierreBodegaId: ID }, ADMIN_SATELITE)).status).toBe("forbidden");
+    for (const fn of Object.values(escrituras)) expect(fn).not.toHaveBeenCalled();
+  });
+});

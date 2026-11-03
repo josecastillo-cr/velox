@@ -545,7 +545,7 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
    * espejo heredado del acto.
    *
    * ⭑ FICHA 498 (design §4.4, R8-R15) — MARCAR ASIENTA EL DINERO EN LA CAJA. Desde la decision del
-   * humano del 2026-11-02 la marca deja de ser informativa: en la MISMA transaccion asienta cada
+   * humano del 2026-11-02 marcar deja de ser solo seguimiento: en la MISMA transaccion asienta cada
    * cierre satelite aprobado de la consolidacion en los tres libros (`asentarCierreDia`, el mismo
    * procedimiento que la aprobacion de un cierre central) y escribe la DIFERENCIA (una fila de ajuste
    * y un movimiento de caja) si lo recibido no es lo esperado. Las filas toman la fecha de esta

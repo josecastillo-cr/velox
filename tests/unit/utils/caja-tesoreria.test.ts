@@ -727,3 +727,98 @@ describe("ficha 488 (T B.5) — la composicion de la ganancia sin IVA (R19)", ()
     expect(soloPago.hayOtrosEgresos).toBe(false);
   });
 });
+
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 498 (T5.1; R33-R36, R38, R39) — «Por cobrar a satelites».
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+
+describe("ficha 498 — la diferencia de la satelite en la caja (R33-R36, R38, R39)", () => {
+  it("⭑ R33: las dos categorias son del dueño `por_cobrar_satelite` y de liquidez efectivo", () => {
+    for (const c of ["egreso_diferencia_satelite", "ingreso_diferencia_satelite"] as const) {
+      expect(NATURALEZA_POR_CATEGORIA[c], c).toBe("por_cobrar_satelite");
+      expect(LIQUIDEZ_POR_CATEGORIA[c], c).toBe("efectivo");
+    }
+  });
+
+  it("R34: un dueño fuera del vocabulario no compila", () => {
+    // @ts-expect-error — `NaturalezaMovimiento` es cerrado: un valor ficticio no se puede asignar.
+    const ficticio: NaturalezaMovimiento = "satelite_ficticio";
+    expect(ficticio).toBe("satelite_ficticio");
+  });
+
+  // Base: un flete de 1 000 (cargo, propio) y un contra-entrega de 4 000 (terceros, efectivo).
+  const BASE = [fila("ingreso_flete", "1000.00"), fila("ingreso_cod_recaudado", "4000.00")];
+  const CASOS: [string, AgregadoCajaRow[], string][] = [
+    ["diferencia POSITIVA (faltaron 500)", [...BASE, fila("egreso_diferencia_satelite", "500.00")], "500.00"],
+    ["diferencia NEGATIVA (sobraron 200)", [...BASE, fila("ingreso_diferencia_satelite", "200.00")], "-200.00"],
+    ["SIN diferencia", BASE, "0.00"],
+  ];
+
+  it.each(CASOS)("⭑ R35/R33: %s — Entro − Salio = ganancia + IVA + capital + De las tiendas − Por cobrar", (_n, filas, porCobrar) => {
+    const r = derivarCaja(filas);
+    expect(r.porCobrarSatelites).toBe(porCobrar);
+    const lado = new Prisma.Decimal(r.ganancia)
+      .add(r.ivaPorPagar)
+      .add(r.capital)
+      .add(r.deTerceros)
+      .sub(r.porCobrarSatelites);
+    expect(lado.toFixed(2)).toBe(r.enCaja);
+  });
+
+  it.each(CASOS)("⭑ R36: %s — «De las tiendas» y la ganancia no cambian con la diferencia", (_n, filas) => {
+    const sin = derivarCaja(BASE);
+    const con = derivarCaja(filas);
+    expect(con.deTerceros).toBe(sin.deTerceros);
+    expect(con.ganancia).toBe(sin.ganancia);
+  });
+
+  it("R33: los signos del bolsillo — positivo, negativo y cero", () => {
+    expect(CASOS.map(([, filas]) => derivarCaja(filas).signoPorCobrarSatelites)).toEqual(["positivo", "negativo", "cero"]);
+  });
+
+  it("⭑ R39: con P <= 0 las porciones y el modo son EXACTAMENTE los de antes (literal)", () => {
+    const antes = { porcentajeTiendas: "75.00", porcentajeIva: "0.00", modoComposicion: "dos_bolsillos" };
+    for (const filas of [BASE, [...BASE, fila("ingreso_diferencia_satelite", "200.00")]]) {
+      const r = derivarCaja(filas);
+      expect({ porcentajeTiendas: r.porcentajeTiendas, porcentajeIva: r.porcentajeIva, modoComposicion: r.modoComposicion }).toEqual(antes);
+      expect(r.porcentajePorCobrar).toBe("0.00");
+    }
+  });
+
+  it("⭑ R38: con P > 0 el bolsillo tiene porcion propia y la empresa NO se descuenta (G 1000, T 3000, P 1000)", () => {
+    const r = derivarCaja([...BASE, fila("egreso_diferencia_satelite", "1000.00")]);
+    expect(r.porcentajeTiendas).toBe("60.00");
+    expect(r.porcentajePorCobrar).toBe("20.00");
+    expect(r.porcentajeIva).toBe("0.00");
+    expect(r.deOrdenex).toBe("1000.00"); // la empresa no cambia
+    expect(r.modoComposicion).toBe("dos_bolsillos"); // el modo sale solo de G y T
+  });
+
+  it("R38: limites — P > 0 con G, T e I en cero → 100.00 (S = P), sin division por cero", () => {
+    const r = derivarCaja([fila("egreso_diferencia_satelite", "500.00")]);
+    expect(r.porcentajePorCobrar).toBe("100.00");
+    expect(r.porcentajeTiendas).toBe("0.00");
+    expect(r.modoComposicion).toBe("sin_reparto");
+    // Y la caja vacia sigue sin dividir.
+    expect(derivarCaja([]).porcentajePorCobrar).toBe("0.00");
+  });
+
+  it("R38: en todos los conjuntos al azar, cada porcion queda en [0, 100] y las visibles suman como mucho 100", () => {
+    let semilla = 498;
+    const azar = () => {
+      semilla = (semilla * 48271) % 2147483647;
+      return semilla / 2147483647;
+    };
+    for (let n = 0; n < 300; n += 1) {
+      const filas = WALLET_MOVIMIENTO_CATEGORIA_SEED.filter(() => azar() < 0.5).map((c) =>
+        fila(c, new Prisma.Decimal(Math.floor(azar() * 10_000_000)).div(100).toFixed(2)),
+      );
+      const r = derivarCaja(filas);
+      const ps = [r.porcentajeTiendas, r.porcentajeIva, r.porcentajePorCobrar].map((p) => new Prisma.Decimal(p));
+      for (const p of ps) {
+        expect(p.gte(0) && p.lte(100), `conjunto ${n}`).toBe(true);
+      }
+      expect(ps.reduce((s, p) => s.add(p), new Prisma.Decimal(0)).lte(100.02), `conjunto ${n}`).toBe(true);
+    }
+  });
+});

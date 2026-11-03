@@ -146,7 +146,7 @@ export interface IEstadoCuentaRepository {
   /**
    * Los DOS totales de la cuenta con los movimientos ANTERIORES a `antesDe` (o de todos, sin
    * `antesDe`). La RESTA la hace el servicio con la MISMA funcion que hoy deriva cada saldo
-   * (`derivarSaldoTienda`, `derivarCuentaPorPagar`, `saldoDe`): R22 compara contra ellas.
+   * (`derivarSaldoTienda`, `derivarCuentaPorPagar`, `deudaDeZona`): R22 compara contra ellas.
    */
   totalesDeTienda(tiendaId: string, antesDe?: Date): Promise<{ creditos: string; debitos: string }>;
   /**
