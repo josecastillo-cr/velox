@@ -1,9 +1,9 @@
 # ESTADO 2026-11-02 (noche) — MARCA 492/493 Y 499 EN `dev`, SIN DESPLEGAR; hotfix portados en curso
 
-- En `dev` sin desplegar: 492 (#876), 493 (#877), 499 (#878). Antes de prod: gate completo; poner la fecha en la entrada «PENDIENTE» del CHANGELOG (493); pasos post-deploy de la 499 (design §8).
+- En `dev` sin desplegar: 492 (#876), 493 (#877), 499 (#878), 495 (#879), 496 (#880). Antes de prod: gate completo; poner la fecha en la entrada «PENDIENTE» del CHANGELOG (493); pasos post-deploy de la 499 (design §8).
 - Hotfix portados (`progress/prompt-hotfix-portable.md`, inventarios `progress/inventario_hotfix_*.md`): ramas desde `dev`, `--rapido`, salen con la próxima release (decisiones del humano). Mediciones de prod en el scratchpad de la sesión, NO en el repo.
-  - 495 (fechas CR, ampliada a /incidentes): wt-495, revisión APROBADA; gate `progress/gate_495_2.log` tras mergear dev → PR.
-  - 496 (recolección libera mensajero): wt-496, B1 de la revisión arreglado (`c1fd46e3`), dev mergeado (`5c6eecdf`, conflicto de `orden-traspaso-migration` resuelto con las dos listas); gate `progress/gate_496_2.log` → PR.
+  - 495: MERGEADA (#879).
+  - 496: MERGEADA (#880). Tras deploy: consulta H1 = 0.
   - 497 (confirmación física de barridas): wt-497, backend_dev en curso; luego frontend_dev + gate + reviewer.
   - 498 (dinero satélite al conciliar): spec APROBADO (64 req.); empieza con la 497 mergeada. Lleva migración «saldada con la regla anterior».
   - 500 (resto de H5): sin spec; espera a 498.
