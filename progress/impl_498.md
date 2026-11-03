@@ -798,8 +798,7 @@ propone lo que debe (o 0 si el servidor dice que no debe nada) y pinta la banda 
   «Satélite», excepción de la caja) y seis frases de la regla vieja prohibidas en los dos archivos.
   Autocomprobación en el propio test (frase vieja sembrada y punto quitado). Mutación real: añadir
   «## Desmarcar no mueve dinero» a `wallet-satelites.md` → `× ⭑ no queda ninguna frase de la regla
-  vieja … · 2 failed | 14 passed` (el otro rojo es el punto cuyo párrafo cambió de sitio en la prueba);
-  restaurado, `git status docs` limpio. Fila R44 del mapa actualizada.
+  vieja en ninguno de los dos archivos · 1 failed | 15 passed`; restaurado, `git status docs` limpio. Fila R44 del mapa actualizada.
 - **m2** revertir una saldada con la regla anterior SIN asientos: nuevo desenlace de dominio
   **`saldada_regla_anterior`** (repositorio `RevertirConciliacionResult`, servicio
   `RevertirConciliacionServiceResult`, acción por tipo) y texto `CONCILIACION_RESPUESTA.saldadaReglaAnterior`
