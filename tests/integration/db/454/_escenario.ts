@@ -5,6 +5,7 @@ import type { IFileStorage } from "@/lib/interfaces/external/IFileStorage";
 import type { ISignedUrlProvider } from "@/lib/interfaces/external/ISignedUrlProvider";
 import type { ICorteDiarioRepository } from "@/lib/interfaces/repositories/ICorteDiarioRepository";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
+import type { ConfirmacionFisicaInput } from "@/lib/interfaces/services/ICierresAdminService";
 import type { GestionarInput } from "@/lib/interfaces/services/IMisAsignacionesService";
 import { CierreDiaRepository } from "@/lib/repositories/CierreDiaRepository";
 import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
@@ -486,10 +487,21 @@ export async function crearEscenario(
     return s.corteDe(mensajeros).ejecutarCorte(now);
   }
 
-  /** La confirmacion fisica EXACTA que el servicio exige (238): todas las retornables del cierre. */
-  async function confirmacionDe(cierreId: string, alcance: Parameters<CierresAdminRepository["findGestionesRetornablesDelCierre"]>[1]) {
+  /**
+   * La confirmacion fisica EXACTA que el servicio exige: todas las retornables del cierre (238) y,
+   * desde la ficha 497, tambien todas sus BARRIDAS (`cierre_sin_gestion`) con su guia congelada.
+   * Las de gestion van primero y con la forma de siempre: un cierre sin barridas manda lo mismo.
+   */
+  async function confirmacionDe(
+    cierreId: string,
+    alcance: Parameters<CierresAdminRepository["findGestionesRetornablesDelCierre"]>[1],
+  ): Promise<ConfirmacionFisicaInput[]> {
     const retornables = await s.adminRepo.findGestionesRetornablesDelCierre(cierreId, alcance);
-    return retornables.map((r) => ({ gestionId: r.gestionId, numGuia: r.numGuia as number }));
+    const barridas = await s.adminRepo.findBarridasDelCierre(cierreId, alcance);
+    return [
+      ...retornables.map((r) => ({ gestionId: r.gestionId, numGuia: r.numGuia as number })),
+      ...barridas.map((b) => ({ ordenId: b.ordenId, numGuia: b.numGuia as number })),
+    ];
   }
 
   /** Aprueba por el SERVICIO real, confirmando exactamente lo que vuelve. */
