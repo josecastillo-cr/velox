@@ -1,3 +1,17 @@
+# ESTADO 2026-11-02 (noche) — MARCA 492/493 Y 499 EN `dev`, SIN DESPLEGAR; hotfix portados en curso
+
+- En `dev` sin desplegar: 492 (#876), 493 (#877), 499 (#878), 495 (#879), 496 (#880). Antes de prod: gate completo; poner la fecha en la entrada «PENDIENTE» del CHANGELOG (493); pasos post-deploy de la 499 (design §8).
+- Hotfix portados (`progress/prompt-hotfix-portable.md`, inventarios `progress/inventario_hotfix_*.md`): ramas desde `dev`, `--rapido`, salen con la próxima release (decisiones del humano). Mediciones de prod en el scratchpad de la sesión, NO en el repo.
+  - 495: MERGEADA (#879).
+  - 496: MERGEADA (#880). Tras deploy: consulta H1 = 0.
+  - 497 (confirmación física de barridas): wt-497, backend HECHO (`d51ebf62`, progress/impl_497_backend.md); frontend_dev en curso (merge de dev + UI + gate `progress/gate_497_1.log`). Falta: reviewer, PR, merge. Desvío R16 (barrida sin guía → mensaje «sin guía») a validar en revisión.
+  - 498 (dinero satélite al conciliar): spec APROBADO (64 req.); empieza con la 497 mergeada. Lleva migración «saldada con la regla anterior».
+  - 500 (resto de H5): sin spec; espera a 498.
+- Cada migración nueva debe declararse en `posteriores` de `tests/integration/db/orden-traspaso-migration.test.ts`.
+- 494 (marca: identificadores internos) registrada, pending. 451 cancelada (sustituida por la 497).
+- Sin ficha: `scripts/seed-zonas.ts` (local) puede fallar con el índice de la 499; posible mismo fallo de fecha en «Pagos registrados».
+- Worktrees a borrar al final (procedimiento seguro): wt-493, wt-499 (y los demás al mergear).
+
 # ESTADO 2026-10-30 — TRASPASO A JOSÉ (velox) EN CURSO; 489 en spec
 
 - Proyecto traspasado: repo `josecastillo-cr/velox`, Vercel team Velox (proyecto `velox`), Google Cloud de José (geocodificación y rutas OK). Correo saliente de Production por Brevo (dominio velox-courier.company autenticado; prueba entregada).

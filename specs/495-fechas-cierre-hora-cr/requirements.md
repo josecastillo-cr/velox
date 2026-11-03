@@ -89,6 +89,39 @@ Glosario:
   corte por la «T» del ISO (`split("T")`) o una llamada a `fechaDiaISO`, ENTONCES la suite DEBE
   fallar nombrando archivo y línea. La guardia NO admite lista de excepciones.
 
+### Incidentes (ampliación del 2026-11-02)
+
+> Ampliación decidida por el humano el 2026-11-02 (cierra P1): `/incidentes` entra en esta ficha.
+> `OrdenIncidente.createdAt` y `resueltoAt` son `timestamp` (`db/schema.prisma:1361,1363`) y viajan
+> como ISO en UTC (`IncidenteAdminRepository.ts:166,168`). Sitios re-medidos el 2026-11-02 en el
+> archivo real:
+
+| # | Archivo:línea | Qué pinta |
+|---|---|---|
+| I1 | `app/(app)/incidentes/_components/IncidentesAdminModule.tsx:485` | «Reportado el» del detalle |
+| I2 | `IncidentesAdminModule.tsx:501` | «Resuelto por … · fecha» del detalle |
+| I3 | `IncidentesAdminModule.tsx:771` | columna «Fecha» de la cola de pendientes |
+| I4 | `app/(app)/incidentes/_components/IncidentesHistoricoTabla.tsx:193` | columna «Fecha resuelta» del histórico |
+| I5 | `app/(app)/incidentes/_components/incidentes-descarga-columnas.ts:51,85` | columnas `fecha` y `fechaResuelta` de las dos descargas |
+
+I5 no estaba en el encargo (que citaba cuatro sitios) pero tiene el mismo recorte (`fechaDiaISO`) y
+es la descarga de las mismas tablas: sin él, pantalla y descarga divergirían (R11) y la guardia de
+R13 no podría quedar verde sin excepciones.
+
+- **R10** (ubicuo) — El sistema DEBE mostrar la fecha de reporte (`createdAt`) y la de resolución
+  (`resueltoAt`) de un incidente —en la columna «Fecha» de la cola de pendientes, en la columna
+  «Fecha resuelta» del histórico y en «Reportado el» / «Resuelto por … · fecha» del detalle— como
+  el día de Costa Rica de ese instante, en formato `YYYY-MM-DD`, con los mismos límites que R6.
+- **R11** (por evento) — CUANDO una persona descarga la cola de pendientes o el histórico de
+  incidentes, el sistema DEBE escribir en las columnas `fecha` y `fechaResuelta` el día de Costa
+  Rica de ese instante, idéntico al que muestra la pantalla, sin cambiar clave, encabezado ni orden.
+- **R12** (condicional) — SI la fecha de resolución de un incidente está ausente, ENTONCES el
+  sistema DEBE mostrar lo mismo que hoy: «—» en el histórico, el detalle sin la pieza «· fecha», y
+  celda vacía en la descarga; nunca `NaN` ni `Invalid Date`.
+- **R13** (condicional) — SI un archivo `.ts`/`.tsx` de `app/(app)/incidentes/**` contiene, fuera de
+  comentarios, alguna de las formas prohibidas de R9, ENTONCES la suite DEBE fallar nombrando
+  archivo y línea, sin lista de excepciones (la misma guardia de R9, ampliada a esta carpeta).
+
 ## Trazabilidad prevista (R → test)
 
 | R | Test |
@@ -102,10 +135,13 @@ Glosario:
 | R7 | `tests/components/cierres-fechas-cr-495.test.tsx`, bloque «R7»: cierre con `resueltoAt: null` y `conciliadoAt: null` no pinta `NaN`, `Invalid Date` ni la pieza «Resuelto»; `tests/unit/descarga/cierres-fechas-cr-495.test.ts`: `fechaResuelta` con `resueltoAt: null` es `null` (celda vacía). Los tests existentes de `CierreFacturaPapel.test.tsx` (`:772-840`) siguen verdes sin tocarlos |
 | R8 | `tests/unit/utils/fecha-dia-iso.test.ts`: texto vacío y un texto que no es fecha se devuelven tal cual; y `tests/unit/descarga/columnas-sensibles.guardia.test.ts` sigue verde sin tocarlo (su sonda conserva el rastro del campo) |
 | R9 | `tests/unit/guards/cierres-fecha-cr-495.guardia.test.ts` (nuevo), con contraprueba: el detector salta con las formas de antes (`iso.slice(0, 10)`, `c.solicitadoAt.slice(0, 10)`, `fechaDiaISO(cierre.solicitadoAt)`, `x.substring(0, 10)`, `iso.split("T")[0]`), no salta con la forma nueva ni dentro de un comentario, y revisa más de 30 archivos |
+| R10 | `tests/components/incidentes-fechas-cr-495.test.tsx` (nuevo): `IncidentesAdminModule` con `createdAt`/`resueltoAt` = `2026-11-01T05:03:00Z` pinta `2026-10-31` (y no `2026-11-01`) en la columna «Fecha» de la cola, en «Fecha resuelta» del histórico y en «Reportado el» / «Resuelto por» del detalle |
+| R11 | `tests/unit/descarga/cierres-fechas-cr-495.test.ts`, bloque «R11»: `filaDescargaIncidentePendiente.fecha` y `filaDescargaIncidenteHistorico.fechaResuelta` = `2026-10-31` (literal, el mismo que el test de pantalla); `incidentes-descarga-columnas.test.ts` sigue verde sin tocarlo |
+| R12 | `tests/components/incidentes-fechas-cr-495.test.tsx`, bloque «R12»: histórico con `resueltoAt: null` pinta «—» y no `NaN`/`Invalid Date`; `tests/unit/descarga/cierres-fechas-cr-495.test.ts`: `fechaResuelta` con `resueltoAt: null` es `null` |
+| R13 | `tests/unit/guards/cierres-fecha-cr-495.guardia.test.ts`: la lista de carpetas incluye `app/(app)/incidentes` y un caso afirma que se revisan archivos de esa carpeta |
 
 ## Fuera de alcance (no son requisitos de esta ficha)
 
-- **Incidentes** — mismo defecto, fuera de cierres: `app/(app)/incidentes/_components/IncidentesAdminModule.tsx:485,501,771` y `IncidentesHistoricoTabla.tsx:193` recortan `createdAt`/`resueltoAt` con `slice(0, 10)`. Ver P1.
 - `/wallet/satelites`, `/wallet` y `/mi-wallet`: ya pintan el día de Costa Rica (fichas 431 y 459) y los vigila `wallet-fecha-cr-459.guardia.test.ts`. No se tocan, aunque su utilidad (`fechaDiaMovimientoCR`) trate distinto la medianoche UTC exacta (ver `design.md §5`).
 - Fechas que ya llegan del servidor como día calendario (`fechaGestion`, `diaReparto`, `fechaCreacionOrden` de la hoja fundida; `fechaReprogramacion`): no son instantes y no se tocan.
 - Servidor y base: ningún DTO, repositorio, migración ni formato cambia. `lib/utils/jornada-cierre.ts:113,123,134` corta un `Date` de medianoche UTC (día calendario), no una fecha de pantalla.
@@ -113,6 +149,5 @@ Glosario:
 
 ## Preguntas abiertas
 
-- **P1 — Incidentes.** `/incidentes` tiene el mismo recorte en UTC (cuatro sitios, «Fuera de
-  alcance»). Esta ficha no los toca para no salirse de lo evidenciado. ¿Registrar una ficha aparte
-  para incidentes, o se deja como está?
+- **P1 — Incidentes.** CERRADA el 2026-11-02: el humano decide incluir `/incidentes` en esta ficha
+  (R10–R13).

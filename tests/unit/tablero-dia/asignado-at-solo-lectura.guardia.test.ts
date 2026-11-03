@@ -87,7 +87,23 @@ const MIGRACIONES_QUE_TOCAN_LA_COLUMNA = [
   // pasara a escribir la columna, cae ese caso — no este.
   "20260820180000_orden_fecha_reparto/down.sql",
   "20260820180000_orden_fecha_reparto/migration.sql",
+  // ── FICHA 496 (2026-11-02) — LA QUINTA ENTRADA, MIRADA A MANO ─────────────────────────────────
+  //
+  // QUE HACE: la recepcion central de una recoleccion libera el trio de asignacion
+  // (`mensajero_asignado_id`, `asignado_at`, `fecha_reparto`), y esta migracion de datos lo aplica
+  // a las ordenes que ya estaban asi (spec 496, R14, aprobado por el humano). La escribe a NULL,
+  // nunca la ESTAMPA: el riesgo contra el que existe esta guardia (subir el denominador del
+  // ranking con una recoleccion) no puede darse, porque el denominador exige
+  // `mensajero_asignado_id IS NOT NULL` (`RankingRepository`) y la MISMA sentencia lo deja en NULL.
+  // Su `down.sql` NO la nombra (repone solo el mensajero): por eso es UNA entrada y no dos.
+  //
+  // PERMISO ACOTADO: el caso «496: …» de abajo exige que la unica escritura sea `asignado_at = NULL`
+  // en la misma sentencia que `mensajero_asignado_id = NULL`. Un `= now()` lo pone rojo.
+  "20261102150000_recoleccion_central_libera_496/migration.sql",
 ];
+
+/** La entrada de la 496: solo puede LIMPIAR la columna, junto con el mensajero. */
+const SOLO_PUEDE_LIMPIAR_CON_EL_MENSAJERO = "20261102150000_recoleccion_central_libera_496/migration.sql";
 
 /** Las entradas de la lista blanca que SOLO pueden indexar la columna, nunca escribirla. */
 const SOLO_PUEDEN_INDEXAR = [
@@ -187,6 +203,25 @@ describe("asignado_at es de SOLO LECTURA en toda la feature", () => {
     expect(/^(CREATE INDEX|DROP INDEX)\b/i.test(ilegal)).toBe(false);
     expect(ESCRITURAS_SQL.test(ilegal)).toBe(true);
     expect(ESCRITURAS_SQL.test(legal)).toBe(false);
+  });
+
+  it("496: el permiso es SOLO para limpiar la columna, en la misma sentencia que el mensajero", () => {
+    const vivo = quitarComentariosSql(
+      fs.readFileSync(path.join(MIGRACIONES, SOLO_PUEDE_LIMPIAR_CON_EL_MENSAJERO), "utf8"),
+    );
+    const sentencias = vivo
+      .split(";")
+      .map((x) => x.trim())
+      .filter((x) => x.includes("asignado_at"));
+    expect(sentencias, "496: asignado_at debe aparecer en UNA sola sentencia").toHaveLength(1);
+    const [sentencia] = sentencias;
+    // Toda asignacion a la columna es `= NULL`; ninguna otra forma de escribirla.
+    const asignaciones = sentencia.match(/\basignado_at\s*=\s*[^,\n]+/g) ?? [];
+    expect(asignaciones.length).toBeGreaterThan(0);
+    for (const a of asignaciones) expect(a.trim(), `496 escribe ${a}`).toMatch(/^asignado_at\s*=\s*NULL$/i);
+    // Y en la MISMA sentencia el mensajero queda en NULL (sin el, el denominador si se moveria).
+    expect(sentencia).toMatch(/\bmensajero_asignado_id\s*=\s*NULL\b/i);
+    expect(sentencia).not.toMatch(/\bINSERT\b/i);
   });
 
   it("el repositorio SI la lee: la columna aparece en un WHERE y en un SELECT", () => {

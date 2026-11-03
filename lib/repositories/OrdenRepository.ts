@@ -4357,13 +4357,21 @@ export class OrdenRepository implements IOrdenRepository {
    * impuesta en el propio `updateMany` (concurrencia-segura, R9): a lo sumo UNA de dos recepciones
    * concurrentes afecta 1 fila. Origen pre-leido bajo la misma guarda; append del historial
    * (`origenTipo` = el pasado en `historial`, `recepcion_bodega_central`) SOLO si transiciono (count 1),
-   * en la MISMA tx (choke point feature 49: historial + outbox de webhook). NO toca
-   * `mensajeroAsignadoId` ni `numGuia` (R18).
+   * en la MISMA tx (choke point feature 49: historial + outbox de webhook). NUNCA toca `numGuia`
+   * (R18 de la 138, vigente).
+   *
+   * Ficha 496 (R1/R2/R3): `liberaAsignacion` lo decide el service por la ARISTA. `true`
+   * (`en_ruta_bodega_central -> en_bodega_central`) deja el trio de asignacion
+   * (`mensajeroAsignadoId`, `asignadoAt`, `fechaReparto`) en NULL en el MISMO `updateMany` y bajo la
+   * MISMA guarda que el estado: si la guarda no casa (count 0) no se toca nada. `false` (devolucion
+   * 139) conserva el trio. La R18 de la 138 queda revocada para la arista de la recoleccion.
+   * Obligatorio y en 4.a posicion a proposito: un llamador que lo olvide no compila.
    */
   async recibirEnBodegaCentral(
     ordenId: string,
     origenValue: string,
     destinoEstatusId: string,
+    liberaAsignacion: boolean,
     historial: HistorialContexto,
   ): Promise<boolean> {
     return this.prisma.$transaction(async (tx) => {
@@ -4383,7 +4391,15 @@ export class OrdenRepository implements IOrdenRepository {
           deletedAt: null,
           estatus: { value: origenValue },
         },
-        data: { estatusId: destinoEstatusId },
+        // Ficha 496/R1: el trio se libera en la MISMA sentencia que el estado (atomico, misma guarda).
+        data: liberaAsignacion
+          ? {
+              estatusId: destinoEstatusId,
+              mensajeroAsignadoId: null,
+              asignadoAt: null,
+              fechaReparto: null,
+            }
+          : { estatusId: destinoEstatusId },
       });
       // R3/R9: SOLO si transiciono (count 1); una orden que perdio la carrera no deja rastro.
       if (result.count === 1 && actual !== null) {

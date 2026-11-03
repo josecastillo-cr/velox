@@ -47,7 +47,10 @@ import {
 // FICHA 425 — la fecha del rechazo se pinta en el CALENDARIO DE COSTA RICA. `rechazadoAt` es un
 // instante UTC, y cortarlo con `slice(0, 10)` daría el día siguiente para todo rechazo hecho
 // después de las 18:00. Aquí la fecha ES el dato: explica por qué un paquete lleva semanas (D3).
+// FICHA 495 — lo mismo para las fechas del cierre (solicitado, resuelto, conciliado): se pintan
+// con `fechaDiaInstanteCR`, la MISMA función que usan sus descargas.
 import { fechaCalendarioCR } from "@/lib/utils/fecha-cr";
+import { fechaDiaInstanteCR } from "@/lib/utils/fecha-dia-iso";
 // FICHA 425 — los nombres de los dos estados a los que sale la orden al aprobar se leen del MISMO
 // mapa que pinta el chip de estado de la orden: lo que la hoja anuncia es lo que el admin verá.
 import { ORDER_STATUS_LABELS } from "@/app/(app)/ordenes/_components/EstatusBadge";
@@ -302,9 +305,12 @@ function folio(cierreId: string): string {
   return cierreId.slice(-8).toUpperCase();
 }
 
-/** Fecha ISO → `YYYY-MM-DD` (lo mismo que muestran las tablas). `null` → "—". */
+/**
+ * Instante ISO (UTC) → día de Costa Rica `YYYY-MM-DD` (ficha 495; lo mismo que escriben las
+ * descargas). `null` → "—".
+ */
 function fecha(iso: string | null): string {
-  return iso ? iso.slice(0, 10) : "—";
+  return iso ? fechaDiaInstanteCR(iso) : "—";
 }
 
 /* ------------------------------------------------------------------ *

@@ -79,13 +79,30 @@ Se usa la misma función en pantalla y en descarga para que R5 se cumpla por con
 Las ramas `=== null ? null : …` se conservan (celda vacía, R7). Claves, encabezados y orden de
 columnas no cambian (R4). Tras el cambio, ninguno de los cuatro archivos importa `fechaDiaISO`.
 
-### 3.4 Guardia (R9)
+### 3.3 bis Incidentes (R10–R12, ampliación del 2026-11-02)
+
+Misma función, mismos criterios:
+
+- I1/I2/I3 `IncidentesAdminModule.tsx:485,501,771`: `x.createdAt.slice(0, 10)` /
+  `x.resueltoAt.slice(0, 10)` → `fechaDiaInstanteCR(x.…At)`. La rama `detalle.resueltoAt ? … : ""`
+  se conserva (R12).
+- I4 `IncidentesHistoricoTabla.tsx:193`: `i.resueltoAt?.slice(0, 10) ?? "—"` →
+  `i.resueltoAt ? fechaDiaInstanteCR(i.resueltoAt) : "—"` (R12).
+- I5 `incidentes-descarga-columnas.ts:51,85`: `fechaDiaISO(…)` → `fechaDiaInstanteCR(…)`; la rama
+  `=== null ? null : …` se conserva; el import de `fechaDiaISO` se quita.
+
+### 3.4 Guardia (R9, R13)
+
+> Ampliada el 2026-11-02 (R13): la lista de carpetas incluye también `app/(app)/incidentes`. En esa
+> carpeta toda fecha ISO que llega es un instante (`createdAt`, `resueltoAt`), así que tampoco
+> necesita excepciones. Tras I1–I5 queda sin hallazgos.
 
 `tests/unit/guards/cierres-fecha-cr-495.guardia.test.ts`, calcada de
 `wallet-fecha-cr-459.guardia.test.ts` (mismo `quitarComentarios` de
 `tests/fixtures/sin-comentarios.ts`, que NO se modifica):
 
-- Carpetas: `app/(app)/cierres-admin` y `app/(app)/cierre-dia`, recursivo, `.ts`/`.tsx`.
+- Carpetas: `app/(app)/cierres-admin`, `app/(app)/cierre-dia` y `app/(app)/incidentes` (R13),
+  recursivo, `.ts`/`.tsx`.
 - Formas prohibidas, sin lista de excepciones:
   - `/\.(?:slice|substring|substr)\(\s*0\s*,\s*10\s*\)/`
   - `/\.split\(\s*["'`]T["'`]\s*\)/`

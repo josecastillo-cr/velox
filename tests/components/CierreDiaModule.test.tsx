@@ -1696,3 +1696,44 @@ describe("Cierre del día — 237/D3: la gestión de la tienda no se puede devol
     expect(refreshMock).not.toHaveBeenCalled();
   });
 });
+
+// =================================================================================================
+// FICHA 495 (R3) — el cierre propio se nombra y se abre con el día de COSTA RICA, no con el
+// recorte del ISO en UTC. `2026-11-01T05:03:00Z` son las 23:03 del 31 de octubre en CR.
+// =================================================================================================
+describe("Ficha 495 — CierreDiaModule pinta el día de Costa Rica", () => {
+  const TARDE: CierrePasadoDTO = {
+    ...CIERRE_PASADO,
+    solicitadoAt: "2026-11-01T05:03:00Z",
+    resueltoAt: "2026-11-01T05:03:00Z",
+  };
+
+  it("el botón del histórico se llama «Ver del cierre del 2026-10-31»", async () => {
+    renderModule({ cierresPasados: [TARDE] });
+    const region = screen.getByRole("region", { name: "Cierres solicitados" });
+    expect(
+      within(region).getByRole("button", { name: "Ver del cierre del 2026-10-31" }),
+    ).toBeInTheDocument();
+    expect(
+      within(region).queryByRole("button", { name: "Ver del cierre del 2026-11-01" }),
+    ).toBeNull();
+  });
+
+  it("la cabecera del detalle dice «Aprobado · 2026-10-31 · …»", async () => {
+    const user = userEvent.setup();
+    verCierrePasadoMock.mockResolvedValue({
+      ordenesSinGestion: [],
+      sinGestionRegistrado: true,
+      rechazosDeTienda: [],
+      status: "ok",
+      cierre: TARDE,
+      grupos: emptyGrupos(),
+    });
+    renderModule({ cierresPasados: [TARDE] });
+
+    await user.click(screen.getByRole("button", { name: "Ver del cierre del 2026-10-31" }));
+    const dialogo = await screen.findByRole("dialog");
+    expect(dialogo).toHaveAccessibleDescription(/· 2026-10-31 ·/);
+    expect(dialogo.textContent).not.toContain("· 2026-11-01 ·");
+  });
+});

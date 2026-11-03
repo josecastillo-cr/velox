@@ -361,10 +361,11 @@ export interface IGestionOrdenRepository {
   findMisAsignaciones(mensajeroId: string, estados: string[]): Promise<MiAsignacionRow[]>;
 
   /**
-   * 2026-08-11: las MISMAS filas, resueltas por ID en vez de por estado, con las MISMAS dos
-   * guardias en el WHERE (propiedad + no borradas). La consume «Recolectadas hoy», que sale del
-   * historial —solo tiene ids— y desde que pinta la card compartida necesita el resto de los
-   * datos de la orden. Vacio si `ids` esta vacio.
+   * 2026-08-11: las MISMAS filas, resueltas por ID en vez de por estado, con dos guardias en el
+   * WHERE (propiedad + no borradas). La consume «Recolectadas hoy», que sale del historial —solo
+   * tiene ids— y desde que pinta la card compartida necesita el resto de los datos de la orden.
+   * Ficha 496: la propiedad es «asignada a mi» O «sin mensajero y con una `recoleccion_tienda`
+   * mia en el historial» (la recepcion central libera al recolector). Vacio si `ids` esta vacio.
    */
   findMisAsignacionesByIds(mensajeroId: string, ids: string[]): Promise<MiAsignacionRow[]>;
 

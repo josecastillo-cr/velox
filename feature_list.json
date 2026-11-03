@@ -5926,26 +5926,26 @@
       "title": "Fechas de cierre en hora de Costa Rica",
       "description": "Las fechas de solicitud, resolución y conciliación de cierres (tarjetas, comprobantes y descargas) usan el día calendario de Costa Rica en vez de recortar el ISO en UTC; guardia contra slice(0, 10) en pantallas de cierres.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "small",
       "depends_on": null,
       "spec_path": "specs/495-fechas-cierre-hora-cr",
       "branch": "fix/495-fechas-cierre-hora-cr",
-      "status_note": "Spec aprobado el 2026-11-02 (9 requisitos) con AMPLIACIÓN del humano: incluye los 4 sitios de /incidentes (IncidentesAdminModule, IncidentesHistoricoTabla) y la guardia cubre también esa ruta. En implementación. Registrada el 2026-11-02: bloque 1 de H5 de progress/prompt-hotfix-portable.md, adelantado por decisión del humano. Inventario: progress/inventario_hotfix_H2_H3_H5.md §3 (fechaCalendarioCR ya existe; slice en cierre-factura.tsx y CierreDiaModule.tsx). Ramas desde dev, gate --rapido, sale con la próxima release (decisión del humano)."
+      "status_note": "MERGEADA en dev el 2026-11-02 (PR #879, merge 5f0ebb1b); revisión APROBADA (progress/review_495.md), gate --rapido verde tras mergear la 499, build de Vercel verde. Pendiente: verlo en preview/prod antes o tras la release (T8 no se vio en la app). Spec aprobado el 2026-11-02 (9 requisitos) con AMPLIACIÓN del humano: incluye los 4 sitios de /incidentes (IncidentesAdminModule, IncidentesHistoricoTabla) y la guardia cubre también esa ruta. En implementación. Registrada el 2026-11-02: bloque 1 de H5 de progress/prompt-hotfix-portable.md, adelantado por decisión del humano. Inventario: progress/inventario_hotfix_H2_H3_H5.md §3 (fechaCalendarioCR ya existe; slice en cierre-factura.tsx y CierreDiaModule.tsx). Ramas desde dev, gate --rapido, sale con la próxima release (decisión del humano)."
     },
     {
       "id": 496,
       "title": "Recolección recibida en central libera al mensajero",
       "description": "Al recibir en bodega central una orden que viene de recolección, se limpia la asignación del mensajero para que salga en «Reasignables» y no cuente en Monitoreo; la devolución conserva el mensajero.",
       "zone": "backend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/496-recoleccion-central-libera-mensajero",
       "branch": "fix/496-recoleccion-central-libera-mensajero",
-      "status_note": "Spec aprobado el 2026-11-02 (17 requisitos); incluye la liberación también cuando la orden vuelve a en_ruta_bodega_central por reversión de incidente. En implementación. Registrada el 2026-11-02: H1 de progress/prompt-hotfix-portable.md. El humano REVOCA la R18 de la spec 138 para en_ruta_bodega_central → en_bodega_central. Inventario: progress/inventario_hotfix_H1_H4.md. Medido en prod (solo lectura): la migración de datos sale vacía; se escribe igual con down.sql. Ramas desde dev, gate --rapido, sale con la próxima release."
+      "status_note": "MERGEADA en dev el 2026-11-02 (PR #880, merge 129bfb56); revisión con B1 corregido (progress/review_496.md), gate --rapido verde tras mergear la 499, build de Vercel verde. Pendiente tras el deploy: consulta H1 de verificación = 0 (T11). Spec aprobado el 2026-11-02 (17 requisitos); incluye la liberación también cuando la orden vuelve a en_ruta_bodega_central por reversión de incidente. En implementación. Registrada el 2026-11-02: H1 de progress/prompt-hotfix-portable.md. El humano REVOCA la R18 de la spec 138 para en_ruta_bodega_central → en_bodega_central. Inventario: progress/inventario_hotfix_H1_H4.md. Medido en prod (solo lectura): la migración de datos sale vacía; se escribe igual con down.sql. Ramas desde dev, gate --rapido, sale con la próxima release."
     },
     {
       "id": 497,
