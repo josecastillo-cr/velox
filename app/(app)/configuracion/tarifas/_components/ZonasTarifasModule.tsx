@@ -77,7 +77,27 @@ export function ZonasTarifasModule({
     if (arbolRes.status === "ok") setProvincias(arbolRes.provincias);
   }
 
-  function abrirCrear() {
+  /**
+   * ⭑ FICHA 499 (R21) — EL ÁRBOL SE LEE AL ABRIR, NO SE HEREDA DEL ESTADO.
+   *
+   * `onSaved` refresca con un `void refetch()` que nadie espera, así que justo después de guardar
+   * una zona el árbol en estado puede ser el de antes del guardado: el selector dejaría elegir un
+   * distrito que acaba de pasar a otra zona, y «Editar» preseleccionaría mal. Leerlo al abrir es
+   * lo que garantiza la frescura. Si la lectura falla, no se abre: un formulario con un árbol que
+   * no se sabe si vale es justo el que borraba distritos al guardar.
+   */
+  async function leerArbol(): Promise<ProvinciaArbolDTO[] | null> {
+    const arbolRes = await listarArbolGeografico();
+    if (arbolRes.status !== "ok") {
+      toast.error("No se pudo cargar la geografía. Inténtalo de nuevo.");
+      return null;
+    }
+    setProvincias(arbolRes.provincias);
+    return arbolRes.provincias;
+  }
+
+  async function abrirCrear() {
+    if ((await leerArbol()) === null) return;
     setFormMode("crear");
     setFormInitial(undefined);
     setFormKey((k) => k + 1);
@@ -88,10 +108,12 @@ export function ZonasTarifasModule({
     // Zona completa (incluye tarifas) + distritos derivados del árbol geográfico
     // + la tarifa de cobro acotada a la zona (la de `tienda_id` NULL), que es la
     // que edita la sección "Tarifas de zona" del formulario.
-    const [res, tarifasRes] = await Promise.all([
+    const [res, tarifasRes, arbol] = await Promise.all([
       obtenerZona(zona.id),
       listarTarifas({ page: 1, pageSize: PAGE_SIZE }),
+      leerArbol(),
     ]);
+    if (arbol === null) return; // R21: `leerArbol` ya avisó.
     if (res.status !== "ok") {
       toast.error("No se pudo cargar la zona.");
       return;
@@ -103,11 +125,14 @@ export function ZonasTarifasModule({
           )
         : undefined;
     const full = res.zona;
+    // ⭑ FICHA 499 (R22) — la preselección sale de `d.zonas` del árbol RECIÉN LEÍDO. Con
+    // `d.zonaId` (colapsado a `null` con más de una zona) un distrito en dos zonas salía desmarcado
+    // en las dos, y el siguiente guardado lo borraba de verdad.
     const distritoIds: string[] = [];
-    for (const p of provincias)
+    for (const p of arbol)
       for (const c of p.cantones)
         for (const d of c.distritos)
-          if (d.zonaId === full.id) distritoIds.push(d.id);
+          if (d.zonas.some((z) => z.id === full.id)) distritoIds.push(d.id);
 
     const cobro: CobroVehiculoValue = {
       cobroVehiculo: full.cobroVehiculo,
