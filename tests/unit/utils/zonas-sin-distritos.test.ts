@@ -22,6 +22,7 @@ function dist(
     nombre,
     zonaId: zona?.id ?? null,
     zonaNombre: zona?.nombre ?? null,
+    zonas: zona === null ? [] : [{ id: zona.id, nombre: zona.nombre }],
     zonaEspecial: false,
     activo,
   };

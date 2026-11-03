@@ -119,7 +119,30 @@ export type UpdateZonaResult =
     }
   | { estado: "not_found" }
   /** 376/R5: se pidio EXPLICITAMENTE quitar la marca a la zona que hoy es la central. */
-  | { estado: "sin_zona_central" };
+  | { estado: "sin_zona_central" }
+  | DistritoEnOtraZona;
+
+/** FICHA 499: un distrito elegido que ya esta asignado a otra zona, con los dos nombres. */
+export interface ConflictoDistritoZona {
+  distritoNombre: string;
+  zonaNombre: string;
+}
+
+/**
+ * ⭑ FICHA 499 (R9-R11, R13) — el desenlace compartido de crear y actualizar cuando un distrito
+ * elegido ya esta en otra zona. Sale ANTES de la primera escritura del guardado: no se aplica nada.
+ *
+ * `conflictos: null` = lo rechazo el indice unico `zona_distrito_distrito_id_key` (un guardado
+ * simultaneo asigno el mismo distrito), no la lectura: no hay nombres que dar. El repositorio NO
+ * ordena la lista: lo hace el service, con el comparador español (R11).
+ */
+export type DistritoEnOtraZona = {
+  estado: "distrito_en_otra_zona";
+  conflictos: ConflictoDistritoZona[] | null;
+};
+
+/** FICHA 499: `create` deja de devolver `ZonaDTO` a secas para poder decir «no se guardo». */
+export type CreateZonaResult = { estado: "ok"; zona: ZonaDTO } | DistritoEnOtraZona;
 
 export interface IZonaRepository {
   /**
@@ -129,8 +152,11 @@ export interface IZonaRepository {
    * marca le quita la marca a la central anterior exactamente igual que actualizar, y ese
    * traslado deja rastro. Mismo patron que `hardDelete` (362) y `update` (366); `null` = el
    * sistema.
+   *
+   * FICHA 499 (R9): si algun distrito elegido ya esta en otra zona, devuelve
+   * `distrito_en_otra_zona` sin escribir nada, tampoco el apagado de la central previa.
    */
-  create(data: CreateZonaData, actorUsuarioId: string | null): Promise<ZonaDTO>;
+  create(data: CreateZonaData, actorUsuarioId: string | null): Promise<CreateZonaResult>;
   /** null si no existe. Carga tarifas solo si includeTarifas. */
   findById(id: string, includeTarifas: boolean): Promise<ZonaDTO | null>;
   /** Listado paginado (orden por nombre asc). include tarifas opcional. */
@@ -156,6 +182,9 @@ export interface IZonaRepository {
    * FICHA 377 (R2/R8): la orden cuyo paquete ya esta en el estante de una satelite queda FUERA de
    * esa re-derivacion —moverle la zona la dejaria sin bodega que pueda asignarla y sin transicion
    * de salida— y se informa aparte, en `ordenesRetenidasEnBodegaSatelite`.
+   *
+   * FICHA 499 (R10/R14): si algun distrito elegido ya esta en otra zona, devuelve
+   * `distrito_en_otra_zona` antes de la primera escritura. `not_found` y `sin_zona_central` ganan.
    */
   update(
     id: string,
