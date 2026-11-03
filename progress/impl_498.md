@@ -63,3 +63,61 @@ se sustituye por su propia fuente.
 `conciliado_at` no distingue nada. R13 se fija mirando que ninguno de los cinco feeds (ni la fila de
 diferencia) ponga `fechaMovimiento`: la fecha la pone el `DEFAULT now()` de la transacción que
 escribe, que en producción es la de la marca.
+
+## T2 — Datos
+
+- **T2.1 (M1)** `20261103120000_satelite_498_enums`: tres `ADD VALUE IF NOT EXISTS`. `down.sql` = la
+  función de la 488 renombrada `_498`, aplicada a `wallet_movimiento_categoria` y `wallet_origen_tipo`.
+- **T2.2 (M2)** `20261103120100_satelite_498_ajuste`: tabla `conciliacion_bodega_ajuste` (ids `TEXT`:
+  `cierre_bodega.id` y `usuario.id` son `String @default(uuid())` → `TEXT`, comprobado en
+  `db/schema.prisma`), CHECK de evento y de diferencia, FK RESTRICT a la consolidación y al usuario,
+  único parcial de `marca`, RLS sin policies; CHECK de la caja = el de la 488 literal + un valor por rama.
+  Prisma: modelo `ConciliacionBodegaAjuste`, `CierreBodega.ajustes`, `Usuario.conciliacionBodegaAjustes`.
+- **T2.5 (M3)** `20261103120200_satelite_498_retirar_asientos`. FKs entrantes a los tres libros
+  comprobadas en `db/schema.prisma`: `cobro_tienda_anulacion.cobro_id` (débito de cobro, origen
+  `cobro_tienda`), `ajuste_caja_anulacion`, `wallet_anotacion`, `wallet_comprobante` (filas manuales) y
+  `gasto_fijo_cobro` (egreso de gasto fijo). Ninguna apunta a filas con origen `cierre_dia`;
+  `pago_mensajero_movimiento` no tiene FKs entrantes.
+- **T2.7 (M4)** `20261103120300_satelite_498_regularizar` + `CierreBodega.esperadoReglaAnterior` (con la
+  cita de la decisión del 2026-11-02). `cierre_bodega` **no tiene triggers** (consulta a `pg_trigger`:
+  `[]`), así que `updated_at` no se mueve (R54b). El `UPDATE` no nombra ids ni fechas.
+- Aplicadas en local con `prisma migrate deploy` (base `localhost:5432/ordenex`, comprobada con
+  `migrate status`); `prisma generate`; `prisma migrate diff --from-config-datasource --to-schema` →
+  «This is an empty migration.»; typecheck verde. En local, M3 respaldó 7 filas de caja y 7 de tienda
+  (datos de la base local, no de producción); M4 marcó 0 consolidaciones.
+- **T2.3 — `Record` totales que el typecheck exigió clasificar** (valores de design §8.1/§8.3):
+  - `lib/utils/caja-tesoreria.ts`: `NATURALEZA_POR_CATEGORIA` (las dos → `por_cobrar_satelite`) y
+    `LIQUIDEZ_POR_CATEGORIA` (las dos → `efectivo`).
+  - `lib/constants/wallet-rotulos.ts`: `CATEGORIA_LABEL` (las dos → «Diferencia de la satélite»),
+    `ORIGEN_LABEL`, `ORIGEN_TIENDA_LABEL`, `ORIGEN_PAGO_LABEL` (→ «Conciliación de satélite»).
+  - `lib/utils/aporte-por-orden.ts` `FUENTE_CAJA`: las dos → `sin_reparto / no_nace_de_un_cierre`.
+  - `lib/repositories/libro-caja-a-quien-sql.ts` `A_QUIEN_POR_ORIGEN`: `[]` (la satélite no es cuenta de
+    tienda ni de mensajero: la fila no sale al filtrar por cuenta).
+  - `lib/services/OrigenLegibleService.ts`: `LECTURA_POR_ORIGEN` → `null` y el `case` del `switch`
+    (se nombra por el rótulo).
+  - `app/(app)/wallet/_components/wallet-labels.ts` `DUENO_LABEL.por_cobrar_satelite = "Satélite"`
+    (§8.3) y `WalletLedger.tsx` `DUENO_PUNTO.por_cobrar_satelite = "bg-muted-foreground"`
+    **PROVISIONAL**: el token definitivo lo elige el frontend en T7.1.
+  - Tests con `Record` total sobre el catálogo: `caja-tesoreria-migration.test.ts`,
+    `wallet-labels.test.ts`, `wallet-origen-legible.test.ts` (solo la entrada nueva).
+- **Suites de migraciones anteriores que fijaban «los valores de la ficha N AL FINAL»** (patrón que ya
+  siguió la 488): se corre la ventana 2 (caja) / 1 (origen) y se suben los conteos — `iva-488-migration`,
+  `wallet-458-migration`, `abono-tienda-457-migration`, `caja-459-migration`,
+  `cobro-tienda-461-migration`, `caja-tesoreria-migration` (29 → 31). `zona-distrito-499-migration`
+  asumía que su tabla era la única del esquema `respaldo`: dentro de su tx se quita también
+  `respaldo.asientos_satelite_498`. Ninguna aserción de contenido cambia.
+- Las cuatro migraciones se declaran en `posteriores` de `orden-traspaso-migration.test.ts`.
+- **M3 editada tras aplicarse en local** (añadido `DROP TABLE IF EXISTS pg_temp.s_498;` para que el
+  bloque se pueda reejecutar dentro de una sesión: los tests hacen up → down → up en una transacción).
+  Sin efecto semántico; la base local se re-migra al final (ver T6).
+- **T2.4** `498-satelite-migraciones.test.ts`: 7/7 verde, 0 skipped.
+- **T2.6** `498-retirar-asientos-migration.test.ts`: 6/6 verde, 0 skipped. Mutación 12 (sin
+  `AND p.premio_dia IS NULL`) → `× R48/R49/R51 … Tests 1 failed | 5 passed (6)`. Mutación 13 (sin
+  `b.conciliado_at IS NULL` en S) → `× R48/R49/R51 … Tests 1 failed | 5 passed (6)`. Restaurado: diff
+  limpio respecto al archivo bueno.
+- **T2.8** `498-regularizar-migration.test.ts`: 5/5 verde, 0 skipped. Mutación 14 (sin
+  `NOT EXISTS (… conciliacion_bodega_ajuste …)`) → `× R54a/R54b: marca SOLO las conciliadas … Tests 1
+  failed | 4 passed (5)`. Restaurado, diff vacío. Nota: el CHECK `cierre_bodega_conciliacion_coherente`
+  impide una consolidación rechazada **y** conciliada, así que la rama `estado <> 'rechazado'` del
+  predicado es defensiva: su mutación no puede matarse con datos (se mata la otra mitad de la 14).
+  R54c (deuda 0 de las saldadas) se mide en `498-deuda-satelite-sql-real.test.ts` (T4).

@@ -42,7 +42,9 @@ DO $$
 DECLARE
   v_pagos bigint;
 BEGIN
-  -- S, por PREDICADO (R48).
+  -- S, por PREDICADO (R48). El DROP previo hace el bloque reejecutable dentro de una misma sesion
+  -- (los tests corren up -> down -> up en una sola transaccion; en el despliegue no cambia nada).
+  DROP TABLE IF EXISTS pg_temp.s_498;
   CREATE TEMP TABLE s_498 ON COMMIT DROP AS
     SELECT c.id
       FROM cierre_dia c
