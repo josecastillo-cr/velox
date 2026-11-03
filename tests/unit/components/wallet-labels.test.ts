@@ -77,6 +77,9 @@ const CONCEPTOS_ESPERADOS: Record<WalletMovimientoCategoria, string> = {
   // Ficha 488 (design §6, R29): el Pago de IVA y su anulacion.
   egreso_pago_iva: "Pago de IVA",
   ingreso_reverso_pago_iva: "Pago de IVA anulado",
+  // Ficha 498 (design §8.3).
+  egreso_diferencia_satelite: "Diferencia de la satélite",
+  ingreso_diferencia_satelite: "Diferencia de la satélite",
 };
 
 /** design §7.3 — los 13 origenes del libro de la caja (+ el de la 457: 14). */
@@ -96,6 +99,8 @@ const ORIGENES_ESPERADOS: Record<WalletOrigenTipo, string> = {
   cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
   // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
   abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
+  // Ficha 498 (design §8.3).
+  conciliacion_bodega_ajuste: "Conciliación de satélite",
 };
 
 describe(`461 — CATEGORIA_LABEL: cada concepto de la caja, desde ${NOMBRE_ESPERADO} (R42, design §7.2)`, () => {

@@ -108,6 +108,8 @@ const TIPO_LEGITIMO_POR_CATEGORIA: Record<WalletMovimientoCategoria, WalletMovim
   // `20261023120100`; lo prueba `iva-488-migration.test.ts`.
   egreso_pago_iva: "egreso",
   ingreso_reverso_pago_iva: "ingreso",
+  egreso_diferencia_satelite: "egreso",
+  ingreso_diferencia_satelite: "ingreso",
 };
 
 const COMBINACIONES_LEGITIMAS = (
@@ -142,6 +144,10 @@ const AGREGADAS_459: readonly string[] = [
   // Mismo criterio.
   "egreso_pago_iva",
   "ingreso_reverso_pago_iva",
+  // Ficha 498 (2026-11-03): la diferencia de la satelite al conciliar, tambien POSTERIOR a la foto de
+  // la 173. Mismo criterio.
+  "egreso_diferencia_satelite",
+  "ingreso_diferencia_satelite",
 ];
 const COMBINACIONES_DE_LA_173 = COMBINACIONES_LEGITIMAS.filter((c) => !AGREGADAS_459.includes(c.categoria));
 const SEED_DE_LA_173 = WALLET_MOVIMIENTO_CATEGORIA_SEED.filter((c) => !AGREGADAS_459.includes(c));
@@ -564,9 +570,9 @@ describeSiHayBase("T A.2 — el CHECK categoria↔tipo, contra Postgres (R45/R46
       });
     });
 
-    // 17 de la 173 + 4 de la 459 + 2 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488: el CHECK de HOY
-    // (migracion 20261023120100).
-    expect(resultado).toHaveLength(29);
+    // 17 de la 173 + 4 de la 459 + 2 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488 + 2 de la 498:
+    // el CHECK de HOY (migracion 20261103120100).
+    expect(resultado).toHaveLength(31);
     expect(
       resultado.map((f) => `${f.tipo}/${f.categoria}`).sort(),
     ).toEqual(COMBINACIONES_LEGITIMAS.map((c) => `${c.tipo}/${c.categoria}`).sort());
@@ -596,9 +602,9 @@ describeSiHayBase("T A.2 — el CHECK categoria↔tipo, contra Postgres (R45/R46
       ),
     ];
     expect(nombradasEnElCheck.sort()).toEqual([...etiquetasDelEnum].sort());
-    // 17 de la 173 + 4 de la 459 + 2 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488: el CHECK de HOY
-    // (migracion 20261023120100).
-    expect(nombradasEnElCheck).toHaveLength(29);
+    // 17 de la 173 + 4 de la 459 + 2 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488 + 2 de la 498:
+    // el CHECK de HOY (migracion 20261103120100).
+    expect(nombradasEnElCheck).toHaveLength(31);
     // Enumera, no niega: en la definicion que devuelve el motor no hay negacion alguna.
     expect(check.def).not.toMatch(/<>|NOT IN|!=/i);
   });

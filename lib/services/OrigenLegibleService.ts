@@ -96,6 +96,7 @@ const LECTURA_POR_ORIGEN: Record<WalletOrigenTipo, keyof Entidades | null> = {
   cobro_tienda: "movimientosTienda",
   cobro_tienda_completado: "movimientosTienda",
   abono_tienda: "abonos",
+  conciliacion_bodega_ajuste: null, // ficha 498: se nombra por el rotulo
 };
 
 function unir(...partes: (string | null | undefined)[]): string {
@@ -248,6 +249,8 @@ export function componerOrigen(
       return solo(textoDeGasto(fila));
     case "manual":
     case "aporte_capital":
+    // Ficha 498: la diferencia de la satelite se nombra por su rotulo («Conciliación de satélite»).
+    case "conciliacion_bodega_ajuste":
       return solo(null);
   }
 }

@@ -285,6 +285,8 @@ export const DUENO_LABEL: Record<NaturalezaMovimiento, string> = {
   capital: `${MARCA.nombreCorto} (capital)`,
   // Ficha 488 (design §6, R29) — los movimientos de IVA: se le deben a Hacienda.
   iva: "IVA por pagar",
+  // Ficha 498 (design §8.3, R40) — la diferencia de la satelite al conciliar.
+  por_cobrar_satelite: "Satélite",
 };
 
 export { ORIGEN_LABEL } from "@/lib/constants/wallet-rotulos";

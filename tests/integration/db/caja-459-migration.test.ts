@@ -79,18 +79,22 @@ describeSiHayBase("459/B.5 — las migraciones de la 459 contra Postgres", () =>
     // caja, dos en la tienda, uno en el origen. El orden relativo se afirma igual, un tramo mas atras.
     // Ficha 458-B (2026-09-26): dos valores mas en la caja y dos en la tienda (`20260928120000`).
     // Ficha 488 (2026-10-22): dos valores mas en la caja (`20261023120000`): todo se corre un tramo.
-    expect(caja.slice(-12, -8)).toEqual(VALORES_CAJA_459);
-    expect(caja.slice(-8, -6)).toEqual(["ingreso_cobro_tienda", "egreso_reverso_cobro_tienda"]);
-    expect(caja.slice(-6, -4)).toEqual(["ingreso_abono_tienda", "egreso_reverso_abono_tienda"]);
-    expect(caja.slice(-4, -2)).toEqual(["egreso_reverso_flete_devolucion", "egreso_reverso_iva_flete_devolucion"]);
-    expect(caja.slice(-2)).toEqual(["egreso_pago_iva", "ingreso_reverso_pago_iva"]);
+    // Ficha 498: + 2 valores de caja al final (la diferencia de la satelite) y + 1 origen
+    // (`conciliacion_bodega_ajuste`): las ventanas de la caja y de los origenes se corren.
+    expect(caja.slice(-14, -10)).toEqual(VALORES_CAJA_459);
+    expect(caja.slice(-10, -8)).toEqual(["ingreso_cobro_tienda", "egreso_reverso_cobro_tienda"]);
+    expect(caja.slice(-8, -6)).toEqual(["ingreso_abono_tienda", "egreso_reverso_abono_tienda"]);
+    expect(caja.slice(-6, -4)).toEqual(["egreso_reverso_flete_devolucion", "egreso_reverso_iva_flete_devolucion"]);
+    expect(caja.slice(-4, -2)).toEqual(["egreso_pago_iva", "ingreso_reverso_pago_iva"]);
+    expect(caja.slice(-2)).toEqual(["egreso_diferencia_satelite", "ingreso_diferencia_satelite"]);
     expect(tienda.slice(-7, -5)).toEqual(["pago_por_cuenta", "pago_por_cuenta_anulado"]);
     expect(tienda.slice(-5, -4)).toEqual(["cobro_tienda_anulado"]);
     expect(tienda.slice(-4, -2)).toEqual(["abono_tienda", "abono_tienda_anulado"]);
     expect(tienda.slice(-2)).toEqual(["flete_devolucion_anulado", "iva_flete_devolucion_anulado"]);
-    expect(origen.slice(-6, -3)).toEqual(["pago_por_cuenta_tienda", "aporte_capital", "cobro_manual_reclasificado"]);
-    expect(origen.slice(-3, -1)).toEqual(["cobro_tienda", "cobro_tienda_completado"]);
-    expect(origen.slice(-1)).toEqual(["abono_tienda"]);
+    expect(origen.slice(-7, -4)).toEqual(["pago_por_cuenta_tienda", "aporte_capital", "cobro_manual_reclasificado"]);
+    expect(origen.slice(-4, -2)).toEqual(["cobro_tienda", "cobro_tienda_completado"]);
+    expect(origen.slice(-2, -1)).toEqual(["abono_tienda"]);
+    expect(origen.slice(-1)).toEqual(["conciliacion_bodega_ajuste"]);
 
     const tipos = await etiquetasDeEnum(prisma, "historial_accion_tipo");
     const entidades = await etiquetasDeEnum(prisma, "historial_accion_entidad");

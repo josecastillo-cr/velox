@@ -120,6 +120,7 @@ model Usuario {
   cierresBodegaSolicitados            CierreBodega[]                     @relation("CierreBodegaSolicitadoPor") // feature 40: cierres de bodega solicitados por este adminSatelite
   cierresBodegaResueltos              CierreBodega[]                     @relation("CierreBodegaResueltoPor") // feature 40: cierres de bodega que este maestro aprobo/rechazo
   cierresBodegaConciliados            CierreBodega[]                     @relation("CierreBodegaConciliadoPor") // ficha 431: consolidaciones que marco como recibidas
+  conciliacionBodegaAjustes           ConciliacionBodegaAjuste[]         @relation("ConciliacionBodegaAjusteCreador") // ficha 498: ajustes de conciliacion que registro
   walletMovimientosRegistrados        WalletMovimiento[]                 @relation("WalletMovimientoRegistrador") // feature 42/R2/R15: movimientos manuales que este usuario (maestro) registro
   walletTiendaMovimientos             WalletTiendaMovimiento[]           @relation("WalletTiendaMovimientoTienda") // feature 43/R1/R2: movimientos del ledger de ESTA tienda (rol adminTienda)
   walletTiendaMovimientosRegistrados  WalletTiendaMovimiento[]           @relation("WalletTiendaMovimientoRegistrador") // feature 43/R2: movimientos manuales del ledger de tienda que este usuario registro
@@ -279,7 +280,7 @@ model PlantillaMensaje {
 
   creador Usuario? @relation("PlantillaMensajeCreador", fields: [createdBy], references: [id], onDelete: SetNull)
 
-  chatMensajes ChatMensaje[] @relation("ChatMensajePlantilla") // feature 109: salientes de tipo plantilla que referencian esta plantilla
+  chatMensajes   ChatMensaje[]   @relation("ChatMensajePlantilla") // feature 109: salientes de tipo plantilla que referencian esta plantilla
   whatsappEnvios WhatsappEnvio[] @relation("WhatsappEnvioPlantilla") // ficha 474: envios automaticos que usan esta plantilla (ON DELETE RESTRICT)
 
   @@index([createdAt]) // R6: orden determinista del listado
@@ -1509,12 +1510,20 @@ model CierreBodega {
   conciliadoNota             String?      @map("conciliado_nota") // texto libre corto, SIEMPRE opcional. NO entra al historial (R5 de la 362) ni a las descargas
   createdAt                  DateTime     @default(now()) @map("created_at")
   updatedAt                  DateTime     @updatedAt @map("updated_at")
+  // ⭑ FICHA 498 (design §3.5, Q4: decision del humano del 2026-11-02) — «SALDADA CON LA REGLA ANTERIOR».
+  // NO NULL = consolidacion conciliada antes de la ficha y dada por saldada tal como se marco: su valor
+  // es el APORTE RECONOCIDO (sustituye al aporte en la deuda, el estado de cuenta, «Falta por recibir» y
+  // el esperado de «Corregir»). La escribe SOLO la migracion `20261103120300_satelite_498_regularizar`;
+  // ningun camino de la app la escribe. CHECK: solo con `conciliado_at` puesto.
+  esperadoReglaAnterior      Decimal?     @map("esperado_regla_anterior") @db.Decimal(12, 2)
 
-  zona                 Zona        @relation(fields: [zonaId], references: [id])
-  solicitadoPorUsuario Usuario     @relation("CierreBodegaSolicitadoPor", fields: [solicitadoPor], references: [id])
-  resueltoPorUsuario   Usuario?    @relation("CierreBodegaResueltoPor", fields: [resueltoPor], references: [id])
-  conciliadoPorUsuario Usuario?    @relation("CierreBodegaConciliadoPor", fields: [conciliadoPor], references: [id], onDelete: Restrict) // ficha 431: quien afirmo que el dinero llego no se borra dejando la afirmacion huerfana
+  zona                 Zona                       @relation(fields: [zonaId], references: [id])
+  solicitadoPorUsuario Usuario                    @relation("CierreBodegaSolicitadoPor", fields: [solicitadoPor], references: [id])
+  resueltoPorUsuario   Usuario?                   @relation("CierreBodegaResueltoPor", fields: [resueltoPor], references: [id])
+  conciliadoPorUsuario Usuario?                   @relation("CierreBodegaConciliadoPor", fields: [conciliadoPor], references: [id], onDelete: Restrict) // ficha 431: quien afirmo que el dinero llego no se borra dejando la afirmacion huerfana
   cierresDia           CierreDia[] // los cierre_dia incluidos (cierre_bodega_id)
+  // Ficha 498 (design §3.2, R47): los eventos que mueven la diferencia (append-only).
+  ajustes              ConciliacionBodegaAjuste[]
 
   @@index([zonaId])
   @@index([estado])
@@ -1531,6 +1540,28 @@ model CierreBodega {
   @@index([zonaId, estado], map: "cierre_bodega_zona_estado_idx")
   @@index([conciliadoAt]) // la cola de lo que sigue sin conciliar (R21)
   @@map("cierre_bodega")
+}
+
+// ⭑ FICHA 498 (design §3.2, R47) — cada evento que mueve la DIFERENCIA de una consolidacion satelite
+// al conciliar (`marca` o `correccion`). APPEND-ONLY: sin updatedAt/deletedAt y sin update/delete en el
+// repositorio. `diferencia` = (esperado − recibido) − lo ya asentado, distinta de cero (CHECK). Como mucho
+// UNA `marca` por consolidacion (indice unico parcial `conciliacion_bodega_ajuste_marca_uq`, a mano en la
+// migracion: Prisma no expresa indices parciales). RLS habilitada sin policies.
+model ConciliacionBodegaAjuste {
+  id             String   @id @default(uuid())
+  cierreBodegaId String   @map("cierre_bodega_id")
+  evento         String // 'marca' | 'correccion' (CHECK en la base)
+  montoEsperado  Decimal  @map("monto_esperado") @db.Decimal(12, 2)
+  montoRecibido  Decimal  @map("monto_recibido") @db.Decimal(12, 2)
+  diferencia     Decimal  @db.Decimal(12, 2)
+  creadoPor      String   @map("creado_por")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  cierreBodega CierreBodega @relation(fields: [cierreBodegaId], references: [id], onDelete: Restrict)
+  creador      Usuario      @relation("ConciliacionBodegaAjusteCreador", fields: [creadoPor], references: [id], onDelete: Restrict)
+
+  @@index([cierreBodegaId])
+  @@map("conciliacion_bodega_ajuste")
 }
 
 // Tarifa: tarifas de flete/comision, tabla multi-fila con `nombre` para
@@ -1733,6 +1764,12 @@ enum WalletMovimientoCategoria {
   // efectivo: lo devuelve). Origen `gasto`, como el sueldo. Migracion `20261023120000_iva_por_pagar_488_enums`.
   egreso_pago_iva
   ingreso_reverso_pago_iva
+  // Ficha 498 (design §3.1/§8.1): la DIFERENCIA de la satelite al conciliar. Egreso = entrego de menos
+  // (sube «Por cobrar a satelites»); ingreso = entrego de mas o pago lo que debia. Dueño
+  // `por_cobrar_satelite`, liquidez efectivo. Solo las escribe la conciliacion (origen
+  // `conciliacion_bodega_ajuste`). Migracion `20261103120000_satelite_498_enums`.
+  egreso_diferencia_satelite
+  ingreso_diferencia_satelite
 
   @@map("wallet_movimiento_categoria")
 }
@@ -1771,6 +1808,9 @@ enum WalletOrigenTipo {
   // filas de los dos libros (credito y debito de anulacion en la tienda; ingreso y reverso en la
   // caja) llevan este origen con `origen_id` = id del documento.
   abono_tienda
+  // Ficha 498 (design §3.1): la fila de `conciliacion_bodega_ajuste` que origina una diferencia de la
+  // satelite (origen_id = id del ajuste). Solo la usa la caja.
+  conciliacion_bodega_ajuste
 
   @@map("wallet_origen_tipo")
 }

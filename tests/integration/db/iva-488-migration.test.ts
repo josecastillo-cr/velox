@@ -125,8 +125,9 @@ describeSiHayBase("488/T B.2 — las migraciones del IVA por pagar contra Postgr
   it("(a) el catalogo es EXACTAMENTE el seed, con los dos valores de la 488 AL FINAL; el up 1 son dos ADD VALUE", async () => {
     const caja = await etiquetasDeEnum(prisma, "wallet_movimiento_categoria");
     expect([...caja].sort()).toEqual([...WALLET_MOVIMIENTO_CATEGORIA_SEED].sort());
-    expect(caja.slice(-2)).toEqual([...VALORES_488]);
-    expect(caja).toHaveLength(29); // 458-B: 27 ; 488: + 2
+    // Ficha 498: sus dos valores (`20261103120000`) van DETRAS de los de la 488.
+    expect(caja.slice(-4, -2)).toEqual([...VALORES_488]);
+    expect(caja).toHaveLength(31); // 458-B: 27 ; 488: + 2 ; 498: + 2
     const up1 = soloEjecutable(UP_1);
     expect(up1.match(/ADD VALUE IF NOT EXISTS/g)).toHaveLength(2);
     for (const v of VALORES_488) {
@@ -206,7 +207,7 @@ describeSiHayBase("488/T B.2 — las migraciones del IVA por pagar contra Postgr
       const llamada = `${funcion}\nSELECT pg_temp.quitar_valores_de_enum_488('public', 'wallet_movimiento_categoria', ARRAY['egreso_pago_iva', 'ingreso_reverso_pago_iva']);`;
       const down1 = await intentarConMensaje(tx, llamada);
       const quedan = await tx.walletMovimiento.count({ where: { id: { in: [pago, anulacion] } } });
-      const enum488 = (await etiquetasDeEnum(tx, "wallet_movimiento_categoria")).slice(-2);
+      const enum488 = (await etiquetasDeEnum(tx, "wallet_movimiento_categoria")).slice(-4, -2); // 498 detras
       return { down2, down1, quedan, enum488 };
     });
     expect(r.down2).toMatch(/rollback 488: 1 movimientos de la caja usan egreso_pago_iva; se aborta sin borrar nada/);
@@ -239,7 +240,7 @@ describeSiHayBase("488/T B.2 — las migraciones del IVA por pagar contra Postgr
     expect(r.down2).toBeNull();
     expect(r.down1).toBeNull();
     // Anti-vacuidad: habia algo que quitar.
-    expect(r.antes.slice(-2)).toEqual([...VALORES_488]);
+    expect(r.antes.slice(-4, -2)).toEqual([...VALORES_488]); // la 498 va detras
     // Los demas valores, TODOS y en su orden (la lista vigente menos los dos; nunca una lista fija).
     expect(r.despues).toEqual(r.antes.filter((v) => !(VALORES_488 as readonly string[]).includes(v)));
     expect(r.despues).toHaveLength(r.antes.length - 2);

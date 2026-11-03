@@ -125,6 +125,9 @@ const DUENO_PUNTO: Record<NaturalezaMovimiento, string> = {
   capital: "bg-info",
   // Ficha 488 (design §6.3, R29): el IVA por pagar, con el MISMO token que su porcion de la barra.
   iva: COLOR_IVA_POR_PAGAR,
+  // Ficha 498 (design §8.3): PROVISIONAL del backend para que el `Record` total compile. El token
+  // definitivo (el mismo de su tramo en la barra, contraste medido) lo elige el frontend en T7.1.
+  por_cobrar_satelite: "bg-muted-foreground",
 };
 
 function DuenoCelda({ dueno }: { dueno: NaturalezaMovimiento }) {

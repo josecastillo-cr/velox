@@ -85,6 +85,8 @@ const CASOS_CAJA: Record<WalletOrigenTipo, { fila: FilaConOrigenTecnico; texto: 
     fila: fila("abono_tienda"),
     texto: `Pago de una tienda a ${NOMBRE_ESPERADO} · Tania Tienda · 2026-09-11 · Transferencia`,
   },
+  // Ficha 498: la diferencia de la satelite se nombra por su rotulo.
+  conciliacion_bodega_ajuste: { fila: fila("conciliacion_bodega_ajuste"), texto: "Conciliación de satélite" },
 };
 
 describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta", () => {

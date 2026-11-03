@@ -108,6 +108,10 @@ export const NATURALEZA_POR_CATEGORIA: Record<WalletMovimientoCategoria, Natural
   egreso_reverso_iva_flete_devolucion: "iva",
   egreso_pago_iva: "iva",
   ingreso_reverso_pago_iva: "iva",
+  // Ficha 498 (design §8.1, R33): la diferencia de la satelite al conciliar. Dueño propio: no es
+  // ganancia, ni de las tiendas, ni capital, ni IVA; es lo que las satelites deben (o se les debe).
+  egreso_diferencia_satelite: "por_cobrar_satelite",
+  ingreso_diferencia_satelite: "por_cobrar_satelite",
 };
 
 /**
@@ -176,6 +180,9 @@ export const LIQUIDEZ_POR_CATEGORIA: Record<WalletMovimientoCategoria, LiquidezM
   // principal y SUBIRIA «De las tiendas» sin que ninguna tienda cobrara nada (mutacion m4).
   egreso_pago_iva: "efectivo",
   ingreso_reverso_pago_iva: "efectivo",
+  // Ficha 498 (design §8.1, R33): dinero que entra o sale de verdad (o deja de entrar).
+  egreso_diferencia_satelite: "efectivo",
+  ingreso_diferencia_satelite: "efectivo",
 };
 
 /**

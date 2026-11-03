@@ -208,6 +208,13 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       // Ficha 497 (2026-11-02): la marca `confirmada_fisica_at` de las barridas en
       // `cierre_sin_gestion`. No toca `orden_traspaso_mensajero`.
       "20261102170000_cierre_sin_gestion_confirmacion_fisica",
+      // Ficha 498 (2026-11-03): el dinero de satelite al conciliar — enums de la caja, la tabla
+      // `conciliacion_bodega_ajuste` y el CHECK de la caja, el retiro de los asientos del conjunto S
+      // (con respaldo) y la regularizacion de lo conciliado antes. Ninguna toca `orden_traspaso_mensajero`.
+      "20261103120000_satelite_498_enums",
+      "20261103120100_satelite_498_ajuste",
+      "20261103120200_satelite_498_retirar_asientos",
+      "20261103120300_satelite_498_regularizar",
     ]);
   });
 });

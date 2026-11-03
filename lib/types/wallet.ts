@@ -90,6 +90,11 @@ export const WALLET_MOVIMIENTO_CATEGORIA_SEED = [
   // anulacion entra de verdad y lo devuelve (NUNCA `ingreso_ajuste`, que es propio y subiria la ganancia).
   "egreso_pago_iva",
   "ingreso_reverso_pago_iva",
+  // Ficha 498 (design §8.1): la DIFERENCIA de la satelite al conciliar. Dueño `por_cobrar_satelite`
+  // y liquidez `efectivo` las dos. El egreso sube «Por cobrar a satelites» (llego menos); el ingreso
+  // lo baja (pago, o llego de mas). Solo las escribe la conciliacion: no son conceptos manuales.
+  "egreso_diferencia_satelite",
+  "ingreso_diferencia_satelite",
 ] as const satisfies readonly PrismaWalletMovimientoCategoria[];
 
 export type WalletMovimientoCategoria = (typeof WALLET_MOVIMIENTO_CATEGORIA_SEED)[number];
@@ -136,6 +141,9 @@ export const WALLET_ORIGEN_TIPO_SEED = [
   // Ficha 457 (design §0): el documento del PAGO DE UNA TIENDA A ORDENEX. Las cuatro filas de los dos
   // libros llevan este origen con `origen_id` = id del documento.
   "abono_tienda",
+  // Ficha 498 (design §3.1): la fila de `conciliacion_bodega_ajuste` que origina una diferencia de la
+  // satelite (origen_id = id del ajuste). Solo la usa la caja.
+  "conciliacion_bodega_ajuste",
 ] as const satisfies readonly PrismaWalletOrigenTipo[];
 
 export type WalletOrigenTipo = (typeof WALLET_ORIGEN_TIPO_SEED)[number];
@@ -291,7 +299,10 @@ export type ComposicionFilaId = (typeof COMPOSICION_FILA_SEED)[number];
 // Ficha 488 (design §2.1, R1): cuarto dueño, `iva` — el IVA cobrado a las tiendas, sus reversos, el Pago
 // de IVA a Hacienda y su anulacion. Es dinero que esta en la caja pero se le debe a Hacienda: suma a la
 // cifra principal y a «IVA por pagar», nunca a la ganancia, a «De Ordenex» ni a «De las tiendas».
-export type NaturalezaMovimiento = "propio" | "terceros" | "capital" | "iva";
+// Ficha 498 (design §8.1, R33/R34): + `por_cobrar_satelite`, el bolsillo «Por cobrar a satelites» —lo
+// que las satelites entregaron de menos al conciliar y aun no han pagado—. Cada rama que reparte por
+// dueño lo trata con un `switch` exhaustivo: un dueño nuevo no compila sin decidir su sitio.
+export type NaturalezaMovimiento = "propio" | "terceros" | "capital" | "iva" | "por_cobrar_satelite";
 
 // ── Contratos I/O (frontera Server Action -> cliente). Montos SIEMPRE STRING (R4/R25) ──
 
