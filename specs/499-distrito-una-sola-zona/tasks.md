@@ -105,7 +105,7 @@
 
 ## F: frontend_dev (después de B)
 
-- [ ] **F.1 Selector** (design §6.1). Prop `zonaPropiaId`; `bloqueado`; `disabled` en la casilla del
+- [x] **F.1 Selector** (design §6.1). Prop `zonaPropiaId`; `bloqueado`; `disabled` en la casilla del
   distrito; `(zona: …)` sale de `d.zonas`; `provDistIds`/`cantDistIds` solo con seleccionables; la casilla
   del grupo deshabilitada si no tiene ninguno. Test `tests/components/GeografiaSelectorZonaUnica.test.tsx`:
   - al crear, el distrito con zona sale deshabilitado y con la etiqueta (R17);
@@ -116,7 +116,7 @@
     cantón todo bloqueado tiene la casilla deshabilitada (R20).
 
   *Hecho:* verde. M6 y M8 en rojo.
-- [ ] **F.2 Módulo** (design §6.2).
+- [x] **F.2 Módulo** (design §6.2).
   - `abrirCrear` y `abrirEditar` leen el árbol. Si falla, toast y no abren.
   - La preselección sale de `d.zonas` sobre el árbol recién leído.
   - `zonaPropiaId` llega hasta el selector.
@@ -127,7 +127,7 @@
     de B **sin recargar** debe mostrar d marcado (R22).
 
   *Hecho:* verde. M7 en rojo. `[P]` con F.1.
-- [ ] **F.3 Mensajes** (design §6.4). La rama `distritoIds` en `mensajeDeError`, y el texto de `conflict` sin
+- [x] **F.3 Mensajes** (design §6.4). La rama `distritoIds` en `mensajeDeError`, y el texto de `conflict` sin
   distritos. En `ZonasTarifasDistritoUnico.test.tsx`:
   - un `validation_error` con 3 mensajes pinta los 3 bajo el selector, y el toast lleva el primero con
     «(y 2 más).»;
@@ -135,7 +135,7 @@
   - `conflict` da un toast sin la palabra «distrito» (R24).
 
   *Hecho:* verde. Depende de F.1 y F.2.
-- [ ] **F.4 Ver la app** (memoria «Ver la app encuentra lo que la suite no»). Con el dev server propio (sin
+- [x] **F.4 Ver la app** (memoria «Ver la app encuentra lo que la suite no»). Con el dev server propio (sin
   levantar un segundo, memoria «Dos dev servers se pisan»):
   - crear la zona A con un distrito;
   - abrir «Crear» y ver ese distrito deshabilitado con «(zona: A)»;
