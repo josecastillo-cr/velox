@@ -352,6 +352,8 @@ const SUPERFICIES: { nombre: string; montar: () => Promise<void> }[] = [
                   zonaId: BODEGA,
                   zonaNombre: "FGAM Puntarenas",
                   saldoSinConciliar: "8500.00",
+                  sinConsolidar: "0.00", // ficha 498
+                  cierresSinConsolidar: 0,
                   totalEfectivo: "8500.00",
                   totalConsolidado: "8500.00",
                   totalRecibido: "0.00",

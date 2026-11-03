@@ -31,6 +31,8 @@ const SALDO: SaldoSateliteDTO = {
   zonaId: "11111111-1111-4111-8111-111111111111",
   zonaNombre: "FGAM Puntarenas",
   saldoSinConciliar: "115000.00",
+  sinConsolidar: "0.00", // ficha 498
+  cierresSinConsolidar: 0,
   totalEfectivo: "1090000.00",
   totalConsolidado: "1250000.50",
   totalRecibido: "975000.00",
@@ -62,6 +64,12 @@ const CONSOLIDACION: ConsolidacionSateliteDTO = {
   conciliadoPorNombre: "Ana Rojas",
   nota: "faltaron ₡15.000, entran el lunes",
   cantidadCierres: 3,
+  totalPagoMensajero: "0.00", // ficha 498 (fixture)
+  totalIngresoBodegaRechazos: "0.00",
+  paraLaCentral: "0.00",
+  debe: "0.00",
+  debePositivo: false,
+  saldadaReglaAnterior: false,
 };
 
 describe("orden de las columnas de descarga de los saldos de bodegas satélite", () => {

@@ -53,6 +53,8 @@ function saldoDe(overrides: Partial<SaldoSateliteDTO> = {}): SaldoSateliteDTO {
     zonaId: ZONA,
     zonaNombre: "Cartago",
     saldoSinConciliar: "1015.00",
+    sinConsolidar: "0.00", // ficha 498
+    cierresSinConsolidar: 0,
     totalEfectivo: "2300.00",
     totalConsolidado: "3000.00",
     totalRecibido: "1285.00",

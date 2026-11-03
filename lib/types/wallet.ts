@@ -469,6 +469,18 @@ export type CajaResumenDTO = {
    * POSITIVOS (design §2.3). "0.00" si el IVA por pagar es cero o negativo.
    */
   porcentajeIva: string;
+  // ── Ficha 498 (design §8.1/§8.2) — «Por cobrar a satelites». Todo STRING escala 2 ──
+  /**
+   * R33/R35 — Σ egresos de diferencia de la satelite − Σ ingresos de diferencia: lo que las satelites
+   * entregaron de menos al conciliar y aun no han pagado. NEGATIVO = la central les debe.
+   */
+  porCobrarSatelites: string;
+  signoPorCobrarSatelites: WalletBalanceSigno;
+  /**
+   * R38/R39 — porcion de «Por cobrar a satelites» en la barra, "0.00"–"100.00", sobre la suma de los
+   * bolsillos POSITIVOS. "0.00" si el bolsillo es cero o negativo (y entonces la barra es la de antes).
+   */
+  porcentajePorCobrar: string;
 };
 
 /** Ficha 459 (R14) — el estado de la caja lo decide el servidor. */

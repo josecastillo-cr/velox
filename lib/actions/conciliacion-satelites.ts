@@ -10,6 +10,7 @@ import type {
   ListarConsolidacionesSateliteServiceResult,
   ListarSaldosSatelitesServiceResult,
   MarcaConciliacionServiceResult,
+  RevertirConciliacionServiceResult,
   ResumenSatelitesServiceResult,
 } from "@/lib/interfaces/services/IConciliacionSatelitesService";
 import { CierresBodegaAdminRepository } from "@/lib/repositories/CierresBodegaAdminRepository";
@@ -101,6 +102,15 @@ export type MarcaConciliacionActionResult =
   | { status: "validation_error"; fieldErrors: Record<string, string[]> };
 
 /**
+ * FICHA 498 (R20/R21) — revertir gana `con_asientos`: la consolidacion ya entro a la caja y no se
+ * revirtio nada. La pantalla muestra «Ya entró a la caja: corrige el monto en vez de revertir».
+ */
+export type RevertirConciliacionActionResult =
+  | RevertirConciliacionServiceResult
+  | { status: "unauthenticated" }
+  | { status: "validation_error"; fieldErrors: Record<string, string[]> };
+
+/**
  * R23 — la tabla de saldos sin conciliar de todas las bodegas satelite.
  */
 export async function listarSaldosSatelitesAction(
@@ -173,7 +183,11 @@ export async function listarConsolidacionesSateliteCompletoAction(
  * R9/R10/R11/R13 — MARCAR una consolidacion como RECIBIDA, con su monto.
  *
  * El monto muere en el BORDE si esta ausente, es negativo o trae tres decimales (R10,
- * `montoPositivoSchema`), y en ese caso no se llama al servicio ni se escribe nada.
+ * `marcarConsolidacionRecibidaSchema`), y en ese caso no se llama al servicio ni se escribe nada.
+ *
+ * ⭑ FICHA 498: marcar ASIENTA el dinero de los cierres en la caja y escribe la diferencia (R8-R15).
+ * El cero literal pasa el borde; si la consolidacion tiene dinero por entregar, el servicio responde
+ * `recibido_cero_con_aporte` sin escribir nada (R15a).
  */
 export async function marcarConsolidacionRecibidaAction(
   input: unknown,
@@ -212,11 +226,14 @@ export async function corregirConsolidacionRecibidaAction(
 /**
  * R12/R13 — REVERTIR la marca. Devuelve la consolidacion a «Pendiente de conciliar» y borra los
  * cuatro datos de la marca; el monto que se borra queda documentado en el historial.
+ *
+ * ⭑ FICHA 498 (R20/R22): solo si la consolidacion NO tiene asientos. Si ya entro a la caja,
+ * `con_asientos` y no cambia nada.
  */
 export async function revertirConciliacionAction(
   input: unknown,
   deps: ConciliacionSatelitesDeps = {},
-): Promise<MarcaConciliacionActionResult> {
+): Promise<RevertirConciliacionActionResult> {
   const r = await withErrorHandler(async () => {
     const actor = await (deps.getActor ?? resolveActorFromSession)();
     if (!actor) throw new UnauthenticatedError();

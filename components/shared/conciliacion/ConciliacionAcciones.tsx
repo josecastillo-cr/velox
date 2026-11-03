@@ -10,7 +10,10 @@ import {
   marcarConsolidacionRecibidaAction,
   revertirConciliacionAction,
 } from "@/lib/actions/conciliacion-satelites";
-import type { MarcaConciliacionActionResult } from "@/lib/actions/conciliacion-satelites";
+import type {
+  MarcaConciliacionActionResult,
+  RevertirConciliacionActionResult,
+} from "@/lib/actions/conciliacion-satelites";
 import { money } from "@/lib/config/moneda";
 import {
   estadoConciliacionDe,
@@ -130,7 +133,7 @@ export function ConciliacionAcciones({
 
   /** R12 — deshacer. No lleva monto: el que había se BORRA (y sobrevive en el historial). */
   async function confirmarDesmarcar() {
-    let resultado: MarcaConciliacionActionResult;
+    let resultado: RevertirConciliacionActionResult;
     try {
       resultado = await revertirConciliacionAction({ cierreBodegaId });
     } catch {
@@ -147,6 +150,9 @@ export function ConciliacionAcciones({
       toast.error(CONCILIACION_RESPUESTA.forbidden);
     } else if (resultado.status === "unauthenticated") {
       toast.error(CONCILIACION_RESPUESTA.unauthenticated);
+    } else if (resultado.status === "con_asientos") {
+      // FICHA 498 (R21): minimo del backend; la presentacion definitiva es de T7.2.
+      toast.error(CONCILIACION_RESPUESTA.conAsientos);
     } else {
       toast.error(CONCILIACION_RESPUESTA.fallo);
     }

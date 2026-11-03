@@ -157,8 +157,11 @@ export interface IEstadoCuentaRepository {
    */
   desgloseDeTienda(tiendaId: string): Promise<DesgloseTiendaAgregadoRow[]>;
   totalesDeMensajero(mensajeroId: string, antesDe?: Date): Promise<{ devengado: string; pagado: string }>;
-  /** Bodega: el efectivo declarado y lo recibido, sin las consolidaciones rechazadas. */
-  totalesDeBodega(zonaId: string, antesDe?: Date): Promise<{ efectivo: string; recibido: string }>;
+  /**
+   * Bodega: lo DECLARADO y lo recibido, sin las consolidaciones rechazadas. FICHA 498 (R29/R30):
+   * declarado = aporte reconocido de cada consolidacion + aporte de cada cierre sin consolidar.
+   */
+  totalesDeBodega(zonaId: string, antesDe?: Date): Promise<{ declarado: string; recibido: string }>;
 
   /** Los movimientos del periodo `[desdeUtc, hastaUtc)` (para los totales netos, D3). */
   periodoDeTienda(tiendaId: string, desdeUtc?: Date, hastaUtc?: Date): Promise<MovimientoDelPeriodoRow[]>;

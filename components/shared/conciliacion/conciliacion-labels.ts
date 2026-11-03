@@ -72,6 +72,10 @@ export const CONCILIACION_RESPUESTA = {
   forbidden: "No tenés permiso para conciliar consolidaciones de bodega.",
   unauthenticated: "Tu sesión expiró. Iniciá sesión de nuevo.",
   fallo: "No se pudo completar la operación. Intentá de nuevo.",
+  /** FICHA 498 (Q5, design §4.4 bis, R15a) — recibido 0 con dinero por entregar: no cambió nada. */
+  reciboCeroConAporte: "Esta consolidación tiene dinero por entregar: el monto recibido no puede ser 0.",
+  /** FICHA 498 (R21) — revertir una consolidación que ya entró a la caja: no cambió nada. */
+  conAsientos: "Ya entró a la caja: corrige el monto en vez de revertir",
 } as const;
 
 /** Tope de la nota, el MISMO que el `.max(500)` del schema del borde. */

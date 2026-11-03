@@ -102,6 +102,10 @@ function avisoDe(resultado: MarcaConciliacionActionResult): string {
       return CONCILIACION_RESPUESTA.noEncontrada;
     case "forbidden":
       return CONCILIACION_RESPUESTA.forbidden;
+    // FICHA 498 (R15a): minimo del backend para que el `switch` exhaustivo compile; la presentacion
+    // definitiva es de T7.2.
+    case "recibido_cero_con_aporte":
+      return CONCILIACION_RESPUESTA.reciboCeroConAporte;
     case "unauthenticated":
       return CONCILIACION_RESPUESTA.unauthenticated;
     case "validation_error":

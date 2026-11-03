@@ -32,6 +32,10 @@ const RESUMEN: CajaResumenDTO = {
   ivaPorPagar: "1235.50",
   signoIvaPorPagar: "positivo",
   porcentajeIva: "10.30",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos",
   capital: "264.50",
   signoCapital: "positivo",

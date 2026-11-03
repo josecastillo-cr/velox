@@ -87,6 +87,8 @@ const PUNTARENAS: SaldoSateliteDTO = {
   zonaId: "z-punta",
   zonaNombre: "FGAM Puntarenas",
   saldoSinConciliar: "115000.00",
+  sinConsolidar: "0.00", // ficha 498
+  cierresSinConsolidar: 0,
   totalEfectivo: "1090000.00",
   // El general es DISTINTO del efectivo a propósito: el SINPE no viaja en el bulto (Q2).
   totalConsolidado: "1250000.50",
@@ -108,6 +110,8 @@ const GUANACASTE: SaldoSateliteDTO = {
   zonaId: "z-guana",
   zonaNombre: "FGAM Guanacaste",
   saldoSinConciliar: "0.00",
+  sinConsolidar: "0.00", // ficha 498
+  cierresSinConsolidar: 0,
   totalEfectivo: "92300.00",
   totalConsolidado: "92300.00",
   totalRecibido: "92300.00",
@@ -149,6 +153,12 @@ function consolidacion(over: Partial<ConsolidacionSateliteDTO> = {}): Consolidac
     conciliadoPorNombre: null,
     nota: null,
     cantidadCierres: 2,
+    totalPagoMensajero: "0.00", // ficha 498 (fixture)
+    totalIngresoBodegaRechazos: "0.00",
+    paraLaCentral: "0.00",
+    debe: "0.00",
+    debePositivo: false,
+    saldadaReglaAnterior: false,
     ...over,
   };
 }
