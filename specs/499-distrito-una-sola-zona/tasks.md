@@ -98,7 +98,7 @@
 
   *Hecho:* los 4 archivos verdes aislados. `git diff` de los dos unitarios de cobertura vacío. Depende de
   B.1.
-- [ ] **B.10 Gate.** `./init.sh --rapido` (se amplía con `tests/integration/db`). `INIT_EXIT=$?` dentro del
+- [x] **B.10 Gate.** `./init.sh --rapido` (se amplía con `tests/integration/db`). `INIT_EXIT=$?` dentro del
   log. Revisar el número de `skipped` (memoria «Gate sin `.env`»).
 
   *Hecho:* verde, con `skipped` igual que en `dev`. Commit y push. Depende de B.2-B.9.
@@ -145,7 +145,7 @@
   Capturas en `progress/impl_499.md`. Dejar la base local como estaba (borrar las zonas de prueba).
 
   *Hecho:* las cuatro comprobaciones anotadas. Depende de F.3.
-- [ ] **F.5 Gate.** `./init.sh --rapido`. *Hecho:* verde. Commit y push. Depende de F.1-F.4.
+- [x] **F.5 Gate.** `./init.sh --rapido`. *Hecho:* verde. Commit y push. Depende de F.1-F.4.
 
 ## R: revisión y salida
 

@@ -163,3 +163,15 @@ toast y no abren si falla, preselección con `d.zonas.some`, `zonaPropiaId` hast
 
 **Veredicto:** bloque B completo salvo B.10 (gate, por orden del leader); tsc y lint verdes, related y
 la integración de zonas/geografía/cobertura verdes contra Postgres.
+
+## Revisión (2026-11-02, sobre `4bbfeabb`, informe `progress/review_499.md`: APROBADO)
+
+Tres menores cerrados antes del PR:
+
+| Menor | Commit | Qué | Mutación |
+|---|---|---|---|
+| m2 | `947f3935` | Unitario en `tests/unit/repositories/zona-repository.test.ts`: `createMany` rechaza con el P2002 medido en B.2 dentro de `create` → `{ estado: "distrito_en_otra_zona", conflictos: null }`. | Quitar `esViolacionDistritoUnico` solo del `catch` de `create`: ese caso en rojo (1 de 63); restaurado, diff vacío. |
+| m3 | `b3160bf3` | Caso nuevo en `zona-distrito-unico-499.test.ts`: «R10: actualizar con conflicto pidiendo la marca NO se la quita a la central ajena» (hay otra central; Y pide `esCentral: true` con un distrito de X). | Mover `leerConflictos` de `update` detrás del `updateMany` de la central: ese caso en rojo (1 de 63); restaurado, diff vacío. |
+| m1 | este commit | `[x]` en B.10 y F.5 (gate del leader `progress/gate_499_2.log`, `INIT_EXIT=0` sobre `46c79fbc`). R.2 queda para el leader. | — |
+
+Aislados: `zona-repository.test.ts` + `zona-distrito-unico-499.test.ts` → 2 archivos, 63 tests passed. `tsc --noEmit`: 0 errores.
