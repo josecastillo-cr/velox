@@ -73,7 +73,7 @@
   - `not_found` y `sin_zona_central` siguen igual.
 
   *Hecho:* verde. `[P]` con B.5 una vez hecho B.4.
-- [ ] **B.7 Integración completa** en `zona-distrito-unico-499.test.ts`:
+- [x] **B.7 Integración completa** en `zona-distrito-unico-499.test.ts`:
   - crear con conflicto y una central previa: la central previa conserva la marca, no hay zona nueva ni N:M
     ni tarifas, y `historial_accion` no cambia (R9);
   - actualizar con conflicto teniendo órdenes que se reconciliarían: ni nombre, ni N:M, ni tarifas, ni
