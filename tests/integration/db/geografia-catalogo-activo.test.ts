@@ -57,8 +57,11 @@ interface Sembrado {
   distritoHeredado: string;
   /** Activo, con CERO zonas. */
   distritoSinZona: string;
-  /** Activo, con DOS zonas: ambiguo, NO tiene zona utilizable. */
-  distritoDosZonas: string;
+  /**
+   * Activo, con UNA zona (la B). FICHA 499: era «con DOS zonas»; el indice
+   * `zona_distrito_distrito_id_key` ya no admite sembrarlo (ver el caso quitado mas abajo).
+   */
+  distritoZonaB: string;
   /** Canton activo bajo la provincia INACTIVA. */
   cantonBajoProvinciaOff: string;
   zonaA: string;
@@ -142,10 +145,7 @@ describeSiHayBase("374 — el catalogo geografico proyecta la disponibilidad (Po
       const distritoOff = await crearDistrito("Dist OFF", cantonOk, false, [zonaA]);
       const distritoHeredado = await crearDistrito("Dist heredado", cantonOff, true, [zonaA]);
       const distritoSinZona = await crearDistrito("Dist sin zona", cantonOk, true, []);
-      const distritoDosZonas = await crearDistrito("Dist dos zonas", cantonOk, true, [
-        zonaA,
-        zonaB,
-      ]);
+      const distritoZonaB = await crearDistrito("Dist zona B", cantonOk, true, [zonaB]);
 
       return fn({
         s: {
@@ -158,7 +158,7 @@ describeSiHayBase("374 — el catalogo geografico proyecta la disponibilidad (Po
           distritoOff,
           distritoHeredado,
           distritoSinZona,
-          distritoDosZonas,
+          distritoZonaB,
           zonaA,
           zonaB,
           zonaANombre,
@@ -234,7 +234,7 @@ describeSiHayBase("374 — el catalogo geografico proyecta la disponibilidad (Po
         expect(porId.get(s.distritoHeredado), "el distrito heredado no salio").toBeDefined();
         expect(porId.get(s.distritoHeredado)?.disponible).toBe(false);
         expect(porId.get(s.distritoSinZona)?.disponible).toBe(true);
-        expect(porId.get(s.distritoDosZonas)?.disponible).toBe(true);
+        expect(porId.get(s.distritoZonaB)?.disponible).toBe(true);
       });
     });
 
@@ -341,25 +341,10 @@ describeSiHayBase("374 — el catalogo geografico proyecta la disponibilidad (Po
       });
     });
 
-    it("⭑ con DOS zonas, `null` TAMBIEN: no devuelve la primera", async () => {
-      // Es la mentira que la ficha corrige. Con `take: 1`, este distrito mostraba «(zona: X)»
-      // aunque la carga masiva lo rechaza por ambiguo. La marca «sin zona» de la pantalla nueva
-      // heredaria esa mentira.
-      await conCorpus(async ({ s, geo, tx }) => {
-        // Anti-vacuidad: el distrito tiene DE VERDAD dos filas en la puente.
-        const filas = await tx.zonaDistrito.count({ where: { distritoId: s.distritoDosZonas } });
-        expect(filas).toBe(2);
-
-        const arbol = await geo.listArbol();
-        const d = arbol
-          .find((p) => p.id === s.provinciaOk)
-          ?.cantones.find((c) => c.id === s.cantonOk)
-          ?.distritos.find((x) => x.id === s.distritoDosZonas);
-        expect(d, "el distrito de dos zonas no esta en el arbol").toBeDefined();
-        expect(d?.zonaId).toBeNull();
-        expect(d?.zonaNombre).toBeNull();
-      });
-    });
+    // FICHA 499: el caso «con DOS zonas, `null` TAMBIEN» se quito de aqui. El indice
+    // `zona_distrito_distrito_id_key` hace imposible sembrar un distrito en dos zonas contra
+    // Postgres; el colapso a `null` con mas de una zona lo prueba ahora el unitario con dobles
+    // `tests/unit/repositories/geo-repository-arbol-499.test.ts` (R16).
   });
 
   // ===============================================================================================

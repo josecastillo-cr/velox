@@ -92,7 +92,7 @@
   nombre y `zonaId` es `null` (R15, R16).
 
   *Hecho:* verde. `[P]` con B.5.
-- [ ] **B.9 Reescribir los 4 tests** de design §7, con un comentario que cite la 499 en cada caso quitado.
+- [x] **B.9 Reescribir los 4 tests** de design §7, con un comentario que cite la 499 en cada caso quitado.
   Confirmar que `tests/unit/utils/cobertura-distrito.test.ts` y `cobertura-vs-resolve-geo.test.ts` siguen
   verdes **sin cambios** en sus casos `varias_zonas` (R25).
 
