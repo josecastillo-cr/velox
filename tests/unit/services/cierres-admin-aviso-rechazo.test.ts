@@ -99,6 +99,7 @@ function fakeRepo(traza: Traza, overrides: Partial<Repo> = {}): Repo {
     forzarSolicitudVencido: vi.fn(async () => "updated" as const),
     findGestionesIncidenteDelCierre: vi.fn(async () => []),
     findGestionesRetornablesDelCierre: vi.fn(async () => []),
+    findBarridasDelCierre: vi.fn(async () => []), // ficha 497: sin barridas del corte
     findGestionesPorAlcanceCompleto: vi.fn(async () => []),
     findCatalogoFiltros: vi.fn(async () => ({ zonas: [], mensajeros: [], mensajerosFiltro: [] })),
     findGestionEditableEnCierre: vi.fn(async () => null),

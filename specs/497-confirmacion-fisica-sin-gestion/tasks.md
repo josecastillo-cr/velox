@@ -16,23 +16,31 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
 
 ## T0 · Arranque
 
-- [ ] **T0.1 — Base de la rama.** Crear la rama desde `origin/dev` y anotar el SHA en
+- [x] **T0.1 — Base de la rama.** Crear la rama desde `origin/dev` y anotar el SHA en
       `progress/impl_497.md`. Comprobar la última migración de `origin/dev`: si ya hay una con fecha
       ≥ `20261102120000`, elegir una fecha posterior para la de T2.1.
       **Hecho:** SHA y nombre de la migración elegida escritos.
       *Depende de: nada.*
+      > **Hecho (backend, 2026-11-02):** rama nacida de `c6442be8` (dev con la 499). Ya había
+      > migraciones `20261102130000/130100` (499) en dev y `20261102150000` (496) en paralelo: la de
+      > T2.1 es `20261102170000_cierre_sin_gestion_confirmacion_fisica`. Bitácora:
+      > `progress/impl_497_backend.md`.
 
-- [ ] **T0.2 — Confirmar que Q1 y Q2 de `requirements.md` están respondidas.** Q2 decide si se puede
+- [x] **T0.2 — Confirmar que Q1 y Q2 de `requirements.md` están respondidas.** Q2 decide si se puede
       editar (solo de forma aditiva) `aprobacion-escrituras-cubiertas.guardia.test.ts`.
       **Hecho:** respuesta del humano citada en `progress/impl_497.md`. Si Q2 es «no», **parar** antes
       de T3.3.
       *Depende de: nada.*
+      > **Respondidas (2026-11-02):** Q1 — la 451 queda cancelada, sustituida por esta. Q2 — **sí**,
+      > decisión del leader: la guardia `aprobacion-escrituras-cubiertas` recibe UNA entrada y un caso
+      > nuevos para `tx.cierreSinGestion.updateMany`, sin cambiar ninguna aserción existente; nada de
+      > SQL crudo para esquivarla. T3.3 ya no está detenida.
 
 ---
 
 ## T1 · Demostrar el bug: tests en rojo contra el código de hoy
 
-- [ ] **T1.1 [P] — Rojo de servicio.** En `tests/unit/services/cierres-admin-confirmacion-fisica.test.ts`,
+- [x] **T1.1 [P] — Rojo de servicio.** En `tests/unit/services/cierres-admin-confirmacion-fisica.test.ts`,
       un caso: cierre con una barrida y sin gestiones que vuelvan, aprobado con `confirmacionFisica: []`
       → se espera `validation_error` con la clave `ordenId` de la barrida y `repo.resolverCierre` no
       llamado. El doble del repo expone `findBarridasDelCierre`.
@@ -40,7 +48,7 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
       anotada.
       *Depende de: T0.1.*
 
-- [ ] **T1.2 [P] — Rojo de integración.** Crear
+- [x] **T1.2 [P] — Rojo de integración.** Crear
       `tests/integration/db/497-confirmacion-barridas-sql-real.test.ts` con el primer caso: cierre
       creado por la ruta del corte (o con filas insertadas en `cierre_sin_gestion`), pasado a
       `solicitado`, aprobado por el servicio real sin confirmar la barrida → se espera que el cierre
@@ -53,14 +61,14 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
 
 ## T2 · Datos
 
-- [ ] **T2.1 — Migración y esquema.** Añadir `confirmadaFisicaAt DateTime? @map("confirmada_fisica_at")`
+- [x] **T2.1 — Migración y esquema.** Añadir `confirmadaFisicaAt DateTime? @map("confirmada_fisica_at")`
       a `CierreSinGestion` con su comentario (design §4). Crear
       `db/migrations/<fecha>_cierre_sin_gestion_confirmacion_fisica/migration.sql` y `down.sql`.
       Aplicar en local y `prisma generate`.
       **Hecho:** `prisma migrate status` sin pendientes en local; typecheck verde.
       *Depende de: T0.1.*
 
-- [ ] **T2.2 — Test de la migración.** Crear
+- [x] **T2.2 — Test de la migración.** Crear
       `tests/integration/db/497-cierre-sin-gestion-confirmacion-migration.test.ts` (molde
       `confirmacion-fisica-migration.test.ts`): columna `timestamp(3)`, nullable, sin default, filas
       existentes en `NULL`; `down.sql` existe, suelta la columna y es idempotente.
@@ -71,14 +79,14 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
 
 ## T3 · Backend
 
-- [ ] **T3.1 [P] — Punto único.** Añadir a `lib/types/gestion-retorno.ts` `OrigenDelPaquete`,
+- [x] **T3.1 [P] — Punto único.** Añadir a `lib/types/gestion-retorno.ts` `OrigenDelPaquete`,
       `RETORNO_POR_ORIGEN`, `PaqueteDelCierre` y `vuelveABodegaElPaquete` (design §3). Extender
       `tests/unit/types/gestion-retorno.test.ts` (incluido el `@ts-expect-error` del tercer origen) y
       añadir los dos casos con autocomprobación a `confirmacion-incidentes-excluidos.guardia.test.ts`.
       **Hecho:** tests verdes; `git diff` sobre las líneas 33-61 del módulo, vacío. Cubre R1-R4.
       *Depende de: T0.1.*
 
-- [ ] **T3.2 — Lectura de barridas.** `BarridaDelCierre` y `findBarridasDelCierre` en
+- [x] **T3.2 — Lectura de barridas.** `BarridaDelCierre` y `findBarridasDelCierre` en
       `ICierresAdminRepository` y `CierresAdminRepository` (design §5.3). Extender
       `tests/unit/repositories/cierres-admin-confirmacion-fisica.test.ts` (forma del `WHERE` y del
       `select`). Añadir a la suite de integración de T1.2 los casos de R5-R9 (otro cierre, fuera de
@@ -86,7 +94,7 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
       **Hecho:** verdes. Cubre R5-R9.
       *Depende de: T2.1.*
 
-- [ ] **T3.3 — Contrato y escritura en la transacción.** En `ICierresAdminRepository`: `ordenId?: never`
+- [x] **T3.3 — Contrato y escritura en la transacción.** En `ICierresAdminRepository`: `ordenId?: never`
       en `ConfirmacionFisicaGestion`, nuevo `ConfirmacionFisicaBarrida`, `confirmacionFisica` como
       unión (design §5.4). En `resolverCierre`, dentro del bloque de la 238: separar `gestionIds` de
       `ordenIds`, mantener el `updateMany` de gestiones solo con `gestionIds`, y añadir el
@@ -99,20 +107,20 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
       dinero.
       *Depende de: T0.2, T3.2.*
 
-- [ ] **T3.4 — Borde.** `confirmacionFisicaSchema` como unión de dos objetos `.strict()` (design §5.1).
+- [x] **T3.4 — Borde.** `confirmacionFisicaSchema` como unión de dos objetos `.strict()` (design §5.1).
       Antes, comprobar que ningún llamador envía claves extra. Extender
       `tests/unit/types/cierres-admin-confirmacion-schema.test.ts`.
       **Hecho:** verde; los casos de forma de hoy siguen verdes sin cambiar sus entradas.
       *Depende de: T0.1.*
 
-- [ ] **T3.5 — Servicio.** `ConfirmacionFisicaInput` como unión; `validarConfirmacionFisica` con los dos
+- [x] **T3.5 — Servicio.** `ConfirmacionFisicaInput` como unión; `validarConfirmacionFisica` con los dos
       mapas, el atajo de R19 ampliado y el paso de entradas al repo (design §5.2). Extender
       `tests/unit/services/cierres-admin-confirmacion-fisica.test.ts` con todos los casos de R10-R21
       (design §11) y `cierres-admin-service.aprobar.sin-gestion.test.ts` para R29.
       **Hecho:** el rojo de T1.1 pasa a verde y el resto de casos está verde.
       *Depende de: T3.1, T3.2, T3.3, T3.4.*
 
-- [ ] **T3.6 — Integración completa.** Completar
+- [x] **T3.6 — Integración completa.** Completar
       `tests/integration/db/497-confirmacion-barridas-sql-real.test.ts`: aprobar completo marca todas
       las barridas liberadas en la misma tx (R22, R29); `count` corto revierte todo (R23); datos
       congelados intactos (R24); conteos de las tres tablas de dinero y montos del cierre iguales con y
@@ -125,12 +133,16 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
       **Hecho:** salida con `INIT_EXIT` escrito dentro del log, en `progress/`; `skipped` revisados;
       guardias verdes. Si sale un rojo ajeno, se repite **aislado** y se anota como intermitente si pasa.
       *Depende de: T2.2, T3.1-T3.6.*
+      > **Parcial (backend, 2026-11-02):** por orden del leader el backend NO corre `./init.sh`; lo
+      > corre el frontend al final (T5.2). Hechos: `tsc --noEmit` verde, `vitest related` de lo
+      > tocado, las suites de `integration/db` de cierres/aprobación y las cinco guardias de §8 a
+      > mano. Salidas en `progress/impl_497_backend.md`.
 
 ---
 
 ## T4 · Frontend
 
-- [ ] **T4.1 — Vista unificada.** En `cierre-confirmacion-fisica.tsx`: `FilaAConfirmar` y
+- [x] **T4.1 — Vista unificada.** En `cierre-confirmacion-fisica.tsx`: `FilaAConfirmar` y
       `filasAConfirmar`; `interpretarLectura`, `clavePaquete`, `agruparPorPaquete` y
       `progresoDePaquetes` sobre la vista unificada (design §6.2). Las funciones que queden sin uso se
       borran **con sus tests sustituidos**.
@@ -138,37 +150,51 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
       con la misma aserción).
       *Depende de: T3.7.*
 
-- [ ] **T4.2 — Sección «Novedad interna» y aviso de filas sin guía.** Última sección de la misma lista
+- [x] **T4.2 — Sección «Novedad interna» y aviso de filas sin guía.** Última sección de la misma lista
       con el rótulo vigente y su badge; aviso encima de la lista con cuántas filas no tienen guía
       (design §6.1, R35).
       **Hecho:** casos de R30, R31 y R35 en `tests/components/CierresAdminConfirmacionFisica.test.tsx`
       verdes; `nombres-estado-retirados.guardia.test.ts` verde.
       *Depende de: T4.1.*
 
-- [ ] **T4.3 — Módulo.** En `CierresAdminModule.tsx`: `pedirAprobacion` con `filasAConfirmar`, envío de
+- [x] **T4.3 — Módulo.** En `CierresAdminModule.tsx`: `pedirAprobacion` con `filasAConfirmar`, envío de
       entradas `{ ordenId, numGuia }`, `repartirErroresDelServidor` con `gestionIds ∪ ordenIds`
       (design §6.2).
       **Hecho:** casos de R19 (payload idéntico sin barridas), R20, R32-R34 y R36-R38 verdes.
       *Depende de: T4.1.*
+      > **Hecho (frontend, 2026-11-02), T4.1-T4.3 en un solo commit:** la vista unificada cambia la
+      > firma de `interpretarLectura`/`progresoDePaquetes` y el módulo no compila a medias.
+      > `retornablesDelCierre` y `agruparRetornables` se borraron (sin tests directos: los cubre la
+      > suite del módulo, cuyos 34 casos de la 238 siguen verdes sin cambiar aserciones). 12 casos
+      > nuevos «497/…» en `tests/components/CierresAdminConfirmacionFisica.test.tsx`; rojo previo
+      > 10 de 12. Detalle en `progress/impl_497_frontend.md`.
 
-- [ ] **T4.4 — Ver la pantalla.** Con el dev server del propio agente (sin levantar un segundo):
+- [x] **T4.4 — Ver la pantalla.** Con el dev server del propio agente (sin levantar un segundo):
       abrir un cierre `solicitado` con barridas, ver la sección «Novedad interna», escanear o teclear
       una guía de barrida, ver el contador moverse y el botón bloqueado hasta completar. Limpiar los
       datos creados en la base local.
       **Hecho:** capturas o descripción con números (filas, contador) en `progress/impl_497.md`; base
       local limpia.
       *Depende de: T4.2, T4.3.*
+      > **Hecho (frontend, 2026-11-02):** cierre `solicitado` local `ebc7caa5…` (3 barridas sin guía)
+      > más UNA barrida temporal con guía. Ventana: 4 secciones, «Novedad interna (4)» la última;
+      > «Paquetes confirmados: 0 de 12» → «1 de 12» al teclear la guía de la barrida; aviso «6 filas
+      > … sin número de guía»; botón bloqueado; guía ajena avisa y no marca; cerrar = 0 POST.
+      > Barrida temporal y usuario temporal borrados. Detalle en `progress/impl_497_frontend.md`.
 
 ---
 
 ## T5 · Cierre de la ficha
 
-- [ ] **T5.1 — Contraprueba por mutación.** Aplicar **una a una** las ocho mutaciones de design §11.
+- [x] **T5.1 — Contraprueba por mutación.** Aplicar **una a una** las ocho mutaciones de design §11.
       Para cada una: ver al menos un test nombrado en **rojo**, restaurar y comprobar que el diff de la
       mutación queda vacío. No se corren en paralelo con el gate.
       **Hecho:** tabla mutación → test rojo → diff vacío en `progress/impl_497.md`. Si una mutación
       sobrevive, se refuerza el test y se repite.
       *Depende de: T4.3.*
+      > **Hecho:** 1-6 (backend) en `progress/impl_497_backend.md`; 7 y 8 (UI) más tres extra
+      > (reparto de errores, envío de barridas, punto único en `"nunca"`) en
+      > `progress/impl_497_frontend.md`. Todas rojas; diff vacío tras restaurar.
 
 - [ ] **T5.2 — Gate final.** `./init.sh --rapido` y las guardias de design §8 a mano. Commit y PR contra
       `dev`. Antes de mergear, revisar el build de Vercel del PR (`gh pr checks`).

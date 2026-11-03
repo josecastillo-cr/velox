@@ -15,6 +15,7 @@ import type { CierreAdminResumen } from "@/lib/interfaces/services/ICierresAdmin
 import type {
   CierreDetalleGestion,
   CierreGrupos,
+  CierreOrdenSinGestion,
   CierreResultado,
   CierreTotales,
   TotalesIngresoOrdenex,
@@ -224,10 +225,16 @@ const INC_1 = makeGestion({
   causaIncidente: "robado",
 });
 
-/** Programa el detalle que devolverá `verCierreDetalle` con los grupos indicados. */
-function conGrupos(grupos: Partial<CierreGrupos>) {
+/**
+ * Programa el detalle que devolverá `verCierreDetalle` con los grupos indicados.
+ * Ficha 497: `ordenesSinGestion` son las BARRIDAS del cierre (vacías por defecto, como antes).
+ */
+function conGrupos(
+  grupos: Partial<CierreGrupos>,
+  ordenesSinGestion: CierreOrdenSinGestion[] = [],
+) {
   verDetalleMock.mockResolvedValue({
-    ordenesSinGestion: [],
+    ordenesSinGestion,
     sinGestionRegistrado: true,
     rechazosDeTienda: [],
     status: "ok",
@@ -1203,5 +1210,279 @@ describe("PREMISA — `orden.numGuia` es @unique, y de eso depende que el arregl
     // dos aserciones de abajo pasarían a rojo por la razón correcta, no por un regex mudo.
     expect(modeloOrden).toContain('@@map("orden")');
     expect(modeloOrden).toMatch(/numGuia\s+Int\?\s+@unique\s+@map\("num_guia"\)/);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// FICHA 497 (T4.2/T4.3 — R19, R20, R30-R38) — las BARRIDAS del cierre también se confirman
+// ---------------------------------------------------------------------------------------------
+//
+// Una barrida es una orden que el corte del día pasó a `novedad_interna` al crear el cierre; viaja
+// en `detalle.ordenesSinGestion` con su guía CONGELADA. La aprobación la libera a bodega, así que
+// su paquete tiene que estar delante igual que el de una devolución. Hasta esta ficha la ventana
+// no la pedía y el servidor tampoco: se daba por recibida sin prueba.
+//
+// Los textos esperados van escritos a mano, como en el resto del archivo.
+
+function makeBarrida(
+  over: Partial<CierreOrdenSinGestion> & { ordenId: string },
+): CierreOrdenSinGestion {
+  return {
+    numGuia: 8001,
+    numRemision: "REM-BAR-1",
+    destinatario: "Bárbara Núñez",
+    producto: "Caja",
+    tiendaNombre: "Tienda Oeste",
+    zonaNombre: "GAM",
+    estatusOrigen: "en_reparto",
+    ...over,
+  };
+}
+
+const BAR_1 = makeBarrida({ ordenId: "o-bar-1" });
+const BAR_2 = makeBarrida({
+  ordenId: "o-bar-2",
+  numGuia: 8002,
+  numRemision: "REM-BAR-2",
+  destinatario: "Bruno Solís",
+});
+
+/** El texto de la fila de una barrida. */
+function filaBarrida(dialog: HTMLElement, ordenId: string): string {
+  const li = dialog.querySelector(`[data-barrida="${ordenId}"]`);
+  expect(li, `no se pintó la fila de la barrida ${ordenId}`).not.toBeNull();
+  return li?.textContent ?? "";
+}
+
+describe("497/R30/R31 — las barridas van en la MISMA lista, en su sección «Novedad interna»", () => {
+  it("última sección, con guía congelada, remisión, destinatario, tienda y estado", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1], reprogramado: [REP_1] }, [BAR_1, BAR_2]);
+    const dialog = await abrirVentana(user);
+
+    const titulo = within(dialog).getByText("Novedad interna (2)");
+    // La MISMA lista: la sección de las barridas es hermana de las de las gestiones.
+    const seccionBarridas = titulo.closest("section");
+    const seccionNovedad = within(dialog).getByText("Novedad (1)").closest("section");
+    expect(seccionBarridas).not.toBeNull();
+    expect(seccionBarridas?.parentElement).toBe(seccionNovedad?.parentElement);
+    // Y es la ÚLTIMA.
+    expect(seccionBarridas?.parentElement?.lastElementChild).toBe(seccionBarridas);
+
+    const texto = filaBarrida(dialog, "o-bar-1");
+    expect(texto).toContain("Nº Guía 8001 · REM-BAR-1");
+    expect(texto).toContain("Bárbara Núñez · Tienda Oeste");
+    expect(texto).toContain("Novedad interna");
+    expect(texto).toContain("Pendiente");
+    expect(filaBarrida(dialog, "o-bar-2")).toContain("Nº Guía 8002 · REM-BAR-2");
+    // El nombre retirado no aparece en ninguna parte de la ventana.
+    expect(dialog.textContent?.toLowerCase()).not.toContain("sin gestionar");
+  });
+
+  it("PAREJA de la ausencia: sin barridas, la sección no se pinta", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1] });
+    const dialog = await abrirVentana(user);
+
+    expect(within(dialog).queryByText(/^Novedad interna \(/)).toBeNull();
+    expect(dialog.querySelector("[data-barrida]")).toBeNull();
+  });
+});
+
+describe("497/R38 — un cierre cuyo conjunto esperado SOLO tiene barridas abre la ventana", () => {
+  it("no aprueba de un clic: abre la ventana con la barrida pendiente", async () => {
+    const user = userEvent.setup();
+    conGrupos({ entregado: [ENT_1] }, [BAR_1]);
+    await pulsarAprobar(user);
+
+    const dialog = await screen.findByRole("dialog", { name: VENTANA });
+    expect(filaBarrida(dialog, "o-bar-1")).toContain("Pendiente");
+    expect(aprobarMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("497/R32/R33/R20 — un solo contador, y la guía de la barrida la confirma", () => {
+  it("cuenta gestiones y barridas juntas, bloquea hasta completar y manda `{ ordenId, numGuia }`", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1] }, [BAR_1]);
+    const dialog = await abrirVentana(user);
+
+    // UN contador, con las dos filas dentro.
+    expect(progreso(dialog)).toBe("Paquetes confirmados: 0 de 2.");
+    expect(within(dialog).getAllByRole("status")).toHaveLength(1);
+
+    await teclear(user, dialog, "8001");
+    expect(filaBarrida(dialog, "o-bar-1")).toContain("Confirmada");
+    expect(progreso(dialog)).toBe("Paquetes confirmados: 1 de 2.");
+    expect(within(dialog).getByRole("note")).toHaveTextContent(
+      "Falta 1 paquete por confirmar. Si no llegó, rechazá el cierre indicando cuál falta.",
+    );
+    expect(within(dialog).getByRole("button", { name: "Confirmar y aprobar" })).toBeDisabled();
+
+    await teclear(user, dialog, "7001");
+    expect(progreso(dialog)).toBe("Paquetes confirmados: 2 de 2.");
+    await user.click(within(dialog).getByRole("button", { name: "Confirmar y aprobar" }));
+
+    await vi.waitFor(() => expect(aprobarMock).toHaveBeenCalledTimes(1));
+    expect(aprobarMock.mock.calls[0][0]).toEqual({
+      cierreId: "c1",
+      confirmacionFisica: [
+        { gestionId: "g-dev-1", numGuia: 7001 },
+        { ordenId: "o-bar-1", numGuia: 8001 },
+      ],
+    });
+  });
+
+  it("R20: con SOLO la barrida pendiente no hay vía de aprobar", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1] }, [BAR_1]);
+    const dialog = await abrirVentana(user);
+
+    await teclear(user, dialog, "7001");
+    expect(within(dialog).getByRole("note")).toHaveTextContent("Falta 1 paquete por confirmar.");
+    await user.click(within(dialog).getByRole("button", { name: "Confirmar y aprobar" }));
+
+    expect(aprobarMock).not.toHaveBeenCalled();
+    // Ni «marcar como faltante» ni «aprobar de todas formas»: los únicos botones de la ventana
+    // son los de siempre.
+    const nombres = within(dialog)
+      .getAllByRole("button")
+      .map((b) => b.textContent?.trim() ?? "");
+    expect(nombres.some((n) => /faltante|de todas formas|sin confirmar/i.test(n))).toBe(false);
+  });
+
+  it("con incidentes, la barrida viaja junto a las indemnizaciones", async () => {
+    const user = userEvent.setup();
+    conGrupos({ incidente: [INC_1] }, [BAR_1]);
+    const dialog = await abrirVentana(user);
+
+    await teclear(user, dialog, "8001");
+    await user.click(within(dialog).getByRole("button", { name: "Continuar" }));
+    const montos = await screen.findByRole("dialog", { name: SUB_MODAL_MONTOS });
+    await user.type(
+      document.getElementById("indemnizacion-g-inc-1") as HTMLInputElement,
+      "500.00",
+    );
+    await user.click(within(montos).getByRole("button", { name: "Aprobar e indemnizar" }));
+
+    await vi.waitFor(() =>
+      expect(aprobarMock).toHaveBeenCalledWith({
+        cierreId: "c1",
+        indemnizaciones: [{ gestionId: "g-inc-1", monto: "500.00" }],
+        confirmacionFisica: [{ ordenId: "o-bar-1", numGuia: 8001 }],
+      }),
+    );
+  });
+});
+
+describe("497/R19 — sin barridas, el payload es el de antes de la ficha", () => {
+  it("solo entradas `{ gestionId, numGuia }`, ni una clave más", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1] });
+    const dialog = await abrirVentana(user);
+    await teclear(user, dialog, "7001");
+    await user.click(within(dialog).getByRole("button", { name: "Confirmar y aprobar" }));
+
+    await vi.waitFor(() => expect(aprobarMock).toHaveBeenCalledTimes(1));
+    expect(aprobarMock.mock.calls[0][0]).toEqual({
+      cierreId: "c1",
+      confirmacionFisica: [{ gestionId: "g-dev-1", numGuia: 7001 }],
+    });
+  });
+});
+
+describe("497/R34 — una guía que no es de ninguna gestión ni barrida del cierre", () => {
+  it("avisa «no es de este cierre» y no marca ninguna fila", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1] }, [BAR_1]);
+    const dialog = await abrirVentana(user);
+
+    await teclear(user, dialog, "9999");
+
+    expect(within(dialog).getByRole("alert")).toHaveTextContent(
+      "Esa guía no pertenece a este cierre.",
+    );
+    expect(filaBarrida(dialog, "o-bar-1")).toContain("Pendiente");
+    expect(fila(dialog, "g-dev-1")).toContain("Pendiente");
+    expect(progreso(dialog)).toBe("Paquetes confirmados: 0 de 2.");
+  });
+});
+
+describe("497/R35 — las filas sin guía se avisan ANTES de la lista", () => {
+  it("dice cuántas son y que el cierre no se podrá aprobar", async () => {
+    const user = userEvent.setup();
+    const barSinGuia = makeBarrida({ ordenId: "o-bar-sin", numGuia: null, numRemision: "REM-BAR-SIN" });
+    const gesSinGuia = makeGestion({
+      gestionId: "g-dev-sin",
+      resultado: "novedad",
+      numGuia: null,
+      numRemision: "REM-DEV-SIN",
+    });
+    conGrupos({ novedad: [DEV_1, gesSinGuia] }, [BAR_1, barSinGuia]);
+    const dialog = await abrirVentana(user);
+
+    const aviso = within(dialog).getByRole("region", { name: "Filas sin número de guía" });
+    expect(aviso).toHaveTextContent(
+      "2 filas de este cierre no tienen número de guía: el cierre no se podrá aprobar. Avisá a un administrador.",
+    );
+    // ANTES de la lista: precede a la primera fila.
+    const primeraFila = dialog.querySelector("[data-gestion], [data-barrida]") as Element;
+    expect(aviso.compareDocumentPosition(primeraFila) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Y la barrida sin guía cuenta en el contador (no se puede confirmar, así que bloquea).
+    expect(progreso(dialog)).toBe("Paquetes confirmados: 0 de 4.");
+  });
+
+  it("en singular con una sola fila, y sin aviso si todas tienen guía", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1] }, [makeBarrida({ ordenId: "o-bar-sin", numGuia: null })]);
+    const dialog = await abrirVentana(user);
+    expect(
+      within(dialog).getByRole("region", { name: "Filas sin número de guía" }),
+    ).toHaveTextContent(
+      "1 fila de este cierre no tiene número de guía: el cierre no se podrá aprobar. Avisá a un administrador.",
+    );
+    cleanup();
+
+    conGrupos({ novedad: [DEV_1] }, [BAR_1]);
+    const otra = await abrirVentana(userEvent.setup());
+    expect(within(otra).queryByRole("region", { name: "Filas sin número de guía" })).toBeNull();
+  });
+});
+
+describe("497/R36 — un error del servidor sobre una barrida se pinta en SU fila", () => {
+  it("la ventana sigue abierta y el error va en la fila de la barrida, no en el bolsón de montos", async () => {
+    const user = userEvent.setup();
+    conGrupos({ novedad: [DEV_1] }, [BAR_1]);
+    aprobarMock.mockResolvedValue({
+      status: "validation_error",
+      fieldErrors: { "o-bar-1": ["La guía leída no es la de este paquete."] },
+    });
+    const dialog = await abrirVentana(user);
+    await teclear(user, dialog, "7001");
+    await teclear(user, dialog, "8001");
+    await user.click(within(dialog).getByRole("button", { name: "Confirmar y aprobar" }));
+
+    await vi.waitFor(() => expect(aprobarMock).toHaveBeenCalledTimes(1));
+    const abierta = await screen.findByRole("dialog", { name: VENTANA });
+    await vi.waitFor(() =>
+      expect(document.getElementById("confirmacion-o-bar-1-error")).not.toBeNull(),
+    );
+    expect(filaBarrida(abierta, "o-bar-1")).toContain("La guía leída no es la de este paquete.");
+    expect(fila(abierta, "g-dev-1")).not.toContain("La guía leída no es la de este paquete.");
+    expect(screen.queryByRole("dialog", { name: SUB_MODAL_MONTOS })).toBeNull();
+    expect(successMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("497/R37 — cerrar la ventana con barridas no envía nada", () => {
+  it("cancelar no llama a `aprobarCierre`", async () => {
+    const user = userEvent.setup();
+    conGrupos({}, [BAR_1]);
+    const dialog = await abrirVentana(user);
+    await teclear(user, dialog, "8001");
+
+    await user.click(within(dialog).getByRole("button", { name: "Cancelar" }));
+    await vi.waitFor(() => expect(screen.queryByRole("dialog", { name: VENTANA })).toBeNull());
+    expect(aprobarMock).not.toHaveBeenCalled();
   });
 });

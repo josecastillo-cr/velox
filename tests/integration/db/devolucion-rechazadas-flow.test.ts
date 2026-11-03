@@ -294,6 +294,9 @@ function makeDb() {
       findMany: async () => [] as unknown[],
       updateMany: async () => ({ count: 0 }),
     },
+    // Ficha 497: la cobertura de la confirmacion fisica lee las barridas del cierre. En ESTE
+    // recorrido no hay ninguna: el doble responde vacio y el camino de la 139 queda intacto.
+    cierreSinGestion: { findMany: async () => [] as unknown[] },
   };
 
   // `tx === client`: el doble no simula rollback (ningun caso de este recorrido lo ejercita; la

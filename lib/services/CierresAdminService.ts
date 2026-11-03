@@ -14,11 +14,13 @@ import { cierreConfig } from "@/lib/config/cierre";
 import type { ISignedUrlProvider } from "@/lib/interfaces/external/ISignedUrlProvider";
 import type {
   Alcance,
+  BarridaDelCierre,
   CierreAdminResumenRow,
   GestionIncidenteDelCierre,
   GestionRetornableDelCierre,
   ICierresAdminRepository,
 } from "@/lib/interfaces/repositories/ICierresAdminRepository";
+import { vuelveABodegaElPaquete } from "@/lib/types/gestion-retorno";
 import type { ILiquidacionPagoRepository } from "@/lib/interfaces/repositories/ILiquidacionPagoRepository";
 import type { IPagoMensajeroMovimientoRepository } from "@/lib/interfaces/repositories/IPagoMensajeroMovimientoRepository";
 import type { IOrdenRepository } from "@/lib/interfaces/repositories/IOrdenRepository";
@@ -1113,7 +1115,11 @@ export class CierresAdminService implements ICierresAdminService {
       // cobertura EXACTA verificada arriba. Solo viajan los ids: la guia ya se contrasto (R12) y
       // el repo no la persiste. OBLIGATORIO en esta rama —puede ser `[]`, pero no puede faltar—
       // para que un olvido de cableado rompa el typecheck en vez de dejar la marca sin escribir.
-      confirmacionFisica: confirmacionFisica.map(({ gestionId }) => ({ gestionId })),
+      // Ficha 497 (design §5.2): las MISMAS entradas, ya sin `numGuia`, cada una con su clave de
+      // origen (`{ gestionId }` o `{ ordenId }` de una barrida).
+      confirmacionFisica: confirmacionFisica.map((c) =>
+        c.gestionId !== undefined ? { gestionId: c.gestionId } : { ordenId: c.ordenId },
+      ),
     });
     if (res === "updated") {
       // 💰 FICHA 315 — LA APROBACION ES EL EVENTO QUE LIBERA. Aqui, y no en el reloj.
@@ -1284,17 +1290,31 @@ export class CierresAdminService implements ICierresAdminService {
     alcance: Alcance,
     confirmacionFisica: ReadonlyArray<ConfirmacionFisicaInput>,
   ): Promise<{ status: "validation_error"; fieldErrors: Record<string, string[]> } | null> {
-    const esperadas = await this.repo.findGestionesRetornablesDelCierre(cierreId, alcance);
-    // R16: un cierre SIN nada que devolver se aprueba con el MISMO comportamiento y el MISMO
-    // payload que antes de esta feature — ni una consulta mas aguas abajo. Medido: es 3 de cada
-    // 12 cierres, un camino de igual rango, no un `else` de cortesia.
-    if (esperadas.length === 0 && confirmacionFisica.length === 0) return null;
+    // Ficha 497 (design §5.2, R5/R6/R17): el conjunto esperado tiene DOS origenes. Las barridas se
+    // leen del registro persistido del cierre (guia CONGELADA), dentro del alcance, ANTES de abrir
+    // la transaccion. Entran en el conjunto porque el punto unico dice que vuelven (R1/R4), no por
+    // un `if` propio: si la regla cambiara, el servicio y la ventana las excluirian a la vez.
+    const [esperadas, barridasDelCierre] = await Promise.all([
+      this.repo.findGestionesRetornablesDelCierre(cierreId, alcance),
+      this.repo.findBarridasDelCierre(cierreId, alcance),
+    ]);
+    const barridas = vuelveABodegaElPaquete({ origen: "barrida" }) ? barridasDelCierre : [];
+    // R16 (238) / R19 (497): un cierre SIN nada que devolver —ni gestiones que vuelvan ni
+    // barridas— se aprueba con el MISMO comportamiento y el MISMO payload que antes. Medido: es 3
+    // de cada 12 cierres, un camino de igual rango, no un `else` de cortesia.
+    if (esperadas.length === 0 && barridas.length === 0 && confirmacionFisica.length === 0) {
+      return null;
+    }
 
     const porId = new Map<string, GestionRetornableDelCierre>(
       esperadas.map((g) => [g.gestionId, g]),
     );
+    // Ficha 497: un mapa POR ORIGEN. Una entrada se busca SOLO en el de su clave: `{ ordenId: <id
+    // de una gestion> }` no esta aqui y es ajena (R13), y al reves igual.
+    const barridaPorOrden = new Map<string, BarridaDelCierre>(barridas.map((b) => [b.ordenId, b]));
     const fieldErrors: Record<string, string[]> = {};
     const vistos = new Set<string>();
+    const barridasVistas = new Set<string>();
 
     // La lectura de los incidentes es PEREZOSA y se hace COMO MUCHO UNA VEZ: solo hace falta
     // para redactar el mensaje de una entrada que no esta en el conjunto esperado (R11), que es
@@ -1309,7 +1329,27 @@ export class CierresAdminService implements ICierresAdminService {
       return idsIncidente.has(gestionId);
     };
 
-    for (const { gestionId, numGuia } of confirmacionFisica) {
+    for (const entrada of confirmacionFisica) {
+      if (entrada.gestionId === undefined) {
+        // Ficha 497 — ENTRADA DE BARRIDA, con los mismos mensajes que la de gestion (no hay
+        // mensaje nuevo, design §5.2).
+        const { ordenId, numGuia } = entrada;
+        if (barridasVistas.has(ordenId)) {
+          fieldErrors[ordenId] = [MSG_CONFIRMACION_DUPLICADA]; // R14
+          continue;
+        }
+        barridasVistas.add(ordenId);
+        const barrida = barridaPorOrden.get(ordenId);
+        if (barrida === undefined) {
+          fieldErrors[ordenId] = [MSG_CONFIRMACION_AJENA]; // R13: de otro cierre u origen cruzado
+        } else if (barrida.numGuia === null) {
+          fieldErrors[ordenId] = [MSG_CONFIRMACION_SIN_GUIA]; // R16
+        } else if (barrida.numGuia !== numGuia) {
+          fieldErrors[ordenId] = [MSG_CONFIRMACION_GUIA_DISTINTA]; // R15: contra la CONGELADA
+        }
+        continue;
+      }
+      const { gestionId, numGuia } = entrada;
       if (vistos.has(gestionId)) {
         // R10: la misma gestion confirmada dos veces. Sin esto, dos entradas cubririan una sola
         // gestion y el conteo cuadraria con un paquete menos delante.
@@ -1344,6 +1384,13 @@ export class CierresAdminService implements ICierresAdminService {
     // R9: falta la confirmacion de alguna gestion del conjunto esperado -> error en ESA gestion.
     for (const { gestionId } of esperadas) {
       if (!vistos.has(gestionId)) fieldErrors[gestionId] = [MSG_CONFIRMACION_FALTANTE];
+    }
+    // Ficha 497 (R12/R16): el mismo barrido sobre las barridas. Una barrida SIN guia congelada no
+    // se puede mandar (el borde exige entero positivo), asi que su error nombra el MOTIVO en vez de
+    // «falta confirmar»: si no, bodega buscaria un paquete escaneable que no existe. No se omite.
+    for (const { ordenId, numGuia } of barridas) {
+      if (barridasVistas.has(ordenId)) continue;
+      fieldErrors[ordenId] = [numGuia === null ? MSG_CONFIRMACION_SIN_GUIA : MSG_CONFIRMACION_FALTANTE];
     }
 
     if (Object.keys(fieldErrors).length === 0) return null;

@@ -182,3 +182,64 @@ describe("Feature 238 — AUTOCOMPROBACION: el detector se sabe romper", () => {
     ).toBe(false);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 497 (T3.1, R3/R4) — el SEGUNDO EJE del punto unico: el ORIGEN del paquete.
+//
+// Una barrida (orden que el corte paso a `novedad_interna` al crear el cierre) no es un
+// `GestionResultado`. Su regla vive en `RETORNO_POR_ORIGEN`, en el mismo modulo, y la consumen el
+// servicio y la ventana via `vuelveABodegaElPaquete`. Lo que esta guardia impide es que otro archivo
+// declare SU regla de origen —un mapa con `barrida: true` o un `const vuelve = x.origen === "barrida"`—,
+// que podria divergir del punto unico sin que nada lo dijera.
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+/** ¿Este codigo declara su PROPIA regla de «la barrida vuelve / no vuelve»? */
+export function declaraSuPropiaReglaDeOrigen(fuente: string): boolean {
+  // (a) Una entrada de mapa para la barrida con un valor de regla.
+  if (/\bbarrida["']?\s*:\s*(true|false|["'](siempre|nunca|segun_resultado)["'])/.test(fuente)) {
+    return true;
+  }
+  // (b) Una regla calculada: `vuelve…/retorna… = … origen === "barrida"` en la misma sentencia.
+  return /\b(vuelve|retorna)\w*\s*=[^;\n]*origen\s*[!=]==?\s*["']barrida["']/i.test(fuente);
+}
+
+const declaranOrigen = new Set<string>();
+for (const arbol of ARBOLES) {
+  for (const archivo of archivos(path.join(RAIZ, arbol))) {
+    if (declaraSuPropiaReglaDeOrigen(readFileSync(archivo, "utf8"))) declaranOrigen.add(relativo(archivo));
+  }
+}
+
+describe("Ficha 497 (R3/R4) — la regla por ORIGEN tambien se declara una sola vez", () => {
+  it("R3: el punto unico conserva la red de compilacion del eje de origen", () => {
+    const fuente = readFileSync(path.join(RAIZ, PUNTO_UNICO), "utf8");
+    expect(fuente).toMatch(/as const satisfies Record<OrigenDelPaquete,/);
+  });
+
+  it("AUTOCOMPROBACION del censo: encuentra el punto unico", () => {
+    expect(declaranOrigen.has(PUNTO_UNICO)).toBe(true);
+  });
+
+  it("R4: ningun archivo de produccion fuera del punto unico declara su propia regla de origen", () => {
+    const intrusos = [...declaranOrigen].filter((r) => r !== PUNTO_UNICO).sort();
+    expect(
+      intrusos,
+      "Estos archivos deciden por su cuenta si una barrida vuelve a bodega.\n" +
+        "Usa `vuelveABodegaElPaquete` de `lib/types/gestion-retorno.ts`.",
+    ).toEqual([]);
+  });
+});
+
+describe("Ficha 497 — AUTOCOMPROBACION: el detector de reglas de origen se sabe romper", () => {
+  it("se pone ROJO ante un mapa o una regla calculada plantados", () => {
+    expect(declaraSuPropiaReglaDeOrigen(`const R = { gestion: true, barrida: true };`)).toBe(true);
+    expect(declaraSuPropiaReglaDeOrigen(`const R = { "barrida": "siempre" };`)).toBe(true);
+    expect(declaraSuPropiaReglaDeOrigen(`const vuelve = fila.origen === "barrida" || x;`)).toBe(true);
+    expect(declaraSuPropiaReglaDeOrigen(`const retornaABodega = p.origen !== 'barrida';`)).toBe(true);
+  });
+
+  it("NO ladra ante quien CONSULTA el punto unico ni ante un `if` de pintado", () => {
+    expect(declaraSuPropiaReglaDeOrigen(`const v = vuelveABodegaElPaquete({ origen: "barrida" });`)).toBe(false);
+    expect(declaraSuPropiaReglaDeOrigen(`if (fila.origen === "barrida") return <Badge />;`)).toBe(false);
+  });
+});

@@ -96,10 +96,29 @@ export const indemnizacionSchema = z.object({
  * sea exactamente el conjunto que vuelve— la valida el SERVICE contra las gestiones reales del
  * cierre: el borde no sabe que gestiones tiene ese cierre (design §10-F, misma razon que la 158).
  */
-export const confirmacionFisicaSchema = z.object({
-  gestionId: z.string().uuid(),
-  numGuia: z.number().int().positive(),
-});
+//
+// Ficha 497 (T3.4, design §5.1): la entrada puede ser de GESTION `{ gestionId, numGuia }` —la forma
+// de siempre, byte a byte, asi que un cierre sin barridas manda el mismo payload (R19)— o de
+// BARRIDA `{ ordenId, numGuia }` (orden que el corte paso a `novedad_interna` al crear el cierre;
+// `numGuia` es lo leido, que el servicio compara con la guia CONGELADA). El origen se dice por la
+// CLAVE, sin campo discriminante. `.strict()` en las dos ramas: una entrada con las dos claves es
+// error de forma, no se recorta en silencio a una de ellas (R13). Unico llamador verificado el
+// 2026-11-02: `CierresAdminModule.tsx`, que manda solo `{ gestionId, numGuia }`.
+const confirmacionGestionSchema = z
+  .object({
+    gestionId: z.string().uuid(),
+    numGuia: z.number().int().positive(),
+  })
+  .strict();
+
+const confirmacionBarridaSchema = z
+  .object({
+    ordenId: z.string().uuid(),
+    numGuia: z.number().int().positive(),
+  })
+  .strict();
+
+export const confirmacionFisicaSchema = z.union([confirmacionGestionSchema, confirmacionBarridaSchema]);
 
 // Feature 158 (R19/R36): `aprobarCierre` gana la lista de indemnizaciones. `.default([])` la
 // hace RETROCOMPATIBLE con el contrato de la 38: un cierre sin incidentes se aprueba

@@ -6,7 +6,10 @@ import { describe, expect, it } from "vitest";
 import {
   RESULTADOS_QUE_VUELVEN,
   RETORNA_A_BODEGA,
+  RETORNO_POR_ORIGEN,
   vuelveABodega,
+  vuelveABodegaElPaquete,
+  type PaqueteDelCierre,
 } from "@/lib/types/gestion-retorno";
 
 // Feature 238 (T1.1, R1/R2/R3/R5) — el PUNTO UNICO de «que paquete vuelve a bodega».
@@ -85,5 +88,47 @@ describe("RESULTADOS_QUE_VUELVEN — la lista DERIVADA (238/R2)", () => {
       .filter((l) => !l.trim().startsWith("*") && !l.trim().startsWith("//") && !l.trim().startsWith("/*"))
       .join("\n");
     expect(sinComentarios).not.toMatch(/\[[^\]]*"novedad"[^\]]*"devolucion_a_origen_por_rechazo"[^\]]*\]/);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 497 (T3.1, R1-R3) — EL SEGUNDO EJE: de donde sale el paquete (gestion o barrida).
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+describe("RETORNO_POR_ORIGEN — los dos origenes del paquete (497/R1/R3)", () => {
+  it("R1: nombra EXACTAMENTE los dos origenes, con su regla", () => {
+    // Literal a mano: es el contrato, no se compara contra su propia fuente.
+    expect(RETORNO_POR_ORIGEN).toEqual({ gestion: "segun_resultado", barrida: "siempre" });
+  });
+
+  it("R1: una barrida vuelve SIEMPRE a bodega", () => {
+    expect(vuelveABodegaElPaquete({ origen: "barrida" })).toBe(true);
+  });
+
+  it("R2: una gestion DELEGA en RETORNA_A_BODEGA, resultado por resultado", () => {
+    // Los valores esperados escritos a mano (no derivados de `vuelveABodega`).
+    const esperado: Record<(typeof RESULTADOS)[number], boolean> = {
+      entregado: false,
+      reprogramado: true,
+      novedad: true,
+      devolucion_a_origen_por_rechazo: true,
+      incidente: false,
+    };
+    for (const resultado of RESULTADOS) {
+      expect(vuelveABodegaElPaquete({ origen: "gestion", resultado })).toBe(esperado[resultado]);
+    }
+  });
+
+  it("R3: un TERCER origen no compila (el `@ts-expect-error` lo vigila el typecheck)", () => {
+    // @ts-expect-error — `rechazo_tienda` no es un OrigenDelPaquete: un origen nuevo exige decidir.
+    const tercero: PaqueteDelCierre = { origen: "rechazo_tienda" };
+    expect(tercero).toBeDefined();
+  });
+
+  it("R3: el mapa por origen lleva su red de compilacion y el `switch` no tiene `default`", () => {
+    expect(FUENTE).toMatch(/as const satisfies Record<OrigenDelPaquete, "siempre" \| "nunca" \| "segun_resultado">/);
+    const cuerpo = FUENTE.slice(FUENTE.indexOf("export function vuelveABodegaElPaquete"));
+    expect(cuerpo).toMatch(/switch \(p\.origen\)/);
+    expect(cuerpo).not.toMatch(/default:/);
   });
 });

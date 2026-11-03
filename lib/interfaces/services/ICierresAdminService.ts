@@ -511,10 +511,25 @@ export interface IndemnizacionCapturadaInput {
  * contrasta con la guia REAL de la orden de esa gestion. Sin ese contraste, un fallo de mapeo del
  * cliente confirmaria el paquete equivocado y nadie se enteraria: el conteo cuadraria igual.
  */
-export interface ConfirmacionFisicaInput {
+export interface ConfirmacionFisicaGestionInput {
   gestionId: string;
   numGuia: number;
+  ordenId?: never;
 }
+
+/**
+ * Ficha 497 (T3.5, design §5.2) — UNA barrida (orden que el corte paso a `novedad_interna` al crear
+ * el cierre) que bodega declara tener delante. `numGuia` es lo LEIDO, y el servicio lo contrasta con
+ * la guia CONGELADA de `cierre_sin_gestion` (R15), no con la viva de la orden.
+ */
+export interface ConfirmacionFisicaBarridaInput {
+  ordenId: string;
+  numGuia: number;
+  gestionId?: never;
+}
+
+/** Ficha 497: cada entrada dice su origen por su CLAVE (`gestionId` u `ordenId`). */
+export type ConfirmacionFisicaInput = ConfirmacionFisicaGestionInput | ConfirmacionFisicaBarridaInput;
 
 // R10/R12-R14: aprobar un cierre `solicitado` del alcance.
 // Feature 158 (R19/R20/R21): + `validation_error` cuando los montos de indemnizacion no cubren

@@ -2868,6 +2868,14 @@ model CierreSinGestion {
   createdAt DateTime @default(now()) @map("created_at")
   // SIN updated_at / deleted_at: fila INMUTABLE, como `cierre_detail` (69/R10).
 
+  // FICHA 497 (R22/R25/R26) — instante en que bodega declaro tener ESTE paquete delante al aprobar
+  // el cierre. MISMO nombre que `gestion_orden.confirmada_fisica_at` (238): es el mismo hecho sobre
+  // el otro origen, y asi la guardia `confirmacion-sin-lectores` lo cubre sin tocar su registro.
+  // No contradice la inmutabilidad de la fila: los datos CONGELADOS no se tocan (R24); esto es un
+  // hecho nuevo, escrito una vez, en la transaccion que aprueba. NULL = sin confirmar o aprobado
+  // antes de la ficha (sin backfill).
+  confirmadaFisicaAt DateTime? @map("confirmada_fisica_at")
+
   cierre        CierreDia    @relation(fields: [cierreId], references: [id])
   orden         Orden        @relation(fields: [ordenId], references: [id])
   // `onDelete: Restrict` NO es el default de Prisma para una relacion OPCIONAL (seria SetNull):
