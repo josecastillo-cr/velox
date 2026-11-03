@@ -879,10 +879,9 @@ export function CierresBodegaAdminModule({
                 bodega={detalle.cierre.zonaNombre}
                 fecha={fechaCalendarioCR(new Date(detalle.cierre.solicitadoAt))}
                 recaudado={detalle.cierre.totales}
-                // FICHA 498 (R16): `CierreBodegaResumen` NO trae `debe`/`debePositivo` (solo los
-                // gana `ConsolidacionSateliteDTO`). Sin ese dato del servidor el diálogo arranca
-                // VACÍO, nunca con el efectivo. Hueco de contrato anotado en `progress/impl_498.md`.
-                debe={null}
+                // FICHA 498 (R16): lo que DEBE la consolidación y su signo, decididos en el SERVIDOR
+                // (misma fuente que `ConsolidacionSateliteDTO.debe`). Nunca el efectivo.
+                debe={{ monto: detalle.cierre.debe, positivo: detalle.cierre.debePositivo }}
                 marca={detalle.cierre}
                 nota={detalle.cierre.conciliadoNota}
                 puedeConciliar={puedeConciliar}
