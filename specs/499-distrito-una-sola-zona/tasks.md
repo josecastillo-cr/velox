@@ -29,7 +29,7 @@
 
   *Hecho:* `prisma migrate status` limpio en la base local, y `git diff --stat db/migrations` solo muestra las
   dos carpetas nuevas (ningún `down.sql` previo tocado). Depende de B.0.
-- [ ] **B.2 Medir la forma del error del índice.** Script de un solo uso o test provisional: una inserción
+- [x] **B.2 Medir la forma del error del índice.** Script de un solo uso o test provisional: una inserción
   duplicada **dentro de un `$transaction` interactivo** con el cliente real (con adapter). Anotar en
   `progress/impl_499.md` el constructor, `code`, `meta` y `cause.code`, con el mismo formato que
   `ZonaRepository.ts:702-707`. Borrar el script.
