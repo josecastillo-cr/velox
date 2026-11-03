@@ -769,3 +769,18 @@ MUTACION 16 | Test Files  1 failed (1) · Tests  2 failed | 24 passed (26) | dif
 - Rojos en paralelo, verdes al repetirlos aislados (el gate los anota como intermitentes):
   `ajuste-caja-anulacion-461.test.ts` y `caja-invariante-tiendas.test.ts` (huellas de tabla entera con
   la base compartida; ninguno toca código de esta tanda).
+
+## Hueco R16 en `/cierres-admin`: CERRADO
+
+El backend añadió `debe`, `debePositivo` y `saldadaReglaAnterior` a `CierreBodegaResumen` (misma fuente que
+la conciliación). `CierresBodegaAdminModule.tsx` monta ahora `ConciliacionAcciones` con
+`debe={{ monto: detalle.cierre.debe, positivo: detalle.cierre.debePositivo }}`: el diálogo de esa cola
+propone lo que debe (o 0 si el servidor dice que no debe nada) y pinta la banda «Debe».
+
+- El rótulo «Saldada con la regla anterior» (R41a) **no** se añade en `/cierres-admin`: R41a y design §9 lo
+  piden en la conciliación (`ConciliacionSatelite.tsx`), no en esta vista.
+- Test: `tests/components/CierresBodegaAdminDebe498.test.tsx` (monta el módulo real, abre el detalle y el
+  diálogo). Debe positivo → campo `88000.75` (≠ efectivo `70000.00`) y banda «Debe»; `debePositivo: false`
+  → campo `0`. **Mutación** (volver a `debe={null}`): `2 failed (2)`; restaurado, diff limpio.
+- Suites que montan el módulo: 21 archivos, 273 en verde.
+- Gate final (`progress/gate_498_final.log`, sobre `98cff68e`): **`INIT_EXIT=0`**. Relacionados 864 archivos, `11292 passed | 17 skipped` (AnaliticaPage). Guardias 282 archivos, 3885 en verde. `integration/db`: 4390 tests, `1 failed | 4387 passed | 2 skipped`; los 2 skipped son de `454/caracterizacion/corte-concurrencia` en la corrida en paralelo. Ese archivo y `abono-tienda-457-concurrencia` (el rojo) se repitieron aislados: `10 passed`, sin skipped. Se anotan como intermitentes. Guardias a mano (las 8 de antes): 124 en verde.
