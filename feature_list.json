@@ -5971,7 +5971,7 @@
       "depends_on": 497,
       "spec_path": "specs/498-satelite-dinero-al-conciliar",
       "branch": "fix/498-satelite-dinero-al-conciliar",
-      "status_note": "Registrada el 2026-11-02: H3 de progress/prompt-hotfix-portable.md. El humano REVOCA la Q2 del 2026-09-16 (deuda solo efectivo) y el carácter informativo/reversible de la conciliación (431, 473): reescribir ayuda y textos. Va tras la 497 (misma transacción de aprobación). Sin multiempresa; esquema respaldo nuevo (sin garantía de inaccesible para la app); premios = premio_ranking + premio_dia (no hay incentivos). Medido en prod: conjunto S pequeño, guardas en 0. Abierto para el spec: ¿algún camino vivo aprueba una consolidación sin conciliarla (resolverCierreBodega)?"
+      "status_note": "Spec APROBADO el 2026-11-02 (64 requisitos; SINPE/transferencia confirmados en la conciliación, regla anterior por migración, recibido 0 solo con aporte ≤ 0). Espera a la 497 mergeada. Registrada el 2026-11-02: H3 de progress/prompt-hotfix-portable.md. El humano REVOCA la Q2 del 2026-09-16 (deuda solo efectivo) y el carácter informativo/reversible de la conciliación (431, 473): reescribir ayuda y textos. Va tras la 497 (misma transacción de aprobación). Sin multiempresa; esquema respaldo nuevo (sin garantía de inaccesible para la app); premios = premio_ranking + premio_dia (no hay incentivos). Medido en prod: conjunto S pequeño, guardas en 0. Abierto para el spec: ¿algún camino vivo aprueba una consolidación sin conciliarla (resolverCierreBodega)?"
     },
     {
       "id": 499,
