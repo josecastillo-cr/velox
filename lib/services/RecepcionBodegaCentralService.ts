@@ -13,15 +13,30 @@ import type {
 //   - devolviendo_a_bodega_central -> por_devolver_a_tienda  (caso 139: retorno satelite en transito a central)
 // Ambos casos registran `origen_tipo = recepcion_bodega_central` (mismo evento fisico: recepcion en
 // la central) y autorizan SOLO a maestro/admin, sin acotar por zona ni tienda (R11).
+//
+// Ficha 496 (R1/R2): `liberaAsignacion` decide POR ARISTA si la recepcion deja el trio de asignacion
+// (mensajero, asignado_at, fecha_reparto) en NULL. La recoleccion recibida libera al mensajero
+// (revoca la R18 de la 138 en esa arista; aplica tambien si la orden volvio a
+// `en_ruta_bodega_central` por reversion de incidente, decision del humano 2026-11-02); la
+// devolucion lo conserva. Obligatorio en el tipo: una arista nueva no puede olvidarlo.
 type DestinoRecepcionCentral = "en_bodega_central" | "por_devolver_a_tienda";
 const TRANSICIONES: Record<
   string,
-  { destino: DestinoRecepcionCentral; origenTipo: OrdenHistorialOrigenTipo }
+  {
+    destino: DestinoRecepcionCentral;
+    origenTipo: OrdenHistorialOrigenTipo;
+    liberaAsignacion: boolean;
+  }
 > = {
-  en_ruta_bodega_central: { destino: "en_bodega_central", origenTipo: "recepcion_bodega_central" },
+  en_ruta_bodega_central: {
+    destino: "en_bodega_central",
+    origenTipo: "recepcion_bodega_central",
+    liberaAsignacion: true,
+  },
   devolviendo_a_bodega_central: {
     destino: "por_devolver_a_tienda",
     origenTipo: "recepcion_bodega_central",
+    liberaAsignacion: false,
   },
 };
 // Destinos = estados "recibida" para la idempotencia: si la orden ya esta en cualquiera de ellos, la
@@ -80,11 +95,17 @@ export class RecepcionBodegaCentralService implements IRecepcionBodegaCentralSer
     }
 
     // 6. Transicion atomica. El UPDATE va guardado por el estado de ORIGEN resuelto + no borrada: es
-    //    la defensa REAL (la comprobacion de arriba solo permite reportar mejor). R2/R3/R17/R18.
-    const transiciono = await this.repo.recibirEnBodegaCentral(row.id, row.estatusValue, destinoId, {
-      actorUsuarioId: actor.usuarioId,
-      origenTipo: transicion.origenTipo, // recepcion_bodega_central (ambos casos)
-    });
+    //    la defensa REAL (la comprobacion de arriba solo permite reportar mejor). R2/R3/R17 + 496/R1-R3.
+    const transiciono = await this.repo.recibirEnBodegaCentral(
+      row.id,
+      row.estatusValue,
+      destinoId,
+      transicion.liberaAsignacion,
+      {
+        actorUsuarioId: actor.usuarioId,
+        origenTipo: transicion.origenTipo, // recepcion_bodega_central (ambos casos)
+      },
+    );
 
     if (!transiciono) {
       // R9: perdio la carrera — el estado cambio entre la lectura y el UPDATE. Se re-lee para
