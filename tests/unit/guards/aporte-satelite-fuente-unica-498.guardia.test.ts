@@ -17,9 +17,9 @@ import { quitarComentarios } from "@/tests/fixtures/sin-comentarios";
 //  4. `esperadoReglaAnterior` / `esperado_regla_anterior` solo se LEE en los sitios declarados y
 //     NINGUN archivo de `lib/` ni de `app/` lo ESCRIBE (solo la migracion M4).
 //  5. `marcarConsolidacionRecibidaSchema` no usa un esquema de monto que admita negativos.
-//  6. R43 — los archivos de la conciliacion de `lib/` no dicen que la marca es informativa, que
-//     desmarcar no mueve dinero ni que la marca no escribe en ningun libro. (T7.3 la extiende a
-//     `app/`, `components/` y `docs/ayuda/`.)
+//  6. R43 — los archivos de la conciliacion de `lib/`, `app/`, `components/` y `docs/ayuda/` no dicen
+//     que la marca es informativa, que desmarcar no mueve dinero ni que la marca no escribe en ningun
+//     libro; y la nota de la conciliacion es LITERAL (T7.3/T7.4).
 //
 // Lee archivos con `fs`: el grafo NO la relaciona con el diff, se corre A MANO (design §11).
 // AUTOCOMPROBACION al final: cada detector se pone rojo ante una copia sembrada.
@@ -42,6 +42,7 @@ function archivos(dir: string): string[] {
 const leer = (rel: string) => fs.readFileSync(path.join(RAIZ, rel), "utf8");
 const LIB = archivos("lib");
 const APP = archivos("app");
+const COMPONENTS = archivos("components");
 
 // ── Detectores (puros, para poder autocomprobarlos) ──
 export const RESTA_SQL = /total_general\s*-\s*\S*total_pago_mensajero/;
@@ -63,6 +64,23 @@ const LECTORES_DE_LA_REGULARIZACION = new Set([
   "lib/repositories/CierreBodegaRepository.ts", // `BODEGA_RESUMEN_SELECT` → `faltaPorRecibir` (R27)
   "lib/repositories/CierresBodegaAdminRepository.ts", // `APORTE_SELECT` → esperado de marcar/corregir
 ]);
+
+/**
+ * T7.3/T7.4 (R43) — los archivos de la conciliacion en PANTALLA y en la ayuda. Se enumeran por
+ * carpeta (lo que nazca ahi entra solo) mas las dos piezas sueltas que la montan o la explican. El
+ * resto de `app/` no se barre: «marca informativa» o «no mueve dinero» se dicen alli de OTRAS cosas
+ * (la tarifa especial, las marcas de la tarjeta POS, el SINPE de bodega), y son verdad.
+ */
+const CONCILIACION_PANTALLA = [
+  ...COMPONENTS.filter((f) => f.startsWith("components/shared/conciliacion/")),
+  ...APP.filter((f) => f.startsWith("app/(app)/wallet/satelites/")),
+  "app/(app)/cierres-admin/_components/CierresBodegaAdminModule.tsx",
+];
+const AYUDA_CONCILIACION = ["docs/ayuda/oficina/wallet-satelites.md", "docs/ayuda/oficina/wallet-caja.md"];
+
+/** R43 — la nota de la conciliacion, LITERAL del requisito (escrita a mano, no leida de su constante). */
+const NOTA_R43 =
+  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»";
 
 /** Los archivos de la conciliacion en `lib/` (R43). */
 const CONCILIACION_LIB = [
@@ -90,10 +108,12 @@ describe("498/T4.4 — el aporte de una satelite tiene UNA sola definicion", () 
     expect(con).toEqual(["lib/repositories/deuda-satelite-sql.ts"]);
   });
 
-  it("⭑ la formula retirada `saldoDe(` no vuelve en `lib/` ni en `app/`", () => {
+  it("⭑ la formula retirada `saldoDe(` no vuelve en `lib/`, `app/` ni `components/`", () => {
     // `AbonoTiendaService`/`CobroTiendaService` tienen un METODO privado `this.saldoDe(` de otra cosa
     // (el saldo de una tienda): se excluyen su declaracion y sus llamadas por `this.`.
-    const con = [...LIB, ...APP].filter((f) => SALDO_DE.test(codigo(f).replace(/this\.saldoDe\(|async saldoDe\(/g, "")));
+    const con = [...LIB, ...APP, ...COMPONENTS].filter((f) =>
+      SALDO_DE.test(codigo(f).replace(/this\.saldoDe\(|async saldoDe\(/g, "")),
+    );
     expect(con).toEqual([]);
   });
 
@@ -121,6 +141,27 @@ describe("498/T4.4 — el aporte de una satelite tiene UNA sola definicion", () 
   it("⭑ R43: los archivos de la conciliacion de `lib/` no dicen que la marca es informativa ni que no mueve dinero", () => {
     const con = CONCILIACION_LIB.filter((f) => TEXTO_INFORMATIVA.test(leer(f)));
     expect(con).toEqual([]);
+  });
+
+  it("⭑ R43 (T7.3/T7.4): ni la pantalla de la conciliacion ni su ayuda lo dicen (con comentarios)", () => {
+    // Anti-vacuidad: el censo de pantalla encuentra las piezas que de verdad concilian.
+    expect(CONCILIACION_PANTALLA).toContain("components/shared/conciliacion/ConciliacionAcciones.tsx");
+    expect(CONCILIACION_PANTALLA).toContain("components/shared/conciliacion/conciliacion-labels.ts");
+    expect(CONCILIACION_PANTALLA).toContain("app/(app)/wallet/satelites/_components/ConciliacionSatelite.tsx");
+    for (const f of AYUDA_CONCILIACION) expect(fs.existsSync(path.join(RAIZ, f)), f).toBe(true);
+    const con = [...CONCILIACION_PANTALLA, ...AYUDA_CONCILIACION].filter((f) => TEXTO_INFORMATIVA.test(leer(f)));
+    expect(con).toEqual([]);
+  });
+
+  it("⭑ R43: la nota de la conciliacion es LITERAL y la retirada no vuelve", () => {
+    const src = leer("components/shared/conciliacion/conciliacion-labels.ts");
+    const m = /NOTA_CONCILIACION_ASIENTA\s*=\s*((?:\s*"[^"]*"\s*\+?)+);/.exec(src);
+    expect(m, "falta NOTA_CONCILIACION_ASIENTA").not.toBeNull();
+    const texto = [...(m as RegExpExecArray)[1].matchAll(/"([^"]*)"/g)].map((x) => x[1]).join("");
+    expect(texto).toBe(NOTA_R43);
+    expect([...APP, ...COMPONENTS].filter((f) => /DESMARCAR_NO_MUEVE_DINERO/.test(leer(f)))).toEqual([]);
+    // La ayuda de satelites la cita tal cual.
+    expect(leer("docs/ayuda/oficina/wallet-satelites.md")).toContain(NOTA_R43);
   });
 });
 

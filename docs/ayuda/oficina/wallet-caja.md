@@ -3,7 +3,7 @@ titulo: Wallet · Caja
 modulo: wallet
 pantalla: /wallet
 roles: [maestro, admin]
-actualizado: 2026-10-22
+actualizado: 2026-11-03
 fuentes:
   - app/(app)/wallet/_components/WalletModule.tsx
   - app/(app)/wallet/_components/CajaResumenCard.tsx
@@ -44,6 +44,8 @@ fuentes:
   - lib/utils/caja-tesoreria.ts
   - lib/utils/comprobante.ts
   - lib/types/wallet.ts
+  - components/shared/conciliacion/MarcarRecibidoDialog.tsx
+  - lib/repositories/asentar-cierre-dia.ts
 ---
 
 # Wallet · Caja
@@ -55,7 +57,7 @@ no del de las tiendas ni del de los mensajeros —esos tienen la suya—.
 
 **El resumen de caja**, arriba: la cifra grande, lo que **entró** y lo que **salió**, la **ganancia de
 Velox Courier** (sin el IVA) con el **IVA cobrado a las tiendas** debajo, el **saldo inicial y aportes**,
-**lo que Velox Courier les debe a las tiendas** y el **IVA por pagar**.
+**lo que Velox Courier les debe a las tiendas**, el **IVA por pagar** y **Por cobrar a satélites**.
 
 **Cómo se compone la ganancia**, desglosada por concepto, para ver de dónde sale de verdad el margen —
 fletes, comisiones, lo que Velox Courier les cobra a las tiendas— y no solo el total. El IVA **no está** en
@@ -73,7 +75,7 @@ fila tiene un botón **Ver** que abre su detalle. Una fila anulada dice **Anulad
 | **Fecha** | El día del movimiento, en hora de Costa Rica |
 | **Movimiento y motivo** | El concepto, dicho desde Velox Courier; debajo, de dónde nace (con la tienda, el mensajero o el cierre) y el motivo que se escribió |
 | **A quién** | La tienda, el mensajero, la persona o el proveedor del movimiento. Si es una tienda o un mensajero, el nombre lleva a su estado de cuenta. **Velox** en un aporte, y **—** en un movimiento viejo que no lo anotaba |
-| **Monto** | **Entra** o **Sale**, el importe y de quién es el dinero: **Velox**, **Tienda**, **Velox (capital)** o **IVA por pagar** |
+| **Monto** | **Entra** o **Sale**, el importe y de quién es el dinero: **Velox**, **Tienda**, **Velox (capital)**, **IVA por pagar** o **Satélite** |
 | **Registró** | Quién lo registró o, si no lo tecleó nadie, **Automático** y qué lo produjo: «Automático · Aprobación del cierre por Ana», «Automático · Plantilla de gasto fijo» |
 | **Ver** | Abre el detalle del movimiento. En una fila anulada, al lado dice **Anulado** |
 
@@ -100,10 +102,12 @@ Cada concepto del libro se lee desde Velox Courier y dice quién le paga a quié
 | **Flete por devolución a origen cobrado a la tienda** / **Flete por devolución a origen cobrado a la tienda anulado** | El flete que Velox Courier le cobra a una tienda cuando su cliente rechaza el pedido, y su anulación. El IVA va en su propia línea, con su propia anulación |
 | **Pago de IVA** / **Pago de IVA anulado** | Lo que Velox Courier le paga a Hacienda del IVA cobrado a las tiendas, y su anulación. Baja (o, al anularlo, sube) el IVA por pagar; la ganancia no cambia |
 | **Indemnización que Velox Courier paga por un incidente** | Lo que Velox Courier paga cuando un envío sufre un incidente. Si se anula, aparece una **Corrección de caja (suma)** por el mismo monto |
+| **Diferencia de la satélite (faltó)** / **Diferencia de la satélite (sobró o pagó)** | Al conciliar una consolidación de una bodega satélite, lo que llegó de menos (sale) o de más (entra) respecto de lo que debía. El dueño es **Satélite** y mueve **Por cobrar a satélites**; nace de la **Conciliación de satélite** y no se registra a mano |
 
 Debajo del concepto, en **Movimiento y motivo**, se dice de dónde nace cada línea con el mismo criterio: **Cierre del día**,
 **Registrado a mano**, **Gasto o sueldo registrado a mano**, **Pago de Velox Courier a una tienda**, **Pago de
-un gasto de una tienda**, **Cobro de Velox Courier a una tienda**, **Pago de una tienda a Velox Courier**…
+un gasto de una tienda**, **Cobro de Velox Courier a una tienda**, **Pago de una tienda a Velox Courier**,
+**Conciliación de satélite**…
 
 ## La cifra grande: «Flujo de dinero registrado» o «Dinero en caja»
 
@@ -151,23 +155,47 @@ la comisión) **no es de Velox Courier**: se le debe a Hacienda. Por eso:
   cobrado a las tiendas **menos lo ya pagado a Hacienda**. Puede salir negativo si se pagó más de lo
   cobrado en lo que estás mirando.
 - La cifra grande **no cambia**: cuenta todo el dinero, también el IVA. Siempre se cumple que la cifra
-  grande es «De Velox» más «De las tiendas» más el IVA por pagar.
+  grande es «De Velox» más «De las tiendas» más el IVA por pagar, menos **Por cobrar a satélites** (ver
+  abajo).
+
+### Por cobrar a satélites
+
+El cuarto bloque de la tarjeta, **siempre visible**, también en 0. Es la cuenta de las **diferencias al
+conciliar** las consolidaciones de las bodegas satélite: cuando la central marca recibido por menos de lo
+que la bodega debía, la diferencia sale de la caja como **Diferencia de la satélite (faltó)** y este
+bloque sube; cuando llega de más, o la bodega paga lo que faltaba y se corrige el monto, entra como
+**Diferencia de la satélite (sobró o pagó)** y el bloque baja. Debajo de la cifra, una pista:
+
+- si es positivo: «Lo que las satélites entregaron de menos al conciliar y aún no han pagado.»;
+- si es negativo: «La central les debe a las satélites.»;
+- en 0, sin pista.
+
+No es ganancia ni gasto de Velox Courier, ni dinero de las tiendas. En el libro, esas filas llevan el dueño
+**Satélite**.
 
 ### La barra de reparto
 
 Solo aparece cuando hay un saldo inicial registrado (la cifra dice **Dinero en caja**). Parte el
-dinero en **De las tiendas**, **De Velox** (ganancia más aportes) y el **IVA por pagar**. Si «De
-Velox Courier» o «De las tiendas» está en negativo, la barra no se parte entre esos dos y en su lugar te dice
-qué pasa; el IVA por pagar se pinta solo cuando es positivo.
+dinero en **De las tiendas**, **De Velox** (ganancia más aportes), el **IVA por pagar** y **Por cobrar a
+satélites**. Si «De Velox Courier» o «De las tiendas» está en negativo, la barra no se parte entre esos dos
+y en su lugar te dice qué pasa; el IVA por pagar y «Por cobrar a satélites» se pintan solo cuando son
+positivos, cada uno con su propio color.
 
 ## De dónde entra el dinero solo
 
 La mayoría de los movimientos **no los teclea nadie**: entran cuando se aprueba el cierre de un
-mensajero. En ese momento se registra lo recaudado, los fletes, las comisiones y lo que se le paga al
-mensajero, todo de una vez.
+mensajero de la central. En ese momento se registra lo recaudado, los fletes, las comisiones y lo que se
+le paga al mensajero, todo de una vez.
 
-Por eso la caja va al ritmo de los cierres, no de las entregas: una entrega de hoy aparece cuando su
-cierre se apruebe.
+**Los cierres de una bodega satélite son la excepción: su dinero entra al conciliar, no al aprobar.**
+Aprobar el cierre de un mensajero de una satélite no mete nada en la caja, porque ese dinero todavía está
+en la bodega. Entra cuando, en **Wallet · Satélites**, se marca recibida la consolidación que lo contiene:
+ahí se registran las mismas líneas de cada cierre y, si llegó de menos o de más, la **Diferencia de la
+satélite**.
+
+Por eso la caja va al ritmo de los cierres (y, en las satélites, de las conciliaciones), no de las
+entregas: una entrega de hoy aparece cuando su cierre se apruebe o, si es de una satélite, cuando se
+concilie.
 
 ## Lo que sí se registra a mano
 
