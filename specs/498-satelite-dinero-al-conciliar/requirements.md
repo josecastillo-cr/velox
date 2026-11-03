@@ -22,6 +22,19 @@
 >   `premio_dia`.
 > - La medición en producción está hecha y la migración de datos pasa sus guardas.
 >
+> **Respuestas del humano del 2026-11-02 a las preguntas de este spec (Q3, Q4, Q5) y al SINPE:**
+>
+> - **SINPE y transferencia**, literal: «No importa a cuál cuenta sea, lo que pasa en la conciliación
+>   es que la central debe recibir en caso de que la tenga la satélite o debe confirmar el recibido si
+>   fue consignado directo a ellos». El monto recibido es el **total** que llegó a la central: lo que
+>   entrega la satélite más lo que la central confirma que le llegó directo a su cuenta (R16a, R16b).
+> - **Q4:** las consolidaciones conciliadas antes de esta ficha se regularizan con una migración que
+>   las da por saldadas con la regla anterior, sin escribir en la caja ni en ningún libro y sin tocar
+>   `monto_recibido`. Su deuda queda en 0 con la fórmula nueva (R54a–R54d). Va en el mismo despliegue.
+> - **Q5:** se permite recibido 0 solo cuando el aporte es cero o negativo (R15a, R15b).
+> - **Q3:** la consolidación rechazada es un límite conocido y aceptado. No hay ninguna hoy. Sin ficha.
+> - **Q1 y Q2** (las del origen) siguen abiertas.
+>
 > **Depende de:** 497 (va antes y toca la misma transacción de aprobación). Este spec parte del estado
 > posterior a la 497: la marca de las barridas vive en el bloque de la 238, después del dinero.
 
@@ -36,8 +49,11 @@
 | **consolidación** | `cierre_bodega`: agrupa cierres satélite aprobados de una zona satélite. |
 | **los tres libros** | `wallet_movimiento` (caja de la central), `wallet_tienda_movimiento` (libro por tienda) y `pago_mensajero_movimiento` (libro del mensajero). |
 | **asentar un cierre** | Escribir en los tres libros lo que hoy escribe la aprobación: los cinco escritores de dinero (caja, libro por tienda, COD a caja, libro del mensajero con su egreso de caja, egreso de indemnización). |
-| **aporte** | Lo que la satélite entrega a la central: `total_general − total_pago_mensajero − total_ingreso_bodega_rechazos`, con signo y sin recortar a cero. Es `paraLaCentral`. |
-| **esperado** | El aporte de la consolidación, calculado desde su snapshot. |
+| **aporte** | Lo que la satélite entrega a la central: `total_general − total_pago_mensajero − total_ingreso_bodega_rechazos`, con signo y sin recortar a cero. Es `paraLaCentral`. Incluye todos los métodos de pago. |
+| **saldada con la regla anterior** | Consolidación que la migración de regularización (R54a) dio por saldada tal como se marcó antes de esta ficha. |
+| **aporte reconocido** | De una consolidación: si está saldada con la regla anterior, el valor que fijó la regularización (su `monto_recibido` en ese momento); si no, su aporte. |
+| **recibido** | El `monto_recibido` de la consolidación: el **total** que llegó a la central por ella, sea cual sea el método y la cuenta (lo que entregó la satélite más lo consignado directo a la central). |
+| **esperado** | El aporte reconocido de la consolidación. Al marcar coincide con su aporte, calculado desde su snapshot. |
 | **diferencia asentada** | Suma con signo de las diferencias ya escritas para una consolidación (marca + correcciones). |
 | **delta** | `(esperado − recibido) − diferencia asentada`. |
 | **cierre que cuenta en la deuda** | Cierre satélite en `aprobado`, consolidado o no y sea cual sea el estado de su consolidación. |
@@ -85,7 +101,7 @@ que la marca, cada cierre satélite aprobado que pertenezca a esa consolidación
 función que da «Para la central», sobre el snapshot de la consolidación, conservando el signo.
 
 **R10.** CUANDO se marca recibida una consolidación y el delta es distinto de cero, el sistema DEBE
-escribir una fila de ajuste (evento `marca`, esperado, recibido y diferencia igual al delta) y
+escribir una fila de ajuste (evento `marca`, esperado, recibido total y diferencia igual al delta) y
 **exactamente un** movimiento de caja con origen en esa fila: un egreso «diferencia de la satélite»
 por el delta si el delta es positivo, o un ingreso «diferencia de la satélite» por su valor absoluto si
 es negativo.
@@ -106,14 +122,32 @@ ni en la tabla de ajustes.
 **R15.** CUANDO se intenta marcar una consolidación ya marcada, el sistema DEBE responder conflicto sin
 escribir ninguna fila.
 
-**R16.** CUANDO se abre el diálogo de marcar recibido, el sistema DEBE proponer como monto lo que la
-satélite debe por esa consolidación (su aporte), no su efectivo.
+**R15a.** SI se marca recibida o se corrige una consolidación con un recibido de 0 y su aporte
+reconocido es positivo, ENTONCES el sistema DEBE rechazarlo con un desenlace propio, sin cambiar la
+consolidación, sin historial y sin escribir ninguna fila.
+
+**R15b.** CUANDO se marca recibida o se corrige una consolidación con un recibido de 0 y su aporte
+reconocido es cero o negativo, el sistema DEBE aceptarlo y aplicar R10/R11 (al marcar) o R17/R18 (al
+corregir). Un recibido negativo o con más de dos decimales DEBE seguir rechazándose en el borde, como
+hoy.
+
+**R16.** CUANDO se abre el diálogo de marcar recibido, el sistema DEBE proponer como monto el aporte de
+la consolidación si es positivo, y 0 si es cero o negativo; nunca su efectivo.
+
+**R16a.** El diálogo de marcar recibido y el de corregir DEBEN mostrar lo recaudado por método
+(efectivo, SINPE, transferencia) y el texto literal: «Escribe todo lo que recibió la central por esta
+consolidación: lo que entregó la satélite más el SINPE o la transferencia que llegó directo a la cuenta
+de la central.»
+
+**R16b.** El sistema DEBE registrar lo recibido de una consolidación como un único monto total, sea
+cual sea el método y la cuenta por la que llegó, y NO DEBE pedir su desglose por método.
 
 ## C · Corregir el monto recibido
 
 **R17.** CUANDO se corrige el monto recibido de una consolidación conciliada, el sistema DEBE calcular
-el delta con la misma fórmula de R10 y, si es distinto de cero, escribir una fila de ajuste con evento
-`correccion` y un movimiento de diferencia solo por esa variación, sin volver a asentar los cierres.
+el delta con el esperado igual a su aporte reconocido y, si es distinto de cero, escribir una fila de
+ajuste con evento `correccion` y un movimiento de diferencia solo por esa variación, sin volver a
+asentar los cierres.
 
 **R18.** SI al corregir el delta es cero, ENTONCES el sistema NO DEBE escribir ni fila de ajuste ni
 movimiento de caja.
@@ -133,9 +167,10 @@ caja: corrige el monto en vez de revertir».
 
 ## E · Deuda de las satélites
 
-**R23.** El sistema DEBE calcular la deuda de una zona satélite como Σ aportes de todos sus cierres que
-cuentan en la deuda − Σ `monto_recibido` de sus consolidaciones no rechazadas. El aporte incluye todos
-los métodos de pago.
+**R23.** El sistema DEBE calcular la deuda de una zona satélite como Σ aportes de sus cierres que
+cuentan en la deuda y no pertenecen a una consolidación saldada con la regla anterior + Σ aportes
+reconocidos de sus consolidaciones saldadas con la regla anterior no rechazadas − Σ `monto_recibido`
+de sus consolidaciones no rechazadas. El aporte incluye todos los métodos de pago.
 
 **R24.** El sistema DEBE mostrar por zona, aparte, cuánto está sin consolidar y cuántos cierres lo
 forman.
@@ -144,19 +179,22 @@ forman.
 filas, y la suma de las deudas de las filas DEBE ser igual al pendiente de la cabecera.
 
 **R26.** El sistema DEBE derivar «Falta por recibir» de una consolidación como
-`aporte(consolidación) − (recibido ?? 0)` desde una sola función, y usarla en todas las pantallas y
+`aporte reconocido − (recibido ?? 0)` desde una sola función, y usarla en todas las pantallas y
 descargas que la muestran.
 
 **R27.** La tarjeta de conciliación del cierre de bodega DEBE cumplir «Recibido + Falta por recibir =
-Para la central».
+Para la central», salvo en una consolidación saldada con la regla anterior, donde DEBE cumplir
+«Recibido + Falta por recibir = aporte reconocido».
 
-**R28.** El sistema DEBE tener una sola definición del aporte. SI la deuda se agrega en SQL, ENTONCES
-la expresión SQL DEBE dar el mismo resultado que la función, con signo, sobre los mismos datos.
+**R28.** El sistema DEBE tener una sola definición del aporte y una sola del aporte reconocido. SI la
+deuda se agrega en SQL, ENTONCES cada expresión SQL DEBE dar el mismo resultado que su función, con
+signo, sobre los mismos datos.
 
 ## F · Estado de cuenta de la bodega
 
 **R29.** El estado de cuenta de una bodega DEBE tomar como «declarado» de cada consolidación no
-rechazada la suma de los aportes de sus cierres, no su efectivo.
+rechazada su aporte reconocido: la suma de los aportes de sus cierres o, si está saldada con la regla
+anterior, el valor que fijó la regularización. Nunca su efectivo.
 
 **R30.** El estado de cuenta DEBE incluir una fila por cada cierre sin consolidar de la zona.
 
@@ -165,7 +203,8 @@ la pantalla de saldos. Para cualquier periodo, «Por entregar al inicio» + decl
 igual a «Por entregar al final».
 
 **R32.** El estado de cuenta y la pantalla de saldos DEBEN usar el mismo predicado de «cierre que
-cuenta en la deuda» y la misma expresión del aporte, declarados en un solo sitio.
+cuenta en la deuda» y la misma expresión del aporte y del aporte reconocido, declarados en un solo
+sitio.
 
 ## G · La caja de la central
 
@@ -200,6 +239,9 @@ exactamente como antes de esta ficha: mismos segmentos, mismas medidas y mismo o
 transferencia) y su total; lo que pertenece a la satélite (el pago a sus mensajeros y su ganancia por
 rechazos); y lo que debe, lo recibido y lo que falta.
 
+**R41a.** MIENTRAS una consolidación esté saldada con la regla anterior, la conciliación DEBE rotularla
+«Saldada con la regla anterior» y mostrar como lo que debe su aporte reconocido.
+
 **R42.** La tabla de saldos de satélites y su descarga DEBEN incluir la columna «Sin consolidar».
 
 **R43.** Ningún texto de la aplicación, de sus contratos ni de la ayuda de usuario DEBE decir que la
@@ -209,14 +251,16 @@ caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corre
 
 **R44.** La ayuda de usuario de Wallet · Satélites y la de Wallet · Caja DEBEN describir el
 comportamiento nuevo: el dinero de un cierre satélite entra a la caja al conciliar, la deuda cuenta
-todos los métodos de pago menos lo que pertenece a la satélite, la columna «Sin consolidar», el
-desenlace de revertir con asientos y el bolsillo «Por cobrar a satélites».
+todos los métodos de pago menos lo que pertenece a la satélite, el monto recibido es el total que llegó
+a la central (también el SINPE o la transferencia consignados directo a ella), el recibido 0 solo
+cuando no hay nada que entregar, la columna «Sin consolidar», las consolidaciones saldadas con la regla
+anterior, el desenlace de revertir con asientos y el bolsillo «Por cobrar a satélites».
 
 ## I · Autorización
 
 **R45.** El sistema DEBE reservar marcar, corregir y revertir a quien hoy tiene ese permiso, con el
 control de rol antes de tocar cualquier repositorio, también en los caminos nuevos (asiento,
-diferencia y `con_asientos`).
+diferencia, recibido 0 y `con_asientos`).
 
 ## J · Esquema y migración de datos
 
@@ -250,11 +294,28 @@ respaldo sin duplicar, borrar solo su tabla de respaldo y borrar el esquema solo
 Aplicar, revertir y volver a aplicar DEBE dejar los tres libros igual que la primera aplicación.
 
 **R53.** CUANDO se revierten las migraciones de esta ficha en orden inverso, la base DEBE quedar sin la
-tabla de ajustes, sin los tres valores de enum y sin filas que los usen, y sin perder ningún valor de
-enum añadido por otra migración.
+tabla de ajustes, sin los tres valores de enum y sin filas que los usen, sin la marca de regularización
+y sin perder ningún valor de enum añadido por otra migración.
 
 **R54.** CUANDO se concilia una consolidación que contiene un cierre retirado por la migración de
 datos, el sistema DEBE volver a asentar ese cierre.
+
+**R54a.** CUANDO se aplica la migración de regularización, el sistema DEBE marcar como saldada con la
+regla anterior cada consolidación conciliada, no rechazada y sin ninguna fila en la tabla de ajustes,
+fijando su aporte reconocido igual a su `monto_recibido`, seleccionadas por predicado y nunca por ids
+escritos en la migración.
+
+**R54b.** La migración de regularización NO DEBE escribir, cambiar ni borrar ninguna fila de los tres
+libros ni de la tabla de ajustes, NO DEBE cambiar `monto_recibido` ni ninguna otra columna existente de
+la consolidación, y NO DEBE marcar ninguna consolidación sin conciliar ni rechazada.
+
+**R54c.** MIENTRAS una consolidación esté saldada con la regla anterior y no se haya corregido, su
+contribución a la deuda de la zona, al pendiente del estado de cuenta y a «Falta por recibir» DEBE ser
+0.
+
+**R54d.** CUANDO se revierte la migración de regularización, el sistema DEBE quitar solo la marca, sin
+tocar ningún otro dato. Aplicar, revertir y volver a aplicar DEBE dejar marcadas las mismas
+consolidaciones con los mismos valores que la primera aplicación.
 
 ## K · Lo que no cambia
 
@@ -272,40 +333,34 @@ asiento pasa por el procedimiento compartido de R5.
   servidor responde `con_asientos` (R20/R21).
 - Registrar la ganancia de la satélite como egreso de la caja y el libro del mensajero en un cierre todo
   SINPE: son las preguntas abiertas del origen (Q1 y Q2). No se resuelven aquí.
-- Cifras de producción: la medición la hizo el humano y no va al repositorio.
+- Desglose por método de lo recibido (R16b): no se registra a qué cuenta ni por qué método llegó.
+- Consolidaciones rechazadas (Q3): límite conocido aceptado por el humano el 2026-11-02. Sin ficha.
+- Cifras de producción: la medición la hace el humano (o el leader con su autorización) y no va al
+  repositorio.
 
 ---
 
 ## Preguntas abiertas
 
-**Q1 (del origen, no bloquea, no se resuelve aquí).** La ganancia de la satélite no se registra como
-egreso de la caja.
+**Q1 (del origen, abierta, no bloquea, no se resuelve aquí).** La ganancia de la satélite no se
+registra como egreso de la caja.
 
-**Q2 (del origen, no bloquea, no se resuelve aquí).** En un cierre todo SINPE, el libro del mensajero
-lo deja con una cuenta por pagar aunque la satélite ya descontó su pago.
+**Q2 (del origen, abierta, no bloquea, no se resuelve aquí).** En un cierre todo SINPE, el libro del
+mensajero lo deja con una cuenta por pagar aunque la satélite ya descontó su pago.
 
-**Q3 (no bloquea). Consolidaciones rechazadas.** Leyendo el código, **no hay ningún camino vivo que
-apruebe una consolidación sin conciliarla.** `aprobarCierreBodega` sigue exportada como Server Action
-(`lib/actions/cierre-bodega.ts:391`) y su servicio llama a `resolverCierreBodega`, pero el CHECK
-`cierre_bodega_conciliacion_coherente` (`db/migrations/20260919120100_cierre_bodega_conciliacion/migration.sql:98-104`)
-rechaza cualquier `aprobado` sin `conciliado_at`, `conciliado_por` y `monto_recibido`. Esa vía falla en
-la base. Lo que **sí** sigue vivo es `rechazarCierreBodega` (Server Action exportada, sin botón). Una
-consolidación rechazada deja sus cierres con `cierre_bodega_id` apuntándola. Esos cierres no pueden
-volver a consolidarse, porque `consolidablesWhere` exige `cierre_bodega_id IS NULL`, ni conciliarse,
-porque la marca exige `solicitado`. Con esta ficha cuentan en la deuda como «sin consolidar» (R23/R24),
-pero su dinero **no entrará nunca a la caja**. ¿Se acepta como límite conocido (sin botón no hay
-camino de uso) o se pide una ficha aparte que, al rechazar, desvincule los cierres o retire la acción?
-Esta ficha no lo cambia.
+**Q3 — RESPONDIDA por el humano el 2026-11-02.** Consolidaciones rechazadas. Se acepta como límite
+conocido: no hay ninguna hoy y la acción `rechazarCierreBodega` no tiene botón. Sin ficha aparte.
+Contexto del análisis: `rechazarCierreBodega` sigue exportada; una consolidación rechazada deja sus
+cierres con `cierre_bodega_id` apuntándola, no pueden reconsolidarse (`consolidablesWhere` exige
+`cierre_bodega_id IS NULL`) ni conciliarse; con esta ficha cuentan en la deuda como «sin consolidar»
+(R23/R24), pero su dinero no entraría nunca a la caja.
 
-**Q4 (no bloquea). Consolidaciones conciliadas antes de esta ficha.** Se marcaron contra el efectivo.
-Con la fórmula nueva, su deuda pasa a incluir el SINPE y la transferencia menos lo que pertenece a la
-satélite. Esa diferencia aparece en la pantalla de saldos, pero no en «Por cobrar a satélites», porque
-no tienen fila de ajuste. Además no se pueden desmarcar: tienen asientos de la aprobación antigua (R20).
-Propuesta: aceptarlo y regularizarlas con «Corregir». Si se corrige al aporte, el delta da cero y no se
-escribe nada en la caja (R18). ¿De acuerdo, o se quiere una regularización por migración?
+**Q4 — RESPONDIDA por el humano el 2026-11-02.** Consolidaciones conciliadas antes de esta ficha. Se
+regularizan con una migración que las da por saldadas con la regla anterior, sin escribir en la caja
+ni en ningún libro y sin tocar `monto_recibido`. Su deuda queda en 0 con la fórmula nueva. Va en el
+mismo despliegue, con medición previa en producción de solo lectura y puerta. Requisitos R54a–R54d y
+R41a. Siguen sin poder desmarcarse (tienen asientos de la aprobación antigua, R20).
 
-**Q5 (no bloquea). Aporte cero o negativo.** El borde exige un monto recibido mayor que cero
-(`montoPositivoSchema`, ficha 431), pero una consolidación con aporte ≤ 0 no tiene nada que entregar.
-Hoy se puede marcar con un monto positivo, y eso escribe una diferencia de ingreso. ¿Se permite marcar
-con 0 cuando el aporte es ≤ 0? La base ya lo admite (`monto_recibido >= 0`). Esta ficha no cambia el
-borde. El diálogo propone el aporte solo si es positivo; si no, el campo arranca vacío (design §8.2).
+**Q5 — RESPONDIDA por el humano el 2026-11-02.** Aporte cero o negativo. Se permite marcar (y corregir)
+con recibido 0 solo cuando el aporte reconocido es cero o negativo. Cambia la validación de la ficha
+431 en ese caso. Requisitos R15a, R15b y R16.

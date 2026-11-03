@@ -25,15 +25,16 @@ después de que esté mergeada. Sale con la próxima release.
       (a) la 497 está mergeada en `origin/dev`: su bloque de barridas está en `resolverCierre` y la
       migración `…_cierre_sin_gestion_confirmacion_fisica` existe;
       (b) el último prefijo de `db/migrations` en `origin/dev`: si alguno es ≥ `20261102160000`, mover
-      las tres fechas de design §3 por encima, manteniendo su orden;
+      las cuatro fechas de design §3 por encima, manteniendo su orden M1 < M2 < M3 < M4;
       (c) los números de línea de design §1 siguen valiendo después de la 497.
       **Hecho:** SHA, prefijos elegidos y diferencias de línea escritos. Si (a) falla, **parar**.
       *Depende de: nada.*
 
-- [ ] **T0.2 — Preguntas abiertas.** Citar en `progress/impl_498.md` lo que el humano haya respondido
-      a Q3–Q5 de `requirements.md`. Ninguna bloquea. Sin respuesta, se implementa lo que dice el diseño
-      (límite declarado para Q3, sin migración para Q4, borde intacto para Q5).
-      **Hecho:** estado de cada pregunta anotado.
+- [ ] **T0.2 — Respuestas del humano.** Copiar a `progress/impl_498.md` las respuestas del 2026-11-02
+      (cabecera de `requirements.md`): SINPE/transferencia (recibido = total, R16a/R16b), Q3 límite
+      aceptado, Q4 regularización por migración (M4, design §3.5), Q5 recibido 0 solo con aporte ≤ 0
+      (design §4.4 bis). Q1 y Q2 siguen abiertas y no se tocan.
+      **Hecho:** las cinco anotadas con su requisito.
       *Depende de: nada.*
 
 ---
@@ -113,6 +114,22 @@ después de que esté mergeada. Sale con la próxima release.
       creerlo (memoria «test de integración verde sin datos»).
       *Depende de: T2.5.*
 
+- [ ] **T2.7 — M4, regularizar lo conciliado antes (Q4).** `…_satelite_498_regularizar/migration.sql`
+      y `down.sql` (design §3.5), con prefijo posterior a M3. Campo `esperadoReglaAnterior` en
+      `CierreBodega` de `db/schema.prisma`, con comentario que cite la decisión del humano del
+      2026-11-02. Antes de escribirla, confirmar que `cierre_bodega` no tiene un trigger que mueva
+      `updated_at` (si lo tiene, anotarlo y decidir con el leader cómo cumplir R54b).
+      **Hecho:** aplicada en local después de M2/M3; `prisma generate`; `migrate diff` vacío; typecheck
+      verde. El `UPDATE` no nombra ningún id ni ninguna fecha.
+      *Depende de: T2.5.*
+
+- [ ] **T2.8 — Test de M4.** Crear `tests/integration/db/498-regularizar-migration.test.ts` con los
+      casos de R53 (M4) y R54a–R54d (design §14): solo marca conciliadas no rechazadas sin fila de
+      ajuste; libros, tabla de ajustes y columnas existentes de `cierre_bodega` idénticos antes y
+      después; deuda 0 de las saldadas; up → down → up determinista; CHECK.
+      **Hecho:** verde y no `skipped`; con la mutación 14 se pone rojo (salida anotada).
+      *Depende de: T2.7.*
+
 ---
 
 ## T3 · Repositorio
@@ -158,13 +175,23 @@ después de que esté mergeada. Sale con la próxima release.
       **Hecho:** T1.3 **verde**; completados en `498-conciliar-asienta-sql-real.test.ts` los casos de
       R8–R15 y R54 (signo, cero, una sola fila, fecha, fallo inyectado que revierte, `conflict` sin
       filas, cierre retirado que se vuelve a asentar, idempotencia del asiento y CHECK de
-      `resolverCierreBodega`).
-      *Depende de: T3.5, T2.5.*
+      `resolverCierreBodega`). El esperado sale de `aporteDeConsolidacion` (T4.1), no de una copia.
+      *Depende de: T3.5, T2.5, T4.1.*
+
+- [ ] **T3.6b — Recibido 0 (Q5).** Design §4.4 bis: `montoCeroSchema` y la unión en
+      `marcarConsolidacionRecibidaSchema` (sin tocar `montoPositivoSchema`), reescribir el comentario
+      de `lib/types/conciliacion-satelites.ts:246-250`, el desenlace `recibido_cero_con_aporte` en
+      repositorio, interfaz, servicio y acciones, y su texto en `conciliacion-labels.ts`.
+      **Hecho:** casos de R15a/R15b verdes en `498-conciliar-asienta-sql-real.test.ts` y en la suite
+      del schema (incluido que `montoPositivoSchema` sigue rechazando `"0"`); la mutación 16 los pone
+      rojos.
+      *Depende de: T3.6, T4.1.*
 
 - [ ] **T3.7 — Corregir escribe solo la variación.** Design §4.5.
-      **Hecho:** casos de R17–R19 verdes. Sustituido `corregir-conciliacion.int.test.ts:304` por su
+      **Hecho:** casos de R17–R19 verdes, incluido el de la saldada con la regla anterior (esperado =
+      aporte reconocido; necesita T2.7). Sustituido `corregir-conciliacion.int.test.ts:304` por su
       inverso (design §11), con la cita de la decisión del 2026-11-02 en el comentario del caso.
-      *Depende de: T3.6.*
+      *Depende de: T3.6, T2.7, T4.1.*
 
 - [ ] **T3.8 — Revertir con asientos.** `tieneAsientos`, el desenlace `con_asientos` en el repositorio,
       su interfaz, el servicio y la acción (design §4.6).
@@ -190,20 +217,25 @@ después de que esté mergeada. Sale con la próxima release.
 ## T4 · Fórmula única, Saldos y Estado de cuenta
 
 - [ ] **T4.1 — Fórmula TS y SQL.** En `lib/utils/conciliacion-satelite.ts`: `faltaPorRecibir`,
-      `aporteDeConsolidacion` y `deudaDeZona`, y retirar `saldoDe`. Crear
-      `lib/repositories/deuda-satelite-sql.ts` (design §5). Migrar `CierreBodegaRepository.ts:136`.
+      `aporteDeConsolidacion` (aporte reconocido: `esperadoReglaAnterior ?? paraLaCentral`) y
+      `deudaDeZona`, y retirar `saldoDe`. Crear `lib/repositories/deuda-satelite-sql.ts` con las cuatro
+      piezas (design §5.2, incluida `saldadaReglaAnteriorSql`). Migrar `CierreBodegaRepository.ts:136`.
       Añadir a `498-deuda-satelite-sql-real.test.ts` la equivalencia SQL ↔ `paraLaCentral` (R28) y a
-      `conciliacion-satelite.test.ts` los casos de `faltaPorRecibir`.
-      **Hecho:** typecheck verde; tests de R26 a R28 verdes.
-      *Depende de: T2.3.*
+      `conciliacion-satelite.test.ts` los casos de `faltaPorRecibir` y de `aporteDeConsolidacion` con y
+      sin `esperadoReglaAnterior`.
+      **Hecho:** typecheck verde; tests de R26 a R28 verdes, incluida la tarjeta de una saldada.
+      *Depende de: T2.3, T2.7.*
 
-- [ ] **T4.2 [P] — Saldos.** `SaldosSatelitesRepository` (design §6) y DTO.
-      **Hecho:** T1.4 **verde**; casos de R23–R25 verdes (Σ filas = cabecera; descarga = página).
+- [ ] **T4.2 [P] — Saldos.** `SaldosSatelitesRepository` (design §6) y DTO (incluidos `debe`,
+      `debePositivo` y `saldadaReglaAnterior`).
+      **Hecho:** T1.4 **verde**; casos de R23–R25 verdes (Σ filas = cabecera; descarga = página; la
+      saldada suma 0) y el caso backend de R41a.
       *Depende de: T4.1.*
 
 - [ ] **T4.3 [P] — Estado de cuenta.** `paginaDeBodega`, `totalesDeBodega`, `periodoDeBodega` y
       `EstadoCuentaService` (design §7).
-      **Hecho:** casos de R29–R31 verdes; las suites existentes del estado de cuenta de la bodega
+      **Hecho:** casos de R29–R31 verdes (declarado de la saldada = su `esperado_regla_anterior`); las
+      suites existentes del estado de cuenta de la bodega
       están verdes o se actualizaron solo donde afirmaban el efectivo, con el motivo anotado.
       *Depende de: T4.1.*
 
@@ -251,10 +283,12 @@ después de que esté mergeada. Sale con la próxima release.
       `wallet-barra-unica-467` verde.
       *Depende de: T6.1.*
 
-- [ ] **T7.2 [P] — Conciliación y saldos.** `ConciliacionSatelite.tsx` (los tres bloques, R41),
-      `SaldosSatelitesTable.tsx` y su descarga (columna «Sin consolidar», R42), `MarcarRecibidoDialog`
-      (prefijo = debe, R16) y `ConciliacionAcciones.tsx` (aviso `con_asientos`, R21).
-      **Hecho:** suites de R16, R21, R41 y R42 verdes.
+- [ ] **T7.2 [P] — Conciliación y saldos.** `ConciliacionSatelite.tsx` (los tres bloques, R41, y el
+      rótulo «Saldada con la regla anterior», R41a), `SaldosSatelitesTable.tsx` y su descarga (columna
+      «Sin consolidar», R42), `MarcarRecibidoDialog` y el diálogo de corregir (prefijo = debe o 0, R16;
+      recaudado por método, texto literal y un solo campo, R16a/R16b; mensaje de
+      `recibido_cero_con_aporte`, R15a) y `ConciliacionAcciones.tsx` (aviso `con_asientos`, R21).
+      **Hecho:** suites de R15a (texto), R16, R16a, R16b, R21, R41, R41a y R42 verdes.
       *Depende de: T6.1.*
 
 - [ ] **T7.3 — Textos.** `conciliacion-labels.ts` (nota literal de R43), `ConciliacionAcciones.tsx`,
@@ -279,10 +313,10 @@ después de que esté mergeada. Sale con la próxima release.
 
 ## T8 · Gate final y despliegue
 
-- [ ] **T8.1 — Contraprueba por mutación.** Las 13 mutaciones de design §14, una a una. Por cada una:
+- [ ] **T8.1 — Contraprueba por mutación.** Las 16 mutaciones de design §14, una a una. Por cada una:
       qué test se puso rojo, y que el diff queda vacío al restaurar. El arnés debe ejecutar de verdad
       (memoria «arnés de mutaciones que miente»): anotar el número de tests corridos por mutación.
-      **Hecho:** 13/13 matadas y anotadas. Si alguna sobrevive, se añade un test y se repite.
+      **Hecho:** 16/16 matadas y anotadas. Si alguna sobrevive, se añade un test y se repite.
       *Depende de: T6.1, T7.5.*
 
 - [ ] **T8.2 — Gate final.** `./init.sh --rapido` (se amplía con `integration/db`) y las guardias a
@@ -296,7 +330,22 @@ después de que esté mergeada. Sale con la próxima release.
       del despliegue cuyos cierres satélite no tienen filas en `wallet_movimiento` con origen
       `cierre_dia` → debe dar 0; cierres satélite aprobados después del despliegue y sin conciliar con
       filas en los tres libros → debe dar 0;
-      (c) que la analítica mueve el ingreso satélite a la fecha de conciliación.
-      La consulta la corre o la autoriza el humano.
+      (c) que la analítica mueve el ingreso satélite a la fecha de conciliación;
+      (d) la verificación de M4 (design §3.5), **solo lectura**: número de consolidaciones con
+      `esperado_regla_anterior` no nulo, Σ de su `monto_recibido` y de su `esperado_regla_anterior`
+      (deben coincidir con la medición de T8.4, salvo las conciliadas entre medición y despliegue,
+      contadas aparte); deuda de cada regularizada = 0; conciliadas sin `esperado_regla_anterior` y
+      sin fila de ajuste con `conciliado_at` en la ventana del despliegue → debe dar 0.
+      La consulta la corre o la autoriza el humano. Sin cifras de producción en el repositorio.
       **Hecho:** nota escrita con el SQL listo para copiar.
       *Depende de: T8.2.*
+
+- [ ] **T8.4 — Medición previa en producción, con puerta (Q4).** Escribir en `progress/impl_498.md`
+      el SQL de **solo lectura** de design §3.5 (conteos (a)–(d)) y la puerta: (c) rechazadas = 0 y
+      (d) conciliadas con `monto_recibido` nulo = 0; si (c) ≠ 0, se revisa Q3 con el humano antes de
+      desplegar. La corre el leader con el MCP de producción (confirmando el proyecto con
+      `get_project_url`) o el humano, **antes** de abrir la release, en el mismo día del despliegue.
+      Las cifras se dicen en el chat y **no** se escriben en el repositorio.
+      **Hecho:** SQL escrito; la puerta tiene veredicto (pasa / no pasa) anotado sin cifras; si no
+      pasa, la release no sale con esta ficha.
+      *Depende de: T8.2. Bloquea: el despliegue de M1–M4.*

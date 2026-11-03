@@ -4,7 +4,12 @@
 > cinco escritores que ya existen: solo cambia **cuándo** corren para un cierre satélite (al conciliar,
 > no al aprobar). La deuda pasa a la fórmula única que ya existía (`paraLaCentral`). Lo único nuevo es
 > lo que H3 exige para registrar la diferencia: dos categorías, un origen, una tabla append-only y un
-> dueño de la caja.
+> dueño de la caja. Y lo que exigen las respuestas del humano del 2026-11-02: **una** columna nullable
+> en `cierre_bodega` para regularizar lo conciliado antes (Q4, §3.5) y el recibido 0 cuando el aporte
+> es ≤ 0 (Q5, §4.4 bis).
+>
+> **Ajuste del 2026-11-02.** Este diseño incorpora las respuestas del humano a Q3, Q4 y Q5 y al SINPE
+> (ver la cabecera de `requirements.md`). Q1 y Q2 siguen abiertas.
 
 Búsqueda hecha con el MCP `codebase-memory` (proyecto `R-job-singularis-projects-ordenex`). Cada
 símbolo citado se confirmó leyendo el archivo real en `dev` (`f0833d64`) el 2026-11-02. Los números de
@@ -55,7 +60,9 @@ línea son de esa revisión, **antes** de la 497.
 
 **Lo que sí queda vivo** es `rechazarCierreBodega` (exportada y sin botón). Un rechazo deja los cierres
 huérfanos: cuentan en la deuda como «sin consolidar», pero no se pueden reconsolidar ni conciliar, y su
-dinero no entraría nunca a la caja. Es Q3 de `requirements.md`. Esta ficha no cambia ese camino.
+dinero no entraría nunca a la caja. Es Q3 de `requirements.md`, **respondida por el humano el
+2026-11-02: límite conocido aceptado** (no hay ninguna consolidación rechazada hoy), sin ficha. Esta
+ficha no cambia ese camino.
 
 **Test que lo fija (R8):** `498-conciliar-asienta-sql-real.test.ts` incluye el caso «`resolverCierreBodega`
 con `aprobado` contra Postgres lanza la violación del CHECK y no deja filas en los tres libros». Si
@@ -65,9 +72,10 @@ alguien relaja el CHECK, el hueco se ve.
 
 ## 3 · Modelo de datos
 
-Tres migraciones nuevas. Prefijos **posteriores a `20261102150000`**, la última fecha que ocupan las
-fichas 496/497/499. T0.1 confirma el último prefijo de `origin/dev` y, si hay uno mayor, se mueve la
-fecha **antes de aplicarla en ningún entorno**.
+Cuatro migraciones nuevas, todas en el mismo despliegue. Prefijos **posteriores a
+`20261102150000`**, la última fecha que ocupan las fichas 496/497/499. T0.1 confirma el último prefijo
+de `origin/dev` y, si hay uno mayor, se mueve la fecha **antes de aplicarla en ningún entorno**,
+manteniendo el orden M1 < M2 < M3 < M4.
 
 ### 3.1 · M1 — `20261102160000_satelite_498_enums` (sola, R46)
 
@@ -220,8 +228,73 @@ usarlo.
 
 ### 3.4 · Orden de reversión
 
-M3 → M2 → M1. Revertir M1 antes que M2 aborta, porque las filas siguen usando los valores. Es la
-protección buscada.
+M4 → M3 → M2 → M1. Revertir M1 antes que M2 aborta, porque las filas siguen usando los valores. Es la
+protección buscada. M4 se revierte primero porque su predicado lee la tabla de M2.
+
+### 3.5 · M4 — `20261102160300_satelite_498_regularizar` (Q4: R54a–R54d)
+
+**Qué decidió el humano (2026-11-02).** Las consolidaciones conciliadas antes de esta ficha se
+marcaron contra el efectivo. Con la fórmula nueva su deuda incluiría el SINPE y la transferencia menos
+lo de la satélite, y ese hueco no es deuda: es el SINPE o la transferencia que ya se recibió por otra
+vía. Se dan por **saldadas con la regla anterior**, sin escribir en la caja ni en ningún libro, y sin
+tocar `monto_recibido` (lo realmente recibido no se falsea). Su deuda queda en 0.
+
+**Mecanismo mínimo: una columna nullable en `cierre_bodega`.**
+
+```sql
+ALTER TABLE "cierre_bodega" ADD COLUMN "esperado_regla_anterior" DECIMAL(12,2);  -- mismo tipo que monto_recibido
+ALTER TABLE "cierre_bodega" ADD CONSTRAINT "cierre_bodega_esperado_regla_anterior_check"
+  CHECK ("esperado_regla_anterior" IS NULL OR "conciliado_at" IS NOT NULL);
+
+UPDATE "cierre_bodega" b
+   SET "esperado_regla_anterior" = b."monto_recibido"
+ WHERE b."conciliado_at" IS NOT NULL
+   AND b."estado"::text <> 'rechazado'
+   AND b."esperado_regla_anterior" IS NULL
+   AND NOT EXISTS (SELECT 1 FROM "conciliacion_bodega_ajuste" a WHERE a."cierre_bodega_id" = b."id");
+```
+
+- **Semántica.** `esperado_regla_anterior IS NOT NULL` = saldada con la regla anterior. Su valor es el
+  **aporte reconocido** (vocabulario de `requirements.md`): sustituye al aporte en la deuda (§6), en el
+  estado de cuenta (§7), en «Falta por recibir» (§5.1) y en el esperado de «Corregir» (§4.5). Como
+  vale `monto_recibido`, la deuda de la consolidación es `monto_recibido − monto_recibido = 0` (R54c).
+- **Por qué un decimal y no un booleano.** Con un booleano la deuda daría 0, pero «Corregir» no tendría
+  esperado: tendría que usar el aporte nuevo y escribiría en la caja, de golpe, todo el hueco del SINPE
+  en la primera corrección. Con el decimal, corregir una regularizada de X a X − 10 escribe una
+  diferencia de 10 y nada más, que es lo que significa «llegó menos de lo que se dio por saldado».
+- **El predicado (R54a)** no usa ids ni fechas escritas. «Antes del despliegue» se expresa como
+  «conciliada y sin ninguna fila de ajuste». Es seguro también al **reaplicar** M4 después de que el
+  código nuevo haya conciliado: una conciliación nueva con delta ≠ 0 tiene fila `marca` y queda fuera;
+  una con delta = 0 y sin correcciones tiene `monto_recibido = aporte`, así que marcarla deja su
+  aporte reconocido igual a su aporte y no cambia ninguna cifra. Por eso up → down → up es
+  determinista (R54d).
+- **No toca libros (R54b).** Es un único `UPDATE` sobre una columna nueva. Ni `monto_recibido`, ni
+  `updated_at` a mano (el `@updatedAt` de Prisma no actúa en SQL), ni ninguna otra tabla.
+- **Corre después de M2** (su predicado lee la tabla de ajustes) y en el mismo `migrate deploy` del
+  build: no hay ventana en la que el código nuevo concilie antes de M4.
+- Prisma: `esperadoReglaAnterior Decimal? @map("esperado_regla_anterior") @db.Decimal(12, 2)` en
+  `CierreBodega`, con comentario que cite la ficha y la decisión del humano. Ningún camino de la app
+  escribe esta columna: solo la migración (lo comprueba la guardia de §11).
+
+`down.sql`:
+
+```sql
+ALTER TABLE "cierre_bodega" DROP CONSTRAINT "cierre_bodega_esperado_regla_anterior_check";
+ALTER TABLE "cierre_bodega" DROP COLUMN "esperado_regla_anterior";
+```
+
+Pérdida declarada del `down`: la marca. Ningún otro dato depende de ella.
+
+**Medición previa en producción, con puerta (T8.4).** Solo lectura, la corre el leader con el MCP de
+producción o el humano, y **sus cifras no se escriben en el repositorio**: se dicen en el chat. Cuenta:
+(a) consolidaciones que cumplen el predicado (sin la tabla de ajustes, que en producción aún no
+existe: conciliadas y no rechazadas) y la Σ de su `monto_recibido`; (b) cuántas de ellas tienen hueco
+entre aporte y recibido; (c) consolidaciones rechazadas; (d) consolidaciones conciliadas con
+`monto_recibido` nulo. **Puerta:** (c) y (d) deben ser 0 (el CHECK de la 431 ya impide (d)); si (c) no
+es 0, la decisión Q3 se revisa con el humano antes de desplegar. (a) se guarda para la verificación
+posterior (T8.3): el número de regularizadas y la Σ de su `monto_recibido` y de su
+`esperado_regla_anterior` deben coincidir con (a), salvo las conciliadas entre la medición y el
+despliegue, que se cuentan aparte por `conciliado_at`; y la deuda de cada regularizada debe ser 0.
 
 ---
 
@@ -328,8 +401,11 @@ await this.escribirDiferencia(tx, { cierreBodegaId: id, evento: "marca", recibid
 `escribirDiferencia` es un método privado que comparten marcar y corregir:
 
 1. Lee el snapshot de la consolidación (`totalGeneral`, `totalPagoMensajero`,
-   `totalIngresoBodegaRechazos`).
-2. `esperado = paraLaCentral(…)`, la misma función que «Para la central» (R9).
+   `totalIngresoBodegaRechazos`) y `esperadoReglaAnterior`.
+2. `esperado = aporteDeConsolidacion(row)` (§5.1): el aporte reconocido. Al marcar,
+   `esperadoReglaAnterior` es siempre nulo (solo lo tienen consolidaciones ya conciliadas), así que
+   da `paraLaCentral(…)`, la misma función que «Para la central» (R9). Al corregir una regularizada da
+   el valor de la regularización (R17).
 3. `asentada = Σ diferencia` de `conciliacion_bodega_ajuste` de esa consolidación, leída en `tx`.
 4. `delta = esperado − recibido − asentada`, con `Prisma.Decimal`.
 5. Si `delta` es cero, termina (R11, R18).
@@ -347,6 +423,35 @@ await this.escribirDiferencia(tx, { cierreBodegaId: id, evento: "marca", recibid
 - **Reintento:** si la transacción se aplicó, un segundo intento ve `conciliado_at` puesto y responde
   `conflict` (R15). Si se revirtió, el reintento empieza de cero. El único parcial de M2 es la red en la
   base.
+
+### 4.4 bis · Recibido 0 (Q5: R15a, R15b)
+
+**Borde.** `marcarConsolidacionRecibidaSchema` (`lib/types/conciliacion-satelites.ts:254-260`), que
+comparten marcar y corregir (`lib/actions/conciliacion-satelites.ts:185, 205`), pasa de
+`montoPositivoSchema` a `z.union([montoPositivoSchema, montoCeroSchema])`, donde `montoCeroSchema`
+admite solo el cero escrito como `"0"`, `"0.0"` o `"0.00"`. **`montoPositivoSchema` no se toca**: lo
+usan otros consumidores (liquidación, gastos fijos, efectos, cierres admin) que no deben aceptar 0. El
+comentario de `:246-250` («si el humano quiere admitir 0, se cambia la pieza compartida») se reescribe:
+el humano admitió el 0 **solo** en la conciliación y **solo** con aporte ≤ 0, que es una regla de dato,
+no de formato; por eso el borde admite el cero literal y la decisión vive en el repositorio. El
+negativo y los tres decimales siguen muriendo en el borde (R15b).
+
+**Repositorio.** En `marcarConciliado` y en `corregirConciliacion`, dentro de la `$transaction` y
+**antes** del `updateMany` guardado: si `monto` es cero, se lee la consolidación y se calcula
+`aporteDeConsolidacion(row)`; si es positivo, la transacción termina con el desenlace
+`"recibido_cero_con_aporte"` sin escribir nada (ni marca, ni historial, ni libros). Si es cero o
+negativo, sigue el camino normal: con aporte 0 el delta da 0 (R11); con aporte negativo el delta es
+negativo y se escribe el ingreso de diferencia por su valor absoluto (R10), igual que con cualquier
+otro recibido.
+
+- Tipos: `MarcaConciliacionResult` gana `"recibido_cero_con_aporte"`; el servicio y las acciones lo
+  propagan como `{ status: "recibido_cero_con_aporte" }`. El control de rol del servicio sigue antes
+  (R45).
+- Texto en pantalla, en `conciliacion-labels.ts`: «Esta consolidación tiene dinero por entregar: el
+  monto recibido no puede ser 0.»
+- **Por qué en el repositorio y no en el servicio:** el aporte se lee del snapshot dentro de la misma
+  transacción que la marca, como el esperado de §4.4. Leerlo fuera sería un segundo camino que lee la
+  fila.
 
 ### 4.5 · Corregir (R17–R19)
 
@@ -372,7 +477,8 @@ alguna fila de los tres libros con `origenTipo = 'cierre_dia'` y `origenId` igua
   `ICierresBodegaAdminRepository`, y `{ status: "con_asientos" }` en el resultado del servicio y de
   `revertirConciliacionAction`.
 - Las consolidaciones conciliadas **antes** de esta ficha tienen asientos de la aprobación antigua, así
-  que tampoco se pueden revertir (Q4).
+  que tampoco se pueden revertir. Quedan saldadas con la regla anterior por M4 (§3.5) y, si su monto
+  no era el correcto, se corrigen con «Corregir» contra su aporte reconocido.
 
 ### 4.7 · Contratos y comentarios que mienten
 
@@ -389,8 +495,10 @@ escribe y por qué ya no es reversible (R43).
 
 - `saldoDe(efectivo, recibido)` **se retira**. La sustituye
   `faltaPorRecibir(aporte: Prisma.Decimal, recibido: Prisma.Decimal | null) = aporte − (recibido ?? 0)`.
-- `aporteDeConsolidacion(row)` = `new Prisma.Decimal(paraLaCentral(totalGeneral, totalPagoMensajero,
-  totalIngresoBodegaRechazos))`. Delega en `paraLaCentral` y no copia la resta.
+- `aporteDeConsolidacion(row)` = el **aporte reconocido**: `row.esperadoReglaAnterior` si no es nulo
+  (§3.5); si no, `new Prisma.Decimal(paraLaCentral(totalGeneral, totalPagoMensajero,
+  totalIngresoBodegaRechazos))`. Delega en `paraLaCentral` y no copia la resta. Es la única función
+  que lee `esperadoReglaAnterior` en TypeScript.
 - `deudaDeZona(aportes, recibido) = aportes − recibido`. La usan Saldos y el Estado de cuenta.
 - Consumidores que cambian: `SaldosSatelitesRepository` (cuatro usos), `CierreBodegaRepository.ts:136`
   (`faltaPorRecibir` de la cabecera: así R27 sale por construcción) y `EstadoCuentaService.ts:415`.
@@ -404,7 +512,13 @@ export const aporteCierreSql = (c: string) => Prisma.raw(`(${c}.total_general - 
 export const cuentaEnLaDeudaSql = (c: string) => Prisma.raw(`(${c}.estado::text = 'aprobado' AND ${c}.destino_tipo::text = 'bodega_satelite')`);
 /** «Sin consolidar» (R24/R30): sin consolidación o con la consolidación rechazada. Requiere LEFT JOIN cierre_bodega. */
 export const sinConsolidarSql = (c: string, cb: string) => Prisma.raw(`(${c}.cierre_bodega_id IS NULL OR ${cb}.estado::text = 'rechazado')`);
+/** «Saldada con la regla anterior» (Q4, §3.5). */
+export const saldadaReglaAnteriorSql = (cb: string) => Prisma.raw(`(${cb}.esperado_regla_anterior IS NOT NULL)`);
 ```
+
+El aporte reconocido en SQL no es una tercera expresión: es `cb.esperado_regla_anterior` para las
+saldadas y `Σ aporteCierreSql` de sus cierres para las demás. Las consultas de §6 y §7 lo componen con
+estas cuatro piezas.
 
 - Los alias son constantes del propio código, nunca entrada de usuario. Por eso se usa `Prisma.raw`.
 - **R28:** la expresión SQL es la gemela declarada de `paraLaCentral`. Una prueba contra Postgres
@@ -419,13 +533,16 @@ export const sinConsolidarSql = (c: string, cb: string) => Prisma.raw(`(${c}.cie
 dinero por dos agregaciones:
 
 1. **Aportes por zona**, sobre `cierre_dia c LEFT JOIN cierre_bodega cb ON cb.id = c.cierre_bodega_id`,
-   filtrando con `cuentaEnLaDeudaSql('c')` y `c.destino_zona_id = ANY(zonas)`. Por zona saca
-   Σ`aporteCierreSql('c')`, Σ del aporte con `FILTER (WHERE sinConsolidarSql)` y el conteo de cierres
-   con ese mismo `FILTER`.
-2. **Recibido por zona**: Σ`monto_recibido` de las consolidaciones no rechazadas. Es el `groupBy` de
-   hoy, solo con `montoRecibido`.
+   filtrando con `cuentaEnLaDeudaSql('c')`, `NOT COALESCE(saldadaReglaAnteriorSql('cb'), false)` y
+   `c.destino_zona_id = ANY(zonas)`. Por zona saca Σ`aporteCierreSql('c')`, Σ del aporte con
+   `FILTER (WHERE sinConsolidarSql)` y el conteo de cierres con ese mismo `FILTER`.
+2. **Recibido y aporte reconocido de las saldadas por zona**: sobre las consolidaciones no rechazadas,
+   Σ`monto_recibido` y Σ`esperado_regla_anterior` (este último solo suma las saldadas; las demás son
+   nulas). Es el `groupBy` de hoy con `montoRecibido` y `esperadoReglaAnterior`.
 
-`deuda = deudaDeZona(aportes, recibido)`. La cola, la antigüedad y la última recibida no cambian de
+`deuda = deudaDeZona(aportes + Σ esperado_regla_anterior, recibido)` (R23). Una saldada aporta
+`monto_recibido` por los dos lados y suma 0 (R54c). Sus cierres nunca son «sin consolidar» (están en
+una consolidación no rechazada), así que la columna «Sin consolidar» no cambia por M4. La cola, la antigüedad y la última recibida no cambian de
 población. La última recibida pasa a `declarado = aporte` y `faltaPorRecibir` (§5.1).
 
 **DTO** (`lib/types/conciliacion-satelites.ts`):
@@ -434,7 +551,8 @@ población. La última recibida pasa a `declarado = aporte` y `faltaPorRecibir` 
   reescribe).
 - Gana `sinConsolidar: string` y `cierresSinConsolidar: number`.
 - `ConsolidacionSateliteDTO` gana `totalPagoMensajero`, `totalIngresoBodegaRechazos` y `paraLaCentral`,
-  todos `string` (R41). Su `faltaPorRecibir` pasa a la fórmula nueva.
+  todos `string` (R41); `debe: string` (el aporte reconocido), `debePositivo: boolean` (§8.4) y
+  `saldadaReglaAnterior: boolean` (R41a). Su `faltaPorRecibir` pasa a la fórmula nueva.
 
 **Cabecera** (`findResumen`): `pendienteTotal` = Σ de las deudas por zona, calculadas con **las mismas
 dos agregaciones** sobre todas las zonas satélite (R25). `bodegasConPendiente` sale de ese mismo mapa.
@@ -449,9 +567,10 @@ fórmula.
 `EstadoCuentaRepository`:
 
 - **`paginaDeBodega`**: el CTE `mov` pasa a tener tres ramas.
-  1. **Declarado por consolidación**: el `monto` es Σ`aporteCierreSql('c')` de sus cierres que cuentan
-     en la deuda, agrupados por `cb.id`, sobre las consolidaciones no rechazadas. La fecha es
-     `cb.solicitado_at`.
+  1. **Declarado por consolidación**: el `monto` es su aporte reconocido:
+     `COALESCE(cb.esperado_regla_anterior, Σ aporteCierreSql('c'))` sobre sus cierres que cuentan en
+     la deuda, agrupados por `cb.id`, sobre las consolidaciones no rechazadas (R29). La fecha es
+     `cb.solicitado_at`. En una saldada, declarado = recibido y la fila no mueve el corrido (R54c).
   2. **Recibido**: igual que hoy.
   3. **Cierre sin consolidar**: una fila por cierre con `cuentaEnLaDeudaSql AND sinConsolidarSql`.
      `tipo` y `categoria` son `'declarado'`, `origen_tipo` es `'cierre_dia'`, `origen_id` es `c.id` y
@@ -532,13 +651,35 @@ la misma: es un tramo propio y no se descuenta de la empresa.
 - Las dos categorías **no** entran en los conceptos que una persona registra a mano
   (`wallet-conceptos-manuales.ts`): solo las escribe la conciliación.
 
-### 8.4 · El diálogo de marcar (R16)
+### 8.4 · El diálogo de marcar y el de corregir (R16, R16a, R16b)
 
-`MarcarRecibidoDialog` recibe `debe` (el aporte de la consolidación, `string` del servidor) en vez de
-`declarado = total_efectivo`. Si el aporte es positivo, prefija el campo con él. Si es cero o negativo,
-el campo arranca vacío y la banda «Debe» lo muestra tal cual. Así no se propone un monto que el borde
-rechaza (Q5). La comparación «es positivo» la decide el servidor con un booleano en el DTO, no el
-navegador.
+`MarcarRecibidoDialog` recibe `debe` (el aporte reconocido de la consolidación, `string` del servidor)
+en vez de `declarado = total_efectivo`. Si `debePositivo`, prefija el campo con `debe`. Si no, lo
+prefija con `0` (Q5 respondida: el 0 se admite justo en ese caso) y la banda «Debe» muestra el aporte
+tal cual. La comparación «es positivo» la decide el servidor con el booleano del DTO, no el navegador.
+
+**Lo recibido es un total, y el diálogo lo dice (respuesta del humano sobre el SINPE).** La central
+recibe de la satélite lo que la satélite tiene, y **confirma** lo que se consignó directo a su cuenta.
+Las dos cosas son lo recibido. El diálogo de marcar y el de corregir (si el de corregir es otra pieza,
+las dos) muestran, encima del campo:
+
+- lo recaudado por método: efectivo, SINPE y transferencia, con los importes del DTO (los mismos de
+  R41);
+- el texto literal de R16a: «Escribe todo lo que recibió la central por esta consolidación: lo que
+  entregó la satélite más el SINPE o la transferencia que llegó directo a la cuenta de la central.»
+
+**Decisión: un solo monto, sin desglose de entrada por método (R16b).** Basta con un monto total y el
+texto, por tres razones medibles en el diseño:
+
+1. El delta (§4.4) y la deuda (§6) solo usan el total recibido. Un desglose no cambia ninguna escritura
+   ni ninguna cifra.
+2. La caja no tiene hoy un bolsillo por cuenta ni por método donde escribir el desglose: guardarlo
+   exigiría columnas nuevas (`recibido_efectivo`, `recibido_sinpe`, `recibido_transferencia`) en
+   `cierre_bodega` y en la tabla de ajustes, más su CHECK de suma, sin ningún lector.
+3. El humano dijo «no importa a cuál cuenta sea». La información que importa (cuánto había por cada
+   método) ya se muestra al lado del campo.
+
+Ver la alternativa descartada I (§12).
 
 ---
 
@@ -550,7 +691,9 @@ No son pantallas nuevas: cambian el cuerpo de pantallas que ya existen. No pasan
   bloques, todos con importes del DTO pintados tal cual:
   1. Recaudado: efectivo, SINPE, transferencia y total.
   2. De la satélite: pago a sus mensajeros y su ganancia por rechazos.
-  3. Debe, Recibido y Falta.
+  3. Debe, Recibido y Falta. «Debe» es el aporte reconocido.
+  Si `saldadaReglaAnterior`, la consolidación lleva el rótulo «Saldada con la regla anterior» (R41a).
+  Si una acción responde `recibido_cero_con_aporte`, se muestra el texto de §4.4 bis y no cambia nada.
 - **`SaldosSatelitesTable.tsx`** y su descarga: columna «Sin consolidar» con el importe y, debajo,
   «N cierres».
 - **`ConciliacionAcciones.tsx`**: si la acción de revertir responde `con_asientos`, aparece el aviso
@@ -569,7 +712,11 @@ No son pantallas nuevas: cambian el cuerpo de pantallas que ya existen. No pasan
     falso.
   - Se retira «Por qué la cifra es solo el EFECTIVO» (`:43-53`), **con sus cifras de producción**, que
     no deben vivir en el repositorio.
-  - Se reescriben «Marcar que llegó»: el monto propuesto es lo que debe, y marcar asienta en la caja.
+  - Se reescriben «Marcar que llegó»: el monto propuesto es lo que debe, el monto es el **total** que
+    llegó a la central (también el SINPE o la transferencia consignados directo a ella), el 0 solo se
+    admite si no hay nada que entregar, y marcar asienta en la caja.
+  - Se explica «Saldada con la regla anterior»: conciliadas antes del cambio, dadas por saldadas tal
+    como se marcaron, sin tocar lo recibido.
   - «Desmarcar no mueve dinero» pasa a «Una vez marcada, se corrige», con la nota literal y el aviso
     `con_asientos`.
   - Se reescribe «Lo que esta pantalla NO hace».
@@ -603,7 +750,11 @@ No son pantallas nuevas: cambian el cuerpo de pantallas que ya existen. No pasan
   `deuda-satelite-sql.ts`;
 - `saldoDe(` no aparece en ningún archivo de `lib/` ni de `app/`;
 - el repositorio no escribe `conciliacionBodegaAjuste.update`, `.updateMany`, `.delete` ni
-  `.deleteMany`.
+  `.deleteMany`;
+- `esperadoReglaAnterior` / `esperado_regla_anterior` solo se lee en `conciliacion-satelite.ts`
+  (`aporteDeConsolidacion`), en `deuda-satelite-sql.ts` y en las consultas de Saldos y del Estado de
+  cuenta, y ningún archivo de `lib/` ni de `app/` lo escribe (solo M4);
+- `marcarConsolidacionRecibidaSchema` no usa un esquema de monto que admita negativos.
 
 Lleva autocomprobación. Estas guardias leen archivos con `fs` y el grafo no las relaciona con el diff:
 se corren **a mano**.
@@ -643,9 +794,28 @@ una, y se mide su equivalencia (R28).
 borraría en silencio los valores que otra rama añada después. Se usa la función de la 488, que lee la
 lista vigente.
 
-**H · Regularizar por migración las consolidaciones conciliadas antes de la ficha (Q4).** Escribiría
-diferencias en producción a partir de un recibido que se tecleó con otra regla. Es decisión del humano
-y no se presupone.
+**H · Regularizar lo conciliado antes de la ficha escribiendo diferencias en la caja, o pidiendo
+«Corregir» una a una (la propuesta original de Q4).** Lo primero escribiría en producción diferencias
+calculadas sobre un recibido que se tecleó con otra regla, y el humano pidió expresamente no escribir
+en la caja ni en ningún libro. Lo segundo obliga a teclear de nuevo cada consolidación, y corregir al
+aporte cambiaría `monto_recibido`, que el humano pidió no falsear. Se adopta la migración de §3.5.
+
+**H2 · Regularizar con un booleano `saldada_regla_anterior`, o excluyendo esas consolidaciones de la
+deuda por fecha.** El booleano deja «Corregir» sin esperado (§3.5). La exclusión por fecha necesita
+un ancla («antes del despliegue») que no está en ninguna fila; una fecha escrita en la migración es
+un id disfrazado y una fecha de otra tabla es mutable (memoria «arreglar lo evidenciado»). El
+predicado «conciliada y sin fila de ajuste» no necesita ancla.
+
+**I · Desglose de entrada por método al marcar (efectivo / SINPE / transferencia recibidos).**
+Descartado como arreglo no mínimo (§8.4): tres columnas nuevas en `cierre_bodega` y en la tabla de
+ajustes, un CHECK de suma y validación por campo, sin ningún lector, porque el delta y la deuda solo
+usan el total. El humano dijo que no importa a qué cuenta llegó. Si un día la caja separa bolsillos
+por cuenta bancaria, se pide entonces.
+
+**J · Relajar `montoPositivoSchema` a ≥ 0 (Q5).** Lo comparten la liquidación, los gastos fijos, los
+efectos y los cierres admin, que no deben aceptar 0. El humano admitió el 0 solo en la conciliación y
+solo con aporte ≤ 0: el borde de la conciliación admite el cero literal y el repositorio decide con el
+dato (§4.4 bis).
 
 ---
 
@@ -658,7 +828,9 @@ y no se presupone.
 | La analítica que lee los libros por fecha mueve el ingreso de los cierres satélite a la fecha de conciliación, y deja de verlo hasta entonces. | Es efecto buscado («Nada entra al aprobar»). Va en la nota de la release. |
 | Saldos de tienda: retirar el crédito de S puede dejar en negativo, hasta conciliar, a una tienda a la que ya se pagó con ese COD. | El humano lo midió antes de decidir. La migración no puede detectarlo, y así se declara. |
 | La base local es compartida entre worktrees. | M1–M3 ponen rojo el gate de otras fichas. Se aplican en el worktree propio y se avisa al leader. |
-| Q3: los cierres de consolidaciones rechazadas no se asientan nunca. | Límite declarado. La acción no tiene botón. |
+| Q3: los cierres de consolidaciones rechazadas no se asientan nunca. | Límite conocido **aceptado por el humano el 2026-11-02**. No hay ninguna hoy y la acción no tiene botón. La medición previa (T8.4) lo vuelve a contar. |
+| Q4: una consolidación conciliada por el código viejo **después** de M4 y antes del cambio de código queda sin regularizar (y, si sus cierres estaban en S, sin asientos). | Cubierto por «no conciliar durante el despliegue». La verificación de T8.3 la detecta: una conciliada sin `esperado_regla_anterior`, sin fila de ajuste y con `conciliado_at` en la ventana. Remedio con el humano. |
+| Q4: una regularizada tiene asientos de la aprobación antigua y su recibido se tecleó contra el efectivo. «Por cobrar a satélites» no la ve. | Es lo que decidió el humano: se da por saldada. Si su recibido estaba mal, «Corregir» escribe la diferencia contra su aporte reconocido. |
 
 ---
 
@@ -674,24 +846,28 @@ por decisión del humano · `[=]` debe quedar verde sin modificar aserciones.
 | R5, R7 | `[N]` `tests/unit/repositories/asentar-cierre-dia.test.ts`: orden de las llamadas idéntico al de la aprobación de hoy; `cajaCodFeed` solo si hay `cod_recaudado`; nunca escribe `premio_ranking` ni `premio_dia`. Idempotencia contra Postgres en `498-conciliar-asienta-sql-real.test.ts` (dos llamadas, mismas filas). |
 | R6 | `[N]` `tests/integration/db/498-composition-root-asiento.int.test.ts`: llama a `marcarConsolidacionRecibidaAction` **inyectando solo `getActor`**, así que corre el `buildService` real. Después cuenta las **filas** en los tres libros con origen en los cierres de la consolidación (> 0) y la fila de diferencia. Los datos se siembran confirmados y se limpian en `afterAll`. Mutación: el constructor sin dependencias por defecto lo pone rojo. |
 | R8–R15, R54 | `[N]` `tests/integration/db/498-conciliar-asienta-sql-real.test.ts`: marcar asienta cada cierre (y solo los de la consolidación); diferencia positiva → un egreso; negativa → un ingreso por el valor absoluto; cero → ninguna fila; una sola fila de diferencia con varios cierres; `fecha_movimiento` ≥ el instante de la marca y > `resuelto_at` del cierre; un fallo inyectado (el feed lanza) deja `conciliado_at` en NULL y cero filas nuevas; un segundo marcar → `conflict` sin filas; un cierre retirado por M3 se vuelve a asentar; `resolverCierreBodega('aprobado')` choca con el CHECK (§2). **Rojo antes del arreglo** (hoy marcar no escribe). |
-| R16 | `[E]` `tests/components/MarcarRecibidoDialog*.test.tsx` (o la suite del diálogo): prefijo = `debe` si es positivo; vacío si no. |
-| R17–R19 | `[N]` el mismo archivo de integración: marcar con faltante y luego corregir dos veces escribe dos filas `correccion` con la variación exacta; corregir al mismo monto no escribe nada; ninguna fila anterior cambia (comparación de las filas previas byte a byte); ningún asiento de cierre nuevo. `[S]` `corregir-conciliacion.int.test.ts:304`. |
+| R15a, R15b | `[N]` en `498-conciliar-asienta-sql-real.test.ts`: marcar con `"0"` una consolidación de aporte positivo → `recibido_cero_con_aporte`, `conciliado_at` NULL, sin historial y cero filas nuevas; con aporte 0 → marcada y sin fila de diferencia; con aporte negativo → marcada y **un** ingreso de diferencia por el valor absoluto; corregir a `"0"` sigue la misma regla. `[E]` la suite del schema (`tests/unit/types/` o la que cubra `marcarConsolidacionRecibidaSchema`): acepta `"0"`, `"0.00"`; rechaza `"-1"`, `"0.001"`, `""`; `montoPositivoSchema` sigue rechazando `"0"` (red de sus otros consumidores). `[E]` `conciliacion-satelites-service.test.ts`: propaga el desenlace; con `adminSatelite`, `forbidden` antes del repositorio. |
+| R16 | `[E]` `tests/components/MarcarRecibidoDialog*.test.tsx` (o la suite del diálogo): prefijo = `debe` si `debePositivo`; `0` si no. |
+| R16a, R16b | `[E]` la misma suite del diálogo, en marcar y en corregir: muestra efectivo, SINPE y transferencia del DTO; el texto literal de R16a; **un solo** campo de monto (ningún input por método). |
+| R17–R19 | `[N]` el mismo archivo de integración: marcar con faltante y luego corregir dos veces escribe dos filas `correccion` con la variación exacta; corregir al mismo monto no escribe nada; ninguna fila anterior cambia (comparación de las filas previas byte a byte); ningún asiento de cierre nuevo; corregir una **saldada con la regla anterior** de X a X − 10 escribe una sola diferencia de 10 (esperado = aporte reconocido, no el aporte). `[S]` `corregir-conciliacion.int.test.ts:304`. |
 | R20, R22 | `[N]` el mismo archivo: revertir con asientos → `con_asientos` y ni `cierre_bodega` ni `historial_accion` cambian; revertir una conciliada sin asientos (consolidación sin dinero) funciona como hoy. `[S]` `marca-conciliacion.int.test.ts:336`. `[E]` `tests/unit/services/conciliacion-satelites-service.test.ts`: propaga `con_asientos`. |
 | R21 | `[E]` `tests/components/` de `ConciliacionAcciones`: con `con_asientos`, el texto literal aparece y la marca no cambia. |
-| R23–R25, R42 | `[N]` `tests/integration/db/498-deuda-satelite-sql-real.test.ts`: una zona con un cierre sin consolidar, uno con SINPE, uno en una consolidación rechazada y uno conciliado con faltante. La deuda es igual a la fórmula hecha a mano; el «sin consolidar» y su conteo; Σ filas = `pendienteTotal`; la descarga es igual a la página. **Rojo antes del arreglo.** `[E]` `SaldosSatelitesTable` y su descarga: la columna «Sin consolidar». |
-| R26, R27 | `[E]` `tests/unit/utils/conciliacion-satelite.test.ts`: `faltaPorRecibir` con recibido nulo, igual, menor y mayor. `[E]` la suite del mapper de `CierreBodegaRepository`: recibido + falta = `paraLaCentral`. |
-| R28, R32 | `[N]` en `498-deuda-satelite-sql-real.test.ts`: `aporteCierreSql` es igual a `paraLaCentral` en casos positivo, cero y negativo, sobre filas reales. `[N]` `aporte-satelite-fuente-unica-498.guardia.test.ts`. |
-| R29–R31 | `[N]` en `498-deuda-satelite-sql-real.test.ts`: el declarado de cada consolidación es Σ aportes de sus cierres; hay una fila por cierre sin consolidar; el pendiente final sin filtros es igual a la deuda de Saldos; para un periodo, inicio + declarado − recibido = final. |
+| R23–R25, R42 | `[N]` `tests/integration/db/498-deuda-satelite-sql-real.test.ts`: una zona con un cierre sin consolidar, uno con SINPE, uno en una consolidación rechazada, uno conciliado con faltante y una consolidación saldada con la regla anterior con hueco SINPE. La deuda es igual a la fórmula hecha a mano (la saldada suma 0); el «sin consolidar» y su conteo; Σ filas = `pendienteTotal`; la descarga es igual a la página. **Rojo antes del arreglo.** `[E]` `SaldosSatelitesTable` y su descarga: la columna «Sin consolidar». |
+| R26, R27 | `[E]` `tests/unit/utils/conciliacion-satelite.test.ts`: `faltaPorRecibir` con recibido nulo, igual, menor y mayor; `aporteDeConsolidacion` devuelve `esperadoReglaAnterior` si no es nulo y `paraLaCentral` si lo es. `[E]` la suite del mapper de `CierreBodegaRepository`: recibido + falta = `paraLaCentral`; en una saldada, recibido + falta = aporte reconocido y falta = 0. |
+| R28, R32 | `[N]` en `498-deuda-satelite-sql-real.test.ts`: `aporteCierreSql` es igual a `paraLaCentral` en casos positivo, cero y negativo, sobre filas reales; el declarado SQL de una saldada es igual a `aporteDeConsolidacion` de esa fila. `[N]` `aporte-satelite-fuente-unica-498.guardia.test.ts`. |
+| R29–R31 | `[N]` en `498-deuda-satelite-sql-real.test.ts`: el declarado de cada consolidación es Σ aportes de sus cierres, y el de una saldada es su `esperado_regla_anterior`; hay una fila por cierre sin consolidar; el pendiente final sin filtros es igual a la deuda de Saldos; para un periodo, inicio + declarado − recibido = final. |
 | R33–R36 | `[E]` `tests/unit/utils/caja-tesoreria.test.ts`: clasificación de las dos categorías; identidad y «De las tiendas» = Σ saldos con diferencia positiva, negativa y cero; un `@ts-expect-error` con un dueño ficticio en el `switch`. |
 | R37 | `[E]` la suite de `CajaResumenCard`: bloque visible con 0; las dos pistas literales según el signo. |
 | R38, R39 | `[E]` `tests/unit/utils/caja-tesoreria.test.ts` (`derivarReparto`): porciones en [0,100] que suman 100 en los límites (P > 0 con G, T e I en cero; P > 0 y S = P; P ≤ 0 → porciones idénticas a las de hoy, con `toEqual` contra un literal). `[E]` la suite de `BarraComposicionCaja`: con P ≤ 0, mismos segmentos que hoy; con P > 0, el tramo propio antes del último. |
 | R40 | `[E]` las suites de `WalletLedger` y de su descarga: dueño «Satélite» en las filas de diferencia. |
 | R41 | `[E]` la suite de `ConciliacionSatelite`: los tres bloques con los importes del DTO. |
+| R41a | `[E]` la misma suite: con `saldadaReglaAnterior`, el rótulo literal «Saldada con la regla anterior» y «Debe» = `debe`; sin él, no hay rótulo. `[N]` en `498-deuda-satelite-sql-real.test.ts`: el DTO de una saldada trae `saldadaReglaAnterior: true`, `debe` = su `esperado_regla_anterior` y `faltaPorRecibir` = 0. |
 | R43 | `[N]` en la guardia de la 498: ningún archivo de `app/`, `components/`, `lib/` ni `docs/ayuda/` contiene «informativa» junto a «marca», «no mueve dinero», «no mueve un col» ni «NINGUN LIBRO DE DINERO» en los archivos de la conciliación. Más la nota literal en `conciliacion-labels.ts`. Lleva autocomprobación. |
 | R44 | `[=]` las guardias de ayuda. Revisión del reviewer contra la lista de §10. |
 | R45 | `[E]` `tests/unit/services/conciliacion-satelites-service.test.ts`: con `adminSatelite`, marcar, corregir y revertir devuelven `forbidden` y el doble del repositorio **no se llama**. |
 | R46, R47, R53 | `[N]` `tests/integration/db/498-satelite-migraciones.test.ts`: los tres valores existen; el CHECK admite egreso/egreso y rechaza egreso/ingreso con la categoría cruzada; la tabla tiene sus CHECK, la FK RESTRICT (borrar la consolidación falla), el único parcial de `marca` y RLS habilitada; M2 down → M1 down deja la base sin los valores y conserva un valor posterior sembrado a propósito; M1 down con filas vivas aborta. |
 | R48–R52 | `[N]` `tests/integration/db/498-retirar-asientos-migration.test.ts`: retira solo lo de S; conserva `premio_ranking` y las filas con `premio_dia`; no toca cierres centrales ni conciliados; con un `liquidacion_pago` contra S aborta con el conteo y cero cambios; respaldo con clave `(tabla, id)`; up → down → up deja los tres libros iguales que el primer up; el `down` no duplica si el cierre ya se volvió a asentar; el esquema se conserva si tiene otra tabla. |
+| R53 (M4), R54a–R54d | `[N]` `tests/integration/db/498-regularizar-migration.test.ts`. Siembra: una conciliada con hueco SINPE, una conciliada con aporte ≤ 0, una conciliada con fila `marca` en la tabla de ajustes, una sin conciliar y una rechazada. Up: marca **solo** las dos primeras, con `esperado_regla_anterior = monto_recibido`; las otras tres quedan en NULL. Conteo y suma por tabla de los tres libros y de `conciliacion_bodega_ajuste`, y `monto_recibido`, `estado`, `conciliado_*` y `updated_at` de todas las consolidaciones, **iguales** antes y después (R54b). La deuda de Saldos y el pendiente del estado de cuenta de la zona de las saldadas, sin otros cierres, dan 0 (R54c). Down: la columna y el CHECK desaparecen y ningún otro dato cambia. Up → down → up: mismas consolidaciones marcadas con los mismos valores (R54d). Reaplicar con una conciliación nueva de delta 0 la marca sin cambiar su deuda. El CHECK rechaza `esperado_regla_anterior` en una sin conciliar. Antes de creerlo, matarlo con la mutación 14. |
 
 **Test rojo antes del arreglo** (T1): el caso «aprobar satélite no escribe en los libros», el caso
 «marcar asienta», el de la deuda con un cierre sin consolidar y SINPE, y la foto de los cierres
@@ -712,7 +888,10 @@ el diff debe quedar vacío al restaurar:
 10. quitar `sinConsolidarSql` de la rama de cierres sueltos del estado de cuenta;
 11. clasificar las diferencias como `propio`;
 12. en M3, quitar `AND p.premio_dia IS NULL`;
-13. en M3, quitar `b.conciliado_at IS NULL` de S.
+13. en M3, quitar `b.conciliado_at IS NULL` de S;
+14. en M4, quitar `NOT EXISTS (… conciliacion_bodega_ajuste …)` o `estado <> 'rechazado'` del predicado;
+15. en `aporteDeConsolidacion` o en la rama 1 del estado de cuenta, ignorar `esperado_regla_anterior`;
+16. en el repositorio, aceptar el recibido 0 sin mirar el aporte.
 
 ---
 
