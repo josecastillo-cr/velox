@@ -7,7 +7,12 @@
 - Leído: `specs/498-…/{requirements,design,tasks}.md`, `progress/impl_498.md`, `CHECKPOINTS.md`, el diff
   completo de `lib/`, `db/migrations/20261103120*` y las suites existentes que cambiaron.
 
-## Veredicto: **RECHAZADO**
+## Veredicto final (segunda vuelta, `6bbb0930`): **OK**
+
+Primera vuelta (`322ea2ae`, informe `0e0c393b`): RECHAZADO por B1 y B2. Los dos están cerrados (ver la
+sección «Segunda vuelta» al final).
+
+## Veredicto de la primera vuelta: **RECHAZADO**
 
 Hay **2 bloqueantes**, los dos de proceso o trazabilidad y baratos de cerrar. En el código no encontré nada
 que bloquee: dinero, migraciones y transacciones están bien, el gate `--rapido` queda en verde y los tests
@@ -246,3 +251,35 @@ encontré ningún debilitamiento ajeno:
 - **m6 — `tests/integration/db/454/_escenario.ts` `asentar()` hace `return` en silencio** si el cierre no
   está `aprobado`. Hoy cada uso va después de una aprobación cuyo estado se afirma aparte, así que no oculta
   nada. Aun así, un `throw` sería más honesto con la memoria «test verde sin datos».
+
+---
+
+## Segunda vuelta — diff `0e0c393b..6bbb0930`
+
+Worktree avanzado por fast-forward a `6bbb0930`. Revisé solo los arreglos; lo ya aprobado no se vuelve a
+revisar.
+
+| Hallazgo | Arreglo | Comprobado |
+| --- | --- | --- |
+| **B1** | `tasks.md` con 39 `[x]` y 2 `[ ]`. Quedan abiertas T8.2 (falta abrir el PR y mirar `gh pr checks`; lo hace el leader) y T8.4 (medición en producción, PENDIENTE por diseño). Las dos llevan una nota que dice qué falta y quién lo hace | **Cerrado** |
+| **B2** | `tests/unit/docs/ayuda-wallet-satelites-498.test.ts`: 13 puntos de R44 escritos a mano sobre los dos `.md`, prohibición de frases de la regla vieja y autocomprobación (quitar un punto o sembrar una frase vieja lo pone rojo) | **Cerrado** |
+| m1 | El leader lo comprobó en preview: está aplicada la M3 de `63c227c5`, que solo difiere en el `DROP TABLE IF EXISTS pg_temp.s_498`. Es inocuo | Cerrado (medido por el leader) |
+| m2 | Desenlace de dominio `saldada_regla_anterior`. Va en el repositorio, después de `tieneAsientos` y antes del `updateMany`, y llega al servicio (`switch` exhaustivo), a la acción y a `ConciliacionAcciones`, que muestra un aviso y deja el diálogo abierto. Tiene tests contra Postgres (sin cambios y sin historial), del servicio y del componente | Cerrado |
+| m6 | `asentar()` lanza si el cierre no está `aprobado`. Las caracterizaciones 454, 455 y 477 siguen en verde | Cerrado |
+| m3, m4, m5 | Sin cambios. Siguen siendo menores y no bloquean. m5 (tono): el test nuevo de R44 fija el voseo de la ayuda, así que el que la unifique tendrá que actualizar sus patrones | Abiertos (menores) |
+
+**Verificación propia:**
+
+- 11 rutas de test tocadas o relacionadas, corridas aisladas: el arreglo m2, el test de R44, el componente, el
+  servicio, las acciones, la guardia `aporte-satelite-fuente-unica-498`, la carpeta 454/caracterizacion,
+  455, 477 y `marca-conciliacion.int`. Resultado: `Test Files 38 passed (38) · Tests 267 passed (267)`.
+- `pnpm run typecheck`: verde.
+- eslint sobre los archivos tocados: sin incidencias.
+- El gate del implementer, `progress/gate_498_revision.log`, termina en `INIT_EXIT=0`. En `integration/db`
+  da 1 rojo en paralelo que salió verde al repetirlo aislado.
+
+**Veredicto de la segunda vuelta: OK.** No quedan bloqueantes. Antes de cerrar la ficha:
+
+- el leader abre el PR y mira `gh pr checks` (T8.2);
+- el leader corre la medición de producción con puerta (T8.4) antes de la release;
+- se añade la entrada de `progress/history.md` al cerrar.
