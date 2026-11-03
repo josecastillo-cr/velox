@@ -54,7 +54,7 @@
   `create` de los 4 tests de `tests/integration/db` citados en design §3.1, sin cambiar sus aserciones.
 
   *Hecho:* `tsc` verde. Depende de B.1.
-- [ ] **B.5 Repositorio** (design §4).
+- [x] **B.5 Repositorio** (design §4).
   - `leerConflictos` con el filtro en el `WHERE`.
   - En `create`, como primera sentencia del callback. En `update`, tras `not_found` y `sin_zona_central`.
   - `esViolacionDistritoUnico` en `_shared/prisma-unique.ts`, con las dos formas de B.2, en los dos `catch`

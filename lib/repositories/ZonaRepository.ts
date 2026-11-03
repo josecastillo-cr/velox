@@ -4,7 +4,10 @@ import { Prisma, type PrismaClient, type RolValue } from "@prisma/client";
 import { ConflictError } from "@/lib/errors";
 import { cambioElPagoAlMensajero } from "@/lib/repositories/_shared/pago-mensajero-cambio";
 import { esViolacionDeClaveForanea } from "@/lib/repositories/_shared/prisma-fk";
-import { textoConstraintP2002 } from "@/lib/repositories/_shared/prisma-unique";
+import {
+  esViolacionDistritoUnico,
+  textoConstraintP2002,
+} from "@/lib/repositories/_shared/prisma-unique";
 import { zonaUnicaDeDistrito } from "@/lib/repositories/_shared/zona-colapso";
 import { ESTADOS_PAQUETE_EN_ESTANTE } from "@/lib/utils/estados-bodega-satelite";
 import { normalizeName } from "@/lib/utils/normalize";
@@ -12,6 +15,7 @@ import { appendAccion, resolverActorCongelado } from "@/lib/repositories/registr
 import { etiquetaDeEntidad } from "@/lib/types/historial-accion-etiquetas";
 import type { ImpactoZonaCentralDTO, TarifaZonaMensajeroDTO, ZonaDTO } from "@/lib/types/zona";
 import type {
+  ConflictoDistritoZona,
   CreateZonaData,
   CreateZonaResult,
   DeleteZonaResult,
@@ -151,6 +155,34 @@ function translateEsCentralConflict(e: unknown): never {
   throw e;
 }
 
+/**
+ * ⭑ FICHA 499 (R9/R10/R11) — LOS DISTRITOS ELEGIDOS QUE YA ESTAN EN OTRA ZONA.
+ *
+ * «Otra zona» es cualquiera al CREAR (`zonaPropiaId = null`) y cualquiera distinta de la que se
+ * guarda al ACTUALIZAR. El filtro va en el `WHERE`, en SQL, y no en JS: asi una mutacion del `NOT`
+ * la ve un test contra Postgres (`tests/integration/db/zona-distrito-unico-499.test.ts`).
+ *
+ * Se lee DENTRO de la transaccion del guardado y ANTES de su primera escritura. Con `READ
+ * COMMITTED` no ve la insercion sin confirmar de otro guardado simultaneo: ese hueco lo cierra el
+ * indice `zona_distrito_distrito_id_key` y el `catch` lo traduce (R13). El repositorio NO ordena:
+ * ordena el service, con el comparador español.
+ */
+async function leerConflictos(
+  tx: Pick<Prisma.TransactionClient, "zonaDistrito">,
+  distritoIds: string[],
+  zonaPropiaId: string | null,
+): Promise<ConflictoDistritoZona[]> {
+  if (distritoIds.length === 0) return [];
+  const filas = await tx.zonaDistrito.findMany({
+    where: {
+      distritoId: { in: distritoIds },
+      ...(zonaPropiaId === null ? {} : { NOT: { zonaId: zonaPropiaId } }),
+    },
+    select: { distrito: { select: { nombre: true } }, zona: { select: { nombre: true } } },
+  });
+  return filas.map((f) => ({ distritoNombre: f.distrito.nombre, zonaNombre: f.zona.nombre }));
+}
+
 function tarifaCreateRows(zonaId: string, tarifas: CreateZonaData["tarifas"]) {
   return tarifas.map((t) => ({
     zonaId,
@@ -214,6 +246,13 @@ export class ZonaRepository implements IZonaRepository {
   async create(data: CreateZonaData, actorUsuarioId: string | null): Promise<CreateZonaResult> {
     try {
       return await this.prisma.$transaction(async (tx) => {
+        // ⭑ 499/R9: LA PRIMERA SENTENCIA DEL CALLBACK, antes incluso de leer y apagar la central
+        // previa. Con un conflicto no se escribe nada: tampoco se le quita la marca a nadie.
+        const conflictos = await leerConflictos(tx, data.distritoIds, null);
+        if (conflictos.length > 0) {
+          return { estado: "distrito_en_otra_zona" as const, conflictos };
+        }
+
         // 376/R12: la central previa se lee ANTES del `updateMany` que la apaga. Despues ya no
         // habria a quien preguntar: el `updateMany` no devuelve las filas que toco.
         const centralPrevia =
@@ -267,6 +306,11 @@ export class ZonaRepository implements IZonaRepository {
         return { estado: "ok" as const, zona: toDTO(zona, data.distritoIds.length, tarifas) };
       });
     } catch (e) {
+      // ⭑ 499/R13: un guardado simultaneo asigno el mismo distrito entre la lectura y el
+      // `createMany`. Prisma ya hizo el rollback; aqui solo se traduce, ANTES de la central.
+      if (esViolacionDistritoUnico(e)) {
+        return { estado: "distrito_en_otra_zona", conflictos: null };
+      }
       translateEsCentralConflict(e);
     }
   }
@@ -366,6 +410,15 @@ export class ZonaRepository implements IZonaRepository {
         // apagar y no entra (R1/R3).
         if (data.esCentral === false && exists.esCentral) {
           return { estado: "sin_zona_central" as const };
+        }
+
+        // ⭑ 499/R10/R14: despues de `not_found` y del corte `sin_zona_central` —que no escriben y
+        // ganan— y ANTES de la primera escritura. Con un conflicto no se aplica NADA del guardado:
+        // ni el nombre, ni los distritos, ni las tarifas, ni la marca, ni la reconciliacion de
+        // ordenes, ni el historial. Los distritos que YA son de esta zona no cuentan (`NOT zonaId`).
+        const conflictos = await leerConflictos(tx, data.distritoIds, id);
+        if (conflictos.length > 0) {
+          return { estado: "distrito_en_otra_zona" as const, conflictos };
         }
 
         // 376/R12: ¿la marca va a LLEGAR a esta zona? Entonces la central previa se lee ANTES del
@@ -642,6 +695,10 @@ export class ZonaRepository implements IZonaRepository {
         };
       });
     } catch (e) {
+      // ⭑ 499/R13: la misma red final que en `create`, antes de la traduccion de la central.
+      if (esViolacionDistritoUnico(e)) {
+        return { estado: "distrito_en_otra_zona", conflictos: null };
+      }
       translateEsCentralConflict(e);
     }
   }

@@ -508,6 +508,8 @@ function txConNM(
 ): ReturnType<typeof buildTx> {
   const tx = buildTx();
   tx.zonaDistrito.findMany
+    // 499: la PRIMERA lectura es la de conflictos (ningun distrito en otra zona).
+    .mockResolvedValueOnce([])
     .mockResolvedValueOnce(previos.map((distritoId) => ({ distritoId })))
     .mockResolvedValueOnce(finales);
   tx.zona.findUnique.mockResolvedValue({ id: "zA", esCentral: false });
@@ -650,7 +652,9 @@ describe("366/T4 — ZonaRepository.update reconcilia la zona de las ordenes", (
       null,
     );
 
-    const segunda = tx.zonaDistrito.findMany.mock.calls[1][0] as {
+    // 499: la llamada 0 es la lectura de conflictos; la 1, `distritosPrevios`; la 2, la segunda
+    // lectura de la N:M que mide este caso.
+    const segunda = tx.zonaDistrito.findMany.mock.calls[2][0] as {
       where: { distritoId: { in: string[] } };
     };
     expect(new Set(segunda.where.distritoId.in)).toEqual(
@@ -685,7 +689,13 @@ describe("366/T4 — ZonaRepository.update reconcilia la zona de las ordenes", (
 
     await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba", ...DATOS_ZONA_A, nombre: "NUEVA" }, null);
 
-    expect(tx.zonaDistrito.findMany).not.toHaveBeenCalled();
+    // 499: la UNICA lectura de la N:M es la de conflictos (sin `NOT`: al crear, cualquier zona es
+    // «otra»). Ninguna de las dos lecturas de la reconciliacion de la 366.
+    expect(tx.zonaDistrito.findMany).toHaveBeenCalledTimes(1);
+    expect(tx.zonaDistrito.findMany.mock.calls[0][0]).toEqual({
+      where: { distritoId: { in: ["d1"] } },
+      select: { distrito: { select: { nombre: true } }, zona: { select: { nombre: true } } },
+    });
     expect(tx.orden.findMany).not.toHaveBeenCalled();
     expect(tx.orden.updateMany).not.toHaveBeenCalled();
     expect(tx.historialAccion.createMany).not.toHaveBeenCalled();
@@ -1038,6 +1048,7 @@ describe("376/T6 — el rastro de `update` (R12/R13/R15)", () => {
     const tx = txDeTraslado();
     tx.zonaDistrito.findMany
       .mockReset()
+      .mockResolvedValueOnce([]) // 499: la lectura de conflictos
       .mockResolvedValueOnce([{ distritoId: "d1" }])
       .mockResolvedValueOnce([{ distritoId: "d1", zonaId: "zB" }]);
     tx.orden.findMany.mockResolvedValue([{ id: "o1", numGuia: 7, numRemision: "R-7" }]);
