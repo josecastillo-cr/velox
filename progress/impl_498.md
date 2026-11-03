@@ -811,3 +811,18 @@ propone lo que debe (o 0 si el servidor dice que no debe nada) y pinta la banda 
 - **m6** `asentar()` del escenario 454 LANZA si el cierre no está `aprobado` (antes `return` mudo). Sus
   seis usuarios siguen verdes (21/21).
 - m1 (preview pudo migrar la M3 vieja), m3, m4, m5: no pedidos en esta tanda; quedan anotados en la revisión.
+
+## Gate de la revisión
+
+Primera corrida de `progress/gate_498_revision.log` (sobre `59295758`): `cierres-bodega-admin-marca.test.ts`
+rojo de verdad (6 casos): su doble de `findUnique` no traía `esperadoReglaAnterior` y el corte de m2 leía
+`undefined` como «saldada». Arreglo de fixture (`esperadoReglaAnterior: null`, la columna que una fila
+real siempre trae) en `e8e403ea`; ninguna aserción cambió. Esa corrida no vale (se editó durante el gate) y
+se repitió entera:
+
+- **`INIT_EXIT=0`, `== init OK ==`** (sobre `e8e403ea`), modo rápido AMPLIADO.
+- Relacionados + guardias: `865 passed (865) · 11310 passed | 17 skipped` (los 17, `AnaliticaPage`).
+- **`tests/integration/db`: 471 archivos, 4 391 tests, 0 skipped** (`1 failed | 4390 passed`).
+  `detalle-en-lote-464.test.ts` rojo en paralelo, verde aislado (6/6): intermitente, ajeno a la ficha.
+- `marca-fuente-unica-493` (timeout de 20 s bajo carga en la corrida invalidada): verde aislado (19/19)
+  y verde en la corrida buena.
