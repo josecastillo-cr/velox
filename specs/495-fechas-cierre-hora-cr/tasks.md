@@ -9,18 +9,21 @@
 ```
 T1 ─┬─> T2 ─┐
     ├─> T3 ─┼─> T5 ─> T6 ─> T7 ─> T8
-    └─> T4 ─┘
+    ├─> T4 ─┤
+    └─> T4b ┘
 ```
 
 T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hecho T1.
 
 ## Checklist
 
-- [ ] **T0 — Arranque.** `git checkout -b fix/495-fechas-cierre-hora-cr origin/dev`; confirmar
+- [x] **T0 — Arranque.** `git checkout -b fix/495-fechas-cierre-hora-cr origin/dev`; confirmar
   `git merge-base HEAD origin/dev` == SHA de `origin/dev`. Re-medir los sitios S1–S7 de
   `requirements.md` (`grep -nE "slice\(\s*0\s*,\s*10\s*\)|fechaDiaISO\(" app/(app)/cierres-admin app/(app)/cierre-dia`).
   **Hecho:** rama creada; la lista medida coincide con S1–S7 (si difiere, anotarlo en
   `progress/impl_495.md` antes de seguir).
+  Ampliación del 2026-11-02: además se añadieron R10–R13 (incidentes) al spec y se commitearon antes
+  de tocar código; la re-medición incluyó `app/(app)/incidentes` (I1–I5).
 
 - [ ] **T1 — Utilidad `fechaDiaInstanteCR` + su test (R6, R8).** En `lib/utils/fecha-dia-iso.ts`,
   la función de `design.md §3.1`, delegando en `fechaCalendarioCR` y con JSDoc que distinga las tres
@@ -69,6 +72,16 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   `fechaDiaISO(cierre.solicitadoAt)` saltan; `fechaDiaInstanteCR(c.solicitadoAt)` y un comentario no).
   **Hecho:** antes de T2/T3 la guardia FALLA listando exactamente S1–S7 (pegar la salida en el
   informe); después, verde con la lista vacía.
+
+- [ ] **T4b — Incidentes (R10, R11, R12, R13).** Ampliación del 2026-11-02. Depende de T1.
+  - `IncidentesAdminModule.tsx:485,501,771`, `IncidentesHistoricoTabla.tsx:193` e
+    `incidentes-descarga-columnas.ts:51,85` según `design.md §3.3 bis`.
+  - Test nuevo `tests/components/incidentes-fechas-cr-495.test.tsx` (R10, R12) y bloque «R11»/«R12»
+    en `tests/unit/descarga/cierres-fechas-cr-495.test.ts`.
+  - La guardia de T4 incluye `app/(app)/incidentes` (R13): antes del arreglo lista I1–I5.
+  **Hecho:** tests en rojo antes y verdes después; `IncidentesAdminModule.test.tsx`,
+  `IncidentesAdminR51.test.tsx`, `descarga/IncidentesDescarga.test.tsx` e
+  `incidentes-descarga-columnas.test.ts` verdes sin tocarlos; contraprueba anotada.
 
 - [ ] **T5 — Fixtures existentes con instantes 00:00–05:59 UTC.** Depende de T2 y T3. Ejecutar
   aislados `tests/unit/actions/cierres-admin-descarga-action.test.ts`,
