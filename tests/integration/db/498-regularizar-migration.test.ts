@@ -94,6 +94,10 @@ describeSiHayBase("498/T2.8 — M4 regulariza lo conciliado antes (Postgres real
 
   it("R54a/R54b: marca SOLO las conciliadas no rechazadas sin ajuste, con = monto_recibido; nada mas cambia", async () => {
     const r = await enTransaccionRevertida(prisma, async (tx) => {
+      // REPEATABLE READ (antes de cualquier otra sentencia): la huella de los libros es de TABLA ENTERA
+      // y otro archivo puede commitear un movimiento en paralelo (medido en el gate de la 498: rojo en
+      // paralelo, verde aislado). Con una foto fija solo cuenta lo que escribe ESTA transaccion.
+      await tx.$executeRawUnsafe("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
       await serializarEscriturasReales(tx);
       const c = await sembrarCasos(tx);
       await correr(tx, DOWN(DIR_M4));
