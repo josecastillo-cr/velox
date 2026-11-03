@@ -757,3 +757,15 @@ MUTACION 16 | Test Files  1 failed (1) · Tests  2 failed | 24 passed (26) | dif
 ```
 
 **16/16 matadas**, diff limpio tras cada restauración. Notas: la 3 es «el libro del mensajero se mueve al final» (invierte el orden mensajero ↔ indemnización); la 4 deja `depsAsiento = {}` y el archivo cae en `beforeAll` (`Test Files 1 failed`, la acción responde INTERNAL); la 11 clasifica las diferencias como `propio`. Ninguna mutación necesitó un test de UI.
+
+## Gate de T8 (backend)
+
+`./init.sh --rapido > progress/gate_498_t8.log 2>&1; echo "INIT_EXIT=$?" >> …` sobre el commit de T8.1/T8.3/T8.4.
+
+- **`INIT_EXIT=0`, `== init OK ==`**, modo rápido AMPLIADO.
+- Relacionados: `Tests 1 failed | 11289 passed | 17 skipped` (los 17 skipped son de `AnaliticaPage.test.tsx`).
+- **`tests/integration/db`: 471 archivos, 4 390 tests, 0 skipped** (`4 failed | 4386 passed`).
+  `498-regularizar-migration` verde en paralelo (5/5) tras el REPEATABLE READ.
+- Rojos en paralelo, verdes al repetirlos aislados (el gate los anota como intermitentes):
+  `ajuste-caja-anulacion-461.test.ts` y `caja-invariante-tiendas.test.ts` (huellas de tabla entera con
+  la base compartida; ninguno toca código de esta tanda).
