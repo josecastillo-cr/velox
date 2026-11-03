@@ -1,3 +1,11 @@
+# ESTADO 2026-11-03 — RELEASE DESPLEGADA (PR #882, b8a9cf43, dpl_9RHvJqPYjfu1Pvcr2TGMTCoxzv1P); in_progress = 0
+
+- En prod: 492, 493 (marca Velox Courier), 495, 496, 497, 499 (hotfix portados). Detalle y verificación en docs/release.md. dev = prod.
+- Mañana: 498 (spec aprobado, 64 req.; dinero satélite al conciliar, lleva migración «saldada con la regla anterior» con medición previa en prod), luego spec de la 500 (resto de H5), 501 (fechas de Pagos registrados, pending), 494 (marca en identificadores, pending).
+- Pendiente de verificar: la 495 en la app; la 497 con el primer cierre real que apruebe bodega.
+- Sin ficha: scripts/seed-zonas.ts (local) puede fallar con el índice de la 499.
+- Decisiones del humano 2026-11-02: las dos cuentas de David se quedan; las API keys de Gameos/Nuform NO se desactivan.
+
 # ESTADO 2026-11-02 (noche) — MARCA 492/493 Y 499 EN `dev`, SIN DESPLEGAR; hotfix portados en curso
 
 - En `dev` sin desplegar: 492 (#876), 493 (#877), 499 (#878), 495 (#879), 496 (#880), 497 (#881). Release en curso 2026-11-03. Antes de prod: gate completo; poner la fecha en la entrada «PENDIENTE» del CHANGELOG (493); pasos post-deploy de la 499 (design §8).

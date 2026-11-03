@@ -239,6 +239,14 @@ Resultado del encendido (E.2), HECHO el 2026-10-31:
 
 ---
 
+## Release del 2026-11-03 — marca Velox Courier (492, 493) y hotfix portados (495, 496, 497, 499)
+
+- **PR #882** (`dev` → `prod`, merge commit), `prod` = `b8a9cf43`, build `dpl_9RHvJqPYjfu1Pvcr2TGMTCoxzv1P` READY (alias `velox-courier.company`). `prod` devuelta a `dev` por fast-forward (dev..prod = 0, prod..dev = 0); con eso desaparecen los 5 merges de releases anteriores que estaban en `prod` y no en `dev`.
+- Gate completo sobre `a0d4e8c3`: 34.654 verdes, 26 skipped, 1 rojo intermitente (`usuarios-filtro-busqueda`: cuenta usuarios creados por tests en paralelo; verde aislado 2/2). Log local `progress/gate_release_492_499.log`.
+- Re-medido en prod antes de abrir (solo lectura): 0 distritos duplicados, 0 órdenes en central con mensajero, cola de cierres sin barridas sin guía.
+- Después: 0 runtime errors (30 min), `/login` 200, las 4 migraciones `20261102*` terminadas, índice `zona_distrito_distrito_id_key` presente, 0 duplicados, columna `cierre_sin_gestion.confirmada_fisica_at` presente, consulta H1 = 0, jobs recurrentes con su fila `pending`.
+- Pendiente: ver la 495 en la app (fechas tras la medianoche UTC); la 497 la estrena bodega con el cierre en cola (avisada por el humano).
+
 ## Release del 2026-10-31 — la 490, páginas legales
 
 - **PR #875** (`dev` → `prod`, merge commit), `prod` = `71a05453`, build `dpl_QzAukUwrKZZFh9GPPvZhbrMFEGCY` READY. Autorización de Carlos: «si apruebo el texto». Gate completo sobre `1d72d20b`: `INIT_EXIT=0`, 34.319 tests (`progress/gate_release_490.log`).
