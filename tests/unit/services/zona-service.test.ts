@@ -34,7 +34,7 @@ function resultadoUpdate(
 
 function buildRepo(overrides: Partial<IZonaRepository> = {}): IZonaRepository {
   return {
-    create: vi.fn().mockResolvedValue(dto()),
+    create: vi.fn().mockResolvedValue({ estado: "ok", zona: dto() }), // 499: `CreateZonaResult`
     findById: vi.fn().mockResolvedValue(dto()),
     list: vi.fn().mockResolvedValue({ items: [dto()], total: 1 }),
     listLite: vi.fn().mockResolvedValue([]), // feature 144; no ejercitado aqui
@@ -386,7 +386,7 @@ describe("esCentral — invariante 'una central' (feature 55/R3/R4/R6)", () => {
     // ya existe otra central; el repo reasigna en su transaccion y devuelve la nueva central
     repo = buildRepo({
       findCentralZonaId: vi.fn().mockResolvedValue("z-old"),
-      create: vi.fn().mockResolvedValue(dto({ id: "z-new", esCentral: true })),
+      create: vi.fn().mockResolvedValue({ estado: "ok", zona: dto({ id: "z-new", esCentral: true }) }),
     });
     service = new ZonaService(repo);
 
@@ -418,7 +418,7 @@ describe("esCentral — invariante 'una central' (feature 55/R3/R4/R6)", () => {
   });
 
   it("crear con esCentral=false persiste false (R4)", async () => {
-    repo = buildRepo({ create: vi.fn().mockResolvedValue(dto({ esCentral: false })) });
+    repo = buildRepo({ create: vi.fn().mockResolvedValue({ estado: "ok", zona: dto({ esCentral: false }) }) });
     service = new ZonaService(repo);
     const r = await service.crear(crearInput({ esCentral: false }), MAESTRO);
     expect(r.status).toBe("ok");

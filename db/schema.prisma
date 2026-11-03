@@ -689,6 +689,9 @@ model ZonaDistrito {
   distrito Distrito @relation(fields: [distritoId], references: [id], onDelete: Cascade)
 
   @@unique([zonaId, distritoId])
+  /// FICHA 499 (R1): un distrito, como mucho, en una zona. El nombre derivado
+  /// `zona_distrito_distrito_id_key` es contrato (`esViolacionDistritoUnico`).
+  @@unique([distritoId])
   @@index([zonaId])
   @@index([distritoId])
   @@map("zona_distrito")

@@ -28,7 +28,7 @@ function distrito(
   nombre: string,
   activo: boolean,
 ): ProvinciaArbolDTO["cantones"][number]["distritos"][number] {
-  return { id, nombre, zonaId: "z-sur", zonaNombre: "Zona Sur", zonaEspecial: false, activo };
+  return { id, nombre, zonaId: "z-sur", zonaNombre: "Zona Sur", zonas: [{ id: "z-sur", nombre: "Zona Sur" }], zonaEspecial: false, activo };
 }
 
 //  Puntarenas (activa)
@@ -88,6 +88,7 @@ async function montarYDesplegar(onSelectedChange?: (ids: string[]) => void) {
   render(
     <GeografiaSelector
       provincias={ARBOL}
+      zonaPropiaId="z-sur"
       initialSelected={INICIALES}
       onSelectedChange={onSelectedChange}
     />,
@@ -143,6 +144,7 @@ describe("374/R47 — el selector de Tarifas SIGUE ofreciendo los nodos retirado
     render(
       <GeografiaSelector
         provincias={ARBOL}
+        zonaPropiaId="z-sur"
         initialSelected={INICIALES}
         onSelectedChange={onSelectedChange}
       />,
@@ -171,7 +173,7 @@ describe("374/R47 — el selector de Tarifas SIGUE ofreciendo los nodos retirado
 describe("374/R39 — el filtro extraído colapsa los espacios, que el `norm()` viejo no hacía", () => {
   it("«puerto  cortes» con dos espacios y sin acentos encuentra «Puerto Cortés»", async () => {
     const user = userEvent.setup();
-    render(<GeografiaSelector provincias={ARBOL} />);
+    render(<GeografiaSelector provincias={ARBOL} zonaPropiaId="z-sur" />);
     await user.type(
       screen.getByRole("searchbox", { name: "Buscar en el catálogo geográfico" }),
       "puerto  cortes",

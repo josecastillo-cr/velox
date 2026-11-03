@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { ZonaRepository } from "@/lib/repositories/ZonaRepository";
-import type { UpdateZonaResult } from "@/lib/interfaces/repositories/IZonaRepository";
+import type { CreateZonaResult, UpdateZonaResult } from "@/lib/interfaces/repositories/IZonaRepository";
 
 // tx mock que reciben las operaciones dentro de $transaction.
 function buildTx() {
@@ -58,20 +58,58 @@ function soloOk(res: UpdateZonaResult): Extract<UpdateZonaResult, { estado: "ok"
   return res;
 }
 
+/** 499: `create` devuelve `CreateZonaResult`; sin conflictos (la `findMany` responde []) es `ok`. */
+function zonaOk(res: CreateZonaResult) {
+  if (res.estado !== "ok") throw new Error(`se esperaba ok y llego ${res.estado}`);
+  return res.zona;
+}
+
 describe("ZonaRepository.create", () => {
+  it("⭑ 499/R13: el rechazo del indice `zona_distrito_distrito_id_key` dentro de create da `conflictos: null`", async () => {
+    // La red final de `create` (revision 499, m2). La forma del error es la MEDIDA en B.2: P2002 sin
+    // `meta.target`, con el nombre del indice en `meta.driverAdapterError.cause.originalMessage`.
+    const tx = buildTx();
+    tx.zona.create.mockResolvedValue({ id: "z1", nombre: "GAM", cobroVehiculo: false, esCentral: false });
+    tx.zonaDistrito.createMany.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError("Unique constraint failed on the (not available)", {
+        code: "P2002",
+        clientVersion: "7.8.0",
+        meta: {
+          modelName: "ZonaDistrito",
+          driverAdapterError: {
+            name: "DriverAdapterError",
+            cause: {
+              originalCode: "23505",
+              originalMessage: "llave duplicada viola restricción de unicidad «zona_distrito_distrito_id_key»",
+              kind: "UniqueConstraintViolation",
+            },
+          },
+        },
+      }),
+    );
+    const res = await repoOf(buildPrisma(tx)).create(
+      { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba", nombre: "GAM", cobroVehiculo: false, esCentral: false, distritoIds: ["d1"], tarifas: [] },
+      null,
+    );
+    expect(res).toEqual({ estado: "distrito_en_otra_zona", conflictos: null });
+  });
+
   it("crea zona + N:M + tarifas en transaccion y devuelve el DTO", async () => {
     const tx = buildTx();
     tx.zona.create.mockResolvedValue({ id: "z1", nombre: "GAM", cobroVehiculo: false, esCentral: false });
     tx.tarifaZonaMensajero.findMany.mockResolvedValue([]);
     const prisma = buildPrisma(tx);
 
-    const dto = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
+    const res = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
       nombre: "GAM",
       cobroVehiculo: false,
       esCentral: false,
       distritoIds: ["d1", "d2"],
       tarifas: [],
     }, null);
+    // 499: `create` devuelve `CreateZonaResult`; aqui no hay conflictos (la `findMany` responde []).
+    if (res.estado !== "ok") throw new Error(`se esperaba ok y llego ${res.estado}`);
+    const dto = res.zona;
 
     // ⭑ FICHA 429 (R11/R12): el par del SINPE viaja en el MISMO acto de creacion, y la bodega
     // nace REVISADA —lo acaba de teclear una persona—. `sinpeRevisadoAt` se comprueba por su TIPO
@@ -109,13 +147,13 @@ describe("ZonaRepository.create", () => {
     ]);
     const prisma = buildPrisma(tx);
 
-    const dto = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
+    const dto = zonaOk(await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
       nombre: "GAM",
       cobroVehiculo: true,
       esCentral: false,
       distritoIds: ["d1"],
       tarifas: [{ cobroEntregado: 10, cobroRechazado: 5, vehiculoId: "v1" }],
-    }, null);
+    }, null));
 
     const arg = tx.tarifaZonaMensajero.createMany.mock.calls[0][0];
     expect(arg.data[0].cobroEntregado).toBeInstanceOf(Prisma.Decimal);
@@ -133,13 +171,13 @@ describe("ZonaRepository — invariante 'una central' (feature 55/R5/R6)", () =>
     tx.tarifaZonaMensajero.findMany.mockResolvedValue([]);
     const prisma = buildPrisma(tx);
 
-    const dto = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
+    const dto = zonaOk(await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
       nombre: "NUEVA",
       cobroVehiculo: false,
       esCentral: true,
       distritoIds: ["d1"],
       tarifas: [],
-    }, null);
+    }, null));
 
     // sin id propio aun: desmarca TODAS las centrales previas
     expect(tx.zona.updateMany).toHaveBeenCalledWith({
@@ -499,6 +537,8 @@ function txConNM(
 ): ReturnType<typeof buildTx> {
   const tx = buildTx();
   tx.zonaDistrito.findMany
+    // 499: la PRIMERA lectura es la de conflictos (ningun distrito en otra zona).
+    .mockResolvedValueOnce([])
     .mockResolvedValueOnce(previos.map((distritoId) => ({ distritoId })))
     .mockResolvedValueOnce(finales);
   tx.zona.findUnique.mockResolvedValue({ id: "zA", esCentral: false });
@@ -641,7 +681,9 @@ describe("366/T4 — ZonaRepository.update reconcilia la zona de las ordenes", (
       null,
     );
 
-    const segunda = tx.zonaDistrito.findMany.mock.calls[1][0] as {
+    // 499: la llamada 0 es la lectura de conflictos; la 1, `distritosPrevios`; la 2, la segunda
+    // lectura de la N:M que mide este caso.
+    const segunda = tx.zonaDistrito.findMany.mock.calls[2][0] as {
       where: { distritoId: { in: string[] } };
     };
     expect(new Set(segunda.where.distritoId.in)).toEqual(
@@ -676,7 +718,13 @@ describe("366/T4 — ZonaRepository.update reconcilia la zona de las ordenes", (
 
     await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba", ...DATOS_ZONA_A, nombre: "NUEVA" }, null);
 
-    expect(tx.zonaDistrito.findMany).not.toHaveBeenCalled();
+    // 499: la UNICA lectura de la N:M es la de conflictos (sin `NOT`: al crear, cualquier zona es
+    // «otra»). Ninguna de las dos lecturas de la reconciliacion de la 366.
+    expect(tx.zonaDistrito.findMany).toHaveBeenCalledTimes(1);
+    expect(tx.zonaDistrito.findMany.mock.calls[0][0]).toEqual({
+      where: { distritoId: { in: ["d1"] } },
+      select: { distrito: { select: { nombre: true } }, zona: { select: { nombre: true } } },
+    });
     expect(tx.orden.findMany).not.toHaveBeenCalled();
     expect(tx.orden.updateMany).not.toHaveBeenCalled();
     expect(tx.historialAccion.createMany).not.toHaveBeenCalled();
@@ -1029,6 +1077,7 @@ describe("376/T6 — el rastro de `update` (R12/R13/R15)", () => {
     const tx = txDeTraslado();
     tx.zonaDistrito.findMany
       .mockReset()
+      .mockResolvedValueOnce([]) // 499: la lectura de conflictos
       .mockResolvedValueOnce([{ distritoId: "d1" }])
       .mockResolvedValueOnce([{ distritoId: "d1", zonaId: "zB" }]);
     tx.orden.findMany.mockResolvedValue([{ id: "o1", numGuia: 7, numRemision: "R-7" }]);

@@ -65,6 +65,7 @@ function datosDeZona(nombre: string, distritoIds: string[]): UpdateZonaData {
 function loQueElFormularioMandaria(
   arbol: ProvinciaArbolDTO[],
   initialSelected: string[],
+  zonaPropiaId: string,
 ): string[] {
   const reportado: string[][] = [];
   const espia = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -72,6 +73,7 @@ function loQueElFormularioMandaria(
     render(
       createElement(GeografiaSelector, {
         provincias: arbol,
+        zonaPropiaId,
         initialSelected,
         onSelectedChange: (ids: string[]) => reportado.push(ids),
       }),
@@ -170,6 +172,7 @@ describeSiHayBase("⭑ 374/R48 — guardar una zona conserva sus distritos RETIR
                 nombre: d.nombre,
                 zonaId: zona.id,
                 zonaNombre: nombreZona,
+                zonas: [{ id: zona.id, nombre: nombreZona }],
                 zonaEspecial: false,
                 activo: d.activo,
               })),
@@ -182,6 +185,7 @@ describeSiHayBase("⭑ 374/R48 — guardar una zona conserva sus distritos RETIR
       const distritoIds = loQueElFormularioMandaria(
         arbol,
         antes.map((f) => f.distritoId),
+        zona.id,
       );
       expect(distritoIds.sort()).toEqual([activo.id, retirado.id].sort());
 
