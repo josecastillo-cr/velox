@@ -18,7 +18,7 @@
  */
 import type { IncidenteAdminDTO } from "@/lib/interfaces/services/IIncidenteAdminService";
 import type { DescargaColumna, DescargaFila } from "@/lib/types/descarga";
-import { fechaDiaISO } from "@/lib/utils/fecha-dia-iso";
+import { fechaDiaInstanteCR } from "@/lib/utils/fecha-dia-iso";
 import { CAUSA_INCIDENTE_LABEL } from "@/app/(app)/mis-asignaciones/_components/causa-incidente-options";
 import { ESTADO_LABEL } from "@/app/(app)/cierres-admin/_components/cierre-labels";
 
@@ -48,7 +48,7 @@ export function filaDescargaIncidentePendiente(
     zona: incidente.zonaNombre,
     causa: CAUSA_INCIDENTE_LABEL[incidente.causa] ?? incidente.causa,
     reportadoPor: incidente.reportadoPorNombre,
-    fecha: fechaDiaISO(incidente.createdAt),
+    fecha: fechaDiaInstanteCR(incidente.createdAt),
   };
 }
 
@@ -82,7 +82,7 @@ export function filaDescargaIncidenteHistorico(
     indemnizacion: incidente.indemnizacion, // STRING tal cual (money-safe)
     resueltoPor: incidente.resueltoPorNombre,
     fechaResuelta:
-      incidente.resueltoAt === null ? null : fechaDiaISO(incidente.resueltoAt),
+      incidente.resueltoAt === null ? null : fechaDiaInstanteCR(incidente.resueltoAt),
     motivo: incidente.motivoRechazo,
   };
 }

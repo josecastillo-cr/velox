@@ -58,6 +58,8 @@ import {
 import { ListaComprobantes } from "@/app/(app)/cierres-admin/_components/ListaComprobantes";
 import { BotonesEvidencia } from "@/app/(app)/cierres-admin/_components/botones-evidencia";
 import { DescargarDatasetButton } from "@/components/shared/DescargarDatasetButton";
+// FICHA 495 — el día de un cierre es el de Costa Rica, no el recorte del ISO en UTC.
+import { fechaDiaInstanteCR } from "@/lib/utils/fecha-dia-iso";
 // Feature 170 (T E.4): las etiquetas compartidas salen del módulo PURO (sin React) para que
 // el archivo de la descarga y esta pantalla no puedan decir cosas distintas (R8).
 import {
@@ -932,7 +934,7 @@ export function CierreDiaModule({
                   type="button"
                   size="sm"
                   variant="outline"
-                  aria-label={`${VER_DETALLE_LABEL} del cierre del ${c.solicitadoAt.slice(0, 10)}`}
+                  aria-label={`${VER_DETALLE_LABEL} del cierre del ${fechaDiaInstanteCR(c.solicitadoAt)}`}
                   onClick={() => abrirDetalle(c)}
                 >
                   {VER_DETALLE_LABEL}
@@ -1023,7 +1025,7 @@ export function CierreDiaModule({
         title={DETALLE_TITULO}
         description={
           cierreAbierto
-            ? `${ESTADO_LABEL[cierreAbierto.estado]} · ${cierreAbierto.solicitadoAt.slice(0, 10)} · ${DESTINO_LABEL[cierreAbierto.destinoTipo]}`
+            ? `${ESTADO_LABEL[cierreAbierto.estado]} · ${fechaDiaInstanteCR(cierreAbierto.solicitadoAt)} · ${DESTINO_LABEL[cierreAbierto.destinoTipo]}`
             : undefined
         }
         confirmLabel="Cerrar"

@@ -56,3 +56,27 @@ export function fechaDiaMovimientoCR(valor: string): string {
     instante.getUTCMilliseconds() === 0;
   return esMedianocheUtc ? fechaDiaISO(texto) : fechaCalendarioCR(instante);
 }
+
+/**
+ * Ficha 495 — el DIA de Costa Rica (`YYYY-MM-DD`) de un INSTANTE (`timestamp`) que llega como
+ * texto ISO en UTC: las fechas de los cierres (`solicitadoAt`, `resueltoAt`, `conciliadoAt`) y de
+ * los incidentes (`createdAt`, `resueltoAt`). Se usa la MISMA en pantalla y en descarga, para que
+ * las dos digan el mismo día por construcción.
+ *
+ * Cuál de las tres funciones de este módulo usar:
+ *
+ * - `fechaDiaISO`: el texto YA es un día calendario (o empieza por él); solo se recorta.
+ * - `fechaDiaMovimientoCR`: ledgers de la wallet, que mezclan instantes con fechas `@db.Date`
+ *   guardadas a medianoche UTC (ficha 172/459).
+ * - `fechaDiaInstanteCR` (esta): un `timestamp` puro. SIN la excepción de medianoche: un cierre
+ *   solicitado a las 18:00:00.000 de Costa Rica es `T00:00:00.000Z` y es del día ANTERIOR.
+ *
+ * El cálculo no se reescribe: es `fechaCalendarioCR`. Lo que no es un instante legible (texto
+ * vacío, la SONDA de la guardia de datos sensibles) cae a `fechaDiaISO`, que lo devuelve TAL CUAL.
+ */
+export function fechaDiaInstanteCR(valor: string): string {
+  const texto = String(valor);
+  const instante = new Date(texto);
+  if (!DIA_ISO.test(texto) || Number.isNaN(instante.getTime())) return fechaDiaISO(texto);
+  return fechaCalendarioCR(instante);
+}

@@ -48,6 +48,9 @@ import {
   filaDescargaIncidentePendiente,
 } from "./incidentes-descarga-columnas";
 import { descargarDatos } from "@/components/shared/descarga-datos";
+// FICHA 495 — las fechas del incidente son `timestamp`: se pintan en el día de Costa Rica, con la
+// misma función que usa su descarga (`incidentes-descarga-columnas.ts`).
+import { fechaDiaInstanteCR } from "@/lib/utils/fecha-dia-iso";
 
 // Feature 158 (T2.8, R49/R50/R54 — camino del ADMIN) — cola de aprobación de incidentes.
 // ESPEJO de `CierresAdminModule` (38), que es la aplicación original del patrón que el humano
@@ -482,7 +485,7 @@ export function IncidentesAdminModule({
               <Dato label="Causa">{CAUSA_INCIDENTE_LABEL[detalle.causa]}</Dato>
               <Dato label="Motivo">{detalle.motivo}</Dato>
               <Dato label="Reportado por">{detalle.reportadoPorNombre}</Dato>
-              <Dato label="Reportado el">{detalle.createdAt.slice(0, 10)}</Dato>
+              <Dato label="Reportado el">{fechaDiaInstanteCR(detalle.createdAt)}</Dato>
               <Dato label="Nº Guía">{detalle.numGuia ?? "—"}</Dato>
               <Dato label="Zona">{detalle.zonaNombre}</Dato>
               {/* FICHA 456 (T3.4, R9): el estado de la orden con su botón de información. */}
@@ -498,7 +501,7 @@ export function IncidentesAdminModule({
               {detalle.resueltoPorNombre ? (
                 <Dato label="Resuelto por">
                   {`${detalle.resueltoPorNombre}${
-                    detalle.resueltoAt ? ` · ${detalle.resueltoAt.slice(0, 10)}` : ""
+                    detalle.resueltoAt ? ` · ${fechaDiaInstanteCR(detalle.resueltoAt)}` : ""
                   }`}
                 </Dato>
               ) : null}
@@ -768,7 +771,7 @@ function columnasPendientes(
     // La causa SIEMPRE traducida: el slug del enum (`danado`) no se pinta nunca.
     { id: "causa", value: "Causa", render: (i) => CAUSA_INCIDENTE_LABEL[i.causa] },
     { id: "reportadoPor", value: "Reportado por", render: (i) => i.reportadoPorNombre },
-    { id: "createdAt", value: "Fecha", render: (i) => i.createdAt.slice(0, 10) },
+    { id: "createdAt", value: "Fecha", render: (i) => fechaDiaInstanteCR(i.createdAt) },
     {
       id: "acciones",
       value: "Acciones",
