@@ -96,6 +96,8 @@ recepción en origen.
 **R18 (Ubicuo).** El sistema DEBE conservar sin cambios `num_guia` y `mensajero_asignado_id` de la
 orden durante la recepción (la recepción solo cambia el estado).
 
+> Revocada para `en_ruta_bodega_central → en_bodega_central` en lo referido a `mensajero_asignado_id` por la 496 (decisión del humano, 2026-11-02); vigente para la devolución y para `num_guia`.
+
 ---
 
 ## Trazabilidad (mapa requisito → prueba, lo completa el implementer)

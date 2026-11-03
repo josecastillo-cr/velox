@@ -93,6 +93,7 @@ describe("RecepcionBodegaCentralService.recibirEnBodegaCentral", () => {
       "o1",
       "en_ruta_bodega_central",
       "os-en-bodega-central",
+      true, // 496/R1: la recoleccion recibida libera al mensajero
       { actorUsuarioId: "u-maestro", origenTipo: "recepcion_bodega_central" },
     );
   });
@@ -113,6 +114,7 @@ describe("RecepcionBodegaCentralService.recibirEnBodegaCentral", () => {
       "o1",
       "devolviendo_a_bodega_central",
       "os-por-devolver-a-tienda",
+      false, // 496/R2: la devolucion conserva el trio
       { actorUsuarioId: "u-maestro", origenTipo: "recepcion_bodega_central" },
     );
   });

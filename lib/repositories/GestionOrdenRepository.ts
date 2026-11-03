@@ -519,8 +519,16 @@ export class GestionOrdenRepository implements IGestionOrdenRepository {
    * `en_ruta_bodega_central` o mas adelante (la bodega central ya la recibio), asi que no hay
    * lista de estados que la acote sin arrastrar ordenes que no son de esa lista.
    *
-   * Conserva las dos guardias del hermano —propiedad (`mensajero_asignado_id`) y `deleted_at IS
-   * NULL`— en el WHERE, nunca en el cliente: un id de historial no autoriza a leer la orden.
+   * Guardias en el WHERE, nunca en el cliente: un id de historial no autoriza a leer la orden.
+   * - `deleted_at IS NULL`, fuera del OR (vale para las dos ramas; 496/R13).
+   * - Propiedad (ficha 496/R10-R12), una de dos:
+   *   1. asignada a este mensajero (`mensajero_asignado_id`), como el hermano (R11: si es de otro,
+   *      fuera);
+   *   2. SIN mensajero y con una `recoleccion_tienda` de este mensajero en el historial: la
+   *      recepcion central de la recoleccion libera la asignacion (496/R1), y la orden sigue siendo
+   *      «recolectada por mi». Exigir el historial es la guarda (R12): sin ella, cualquier id sin
+   *      mensajero seria legible.
+   * La ventana del dia NO va aqui: la impone `findRecoleccionesDeActor`, que decide los ids.
    */
   async findMisAsignacionesByIds(
     mensajeroId: string,
@@ -530,8 +538,19 @@ export class GestionOrdenRepository implements IGestionOrdenRepository {
     const rows = await this.prisma.orden.findMany({
       where: {
         id: { in: ids },
-        mensajeroAsignadoId: mensajeroId,
         deletedAt: null,
+        OR: [
+          { mensajeroAsignadoId: mensajeroId },
+          {
+            mensajeroAsignadoId: null,
+            historialEstados: {
+              some: {
+                origenTipo: "recoleccion_tienda" satisfies OrdenHistorialOrigenTipo,
+                actorUsuarioId: mensajeroId,
+              },
+            },
+          },
+        ],
       },
       ...WITH_ASIGNACION,
     });
