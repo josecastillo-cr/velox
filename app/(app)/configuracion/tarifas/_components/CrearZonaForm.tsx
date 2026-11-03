@@ -512,8 +512,15 @@ export function CrearZonaForm({
         <FieldError id="es-central-zona-error" messages={errors.esCentral} />
       </div>
 
+      {/* ⭑ FICHA 499 (R17/R18) — `zonaPropiaId` es la zona que se edita (`null` al crear): sus
+          distritos se pueden tocar y los de cualquier otra zona salen bloqueados. Sale de
+          `initial.zonaId`, que es lo que el módulo puso al abrir «Editar».
+          No se pasa `zonaIdGuardada` a propósito: tras un primer guardado que falló en la tarifa,
+          el árbol del formulario sigue siendo el de cuando se abrió, así que los distritos recién
+          guardados no aparecen como «de otra zona» y el reintento los puede mandar igual. */}
       <GeografiaSelector
         provincias={provincias}
+        zonaPropiaId={initial?.zonaId ?? null}
         initialSelected={initial?.distritoIds}
         onSelectedChange={setDistritoIds}
         onEspecialesChange={setEspeciales}
