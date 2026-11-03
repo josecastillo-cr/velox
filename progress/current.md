@@ -1,3 +1,10 @@
+# ESTADO 2026-11-03 (tarde) — 498 MERGEADA en `dev` (PR #883, 2f5e38e9), SIN DESPLEGAR; in_progress = 0
+
+- 498 (dinero satélite al conciliar): revisión APROBADA, gate post-merge verde (`progress/gate_dev_tras_883.log`; marca-fuente-unica-493 intermitente, verde aislado). Migraciones M1-M4 (20261103120000-120300) ya aplicadas en local y en preview.
+- Antes de la release: T8.4 = medir en prod con el SQL de solo lectura de `progress/impl_498.md` (puerta (c)=(d)=(e)=0) el mismo día; no conciliar durante el despliegue; tras el deploy, verificaciones b1-b3 y d1-d4 (T8.3).
+- Siguiente: spec de la 500 (resto de H5), 501 (fechas de Pagos registrados), 494 (marca en identificadores).
+- Local: el QA_PASSWORD del .env ya no coincide con las cuentas QA (rotadas hoy). Worktree R:/w498 por borrar (procedimiento seguro).
+
 # ESTADO 2026-11-03 — RELEASE DESPLEGADA (PR #882, b8a9cf43, dpl_9RHvJqPYjfu1Pvcr2TGMTCoxzv1P); in_progress = 0
 - 2026-11-03 (sesión nueva): 498 en `in_progress` (13fd57fc). Worktree `R:/w498`, rama `fix/498-satelite-dinero-al-conciliar`; backend_dev (Opus) haciendo T0–T6. Después: frontend_dev (T7), mutaciones y gate (T8), reviewer. Gate de arranque verde: `progress/gate_498_arranque.log`.
 

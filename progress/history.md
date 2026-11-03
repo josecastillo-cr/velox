@@ -5779,3 +5779,8 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 ## 2026-10-16 — 483 + release 477-483 a prod
 - 483: la guardia 69/R10 (`cierre-detail-inmutable.test.ts`) fallaba en el gate de release por el `cierreDetail.deleteMany` intencional de la 477/R18 (cierre rechazado). El --rapido de la 477 no lo vio (test no relacionado por el grafo). Excepcion acotada a 1 ocurrencia en CierreDiaRepository.ts, mutaciones rojas, revision OK. PR #861.
 - Release #862 (merge commit, 2 padres, b784b8f2): 477-483, sin migraciones. Gate completo verde sobre 9222aa54. Despliegue de produccion success, 0 errores runtime. dev = prod.
+
+## 2026-11-03 — 498 dinero de satélite entra a la caja al conciliar
+- Aprobar un cierre satélite ya no escribe en los libros; marcar recibida la consolidación asienta sus cierres y la diferencia en caja (bolsillo «Por cobrar a satélites»). Deuda sobre todos los métodos; conciliación con dinero no se revierte (se corrige). M1-M4, con M4 regularizando las conciliadas con la regla anterior.
+- Requisitos cubiertos: R1-R44 (64 con los bis/a/b), mapa en progress/impl_498.md; mutaciones 16/16.
+- Deuda: m3 (R2 solo indirecto), m4 (test «R34» no prueba R34), m5 (tono voseo/tuteo entre ayuda y conciliación). T8.4 (medición en prod) pendiente para la release.

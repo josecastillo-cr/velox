@@ -5965,13 +5965,13 @@
       "title": "Dinero de satélite entra a la caja al conciliar",
       "description": "Aprobar un cierre del día satélite no escribe en los libros; marcar recibido asienta los cierres y la diferencia en un bolsillo «Por cobrar a satélites»; deuda con paraLaCentral sobre todos los métodos; conciliación con dinero no se revierte.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "large",
       "depends_on": 497,
       "spec_path": "specs/498-satelite-dinero-al-conciliar",
       "branch": "fix/498-satelite-dinero-al-conciliar",
-      "status_note": "Spec APROBADO el 2026-11-02 (64 requisitos; SINPE/transferencia confirmados en la conciliación, regla anterior por migración, recibido 0 solo con aporte ≤ 0). Espera a la 497 mergeada. Registrada el 2026-11-02: H3 de progress/prompt-hotfix-portable.md. El humano REVOCA la Q2 del 2026-09-16 (deuda solo efectivo) y el carácter informativo/reversible de la conciliación (431, 473): reescribir ayuda y textos. Va tras la 497 (misma transacción de aprobación). Sin multiempresa; esquema respaldo nuevo (sin garantía de inaccesible para la app); premios = premio_ranking + premio_dia (no hay incentivos). Medido en prod: conjunto S pequeño, guardas en 0. Abierto para el spec: ¿algún camino vivo aprueba una consolidación sin conciliarla (resolverCierreBodega)?"
+      "status_note": "MERGEADA en dev el 2026-11-03 (PR #883, 2f5e38e9); revisión APROBADA en 2.ª vuelta (progress/review_498.md), gate --rapido verde (integration/db 4391, 0 skipped), mutaciones 16/16, build Vercel verde. Migraciones 20261103120000-120300 (M1-M4). Antes de prod: T8.4 (medición SQL solo lectura en prod con puerta, progress/impl_498.md) y no conciliar durante el despliegue. Menores abiertos: m3 (R2 indirecto), m4 (test «R34» no prueba R34), m5 (ayuda en voseo, conciliación en tuteo). Etiquetas «Diferencia de la satélite (faltó)/(sobró o pagó)» confirmadas por el humano."
     },
     {
       "id": 499,
