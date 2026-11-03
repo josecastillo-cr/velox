@@ -5952,13 +5952,13 @@
       "title": "Confirmación física incluye las sin gestionar del cierre",
       "description": "Al aprobar un cierre del día, bodega debe escanear también las órdenes barridas a novedad_interna (cierre_sin_gestion, guía congelada); marca confirmada_fisica_at por barrida y sin salida de emergencia.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/497-confirmacion-fisica-sin-gestion",
       "branch": "fix/497-confirmacion-fisica-sin-gestion",
-      "status_note": "Spec aprobado el 2026-11-02 (41 requisitos); la guardia aprobacion-escrituras-cubiertas recibe una entrada nueva (decisión del leader). Espera hueco fullstack. Registrada el 2026-11-02: H2 de progress/prompt-hotfix-portable.md; extiende la feature 238. Inventario: progress/inventario_hotfix_H2_H3_H5.md §1. Puerta medida en prod: hay un cierre en cola con barridas, todas con guía; el humano ya avisó a bodega de que deberá escanearlas. Ramas desde dev, gate --rapido, sale con la próxima release."
+      "status_note": "MERGEADA en dev el 2026-11-03 (PR #881); revisión APROBADA (progress/review_497.md), gate --rapido verde, build de Vercel verde. Puerta de prod re-medida antes de la release: la cola no tiene barridas sin guía. Menores abiertos: el mensaje de entrada ajena dice «gestión» también para barridas; falta caso de integración con num_guia NULL. Spec aprobado el 2026-11-02 (41 requisitos); la guardia aprobacion-escrituras-cubiertas recibe una entrada nueva (decisión del leader). Espera hueco fullstack. Registrada el 2026-11-02: H2 de progress/prompt-hotfix-portable.md; extiende la feature 238. Inventario: progress/inventario_hotfix_H2_H3_H5.md §1. Puerta medida en prod: hay un cierre en cola con barridas, todas con guía; el humano ya avisó a bodega de que deberá escanearlas. Ramas desde dev, gate --rapido, sale con la próxima release."
     },
     {
       "id": 498,
