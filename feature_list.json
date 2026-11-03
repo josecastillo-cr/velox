@@ -5952,7 +5952,7 @@
       "title": "Confirmación física incluye las sin gestionar del cierre",
       "description": "Al aprobar un cierre del día, bodega debe escanear también las órdenes barridas a novedad_interna (cierre_sin_gestion, guía congelada); marca confirmada_fisica_at por barrida y sin salida de emergencia.",
       "zone": "fullstack",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
@@ -5978,13 +5978,13 @@
       "title": "Un distrito en una sola zona",
       "description": "Bloquear en selector, servicio y base que un distrito quede en dos zonas: índice único (distrito_id) en zona_distrito, error de validación con los conflictos, árbol con todas las zonas del distrito y preselección correcta al editar.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "medium",
       "depends_on": null,
       "spec_path": "specs/499-distrito-una-sola-zona",
       "branch": "fix/499-distrito-una-sola-zona",
-      "status_note": "Spec aprobado el 2026-11-02 (25 requisitos). En implementación (backend_dev → frontend_dev). Migraciones: renombrar si chocan con la 497. Registrada el 2026-11-02: H4 de progress/prompt-hotfix-portable.md. Inventario: progress/inventario_hotfix_H1_H4.md. Sin multiempresa: índice UNIQUE (distrito_id) global, sin requisitos de otra empresa ni RLS. Medido en prod: 0 duplicados, la limpieza sale vacía (se escribe igual con respaldo y down.sql). Reescribir los 4 tests que siembran un distrito en dos zonas; varias_zonas se queda como defensa. Ramas desde dev, gate --rapido."
+      "status_note": "MERGEADA en dev el 2026-11-02 (PR #878, merge 9f565065); revisión APROBADA (progress/review_499.md), gate --rapido verde, build de Vercel verde. Pendiente tras el deploy a prod: pasos de design §8 (0 duplicados, índice, órdenes desalineadas, distritos sin zona). Aviso: scripts/seed-zonas.ts (local) puede fallar con P2002 si las planillas ponen un distrito en dos zonas. Spec aprobado el 2026-11-02 (25 requisitos). En implementación (backend_dev → frontend_dev). Migraciones: renombrar si chocan con la 497. Registrada el 2026-11-02: H4 de progress/prompt-hotfix-portable.md. Inventario: progress/inventario_hotfix_H1_H4.md. Sin multiempresa: índice UNIQUE (distrito_id) global, sin requisitos de otra empresa ni RLS. Medido en prod: 0 duplicados, la limpieza sale vacía (se escribe igual con respaldo y down.sql). Reescribir los 4 tests que siembran un distrito en dos zonas; varias_zonas se queda como defensa. Ramas desde dev, gate --rapido."
     },
     {
       "id": 500,
