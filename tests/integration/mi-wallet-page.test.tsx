@@ -82,6 +82,7 @@ vi.mock("@/app/_components/LogoutButton", () => ({
 import { resolveActorFromSession } from "@/lib/auth/resolve-actor";
 import { verMiEstadoCuentaAction } from "@/lib/actions/estado-cuenta";
 import { listarMisCierresAction } from "@/lib/actions/wallet-tienda";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const resolveActorMock = vi.mocked(resolveActorFromSession);
 const estadoMock = vi.mocked(verMiEstadoCuentaAction);
@@ -115,7 +116,7 @@ const PAGO = filaTienda({
   fecha: "2026-08-01",
   categoria: "pago_tienda",
   origenTipo: "pago_tienda",
-  origen: { texto: "Pago de Ordenex a una tienda · 2026-08-01 · Transferencia", enlace: null },
+  origen: { texto: `Pago de ${NOMBRE_ESPERADO} a una tienda · 2026-08-01 · Transferencia`, enlace: null },
   pago: { metodo: "transferencia", referencia: "REF-991" },
   chip: "pagos",
   naceDeUnCierre: false,
@@ -225,14 +226,14 @@ describe("MiWalletPage — pre-fetch del adminTienda (R18/R21, 458-D R34/R36)", 
     expect(estadoMock).toHaveBeenCalledWith({});
     // R21: el importe es el STRING del servidor, pintado con `money`.
     expect(within(tarjetas()).getAllByText("₡48.800").length).toBeGreaterThan(0);
-    expect(within(tarjetas()).getByText("Ordenex te debe ₡48.800")).toBeInTheDocument();
+    expect(within(tarjetas()).getByText(`${NOMBRE_ESPERADO} te debe ₡48.800`)).toBeInTheDocument();
   });
 
-  it("el saldo puede ser NEGATIVO (la tienda le debe a Ordenex) y se lee con su signo y en palabras", async () => {
+  it(`el saldo puede ser NEGATIVO (la tienda le debe a ${NOMBRE_ESPERADO}) y se lee con su signo y en palabras`, async () => {
     sembrar(estadoTienda([filaTienda({ categoria: "cobro_manual", origenTipo: "manual", chip: "cobros", naceDeUnCierre: false, abono: null, cargo: "450.00", saldoCorrido: "-450.00" })]));
     await verMiWallet();
     expect(within(tarjetas()).getAllByText("-₡450").length).toBeGreaterThan(0);
-    expect(within(tarjetas()).getByText("Le debés ₡450 a Ordenex")).toBeInTheDocument();
+    expect(within(tarjetas()).getByText(`Le debés ₡450 a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
   });
 });
 
@@ -250,7 +251,7 @@ describe("458-D R34 + 463 R39 — el estado de cuenta de la tienda: saldo inicia
     expect(within(tarjetas()).getAllByText("₡28.800").length).toBeGreaterThan(0);
   });
 
-  it("los chips de la tienda y el periodo; ningún nombre de la gente de Ordenex («Registró»)", async () => {
+  it(`los chips de la tienda y el periodo; ningún nombre de la gente de ${NOMBRE_ESPERADO} («Registró»)`, async () => {
     sembrar(estadoTienda([COD, FLETE, PAGO]));
     await verMiWallet();
     // FICHA 467: los chips son las opciones de la casilla «Tipo de movimiento» (sin «Todo»: sin elección
@@ -281,21 +282,21 @@ describe("458-D R34 + 463 R39 — el estado de cuenta de la tienda: saldo inicia
       anulacion: { motivo: "Cobro duplicado", por, fecha: "2026-09-20", hora: "10:30" },
     });
 
-  it("R25: un anulado dice «Anulado por Ordenex» con el día, la hora de Costa Rica y el motivo, sin nombre", async () => {
+  it(`R25: un anulado dice «Anulado por ${NOMBRE_ESPERADO}» con el día, la hora de Costa Rica y el motivo, sin nombre`, async () => {
     sembrar(estadoTienda([COD, COBRO_ANULADO(null)]));
     await verMiWallet();
-    const fila = filaCon("Anulado por Ordenex el 2026-09-20 a las 10:30 · Cobro duplicado");
+    const fila = filaCon(`Anulado por ${NOMBRE_ESPERADO} el 2026-09-20 a las 10:30 · Cobro duplicado`);
     expect(fila).toBeInTheDocument();
-    expect(within(fila).getByText("Ordenex te cobró")).toHaveClass("line-through");
+    expect(within(fila).getByText(`${NOMBRE_ESPERADO} te cobró`)).toHaveClass("line-through");
   });
 
   it("R25: aunque la fila trajera un nombre, la tienda no lo ve (ni en pantalla ni en la descarga)", async () => {
     sembrar(estadoTienda([COD, COBRO_ANULADO("Ana Admin")]));
     await verMiWallet();
-    expect(filaCon("Anulado por Ordenex el 2026-09-20 a las 10:30 · Cobro duplicado")).toBeInTheDocument();
+    expect(filaCon(`Anulado por ${NOMBRE_ESPERADO} el 2026-09-20 a las 10:30 · Cobro duplicado`)).toBeInTheDocument();
     expect(document.body.textContent ?? "").not.toContain("Ana Admin");
     expect(lineaDeFila(COBRO_ANULADO("Ana Admin"), ROTULOS_MI_WALLET).estado).toBe(
-      "Anulado por Ordenex el 2026-09-20 a las 10:30 · Cobro duplicado",
+      `Anulado por ${NOMBRE_ESPERADO} el 2026-09-20 a las 10:30 · Cobro duplicado`,
     );
   });
 });
@@ -304,7 +305,7 @@ describe("458-D R35 — `/mi-wallet` solo lee", () => {
   it("ningún botón de registrar, cobrar, pagar, anular ni adjuntar; ni el «Ver» con «Anular…» de la oficina", async () => {
     sembrar(estadoTienda([COD, FLETE, PAGO]));
     await verMiWallet();
-    for (const nombre of [/^Registrar/i, /^Ordenex le cobra/, /le paga a/, /^Anular/, /^Adjuntar/]) {
+    for (const nombre of [/^Registrar/i, new RegExp(`^${NOMBRE_ESPERADO} le cobra`), /le paga a/, /^Anular/, /^Adjuntar/]) {
       expect(screen.queryAllByRole("button", { name: nombre })).toHaveLength(0);
     }
     expect(screen.queryAllByRole("button", { name: /^Ver (?!comprobante|las órdenes)/ })).toHaveLength(0);
@@ -314,26 +315,26 @@ describe("458-D R35 — `/mi-wallet` solo lee", () => {
   it("R78: «Ver comprobante» SOLO en las filas que pueden llevarlo (el pago sí; lo del cierre, no)", async () => {
     sembrar(estadoTienda([COD, FLETE, PAGO]));
     await verMiWallet();
-    expect(within(filaCon("Ordenex te pagó")).getByRole("button", { name: /^Ver comprobante/ })).toBeInTheDocument();
-    expect(within(filaCon("Ordenex te cobró el flete")).queryByRole("button", { name: /^Ver comprobante/ })).toBeNull();
+    expect(within(filaCon(`${NOMBRE_ESPERADO} te pagó`)).getByRole("button", { name: /^Ver comprobante/ })).toBeInTheDocument();
+    expect(within(filaCon(`${NOMBRE_ESPERADO} te cobró el flete`)).queryByRole("button", { name: /^Ver comprobante/ })).toBeNull();
   });
 
   it("R19: la fila del cierre despliega SUS órdenes; el pago, no", async () => {
     sembrar(estadoTienda([COD, PAGO]));
     await verMiWallet();
     expect(within(filaCon("Cobrado a tus clientes en contra-entrega")).getByRole("button", { name: /^Ver las órdenes/ })).toBeInTheDocument();
-    expect(within(filaCon("Ordenex te pagó")).queryByRole("button", { name: /^Ver las órdenes/ })).toBeNull();
+    expect(within(filaCon(`${NOMBRE_ESPERADO} te pagó`)).queryByRole("button", { name: /^Ver las órdenes/ })).toBeNull();
   });
 });
 
 describe("MiWalletPage — la tienda distingue el pago del cargo (172 R55) [P5]", () => {
-  it("el pago se lee «Ordenex te pagó», con cómo se pagó; el flete, «Ordenex te cobró el flete»", async () => {
+  it(`el pago se lee «${NOMBRE_ESPERADO} te pagó», con cómo se pagó; el flete, «${NOMBRE_ESPERADO} te cobró el flete»`, async () => {
     sembrar(estadoTienda([COD, FLETE, PAGO]));
     await verMiWallet();
-    const pago = filaCon("Ordenex te pagó");
+    const pago = filaCon(`${NOMBRE_ESPERADO} te pagó`);
     expect(within(pago).getByText("Cómo se pagó: Transferencia · referencia REF-991")).toBeInTheDocument();
     expect(within(pago).getByText("₡20.000")).toBeInTheDocument();
-    expect(within(filaCon("Ordenex te cobró el flete")).getByText("₡1.200")).toBeInTheDocument();
+    expect(within(filaCon(`${NOMBRE_ESPERADO} te cobró el flete`)).getByText("₡1.200")).toBeInTheDocument();
   });
 
   it("la cabecera vieja ya NO existe: ni «Débitos» ni «Créditos (COD)»", async () => {
@@ -349,17 +350,17 @@ describe("MiWalletPage — la tienda distingue el pago del cargo (172 R55) [P5]"
     const r = resumen();
     // Los rótulos y las pistas LITERALES de la 172 (T G.2, 381 R37, 457 R50, 459 T B.17): son el contrato.
     expect(within(r).getByText("A tu favor")).toBeInTheDocument();
-    expect(within(r).getByText("Cargos de Ordenex")).toBeInTheDocument();
+    expect(within(r).getByText(`Cargos de ${NOMBRE_CORTO_ESPERADO}`)).toBeInTheDocument();
     expect(within(r).getByText("Ya pagado")).toBeInTheDocument();
     expect(
       within(r).getByText(
-        "Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular",
+        `Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a ${NOMBRE_ESPERADO} y lo que ${NOMBRE_ESPERADO} te devolvió al anular`,
       ),
     ).toBeInTheDocument();
     expect(
-      within(r).getByText("Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon"),
+      within(r).getByText(`Fletes, comisión, IVA, lo que ${NOMBRE_ESPERADO} te cobró y los pagos a ${NOMBRE_ESPERADO} que se anularon`),
     ).toBeInTheDocument();
-    expect(within(r).getByText("Lo que Ordenex te pagó o pagó por ti")).toBeInTheDocument();
+    expect(within(r).getByText(`Lo que ${NOMBRE_ESPERADO} te pagó o pagó por ti`)).toBeInTheDocument();
     // El pago NO engorda los cargos: cada cifra en su sitio, tal como la manda el servidor.
     expect(within(r).getByText("₡50.000")).toBeInTheDocument();
     expect(within(r).getByText("₡1.200")).toBeInTheDocument();
@@ -379,7 +380,7 @@ describe("MiWalletPage — la tienda distingue el pago del cargo (172 R55) [P5]"
     const filaSaldo = within(resumen()).getByText("Saldo a favor").parentElement as HTMLElement;
     expect(within(filaSaldo).getByText("₡28.800")).toBeInTheDocument();
     expect(within(filaSaldo).getByText("A favor")).toBeInTheDocument();
-    expect(within(filaCon("Ordenex te pagó")).getByText("₡28.800")).toBeInTheDocument();
+    expect(within(filaCon(`${NOMBRE_ESPERADO} te pagó`)).getByText("₡28.800")).toBeInTheDocument();
   });
 
   it("R55: el saldo en contra se dice en contra (el signo lo manda el servidor)", async () => {
@@ -440,7 +441,7 @@ describe("MiWalletPage — la presentación (335 R12–R15 → 458-D)", () => {
 
 describe("MiWalletPage — el selector de cierre degrada sin esconder el dinero (R28–R30) [335]", () => {
   function laPantallaSigueEntera() {
-    expect(within(tarjetas()).getByText("Ordenex te debe ₡48.800")).toBeInTheDocument();
+    expect(within(tarjetas()).getByText(`${NOMBRE_ESPERADO} te debe ₡48.800`)).toBeInTheDocument();
     expect(tabla()).toBeInTheDocument();
   }
 
@@ -579,24 +580,24 @@ const COBRO_DE_UN_COSTO = filaTienda({
 });
 
 describe("⭑ FICHA 459 — el pago por cuenta en /mi-wallet (R44)", () => {
-  it("se lee «Ordenex pagó un gasto por ti», con su beneficiario y referencia, nunca «Ordenex te cobró»", async () => {
+  it(`se lee «${NOMBRE_ESPERADO} pagó un gasto por ti», con su beneficiario y referencia, nunca «${NOMBRE_ESPERADO} te cobró»`, async () => {
     sembrar(estadoTienda([COD, PAGO_POR_CUENTA, COBRO_DE_UN_COSTO]));
     await verMiWallet();
 
     const pago = filaCon("A Facebook · Pauta de septiembre · SINPE · REF-77");
-    expect(within(pago).getByText("Ordenex pagó un gasto por ti")).toBeInTheDocument();
-    expect(within(pago).queryByText("Ordenex te cobró")).toBeNull();
+    expect(within(pago).getByText(`${NOMBRE_ESPERADO} pagó un gasto por ti`)).toBeInTheDocument();
+    expect(within(pago).queryByText(`${NOMBRE_ESPERADO} te cobró`)).toBeNull();
     expect(within(pago).getByText("Pago de un gasto de una tienda · A Facebook")).toBeInTheDocument();
     // El cobro de un costo sigue viéndose como hoy (R87): el contraste no es vacío.
-    expect(within(filaCon("Material de despacho")).getByText("Ordenex te cobró")).toBeInTheDocument();
+    expect(within(filaCon("Material de despacho")).getByText(`${NOMBRE_ESPERADO} te cobró`)).toBeInTheDocument();
     expect(document.body.textContent ?? "").not.toContain(PAGO_POR_CUENTA_ID);
   });
 
-  it("su anulación se lee «Ordenex anuló un pago hecho por ti», como fila propia de anulación", async () => {
+  it(`su anulación se lee «${NOMBRE_ESPERADO} anuló un pago hecho por ti», como fila propia de anulación`, async () => {
     sembrar(estadoTienda([COD, PAGO_POR_CUENTA, PAGO_POR_CUENTA_ANULADO]));
     await verMiWallet();
     const anulado = filaCon("Anulación · A Facebook · Pauta de septiembre · SINPE · REF-77");
-    expect(within(anulado).getByText("Ordenex anuló un pago hecho por ti")).toBeInTheDocument();
+    expect(within(anulado).getByText(`${NOMBRE_ESPERADO} anuló un pago hecho por ti`)).toBeInTheDocument();
   });
 });
 
@@ -610,9 +611,9 @@ describe("⭑ FICHA 459 — la descarga de la tienda (R44/R100)", () => {
     const { filaDeLibroCuenta } = await import("@/tests/fixtures/libro-kardex");
     const f = filaDeLibroCuenta(PAGO_POR_CUENTA, ROTULOS_MI_WALLET);
     const valores = Object.values(f).join(" | ");
-    expect(valores).toContain("Ordenex pagó un gasto por ti");
+    expect(valores).toContain(`${NOMBRE_ESPERADO} pagó un gasto por ti`);
     expect(valores).toContain("Pago de un gasto de una tienda · A Facebook");
-    expect(valores).not.toContain("Ordenex te cobró");
+    expect(valores).not.toContain(`${NOMBRE_ESPERADO} te cobró`);
     expect(valores).not.toContain(PAGO_POR_CUENTA_ID);
     expect(valores).not.toMatch(/pago_por_cuenta/);
     // Las claves del archivo de la tienda son un subconjunto de las de la fila (sin «Registró»).
@@ -624,7 +625,7 @@ describe("⭑ FICHA 459 — la descarga de la tienda (R44/R100)", () => {
     const { ROTULOS_TIENDA } = await import("@/app/(app)/wallet/tiendas/_components/EstadoCuentaTienda");
     for (const m of [PAGO_POR_CUENTA, PAGO_POR_CUENTA_ANULADO]) {
       const valores = Object.values(lineaDeFila(m, ROTULOS_TIENDA)).join(" | ");
-      expect(valores).toMatch(/Ordenex paga un gasto de la tienda|Pago de un gasto de la tienda anulado/);
+      expect(valores).toMatch(new RegExp(`${NOMBRE_ESPERADO} paga un gasto de la tienda|Pago de un gasto de la tienda anulado`));
       expect(valores).toContain("Pago de un gasto de una tienda");
       expect(valores).not.toContain(PAGO_POR_CUENTA_ID);
       expect(valores).not.toMatch(/pago_por_cuenta/);

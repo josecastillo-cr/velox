@@ -5,6 +5,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { BarraComposicionCaja } from "@/app/(app)/wallet/_components/BarraComposicionCaja";
 import type { CajaResumenDTO, ModoComposicionCaja } from "@/lib/types/wallet";
 import { MODO_COMPOSICION_CAJA_SEED } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Ficha 488 (T F.3, design §2.3/§6.2) — la barra de composición con el TERCER bolsillo, «IVA por
@@ -100,7 +101,7 @@ describe("488 — la barra con IVA por pagar positivo (R14)", () => {
     expect(iva?.style.width).toBe("7.35%");
   });
 
-  it("el IVA lleva su propio color de token, distinto de tiendas y de Ordenex", () => {
+  it(`el IVA lleva su propio color de token, distinto de tiendas y de ${NOMBRE_ESPERADO}`, () => {
     const { container } = pintar();
     const clases = (clave: string) =>
       container.querySelector<HTMLElement>(`[data-segmento="${clave}"]`)?.className ?? "";
@@ -145,7 +146,7 @@ describe("488 — el nombre accesible enuncia los tres bolsillos (R15)", () => {
   it("con su rótulo y su importe", () => {
     pintar({ deTerceros: "9000.00", deOrdenex: "1500.75", ivaPorPagar: "1499.25" });
     expect(screen.getByRole("img").getAttribute("aria-label")).toBe(
-      "Reparto del dinero en caja. De las tiendas: ₡9.000. De Ordenex: ₡1.500,75 (ganancia y aportes). IVA por pagar: ₡1.499,25.",
+      `Reparto del dinero en caja. De las tiendas: ₡9.000. De ${NOMBRE_CORTO_ESPERADO}: ₡1.500,75 (ganancia y aportes). IVA por pagar: ₡1.499,25.`,
     );
   });
 });

@@ -11,6 +11,7 @@ import type {
 import type { CrearMovimientoInput } from "@/lib/interfaces/repositories/IWalletMovimientoRepository";
 import type { CrearMovimientoTiendaInput } from "@/lib/interfaces/repositories/IWalletTiendaMovimientoRepository";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // 💰 FICHA 337 (segunda mitad) — la REGLA del cobro por devolución a origen desde novedades: quien decide,
 // que se escribe al aprobar y que NO se escribe al rechazar.
@@ -202,7 +203,7 @@ describe("💰 337 — la cola de pendientes", () => {
 /* -------------------------------------------------------------------------- */
 
 describe("💰 337 — aprobar escribe los MISMOS apuntes que la aprobacion del cierre", () => {
-  it("⭑ la CAJA de Ordenex recibe los dos ingresos, con la clave y los importes CONGELADOS", async () => {
+  it(`⭑ la CAJA de ${NOMBRE_ESPERADO} recibe los dos ingresos, con la clave y los importes CONGELADOS`, async () => {
     const { service, movimientoRepo } = build();
 
     await service.aprobar({ id: "cob-1" }, MAESTRO, AHORA);

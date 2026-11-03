@@ -14,6 +14,7 @@
  * reexporta los suyos de `/mi-wallet`.
  */
 import { money as formatearMonto } from "@/lib/config/moneda";
+import { MARCA } from "@/lib/marca/identidad";
 
 export {
   ESTADO_CONCILIACION_LABEL,
@@ -75,7 +76,7 @@ export const SATELITES_PAGINA = {
  */
 export const SALDO_NO_ES_CAJA_TITULO = "El saldo no es un movimiento de caja.";
 export const SALDO_NO_ES_CAJA_NOTA_A =
-  "Ese dinero ya entró a la caja de Ordenex cuando se aprobó el cierre de cada mensajero. Lo que " +
+  `Ese dinero ya entró a la caja de ${MARCA.nombre} cuando se aprobó el cierre de cada mensajero. Lo que ` +
   "esta pantalla dice es";
 export const SALDO_NO_ES_CAJA_NOTA_DESTACADO = "dónde está físicamente";
 export const SALDO_NO_ES_CAJA_NOTA_B =

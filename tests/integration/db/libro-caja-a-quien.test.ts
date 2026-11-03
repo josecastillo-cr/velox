@@ -9,6 +9,7 @@ import type { AutoriaDeFilaDTO, AutoriaLibroCajaResult } from "@/lib/types/libro
 
 import { HAY_BASE_DE_DATOS, crearPrismaDeTest } from "./_postgres-real";
 import { cargarCatalogo459, enTransaccionRevertida459, montarServicios459, sembrarEscenario459 } from "./_fixtures/caja-459";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-B / TB.7 (R56/R57) — «A quien» y «Registro» del libro de la caja, contra Postgres, sobre el
@@ -136,7 +137,7 @@ describeSiHayBase("458-B/TB.7 — «A quien» y «Registro» del libro de la caj
     }
   });
 
-  it("R56: el pago a una tienda → ESA tienda; el cobro por devolución a origen → la tienda cobrada; el cobro de Ordenex → la tienda; R57: el maestro", () => {
+  it(`R56: el pago a una tienda → ESA tienda; el cobro por devolución a origen → la tienda cobrada; el cobro de ${NOMBRE_ESPERADO} → la tienda; R57: el maestro`, () => {
     const tiendas = m().porOrigen.pago_tienda.map((f) => f.aQuien.nombre).sort();
     expect(tiendas).toEqual([m().nombres.tiendaA, m().nombres.tiendaA, m().nombres.tiendaB].sort());
     for (const f of m().porOrigen.gestion_orden) {
@@ -146,7 +147,7 @@ describeSiHayBase("458-B/TB.7 — «A quien» y «Registro» del libro de la caj
     for (const f of m().porOrigen.cobro_tienda) expect(f.aQuien.cuenta).toEqual({ tipo: "tienda", id: m().ids.tiendaB });
   });
 
-  it("R56: el premio → el mensajero del podio; el pago de un gasto → la tienda Y el tercero; el aporte → «Ordenex»", () => {
+  it(`R56: el premio → el mensajero del podio; el pago de un gasto → la tienda Y el tercero; el aporte → «${NOMBRE_ESPERADO}»`, () => {
     for (const f of m().porOrigen.ranking_snapshot_fila) expect(f.aQuien.cuenta).toEqual({ tipo: "mensajero", id: m().ids.mensajero });
     expect(m().porOrigen.pago_por_cuenta_tienda.map((f) => [f.aQuien.nombre, f.aQuien.beneficiario])).toEqual([
       [m().nombres.tiendaA, "Imprenta Ruiz"],

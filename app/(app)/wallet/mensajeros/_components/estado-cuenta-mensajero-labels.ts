@@ -3,10 +3,12 @@
  * (`/wallet/mensajeros/[mensajeroId]`) y del enlace que lleva a él desde el listado. Módulo PURO.
  */
 
+import { MARCA } from "@/lib/marca/identidad";
+
 export const ESTADO_CUENTA_MENSAJERO_PAGINA = {
   titulo: (mensajero: string) => `Estado de cuenta de ${mensajero}`,
   descripcion:
-    "Cada movimiento de la cuenta del mensajero con su saldo corrido: lo que Ordenex le debe por sus cierres, lo que ya le pagó y sus premios",
+    `Cada movimiento de la cuenta del mensajero con su saldo corrido: lo que ${MARCA.nombre} le debe por sus cierres, lo que ya le pagó y sus premios`,
   volver: "Volver a las cuentas por pagar",
   /** R70 — la anulación desde aquí es la MISMA que la de `/cierres-admin`. */
   anularNota:

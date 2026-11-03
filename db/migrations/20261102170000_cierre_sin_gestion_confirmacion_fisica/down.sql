@@ -1,0 +1,12 @@
+-- DOWN (ficha 497, T2.1, R41) — suelta `cierre_sin_gestion.confirmada_fisica_at`.
+--
+-- PERDIDA DE DATO DECLARADA: se pierden las marcas de confirmacion de las barridas escritas mientras
+-- la columna existio. Los cierres siguen aprobados y el dinero sigue movido: revertir NO desaprueba
+-- nada.
+--
+-- R41 («la base revertida la puede leer el codigo anterior»): la columna nace sin lectores (no se
+-- proyecta en ningun `select` ni viaja a ningun DTO), asi que la base revertida es exactamente la que
+-- el codigo anterior espera.
+--
+-- `IF EXISTS` para que el rollback sea idempotente.
+ALTER TABLE "cierre_sin_gestion" DROP COLUMN IF EXISTS "confirmada_fisica_at";

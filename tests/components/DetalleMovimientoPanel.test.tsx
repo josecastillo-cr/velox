@@ -37,6 +37,7 @@ vi.mock("@/hooks/useToast", () => ({
 
 import { DetalleMovimientoPanel, type DetalleMovimiento } from "@/components/shared/wallet/DetalleMovimientoPanel";
 import { COBRO_RECHAZO_TEXTO } from "@/components/shared/wallet/detalle-movimiento-panel-labels";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const ID = "9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f";
 
@@ -138,7 +139,7 @@ describe("458-C R58 — lo que dice el panel", () => {
     pintar();
     const region = within(await panel()).getByRole("region", { name: "Cómo quedó" });
     expect(await within(region).findByText("Este movimiento no tiene línea en la caja: la caja no cambió con él.")).toBeTruthy();
-    expect(within(region).getByText("Lo que Ordenex le debe al mensajero")).toBeTruthy();
+    expect(within(region).getByText(`Lo que ${NOMBRE_ESPERADO} le debe al mensajero`)).toBeTruthy();
     expect(within(region).getByText("₡2.000")).toBeTruthy();
     expect(region.textContent).not.toContain(ID);
   });
@@ -249,13 +250,13 @@ describe("458-C R100/R73 — el cobro por devolución a origen dice que es un ca
     pintar(movimiento({ nota: COBRO_RECHAZO_TEXTO.vigente }));
     expect(
       within(await panel()).getByText(
-        "Es un cobro a la tienda por el flete de una devolución a origen: la ganancia de Ordenex sube y el saldo de la tienda baja, sin dinero nuevo en la caja.",
+        `Es un cobro a la tienda por el flete de una devolución a origen: la ganancia de ${NOMBRE_ESPERADO} sube y el saldo de la tienda baja, sin dinero nuevo en la caja.`,
       ),
     ).toBeTruthy();
   });
 
   it("anulado: dice que se anuló, que la ganancia bajó y que no se vuelve a ofrecer", async () => {
     pintar(movimiento({ nota: COBRO_RECHAZO_TEXTO.anulado, estado: { anulado: true }, anulable: false }));
-    expect(within(await panel()).getByText(/Este cobro por devolución a origen se anuló: la ganancia de Ordenex bajó/)).toBeTruthy();
+    expect(within(await panel()).getByText(new RegExp(`Este cobro por devolución a origen se anuló: la ganancia de ${NOMBRE_ESPERADO} bajó`))).toBeTruthy();
   });
 });

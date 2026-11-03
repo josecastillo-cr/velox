@@ -12,6 +12,7 @@ import { derivarSaldoTienda } from "@/lib/utils/saldo-tienda";
 import { derivarPendienteCierre } from "@/lib/utils/pendiente-cierre";
 import { codigoSinComentarios } from "../../fixtures/money-safe";
 
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 /**
  * Feature 173 / T C.5 (R31, R33) — GUARDIA DE ALCANCE: **los otros dos libros no ganan filas, y
  * las dos cifras de la caja no pueden leerlos.**
@@ -873,7 +874,8 @@ describe("R32/R35/R63 — el saldo de la tienda y el pendiente del mensajero no 
         "derivarCaja",
         "ingreso_cod_recaudado",
         "ingreso_reverso_pago_tienda",
-        "Ganancia de Ordenex",
+        `Ganancia de ${NOMBRE_CORTO_ESPERADO}`,
+        "Ganancia de ${MARCA.nombreCorto}",
       ]) {
         expect(codigo, `${ruta} nombra ${ajeno}`).not.toContain(ajeno);
       }

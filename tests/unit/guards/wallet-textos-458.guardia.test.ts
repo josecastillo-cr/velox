@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { codigo, fuente } from "./_wallet-458-archivos";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // GUARDIA — FICHA 458-A (TA.6, R101 + R4, R99) — LOS TEXTOS DESACTUALIZADOS NO VUELVEN
@@ -107,7 +108,7 @@ describe("458-A R101/R4 — las afirmaciones desactualizadas de la wallet no vue
     const antes: Record<string, string> = {
       T1: " * «Pagado a la tienda» hoy sale siempre en `0.00` porque ningún flujo emite `pago_tienda`\n * (lo emitirá la 172). Se muestra IGUAL",
       T2: "  pagado: string; // Σ debitos == pago_tienda (hoy siempre \"0.00\", ver R43)",
-      T9: '      description="Caja principal de Ordenex: libro de movimientos, dinero en caja y ganancia de Ordenex"',
+      T9: `      description="Caja principal de ${NOMBRE_ESPERADO}: libro de movimientos, dinero en caja y ganancia de ${NOMBRE_ESPERADO}"`,
       R4: "        descripcion: `Reverso de: ${original.descripcion ?? original.id}`,",
       "T5-caja":
         "// Feature 42 (T12, R20) — filtros del libro: tipo, categoría (poblada desde el SEED) y\n// —y no debe haberla—: lo que hay es un test que afirma que la lista sigue siendo el SEED.",

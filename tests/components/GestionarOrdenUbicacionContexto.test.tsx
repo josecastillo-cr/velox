@@ -6,6 +6,7 @@ import userEvent from "@testing-library/user-event";
 import { GestionarOrdenPanel } from "@/app/(app)/mis-asignaciones/_components/GestionarOrdenPanel";
 import { gestionar } from "@/lib/actions/mis-asignaciones";
 import type { MiAsignacionDTO } from "@/lib/interfaces/services/IMisAsignacionesService";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 399 — el aviso de ubicacion denegada, EN LA PANTALLA del mensajero.
 //
@@ -177,7 +178,7 @@ afterEach(() => {
   }
 });
 
-describe("Feature 399 — con Ordenex instalada como app", () => {
+describe(`Feature 399 — con ${NOMBRE_CORTO_ESPERADO} instalada como app`, () => {
   beforeEach(() => {
     instalarMatchMedia(["(display-mode: standalone)"]);
   });
@@ -191,7 +192,7 @@ describe("Feature 399 — con Ordenex instalada como app", () => {
     expect(aviso).toHaveTextContent(
       "Activá la ubicación desde los Ajustes del teléfono",
     );
-    expect(aviso).toHaveTextContent("Entrá en Aplicaciones y buscá Ordenex.");
+    expect(aviso).toHaveTextContent(`Entrá en Aplicaciones y buscá ${NOMBRE_CORTO_ESPERADO}.`);
     expect(aviso).toHaveTextContent("Tocá Permisos y después Ubicación.");
     expect(aviso).toHaveTextContent(
       "Elegí «Permitir solo mientras usás la app» y dejá activado «Usar ubicación precisa».",
@@ -208,7 +209,7 @@ describe("Feature 399 — con Ordenex instalada como app", () => {
     expect(aviso.textContent ?? "").not.toMatch(/barra de direcciones/i);
     expect(ultimoToastDeError()).not.toMatch(/candado/i);
     expect(ultimoToastDeError()).toBe(
-      "Para registrar la gestión hace falta tu ubicación. Abriste Ordenex desde su ícono, así que el permiso se activa en los Ajustes del teléfono.",
+      `Para registrar la gestión hace falta tu ubicación. Abriste ${NOMBRE_CORTO_ESPERADO} desde su ícono, así que el permiso se activa en los Ajustes del teléfono.`,
     );
   });
 
@@ -261,7 +262,7 @@ describe("Feature 399 — en un navegador normal", () => {
     await intentarGuardar(user);
 
     expect(await avisoEnPantalla(TITULO_NAVEGADOR)).toHaveTextContent(
-      "Si abriste Ordenex desde un enlace de WhatsApp y no ves el candado, tocá los tres puntos y elegí «Abrir en Chrome».",
+      `Si abriste ${NOMBRE_CORTO_ESPERADO} desde un enlace de WhatsApp y no ves el candado, tocá los tres puntos y elegí «Abrir en Chrome».`,
     );
   });
 });
@@ -336,7 +337,7 @@ describe("Feature 399 — lo que aporta la Permissions API", () => {
     await intentarGuardar(user);
 
     expect(await avisoEnPantalla(TITULO_APP_INSTALADA)).toHaveTextContent(
-      "Entrá en Aplicaciones y buscá Ordenex.",
+      `Entrá en Aplicaciones y buscá ${NOMBRE_CORTO_ESPERADO}.`,
     );
   });
 });

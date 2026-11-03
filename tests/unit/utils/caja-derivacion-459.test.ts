@@ -7,6 +7,7 @@ import {
   type AgregadoCajaRow,
   type WalletMovimientoCategoria,
 } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FICHA 459 / T A.2 — la derivacion nueva de la caja (R1–R7, R10, R11; design §2.2–§2.4).
@@ -70,7 +71,7 @@ describe("459/A.2 — la caja de produccion (M6) con la formula nueva, sin recla
     expect(r.deTercerosAbsoluto).toBe("20988450.53");
   });
 
-  it("R6/R11: capital 0,00 y «De Ordenex» = la ganancia", () => {
+  it(`R6/R11: capital 0,00 y «De ${NOMBRE_CORTO_ESPERADO}» = la ganancia`, () => {
     expect(r.capital).toBe("0.00");
     expect(r.signoCapital).toBe("cero");
     expect(r.deOrdenex).toBe("-5334135.96"); // 459: −4 405 636,53 (con el IVA dentro)
@@ -108,7 +109,7 @@ describe("459/B.14 — columna 3 de design §2.4: + los 203 cobros reclasificado
     expect(r.signoEnCaja).toBe("negativo");
   });
 
-  it("R4: la ganancia sigue en −5 334 135,96 (488; un pago por cuenta NO es un gasto de Ordenex)", () => {
+  it(`R4: la ganancia sigue en −5 334 135,96 (488; un pago por cuenta NO es un gasto de ${NOMBRE_ESPERADO})`, () => {
     expect(r.ganancia).toBe("-5334135.96"); // 459: −4 405 636,53
     expect(r.egresosPropios).toBe("12476410.00");
   });

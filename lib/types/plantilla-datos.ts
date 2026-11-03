@@ -17,6 +17,7 @@
 // importa `pos-format.ts` desde el cliente) y `lib/types/rastreo-publico` (declara en su
 // cabecera que es tipos puros justamente para poder cruzar esa frontera).
 
+import { MARCA } from "@/lib/marca/identidad";
 import { formatMonto } from "@/lib/config/moneda";
 import { nombreDeEstado } from "@/lib/types/order-status";
 import { PARAM_GUIA } from "@/app/_landing/guia-en-url";
@@ -104,7 +105,7 @@ export interface DatosPlantilla {
     sinpeNumero: string;
     sinpeNombre: string;
     /**
-     * Origen publico de la app (`https://ordenex.co`), para armar enlaces que el cliente pueda
+     * Origen publico de la app (`https://velox-courier.company`), para armar enlaces que el cliente pueda
      * abrir. OPCIONAL de hecho: cadena vacia cuando `NEXT_PUBLIC_SITE_URL` no esta puesta, y
      * entonces `{{url_guia}}` sale vacia en vez de emitir un enlace roto tipo `/?guia=4321`.
      */
@@ -279,7 +280,7 @@ const GUIA = definir({
   clave: "guia",
   campo: "orden.numGuia",
   nombre: "Número de guía",
-  descripcion: "Número de guía de Ordenex. Vacío mientras la orden no la tenga asignada.",
+  descripcion: `Número de guía de ${MARCA.nombre}. Vacío mientras la orden no la tenga asignada.`,
   ejemplo: "10432",
   leer: (d) => d.orden.numGuia,
   transform: numero,
@@ -341,7 +342,7 @@ const CATALOGO_DECLARADO: CampoPlantilla[] = [
     nombre: "Enlace de rastreo",
     descripcion:
       "Enlace a la web con la guía ya escrita en el formulario de rastreo. Vacío si la orden aún no tiene guía.",
-    ejemplo: "https://ordenex.co/?guia=10432",
+    ejemplo: "https://velox-courier.company/?guia=10432",
     leer: (d) => ({ numGuia: d.orden.numGuia, base: d.negocio.urlBase }),
     // El enlace PRECARGA el primer campo del rastreo, no lo resuelve: el destinatario sigue
     // tecleando los 4 ultimos digitos de su telefono y el servidor los sigue exigiendo. Por eso
@@ -389,7 +390,7 @@ const CATALOGO_DECLARADO: CampoPlantilla[] = [
     clave: "zona",
     campo: "orden.zonaNombre",
     nombre: "Zona",
-    descripcion: "Zona de reparto de Ordenex a la que pertenece la dirección.",
+    descripcion: `Zona de reparto de ${MARCA.nombre} a la que pertenece la dirección.`,
     ejemplo: "GAM Norte",
     leer: (d) => d.orden.zonaNombre,
     transform: texto,
@@ -519,7 +520,7 @@ const CATALOGO_DECLARADO: CampoPlantilla[] = [
     clave: "fecha_creacion",
     campo: "orden.createdAt",
     nombre: "Fecha de creación",
-    descripcion: "Cuándo se registró la orden en Ordenex, en hora de Costa Rica.",
+    descripcion: `Cuándo se registró la orden en ${MARCA.nombre}, en hora de Costa Rica.`,
     ejemplo: "25/08/2026 16:40",
     leer: (d) => d.orden.createdAt,
     transform: fechaHora,
@@ -619,7 +620,7 @@ const CATALOGO_DECLARADO: CampoPlantilla[] = [
     clave: "mensajero_email",
     campo: "mensajero.email",
     nombre: "Correo del mensajero",
-    descripcion: "Correo con el que el mensajero entra a Ordenex. Es una credencial: no lo envíes.",
+    descripcion: `Correo con el que el mensajero entra a ${MARCA.nombre}. Es una credencial: no lo envíes.`,
     ejemplo: "carlos@ejemplo.com",
     sensible: true,
     leer: (d) => d.mensajero.email,
@@ -673,7 +674,7 @@ const CATALOGO_DECLARADO: CampoPlantilla[] = [
     nombre: "Titular del SINPE",
     descripcion:
       "Nombre a cuyo favor está el SINPE de esa bodega, para que el cliente confirme antes de pagar.",
-    ejemplo: "Ordenex S.A.",
+    ejemplo: "Velox Courier S.A.",
     leer: (d) => d.negocio.sinpeNombre,
     transform: texto,
   }),
@@ -819,8 +820,8 @@ export const DATOS_PLANTILLA_EJEMPLO: DatosPlantilla = {
   },
   negocio: {
     sinpeNumero: "88881111",
-    sinpeNombre: "Ordenex S.A.",
-    urlBase: "https://ordenex.co",
+    sinpeNombre: "Velox Courier S.A.",
+    urlBase: "https://velox-courier.company",
   },
 };
 

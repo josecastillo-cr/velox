@@ -6,6 +6,7 @@ import { HAY_BASE_DE_DATOS, crearPrismaDeTest, enTransaccionRevertida, serializa
 import { cargarCatalogo459, montarServicios459 } from "./_fixtures/caja-459";
 import { sembrarPersonas461, type Personas461 } from "./_fixtures/personas-461";
 import { sqlstateDe } from "./_fixtures/sqlstate-461";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 461 / R66, R67, R68 (auditoria de la wallet, D2) — LA CLAVE DE IDEMPOTENCIA, contra Postgres.
@@ -106,7 +107,7 @@ describeSiHayBase("461/R66–R68 — la clave de idempotencia de los tres regist
     expect(m.historial).toBe(1);
   });
 
-  it("R68 · sueldo o gasto de Ordenex: la MISMA clave -> una fila y un historial; `ya_registrado` devuelve la original", async () => {
+  it(`R68 · sueldo o gasto de ${NOMBRE_ESPERADO}: la MISMA clave -> una fila y un historial; \`ya_registrado\` devuelve la original`, async () => {
     const m = await conPersonas(async (tx, p) => {
       const s = montarServicios459(tx);
       const clave = randomUUID();

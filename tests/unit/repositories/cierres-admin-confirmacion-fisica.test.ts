@@ -516,3 +516,245 @@ describe("238/R44 — el error no filtra PII", () => {
     expect(error.message).not.toMatch(/g-dev|g-inc|9001|adm-maestro|destinatario/);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 497 (T3.2/T3.3, R5-R9, R22-R24, R27, R28) — LAS BARRIDAS: lectura y marca.
+//
+// Mismo criterio que arriba: el doble de `cierreSinGestion` HONRA el `where` (cierre, orden y
+// alcance por la relacion), asi que quitar una condicion cambia lo que se lee o se escribe.
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+
+interface BarridaFila {
+  cierreId: string;
+  ordenId: string;
+  numGuia: number | null;
+  numRemision: string;
+  confirmadaFisicaAt: Date | null;
+  cierre: { destinoTipo: "bodega_central" | "bodega_satelite"; destinoZonaId: string };
+}
+
+const ZONA_CENTRAL = "z-central";
+const ZONA_SAT = "z-sat";
+
+/** `c1` (central) con dos barridas; `c2` (central) con una; `c3` (satelite) con una. */
+function barridas(): BarridaFila[] {
+  const central = { destinoTipo: "bodega_central" as const, destinoZonaId: ZONA_CENTRAL };
+  const sat = { destinoTipo: "bodega_satelite" as const, destinoZonaId: ZONA_SAT };
+  const base = { confirmadaFisicaAt: null };
+  return [
+    { cierreId: "c1", ordenId: "o-b1", numGuia: 7001, numRemision: "R-B1", cierre: central, ...base },
+    { cierreId: "c1", ordenId: "o-b2", numGuia: null, numRemision: "R-B2", cierre: central, ...base },
+    { cierreId: "c2", ordenId: "o-b-otro", numGuia: 7003, numRemision: "R-B3", cierre: central, ...base },
+    { cierreId: "c3", ordenId: "o-b-sat", numGuia: 7004, numRemision: "R-B4", cierre: sat, ...base },
+  ];
+}
+
+interface WhereBarrida {
+  cierreId?: string;
+  ordenId?: { in?: string[] };
+  cierre?: { destinoTipo?: string; destinoZonaId?: string };
+}
+
+function casaBarrida(b: BarridaFila, where: WhereBarrida): boolean {
+  return (
+    (where.cierreId === undefined || b.cierreId === where.cierreId) &&
+    (where.ordenId?.in === undefined || where.ordenId.in.includes(b.ordenId)) &&
+    (where.cierre?.destinoTipo === undefined || b.cierre.destinoTipo === where.cierre.destinoTipo) &&
+    (where.cierre?.destinoZonaId === undefined || b.cierre.destinoZonaId === where.cierre.destinoZonaId)
+  );
+}
+
+/** La base de arriba + `cierre_sin_gestion` en memoria. */
+function buildBaseConBarridas(filasBarrida: BarridaFila[] = barridas()) {
+  const base = buildBase(gestiones());
+  const cierreSinGestion = {
+    findMany: vi.fn(async ({ where }: { where: WhereBarrida; select: unknown }) =>
+      filasBarrida
+        .filter((b) => casaBarrida(b, where))
+        .map((b) => ({ ordenId: b.ordenId, numGuia: b.numGuia })),
+    ),
+    updateMany: vi.fn(
+      async ({ where, data }: { where: WhereBarrida; data: Record<string, unknown> }) => {
+        let count = 0;
+        for (const b of filasBarrida) {
+          if (!casaBarrida(b, where)) continue;
+          Object.assign(b, data);
+          count += 1;
+        }
+        return { count };
+      },
+    ),
+  };
+  return { ...base, prisma: { ...base.prisma, cierreSinGestion }, barridas: filasBarrida, cierreSinGestion };
+}
+
+function barridasMarcadas(filas: BarridaFila[]): string[] {
+  return filas
+    .filter((b) => b.confirmadaFisicaAt !== null)
+    .map((b) => `${b.cierreId}:${b.ordenId}`)
+    .sort();
+}
+
+function aprobarCon(
+  repo: CierresAdminRepository,
+  confirmacionFisica: Array<{ gestionId: string } | { ordenId: string }>,
+  cierreId = "c1",
+) {
+  return repo.resolverCierre({
+    cierreId,
+    alcance: ALCANCE_MAESTRO,
+    nuevoEstado: "aprobado",
+    resueltoPor: "adm-maestro",
+    motivoRechazo: null,
+    aplicacionGestiones: APLICACION_GESTIONES,
+    confirmacionFisica,
+  });
+}
+
+describe("497/R5-R9 — findBarridasDelCierre", () => {
+  it("R5/R8: devuelve TODAS las barridas de ESTE cierre y ninguna de otro", async () => {
+    const base = buildBaseConBarridas();
+
+    const r = await makeRepo(base.prisma).findBarridasDelCierre("c1", ALCANCE_MAESTRO);
+
+    expect(r).toEqual([
+      { ordenId: "o-b1", numGuia: 7001 },
+      { ordenId: "o-b2", numGuia: null },
+    ]);
+  });
+
+  it("R6/R7: el WHERE lleva el cierre y el ALCANCE por la relacion; el select, la guia CONGELADA", async () => {
+    const base = buildBaseConBarridas();
+
+    await makeRepo(base.prisma).findBarridasDelCierre("c1", ALCANCE_MAESTRO);
+
+    const arg = base.cierreSinGestion.findMany.mock.calls[0][0];
+    expect(arg.where).toEqual({ cierreId: "c1", cierre: { destinoTipo: "bodega_central" } });
+    // La guia sale de `cierre_sin_gestion.num_guia` (la congelada), no de la orden viva: el
+    // `select` no navega a `orden` ni lee su estatus.
+    expect(arg.select).toEqual({ ordenId: true, numGuia: true });
+  });
+
+  it("R7: un cierre FUERA de alcance devuelve `[]`, indistinguible de uno inexistente", async () => {
+    const base = buildBaseConBarridas();
+    const repo = makeRepo(base.prisma);
+    const otraSatelite = { destinoTipo: "bodega_satelite" as const, destinoZonaId: "z-otra" };
+
+    expect(await repo.findBarridasDelCierre("c3", otraSatelite)).toEqual([]);
+    expect(await repo.findBarridasDelCierre("c-inexistente", otraSatelite)).toEqual([]);
+    // Y en SU alcance si la ve: el `[]` de arriba lo produce el alcance, no un doble mudo.
+    expect(
+      await repo.findBarridasDelCierre("c3", { destinoTipo: "bodega_satelite", destinoZonaId: ZONA_SAT }),
+    ).toEqual([{ ordenId: "o-b-sat", numGuia: 7004 }]);
+  });
+
+  it("R9: un cierre sin barridas registradas devuelve `[]`", async () => {
+    const base = buildBaseConBarridas([]);
+
+    expect(await makeRepo(base.prisma).findBarridasDelCierre("c1", ALCANCE_MAESTRO)).toEqual([]);
+  });
+});
+
+describe("497/R22-R24 — la marca de las barridas en la MISMA transaccion", () => {
+  it("R22: marca EXACTAMENTE las barridas confirmadas del cierre, en UNA escritura", async () => {
+    const base = buildBaseConBarridas();
+
+    const res = await aprobarCon(makeRepo(base.prisma), [{ ordenId: "o-b1" }, { ordenId: "o-b2" }]);
+
+    expect(res).toBe("updated");
+    expect(barridasMarcadas(base.barridas)).toEqual(["c1:o-b1", "c1:o-b2"]);
+    expect(base.cierreSinGestion.updateMany).toHaveBeenCalledTimes(1);
+    const { where } = base.cierreSinGestion.updateMany.mock.calls[0][0];
+    expect(where).toEqual({ cierreId: "c1", ordenId: { in: ["o-b1", "o-b2"] } });
+  });
+
+  it("R24: el `data` lleva EXACTAMENTE `confirmadaFisicaAt` (ni dinero ni datos congelados)", async () => {
+    const base = buildBaseConBarridas();
+
+    await aprobarCon(makeRepo(base.prisma), [{ ordenId: "o-b1" }]);
+
+    const { data } = base.cierreSinGestion.updateMany.mock.calls[0][0];
+    expect(Object.keys(data)).toEqual(["confirmadaFisicaAt"]);
+    expect(data.confirmadaFisicaAt).toBeInstanceOf(Date);
+    const b1 = base.barridas.find((b) => b.ordenId === "o-b1");
+    expect(b1).toMatchObject({ numGuia: 7001, numRemision: "R-B1", cierreId: "c1" });
+  });
+
+  it("mezcla: cada origen va a SU tabla, y ninguna escritura recibe claves del otro", async () => {
+    const base = buildBaseConBarridas();
+
+    const res = await aprobarCon(makeRepo(base.prisma), [
+      { gestionId: G_DEV },
+      { ordenId: "o-b1" },
+      { gestionId: G_REC },
+      { ordenId: "o-b2" },
+    ]);
+
+    expect(res).toBe("updated");
+    const gestionWhere = base.prisma.gestionOrden.updateMany.mock.calls[0][0].where as WhereGestion;
+    expect(gestionWhere.id?.in).toEqual([G_DEV, G_REC]);
+    expect(base.cierreSinGestion.updateMany.mock.calls[0][0].where.ordenId).toEqual({
+      in: ["o-b1", "o-b2"],
+    });
+    expect(marcadas(base.filas)).toEqual([G_DEV, G_REC].sort());
+    expect(barridasMarcadas(base.barridas)).toEqual(["c1:o-b1", "c1:o-b2"]);
+  });
+
+  it("TESTIGO del `cierreId` de la barrida: una barrida de OTRO cierre no se marca, y la tx revierte", async () => {
+    const base = buildBaseConBarridas();
+
+    // `o-b-otro` es barrida de `c2`. Sin la guarda del cierre, el `count` cuadraria (2 de 2) y
+    // aprobar `c1` marcaria un paquete de otro cierre.
+    await expect(
+      aprobarCon(makeRepo(base.prisma), [{ ordenId: "o-b1" }, { ordenId: "o-b-otro" }]),
+    ).rejects.toBeInstanceOf(ConfirmacionFisicaNoAplicableError);
+
+    expect(base.barridas.find((b) => b.ordenId === "o-b-otro")?.confirmadaFisicaAt).toBeNull();
+  });
+
+  it("R23: `count` corto LANZA (una barrida inexistente basta)", async () => {
+    const base = buildBaseConBarridas();
+
+    await expect(
+      aprobarCon(makeRepo(base.prisma), [{ ordenId: "o-b1" }, { ordenId: "o-que-no-existe" }]),
+    ).rejects.toBeInstanceOf(ConfirmacionFisicaNoAplicableError);
+  });
+
+  it("sin barridas confirmadas NO se escribe la tabla (solo gestiones, o nada)", async () => {
+    const base = buildBaseConBarridas();
+
+    await aprobarCon(makeRepo(base.prisma), [{ gestionId: G_DEV }]);
+    await aprobarCon(makeRepo(base.prisma), []);
+
+    expect(base.cierreSinGestion.updateMany).not.toHaveBeenCalled();
+  });
+});
+
+describe("497/R27/R28 — ni un rechazo ni un cierre ya resuelto marcan barridas", () => {
+  it("R28: rechazar no escribe la marca de las barridas", async () => {
+    const base = buildBaseConBarridas();
+
+    const res = await makeRepo(base.prisma).resolverCierre({
+      cierreId: "c1",
+      alcance: ALCANCE_MAESTRO,
+      nuevoEstado: "rechazado",
+      resueltoPor: "adm-maestro",
+      motivoRechazo: "faltan paquetes",
+    });
+
+    expect(res).toBe("updated");
+    expect(base.cierreSinGestion.updateMany).not.toHaveBeenCalled();
+    expect(barridasMarcadas(base.barridas)).toEqual([]);
+  });
+
+  it("R27: un cierre ya aprobado (`count = 0` en la transicion) no reescribe la marca", async () => {
+    const base = buildBaseConBarridas();
+    base.prisma.cierreDia.updateMany.mockResolvedValue({ count: 0 });
+
+    const res = await aprobarCon(makeRepo(base.prisma), [{ ordenId: "o-b1" }]);
+
+    expect(res).toBe("conflict");
+    expect(base.cierreSinGestion.updateMany).not.toHaveBeenCalled();
+    expect(barridasMarcadas(base.barridas)).toEqual([]);
+  });
+});

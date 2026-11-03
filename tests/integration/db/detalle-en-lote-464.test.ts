@@ -25,6 +25,7 @@ import { HAY_BASE_DE_DATOS, crearPrismaDeTest, type TxDeTest } from "./_postgres
 import { cargarCatalogo459, enTransaccionRevertida459, montarServicios459, type Catalogo459 } from "./_fixtures/caja-459";
 import { montarEstadoCuenta } from "./_fixtures/wallet-458";
 import { busquedaPorGuiaDe } from "./_fixtures/busqueda-469";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 464 / T4 + T6 — EL DETALLE POR ORDEN EN LOTE, CONTRA POSTGRES DE VERDAD.
@@ -614,7 +615,7 @@ describeSiHayBase("464 — detalle por orden en lote (Postgres real)", () => {
     });
   });
 
-  it("R5/R21/R22/R34 — /mi-wallet: cada detalle = el de su fila, sin nombres de Ordenex ni de otra tienda", async () => {
+  it(`R5/R21/R22/R34 — /mi-wallet: cada detalle = el de su fila, sin nombres de ${NOMBRE_ESPERADO} ni de otra tienda`, async () => {
     await conEscenario(async (e) => {
       const tiendaB: Actor = { usuarioId: e.tiendaB, rol: "adminTienda" };
       const r = await miTiendaConDetalle(e, tiendaB);

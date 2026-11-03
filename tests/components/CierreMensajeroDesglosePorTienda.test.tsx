@@ -94,6 +94,7 @@ import {
 } from "@/lib/actions/cierres-admin";
 import { CierresAdminModule } from "@/app/(app)/cierres-admin/_components/CierresAdminModule";
 import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ---------------------------------------------------------------------------
 // Lectura de lo PINTADO
@@ -654,7 +655,7 @@ describe("396 · R17 — lo que NO está repartido, dicho mientras se enseña el
     );
   });
 
-  it("y esos dos importes siguen agregados, en la cascada de Ordenex (R16)", async () => {
+  it(`y esos dos importes siguen agregados, en la cascada de ${NOMBRE_ESPERADO} (R16)`, async () => {
     await abrirDetalle();
 
     // Ni el pago al mensajero ni el ingreso de bodega aparecen dentro de ninguna tienda.
@@ -723,7 +724,7 @@ describe("396 — dos tiendas HOMÓNIMAS no se funden en una", () => {
 });
 
 describe("396 — el sitio del desglose en la pantalla", () => {
-  it("va DESPUÉS de la cascada que termina en «Pago a tienda» y ANTES de la de Ordenex", async () => {
+  it(`va DESPUÉS de la cascada que termina en «Pago a tienda» y ANTES de la de ${NOMBRE_ESPERADO}`, async () => {
     await abrirDetalle();
 
     // Primero de quién es el dinero y cuánto se le paga; sólo después, de qué tienda es cada

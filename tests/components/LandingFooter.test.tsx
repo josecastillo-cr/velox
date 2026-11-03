@@ -4,6 +4,7 @@ import { render, screen } from "@testing-library/react";
 
 import { LandingFooter } from "@/app/_landing/LandingFooter";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 /**
  * Feature 490 (R22) — el pie de la landing enlaza las paginas legales. Hasta la 490 «Política de
  * Privacidad» era un `<span>` porque no habia ruta; ahora la hay y es publica.
@@ -41,7 +42,7 @@ describe("LandingFooter — enlaces legales (R22)", () => {
     );
 
     expect(linea).toBeDefined();
-    expect(linea!.textContent).not.toContain("Ordenex S.A.");
+    expect(linea!.textContent).not.toContain(`${MARCA_RETIRADA} S.A.`);
     expect(linea!.querySelector("[data-pendiente]")).toBeNull();
     // Contrato de la ficha 490 / T8, fijado como literal a proposito (no contra su fuente).
     expect(linea!.textContent?.replace(/\s+/g, " ")).toBe(
@@ -51,14 +52,19 @@ describe("LandingFooter — enlaces legales (R22)", () => {
 });
 
 describe("LandingFooter — marca del pie (revision 490, e)", () => {
-  it("sin `marca` (la landing) pinta el wordmark compartido, como siempre", () => {
+  it("sin `marca` (la landing) pinta el logo compartido, como siempre", () => {
+    // Feature 492 (R15): el logo es la imagen de Velox Courier sobre fondo oscuro.
     const { container } = render(<LandingFooter />);
-    expect(container.querySelector("footer span.font-heading")?.textContent).toBe("Ordenex");
+    const logo = screen.getByRole("img", { name: "Velox Courier" });
+    expect(Array.from(logo.querySelectorAll("img")).map((i) => i.getAttribute("src"))).toEqual([
+      "/marca/logo-horizontal.svg",
+    ]);
+    expect(container.querySelector("footer span.font-heading")).toBeNull();
   });
 
   it("con `marca` pinta ese texto en lugar del wordmark", () => {
     const { container } = render(<LandingFooter marca="MARCA-PRUEBA" />);
     expect(container.querySelector("footer span.font-heading")?.textContent).toBe("MARCA-PRUEBA");
-    expect(container.textContent).not.toContain("Ordenex");
+    expect(container.textContent).not.toContain(MARCA_RETIRADA);
   });
 });

@@ -36,6 +36,7 @@ import { describe, it, expect } from "vitest";
 
 import { PANELES_OPERATIVOS } from "@/app/(app)/analitica/_components/operativo/catalogo-paneles";
 import { METRICAS, getMetrica } from "@/lib/analytics/metrics";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 describe("las etiquetas del catálogo de métricas — el texto que se lee en el tablero", () => {
   it("son exactamente estas 25, con su acentuación, y en este orden", () => {
@@ -73,7 +74,7 @@ describe("las etiquetas del catálogo de métricas — el texto que se lee en el
       ["egresos", "Egresos"],
       ["dinero_en_caja", "Dinero en caja"],
       // «Ordenex» es la marca: no lleva tilde, y no es un olvido.
-      ["ganancia_ordenex", "Ganancia de Ordenex"],
+      ["ganancia_ordenex", `Ganancia de ${NOMBRE_CORTO_ESPERADO}`],
       ["cuenta_por_pagar_tienda", "Cuenta por pagar a tiendas"],
       ["cuenta_por_pagar_mensajero", "Cuenta por pagar a mensajeros"],
       ["conciliacion_cierres", "Conciliación de cierres"],

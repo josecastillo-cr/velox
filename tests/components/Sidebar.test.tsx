@@ -13,6 +13,7 @@ import {
 } from "@/lib/auth/menu-visibility";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // usePathname es configurable por test; useRouter se mockea porque el patrón
 // del repo lo espera aunque el Sidebar no lo consuma directamente.
 const pushMock = vi.fn();
@@ -579,5 +580,25 @@ describe("Feature 321 — ítem de sidebar del histórico de conversaciones", ()
     expect(
       within(nav).getByRole("link", { name: "Conversaciones" }),
     ).toHaveAttribute("href", "/historico/conversaciones");
+  });
+});
+
+describe("Sidebar marca (feature 492, R13)", () => {
+  it("expandida pinta el logo sobre fondo oscuro; colapsada, el simbolo con el nombre de marca como alt", () => {
+    const { container } = renderSidebar();
+
+    // Logo de la barra expandida: un img accesible «Velox Courier» con el logotipo original.
+    const logo = container.querySelector('[role="img"][aria-label="Velox Courier"]');
+    expect(logo).not.toBeNull();
+    expect(Array.from(logo!.querySelectorAll("img")).map((i) => i.getAttribute("src"))).toEqual([
+      "/marca/logo-horizontal.svg",
+    ]);
+
+    // Icono de la barra colapsada: el simbolo, con el nombre de marca como texto alternativo.
+    const simbolo = container.querySelector('img[src="/marca/logo-simbolo.svg"]');
+    expect(simbolo).not.toBeNull();
+    expect(simbolo).toHaveAttribute("alt", "Velox Courier");
+    expect(container.querySelector(`img[alt="${MARCA_RETIRADA}"]`)).toBeNull();
+    expect(container.querySelector('img[src="/icons/icon-192.png"]')).toBeNull();
   });
 });

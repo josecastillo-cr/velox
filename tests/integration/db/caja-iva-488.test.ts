@@ -35,6 +35,7 @@ import {
   montarServicios459,
   sembrarEscenario459,
 } from "./_fixtures/caja-459";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 488 — LA GANANCIA DE LA CAJA, SIN IVA (Postgres real, por las Server Actions reales).
@@ -387,7 +388,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
   //   De Ordenex = −89 866,55 + 20 000,00 = −69 866,55
   //   R7: −69 866,55 + 14 175,82 + 1 362,21 = −54 328,52 = la cifra principal de B.0
   // ───────────────────────────────────────────────────────────────────────────────────────────
-  it("§1 R2/R3/R4/R5/R6: ganancia, ingresos y gastos de Ordenex SIN IVA; IVA cobrado; IVA por pagar; «De Ordenex»", () => {
+  it(`§1 R2/R3/R4/R5/R6: ganancia, ingresos y gastos de ${NOMBRE_ESPERADO} SIN IVA; IVA cobrado; IVA por pagar; «De ${NOMBRE_CORTO_ESPERADO}»`, () => {
     // Mutacion m1 (design §13: `ingreso_iva_flete` como «propio») pone rojo este caso.
     const { antes, base } = m();
     expect({
@@ -407,7 +408,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
     });
   });
 
-  it("§1 R7: cifra principal = «De Ordenex» + «De las tiendas» + IVA por pagar, al centimo (diferencia y libro entero)", () => {
+  it(`§1 R7: cifra principal = «De ${NOMBRE_CORTO_ESPERADO}» + «De las tiendas» + IVA por pagar, al centimo (diferencia y libro entero)`, () => {
     const { antes, base, trasPago, trasAnular } = m();
     expect(suma(d(antes, base, "deOrdenex"), d(antes, base, "deTerceros"), d(antes, base, "ivaPorPagar"))).toBe(
       d(antes, base, "enCaja"),

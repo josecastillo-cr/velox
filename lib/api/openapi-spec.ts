@@ -1,3 +1,5 @@
+import { MARCA } from "@/lib/marca/identidad";
+import { WEBHOOK_SIGNATURE_HEADER, WEBHOOK_TIMESTAMP_HEADER } from "@/lib/crypto/webhook-firma";
 import { ORDER_STATUS_SEED } from "@/lib/types/order-status";
 import { MSG_CARGA_SIN_TARIFA, MSG_FILA_SIN_TARIFA } from "@/lib/services/mensajes-tarifa";
 import { EVENTOS_PUBLICOS } from "@/lib/types/webhook-eventos";
@@ -114,7 +116,7 @@ const MAX_CARGA_ROWS = 5000;
 export const openApiSpec = {
   openapi: "3.1.0",
   info: {
-    title: "Ordenex — API de integración por API key",
+    title: `${MARCA.nombre} — API de integración por API key`,
     version: "1.0.0",
     description: [
       "Canal de integración por **API key** para crear, listar, consultar, cancelar y eliminar órdenes.",
@@ -957,6 +959,10 @@ export const openApiSpec = {
       // `POST` que no existe para el.
       WebhookOrdenEstadoActualizado: {
         type: "object",
+        // FEATURE 493 (R17) — las cabeceras de firma vuelven al contrato, en la descripcion del
+        // propio schema (el sitio que dejo dicho la 256 al retirar `webhooks`). Los nombres salen
+        // de `lib/crypto/webhook-firma.ts`, que es quien los ENVIA: no pueden divergir.
+        description: `Cuerpo del evento \`orden.estado_actualizado\` que se entrega por POST al callback del integrador. Cada entrega va firmada con dos cabeceras: \`${WEBHOOK_TIMESTAMP_HEADER}\` (instante unix en segundos de la firma) y \`${WEBHOOK_SIGNATURE_HEADER}\` (\`sha256=<hex>\`: HMAC-SHA256 de \`\${timestamp}.\${cuerpo}\` con el secreto del webhook). Verificá la firma sobre el cuerpo crudo y en tiempo constante antes de parsear el JSON.`,
         required: ["evento", "eventoId", "ocurridoAt", "data"],
         properties: {
           evento: {
@@ -1162,7 +1168,7 @@ export const openApiSpec = {
               // ⏳ 2026-09-10 (feature 406/R14): AQUI IBA el `orden.id` (un uuid), y ese enlace
               // respondia 404 SIEMPRE — el `{id}` de esa ruta nunca significo `orden.id`. El
               // ultimo segmento es ahora el `numGuia` que ESTE MISMO ejemplo declara arriba.
-              evidenciasUrl: "https://app.ordenex.co/api/ordenes/api-key/orden/100235",
+              evidenciasUrl: "https://velox-courier.company/api/ordenes/api-key/orden/100235",
             },
           },
         ],
@@ -1475,7 +1481,7 @@ export const openApiSpec = {
         required: ["flete", "iva", "comision", "ivaComision", "fulfillment"],
         additionalProperties: false,
         description:
-          "Los CINCO conceptos que Ordenex factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes en texto crudo con dos decimales y punto decimal, sin símbolo de moneda y sin separador de miles (`\"2500.00\"`) — el mismo dialecto que la cotización y el `costoEnvio` de la carga. Un `\"0.00\"` es un CERO AFIRMADO (por ejemplo, una orden que no cobra comisión), nunca un dato faltante: dentro de este objeto ningún concepto es `null` y ninguno se omite. **NO hay ningún campo que sume los cinco, ni `total` ni equivalente**: sumalos vos, que sabés qué estás sumando.",
+          `Los CINCO conceptos que ${MARCA.nombre} factura por una orden, en el escenario de ENTREGA («cuánto cuesta este paquete si se entrega»). Importes en texto crudo con dos decimales y punto decimal, sin símbolo de moneda y sin separador de miles (\`\"2500.00\"\`) — el mismo dialecto que la cotización y el \`costoEnvio\` de la carga. Un \`\"0.00\"\` es un CERO AFIRMADO (por ejemplo, una orden que no cobra comisión), nunca un dato faltante: dentro de este objeto ningún concepto es \`null\` y ninguno se omite. **NO hay ningún campo que sume los cinco, ni \`total\` ni equivalente**: sumalos vos, que sabés qué estás sumando.`,
         properties: {
           flete: { type: "string", description: "Flete del envío." },
           iva: { type: "string", description: "IVA del flete." },
@@ -1995,7 +2001,7 @@ export const openApiSpec = {
           "ambiguo, distrito sin zona asignada, algún nivel de la terna RETIRADO del catálogo, o",
           "`monto_cobrar` con formato inválido.",
           "",
-          "RETIRADO DEL CATÁLOGO (desde 2026-09-06). Ordenex puede retirar una provincia, un cantón",
+          `RETIRADO DEL CATÁLOGO (desde 2026-09-06). ${MARCA.nombre} puede retirar una provincia, un cantón`,
           "o un distrito sin borrarlo: deja de admitirse en cargas y cotizaciones nuevas, y las",
           "órdenes que ya lo referencian no se tocan. La fila sale con `resultado: \"error\"` y un",
           "mensaje PROPIO, distinto de «no encontrado» y de «ambiguo», para que no lo confundas con",

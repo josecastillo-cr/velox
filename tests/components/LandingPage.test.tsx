@@ -14,14 +14,13 @@ describe("app/page.tsx — landing pública (feature 86, R2–R5b)", () => {
     const { default: LandingPage } = await import("@/app/page");
     render(await LandingPage({}));
 
-    // El logo (wordmark) aparece (barra + pie). El texto va partido en dos
-    // spans ("Orden" + "ex" en naranja de marca), así que se matchea el span
-    // completo del wordmark por su textContent y su clase base.
-    const wordmarks = screen.getAllByText(
-      (_content, el) =>
-        el?.textContent === "Ordenex" && el.classList.contains("font-heading"),
-    );
-    expect(wordmarks.length).toBeGreaterThanOrEqual(1);
+    // El logo aparece (barra + pie). Desde la feature 492 es la imagen del logotipo de Velox
+    // Courier con un unico nombre accesible, asi que se busca por rol y nombre.
+    const logos = screen.getAllByRole("img", { name: "Velox Courier" });
+    expect(logos.length).toBeGreaterThanOrEqual(1);
+
+    // Feature 492 (R15): el enlace del logo a la portada se llama «Velox Courier — inicio».
+    expect(screen.getByRole("link", { name: "Velox Courier — inicio" })).toHaveAttribute("href", "/");
 
     const ingresar = screen.getAllByRole("link", { name: /^Ingresar$/ });
     expect(ingresar.length).toBeGreaterThanOrEqual(1);

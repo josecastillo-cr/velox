@@ -24,6 +24,7 @@
  * servicios), así que «Total devengado / Total pagado / Cuenta por pagar» no aplica.
  */
 import type { WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda";
+import { MARCA } from "@/lib/marca/identidad";
 
 export {
   ORIGEN_TIENDA_LABEL,
@@ -49,15 +50,15 @@ export const CATEGORIA_TIENDA_LABEL: Record<WalletTiendaMovimientoCategoria, str
   iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda",
   iva_comision_cod: "IVA de la comisión cobrado a la tienda",
   // FICHA 381 (R33/R34): el cobro decidido por una persona, DISTINTO de una corrección.
-  cobro_manual: "Ordenex le cobra a la tienda",
-  cobro_tienda_anulado: "Cobro de Ordenex a la tienda anulado",
-  pago_tienda: "Ordenex le paga a la tienda",
-  pago_por_cuenta: "Ordenex paga un gasto de la tienda",
+  cobro_manual: `${MARCA.nombre} le cobra a la tienda`,
+  cobro_tienda_anulado: `Cobro de ${MARCA.nombre} a la tienda anulado`,
+  pago_tienda: `${MARCA.nombre} le paga a la tienda`,
+  pago_por_cuenta: `${MARCA.nombre} paga un gasto de la tienda`,
   pago_por_cuenta_anulado: "Pago de un gasto de la tienda anulado",
   // Ficha 457 (design §2, D10): el pago de la tienda a Ordenex (nombre reservado por la 461 §7.8,
   // tomado aqui) y su anulacion, con el patron de «Pago de un gasto de la tienda anulado».
-  abono_tienda: "La tienda le paga a Ordenex",
-  abono_tienda_anulado: "Pago de la tienda a Ordenex anulado",
+  abono_tienda: `La tienda le paga a ${MARCA.nombre}`,
+  abono_tienda_anulado: `Pago de la tienda a ${MARCA.nombre} anulado`,
   // Ficha 458-B (design §2.3, D7): la anulación de un cobro por rechazo, flete e IVA por separado.
   flete_devolucion_anulado: "Cobro por devolución a origen anulado",
   iva_flete_devolucion_anulado: "IVA del cobro por devolución a origen anulado",
@@ -83,11 +84,11 @@ export const DESGLOSE_TIENDA_LABEL = {
   aFavor: "A favor de la tienda",
   // Ficha 457 (design §2, R50): nombra el pago de la tienda a Ordenex y su anulación.
   aFavorHint:
-    "Contra-entrega cobrado, correcciones a favor, pagos de la tienda a Ordenex y devoluciones por anulaciones",
-  cargos: "Cargos de Ordenex",
-  cargosHint: "Fletes, comisión, IVA, los cobros de Ordenex a la tienda y sus pagos a Ordenex anulados",
+    `Contra-entrega cobrado, correcciones a favor, pagos de la tienda a ${MARCA.nombre} y devoluciones por anulaciones`,
+  cargos: `Cargos de ${MARCA.nombreCorto}`,
+  cargosHint: `Fletes, comisión, IVA, los cobros de ${MARCA.nombre} a la tienda y sus pagos a ${MARCA.nombre} anulados`,
   pagado: "Pagado a la tienda",
-  pagadoHint: "Lo que Ordenex le pagó a la tienda o pagó por ella",
+  pagadoHint: `Lo que ${MARCA.nombre} le pagó a la tienda o pagó por ella`,
   saldo: "Saldo a favor",
   saldoHint: "Lo que queda tras los cargos y los pagos",
 } as const;

@@ -6,6 +6,7 @@ import { RefreshCw } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useActualizacionPwa } from "@/hooks/useActualizacionPwa";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * Feature 284 — aviso de "hay una version nueva", con boton.
@@ -35,7 +36,7 @@ export interface AvisoVersionNuevaProps {
 }
 
 export function AvisoVersionNueva({
-  titulo = "Hay una versión nueva de Ordenex",
+  titulo = `Hay una versión nueva de ${MARCA.nombre}`,
   descripcion = "Actualizar recarga la pantalla. Hazlo cuando hayas terminado lo que tengas a medias.",
   etiquetaBoton = "Actualizar ahora",
   etiquetaDescartar = "Ahora no",

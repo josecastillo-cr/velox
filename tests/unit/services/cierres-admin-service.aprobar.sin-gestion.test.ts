@@ -151,7 +151,17 @@ function buildTx(
     cierreSinGestion: {
       findMany: vi.fn(async () => sinGestion),
       createMany: vi.fn(async () => ({ count: 0 })),
-      updateMany: vi.fn(async () => ({ count: 0 })),
+      // Ficha 497: honra el `where` de la marca de las barridas (`cierreId` + `ordenId IN`), para
+      // que el `count` dependa de las filas reales del vinculo y no sea un numero a ciegas.
+      updateMany: vi.fn(
+        async (args?: { where?: { cierreId?: string; ordenId?: { in?: string[] } } }) => ({
+          count: sinGestion.filter(
+            (v) =>
+              v.cierreId === args?.where?.cierreId &&
+              (args?.where?.ordenId?.in ?? []).includes(v.ordenId),
+          ).length,
+        }),
+      ),
       deleteMany: vi.fn(async () => ({ count: 0 })),
       delete: vi.fn(async () => null),
       update: vi.fn(async () => null),
@@ -226,6 +236,8 @@ function buildCaptores() {
 async function aprobarCon(
   sinGestion: ReturnType<typeof vinculo>[],
   enElUmbral: string[] = [],
+  // Ficha 497 (R29): las barridas confirmadas que el servicio pasaria tras validar la cobertura.
+  confirmacionFisica: { ordenId: string }[] = [],
 ) {
   const tx = buildTx(sinGestion, enElUmbral);
   const captores = buildCaptores();
@@ -263,7 +275,7 @@ async function aprobarCon(
       rechazadaEstatusId: idEstado("devolucion_a_origen_por_rechazo"),
       umbralIntentos: 3,
     },
-    confirmacionFisica: [],
+    confirmacionFisica,
     // Feature 239: obligatorio en la rama `aprobado`. Esta suite no mide el anclaje —el bloque
     // corre en no-op con el corpus de aqui—, pero el tipo lo exige a proposito: un olvido de
     // cableado rompe el typecheck en vez de congelar devoluciones en produccion.
@@ -454,5 +466,49 @@ describe("276/R24 — la rama nueva es MONEY-NEUTRAL sobre el cierre que se apru
     expect(aBodega, "la liberacion a bodega no ocurrio").toBeDefined();
     // Las dos ramas conviven: la del umbral se lleva `o-barrida-1` y la vieja `o-barrida-2`.
     expect(aBodega?.where.id.in).toEqual(["o-barrida-2"]);
+  });
+});
+
+/* ------------------------------------------------------------------------------------------ */
+/* FICHA 497 (T3.5, R29/R39) — LAS BARRIDAS LIBERADAS QUEDAN MARCADAS, Y EL DINERO NO CAMBIA     */
+/* ------------------------------------------------------------------------------------------ */
+
+describe("497/R29/R39 — la marca de las barridas en la aprobacion que las libera", () => {
+  // Los vinculos de las DOS ordenes que la liberacion (109) saca a bodega en este corpus.
+  const lista = () => [vinculo("o-barrida-1", 31), vinculo("o-barrida-2", 32)];
+  const confirmadas = [{ ordenId: "o-barrida-1" }, { ordenId: "o-barrida-2" }];
+
+  it("R29: toda barrida LIBERADA por esta aprobacion queda con su marca escrita en la misma tx", async () => {
+    const { resultado, tx } = await aprobarCon(lista(), [], confirmadas);
+
+    expect(resultado).toBe("updated");
+    const liberadas = tx.orden.updateMany.mock.calls
+      .map(([a]) => a as { where: { estatusId?: string; id: { in: string[] } }; data: unknown })
+      .filter((a) => a.where.estatusId === idEstado("novedad_interna"))
+      .flatMap((a) => a.where.id.in);
+    expect(liberadas.length, "la liberacion no ocurrio: el caso no mediria nada").toBeGreaterThan(0);
+
+    const marca = tx.cierreSinGestion.updateMany.mock.calls[0]?.[0] as unknown as {
+      where: { cierreId: string; ordenId: { in: string[] } };
+      data: Record<string, unknown>;
+    };
+    expect(marca, "no se escribio la marca de las barridas").toBeDefined();
+    expect(marca.where.cierreId).toBe(CIERRE_ID);
+    for (const ordenId of liberadas) expect(marca.where.ordenId.in).toContain(ordenId);
+    expect(Object.keys(marca.data)).toEqual(["confirmadaFisicaAt"]);
+  });
+
+  it("R39/R24: con y sin las barridas confirmadas, los CINCO feeds emiten lo mismo campo a campo", async () => {
+    const conMarca = await aprobarCon(lista(), [], confirmadas);
+    const sinMarca = await aprobarCon(lista(), [], []);
+
+    expect(conMarca.resultado).toBe(sinMarca.resultado);
+    expect(conMarca.caja).toEqual(sinMarca.caja);
+    expect(conMarca.tienda).toEqual(sinMarca.tienda);
+    expect(conMarca.mensajero).toEqual(sinMarca.mensajero);
+    // Contrapuntos: el cierre semilla SI mueve dinero, y la marca SOLO se escribio en una corrida.
+    expect(conMarca.caja.flat().length).toBeGreaterThan(0);
+    expect(conMarca.tx.cierreSinGestion.updateMany).toHaveBeenCalledTimes(1);
+    expect(sinMarca.tx.cierreSinGestion.updateMany).not.toHaveBeenCalled();
   });
 });

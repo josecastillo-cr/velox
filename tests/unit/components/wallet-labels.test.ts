@@ -28,6 +28,7 @@ import {
   type WalletMovimientoCategoria,
   type WalletOrigenTipo,
 } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
 // FICHA 461 (T C.1, design §7.2/§7.3, HD3) — LOS NOMBRES DEL LIBRO DE LA CAJA, DESDE ORDENEX
@@ -50,26 +51,26 @@ const CONCEPTOS_ESPERADOS: Record<WalletMovimientoCategoria, string> = {
   ingreso_iva_flete: "IVA del flete cobrado a la tienda",
   ingreso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda",
   ingreso_iva_comision_cod: "IVA de la comisión cobrado a la tienda",
-  ingreso_cobro_tienda: "Ordenex le cobra a una tienda",
+  ingreso_cobro_tienda: `${NOMBRE_ESPERADO} le cobra a una tienda`,
   egreso_reverso_cobro_tienda: "Cobro a una tienda anulado",
   ingreso_cod_recaudado: "Contra-entrega cobrado a los clientes de la tienda",
-  egreso_pago_tienda: "Ordenex le paga a una tienda",
+  egreso_pago_tienda: `${NOMBRE_ESPERADO} le paga a una tienda`,
   ingreso_reverso_pago_tienda: "Pago a una tienda anulado",
-  egreso_pago_por_cuenta_tienda: "Ordenex paga un gasto de una tienda",
+  egreso_pago_por_cuenta_tienda: `${NOMBRE_ESPERADO} paga un gasto de una tienda`,
   ingreso_reverso_pago_por_cuenta_tienda: "Pago de un gasto de una tienda anulado",
-  egreso_pago_mensajero: "Ordenex le paga a un mensajero",
+  egreso_pago_mensajero: `${NOMBRE_ESPERADO} le paga a un mensajero`,
   egreso_sueldo: "Sueldo",
-  egreso_gasto_variable: "Gasto de Ordenex",
-  egreso_gasto_fijo: "Gasto fijo de Ordenex",
-  egreso_gasto: "Otro gasto de Ordenex",
-  egreso_indemnizacion: "Indemnización que Ordenex paga por un incidente",
+  egreso_gasto_variable: `Gasto de ${NOMBRE_CORTO_ESPERADO}`,
+  egreso_gasto_fijo: `Gasto fijo de ${NOMBRE_CORTO_ESPERADO}`,
+  egreso_gasto: `Otro gasto de ${NOMBRE_CORTO_ESPERADO}`,
+  egreso_indemnizacion: `Indemnización que ${NOMBRE_ESPERADO} paga por un incidente`,
   ingreso_ajuste: "Corrección de caja (suma)",
   egreso_ajuste: "Corrección de caja (resta)",
   ingreso_aporte_capital: "Aporte de dinero a la caja",
   egreso_reverso_aporte_capital: "Aporte de dinero a la caja anulado",
   // Ficha 457 (design §2, DH7): el pago de una tienda a Ordenex toma el nombre que la 461 reservo.
-  ingreso_abono_tienda: "Una tienda le paga a Ordenex",
-  egreso_reverso_abono_tienda: "Pago de una tienda a Ordenex anulado",
+  ingreso_abono_tienda: `Una tienda le paga a ${NOMBRE_ESPERADO}`,
+  egreso_reverso_abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO} anulado`,
   // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, flete e IVA por separado.
   egreso_reverso_flete_devolucion: "Flete por devolución a origen cobrado a la tienda anulado",
   egreso_reverso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda anulado",
@@ -84,20 +85,20 @@ const ORIGENES_ESPERADOS: Record<WalletOrigenTipo, string> = {
   gestion_orden: "Gestión de orden",
   manual: "Registrado a mano",
   gasto: "Gasto o sueldo registrado a mano",
-  pago_tienda: "Pago de Ordenex a una tienda",
-  pago_mensajero: "Pago de Ordenex a un mensajero",
+  pago_tienda: `Pago de ${NOMBRE_ESPERADO} a una tienda`,
+  pago_mensajero: `Pago de ${NOMBRE_ESPERADO} a un mensajero`,
   orden_incidente: "Incidente de orden",
   ranking_snapshot_fila: "Premio del ranking",
   pago_por_cuenta_tienda: "Pago de un gasto de una tienda",
   aporte_capital: "Aporte de dinero a la caja",
   cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
-  cobro_tienda: "Cobro de Ordenex a una tienda",
-  cobro_tienda_completado: "Cobro de Ordenex a una tienda (línea de caja completada al corregir)",
+  cobro_tienda: `Cobro de ${NOMBRE_ESPERADO} a una tienda`,
+  cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
   // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
-  abono_tienda: "Pago de una tienda a Ordenex",
+  abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
 };
 
-describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42, design §7.2)", () => {
+describe(`461 — CATEGORIA_LABEL: cada concepto de la caja, desde ${NOMBRE_ESPERADO} (R42, design §7.2)`, () => {
   // Ficha 488: 27 → 29 (+ «Pago de IVA» y «Pago de IVA anulado»).
   it("dice exactamente los 29 textos aprobados (23 de la 461 + 2 de la 457 + 2 de la 458-B + 2 de la 488), y el seed es exactamente esas 29 claves", () => {
     expect(CATEGORIA_LABEL).toEqual(CONCEPTOS_ESPERADOS);
@@ -109,14 +110,14 @@ describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42,
     expect(WALLET_MOVIMIENTO_CATEGORIA_SEED).toHaveLength(29); // ficha 488: antes 27
   });
 
-  it("⭑ 457 (R45/R53): el pago de una tienda a Ordenex y su anulacion, con los nombres reservados por la 461", () => {
-    expect(CATEGORIA_LABEL.ingreso_abono_tienda).toBe("Una tienda le paga a Ordenex");
-    expect(CATEGORIA_LABEL.egreso_reverso_abono_tienda).toBe("Pago de una tienda a Ordenex anulado");
+  it(`⭑ 457 (R45/R53): el pago de una tienda a ${NOMBRE_ESPERADO} y su anulacion, con los nombres reservados por la 461`, () => {
+    expect(CATEGORIA_LABEL.ingreso_abono_tienda).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
+    expect(CATEGORIA_LABEL.egreso_reverso_abono_tienda).toBe(`Pago de una tienda a ${NOMBRE_ESPERADO} anulado`);
     // Distintos del cobro (Ordenex le cobra) y del pago de Ordenex a la tienda: la direccion del dinero
     // es la contraria y el nombre lo dice.
     expect(CATEGORIA_LABEL.ingreso_abono_tienda).not.toBe(CATEGORIA_LABEL.ingreso_cobro_tienda);
     expect(CATEGORIA_LABEL.ingreso_abono_tienda).not.toBe(CATEGORIA_LABEL.egreso_pago_tienda);
-    expect(ORIGEN_LABEL.abono_tienda).toBe("Pago de una tienda a Ordenex");
+    expect(ORIGEN_LABEL.abono_tienda).toBe(`Pago de una tienda a ${NOMBRE_ESPERADO}`);
   });
 
   it("ningun nombre se repite: dos conceptos con el mismo texto serian indistinguibles en la tabla", () => {
@@ -133,7 +134,7 @@ describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42,
   });
 
   it("el cobro y su anulacion son dos nombres distintos y ninguno es el del pago de un gasto", () => {
-    expect(CATEGORIA_LABEL.ingreso_cobro_tienda).toBe("Ordenex le cobra a una tienda");
+    expect(CATEGORIA_LABEL.ingreso_cobro_tienda).toBe(`${NOMBRE_ESPERADO} le cobra a una tienda`);
     expect(CATEGORIA_LABEL.egreso_reverso_cobro_tienda).toBe("Cobro a una tienda anulado");
     expect(CATEGORIA_LABEL.ingreso_cobro_tienda).not.toBe(
       CATEGORIA_LABEL.egreso_pago_por_cuenta_tienda,
@@ -160,7 +161,7 @@ describe("461 — CATEGORIA_LABEL: cada concepto de la caja, desde Ordenex (R42,
   });
 });
 
-describe("461 — ORIGEN_LABEL: cada origen de la caja, desde Ordenex (R42, design §7.3)", () => {
+describe(`461 — ORIGEN_LABEL: cada origen de la caja, desde ${NOMBRE_ESPERADO} (R42, design §7.3)`, () => {
   it("dice exactamente los 14 textos aprobados (13 de la 461 + 1 de la 457), y el seed es exactamente esas 14 claves", () => {
     expect(ORIGEN_LABEL).toEqual(ORIGENES_ESPERADOS);
     expect([...WALLET_ORIGEN_TIPO_SEED].sort()).toEqual(Object.keys(ORIGENES_ESPERADOS).sort());
@@ -182,37 +183,37 @@ describe("461 — ORIGEN_LABEL: cada origen de la caja, desde Ordenex (R42, desi
 });
 
 describe("461 — el resto de textos de la caja que esta ficha toca (R42/R50, design §7/§9)", () => {
-  it("R50: «De las tiendas» nombra lo que Ordenex les cobro y NO dice que los cobros no pasan por la caja", () => {
+  it(`R50: «De las tiendas» nombra lo que ${NOMBRE_ESPERADO} les cobro y NO dice que los cobros no pasan por la caja`, () => {
     expect(CAJA_RESUMEN_AVISO_TERCEROS).toBe(
-      "Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que Ordenex les cobró. El detalle de cada tienda está en Wallet → Tiendas.",
+      `Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que ${NOMBRE_ESPERADO} les cobró. El detalle de cada tienda está en Wallet → Tiendas.`,
     );
     expect(CAJA_RESUMEN_AVISO_TERCEROS).not.toMatch(/sin pasar por la caja/);
     expect(CAJA_RESUMEN_AVISO_TERCEROS).not.toMatch(/cobros? de un costo/i);
   });
 
-  it("el tipo de egreso manual se llama «Gasto de Ordenex», igual que el concepto del dialogo", () => {
+  it(`el tipo de egreso manual se llama «Gasto de ${NOMBRE_CORTO_ESPERADO}», igual que el concepto del dialogo`, () => {
     // Ficha 488 (R21): + `pago_iva: "Pago de IVA"` (antes `{ gasto_variable, sueldo }`).
     expect(TIPO_EGRESO_MANUAL_LABEL).toEqual({
-      gasto_variable: "Gasto de Ordenex",
+      gasto_variable: `Gasto de ${NOMBRE_CORTO_ESPERADO}`,
       sueldo: "Sueldo",
       pago_iva: "Pago de IVA",
     });
     expect(TIPO_EGRESO_MANUAL_LABEL.gasto_variable).toBe(CATEGORIA_LABEL.egreso_gasto_variable);
   });
 
-  it("los diez documentos anulables se nombran desde Ordenex dentro de «Anular …»", () => {
+  it(`los diez documentos anulables se nombran desde ${NOMBRE_ESPERADO} dentro de «Anular …»`, () => {
     expect(DOCUMENTO_CAJA_NOMBRE).toEqual({
       pago_por_cuenta_tienda: "el pago de un gasto de una tienda",
       aporte_capital: "el aporte de dinero a la caja",
-      cobro_tienda: "el cobro de Ordenex a una tienda",
+      cobro_tienda: `el cobro de ${NOMBRE_ESPERADO} a una tienda`,
       ajuste_caja: "la corrección de caja",
-      abono_tienda: "el pago de una tienda a Ordenex", // ficha 457 (design §8.5)
+      abono_tienda: `el pago de una tienda a ${NOMBRE_ESPERADO}`, // ficha 457 (design §8.5)
       // Ficha 458-B (design §3.6): egresos sin documento, indemnización y cobro por devolución a origen.
       egreso_caja: "el gasto de la caja",
       indemnizacion: "la indemnización por un incidente",
       rechazo_tienda_cobro: "el cobro por devolución a origen a una tienda",
       // Ficha 458-C (revision B3): los dos egresos que la caja ya anulaba y no traian documento.
-      pago_tienda: "el pago de Ordenex a una tienda",
+      pago_tienda: `el pago de ${NOMBRE_ESPERADO} a una tienda`,
       premio_del_ranking: "el premio del ranking",
     });
   });
@@ -230,9 +231,9 @@ describe("461 — el resto de textos de la caja que esta ficha toca (R42/R50, de
     );
   });
 
-  it("las filas nombradas de la composicion van en plural y desde Ordenex (R27)", () => {
+  it(`las filas nombradas de la composicion van en plural y desde ${NOMBRE_ESPERADO} (R27)`, () => {
     expect(EGRESO_NOMBRADO_LABEL).toEqual({
-      egreso_pago_mensajero: "Pagos de Ordenex a mensajeros",
+      egreso_pago_mensajero: `Pagos de ${NOMBRE_ESPERADO} a mensajeros`,
       egreso_ajuste: "Correcciones de caja (resta)",
       egreso_reverso_cobro_tienda: "Cobros a una tienda anulados",
       // Ficha 458-B (design 458 §2.3): las dos filas de la anulacion de un cobro por devolución a origen.
@@ -256,24 +257,24 @@ const RESUMEN_488 = {
 
 describe("488 — los textos de la tarjeta de la caja (R11–R13, R17, R18)", () => {
   it("la pista de la ganancia dice que no lleva el IVA, y los rotulos del IVA son los aprobados", () => {
-    expect(CAJA_RESUMEN_LABEL.gananciaPista).toBe("Lo que Ordenex gana menos lo que gasta, sin el IVA");
+    expect(CAJA_RESUMEN_LABEL.gananciaPista).toBe(`Lo que ${NOMBRE_ESPERADO} gana menos lo que gasta, sin el IVA`);
     expect(CAJA_RESUMEN_LABEL.ivaCobrado).toBe("IVA cobrado a las tiendas");
     expect(CAJA_RESUMEN_LABEL.ivaPorPagar).toBe("IVA por pagar");
     expect(CAJA_RESUMEN_LABEL.ivaPorPagarPista).toBe(
-      "El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de Ordenex.",
+      `El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de ${NOMBRE_ESPERADO}.`,
     );
     expect(CAJA_COMPOSICION_LABEL.iva).toBe("IVA por pagar");
   });
 
   it("R15: el nombre accesible de la barra enuncia los TRES bolsillos con su importe", () => {
     expect(composicionCajaNombreAccesible(RESUMEN_488)).toBe(
-      "Reparto del dinero en caja. De las tiendas: ₡10.000. De Ordenex: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡340,50.",
+      `Reparto del dinero en caja. De las tiendas: ₡10.000. De ${NOMBRE_CORTO_ESPERADO}: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡340,50.`,
     );
   });
 
-  it("R17: con las tiendas debiendo, el mensaje ya no dice que TODO lo de la caja es de Ordenex", () => {
+  it(`R17: con las tiendas debiendo, el mensaje ya no dice que TODO lo de la caja es de ${NOMBRE_ESPERADO}`, () => {
     expect(CAJA_COMPOSICION_MENSAJE.solo_ordenex).toBe(
-      "Las tiendas le deben a Ordenex, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.",
+      `Las tiendas le deben a ${NOMBRE_ESPERADO}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
     );
     // Contraprueba escrita a mano: la frase retirada.
     expect(CAJA_COMPOSICION_MENSAJE.solo_ordenex).not.toMatch(/todo lo que hay en la caja es de Ordenex/);
@@ -281,7 +282,7 @@ describe("488 — los textos de la tarjeta de la caja (R11–R13, R17, R18)", ()
 
   it("R18: la nota de la diferencia dice que la ganancia no incluye el IVA", () => {
     expect(CAJA_RESUMEN_NOTA_DIFERENCIA("Dinero en caja")).toBe(
-      "«Dinero en caja» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de Ordenex» es solo lo que Ordenex gana menos lo que gasta: no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.",
+      `«Dinero en caja» cuenta todo el dinero, también el que es de las tiendas. «Ganancia de ${NOMBRE_CORTO_ESPERADO}» es solo lo que ${NOMBRE_ESPERADO} gana menos lo que gasta: no incluye el dinero de las tiendas, el IVA ni el saldo inicial o los aportes.`,
     );
   });
 });
@@ -289,9 +290,9 @@ describe("488 — los textos de la tarjeta de la caja (R11–R13, R17, R18)", ()
 describe("488 — el Pago de IVA y el dueño «IVA por pagar» (R21, R29)", () => {
   it("R29: el dueño de un movimiento de IVA se llama «IVA por pagar» en el libro y su descarga", () => {
     expect(DUENO_LABEL).toEqual({
-      propio: "Ordenex",
+      propio: `${NOMBRE_CORTO_ESPERADO}`,
       terceros: "Tienda",
-      capital: "Ordenex (capital)",
+      capital: `${NOMBRE_CORTO_ESPERADO} (capital)`,
       iva: "IVA por pagar",
     });
   });

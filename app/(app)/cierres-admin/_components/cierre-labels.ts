@@ -19,6 +19,7 @@ import type { CierreDestinoTipo, CierreEstado } from "@/lib/types/cierre";
 import { CAUSA_DEVOLUCION_LABEL } from "@/app/(app)/mis-asignaciones/_components/causa-devolucion-options";
 import { CAUSA_DEVOLUCION_SEED } from "@/lib/types/causa-devolucion";
 import { nombreDeResultado } from "@/lib/types/gestion-resultado";
+import { MARCA } from "@/lib/marca/identidad";
 
 // --- Etiquetas i18n-ready (texto separado de la lógica) ---
 
@@ -171,7 +172,7 @@ export const FULFILLMENT_COL = "Fulfillment";
 export const FLETE_CON_IVA_LABEL = "Flete + IVA";
 export const COMISION_CON_IVA_LABEL = "Comisión + IVA";
 export const FLETE_DEV_CON_IVA_LABEL = "Flete por devolución a origen + IVA";
-export const INGRESO_TOTAL_COL = "Total Ordenex";
+export const INGRESO_TOTAL_COL = `Total ${MARCA.nombreCorto}`;
 // --- Feature 158 (R34/R9/R19): columnas propias del grupo `incidente` (texto i18n-ready) ---
 export const CAUSA_INCIDENTE_COL = "Causa";
 export const INDEMNIZACION_COL = "Indemnización";
@@ -222,7 +223,7 @@ export const PARA_LA_CENTRAL_LABEL = "Para la central";
  * Resultado de la cascada A. NO es la «Ganancia» de hoy: aquella no resta el pago a la bodega
  * satélite, así que las dos sólo coinciden cuando ese pago es cero.
  */
-export const NETO_ORDENEX_LABEL = "Neto de Ordenex";
+export const NETO_ORDENEX_LABEL = `Neto de ${MARCA.nombreCorto}`;
 
 /**
  * La LÍNEA PUENTE (R10): lo que Ordenex cobra sobre lo recaudado. Sin ella la cascada A enseña
@@ -231,7 +232,7 @@ export const NETO_ORDENEX_LABEL = "Neto de Ordenex";
 export const COBRADO_SOBRE_RECAUDADO_LABEL = "Cobrado sobre lo recaudado";
 
 /** El mismo número que el «Ingreso bruto» del cierre de mensajero, dicho como lo dice quien lo lee. */
-export const FACTURADO_ORDENEX_LABEL = "Lo que Ordenex facturó";
+export const FACTURADO_ORDENEX_LABEL = `Lo que ${MARCA.nombre} facturó`;
 
 /**
  * `total_ingreso_bodega_rechazos` dicho desde el punto de vista de quien mira (R25, D3′), y con
@@ -312,7 +313,7 @@ export const GANA_LA_TIENDA_LABEL = "Gana la tienda";
  * se leen juntas: una dice «no es lo que se le paga hoy», la otra «no es lo que gana en total».
  */
 export const GANA_LA_TIENDA_NOTA =
-  "Lo recaudado menos todo lo que Ordenex le factura, incluido el flete por devolución a origen. No es lo que se le paga hoy.";
+  `Lo recaudado menos todo lo que ${MARCA.nombre} le factura, incluido el flete por devolución a origen. No es lo que se le paga hoy.`;
 
 /** FICHA 395 — la otra mitad del par: por qué el pago de hoy no es lo que la tienda gana. */
 export const PAGO_TIENDA_HOY_NOTA =
@@ -324,7 +325,7 @@ export const PAGO_TIENDA_HOY_NOTA =
  * peor que no tener el número.
  */
 export const GANA_LA_TIENDA_NEGATIVO_NOTA =
-  "Ordenex le factura más de lo que se recaudó en este cierre: a la tienda no le queda nada y pasa a deber la diferencia.";
+  `${MARCA.nombre} le factura más de lo que se recaudó en este cierre: a la tienda no le queda nada y pasa a deber la diferencia.`;
 
 /** FICHA 395 — de qué se compone la línea puente, dicho sin jerga contable. */
 export const COBRADO_SOBRE_RECAUDADO_NOTA =
@@ -332,11 +333,11 @@ export const COBRADO_SOBRE_RECAUDADO_NOTA =
 
 /** FICHA 395 — de qué resta sale el neto de Ordenex, en el idioma de quien la hace. */
 export const NETO_ORDENEX_NOTA =
-  "Lo que Ordenex facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.";
+  `Lo que ${MARCA.nombre} facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.`;
 
 /** FICHA 395 — qué significa un neto NEGATIVO: no es un fallo, es una pérdida del cierre. */
 export const NETO_ORDENEX_NEGATIVO_NOTA =
-  "Ordenex pagó más de lo que facturó en este cierre: ese neto es una pérdida, no una ganancia.";
+  `${MARCA.nombre} pagó más de lo que facturó en este cierre: ese neto es una pérdida, no una ganancia.`;
 
 /**
  * FICHA 395 — EL TIEMPO VERBAL DEL CARGO DEL FLETE POR RECHAZO, y es una trampa real.
@@ -367,8 +368,8 @@ export const FLETE_RECHAZO_NO_SE_COBRARA_NOTA =
  * responde en el cierre de bodega, y estrenar un segundo título para ella sería dar dos nombres a
  * la misma sección según por qué pantalla se entre.
  */
-export const CASCADA_FACTURA_TIENDA_TITULO = "Lo que Ordenex le factura a la tienda";
-export const CASCADA_NETO_ORDENEX_TITULO = "Lo que le queda a Ordenex";
+export const CASCADA_FACTURA_TIENDA_TITULO = `Lo que ${MARCA.nombre} le factura a la tienda`;
+export const CASCADA_NETO_ORDENEX_TITULO = `Lo que le queda a ${MARCA.nombre}`;
 
 // ---------------------------------------------------------------------------
 // FICHA 396 (2026-09-08) — DE QUÉ TIENDA ES CADA PARTE DEL «PAGO A TIENDA».

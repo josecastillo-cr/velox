@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import { getMetrica } from "@/lib/analytics/metrics";
 import { WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED } from "@/lib/types/wallet-tienda";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // FICHA 457 (R52, hallazgo m1 de la revision) — la metrica `cuenta_por_pagar_tienda` DECLARA todas
 // las categorias del libro de las tiendas, incluidas las dos del pago de una tienda a Ordenex.
@@ -27,7 +28,7 @@ describe("457/R52 — cuenta_por_pagar_tienda declara el libro de las tiendas EN
     expect([...categorias()].sort()).toEqual([...WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED].sort());
   });
 
-  it("nombra el pago de la tienda a Ordenex y su anulacion (literal del contrato, R52)", () => {
+  it(`nombra el pago de la tienda a ${NOMBRE_ESPERADO} y su anulacion (literal del contrato, R52)`, () => {
     expect(categorias()).toContain("abono_tienda");
     expect(categorias()).toContain("abono_tienda_anulado");
   });

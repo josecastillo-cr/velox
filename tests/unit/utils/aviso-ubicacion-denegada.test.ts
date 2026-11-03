@@ -7,6 +7,7 @@ import {
   leerPermisoUbicacion,
   type PermisoUbicacion,
 } from "@/lib/utils/aviso-ubicacion-denegada";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 399 — el aviso de ubicacion denegada, pieza por pieza.
 //
@@ -15,7 +16,7 @@ import {
 // que el mensajero lee algo que existe en su pantalla. Estos literales SON el contrato.
 
 const RESUMEN_APP_INSTALADA =
-  "Para registrar la gestión hace falta tu ubicación. Abriste Ordenex desde su ícono, así que el permiso se activa en los Ajustes del teléfono.";
+  `Para registrar la gestión hace falta tu ubicación. Abriste ${NOMBRE_CORTO_ESPERADO} desde su ícono, así que el permiso se activa en los Ajustes del teléfono.`;
 
 const RESUMEN_NAVEGADOR =
   "Para registrar la gestión hace falta tu ubicación. Activá el permiso desde el candado de la barra de direcciones (Permisos del sitio → Ubicación) y volvé a intentarlo.";
@@ -176,10 +177,10 @@ describe("avisoUbicacionDenegada — app instalada", () => {
       expect(aviso.titulo).toBe("Activá la ubicación desde los Ajustes del teléfono");
       expect(aviso.pasos).toEqual([
         "Abrí los Ajustes del teléfono (en algunos se llama Configuración).",
-        "Entrá en Aplicaciones y buscá Ordenex.",
+        `Entrá en Aplicaciones y buscá ${NOMBRE_CORTO_ESPERADO}.`,
         "Tocá Permisos y después Ubicación.",
         "Elegí «Permitir solo mientras usás la app» y dejá activado «Usar ubicación precisa».",
-        "Volvé a Ordenex y tocá «Guardar gestión» otra vez.",
+        `Volvé a ${NOMBRE_CORTO_ESPERADO} y tocá «Guardar gestión» otra vez.`,
       ]);
     },
   );
@@ -212,7 +213,7 @@ describe("avisoUbicacionDenegada — navegador", () => {
     const aviso = avisoUbicacionDenegada("navegador", "denegado");
 
     expect(aviso.nota).toBe(
-      "Si abriste Ordenex desde un enlace de WhatsApp y no ves el candado, tocá los tres puntos y elegí «Abrir en Chrome».",
+      `Si abriste ${NOMBRE_CORTO_ESPERADO} desde un enlace de WhatsApp y no ves el candado, tocá los tres puntos y elegí «Abrir en Chrome».`,
     );
   });
 
@@ -257,7 +258,7 @@ describe("avisoUbicacionDenegada — el aviso que nunca se contestó", () => {
 
   it("la salida por si el aviso no llega a salir SÍ depende del contexto", () => {
     expect(avisoUbicacionDenegada("app_instalada", "sin_decidir").nota).toBe(
-      "Si no te sale ningún aviso, activá la ubicación en los Ajustes del teléfono: Aplicaciones → Ordenex → Permisos → Ubicación.",
+      `Si no te sale ningún aviso, activá la ubicación en los Ajustes del teléfono: Aplicaciones → ${NOMBRE_CORTO_ESPERADO} → Permisos → Ubicación.`,
     );
     expect(avisoUbicacionDenegada("navegador", "sin_decidir").nota).toBe(
       "Si no te sale ningún aviso, tocá el candado que está al lado de la dirección web y activá Ubicación.",

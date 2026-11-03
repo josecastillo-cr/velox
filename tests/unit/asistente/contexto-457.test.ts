@@ -7,6 +7,7 @@ import { contextoPara } from "@/lib/asistente/contexto";
 import { leerCatalogoAyuda } from "@/lib/ayuda/catalogo";
 import { partirFrontmatter } from "@/lib/ayuda/frontmatter";
 import type { RolValue } from "@prisma/client";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const DIR_AYUDA = path.resolve(__dirname, "../../..", "docs", "ayuda");
 
@@ -45,61 +46,61 @@ function cuerpoEnContexto(rol: RolValue, slug: string): string {
 const OFICINA: RolValue[] = ["maestro", "admin"];
 const FUERA_DE_OFICINA: RolValue[] = ["mensajero", "adminTienda", "adminSatelite"];
 
-describe("457 R68/R69 — la oficina puede preguntar por el pago de una tienda a Ordenex", () => {
+describe(`457 R68/R69 — la oficina puede preguntar por el pago de una tienda a ${NOMBRE_ESPERADO}`, () => {
   it.each(OFICINA)("%s: la caja nombra el concepto, su anulación y su origen, y el diálogo con ocho conceptos", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
     expect(caja).toContain(
-      "**Una tienda le paga a Ordenex** / **Pago de una tienda a Ordenex anulado** | Lo que una tienda con saldo en contra le paga a Ordenex, y su anulación. Es dinero de la tienda: sube lo que Ordenex les debe a las tiendas",
+      `**Una tienda le paga a ${NOMBRE_ESPERADO}** / **Pago de una tienda a ${NOMBRE_ESPERADO} anulado** | Lo que una tienda con saldo en contra le paga a ${NOMBRE_ESPERADO}, y su anulación. Es dinero de la tienda: sube lo que ${NOMBRE_ESPERADO} les debe a las tiendas`,
     );
-    expect(caja).toContain("**Pago de una tienda a Ordenex**");
+    expect(caja).toContain(`**Pago de una tienda a ${NOMBRE_ESPERADO}**`);
     // FICHA 458-C (TC.6, R37) — REESCRITO: el registro único tiene DIEZ conceptos (impl_458-C.md).
     // FICHA 488 (R21) — el diálogo gana «Pago de IVA»: once (antes «**diez conceptos en tres grupos**»).
     expect(caja).toContain("**once conceptos en tres grupos**");
     expect(caja).toContain(
-      "**Llega dinero a la caja** | Aporte de dinero a la caja · Una tienda le paga a Ordenex · Corrección de caja (suma)",
+      `**Llega dinero a la caja** | Aporte de dinero a la caja · Una tienda le paga a ${NOMBRE_ESPERADO} · Corrección de caja (suma)`,
     );
   });
 
   it.each(OFICINA)("%s: la caja explica el efecto —llega dinero de la tienda, su saldo sube, la ganancia no cambia— y el tope", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
-    expect(caja).toContain("## Una tienda le paga a Ordenex: llega dinero de la tienda y su saldo sube");
+    expect(caja).toContain(`## Una tienda le paga a ${NOMBRE_ESPERADO}: llega dinero de la tienda y su saldo sube`);
     expect(caja).toContain("**Entró** y la cifra grande suben en el monto.");
-    expect(caja).toContain("**Lo que Ordenex les debe a las tiendas** sube en el monto: la deuda de esa tienda baja.");
+    expect(caja).toContain(`**Lo que ${NOMBRE_ESPERADO} les debe a las tiendas** sube en el monto: la deuda de esa tienda baja.`);
     expect(caja).toContain(
-      "La **ganancia de Ordenex no cambia**: lo que la tienda debía ya se contó como ganancia al aprobar cada cierre.",
+      `La **ganancia de ${NOMBRE_ESPERADO} no cambia**: lo que la tienda debía ya se contó como ganancia al aprobar cada cierre.`,
     );
     expect(caja).toContain("Solo se admite si la tienda tiene **saldo en contra**, y **hasta lo que debe**.");
     // Qué se pide y cómo sale en cada libro.
     expect(caja).toContain("**en SINPE y transferencia la referencia es obligatoria**");
     expect(caja).toContain("dueño **Tienda**");
-    expect(caja).toContain("«La tienda le paga a Ordenex»");
-    expect(caja).toContain("«Le pagaste a Ordenex»");
-    expect(caja).toContain("**Registrar pago de la tienda a Ordenex**");
+    expect(caja).toContain(`«La tienda le paga a ${NOMBRE_ESPERADO}»`);
+    expect(caja).toContain(`«Le pagaste a ${NOMBRE_ESPERADO}»`);
+    expect(caja).toContain(`**Registrar pago de la tienda a ${NOMBRE_ESPERADO}**`);
   });
 
   it.each(OFICINA)("%s: la caja explica la anulación y el comprobante", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
     expect(caja).toContain(
-      "Al anular un pago de una tienda a Ordenex, **Salió** sube en el monto, la cifra grande y **lo que Ordenex les debe a las tiendas** bajan en el monto —la tienda vuelve a deber— y la ganancia no cambia. En la caja aparece **Pago de una tienda a Ordenex anulado**; en el libro de la tienda, «Pago de la tienda a Ordenex anulado».",
+      `Al anular un pago de una tienda a ${NOMBRE_ESPERADO}, **Salió** sube en el monto, la cifra grande y **lo que ${NOMBRE_ESPERADO} les debe a las tiendas** bajan en el monto —la tienda vuelve a deber— y la ganancia no cambia. En la caja aparece **Pago de una tienda a ${NOMBRE_ESPERADO} anulado**; en el libro de la tienda, «Pago de la tienda a ${NOMBRE_ESPERADO} anulado».`,
     );
-    expect(caja).toContain("El pago de una tienda a Ordenex sí puede llevarlo.");
-    expect(caja).toContain("un **pago de una tienda a Ordenex** o una **corrección de caja** no se editan");
+    expect(caja).toContain(`El pago de una tienda a ${NOMBRE_ESPERADO} sí puede llevarlo.`);
+    expect(caja).toContain(`un **pago de una tienda a ${NOMBRE_ESPERADO}** o una **corrección de caja** no se editan`);
   });
 
   it.each(OFICINA)("%s: Wallet · Tiendas nombra el pago y su anulación y dice cómo registrarlo", (rol) => {
     const tiendas = cuerpoEnContexto(rol, "oficina/wallet-tiendas");
     expect(tiendas).toContain(
-      "**La tienda le paga a Ordenex** | Lo que la tienda le pagó a Ordenex cuando estaba en contra. Su saldo sube | **Sí**: entró dinero de la tienda",
+      `**La tienda le paga a ${NOMBRE_ESPERADO}** | Lo que la tienda le pagó a ${NOMBRE_ESPERADO} cuando estaba en contra. Su saldo sube | **Sí**: entró dinero de la tienda`,
     );
     expect(tiendas).toContain(
-      "**Pago de la tienda a Ordenex anulado** | La anulación de ese pago: el saldo vuelve a bajar | Vuelve a salir",
+      `**Pago de la tienda a ${NOMBRE_ESPERADO} anulado** | La anulación de ese pago: el saldo vuelve a bajar | Vuelve a salir`,
     );
     // FICHA 458-D (T D.2/T D.9): el pago de la tienda a Ordenex se registra desde el ESTADO DE CUENTA
     // de la tienda (antes, las acciones del desglose retirado) y se anula desde el panel «Ver» de su
     // fila, en la misma pantalla. El contrato de la 457 —cuándo se ofrece y qué pide— no cambia.
     expect(tiendas).toContain("## Registrar desde el estado de cuenta");
     expect(tiendas).toContain(
-      "**La tienda le paga a Ordenex** — solo cuando la tienda está **en contra**: registra el pago que ella le hizo a Ordenex (hasta lo que debe, con fecha, motivo, método y comprobante opcional). Su saldo sube.",
+      `**La tienda le paga a ${NOMBRE_ESPERADO}** — solo cuando la tienda está **en contra**: registra el pago que ella le hizo a ${NOMBRE_ESPERADO} (hasta lo que debe, con fecha, motivo, método y comprobante opcional). Su saldo sube.`,
     );
     expect(tiendas).toContain("Desde ahí se **anula** con **Anular…** y un motivo");
   });
@@ -109,28 +110,28 @@ describe("457 R68/R69 — la oficina puede preguntar por el pago de una tienda a
     expect(slugs).not.toContain("oficina/wallet-caja");
     expect(slugs).not.toContain("oficina/wallet-tiendas");
     const todo = textoDelContexto(rol);
-    expect(todo).not.toContain("## Una tienda le paga a Ordenex: llega dinero de la tienda y su saldo sube");
+    expect(todo).not.toContain(`## Una tienda le paga a ${NOMBRE_ESPERADO}: llega dinero de la tienda y su saldo sube`);
     expect(todo).not.toContain("## Registrar desde el estado de cuenta");
   });
 });
 
-describe("457 R68/R69 — la tienda entiende su pago a Ordenex en Mi wallet, desde su lado", () => {
+describe(`457 R68/R69 — la tienda entiende su pago a ${NOMBRE_ESPERADO} en Mi wallet, desde su lado`, () => {
   it("adminTienda: Mi wallet lee el pago y su anulación en segunda persona", () => {
     const wallet = cuerpoEnContexto("adminTienda", "tienda/mi-wallet");
     expect(wallet).toContain(
-      "- **Le pagaste a Ordenex** — lo que le pagaste a Ordenex cuando tu saldo estaba en contra.",
+      `- **Le pagaste a ${NOMBRE_ESPERADO}** — lo que le pagaste a ${NOMBRE_ESPERADO} cuando tu saldo estaba en contra.`,
     );
     expect(wallet).toContain(
-      "- **Ordenex anuló el pago que le hiciste** — la anulación de un pago tuyo registrado por error: tu saldo vuelve a bajar.",
+      `- **${NOMBRE_ESPERADO} anuló el pago que le hiciste** — la anulación de un pago tuyo registrado por error: tu saldo vuelve a bajar.`,
     );
-    expect(wallet).toContain("## Un pago que le hiciste a Ordenex");
+    expect(wallet).toContain(`## Un pago que le hiciste a ${NOMBRE_ESPERADO}`);
     expect(wallet).toContain(
       // FICHA 458-D (T D.5, R78): la frase «El comprobante de tu pago lo guarda la oficina» se retira:
       // desde la 458-D la tienda lo VE en su fila («## Ver el comprobante», contexto-458 bloque D).
-      "Si tu saldo quedó en contra y le pagaste a Ordenex, lo ves como **Le pagaste a Ordenex**, con el motivo, el método y la referencia. **Sube tu saldo** en el monto. Si la oficina lo anula por error, aparece **Ordenex anuló el pago que le hiciste** y tu saldo vuelve a bajar.",
+      `Si tu saldo quedó en contra y le pagaste a ${NOMBRE_ESPERADO}, lo ves como **Le pagaste a ${NOMBRE_ESPERADO}**, con el motivo, el método y la referencia. **Sube tu saldo** en el monto. Si la oficina lo anula por error, aparece **${NOMBRE_ESPERADO} anuló el pago que le hiciste** y tu saldo vuelve a bajar.`,
     );
     // La tienda NO lee los nombres desde Ordenex (R47).
-    expect(wallet).not.toContain("La tienda le paga a Ordenex");
+    expect(wallet).not.toContain(`La tienda le paga a ${NOMBRE_ESPERADO}`);
   });
 
   it("mensajero y adminSatelite no reciben Mi wallet", () => {

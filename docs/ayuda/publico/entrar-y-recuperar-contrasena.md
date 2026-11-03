@@ -9,7 +9,7 @@ fuentes:
   - app/recuperar-contrasena/page.tsx
 ---
 
-# Entrar a Ordenex
+# Entrar a Velox Courier
 
 Con tu **correo y tu contraseña**. Si la cuenta la creó la oficina, la contraseña te la pasaron al
 crearla.

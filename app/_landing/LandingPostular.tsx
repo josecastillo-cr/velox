@@ -8,6 +8,7 @@ import {
   TituloSeccion,
 } from "./primitivas";
 import { PostularRecursoModal, type RecursoTipo } from "./PostularRecursoModal";
+import { MARCA } from "@/lib/marca/identidad";
 
 interface Tarjeta {
   readonly titulo: string;
@@ -27,7 +28,7 @@ interface Tarjeta {
 const TARJETAS: readonly Tarjeta[] = [
   {
     titulo: "Tenés un vehículo",
-    copy: "¿Tenés un camión, carro o moto que no estás manejando? Ponelo a trabajar con Ordenex y generá ingresos con nuestra operación.",
+    copy: `¿Tenés un camión, carro o moto que no estás manejando? Ponelo a trabajar con ${MARCA.nombre} y generá ingresos con nuestra operación.`,
     cta: "Postular mi vehículo",
     Icono: Truck,
     foto: "/landing/logistica.jpg",
@@ -47,7 +48,7 @@ const TARJETAS: readonly Tarjeta[] = [
   },
   {
     titulo: "Querés trabajar con nosotros",
-    copy: "¿Tenés otra forma de aportar o querés ser parte del equipo Ordenex? Postulate y conversemos.",
+    copy: `¿Tenés otra forma de aportar o querés ser parte del equipo ${MARCA.nombre}? Postulate y conversemos.`,
     cta: "Quiero postularme",
     Icono: Users,
     foto: "/landing/mensajera.jpg",
@@ -76,7 +77,7 @@ export function LandingPostular() {
       className="scroll-mt-16 border-y border-asfalto-1 bg-kraft-inset"
     >
       <div className="mx-auto max-w-[1200px] px-6 py-16 md:px-12 md:py-[88px]">
-        <RotuloSeccion>Sumate a Ordenex</RotuloSeccion>
+        <RotuloSeccion>Sumate a {MARCA.nombre}</RotuloSeccion>
         <TituloSeccion>
           ¿Tenés un recurso? <Enfasis>Trabajá con nosotros</Enfasis>.
         </TituloSeccion>

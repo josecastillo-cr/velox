@@ -20,6 +20,7 @@ import {
   serializarEscriturasReales,
   type TxDeTest,
 } from "./_postgres-real";
+import { zonaCreada } from "./_fixtures/zona-creada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 380 / T8 — EL RASTRO DE LA REESCRITURA DEL PAGO AL MENSAJERO, CONTRA POSTGRES REAL.
@@ -740,7 +741,7 @@ describeSiHayBase("⭑ 380/T8 — el pago al mensajero deja rastro al guardar (P
     // igual que hay `vehiculo_borrado` y no `vehiculo_creado`.
     const medido = await conEscenario(async (e) => {
       const d = await e.crearDistrito([]);
-      const zona = await e.repo.create(
+      const zona = zonaCreada(await e.repo.create(
         { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
           nombre: `380 nueva ${unico()}`,
           cobroVehiculo: false,
@@ -749,7 +750,7 @@ describeSiHayBase("⭑ 380/T8 — el pago al mensajero deja rastro al guardar (P
           tarifas: [pago(1500, 700)],
         },
         USUARIO,
-      );
+      ));
       return { zonaId: zona.id, pagos: await e.pagosDe(zona.id), filas: await e.filasDePago([zona.id]) };
     });
 
@@ -766,7 +767,7 @@ describeSiHayBase("⭑ 380/T8 — el pago al mensajero deja rastro al guardar (P
     // el pago» sobre una zona que ya no existe seria ruido apuntando a un id muerto.
     const medido = await conEscenario(async (e) => {
       const d = await e.crearDistrito([]);
-      const zona = await e.repo.create(
+      const zona = zonaCreada(await e.repo.create(
         { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
           nombre: `380 a borrar ${unico()}`,
           cobroVehiculo: false,
@@ -775,7 +776,7 @@ describeSiHayBase("⭑ 380/T8 — el pago al mensajero deja rastro al guardar (P
           tarifas: [pago(1500, 700)],
         },
         USUARIO,
-      );
+      ));
       const pagosAntes = await e.pagosDe(zona.id);
       const desenlace = await e.repo.hardDelete(zona.id, USUARIO);
       return {

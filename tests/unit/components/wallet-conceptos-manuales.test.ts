@@ -26,6 +26,7 @@ import {
   type WalletMovimientoCategoria,
 } from "@/lib/types/wallet";
 import { CONCEPTO_REGISTRO_SEED } from "@/lib/types/efecto-movimiento";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Ficha 334 (T D2, design §9) — el catálogo de conceptos registrables A MANO es la única
 // fuente del selector unificado, así que es el sitio donde se puede AFIRMAR la regla que la
@@ -101,23 +102,23 @@ describe("catálogo de conceptos manuales — son exactamente DIEZ (458-R37, que
     expect(CONCEPTO_MANUAL_OPTIONS.map((o) => o.value)).toEqual([...CONCEPTO_MANUAL_IDS]);
   });
 
-  it("⭑ 458 R37: los diez se llaman EXACTAMENTE así, desde Ordenex y diciendo quién le paga a quién", () => {
+  it(`⭑ 458 R37: los diez se llaman EXACTAMENTE así, desde ${NOMBRE_ESPERADO} y diciendo quién le paga a quién`, () => {
     expect(CONCEPTOS_MANUALES.map((c) => c.label)).toEqual([
-      "Gasto de Ordenex",
+      `Gasto de ${NOMBRE_CORTO_ESPERADO}`,
       "Sueldo",
       "Pago de IVA", // ficha 488
-      "Ordenex paga un gasto de una tienda",
+      `${NOMBRE_ESPERADO} paga un gasto de una tienda`,
       "Corrección de caja (resta)",
-      "Ordenex le paga a una tienda",
-      "Ordenex le paga a un mensajero",
+      `${NOMBRE_ESPERADO} le paga a una tienda`,
+      `${NOMBRE_ESPERADO} le paga a un mensajero`,
       "Aporte de dinero a la caja",
-      "Una tienda le paga a Ordenex",
+      `Una tienda le paga a ${NOMBRE_ESPERADO}`,
       "Corrección de caja (suma)",
-      "Ordenex le cobra a una tienda",
+      `${NOMBRE_ESPERADO} le cobra a una tienda`,
     ]);
   });
 
-  it("el gasto de Ordenex sigue siendo el primero y los cuatro de la 334 conservan su orden relativo (R11)", () => {
+  it(`el gasto de ${NOMBRE_ESPERADO} sigue siendo el primero y los cuatro de la 334 conservan su orden relativo (R11)`, () => {
     // Quien abría el diálogo y pulsaba «Registrar» sin tocar el selector registraba un gasto
     // variable, y sigue haciéndolo (con su nombre nuevo).
     expect(CONCEPTOS_MANUALES[0].id).toBe("gasto_variable");
@@ -183,12 +184,12 @@ describe("catálogo de conceptos manuales — ningún concepto lleva al gasto FI
   });
 });
 
-describe("⭑ FICHA 381/461 — el cobro de Ordenex a una tienda cae en los DOS libros (R1 / 461-HD1/R46)", () => {
-  it("existe, se llama «Ordenex le cobra a una tienda» y declara su cargo en la caja y su débito en la tienda", () => {
+describe(`⭑ FICHA 381/461 — el cobro de ${NOMBRE_ESPERADO} a una tienda cae en los DOS libros (R1 / 461-HD1/R46)`, () => {
+  it(`existe, se llama «${NOMBRE_ESPERADO} le cobra a una tienda» y declara su cargo en la caja y su débito en la tienda`, () => {
     const cobro = conceptoPorId("cobro_tienda");
     expect(cobro).toBeDefined();
     // Literal, y es el contrato: es el texto del selector, lo que el humano ve para decidir (HD3).
-    expect(cobro?.label).toBe("Ordenex le cobra a una tienda");
+    expect(cobro?.label).toBe(`${NOMBRE_ESPERADO} le cobra a una tienda`);
     expect(cobro?.destino).toEqual({
       clase: "cobro_tienda",
       categoria: "ingreso_cobro_tienda",
@@ -248,12 +249,12 @@ describe("⭑ FICHA 381/461 — el cobro de Ordenex a una tienda cae en los DOS 
   });
 });
 
-describe("⭑ FICHA 457 — «Una tienda le paga a Ordenex» (design §8.1/§8.2; R54, R55, R67)", () => {
+describe(`⭑ FICHA 457 — «Una tienda le paga a ${NOMBRE_ESPERADO}» (design §8.1/§8.2; R54, R55, R67)`, () => {
   it("existe en «Llega dinero a la caja», declara su ingreso en la caja y su CRÉDITO en la tienda, y cae en los dos libros", () => {
     const abono = conceptoPorId("abono_tienda");
     expect(abono).toBeDefined();
     // Literales, y SON el contrato (design §2/§8.1).
-    expect(abono?.label).toBe("Una tienda le paga a Ordenex");
+    expect(abono?.label).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
     expect(abono?.grupo).toBe("entra");
     expect(abono?.destino).toEqual({
       clase: "abono_tienda",
@@ -268,10 +269,10 @@ describe("⭑ FICHA 457 — «Una tienda le paga a Ordenex» (design §8.1/§8.2
   it("R55: la frase de efecto es la literal de §8.2, y la del libro nombra los dos libros con sus diccionarios", () => {
     const abono = conceptoPorId("abono_tienda")!;
     expect(FRASE_DEL_EFECTO.abono_tienda).toBe(
-      "Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.",
+      `Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de ${NOMBRE_ESPERADO} no cambia.`,
     );
     expect(fraseDelLibro(abono)).toBe(
-      "Se registra en la caja como «Una tienda le paga a Ordenex» y en el libro de la tienda como «La tienda le paga a Ordenex».",
+      `Se registra en la caja como «Una tienda le paga a ${NOMBRE_ESPERADO}» y en el libro de la tienda como «La tienda le paga a ${NOMBRE_ESPERADO}».`,
     );
     // Desde ORDENEX (/wallet/tiendas), no la lectura de la tienda (/mi-wallet).
     expect(nombreEnElLibroDeLaTienda(abono)).toBe(CATEGORIA_TIENDA_LABEL.abono_tienda);
@@ -280,7 +281,7 @@ describe("⭑ FICHA 457 — «Una tienda le paga a Ordenex» (design §8.1/§8.2
 
   it("su cabecera lleva el nombre del concepto y dice que solo con saldo en contra, hasta lo que debe, y que se anula desde la caja", () => {
     const cabecera = cabeceraDelConcepto(conceptoPorId("abono_tienda")!);
-    expect(cabecera.titulo).toBe("Una tienda le paga a Ordenex");
+    expect(cabecera.titulo).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
     expect(cabecera.descripcion).toBe(
       "Elegí la tienda, el monto, la fecha real y el método. Solo se admite si la tienda tiene saldo en contra y hasta lo que debe. El pago no se edita: si hay un error, se anula desde el libro de la caja con un motivo.",
     );
@@ -312,16 +313,16 @@ describe("catálogo de conceptos manuales — el nombre del libro se DERIVA (R4 
       expect(nombreEnElLibro(concepto).trim().length, concepto.id).toBeGreaterThan(0);
     }
     // Control de no-vacuidad: la derivación entrega los nombres REALES del libro, escritos a mano.
-    expect(nombreEnElLibro(CONCEPTOS_MANUALES[0])).toBe("Gasto de Ordenex");
+    expect(nombreEnElLibro(CONCEPTOS_MANUALES[0])).toBe(`Gasto de ${NOMBRE_CORTO_ESPERADO}`);
     expect(nombreEnElLibro(conceptoPorId("ajuste_ingreso")!)).toBe("Corrección de caja (suma)");
-    expect(nombreEnElLibro(conceptoPorId("cobro_tienda")!)).toBe("Ordenex le cobra a una tienda");
+    expect(nombreEnElLibro(conceptoPorId("cobro_tienda")!)).toBe(`${NOMBRE_ESPERADO} le cobra a una tienda`);
     // 458-C (R52): el pago a una tienda sale en la caja con el nombre de su categoría; el pago a un
     // mensajero, con el nombre del libro del MENSAJERO (el diccionario que pinta ese libro).
-    expect(nombreEnElLibro(conceptoPorId("pago_a_tienda")!)).toBe("Ordenex le paga a una tienda");
+    expect(nombreEnElLibro(conceptoPorId("pago_a_tienda")!)).toBe(`${NOMBRE_ESPERADO} le paga a una tienda`);
     expect(nombreEnElLibro(conceptoPorId("pago_a_mensajero")!)).toBe("Liquidación");
   });
 
-  it("⭑ 461: el nombre en el libro de la TIENDA sale del diccionario DESDE ORDENEX de /wallet/tiendas, no del de /mi-wallet", () => {
+  it("⭑ 461: el nombre en el libro de la TIENDA sale del diccionario DESDE LA EMPRESA de /wallet/tiendas, no del de /mi-wallet", () => {
     const cobro = conceptoPorId("cobro_tienda")!;
     const pago = conceptoPorId("pago_por_cuenta_tienda")!;
     // El MISMO objeto que rotula el desglose en `/wallet/tiendas`: lo que el diálogo promete es
@@ -329,8 +330,8 @@ describe("catálogo de conceptos manuales — el nombre del libro se DERIVA (R4 
     expect(nombreEnElLibroDeLaTienda(cobro)).toBe(CATEGORIA_TIENDA_LABEL.cobro_manual);
     expect(nombreEnElLibroDeLaTienda(pago)).toBe(CATEGORIA_TIENDA_LABEL.pago_por_cuenta);
     // Y los literales, porque la derivación sola sería una aserción contra su propia fuente.
-    expect(nombreEnElLibroDeLaTienda(cobro)).toBe("Ordenex le cobra a la tienda");
-    expect(nombreEnElLibroDeLaTienda(pago)).toBe("Ordenex paga un gasto de la tienda");
+    expect(nombreEnElLibroDeLaTienda(cobro)).toBe(`${NOMBRE_ESPERADO} le cobra a la tienda`);
+    expect(nombreEnElLibroDeLaTienda(pago)).toBe(`${NOMBRE_ESPERADO} paga un gasto de la tienda`);
     // NO la lectura desde la tienda (P4): el diálogo lo lee la oficina.
     expect(nombreEnElLibroDeLaTienda(cobro)).not.toBe(CATEGORIA_MI_WALLET_LABEL.cobro_manual);
     // Los que no escriben en la tienda no prometen nada allí.
@@ -338,15 +339,15 @@ describe("catálogo de conceptos manuales — el nombre del libro se DERIVA (R4 
       expect(nombreEnElLibroDeLaTienda(conceptoPorId(id)!), id).toBe("");
     }
     // ⭑ 458-C: el pago de Ordenex a una tienda, con el nombre desde Ordenex del libro de la tienda.
-    expect(nombreEnElLibroDeLaTienda(conceptoPorId("pago_a_tienda")!)).toBe("Ordenex le paga a la tienda");
+    expect(nombreEnElLibroDeLaTienda(conceptoPorId("pago_a_tienda")!)).toBe(`${NOMBRE_ESPERADO} le paga a la tienda`);
     // ⭑ 457: el pago de la tienda también promete su nombre en la tienda, desde Ordenex.
-    expect(nombreEnElLibroDeLaTienda(conceptoPorId("abono_tienda")!)).toBe("La tienda le paga a Ordenex");
+    expect(nombreEnElLibroDeLaTienda(conceptoPorId("abono_tienda")!)).toBe(`La tienda le paga a ${NOMBRE_ESPERADO}`);
   });
 
   it("⭑ 381/461: la frase del diálogo nombra los libros, y la forma de la caja no cambió (R4/R11)", () => {
     // La FORMA de la ficha 334 («Se registra en el libro como «…».»), con el nombre nuevo dentro.
     expect(fraseDelLibro(conceptoPorId("gasto_variable")!)).toBe(
-      "Se registra en el libro como «Gasto de Ordenex».",
+      `Se registra en el libro como «Gasto de ${NOMBRE_CORTO_ESPERADO}».`,
     );
     expect(fraseDelLibro(conceptoPorId("ajuste_ingreso")!)).toBe(
       "Se registra en el libro como «Corrección de caja (suma)».",
@@ -356,14 +357,14 @@ describe("catálogo de conceptos manuales — el nombre del libro se DERIVA (R4 
     );
     // Los dos que escriben en los DOS libros nombran los dos, cada uno con el nombre de su diccionario.
     expect(fraseDelLibro(conceptoPorId("cobro_tienda")!)).toBe(
-      "Se registra en la caja como «Ordenex le cobra a una tienda» y en el libro de la tienda como «Ordenex le cobra a la tienda».",
+      `Se registra en la caja como «${NOMBRE_ESPERADO} le cobra a una tienda» y en el libro de la tienda como «${NOMBRE_ESPERADO} le cobra a la tienda».`,
     );
     expect(fraseDelLibro(conceptoPorId("pago_por_cuenta_tienda")!)).toBe(
-      "Se registra en la caja como «Ordenex paga un gasto de una tienda» y en el libro de la tienda como «Ordenex paga un gasto de la tienda».",
+      `Se registra en la caja como «${NOMBRE_ESPERADO} paga un gasto de una tienda» y en el libro de la tienda como «${NOMBRE_ESPERADO} paga un gasto de la tienda».`,
     );
     // ⭑ 458-C (R52): los dos pagos nuevos.
     expect(fraseDelLibro(conceptoPorId("pago_a_tienda")!)).toBe(
-      "Se registra en la caja como «Ordenex le paga a una tienda» y en el libro de la tienda como «Ordenex le paga a la tienda».",
+      `Se registra en la caja como «${NOMBRE_ESPERADO} le paga a una tienda» y en el libro de la tienda como «${NOMBRE_ESPERADO} le paga a la tienda».`,
     );
     expect(fraseDelLibro(conceptoPorId("pago_a_mensajero")!)).toBe(
       "Se registra en el libro del mensajero como «Liquidación».",
@@ -386,9 +387,9 @@ describe("⭑ FICHA 381/459/461 — la cabecera del diálogo, por concepto (R4/R
 
   it("la del cobro lleva el nombre del concepto y dice que se anula desde la caja, no que no se deshace", () => {
     const cabecera = cabeceraDelConcepto(conceptoPorId("cobro_tienda")!);
-    expect(cabecera.titulo).toBe("Ordenex le cobra a una tienda");
+    expect(cabecera.titulo).toBe(`${NOMBRE_ESPERADO} le cobra a una tienda`);
     expect(cabecera.descripcion).toBe(
-      "Elegí la tienda, el monto y la fecha. El cobro se descuenta de lo que Ordenex le debe a esa tienda y no se edita: si hay un error, se anula desde el libro de la caja con un motivo.",
+      `Elegí la tienda, el monto y la fecha. El cobro se descuenta de lo que ${NOMBRE_ESPERADO} le debe a esa tienda y no se edita: si hay un error, se anula desde el libro de la caja con un motivo.`,
     );
     // La consecuencia C1 de la 381 («no se puede editar ni deshacer») queda superada por HD1.
     expect(cabecera.descripcion).not.toMatch(/ni deshacer|inmutable/);
@@ -398,7 +399,7 @@ describe("⭑ FICHA 381/459/461 — la cabecera del diálogo, por concepto (R4/R
 
   it("la del pago de un gasto lleva su título y dice que no se edita", () => {
     const cabecera = cabeceraDelConcepto(conceptoPorId("pago_por_cuenta_tienda")!);
-    expect(cabecera.titulo).toBe("Ordenex paga un gasto de una tienda");
+    expect(cabecera.titulo).toBe(`${NOMBRE_ESPERADO} paga un gasto de una tienda`);
     expect(cabecera.descripcion).toMatch(/no se puede editar/);
     expect(cabecera.descripcion).toMatch(/se anula desde el libro de la caja con un motivo/);
   });
@@ -411,20 +412,20 @@ describe("⭑ FICHA 459/461 — los tres grupos del selector (R59 / 461-R40)", (
     // Literales: son los encabezados que ve la persona (design §7.1). ⭑ 457: «Llega dinero a la
     // caja» tiene TRES (aporte · pago de una tienda · corrección que suma).
     expect(CONCEPTO_MANUAL_OPTIONS.map((o) => [o.value, o.group])).toEqual([
-      ["gasto_variable", "Sale dinero de Ordenex"],
-      ["sueldo", "Sale dinero de Ordenex"],
-      ["pago_iva", "Sale dinero de Ordenex"], // ficha 488
-      ["pago_por_cuenta_tienda", "Sale dinero de Ordenex"],
-      ["ajuste_egreso", "Sale dinero de Ordenex"],
-      ["pago_a_tienda", "Sale dinero de Ordenex"],
-      ["pago_a_mensajero", "Sale dinero de Ordenex"],
+      ["gasto_variable", `Sale dinero de ${NOMBRE_ESPERADO}`],
+      ["sueldo", `Sale dinero de ${NOMBRE_ESPERADO}`],
+      ["pago_iva", `Sale dinero de ${NOMBRE_ESPERADO}`], // ficha 488
+      ["pago_por_cuenta_tienda", `Sale dinero de ${NOMBRE_ESPERADO}`],
+      ["ajuste_egreso", `Sale dinero de ${NOMBRE_ESPERADO}`],
+      ["pago_a_tienda", `Sale dinero de ${NOMBRE_ESPERADO}`],
+      ["pago_a_mensajero", `Sale dinero de ${NOMBRE_ESPERADO}`],
       ["aporte_capital", "Llega dinero a la caja"],
       ["abono_tienda", "Llega dinero a la caja"],
       ["ajuste_ingreso", "Llega dinero a la caja"],
       ["cobro_tienda", "Se descuenta del saldo de una tienda"],
     ]);
     expect(GRUPO_CONCEPTO_LABEL).toEqual({
-      sale: "Sale dinero de Ordenex",
+      sale: `Sale dinero de ${NOMBRE_ESPERADO}`,
       entra: "Llega dinero a la caja",
       descuenta: "Se descuenta del saldo de una tienda",
     });
@@ -433,7 +434,7 @@ describe("⭑ FICHA 459/461 — los tres grupos del selector (R59 / 461-R40)", (
   });
 
   it("los dos conceptos de la 459 se llaman como dice la 461 y van a su clase de destino", () => {
-    expect(conceptoPorId("pago_por_cuenta_tienda")?.label).toBe("Ordenex paga un gasto de una tienda");
+    expect(conceptoPorId("pago_por_cuenta_tienda")?.label).toBe(`${NOMBRE_ESPERADO} paga un gasto de una tienda`);
     expect(conceptoPorId("pago_por_cuenta_tienda")?.destino).toEqual({
       clase: "pago_por_cuenta_tienda",
       categoria: "egreso_pago_por_cuenta_tienda",
@@ -450,25 +451,25 @@ describe("⭑ FICHA 459/461 — los tres grupos del selector (R59 / 461-R40)", (
 describe("⭑ FICHA 459/461 — la frase del efecto, una línea por concepto (R60 / 461-R41)", () => {
   it("cada concepto tiene su frase, con el texto literal del diseño (design §7.6)", () => {
     expect(FRASE_DEL_EFECTO).toEqual({
-      gasto_variable: "Sale dinero de Ordenex y baja su ganancia.",
-      sueldo: "Sale dinero de Ordenex para pagar un sueldo y baja su ganancia.",
+      gasto_variable: `Sale dinero de ${NOMBRE_ESPERADO} y baja su ganancia.`,
+      sueldo: `Sale dinero de ${NOMBRE_ESPERADO} para pagar un sueldo y baja su ganancia.`,
       // ⭑ 488 (design §6): literal.
       pago_iva:
         "Sale dinero de la caja para pagarle a Hacienda el IVA cobrado y baja el IVA por pagar; la ganancia no cambia.",
       pago_por_cuenta_tienda:
-        "Sale dinero de Ordenex hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.",
-      ajuste_egreso: "Sale dinero de la caja para corregir un descuadre y baja la ganancia de Ordenex.",
+        `Sale dinero de ${NOMBRE_ESPERADO} hacia un tercero (Facebook, Jet Cargo…) y se descuenta del saldo de la tienda; la ganancia no cambia.`,
+      ajuste_egreso: `Sale dinero de la caja para corregir un descuadre y baja la ganancia de ${NOMBRE_ESPERADO}.`,
       // ⭑ 458-C (R39): las dos nuevas, literales.
       pago_a_tienda:
-        "Sale dinero de Ordenex hacia la tienda y baja lo que Ordenex le debe; la ganancia no cambia.",
+        `Sale dinero de ${NOMBRE_ESPERADO} hacia la tienda y baja lo que ${NOMBRE_ESPERADO} le debe; la ganancia no cambia.`,
       pago_a_mensajero:
-        "Ordenex le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.",
-      aporte_capital: "Llega dinero de Ordenex a la caja; no es ganancia, la ganancia no cambia.",
+        `${NOMBRE_ESPERADO} le paga al mensajero lo que le debe por sus cierres y baja su cuenta por pagar; la ganancia no cambia.`,
+      aporte_capital: `Llega dinero de ${NOMBRE_ESPERADO} a la caja; no es ganancia, la ganancia no cambia.`,
       abono_tienda:
-        "Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de Ordenex no cambia.",
-      ajuste_ingreso: "Llega dinero a la caja para corregir un descuadre y sube la ganancia de Ordenex.",
+        `Llega dinero de la tienda a la caja: paga lo que debe y su saldo sube; la ganancia de ${NOMBRE_ESPERADO} no cambia.`,
+      ajuste_ingreso: `Llega dinero a la caja para corregir un descuadre y sube la ganancia de ${NOMBRE_ESPERADO}.`,
       cobro_tienda:
-        "No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de Ordenex; si la tienda no tiene saldo, queda en contra.",
+        `No llega dinero nuevo: se descuenta del saldo a favor de la tienda y pasa a ser ganancia de ${NOMBRE_ESPERADO}; si la tienda no tiene saldo, queda en contra.`,
     });
   });
 
@@ -486,10 +487,10 @@ describe("⭑ FICHA 459/461 — la frase del efecto, una línea por concepto (R6
     // la caza).
     expect(FRASE_DEL_EFECTO.cobro_tienda).toMatch(/^No llega dinero nuevo/);
     expect(FRASE_DEL_EFECTO.cobro_tienda).toMatch(/saldo a favor de la tienda/);
-    expect(FRASE_DEL_EFECTO.cobro_tienda).toMatch(/ganancia de Ordenex/);
+    expect(FRASE_DEL_EFECTO.cobro_tienda).toMatch(new RegExp(`ganancia de ${NOMBRE_ESPERADO}`));
     expect(FRASE_DEL_EFECTO.cobro_tienda).not.toMatch(/La caja y la ganancia no cambian/);
     // El pago de un gasto sigue diciendo que SALE dinero hacia un tercero y que la ganancia no cambia.
-    expect(FRASE_DEL_EFECTO.pago_por_cuenta_tienda).toMatch(/^Sale dinero de Ordenex hacia un tercero/);
+    expect(FRASE_DEL_EFECTO.pago_por_cuenta_tienda).toMatch(new RegExp(`^Sale dinero de ${NOMBRE_ESPERADO} hacia un tercero`));
     expect(FRASE_DEL_EFECTO.pago_por_cuenta_tienda).toMatch(/la ganancia no cambia/);
     // Y los dos nombran el saldo de la tienda: los dos lo bajan.
     expect(FRASE_DEL_EFECTO.pago_por_cuenta_tienda).toMatch(/saldo de la tienda/);
@@ -502,8 +503,8 @@ describe("⭑ FICHA 459/461 — la frase del efecto, una línea por concepto (R6
   });
 });
 
-describe("⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» y el «Así queda» (R37, R41, R42, R44)", () => {
-  it("«Ordenex le paga a una tienda» y «Ordenex le paga a un mensajero» están en «Sale dinero de Ordenex» con su destino", () => {
+describe(`⭑ FICHA 458-C — los dos pagos de ${NOMBRE_ESPERADO}, la cuenta, «a quién» y el «Así queda» (R37, R41, R42, R44)`, () => {
+  it(`«${NOMBRE_ESPERADO} le paga a una tienda» y «${NOMBRE_ESPERADO} le paga a un mensajero» están en «Sale dinero de ${NOMBRE_ESPERADO}» con su destino`, () => {
     expect(conceptoPorId("pago_a_tienda")?.grupo).toBe("sale");
     expect(conceptoPorId("pago_a_tienda")?.destino).toEqual({
       clase: "pago_tienda",
@@ -534,7 +535,7 @@ describe("⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» 
     });
   });
 
-  it("R42 (D5): «a quién» obligatorio en sueldo y gasto de Ordenex, opcional en las dos correcciones, y no se pide en el resto", () => {
+  it(`R42 (D5): «a quién» obligatorio en sueldo y gasto de ${NOMBRE_ESPERADO}, opcional en las dos correcciones, y no se pide en el resto`, () => {
     expect(Object.fromEntries(CONCEPTOS_MANUALES.map((c) => [c.id, aQuienDelConcepto(c)]))).toEqual({
       gasto_variable: "obligatorio",
       sueldo: "obligatorio",
@@ -564,16 +565,16 @@ describe("⭑ FICHA 458-C — los dos pagos de Ordenex, la cuenta, «a quién» 
 
   it("las cabeceras de los dos pagos llevan su nombre y dicen que se anulan con un motivo", () => {
     expect(cabeceraDelConcepto(conceptoPorId("pago_a_tienda")!)).toEqual({
-      titulo: "Ordenex le paga a una tienda",
+      titulo: `${NOMBRE_ESPERADO} le paga a una tienda`,
       descripcion:
-        "Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que Ordenex le debe a la tienda. El pago no se edita: si hay un error, se anula con un motivo.",
+        `Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que ${NOMBRE_ESPERADO} le debe a la tienda. El pago no se edita: si hay un error, se anula con un motivo.`,
     });
-    expect(cabeceraDelConcepto(conceptoPorId("pago_a_mensajero")!).titulo).toBe("Ordenex le paga a un mensajero");
+    expect(cabeceraDelConcepto(conceptoPorId("pago_a_mensajero")!).titulo).toBe(`${NOMBRE_ESPERADO} le paga a un mensajero`);
   });
 });
 
 describe("⭑ FICHA 488 — el Pago de IVA (R21)", () => {
-  it("está en «Sale dinero de Ordenex», con el destino del egreso administrativo y sus textos", () => {
+  it(`está en «Sale dinero de ${NOMBRE_ESPERADO}», con el destino del egreso administrativo y sus textos`, () => {
     const pago = conceptoPorId("pago_iva");
     expect(pago).toBeDefined();
     expect(pago?.label).toBe("Pago de IVA");

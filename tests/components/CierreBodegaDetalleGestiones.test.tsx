@@ -67,6 +67,7 @@ import { CierresBodegaAdminModule } from "@/app/(app)/cierres-admin/_components/
 import { CierreFacturaDetalle } from "@/app/(app)/cierres-admin/_components/cierre-factura";
 import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
 import { marcaSinConciliar } from "@/tests/fixtures/marca-conciliacion";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ---------------------------------------------------------------------------
 // Datos: DOS mensajeros. Ana con los cinco resultados (todos con evidencia); Beto con solo
@@ -386,7 +387,7 @@ describe("478 · gestiones en pestañas, por mensajero (R1-R5)", () => {
     // La cabecera de columnas es la de la vista de admin.
     const region = gestionesDe("Ana Mensajera");
     expect(region).toHaveTextContent("Cobrado");
-    expect(region).toHaveTextContent("Total Ordenex");
+    expect(region).toHaveTextContent(`Total ${NOMBRE_CORTO_ESPERADO}`);
   });
 });
 

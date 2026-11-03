@@ -34,8 +34,8 @@ fuentes:
 
 # Mi wallet
 
-Acá está **tu plata con Ordenex**, como el extracto de un banco: cuánto se cobró a tus clientes en tus
-entregas, cuánto te cobró Ordenex de servicio, lo que te pagó, y cómo queda la cuenta entre los dos.
+Acá está **tu plata con Velox Courier**, como el extracto de un banco: cuánto se cobró a tus clientes en tus
+entregas, cuánto te cobró Velox Courier de servicio, lo que te pagó, y cómo queda la cuenta entre los dos.
 
 ## El resumen: a tu favor, cargos y ya pagado
 
@@ -44,16 +44,16 @@ cierre que elijas):
 
 | Cifra | Qué suma |
 | --- | --- |
-| **A tu favor** | Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Ordenex y lo que Ordenex te devolvió al anular |
-| **Cargos de Ordenex** | Fletes, comisión, IVA, lo que Ordenex te cobró y los pagos a Ordenex que se anularon |
-| **Ya pagado** | Lo que Ordenex te pagó o pagó por ti |
+| **A tu favor** | Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a Velox Courier y lo que Velox Courier te devolvió al anular |
+| **Cargos de Velox** | Fletes, comisión, IVA, lo que Velox Courier te cobró y los pagos a Velox Courier que se anularon |
+| **Ya pagado** | Lo que Velox Courier te pagó o pagó por ti |
 
 Debajo está el **Saldo a favor**, que es la resta: a tu favor menos cargos menos ya pagado. Es el
 mismo número que el **saldo actual** de la tarjeta de abajo y que el saldo de la última fila del
-extracto. Así distinguís lo que Ordenex **te pagó** de lo que **te cobró**, aunque los dos te bajen el
+extracto. Así distinguís lo que Velox Courier **te pagó** de lo que **te cobró**, aunque los dos te bajen el
 saldo.
 
-Un pago que Ordenex te hizo y después anuló **sigue contando** en «Ya pagado», y su devolución suma en
+Un pago que Velox Courier te hizo y después anuló **sigue contando** en «Ya pagado», y su devolución suma en
 «A tu favor»: esas dos cifras quedan más altas de lo que se movió de verdad. El «Saldo a favor» ya
 tiene todo eso descontado: ese es el número correcto.
 
@@ -63,9 +63,9 @@ La cifra grande es tu **saldo actual**, con una frase que dice **quién le debe 
 
 | Dice | Significa |
 | --- | --- |
-| **Ordenex te debe ₡…** | Tenés saldo a favor. Es plata que se cobró a tus clientes y todavía no te llegó |
-| **Le debés ₡… a Ordenex** | Tu saldo está en contra. Los cargos superaron lo cobrado |
-| **Ordenex y vos no se deben nada** | Está cuadrado |
+| **Velox Courier te debe ₡…** | Tenés saldo a favor. Es plata que se cobró a tus clientes y todavía no te llegó |
+| **Le debés ₡… a Velox Courier** | Tu saldo está en contra. Los cargos superaron lo cobrado |
+| **Velox Courier y vos no se deben nada** | Está cuadrado |
 
 Debajo, cuatro cifras del periodo que estás mirando: **Saldo inicial**, **Abonos del periodo** (lo que
 suma a tu favor), **Cargos del periodo** (lo que resta) y **Saldo al final del periodo**. Siempre se
@@ -84,66 +84,66 @@ La tabla es el **extracto**. Se abre en **Más recientes**: tu último movimient
 - El saldo de tu movimiento más reciente es el mismo de la cifra grande de arriba. Cambiar el orden
   no cambia el saldo de ninguna fila.
 
-Cada movimiento se lee desde tu lado: dice qué hizo Ordenex contigo.
+Cada movimiento se lee desde tu lado: dice qué hizo Velox Courier contigo.
 
 **Lo que suma a tu favor**
 - **Cobrado a tus clientes en contra-entrega** — la plata que el mensajero cobró al cliente en tu
   nombre. Es el grueso.
 - **Corrección a tu favor** — una corrección a tu favor.
-- **Ordenex anuló un pago hecho por ti** — la devolución de un pago que Ordenex hizo por vos y se anuló.
-- **Ordenex anuló un cobro y te lo devolvió** — la devolución de un cobro que Ordenex te hizo y se anuló.
-- **Le pagaste a Ordenex** — lo que le pagaste a Ordenex cuando tu saldo estaba en contra.
+- **Velox Courier anuló un pago hecho por ti** — la devolución de un pago que Velox Courier hizo por vos y se anuló.
+- **Velox Courier anuló un cobro y te lo devolvió** — la devolución de un cobro que Velox Courier te hizo y se anuló.
+- **Le pagaste a Velox Courier** — lo que le pagaste a Velox Courier cuando tu saldo estaba en contra.
 
 **Lo que resta**
-- **Ordenex te cobró el flete**, **Ordenex te cobró el flete por devolución a origen**, **Ordenex te cobró la
-  comisión de contra-entrega** y su **IVA** — el servicio de Ordenex.
-- **Ordenex te cobró** — un cobro que la oficina te hace a mano, por ejemplo material de despacho. Se
+- **Velox Courier te cobró el flete**, **Velox Courier te cobró el flete por devolución a origen**, **Velox Courier te cobró la
+  comisión de contra-entrega** y su **IVA** — el servicio de Velox Courier.
+- **Velox Courier te cobró** — un cobro que la oficina te hace a mano, por ejemplo material de despacho. Se
   descuenta de tu saldo a favor.
 - **Corrección en tu contra** — una corrección en tu contra.
-- **Ordenex te pagó** — lo que Ordenex ya te pagó de tu saldo.
-- **Ordenex pagó un gasto por ti** — lo que Ordenex **le pagó a otro en tu nombre**.
-- **Ordenex anuló el pago que le hiciste** — la anulación de un pago tuyo registrado por error: tu saldo vuelve a bajar.
+- **Velox Courier te pagó** — lo que Velox Courier ya te pagó de tu saldo.
+- **Velox Courier pagó un gasto por ti** — lo que Velox Courier **le pagó a otro en tu nombre**.
+- **Velox Courier anuló el pago que le hiciste** — la anulación de un pago tuyo registrado por error: tu saldo vuelve a bajar.
 
 Cada línea dice **de dónde viene**: el cierre, el pago, la guía… El **origen** lo dice con nombre, por
 ejemplo «Cierre del día · 2026-09-12» o «Gestión de orden · cobro por devolución a origen · guía 4321». Las órdenes
 de un cierre se ven desplegando su fila; los pagos, cobros y correcciones no vienen de una orden.
 
 Un movimiento anulado **no desaparece**: sigue en su lugar, tachado, con la leyenda **Anulado por
-Ordenex**, el día y la hora (de Costa Rica) en que se anuló y el motivo. Su anulación aparece como otra
+Velox Courier**, el día y la hora (de Costa Rica) en que se anuló y el motivo. Su anulación aparece como otra
 fila, con la marca **Anulación**.
 
-## Un cobro que Ordenex te hizo
+## Un cobro que Velox Courier te hizo
 
 A veces la oficina te cobra algo a mano —material de despacho entregado en la bodega, por ejemplo—.
-Lo ves como **Ordenex te cobró**, con el motivo que escribió la oficina.
+Lo ves como **Velox Courier te cobró**, con el motivo que escribió la oficina.
 
 - **Baja tu saldo** en el monto: es un **cargo** de tu estado de cuenta, en el tipo de movimiento **Cobros**.
-- Si no tenías saldo a favor, **tu saldo queda en contra**: le debés ese dinero a Ordenex, y se cobra
+- Si no tenías saldo a favor, **tu saldo queda en contra**: le debés ese dinero a Velox Courier, y se cobra
   cuando tus entregas vuelvan a generarte plata a favor.
-- Si la oficina lo anula, aparece una línea **Ordenex anuló un cobro y te lo devolvió** que te devuelve
+- Si la oficina lo anula, aparece una línea **Velox Courier anuló un cobro y te lo devolvió** que te devuelve
   el monto. El cobro original no se borra.
-- No es lo mismo que **Ordenex pagó un gasto por ti**: en el cobro no le pagó nada a nadie.
+- No es lo mismo que **Velox Courier pagó un gasto por ti**: en el cobro no le pagó nada a nadie.
 
-## Un pago que Ordenex hizo por ti
+## Un pago que Velox Courier hizo por ti
 
-A veces Ordenex paga algo **por vos**: tu proveedor, tu publicidad, alguien de tu personal. Lo ves como
-**Ordenex pagó un gasto por ti**, y la descripción dice **a quién se le pagó, el motivo, el método** y,
+A veces Velox Courier paga algo **por vos**: tu proveedor, tu publicidad, alguien de tu personal. Lo ves como
+**Velox Courier pagó un gasto por ti**, y la descripción dice **a quién se le pagó, el motivo, el método** y,
 si la hay, **la referencia** (por ejemplo, «A Facebook · Pauta de publicidad · SINPE · 12345»).
 
-- **Baja tu saldo** en el monto: es dinero que Ordenex ya puso por vos, en el tipo de movimiento **Pagos**.
-- Si no tenías saldo suficiente, **tu saldo queda en contra**: le debés ese dinero a Ordenex.
-- Si la oficina lo anula, aparece una línea **Ordenex anuló un pago hecho por ti** que te devuelve el
+- **Baja tu saldo** en el monto: es dinero que Velox Courier ya puso por vos, en el tipo de movimiento **Pagos**.
+- Si no tenías saldo suficiente, **tu saldo queda en contra**: le debés ese dinero a Velox Courier.
+- Si la oficina lo anula, aparece una línea **Velox Courier anuló un pago hecho por ti** que te devuelve el
   monto. El pago original no se borra.
 
-## Un pago que le hiciste a Ordenex
+## Un pago que le hiciste a Velox Courier
 
-Si tu saldo quedó en contra y le pagaste a Ordenex, lo ves como **Le pagaste a Ordenex**, con el motivo, el método y la referencia. **Sube tu saldo** en el monto. Si la oficina lo anula por error, aparece **Ordenex anuló el pago que le hiciste** y tu saldo vuelve a bajar.
+Si tu saldo quedó en contra y le pagaste a Velox Courier, lo ves como **Le pagaste a Velox Courier**, con el motivo, el método y la referencia. **Sube tu saldo** en el monto. Si la oficina lo anula por error, aparece **Velox Courier anuló el pago que le hiciste** y tu saldo vuelve a bajar.
 
 ## Ver el comprobante
 
 Cuando la oficina guardó un comprobante, lo podés abrir desde la fila con **Ver comprobante**: en los
-pagos que Ordenex te hizo, en los pagos que Ordenex hizo por ti, en los cobros de Ordenex y en los pagos
-que le hiciste a Ordenex. Se abre en otra pestaña con un enlace que dura poco. Si esa fila no tiene
+pagos que Velox Courier te hizo, en los pagos que Velox Courier hizo por ti, en los cobros de Velox Courier y en los pagos
+que le hiciste a Velox Courier. Se abre en otra pestaña con un enlace que dura poco. Si esa fila no tiene
 comprobante, te lo dice: «Este registro no tiene comprobante.». Solo ves los de tu tienda.
 
 ## Filtrar tu estado de cuenta

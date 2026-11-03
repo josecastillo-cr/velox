@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import type { AnularAbonoTiendaInput } from "@/lib/types/abono-tienda";
 
 import { MAESTRO, TIENDA_ID, montar, registro } from "./_abono-tienda-montar";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FICHA 457 / T4.2 — `AbonoTiendaService.anular` con dobles (R31–R40). MUTACIONES que este archivo pone
@@ -14,7 +15,7 @@ import { MAESTRO, TIENDA_ID, montar, registro } from "./_abono-tienda-montar";
 /** La peticion lleva un monto de MAS, como lo haria un cliente malicioso; el borde lo rechaza, y el servicio lo IGNORA. */
 const PETICION = { abonoId: "ab-1", motivo: "Referencia equivocada", monto: "1.00" } as unknown as AnularAbonoTiendaInput;
 
-describe("457/T4.2 — anular un pago de una tienda a Ordenex", () => {
+describe(`457/T4.2 — anular un pago de una tienda a ${NOMBRE_ESPERADO}`, () => {
   it("R37: sin acceso total -> forbidden ANTES de leer el documento", async () => {
     for (const actor of [
       { usuarioId: TIENDA_ID, rol: "adminTienda" as const },

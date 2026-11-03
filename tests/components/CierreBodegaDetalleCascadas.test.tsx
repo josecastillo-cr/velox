@@ -90,6 +90,7 @@ import { CierresBodegaAdminModule } from "@/app/(app)/cierres-admin/_components/
 import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
 
 import { marcaSinConciliar } from "@/tests/fixtures/marca-conciliacion";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // ---------------------------------------------------------------------------
 // Parseador de lo PINTADO (independiente del de `DineroIdentidadesEnPantalla`, a propósito).
 // ---------------------------------------------------------------------------
@@ -360,7 +361,7 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
     expect(within(dueno()).queryByText(PARA_LA_CENTRAL_LABEL)).toBeNull();
   });
 
-  it("«Para la tienda» y «Neto de Ordenex» están, y están DESTACADOS (R3)", async () => {
+  it(`«Para la tienda» y «Neto de ${NOMBRE_CORTO_ESPERADO}» están, y están DESTACADOS (R3)`, async () => {
     await abrirDetalle();
 
     for (const rotulo of [PARA_LA_TIENDA_LABEL, NETO_ORDENEX_LABEL]) {
@@ -423,7 +424,7 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
         importeTras(dueno(), GANA_BODEGA_SATELITE_LABEL),
       ],
       importeTras(dueno(), NETO_ORDENEX_LABEL),
-      "cascada A · neto de Ordenex",
+      `cascada A · neto de ${NOMBRE_ESPERADO}`,
     );
 
     // R9 — lo recaudado − mensajeros − bodega = para la central.
@@ -572,9 +573,9 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
     );
   });
 
-  it("el desglose por concepto del ingreso de Ordenex sigue en su sitio", async () => {
+  it(`el desglose por concepto del ingreso de ${NOMBRE_ESPERADO} sigue en su sitio`, async () => {
     await abrirDetalle();
-    const panel = screen.getByRole("region", { name: "Ingreso de Ordenex del cierre de bodega" });
+    const panel = screen.getByRole("region", { name: `Ingreso de ${NOMBRE_CORTO_ESPERADO} del cierre de bodega` });
     expect(within(panel).getByText(FLETE_CON_IVA_LABEL)).toBeInTheDocument();
     expect(panel.textContent).toContain(money("27635.58"));
   });
@@ -631,7 +632,7 @@ describe("393 · F6 — el caso raro, dicho en la pantalla", () => {
     expect(within(central()).getByText(PARA_LA_CENTRAL_LABEL)).toBeInTheDocument();
   });
 
-  it("un «Neto de Ordenex» NEGATIVO se pinta con signo y marcado como deuda (R11)", async () => {
+  it(`un «Neto de ${NOMBRE_CORTO_ESPERADO}» NEGATIVO se pinta con signo y marcado como deuda (R11)`, async () => {
     await abrirDetalle(EN_DEUDA);
 
     const pintado = importeTras(dueno(), NETO_ORDENEX_LABEL);

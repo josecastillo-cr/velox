@@ -98,6 +98,7 @@ import {
 } from "@/lib/actions/cierres-admin";
 import { CierresAdminModule } from "@/app/(app)/cierres-admin/_components/CierresAdminModule";
 import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ---------------------------------------------------------------------------
 // Lectura de lo PINTADO
@@ -471,7 +472,7 @@ describe("395 — «Gana la tienda» y «Pago a tienda» son DOS preguntas, no u
   });
 });
 
-describe("395 — el desglose de lo que Ordenex factura, y por qué hoy se paga otra cifra", () => {
+describe(`395 — el desglose de lo que ${NOMBRE_ESPERADO} factura, y por qué hoy se paga otra cifra`, () => {
   it("la línea puente más el flete por devolución a origen dan lo facturado", async () => {
     await abrirDetalle();
     const region = factura();
@@ -481,7 +482,7 @@ describe("395 — el desglose de lo que Ordenex factura, y por qué hoy se paga 
     const facturado = importeTras(region, FACTURADO_ORDENEX_LABEL);
 
     expect(puenteSumando).toBe("₡60.098,67");
-    laCuentaCierra([puenteSumando, flete], facturado, "lo que Ordenex facturó");
+    laCuentaCierra([puenteSumando, flete], facturado, `lo que ${NOMBRE_ESPERADO} facturó`);
   });
 
   it("lo recaudado menos la línea puente da el pago de hoy", async () => {
@@ -510,7 +511,7 @@ describe("395 — el desglose de lo que Ordenex factura, y por qué hoy se paga 
     laCuentaCierra(
       [puente[0], importesTras(region, FLETE_DEV_CON_IVA_LABEL)[0]],
       importeTras(region, FACTURADO_ORDENEX_LABEL),
-      "sin rechazos, lo que Ordenex facturó",
+      `sin rechazos, lo que ${NOMBRE_ESPERADO} facturó`,
     );
     laCuentaCierra(
       [importeTras(region, TOTAL_GENERAL_LABEL), puente[1]],
@@ -527,7 +528,7 @@ describe("395 — el desglose de lo que Ordenex factura, y por qué hoy se paga 
   });
 });
 
-describe("395 — lo que le queda a Ordenex", () => {
+describe(`395 — lo que le queda a ${NOMBRE_ESPERADO}`, () => {
   it("facturado − pago al mensajero − ingreso de bodega da el neto, y cierra", async () => {
     await abrirDetalle();
     const region = neto();
@@ -541,7 +542,7 @@ describe("395 — lo que le queda a Ordenex", () => {
     expect(mensajero).toBe("-₡45.000,55");
     expect(bodega).toBe("-₡1.200,25");
     expect(resultado).toBe("₡24.745,87");
-    laCuentaCierra([facturado, mensajero, bodega], resultado, "el neto de Ordenex");
+    laCuentaCierra([facturado, mensajero, bodega], resultado, `el neto de ${NOMBRE_ESPERADO}`);
   });
 });
 
@@ -566,7 +567,7 @@ describe("395 — los negativos salen CON SU SIGNO, nunca recortados", () => {
     expect(within(region).queryAllByRole("alert")).toEqual([]);
   });
 
-  it("el neto de Ordenex negativo sale con su signo, con su nota, y su cuenta cierra", async () => {
+  it(`el neto de ${NOMBRE_ESPERADO} negativo sale con su signo, con su nota, y su cuenta cierra`, async () => {
     await abrirDetalle(NEGATIVOS);
     const region = neto();
 
@@ -579,7 +580,7 @@ describe("395 — los negativos salen CON SU SIGNO, nunca recortados", () => {
         importeTras(region, INGRESO_BODEGA_RECHAZOS_LABEL),
       ],
       resultado,
-      "el neto de Ordenex en negativo",
+      `el neto de ${NOMBRE_ESPERADO} en negativo`,
     );
     expect(within(region).getByText(NETO_ORDENEX_NEGATIVO_NOTA)).toBeInTheDocument();
   });
@@ -681,8 +682,8 @@ describe("395 — los rótulos NO se confunden entre sí", () => {
   it.each([
     ["GANA_LA_TIENDA_LABEL", GANA_LA_TIENDA_LABEL, "Gana la tienda"],
     ["PAGO_TIENDA_LABEL", PAGO_TIENDA_LABEL, "Pago a tienda"],
-    ["CASCADA_FACTURA_TIENDA_TITULO", CASCADA_FACTURA_TIENDA_TITULO, "Lo que Ordenex le factura a la tienda"],
-    ["CASCADA_NETO_ORDENEX_TITULO", CASCADA_NETO_ORDENEX_TITULO, "Lo que le queda a Ordenex"],
+    ["CASCADA_FACTURA_TIENDA_TITULO", CASCADA_FACTURA_TIENDA_TITULO, `Lo que ${NOMBRE_ESPERADO} le factura a la tienda`],
+    ["CASCADA_NETO_ORDENEX_TITULO", CASCADA_NETO_ORDENEX_TITULO, `Lo que le queda a ${NOMBRE_ESPERADO}`],
   ])("%s dice exactamente lo aprobado", (_nombre, constante, literal) => {
     // A MANO, nunca derivado de la constante: comparar un rótulo con la función que lo genera
     // está siempre verde, y un renombrado silencioso de «Gana la tienda» a «Pago a tienda»

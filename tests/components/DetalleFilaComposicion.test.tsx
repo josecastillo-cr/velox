@@ -25,6 +25,7 @@ import {
   LLAMADAS_PROHIBIDAS_EN_DINERO,
   codigoSinComentarios,
 } from "@/tests/fixtures/money-safe";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Ficha 339 (B5) — ABRIR UNA FILA DE LA TARJETA DE LA GANANCIA Y VER LO QUE HAY DENTRO.
@@ -100,15 +101,15 @@ const RESUMEN: CajaResumenDTO = {
 };
 
 /** Nombres accesibles de los controles que abren cada fila (R24). */
-const ABRIR_MENSAJEROS = "Ver los movimientos de Pagos de Ordenex a mensajeros";
+const ABRIR_MENSAJEROS = `Ver los movimientos de Pagos de ${NOMBRE_ESPERADO} a mensajeros`;
 const ABRIR_AJUSTES = "Ver los movimientos de Correcciones de caja (resta)";
-const ABRIR_OTROS = "Ver los movimientos de Otros gastos de Ordenex";
+const ABRIR_OTROS = `Ver los movimientos de Otros gastos de ${NOMBRE_CORTO_ESPERADO}`;
 const ABRIR_FLETE = "Ver los movimientos de Flete cobrado a la tienda";
 
 /** Nombres accesibles de los paneles desplegados. */
-const PANEL_MENSAJEROS = "Movimientos de Pagos de Ordenex a mensajeros";
+const PANEL_MENSAJEROS = `Movimientos de Pagos de ${NOMBRE_ESPERADO} a mensajeros`;
 const PANEL_AJUSTES = "Movimientos de Correcciones de caja (resta)";
-const PANEL_OTROS = "Movimientos de Otros gastos de Ordenex";
+const PANEL_OTROS = `Movimientos de Otros gastos de ${NOMBRE_CORTO_ESPERADO}`;
 
 function movimiento(over: Partial<WalletMovimientoDTO> = {}): WalletMovimientoDTO {
   return {
@@ -317,7 +318,7 @@ describe("Ficha 339 — lo que enseña cada movimiento (R16/R17/R36)", () => {
     const celdas = await dentro.findAllByRole("cell");
     const textos = celdas.map((c) => (c.textContent ?? "").trim());
     // Ninguna celda muda, y la del detalle dice de dónde viene el movimiento.
-    expect(textos).toContain("Pago de Ordenex a un mensajero");
+    expect(textos).toContain(`Pago de ${NOMBRE_ESPERADO} a un mensajero`);
     expect(textos.filter((t) => t === "")).toEqual([]);
   });
 
@@ -421,7 +422,7 @@ describe("Ficha 339 — el nombre de cada control y sus estados (R24/R25/R26)", 
     // Y el resto de la tarjeta —que es lo que la persona vino a leer— sigue completo.
     expect(screen.getByText("Total de egresos")).toBeInTheDocument();
     expect(screen.getByText("₡2.190,75")).toBeInTheDocument();
-    expect(screen.getByText("Ganancia de Ordenex")).toBeInTheDocument();
+    expect(screen.getByText(`Ganancia de ${NOMBRE_CORTO_ESPERADO}`)).toBeInTheDocument();
   });
 });
 

@@ -162,7 +162,7 @@ function zonaDTO(): ZonaDTO {
 
 function repoZonas(): IZonaRepository {
   return {
-    create: vi.fn().mockResolvedValue(zonaDTO()),
+    create: vi.fn().mockResolvedValue({ estado: "ok", zona: zonaDTO() }), // 499: `CreateZonaResult`
     findById: vi.fn().mockResolvedValue(zonaDTO()),
     list: vi.fn().mockResolvedValue({ items: [zonaDTO()], total: 1 }),
     listLite: vi.fn().mockResolvedValue([]),

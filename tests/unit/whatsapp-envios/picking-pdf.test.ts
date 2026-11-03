@@ -13,6 +13,7 @@ import type { FilaPicking } from "@/lib/whatsapp-envios/informes/picking/tipos";
 import { fuenteEtiqueta } from "@/lib/pdf/etiquetas-fuente";
 import { cubreTexto, registrarFuente, seguroEnFuenteEstandar } from "@/lib/pdf/etiquetas-fuente-registro";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Ficha 476 (T2.3) — el PDF del picking sobre su MAQUETA (operaciones por pagina): R16, R17, R19-R22.
 // Mas un humo del PDF real con jsPDF: bytes `%PDF` y numero de paginas = el de la maqueta.
 
@@ -149,7 +150,7 @@ describe("476/R21 — paginacion", () => {
     expect(Y).toBeGreaterThan(1);
     m.paginas.forEach((ops, i) => {
       expect(deRol(ops, "pie-pagina")).toEqual([`Página ${i + 1} de ${Y}`]);
-      expect(deRol(ops, "pie")).toEqual(["Ordenex · Picking Sicommer · 5 oct 2026 06:30"]);
+      expect(deRol(ops, "pie")).toEqual(["Velox Courier · Picking Sicommer · 5 oct 2026 06:30"]);
       if (deRol(ops, "producto").length > 0) expect(deRol(ops, "cabecera-tabla")).toContain("Remisiones que lo llevan");
     });
     // Ninguna ficha se pierde: una por (orden, producto).
@@ -191,7 +192,7 @@ describe("476/R21 — paginacion", () => {
       const [pie] = textos(ops).filter((t) => t.rol === "pie");
       const [pagina] = textos(ops).filter((t) => t.rol === "pie-pagina");
       expect(pagina.texto).toBe(`Página ${i + 1} de ${Y}`);
-      expect(pie.texto.startsWith("Ordenex · Picking Tienda Muy Larga")).toBe(true);
+      expect(pie.texto.startsWith("Velox Courier · Picking Tienda Muy Larga")).toBe(true);
       expect(pie.texto.endsWith("…")).toBe(true);
       // El sello acaba (x + ancho) antes de donde empieza «Página X de Y» (alineado a la derecha).
       const finSello = pie.x + real(pie.texto, pie.tam, pie.fuente);
@@ -203,7 +204,7 @@ describe("476/R21 — paginacion", () => {
 
   it("m2: un sello que cabe sale entero, sin «…»", () => {
     const { m } = maqueta([fila("1 * Crema X")], 2, "Gameos");
-    expect(deRol(todas(m.paginas), "pie")).toEqual(["Ordenex · Picking Gameos · 5 oct 2026 06:30"]);
+    expect(deRol(todas(m.paginas), "pie")).toEqual(["Velox Courier · Picking Gameos · 5 oct 2026 06:30"]);
   });
 });
 
@@ -244,6 +245,21 @@ describe("476/R22 — caracteres que la fuente no imprime", () => {
 
   it("D6: los rotulos fijos de Helvetica no llevan caracteres que la fuente estandar borraria", () => {
     for (const r of Object.values(ROTULOS_HELVETICA)) expect(seguroEnFuenteEstandar(r), r).toBe(true);
+  });
+});
+
+describe("feature 492 (R18) — marca Velox Courier en el picking", () => {
+  it("el rotulo de marca del encabezado y el sello del pie llevan «Velox Courier»", () => {
+    const { m } = maqueta([fila("2 * Crema X")]);
+    expect(deRol(m.paginas[0], "marca")).toEqual(["Velox Courier · Picking"]);
+    expect(deRol(m.paginas[0], "pie")[0].startsWith("Velox Courier · Picking Gameos")).toBe(true);
+  });
+
+  it(`ningun texto de la maqueta ni del PDF real contiene «${MARCA_RETIRADA}»`, () => {
+    const { m } = maqueta([fila("2 * Crema X"), fila("1 * Base")]);
+    expect(textos(todas(m.paginas)).map((t) => t.texto).join(" ")).not.toMatch(/ordenex/i);
+    const r = renderizarPicking(construirModeloPicking([fila("2 * Crema X")], { ahora: AHORA, diasAtraso: 2, tienda: "Gameos" }));
+    expect(Buffer.from(r.bytes).toString("latin1")).not.toMatch(/ordenex/i);
   });
 });
 

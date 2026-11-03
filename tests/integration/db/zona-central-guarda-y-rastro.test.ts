@@ -18,6 +18,7 @@ import {
   serializarEscriturasReales,
   type TxDeTest,
 } from "./_postgres-real";
+import { zonaCreada } from "./_fixtures/zona-creada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 376 / T11 — LA GUARDA Y EL RASTRO DE LA ZONA CENTRAL, CONTRA POSTGRES REAL.
@@ -664,7 +665,7 @@ describeSiHayBase("⭑ 376/T11 — la zona central: guarda, borrado y rastro (Po
     const medido = await conEscenario("A", async (e) => {
       const distrito = await e.crearDistrito([]);
       const nombre = `376 NUEVA ${unico()}`;
-      const dto = await e.repo.create(
+      const dto = zonaCreada(await e.repo.create(
         { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
           nombre,
           cobroVehiculo: false,
@@ -673,7 +674,7 @@ describeSiHayBase("⭑ 376/T11 — la zona central: guarda, borrado y rastro (Po
           tarifas: [],
         },
         USUARIO,
-      );
+      ));
 
       return {
         creada: dto,
@@ -709,7 +710,7 @@ describeSiHayBase("⭑ 376/T11 — la zona central: guarda, borrado y rastro (Po
   it("R18 en `create`: crear SIN la marca no escribe ninguna fila ni apaga la central", async () => {
     const medido = await conEscenario("A", async (e) => {
       const distrito = await e.crearDistrito([]);
-      const dto = await e.repo.create(
+      const dto = zonaCreada(await e.repo.create(
         { sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
           nombre: `376 NUEVA SIN MARCA ${unico()}`,
           cobroVehiculo: false,
@@ -718,7 +719,7 @@ describeSiHayBase("⭑ 376/T11 — la zona central: guarda, borrado y rastro (Po
           tarifas: [],
         },
         USUARIO,
-      );
+      ));
       return {
         filas: await e.marcasDe([e.zonas.A.id, dto.id]),
         centrales: await e.centralesVivas(),

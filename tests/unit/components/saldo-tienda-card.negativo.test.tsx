@@ -6,6 +6,7 @@ import { TarjetasEstadoCuenta } from "@/components/shared/estado-cuenta/Tarjetas
 import type { EstadoCuentaDTO } from "@/lib/types/estado-cuenta";
 import { estado } from "@/tests/fixtures/estado-cuenta";
 import { LLAMADAS_PROHIBIDAS_EN_DINERO, codigoSinComentarios } from "@/tests/fixtures/money-safe";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ⭑ FICHA 381 (T I.4, R29/R30) — EL SALDO NEGATIVO EN LA WALLET DE LA TIENDA.
 //
@@ -62,7 +63,7 @@ describe("/mi-wallet — el saldo NEGATIVO se ve entero (381/R29 → 458-D)", ()
   it("conserva los CÉNTIMOS del negativo, que en un libro de dinero no son decoración", () => {
     render(<TarjetasEstadoCuenta estado={negativo({ saldoActual: "-15000.07", saldoFinal: "-15000.07" })} vista="tienda" />);
     expect(within(saldoActual()).getByText("-₡15.000,07")).toBeInTheDocument();
-    expect(within(saldoActual()).getByText("Le debés ₡15.000,07 a Ordenex")).toBeInTheDocument();
+    expect(within(saldoActual()).getByText(`Le debés ₡15.000,07 a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
   });
 
   it("el negativo NO se presenta como un fallo: ni alerta, ni «saldo insuficiente»", () => {
@@ -74,9 +75,9 @@ describe("/mi-wallet — el saldo NEGATIVO se ve entero (381/R29 → 458-D)", ()
 
 describe("/mi-wallet — los TRES signos se distinguen con palabras (381/R30 → 458 R18)", () => {
   it.each([
-    ["negativo", "cuenta_debe", "-15000.00", "Le debés ₡15.000 a Ordenex", "-₡15.000"],
-    ["positivo", "ordenex_debe", "9000.00", "Ordenex te debe ₡9.000", "₡9.000"],
-    ["cero", "en_cero", "0.00", "Ordenex y vos no se deben nada", "₡0"],
+    ["negativo", "cuenta_debe", "-15000.00", `Le debés ₡15.000 a ${NOMBRE_ESPERADO}`, "-₡15.000"],
+    ["positivo", "ordenex_debe", "9000.00", `${NOMBRE_ESPERADO} te debe ₡9.000`, "₡9.000"],
+    ["cero", "en_cero", "0.00", `${NOMBRE_ESPERADO} y vos no se deben nada`, "₡0"],
   ] as const)("signo `%s` → «%s»", (signo, sentido, importe, frase, pintado) => {
     render(<TarjetasEstadoCuenta estado={estado({ saldoActual: importe, signo, sentido })} vista="tienda" />);
     expect(within(saldoActual()).getByText(frase)).toBeInTheDocument();

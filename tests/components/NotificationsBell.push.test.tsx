@@ -10,6 +10,7 @@ import {
   montarNavegadorPush,
   suscripcionFalsa,
 } from "../fixtures/navegador-push";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FICHA 410 (tanda 5, T5.3) — EL CONTROL ESTÁ DONDE LA GENTE LO VA A BUSCAR.
@@ -127,7 +128,7 @@ describe("T5.3 — el control de avisos vive DENTRO del panel de la campana", ()
     await abrirPanel();
 
     expect(
-      await screen.findByText("Agrega Ordenex a tu pantalla de inicio"),
+      await screen.findByText(`Agrega ${NOMBRE_ESPERADO} a tu pantalla de inicio`),
     ).toBeInTheDocument();
     expect(screen.queryByRole("switch")).not.toBeInTheDocument();
   });

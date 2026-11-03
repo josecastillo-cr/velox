@@ -45,14 +45,15 @@ import {
   CLAVE_ACCION,
   construirFiltrosHistorialAcciones,
 } from "@/app/(app)/historico/acciones/_components/historial-acciones-filtros-def";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const AHORA = new Date("2026-09-25T18:00:00Z");
 const ABONO_ID = "5b7d9f1a-3c5e-4a7b-9d1f-3a5c7e9b1d2f";
 
 /** design §2 — los dos textos del historial de esta ficha, tal como los ve la persona. */
 const TEXTOS_457: ReadonlyArray<readonly [tipo: string, texto: string]> = [
-  ["abono_tienda_registrado", "Registró un pago de una tienda a Ordenex"],
-  ["abono_tienda_anulado", "Anuló un pago de una tienda a Ordenex"],
+  ["abono_tienda_registrado", `Registró un pago de una tienda a ${NOMBRE_ESPERADO}`],
+  ["abono_tienda_anulado", `Anuló un pago de una tienda a ${NOMBRE_ESPERADO}`],
 ];
 
 /** La fila que deja `AbonoTiendaRepository.crear` (R61), tal como la sirve el borde. */
@@ -62,7 +63,7 @@ function filaRegistro(extra: Partial<HistorialAccionDTO> = {}): HistorialAccionD
     // 22:30Z del 25 = 16:30 del 25 en Costa Rica.
     fecha: "2026-09-25T22:30:00.000Z",
     accion: "abono_tienda_registrado",
-    accionLabel: "Registró un pago de una tienda a Ordenex",
+    accionLabel: `Registró un pago de una tienda a ${NOMBRE_ESPERADO}`,
     categoria: "mueve_dinero",
     entidadTipo: "abono_tienda",
     entidadEtiqueta: "Tienda Norte",
@@ -118,11 +119,11 @@ describe("457 R61–R64 — las filas del pago y de su anulación en la tabla", 
   it("pinta quién, qué, sobre qué (la tienda), el importe y el día de Costa Rica; nada técnico ni texto libre", async () => {
     renderModule(<HistorialAccionesModule actores={[]} ahora={AHORA} debounceMs={0} />);
 
-    expect(await screen.findByText("Registró un pago de una tienda a Ordenex")).toBeInTheDocument();
-    const fila = screen.getByText("Registró un pago de una tienda a Ordenex").closest("tr") as HTMLElement;
+    expect(await screen.findByText(`Registró un pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
+    const fila = screen.getByText(`Registró un pago de una tienda a ${NOMBRE_ESPERADO}`).closest("tr") as HTMLElement;
     expect(within(fila).getByText("Ana Mora")).toBeInTheDocument();
     expect(within(fila).getByText("Mueve dinero")).toBeInTheDocument();
-    expect(within(fila).getByText("Pago de una tienda a Ordenex")).toBeInTheDocument();
+    expect(within(fila).getByText(`Pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
     expect(within(fila).getByText("Tienda Norte")).toBeInTheDocument();
     expect(within(fila).getByText("₡4.000")).toBeInTheDocument();
     expect(fila.textContent ?? "").toContain("25 sept 2026");
@@ -137,15 +138,15 @@ describe("457 R61–R64 — las filas del pago y de su anulación en la tabla", 
         filaRegistro({
           id: "f-anul",
           accion: "abono_tienda_anulado",
-          accionLabel: "Anuló un pago de una tienda a Ordenex",
+          accionLabel: `Anuló un pago de una tienda a ${NOMBRE_ESPERADO}`,
           fecha: "2026-09-25T23:00:00.000Z",
         }),
         filaRegistro(),
       ]),
     );
     renderModule(<HistorialAccionesModule actores={[]} ahora={AHORA} debounceMs={0} />);
-    expect(await screen.findByText("Anuló un pago de una tienda a Ordenex")).toBeInTheDocument();
-    expect(screen.getByText("Registró un pago de una tienda a Ordenex")).toBeInTheDocument();
-    expect(screen.getAllByText("Pago de una tienda a Ordenex")).toHaveLength(2);
+    expect(await screen.findByText(`Anuló un pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
+    expect(screen.getByText(`Registró un pago de una tienda a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
+    expect(screen.getAllByText(`Pago de una tienda a ${NOMBRE_ESPERADO}`)).toHaveLength(2);
   });
 });

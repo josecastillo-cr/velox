@@ -8,6 +8,7 @@ import type {
   ActualizarPagosGestionInput,
   ActualizarPagosGestionResult,
   Alcance,
+  BarridaDelCierre,
   CierreAdminResumenRow,
   CorregirResultadoGestionInput,
   CorregirResultadoGestionResult,
@@ -1025,6 +1026,22 @@ export class CierresAdminRepository implements ICierresAdminRepository {
       numGuia: r.orden.numGuia,
       resultado: r.resultado,
     }));
+  }
+
+  /**
+   * Ficha 497 (T3.2, design §5.3, R5-R9) — las BARRIDAS del cierre, con su guia CONGELADA. Molde de
+   * `findGestionesRetornablesDelCierre`:
+   *  - del REGISTRO persistido (`cierre_sin_gestion`), no del estado vivo de la orden (R6): el
+   *    `select` no navega a `orden`;
+   *  - el ALCANCE en el WHERE por la relacion al cierre (R7): fuera de alcance -> `[]`;
+   *  - sin filtro por la regla de retorno: una barrida vuelve «siempre» (`RETORNO_POR_ORIGEN`), y
+   *    sin mirar `sin_gestion_registrado` (un cierre sin filas da `[]`, R9).
+   */
+  async findBarridasDelCierre(cierreId: string, alcance: Alcance): Promise<BarridaDelCierre[]> {
+    return this.prisma.cierreSinGestion.findMany({
+      where: { cierreId, cierre: alcanceWhere(alcance) },
+      select: { ordenId: true, numGuia: true },
+    });
   }
 
   /** R2/R4/R5/R8/R9: cierres del alcance, mas reciente primero, totales -> string. */
@@ -2389,8 +2406,18 @@ export class CierresAdminRepository implements ICierresAdminRepository {
         // UNA consulta, no N. A diferencia del bucle de indemnizaciones —que escribe un valor
         // distinto por fila— aqui el valor es el MISMO para todas, asi que un solo `updateMany`
         // hace el trabajo. El techo real medido es de 14 gestiones por cierre.
-        if (confirmacionFisica.length > 0) {
-          const ids = confirmacionFisica.map((c) => c.gestionId);
+        //
+        // Ficha 497 (design §5.4): la lista trae DOS origenes, cada entrada identificada por su
+        // clave. Se separan aqui, local al bloque (sin helper nuevo en `resolverCierre`, §7): las
+        // gestiones van a la escritura de la 238 tal cual; las barridas, a la de abajo.
+        const gestionIds = confirmacionFisica.flatMap((c) =>
+          c.gestionId !== undefined ? [c.gestionId] : [],
+        );
+        const ordenIds = confirmacionFisica.flatMap((c) =>
+          c.ordenId !== undefined ? [c.ordenId] : [],
+        );
+        if (gestionIds.length > 0) {
+          const ids = gestionIds;
           const aplicado = await tx.gestionOrden.updateMany({
             where: {
               id: { in: ids },
@@ -2409,6 +2436,24 @@ export class CierresAdminRepository implements ICierresAdminRepository {
           // R18 — FALLO CERRADO. Si alguna no caso la guardia, se lanza y la `$transaction`
           // revierte TODO. Es el equivalente del `count !== 1` del bucle de indemnizaciones.
           if (aplicado.count !== ids.length) {
+            throw new ConfirmacionFisicaNoAplicableError(cierreId);
+          }
+        }
+        // FICHA 497 (T3.3, design §5.4, R22-R24) — LA MARCA DE LAS BARRIDAS. Pegada a la de la 238,
+        // en el mismo punto money-neutral (despues de los cinco feeds de dinero y sin tocar la
+        // liberacion). La cobertura exacta ya la verifico el servicio antes de abrir la tx (R17).
+        // Solo corre si hay barridas confirmadas: un cierre sin barridas no toca la tabla.
+        if (ordenIds.length > 0) {
+          const aplicado = await tx.cierreSinGestion.updateMany({
+            // `cierreId` es GUARDIA: sin el, aprobar este cierre marcaria la barrida de la misma
+            // orden en OTRO cierre (una orden se puede barrer en dias distintos). Caso testigo.
+            where: { cierreId, ordenId: { in: ordenIds } },
+            // R24 — una sola clave: ni dinero ni los datos CONGELADOS de la barrida.
+            data: { confirmadaFisicaAt: new Date() },
+          });
+          // R23 — FALLO CERRADO: si alguna no caso, la `$transaction` revierte TODO (liberacion y
+          // dinero incluidos).
+          if (aplicado.count !== ordenIds.length) {
             throw new ConfirmacionFisicaNoAplicableError(cierreId);
           }
         }

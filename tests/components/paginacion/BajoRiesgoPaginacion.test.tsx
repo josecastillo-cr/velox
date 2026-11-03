@@ -242,6 +242,7 @@ import { GastosFijosPlantillasPanel } from "@/app/(app)/wallet/_components/Gasto
 import { SIN_BLOQUEO } from "@/lib/utils/bloqueo-cierre";
 
 import { marcaSinConciliar } from "@/tests/fixtures/marca-conciliacion";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // --- Datos ---------------------------------------------------------------
 
 /** Conjunto completo de cada listado y tamaño de página: 60 filas en 3 páginas de 25. */
@@ -330,7 +331,7 @@ function incidente(i: number): IncidenteAdminDTO {
     estado: "aprobado",
     indemnizacion: "100.00",
     reportadoPorNombre: "Beto Mensajero",
-    resueltoPorNombre: "Maestra Ordenex",
+    resueltoPorNombre: `Maestra ${NOMBRE_ESPERADO}`,
     resueltoAt: "2026-07-12T10:00:00.000Z",
     motivoRechazo: null,
     createdAt: "2026-07-11T10:00:00.000Z",

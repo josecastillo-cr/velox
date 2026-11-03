@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Guía de integración — API de Ordenex</title>
-<meta name="author" content="Ordenex">
-<meta name="description" content="Documentación técnica de integración del canal por API key de Ordenex. Versión del documento: septiembre 2026.">
+<title>Guía de integración — API de Velox Courier</title>
+<meta name="author" content="Velox Courier">
+<meta name="description" content="Documentación técnica de integración del canal por API key de Velox Courier. Versión del documento: noviembre 2026.">
 <!--
   FUENTE EDITABLE de la guía de integración (canal por API key).
   El PDF se genera desde este archivo con Chrome/Edge headless: ver README.md y generar-pdf.py
@@ -38,7 +38,7 @@
   @page {
     size: A4;
     margin: 17mm 16mm 20mm 16mm;
-    @bottom-left { content: "Guía de integración — API de Ordenex"; font: 8pt "Segoe UI", "DejaVu Sans", Arial, sans-serif; color: #7a8c9c; }
+    @bottom-left { content: "Guía de integración — API de Velox Courier"; font: 8pt "Segoe UI", "DejaVu Sans", Arial, sans-serif; color: #7a8c9c; }
     @bottom-right { content: counter(page) " / " counter(pages); font: 8pt "Segoe UI", "DejaVu Sans", Arial, sans-serif; color: #7a8c9c; }
   }
   @page :first {
@@ -148,6 +148,8 @@
   .no { color: #8c2d2d; font-weight: 600; }
   /* Portada */
   .cover { height: 245mm; position: relative; }
+  /* Feature 492 (R21): logotipo de Velox Courier sobre fondo claro, encima del bloque del titulo. */
+  .cover .logo { position: absolute; top: 18mm; left: 0; width: 70mm; height: auto; }
   .cover .block { position: absolute; top: 58mm; left: 0; border-left: 4px solid var(--accent); padding-left: 14pt; }
   .cover .kicker { font-size: 8pt; letter-spacing: 2.2px; color: var(--muted); text-transform: uppercase; margin-bottom: 8pt; }
   .cover .title { font-size: 26pt; font-weight: 700; color: var(--navy); line-height: 1.15; margin-bottom: 8pt; }
@@ -170,14 +172,15 @@
 
 <!-- ============================================================ PORTADA -->
 <section class="cover">
+  <img class="logo" src="../../marca/velox/svg/logo-horizontal-fondo-claro.svg" alt="Velox Courier">
   <div class="block">
     <div class="kicker">Documentación técnica</div>
-    <div class="title">Guía de integración<br>API de Ordenex</div>
+    <div class="title">Guía de integración<br>API de Velox Courier</div>
     <div class="sub">Logística de última milla — Costa Rica</div>
     <div class="sub">Para desarrolladores backend del comercio integrador</div>
     <div class="meta">
-      Versión del documento: septiembre 2026<br>
-      Base URL de producción: https://ordenex.co
+      Versión del documento: noviembre 2026<br>
+      Base URL de producción: https://velox-courier.company
     </div>
   </div>
 </section>
@@ -186,6 +189,8 @@
 <section class="pb">
   <h1>Contenido</h1>
   <ul class="toc">
+    <li class="l1">Cambios respecto de la versión de septiembre 2026</li>
+    <li class="l2">Velox Courier: cabeceras de la firma, dominio, encabezados de las descargas, nombre y correo de soporte</li>
     <li class="l1">Cambios respecto de la versión de agosto 2026</li>
     <li class="l2">Qué se rompe y desde cuándo · Tabla de códigos viejo → nuevo · Eventos nuevos · Qué tiene que cambiar el integrador · Cambios ya vigentes desde agosto</li>
     <li class="l1">1. Qué resuelve esta API y qué NO</li>
@@ -216,9 +221,44 @@
 
 <!-- ============================================================ INTRO -->
 <section class="pb">
-  <h1>Guía de integración — API de Ordenex</h1>
+  <h1>Guía de integración — API de Velox Courier</h1>
   <p><strong>Logística de última milla en Costa Rica.</strong> Documento técnico para desarrolladores backend del comercio integrador.</p>
   <div class="warn">Todos los importes, números de guía, UUID y ejemplos de este documento son <strong>ilustrativos</strong>. Ninguna clave mostrada es real: siempre se usan placeholders del tipo <code>ordx_XXXXXXXXXXXX</code>. El contrato completo y ejecutable vive en el OpenAPI del canal (<code>docs/api/api-key-openapi.yaml</code>) y los cambios se anuncian en su changelog (<code>docs/api/CHANGELOG.md</code>).</div>
+
+  <!-- ============================================================ CAMBIOS (noviembre 2026, ficha 493) -->
+  <div class="chg">
+  <h1>Cambios respecto de la versión de septiembre 2026</h1>
+  <p>La empresa pasa a llamarse <strong>Velox Courier</strong>. Con el nombre cambian dos piezas del contrato que <strong>rompen</strong> integraciones existentes (D.1 y D.2) y dos que no rompen el canal pero sí a quien procese archivos descargados por nombre de columna (D.3) o tenga escrito el nombre o el correo de la empresa (D.4). Lea primero D.1: es la que exige tocar código.</p>
+
+  <h2><span class="tag">RUPTURA</span>D.1 Las cabeceras de la firma de los webhooks cambian de nombre</h2>
+  <p><strong>Desde cuándo.</strong> Desde el despliegue de este cambio, sin periodo de doble cabecera: Velox Courier pausará las entregas a su callback antes y le avisará la fecha (entrada del changelog del canal de noviembre 2026).</p>
+  <table class="tight">
+    <thead><tr><th>Qué lleva</th><th>Cabecera vigente</th></tr></thead>
+    <tbody>
+      <tr><td>La firma</td><td><code>X-Velox-Signature</code></td></tr>
+      <tr><td>El instante en que se firmó</td><td><code>X-Velox-Timestamp</code></td></tr>
+    </tbody>
+  </table>
+  <p>Hasta ahora las dos cabeceras llevaban el nombre anterior de la empresa en lugar de <code>Velox</code>; los nombres exactos de antes están en la entrada de noviembre 2026 del changelog del canal (<code>docs/api/CHANGELOG.md</code>).</p>
+  <p><strong>Lo que NO cambia:</strong> el algoritmo (HMAC-SHA256), el formato del valor (<code>sha256=&lt;hex&gt;</code> sobre <code>${timestamp}.${cuerpo}</code>, instante unix en segundos), el secreto de su suscripción ni el cuerpo del evento. <strong>Qué tiene que cambiar el integrador:</strong> en su verificador, lea la firma y el instante de las cabeceras nuevas (§6.3). Las cabeceras no distinguen mayúsculas. Un verificador que siga buscando las viejas rechazará <strong>todas</strong> las entregas.</p>
+
+  <h2><span class="tag">RUPTURA</span>D.2 El dominio pasa a <code>https://velox-courier.company</code></h2>
+  <p>El dominio anterior y su subdominio <code>app.</code> pasan a <code>https://velox-courier.company</code> (sin subdominio): es la Base URL de todas las llamadas (§4.1) y el origen de los enlaces <code>evidenciasUrl</code> que viajan en los webhooks (§6.2). <strong>Qué tiene que cambiar el integrador:</strong> la Base URL en su configuración y cualquier lista de orígenes permitidos que filtre esos enlaces.</p>
+
+  <h2>D.3 Los encabezados de las descargas que nombraban a la empresa</h2>
+  <p>No es parte del canal por API key, pero rompe a quien procese por nombre de columna los archivos CSV/Excel que se descargan desde la aplicación. Cambia solo el texto del encabezado; la columna, su posición y su contenido no cambian.</p>
+  <table class="tight">
+    <thead><tr><th>Descarga</th><th>Encabezado vigente (antes, con el nombre anterior de la empresa)</th></tr></thead>
+    <tbody>
+      <tr><td>Analítica · productos</td><td>«Cobró Velox (no sumar: importe de la orden completa)»</td></tr>
+      <tr><td>Cierres · gestiones</td><td>«Total Velox»</td></tr>
+    </tbody>
+  </table>
+  <p>Los <strong>valores</strong> de texto que nombraban a la empresa dentro de esas descargas (conceptos del libro, dueño del dinero) cambian igual: el concepto dice ahora «Velox Courier te cobró» y el dueño del dinero, «Velox» o «Velox (capital)».</p>
+
+  <h2>D.4 Nombre de la empresa y correo de soporte</h2>
+  <p>Toda la documentación, las descripciones del contrato (<code>docs/api/api-key-openapi.yaml</code>) y los textos de la aplicación dicen <strong>Velox Courier</strong>. El correo de contacto de soporte es <code>battos.sa@gmail.com</code>. Ningún campo, ruta, código de respuesta, valor enumerado ni id de métrica cambia por el nombre.</p>
+  </div>
 
   <!-- ============================================================ CAMBIOS -->
   <div class="chg">
@@ -226,7 +266,7 @@
   <p>Esta versión describe el canal tal como queda tras dos cambios de contrato que <strong>rompen</strong> integraciones existentes (bloques A y B, pendientes de despliegue) y recoge además los cambios que entraron en producción entre agosto y septiembre (bloque C). Lea primero el bloque A: es el que exige tocar código.</p>
 
   <h2><span class="tag">RUPTURA</span>A. Los estados cambian de código y ganan su nombre</h2>
-  <p><strong>Desde cuándo.</strong> Fecha de despliegue <strong>pendiente</strong>: Ordenex la avisará con antelación y la escribirá en el changelog del canal (entrada del 2026-09-24). Hasta ese día el canal sigue respondiendo con los códigos anteriores. Este cambio y el del bloque B se despliegan <strong>juntos</strong>.</p>
+  <p><strong>Desde cuándo.</strong> Fecha de despliegue <strong>pendiente</strong>: Velox Courier la avisará con antelación y la escribirá en el changelog del canal (entrada del 2026-09-24). Hasta ese día el canal sigue respondiendo con los códigos anteriores. Este cambio y el del bloque B se despliegan <strong>juntos</strong>.</p>
   <p><strong>Qué se rompe.</strong> Cada estado de una orden pasa a llamarse igual en todas partes (aplicación, rastreo público y este canal). Siete estados cambian de <strong>código</strong>; los cuatro resultados de gestión que compartían nombre con ellos cambian con ellos; y toda respuesta que lleva un código lleva ahora, <strong>al lado</strong>, su nombre visible.</p>
 
   <h3>A.1 Los siete códigos de estado que cambian (el resto no cambia)</h3>
@@ -277,7 +317,7 @@
   <h2><span class="tag">RUPTURA</span>B. El estado real se aplica al aprobar el cierre; la ayuda deja de ser un estado; eventos nuevos</h2>
   <p><strong>Desde cuándo.</strong> Se despliega junto con el bloque A (fecha pendiente, con aviso previo).</p>
   <ul>
-    <li><strong><code>orden.estado_actualizado</code> llega al APROBAR el cierre del mensajero, no al gestionar.</strong> Cuando el mensajero registra una gestión en calle, la orden <strong>sigue en <code>en_reparto</code></strong> con la gestión <em>pendiente de confirmar</em>; el estado real (<code>entregado</code>, <code>reprogramado</code>, <code>novedad</code>, <code>devolucion_a_origen_por_rechazo</code>, <code>incidente</code>) se aplica cuando se aprueba el cierre del día de ese mensajero, horas después de la visita (dato de referencia de Ordenex: mediana 8,2 h, p90 22,1 h). Si necesita enterarse en el instante del registro, consuma <code>orden.gestion_registrada</code>.</li>
+    <li><strong><code>orden.estado_actualizado</code> llega al APROBAR el cierre del mensajero, no al gestionar.</strong> Cuando el mensajero registra una gestión en calle, la orden <strong>sigue en <code>en_reparto</code></strong> con la gestión <em>pendiente de confirmar</em>; el estado real (<code>entregado</code>, <code>reprogramado</code>, <code>novedad</code>, <code>devolucion_a_origen_por_rechazo</code>, <code>incidente</code>) se aplica cuando se aprueba el cierre del día de ese mensajero, horas después de la visita (dato de referencia de Velox Courier: mediana 8,2 h, p90 22,1 h). Si necesita enterarse en el instante del registro, consuma <code>orden.gestion_registrada</code>.</li>
     <li><strong>Se retiran dos estados</strong> del vocabulario: <code>ayuda_tienda</code> (la solicitud de ayuda a la tienda deja de mover la orden: sigue <code>en_reparto</code> y la ayuda viaja como evento) y <code>devolucion_por_confirmar</code>, que nunca fue público. Ninguno vuelve a llegar en <code>data.estado</code> ni aparece en el catálogo (§4.7).</li>
     <li><strong>Cinco eventos nuevos</strong>, en un cuerpo nuevo, al <strong>mismo callback</strong> y con la <strong>misma firma</strong> y el mismo circuito de reintento (§6.7): <code>orden.gestion_registrada</code>, <code>orden.gestion_anulada</code>, <code>orden.gestion_corregida</code>, <code>orden.ayuda_solicitada</code>, <code>orden.ayuda_resuelta</code>. Ramifique por <code>evento</code> y trate uno desconocido como «ignorar».</li>
     <li><strong>Campo nuevo en el detalle:</strong> <code>gestiones[].pendienteConfirmacion</code> (§5.4). <code>true</code> mientras la gestión espera la aprobación de su cierre; entonces <code>estadoResultante</code> es <code>null</code>.</li>
@@ -315,7 +355,7 @@
 <section class="pb">
   <h1>1. Qué resuelve esta API y qué NO</h1>
   <h2>Qué resuelve</h2>
-  <p>La API de Ordenex le permite a su sistema (e-commerce, ERP, WMS) operar sus envíos sin entrar a la aplicación web:</p>
+  <p>La API de Velox Courier le permite a su sistema (e-commerce, ERP, WMS) operar sus envíos sin entrar a la aplicación web:</p>
   <table>
     <thead><tr><th>Necesidad</th><th>Cómo se resuelve</th></tr></thead>
     <tbody>
@@ -333,7 +373,7 @@
   </table>
   <h2>Qué NO resuelve</h2>
   <ul>
-    <li><strong>No hay registro self-service.</strong> No existe un endpoint para crear API keys ni suscripciones de webhook: las emite Ordenex.</li>
+    <li><strong>No hay registro self-service.</strong> No existe un endpoint para crear API keys ni suscripciones de webhook: las emite Velox Courier.</li>
     <li><strong>La cotización no reserva ni crea nada.</strong> Es lectura pura.</li>
     <li><strong>No hay edición de órdenes.</strong> No existe un endpoint para modificar los datos de una orden ya creada (destinatario, dirección, monto). Las mutaciones publicadas son crear, cancelar, eliminar, habilitar y generar etiquetas.</li>
     <li><strong>La analítica no publica importes</strong> ni identifica mensajeros; el listado no se puede filtrar ni ordenar por mensajero, zona ni costo.</li>
@@ -342,31 +382,31 @@
   <h1>2. Requisitos previos</h1>
   <p>Antes de escribir la primera línea de código:</p>
   <ol>
-    <li><strong>Requiere una API key emitida por Ordenex</strong> (ver §3).</li>
+    <li><strong>Requiere una API key emitida por Velox Courier</strong> (ver §3).</li>
     <li><em>Opcional pero recomendado:</em> <strong>un endpoint HTTPS público propio</strong> para recibir los webhooks (ver §6). Sin él, su sistema solo se entera de los cambios si consulta por su cuenta.</li>
   </ol>
 
   <h1>3. La API key</h1>
   <h2>3.1 Obtención</h2>
   <ul>
-    <li><strong>La emite Ordenex, no el integrador.</strong> Se genera desde la aplicación de Ordenex (Configuración › API keys, personal de oficina) y el secreto se muestra <strong>una sola vez</strong>.</li>
-    <li>El comercio la solicita a Ordenex y Ordenex la entrega por un canal seguro acordado.</li>
+    <li><strong>La emite Velox Courier, no el integrador.</strong> Se genera desde la aplicación de Velox Courier (Configuración › API keys, personal de oficina) y el secreto se muestra <strong>una sola vez</strong>.</li>
+    <li>El comercio la solicita a Velox Courier y Velox Courier la entrega por un canal seguro acordado.</li>
   </ul>
   <h2>3.2 Uso</h2>
   <p>Enviar en <strong>todos</strong> los endpoints:</p>
 <pre>Authorization: Bearer ordx_XXXXXXXXXXXX</pre>
   <h2>3.3 Alcance</h2>
-  <p>Cada key está atada a una <strong>cuenta dedicada</strong> de integración. El <strong>dueño</strong> de las órdenes es esa cuenta o, si la key se emitió apuntando a una tienda ya registrada en Ordenex, esa tienda. En cualquiera de los dos casos, <strong>toda llamada opera solo sobre las órdenes de ese dueño</strong>: no hay forma de ampliar el alcance (un <code>tiendaId</code> u <code>owner</code> en la query se ignora), y una orden ajena responde el mismo <code>404</code> que una inexistente.</p>
+  <p>Cada key está atada a una <strong>cuenta dedicada</strong> de integración. El <strong>dueño</strong> de las órdenes es esa cuenta o, si la key se emitió apuntando a una tienda ya registrada en Velox Courier, esa tienda. En cualquiera de los dos casos, <strong>toda llamada opera solo sobre las órdenes de ese dueño</strong>: no hay forma de ampliar el alcance (un <code>tiendaId</code> u <code>owner</code> en la query se ignora), y una orden ajena responde el mismo <code>404</code> que una inexistente.</p>
   <h2>3.4 Rotación</h2>
-  <p>No se rota desde el lado del integrador: se <strong>solicita a Ordenex</strong>, que genera una key nueva y desactiva la anterior, cuando:</p>
+  <p>No se rota desde el lado del integrador: se <strong>solicita a Velox Courier</strong>, que genera una key nueva y desactiva la anterior, cuando:</p>
   <ul>
-    <li>La key se perdió (no es recuperable: Ordenex tampoco puede volver a mostrarla).</li>
+    <li>La key se perdió (no es recuperable: Velox Courier tampoco puede volver a mostrarla).</li>
     <li>Se sospecha exposición (repositorio, log, frontend, ticket de soporte).</li>
     <li>El integrador deja de operar con esa cuenta.</li>
   </ul>
   <p>Diseñe su despliegue para poder <strong>cambiar el secreto sin recompilar</strong>: variable de entorno o gestor de secretos, leída en caliente o con un reinicio corto.</p>
   <h2>3.5 Revocación</h2>
-  <p>Ordenex puede desactivar la key <strong>o</strong> la cuenta dedicada (y, si la key apunta a una tienda, dar de baja esa tienda). En todos los casos las llamadas pasan a responder <code>403</code>.</p>
+  <p>Velox Courier puede desactivar la key <strong>o</strong> la cuenta dedicada (y, si la key apunta a una tienda, dar de baja esa tienda). En todos los casos las llamadas pasan a responder <code>403</code>.</p>
   <h2>3.6 Custodia</h2>
   <p>Guárdela como <strong>secreto de servidor</strong>: variable de entorno o gestor de secretos. <strong>Nunca</strong> en frontend, repositorio ni logs.</p>
 </section>
@@ -377,7 +417,7 @@
   <h2>4.1 Base URL</h2>
   <table class="tight" style="width:60%">
     <thead><tr><th>Ambiente</th><th>URL</th></tr></thead>
-    <tbody><tr><td>Producción</td><td><code>https://ordenex.co</code></td></tr></tbody>
+    <tbody><tr><td>Producción</td><td><code>https://velox-courier.company</code></td></tr></tbody>
   </table>
   <h2>4.2 Headers</h2>
   <table class="tight">
@@ -414,7 +454,7 @@
       <tr><td><code>403</code></td><td>La key existe, pero está desactivada, <strong>o</strong> su cuenta dedicada no está activa, <strong>o</strong> la tienda a la que apunta fue dada de baja. En analítica, además: pidió una métrica no publicable (§5.8).</td></tr>
     </tbody>
   </table>
-  <p>Consecuencia práctica: un <code>401</code> es problema de su cliente HTTP o de su secreto; un <code>403</code> requiere hablar con Ordenex (salvo el de analítica).</p>
+  <p>Consecuencia práctica: un <code>401</code> es problema de su cliente HTTP o de su secreto; un <code>403</code> requiere hablar con Velox Courier (salvo el de analítica).</p>
   <h2>4.5 Fechas y horas</h2>
   <ul>
     <li><strong>Fechas de calendario:</strong> <code>YYYY-MM-DD</code>, medidas en <strong>hora de Costa Rica (UTC-6)</strong>. Deben ser fechas reales: <code>2026-02-31</code> es <code>422</code>.</li>
@@ -464,7 +504,7 @@
 
   <!-- 5.1 -->
   <h2>5.1 <span class="badge post">POST</span><span class="ep">/api/ordenes/api-key/carga</span> <span class="ep-title">— Crear órdenes (lote de 1 a 5000)</span></h2>
-  <p><strong>Estado inicial:</strong> depende de la configuración de la tienda (fulfillment: el paquete ya está en la bodega de Ordenex).</p>
+  <p><strong>Estado inicial:</strong> depende de la configuración de la tienda (fulfillment: el paquete ya está en la bodega de Velox Courier).</p>
   <table class="tight">
     <thead><tr><th>Configuración de la tienda</th><th>Estado en que nace la orden</th><th>Guía</th><th>Manifiesto</th></tr></thead>
     <tbody>
@@ -472,7 +512,7 @@
       <tr><td>Con fulfillment</td><td><code>en_preparacion</code></td><td><strong>Ninguna todavía</strong> (<code>numGuia: null</code>); se emite después, al preparar la orden</td><td>No</td></tr>
     </tbody>
   </table>
-  <div class="warn"><strong><code>monto_cobrar</code> no acepta decimales.</strong> La cifra se redondea al colón más cercano (el medio sube). Si su sistema maneja centavos, redondee usted antes de enviar para que el COD que cobra el mensajero coincida con el que muestra su tienda; si no, el redondeo lo hace Ordenex y la fila creada lo declara en <code>montoAjustado: { original, aplicado }</code>.</div>
+  <div class="warn"><strong><code>monto_cobrar</code> no acepta decimales.</strong> La cifra se redondea al colón más cercano (el medio sube). Si su sistema maneja centavos, redondee usted antes de enviar para que el COD que cobra el mensajero coincida con el que muestra su tienda; si no, el redondeo lo hace Velox Courier y la fila creada lo declara en <code>montoAjustado: { original, aplicado }</code>.</div>
   <table class="tight" style="width:70%">
     <thead><tr><th>Campo (todos texto)</th><th>Requerido</th></tr></thead>
     <tbody>
@@ -491,7 +531,7 @@
   </table>
   <p class="small">El sobre admite además dos claves opcionales: <code>name</code> (nombre del lote, 1..120 caracteres; repetirlo dentro de la misma cuenta responde <code>409</code> y no crea nada) y <code>download_type</code> (<code>consolidate</code>, el valor por defecto, o <code>individual</code>: una URL de etiqueta por orden en <code>ordenes[].downloadUrl</code>).</p>
   <h3>Request</h3>
-<pre>curl -X POST https://ordenex.co/api/ordenes/api-key/carga \
+<pre>curl -X POST https://velox-courier.company/api/ordenes/api-key/carga \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX" \
   -H "Content-Type: application/json" \
   -d '{
@@ -533,8 +573,8 @@
     <li><strong>Dos listas.</strong> <code>filas</code> trae solo lo que entró (<code>creada</code> y <code>duplicada</code>; en una duplicada, <code>estado</code> es el de la orden que ya ocupa esa remisión); <code>errores</code> trae solo lo que no se creó, con el detalle por campo. Los contadores se calculan sobre el lote completo: <code>conError === errores.length</code>. La pregunta «¿falló algo?» se responde con <code>errores.length</code>.</li>
     <li><strong><code>cargaId</code> es <code>null</code> si no se creó ninguna orden.</strong> Se necesita para el PDF consolidado del lote (§5.6): guárdelo cuando no sea nulo.</li>
     <li><code>costoEnvio</code> es flete + IVA + fulfillment de la tarifa vigente del par (tienda, zona), en texto de dos decimales; <code>fulfillment</code> es la parte de ese total que corresponde al servicio de bodega (<code>"0.00"</code> si su tienda no lo tiene). Es distinto del COD.</li>
-    <li><span class="w">⚠</span> <strong>Una fila puede no crear orden por un problema de tarifa o de cobertura.</strong> Vuelve en <code>errores</code> con la clave <code>tarifa</code>, que agrupa dos causas distintas: (1) no hay tarifa vigente para el par (tienda, zona del distrito de la fila); (2) la zona no tiene cobertura de Ordenex. En ambos casos el mensaje es el mismo: <code>{ "tarifa": ["no hay tarifa vigente para la zona de esta fila"] }</code>. Es un tema comercial con Ordenex, no de código.</li>
-    <li>Una provincia, un cantón o un distrito <strong>retirados del catálogo</strong> producen un error de fila propio, bajo la clave del nivel afectado: <code>la provincia esta retirada del catalogo</code>, <code>el canton esta retirado del catalogo</code>, <code>el distrito '&lt;nombre&gt;' esta retirado del catalogo</code>. Un nodo retirado no vuelve solo: corrija la dirección o pida a Ordenex reactivarlo.</li>
+    <li><span class="w">⚠</span> <strong>Una fila puede no crear orden por un problema de tarifa o de cobertura.</strong> Vuelve en <code>errores</code> con la clave <code>tarifa</code>, que agrupa dos causas distintas: (1) no hay tarifa vigente para el par (tienda, zona del distrito de la fila); (2) la zona no tiene cobertura de Velox Courier. En ambos casos el mensaje es el mismo: <code>{ "tarifa": ["no hay tarifa vigente para la zona de esta fila"] }</code>. Es un tema comercial con Velox Courier, no de código.</li>
+    <li>Una provincia, un cantón o un distrito <strong>retirados del catálogo</strong> producen un error de fila propio, bajo la clave del nivel afectado: <code>la provincia esta retirada del catalogo</code>, <code>el canton esta retirado del catalogo</code>, <code>el distrito '&lt;nombre&gt;' esta retirado del catalogo</code>. Un nodo retirado no vuelve solo: corrija la dirección o pida a Velox Courier reactivarlo.</li>
     <li><span class="w">⚠</span> <strong><code>409</code> si NINGUNA de las filas que llegaron a la resolución de tarifa la resolvió.</strong> En ese caso no se persiste nada: ni órdenes, ni lote, ni notificación. <code>{ "status": "error", "code": "CONFLICT", "message": "la tienda no tiene una tarifa vigente asociada: no se pueden crear órdenes" }</code></li>
     <li>Una fila creada puede traer además <code>montoAjustado</code> (si se redondeó el COD) y <code>textoNormalizado</code> (lista de <code>{ campo, original, aplicado }</code> con los textos que hubo que reparar para poder imprimir la etiqueta). Ambos se omiten cuando no hubo ajuste.</li>
     <li><code>etiquetasPdf</code>, <code>manifiesto</code> y <code>ordenes[].downloadUrl</code> son <em>best-effort</em>: si el PDF o el manifiesto no se pudo armar, la carga <strong>no se revierte</strong> y el bloque llega como <code>{ "error": "…" }</code>; <code>null</code> significa que no había nada que generar. La URL del PDF de la carga vence en 1 hora (<code>expiraEnSegundos: 3600</code>); para volver a obtenerla use §5.6. Estos tres bloques no forman parte del contrato OpenAPI publicado.</li>
@@ -592,7 +632,7 @@
     </tbody>
   </table>
   <h3>Request</h3>
-<pre>curl "https://ordenex.co/api/ordenes/api-key?limit=50&offset=0&estado=en_reparto&desde=2026-09-01&hasta=2026-09-21" \
+<pre>curl "https://velox-courier.company/api/ordenes/api-key?limit=50&offset=0&estado=en_reparto&desde=2026-09-01&hasta=2026-09-21" \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
   <h3>Response <code>200</code></h3>
 <pre>{
@@ -614,7 +654,7 @@
   <ul>
     <li><code>mensajero</code> es <strong>quién lleva la orden en el momento de la lectura</strong> (<code>null</code> = nadie), no quién la gestionó; varios flujos limpian la asignación (generación de guía, quitar mensajero, devolución o recuperación a bodega, liberación de una orden en <code>reprogramado</code>, el barrido del cierre diario). Agrupe por <code>id</code> (UUID en texto, estable), nunca por <code>nombre</code>. Para «quién gestionó cada intento», use <code>gestiones[]</code> del detalle.</li>
     <li><code>zona</code> es la <strong>zona del envío</strong> (a dónde va el paquete; nunca <code>null</code>), no la del mensajero. Misma forma y misma regla que <code>mensajero</code>: agrupe por <code>id</code>.</li>
-    <li><code>costoEstimado</code> y <code>costoReal</code> son lo que ese paquete le cuesta a su tienda <strong>si se entrega</strong>, con exactamente cinco conceptos y sin ningún campo que los sume. <code>costoEstimado</code> se calcula con la tarifa vigente <em>hoy</em> y <strong>puede cambiar entre dos lecturas</strong> mientras <code>costoReal</code> sea <code>null</code>; <code>costoReal</code> es lo que se congeló cuando la orden entró en un cierre aprobado y ya no se mueve (salvo un segundo cierre aprobado: se publica el más reciente). <code>costoEstimado: null</code> significa «no hay tarifa configurada para su tienda en esa zona» (avise a Ordenex), <strong>no</strong> envío gratis; <code>costoReal: null</code> significa «todavía no entró en ningún cierre aprobado». Archive <code>costoReal</code>, no el estimado. Si la orden termina en Devolución a origen por rechazo (<code>devolucion_a_origen_por_rechazo</code>), lo que se factura es el escenario <code>devuelto</code> de la cotización, no estos importes.</li>
+    <li><code>costoEstimado</code> y <code>costoReal</code> son lo que ese paquete le cuesta a su tienda <strong>si se entrega</strong>, con exactamente cinco conceptos y sin ningún campo que los sume. <code>costoEstimado</code> se calcula con la tarifa vigente <em>hoy</em> y <strong>puede cambiar entre dos lecturas</strong> mientras <code>costoReal</code> sea <code>null</code>; <code>costoReal</code> es lo que se congeló cuando la orden entró en un cierre aprobado y ya no se mueve (salvo un segundo cierre aprobado: se publica el más reciente). <code>costoEstimado: null</code> significa «no hay tarifa configurada para su tienda en esa zona» (avise a Velox Courier), <strong>no</strong> envío gratis; <code>costoReal: null</code> significa «todavía no entró en ningún cierre aprobado». Archive <code>costoReal</code>, no el estimado. Si la orden termina en Devolución a origen por rechazo (<code>devolucion_a_origen_por_rechazo</code>), lo que se factura es el escenario <code>devuelto</code> de la cotización, no estos importes.</li>
   </ul>
 
   <!-- 5.4 -->
@@ -668,14 +708,14 @@
     <li><strong><code>pendienteConfirmacion: true</code></strong> = la gestión se registró pero su estado todavía no se aplicó: la orden sigue <code>en_reparto</code> y <code>estadoResultante</code> es <code>null</code>. Al aprobarse el cierre del mensajero pasa a <code>false</code> y <code>estadoResultante</code> trae el estado aplicado. Es la misma señal que la aplicación muestra como «<em>&lt;resultado&gt; · pendiente de confirmación</em>».</li>
     <li><code>estadoResultante</code> <strong>no se deduce del <code>resultado</code></strong>: es el estado al que esa gestión llevó la orden, leído del historial. Puede ser <code>null</code> en gestiones antiguas y, en gestiones anteriores al 2026-09-23, una <code>novedad</code> puede mostrar un estado ya retirado del catálogo. Se publica sin lista cerrada: trate un valor desconocido como texto.</li>
     <li><code>motivo</code> es la <strong>causa tipificada</strong>, nunca el texto libre del mensajero (ese texto no sale del sistema): <code>not_found</code> / <code>wrong_number</code> / <code>wrong_address</code> en una <code>novedad</code>; <code>danado</code> / <code>perdido</code> / <code>robado</code> en un <code>incidente</code>; <code>null</code> en cualquier otro resultado y en gestiones antiguas sin causa registrada. La asimetría de idioma es deliberada: no traduzca ni «armonice».</li>
-    <li><code>gestiones[].mensajero</code> nunca es <code>null</code> y es el <strong>atribuido</strong> a la gestión, que no siempre es quien la registró: las gestiones que crea el sistema o la propia tienda (reprogramación de escritorio, escalado por plazo, rechazo manual, corte por tope de reintento) quedan atribuidas al mensajero de la última novedad. <code>gestiones.length</code> no es el contador de intentos de entrega de Ordenex (ese cuenta cierres aprobados distintos).</li>
+    <li><code>gestiones[].mensajero</code> nunca es <code>null</code> y es el <strong>atribuido</strong> a la gestión, que no siempre es quien la registró: las gestiones que crea el sistema o la propia tienda (reprogramación de escritorio, escalado por plazo, rechazo manual, corte por tope de reintento) quedan atribuidas al mensajero de la última novedad. <code>gestiones.length</code> no es el contador de intentos de entrega de Velox Courier (ese cuenta cierres aprobados distintos).</li>
     <li>Orden inexistente, borrada o ajena → el mismo <code>404</code>.</li>
   </ul>
 
   <!-- 5.5 -->
   <h2>5.5 <span class="badge post">POST</span><span class="ep">/api/ordenes/api-key/orden/{id}/generate</span> <span class="ep-title">— PDF de etiqueta de una orden</span></h2>
   <p>Solo <code>POST</code>. <strong>Sin cuerpo.</strong> <code>{id}</code> se resuelve igual que en §5.4. Retorna una <strong>URL firmada para descargar el PDF</strong> de la etiqueta. La primera llamada construye el PDF; las siguientes lo vuelven a firmar (misma forma de respuesta, sin ningún indicador de reuso).</p>
-<pre>curl -X POST https://ordenex.co/api/ordenes/api-key/orden/100234/generate \
+<pre>curl -X POST https://velox-courier.company/api/ordenes/api-key/orden/100234/generate \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
 <pre>{ "url": "https://&lt;host-de-storage&gt;/object/sign/etiquetas/...", "expiraEnSegundos": 300 }</pre>
   <ul>
@@ -699,7 +739,7 @@
     <li>El estado actual es uno de estos siete: <code>en_preparacion</code>, <code>por_recolectar_en_tienda</code>, <code>recolectando</code>, <code>en_bodega_central</code>, <code>en_ruta_bodega_central</code>, <code>en_ruta_bodega_satelite</code>, <code>mensajero_recogiendo_en_bodega</code>. Es decir: el paquete no ha salido hacia el cliente. Haber generado la etiqueta <strong>no</strong> impide eliminar.</li>
     <li><span class="w">⚠</span> <strong>La orden no tiene ningún intento de entrega</strong> (cierres aprobados con una gestión vigente de novedad, reprogramación o rechazo). Una orden con un intento deja de ser eliminable aunque el estado vuelva a estar en la lista.</li>
   </ol>
-<pre>curl -X DELETE https://ordenex.co/api/ordenes/api-key/orden/REM-0001 \
+<pre>curl -X DELETE https://velox-courier.company/api/ordenes/api-key/orden/REM-0001 \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
 <pre>{ "numGuia": 100234, "numRemision": "REM-0001", "estado": "en_bodega_central", "estadoNombre": "En bodega central" }</pre>
   <ul>
@@ -719,7 +759,7 @@
     </tbody>
   </table>
   <h3>Request</h3>
-<pre>curl "https://ordenex.co/api/ordenes/api-key/analitica?metricas=entregas,tasa_entrega&desde=2026-09-19&hasta=2026-09-21" \
+<pre>curl "https://velox-courier.company/api/ordenes/api-key/analitica?metricas=entregas,tasa_entrega&desde=2026-09-19&hasta=2026-09-21" \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
   <h3>Response <code>200</code> (llamada hecha el 2026-09-21 a las 12:40 hora CR)</h3>
 <pre>{
@@ -765,7 +805,7 @@
   <!-- 5.9 -->
   <h2>5.9 <span class="badge put">PUT</span><span class="ep">/api/ordenes/api-key/{numGuia}/cancelar</span> <span class="ep-title">— Cancelar una orden en bodega</span></h2>
   <p><strong>Sin cuerpo.</strong> Se identifica por <strong>número de guía</strong> (entero positivo; si no, <code>422</code>): una orden con fulfillment recién cargada no tiene guía todavía y no se puede cancelar por aquí (use §5.7). Solo procede si el estado actual es <code>en_bodega_central</code> o <code>en_ruta_bodega_central</code>; cualquier otro → <code>409</code>. No borra la orden: la transiciona a <code>devolviendo_a_tienda</code> (el paquete vuelve a su tienda) y emite el webhook <code>orden.estado_actualizado</code> con ese estado.</p>
-<pre>curl -X PUT https://ordenex.co/api/ordenes/api-key/100234/cancelar \
+<pre>curl -X PUT https://velox-courier.company/api/ordenes/api-key/100234/cancelar \
   -H "Authorization: Bearer ordx_XXXXXXXXXXXX"</pre>
 <pre>{ "numGuia": 100234,
   "estadoAnterior": "en_ruta_bodega_central", "estadoAnteriorNombre": "En ruta a bodega central",
@@ -808,15 +848,15 @@
 <!-- ============================================================ 6 -->
 <section class="pb">
   <h1>6. Webhooks salientes: <span class="ep">orden.estado_actualizado</span> y los eventos de orden</h1>
-  <p><strong>Ordenex envía</strong> (<code>POST</code>) al callback del dueño de la orden un evento cada vez que una orden suya cambia a un estado publicable (<code>orden.estado_actualizado</code>, §6.2–6.6) y cada vez que ocurre un hecho sobre la orden que no es un cambio de estado (<code>orden.gestion_*</code>, <code>orden.ayuda_*</code>, §6.7). Todos llegan al <strong>mismo callback</strong>, con la <strong>misma firma</strong> y el mismo circuito de reintento.</p>
+  <p><strong>Velox Courier envía</strong> (<code>POST</code>) al callback del dueño de la orden un evento cada vez que una orden suya cambia a un estado publicable (<code>orden.estado_actualizado</code>, §6.2–6.6) y cada vez que ocurre un hecho sobre la orden que no es un cambio de estado (<code>orden.gestion_*</code>, <code>orden.ayuda_*</code>, §6.7). Todos llegan al <strong>mismo callback</strong>, con la <strong>misma firma</strong> y el mismo circuito de reintento.</p>
   <div class="warn"><strong>No es un endpoint que usted llame.</strong> Es un endpoint que usted <strong>expone</strong>. El destino se deriva siempre del dueño de la orden.</div>
   <h2>6.1 Alta de la suscripción</h2>
-  <p>Se registra en Ordenex, <strong>una suscripción por dueño</strong>, con:</p>
+  <p>Se registra en Velox Courier, <strong>una suscripción por dueño</strong>, con:</p>
   <ul>
     <li>Una <strong>URL HTTPS absoluta</strong> (otro esquema se rechaza).</li>
-    <li>Un <strong>secreto de firma</strong>, generado por Ordenex y entregado una sola vez.</li>
+    <li>Un <strong>secreto de firma</strong>, generado por Velox Courier y entregado una sola vez.</li>
   </ul>
-  <p>Cambiar la URL conserva el secreto. El secreto se puede rotar (invalida el anterior) y la suscripción se puede desactivar, solicitándolo a Ordenex. Sin suscripción activa, los eventos no se encolan: no se «acumulan» para entregarse después de un alta.</p>
+  <p>Cambiar la URL conserva el secreto. El secreto se puede rotar (invalida el anterior) y la suscripción se puede desactivar, solicitándolo a Velox Courier. Sin suscripción activa, los eventos no se encolan: no se «acumulan» para entregarse después de un alta.</p>
   <h2>6.2 Cuerpo del evento</h2>
 <pre>{
   "evento": "orden.estado_actualizado",
@@ -842,7 +882,7 @@
     "estado": "incidente", "estadoNombre": "Incidente",
     "motivo": "robado",
     "mensajero": { "id": "018f2c31-0000-4000-8000-0000000000aa", "nombre": "Carlos Jiménez Mora" },
-    "evidenciasUrl": "https://ordenex.co/api/ordenes/api-key/orden/100235"
+    "evidenciasUrl": "https://velox-courier.company/api/ordenes/api-key/orden/100235"
   }
 }</pre>
   <div class="warn"><code>numGuia</code> puede ser <code>null</code> si aún no está asignado (evento de nacimiento <code>en_preparacion</code>). No lo use como clave primaria en su lado sin manejar ese caso; <code>numRemision</code> es su ancla.</div>
@@ -851,8 +891,8 @@
   <table class="tight">
     <thead><tr><th>Header</th><th>Contenido</th></tr></thead>
     <tbody>
-      <tr><td><code>X-Ordenex-Timestamp</code></td><td>Instante unix en <strong>segundos</strong> en que se firmó</td></tr>
-      <tr><td><code>X-Ordenex-Signature</code></td><td><code>sha256=&lt;hex&gt;</code> — HMAC-SHA256 sobre la cadena <code>${timestamp}.${cuerpo}</code> con el secreto de la suscripción</td></tr>
+      <tr><td><code>X-Velox-Timestamp</code></td><td>Instante unix en <strong>segundos</strong> en que se firmó</td></tr>
+      <tr><td><code>X-Velox-Signature</code></td><td><code>sha256=&lt;hex&gt;</code> — HMAC-SHA256 sobre la cadena <code>${timestamp}.${cuerpo}</code> con el secreto de la suscripción</td></tr>
     </tbody>
   </table>
   <p><strong>Procedimiento de verificación:</strong></p>
@@ -860,12 +900,12 @@
     <li><span class="w">⚠</span> Tome el <strong>cuerpo crudo, byte a byte</strong>, tal como llegó.</li>
     <li>Arme la cadena <code>${timestamp}.${cuerpo}</code>.</li>
     <li>Calcule HMAC-SHA256 con el secreto (en hexadecimal).</li>
-    <li><strong>Compare en tiempo constante</strong> contra el valor de <code>X-Ordenex-Signature</code>.</li>
-    <li>Descarte entregas cuyo <code>X-Ordenex-Timestamp</code> caiga <strong>fuera de su ventana anti-replay</strong> (referencia: 5 minutos).</li>
+    <li><strong>Compare en tiempo constante</strong> contra el valor de <code>X-Velox-Signature</code>.</li>
+    <li>Descarte entregas cuyo <code>X-Velox-Timestamp</code> caiga <strong>fuera de su ventana anti-replay</strong> (referencia: 5 minutos).</li>
     <li><strong>Solo entonces</strong> parsee el JSON.</li>
   </ol>
   <div class="warn">Si su framework parsea el cuerpo antes de que usted lo lea (Express con <code>express.json()</code>, por ejemplo), la firma <strong>no va a validar nunca</strong>: al re-serializar cambia el orden de claves o el espaciado. Configure la ruta del webhook para recibir el cuerpo crudo. El orden de las claves del cuerpo es parte de la firma: cuando el contrato gana una clave (como <code>estadoNombre</code>), el texto firmado cambia, y su verificación sigue siendo válida si trabaja sobre el cuerpo crudo.</div>
-  <p class="small">(El tamaño de la ventana anti-replay lo define usted. Las IPs de origen de las entregas no están definidas en esta guía: consultar con Ordenex.)</p>
+  <p class="small">(El tamaño de la ventana anti-replay lo define usted. Las IPs de origen de las entregas no están definidas en esta guía: consultar con Velox Courier.)</p>
   <h2>6.4 Idempotencia y confirmación</h2>
   <ul>
     <li>Una misma entrega <strong>puede repetirse</strong>: reintento tras fallo transitorio, o duplicado. Deduplique por <code>eventoId</code>, que es determinista para un mismo hecho: <code>webhook_estado:…</code> para un cambio de estado y <code>webhook_evento:&lt;id&gt;</code> para los eventos de orden (§6.7). Dos entregas del mismo <code>eventoId</code> pueden diferir en <code>data.numGuia</code>, <code>mensajero</code>, <code>motivo</code> o <code>evidenciasUrl</code> si la orden cambió entre un intento y otro: quédese con la última.</li>
@@ -874,7 +914,7 @@
     <li><strong>Circuito de pausa:</strong> tras 3 fallos consecutivos y 30 minutos sin ninguna entrega aceptada, los reintentos de <em>toda</em> la suscripción pasan a espaciarse a 1 hora. Un <code>2xx</code> la saca de la pausa de inmediato. Los eventos nuevos se siguen encolando.</li>
     <li>El orden de llegada <strong>no está garantizado</strong> entre eventos (un reintento puede llegar después de un evento posterior): ordene por <code>ocurridoAt</code>.</li>
   </ul>
-  <div class="warn">Si su handler responde <code>4xx</code> ante un evento que no le interesa (estado o evento desconocido, orden que no reconoce), Ordenex va a reintentarlo y a contarlo como fallo del circuito. Responda <code>2xx</code> e ignore internamente.</div>
+  <div class="warn">Si su handler responde <code>4xx</code> ante un evento que no le interesa (estado o evento desconocido, orden que no reconoce), Velox Courier va a reintentarlo y a contarlo como fallo del circuito. Responda <code>2xx</code> e ignore internamente.</div>
 
   <h2>6.5 Estados que este webhook puede emitir</h2>
   <p>Es un <strong>subconjunto</strong> del catálogo REST (§4.7): solo los estados públicos del ciclo. Son estos doce:</p>
@@ -992,11 +1032,11 @@
     <thead><tr><th style="width:34pt">HTTP</th><th style="width:88pt"><code>code</code></th><th>Causa probable</th><th>Acción concreta</th></tr></thead>
     <tbody>
       <tr><td><code>401</code></td><td><code>UNAUTHORIZED</code></td><td>No mandó el header, <strong>o</strong> la key no existe. Los dos casos son indistinguibles.</td><td>Revise que envía <code>Authorization: Bearer ordx_...</code> en <strong>todos</strong> los endpoints. Verifique que el secreto llegó completo (no truncado por su gestor de config).</td></tr>
-      <tr><td><code>403</code></td><td><code>FORBIDDEN</code></td><td>La key existe pero está <strong>desactivada</strong>, o su <strong>cuenta dedicada</strong> (o la tienda a la que apunta) no está activa. En analítica: pidió una métrica no publicable.</td><td>Si es analítica, valide sus ids contra la lista de §5.8. En cualquier otro endpoint, contacte a Ordenex: no es algo que se arregle desde su lado.</td></tr>
+      <tr><td><code>403</code></td><td><code>FORBIDDEN</code></td><td>La key existe pero está <strong>desactivada</strong>, o su <strong>cuenta dedicada</strong> (o la tienda a la que apunta) no está activa. En analítica: pidió una métrica no publicable.</td><td>Si es analítica, valide sus ids contra la lista de §5.8. En cualquier otro endpoint, contacte a Velox Courier: no es algo que se arregle desde su lado.</td></tr>
       <tr><td><code>404</code></td><td><code>NOT_FOUND</code></td><td>Recurso inexistente, borrado, <strong>o de otra tienda</strong>. Deliberadamente indistinguibles. También la ruta retirada <code>GET …/api-key/{numGuia}</code>.</td><td>Confirme el <code>numGuia</code>/<code>numRemision</code>/<code>cargaId</code> y la ruta (<code>/orden/{id}</code>). Si cree que la orden es suya, verifíquela con el listado (§5.3).</td></tr>
-      <tr><td><code>409</code></td><td><code>CONFLICT</code></td><td>Ninguna fila resolvió tarifa; nombre de lote repetido; orden sin guía imprimible; lote sin etiquetas o por encima del tope; eliminación o cancelación desde un estado no permitido, o con intentos de entrega.</td><td>Lea el <code>message</code>: distingue los casos. Si es de tarifa, es un tema comercial con Ordenex, no de código.</td></tr>
+      <tr><td><code>409</code></td><td><code>CONFLICT</code></td><td>Ninguna fila resolvió tarifa; nombre de lote repetido; orden sin guía imprimible; lote sin etiquetas o por encima del tope; eliminación o cancelación desde un estado no permitido, o con intentos de entrega.</td><td>Lea el <code>message</code>: distingue los casos. Si es de tarifa, es un tema comercial con Velox Courier, no de código.</td></tr>
       <tr><td><code>422</code></td><td><code>VALIDATION_ERROR</code></td><td>Cuerpo, path o query params mal formados; fecha inexistente; rango invertido; <code>estado</code> con un <strong>código anterior</strong> al cambio de nombres.</td><td>Lea <code>details.fieldErrors</code>: trae el campo y el mensaje. Si el mensaje dice «ya no existe: ahora se llama», reemplace el literal por el código vigente.</td></tr>
-      <tr><td><code>500</code></td><td><code>INTERNAL</code></td><td>Falla del lado de Ordenex.</td><td>Reintente con backoff. Si persiste, reporte con el <code>cargaId</code> o <code>numGuia</code> involucrado.</td></tr>
+      <tr><td><code>500</code></td><td><code>INTERNAL</code></td><td>Falla del lado de Velox Courier.</td><td>Reintente con backoff. Si persiste, reporte con el <code>cargaId</code> o <code>numGuia</code> involucrado.</td></tr>
     </tbody>
   </table>
   <h2>8.2 Síntomas sin error visible</h2>
@@ -1022,7 +1062,7 @@
       <tr><td>“Mi cliente generado rechaza la respuesta”</td><td>Validación estricta del esquema contra un modelo viejo: hay claves nuevas (<code>…Nombre</code>, <code>zona</code>, <code>costoReal</code>, <code>gestiones</code>, <code>pendienteConfirmacion</code>, <code>ayudaCerrada</code>, <code>cobertura</code>…).</td><td>Regenere el modelo contra el contrato vigente o relaje la validación. Cambios</td></tr>
       <tr><td>“La firma del webhook nunca valida”</td><td>Su framework parseó y re-serializó el cuerpo antes de que usted lo leyera.</td><td>Reciba el cuerpo crudo en esa ruta. §6.3</td></tr>
       <tr><td>“Recibo el mismo evento varias veces”</td><td>Comportamiento esperado: reintentos y duplicados.</td><td>Deduplique por <code>eventoId</code>. §6.4</td></tr>
-      <tr><td>“Ordenex me reintenta un evento que no me interesa”</td><td>Su handler responde algo distinto de <code>2xx</code>.</td><td>Responda <code>2xx</code> e ignore internamente. §6.4</td></tr>
+      <tr><td>“Velox Courier me reintenta un evento que no me interesa”</td><td>Su handler responde algo distinto de <code>2xx</code>.</td><td>Responda <code>2xx</code> e ignore internamente. §6.4</td></tr>
       <tr><td>“Recibo un <code>evento</code> que no conozco”</td><td>Eventos de gestión y de ayuda (bloque B de los cambios).</td><td>Ramifique por <code>evento</code>; ignore lo que no consuma. §6.7</td></tr>
       <tr><td>“Dejaron de llegar eventos durante una hora”</td><td>Su endpoint falló varias veces seguidas y la suscripción entró en pausa; o el evento agotó sus 5 intentos.</td><td>Revise la disponibilidad de su endpoint y reconcilie con el listado. §6.4</td></tr>
     </tbody>

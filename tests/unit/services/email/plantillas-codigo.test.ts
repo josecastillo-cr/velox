@@ -3,6 +3,7 @@ import { plantillaCodigoInicioSesion } from "@/lib/services/email/plantillas/cod
 import { plantillaCodigoCambioContrasena } from "@/lib/services/email/plantillas/codigo-cambio-contrasena";
 import { plantillaCodigoPorProposito } from "@/lib/services/email/plantillas";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 489 — plantillas de los dos correos de código sobre una base común.
 // Los literales se escriben aquí, no se recomponen con la base (memoria
 // «aserción contra su propia fuente»).
@@ -62,11 +63,11 @@ describe("marca (R2)", () => {
   it.each([
     ["entrar", entrar],
     ["contraseña", contrasena],
-  ])("%s: con marca Velox, asunto y cuerpo dicen Velox y no Ordenex", (_n, plantilla) => {
+  ])(`%s: con marca Velox, asunto y cuerpo dicen Velox y no ${MARCA_RETIRADA}`, (_n, plantilla) => {
     const m = plantilla();
     for (const campo of [m.subject, m.html ?? "", m.text]) {
       expect(campo).toContain("Velox");
-      expect(campo).not.toContain("Ordenex");
+      expect(campo).not.toContain(MARCA_RETIRADA);
     }
   });
 });

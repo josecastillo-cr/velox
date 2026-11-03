@@ -8,6 +8,7 @@ import {
 import { opcionesDeConceptos } from "@/components/shared/wallet/conceptos-filtro";
 import { CATEGORIA_LABEL, CATEGORIA_TODAS_OPTION } from "@/app/(app)/wallet/_components/wallet-labels";
 import type { GestionResultado } from "@prisma/client";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 158 (R5/R31) — LA RED DE EXHAUSTIVIDAD, verificada en runtime.
 //
@@ -75,7 +76,7 @@ describe("R5 — los mapas por RESULTADO clasifican `incidente` explicitamente",
 
 describe("R5/R31 — la categoria nueva esta clasificada en la wallet", () => {
   it("R31: `CATEGORIA_LABEL` tiene etiqueta legible EN ESPANOL para la indemnizacion", () => {
-    expect(CATEGORIA_LABEL.egreso_indemnizacion).toBe("Indemnización que Ordenex paga por un incidente");
+    expect(CATEGORIA_LABEL.egreso_indemnizacion).toBe(`Indemnización que ${NOMBRE_ESPERADO} paga por un incidente`);
     // No es el slug crudo: la etiqueta se escribio, no se derivo del enum.
     expect(CATEGORIA_LABEL.egreso_indemnizacion).not.toBe("egreso_indemnizacion");
   });
@@ -98,7 +99,7 @@ describe("R5/R31 — la categoria nueva esta clasificada en la wallet", () => {
     const opciones = lista.map((o) => o.value);
     expect(opciones).toContain("egreso_indemnizacion");
     const opcion = lista.find((o) => o.value === "egreso_indemnizacion");
-    expect(opcion?.label).toBe("Indemnización que Ordenex paga por un incidente (1)");
+    expect(opcion?.label).toBe(`Indemnización que ${NOMBRE_ESPERADO} paga por un incidente (1)`);
   });
 
   it("R5: las etiquetas de resultado de los dos detalles clasifican `incidente`", () => {

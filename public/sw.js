@@ -111,7 +111,7 @@ if (ES_DEV || RESCATE_FORZOSO) {
   // R38: lo que se muestra cuando el contenido del push NO SE PUEDE INTERPRETAR. Nunca silencio:
   // un push que no muestra nada hace que el navegador pinte su propio «este sitio se actualizo en
   // segundo plano», que es peor —dice menos y asusta igual—.
-  const TITULO_RESERVA = "Ordenex";
+  const TITULO_RESERVA = "Velox Courier";
   const CUERPO_RESERVA = "Tenés un aviso nuevo. Abrí la app para verlo.";
   const DESTINO_RESERVA = "/";
   const ICONO = "/icons/icon-192.png";

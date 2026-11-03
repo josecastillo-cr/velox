@@ -63,3 +63,58 @@ function leerOriginalMessage(meta: Record<string, unknown>): string | null {
   const original = (cause as Record<string, unknown>).originalMessage;
   return typeof original === "string" ? original : null;
 }
+
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+// ⭑ FICHA 499 (R13) — EL RECHAZO DEL INDICE `zona_distrito_distrito_id_key`.
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+//
+// MEDIDO EL 2026-11-02 contra Postgres, con el cliente real (adapter pg), un `createMany` duplicado
+// DENTRO de un `$transaction` interactivo:
+//   ctor: PrismaClientKnownRequestError · code: "P2002" · meta.target: ausente
+//   meta.driverAdapterError.cause.originalCode: "23505"
+//   meta.driverAdapterError.cause.originalMessage: «llave duplicada viola restriccion de unicidad
+//                                                  «zona_distrito_distrito_id_key»»
+//   cause (del propio error): undefined
+//
+// Se cubre IGUAL la forma del driver sin `code` —la que se midio para la FK en la 373
+// (`_shared/prisma-fk.ts`): `DriverAdapterError` con el error de `pg` en `cause`—, porque el adapter
+// ya cambio de forma una vez (P2002 sin `meta.target`).
+//
+// Se detecta POR EL NOMBRE DEL INDICE, nunca solo por el SQLSTATE: `23505` tambien lo da el par
+// `zona_distrito_zona_id_distrito_id_key`, y ese nombre NO contiene `zona_distrito_distrito_id_key`.
+
+/** Nombre del indice unico de la 499, tal como lo deriva Prisma de `@@unique([distritoId])`. */
+export const INDICE_DISTRITO_UNICO = "zona_distrito_distrito_id_key";
+
+/**
+ * `true` si el error es la violacion del indice unico de `zona_distrito.distrito_id`, en
+ * cualquiera de sus dos formas (P2002 de Prisma, o el error del driver con SQLSTATE 23505).
+ * Cualquier otro error devuelve `false` y quien llama DEBE seguir su camino (re-lanzar).
+ */
+export function esViolacionDistritoUnico(error: unknown): boolean {
+  const texto = textoConstraintP2002(error);
+  if (texto !== null) return texto.includes(INDICE_DISTRITO_UNICO);
+  return textoDeErrorDeDriver23505(error)?.includes(INDICE_DISTRITO_UNICO) ?? false;
+}
+
+/**
+ * El texto (minusculas) de un error del driver con SQLSTATE 23505, o `null` si no lo es. Mira el
+ * error y su `cause`: `code`/`originalCode` para el SQLSTATE, y `message`/`originalMessage`/
+ * `constraint` para el nombre.
+ */
+function textoDeErrorDeDriver23505(error: unknown): string | null {
+  if (error == null || typeof error !== "object") return null;
+  const capas = [error, (error as Record<string, unknown>).cause].filter(
+    (c): c is Record<string, unknown> => c != null && typeof c === "object",
+  );
+  const es23505 = capas.some((c) => c.code === "23505" || c.originalCode === "23505");
+  if (!es23505) return null;
+  const partes: string[] = [];
+  for (const c of capas) {
+    for (const campo of ["message", "originalMessage", "constraint"]) {
+      const v = c[campo];
+      if (typeof v === "string") partes.push(v);
+    }
+  }
+  return partes.join(" ").toLowerCase();
+}

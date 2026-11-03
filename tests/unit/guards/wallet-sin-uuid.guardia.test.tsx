@@ -98,6 +98,7 @@ import { useCierresDeLaCuenta } from "@/components/shared/wallet/use-cierres-de-
 import type { EstadoCuentaDTO, FilaEstadoCuentaDTO } from "@/lib/types/estado-cuenta";
 import { RepartoPrevisualizacion } from "@/app/(app)/wallet/mensajeros/_components/RepartoPrevisualizacion";
 
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const u = (n: number) => `${String(n).padStart(8, "0")}-aaaa-4bbb-8ccc-${String(n).padStart(12, "d")}`;
 const TIENDA = u(1);
@@ -374,7 +375,7 @@ const SUPERFICIES: { nombre: string; montar: () => Promise<void> }[] = [
     nombre: "/wallet/tiendas/[tiendaId] · estado de cuenta con el panel «Ver» abierto",
     montar: async () => {
       conSWR(<EstadoCuentaTienda inicial={estadoEC("tienda", TIENDA, "Tania Tienda", [filaEC(30), filaEC(31, { anulacion: { motivo: "Duplicado", por: "Ana Admin", fecha: "2026-09-13", hora: "10:30" }, anulable: false })])} puedeRegistrar />);
-      fireEvent.click(screen.getAllByRole("button", { name: /^Ver Ordenex le cobra a la tienda/ })[0]);
+      fireEvent.click(screen.getAllByRole("button", { name: new RegExp(`^Ver ${NOMBRE_ESPERADO} le cobra a la tienda`) })[0]);
       await screen.findByRole("dialog");
     },
   },

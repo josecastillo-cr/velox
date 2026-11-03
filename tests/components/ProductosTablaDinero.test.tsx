@@ -47,6 +47,7 @@ import type {
   DineroProductoDTO,
   FilaProductoDTO,
 } from "@/lib/types/conteo-productos";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 vi.mock("@/lib/actions/conteo-productos", () => ({
   consultarConteoProductos: vi.fn(),
@@ -1254,7 +1255,7 @@ describe("FICHA 449 · el fulfillment en el detalle de la fila", () => {
     expect(within(panel).queryByText(DETALLE_DINERO_TEXTOS.totales.fulfillment)).toBeNull();
   });
 
-  it("NO es un sumando de «Cobró Ordenex»: el reparto dice exactamente lo mismo", async () => {
+  it(`NO es un sumando de «Cobró ${NOMBRE_CORTO_ESPERADO}»: el reparto dice exactamente lo mismo`, async () => {
     // ⚠ LA AFIRMACIÓN CARA DE LA FICHA. `ordenex` es flete + IVA y comisión + IVA, y «Para la
     // tienda» se calcula como la RESTA de eso contra lo recaudado: meter el fulfillment dentro
     // rompería `ordenex + tienda === liquidado.recaudado` sin que nada se viera roto.

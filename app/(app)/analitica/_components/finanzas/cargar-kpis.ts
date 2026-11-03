@@ -46,6 +46,7 @@ import {
   rotuloCifraPrincipal,
 } from "@/app/(app)/wallet/_components/wallet-labels";
 import type { ListarCompletoResult } from "@/lib/types/descarga-listado";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * Un KPI ya resuelto. Tres estados y solo tres, los MISMOS que usa el tablero financiero
@@ -82,7 +83,7 @@ const PISTA = {
   // línea «De las tiendas» del wallet es ESTA misma deuda (salvo los cobros de un costo, que
   // bajan el saldo sin pasar por la caja): ya no es el contra-entrega bruto, y nada aquí dice
   // que lo sea.
-  porPagarTiendas: "Suma del saldo de cada tienda, ya descontado lo de Ordenex",
+  porPagarTiendas: `Suma del saldo de cada tienda, ya descontado lo de ${MARCA.nombre}`,
   porPagarMensajeros: "Suma de lo devengado y aún no pagado a cada mensajero",
 } as const;
 

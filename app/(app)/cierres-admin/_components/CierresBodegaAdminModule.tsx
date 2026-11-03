@@ -94,6 +94,7 @@ import {
   filaDescargaBodegaPendiente,
 } from "./cierres-bodega-descarga-columnas";
 import { descargarDatos } from "@/components/shared/descarga-datos";
+import { MARCA } from "@/lib/marca/identidad";
 
 /** Nombre visible de la cola: hoja, base del archivo y nombre del control (R12/R13). */
 const TITULO_DESCARGA_PENDIENTES = "Cierres de bodega pendientes";
@@ -741,7 +742,7 @@ export function CierresBodegaAdminModule({
             {/* El desglose por concepto de la línea «Lo que Ordenex facturó»: sin cambios. */}
             <TotalesIngresoPanel
               totales={detalle.totalesIngreso}
-              ariaLabel="Ingreso de Ordenex del cierre de bodega"
+              ariaLabel={`Ingreso de ${MARCA.nombreCorto} del cierre de bodega`}
             />
 
             {/* Motivo de rechazo si el cierre de bodega del histórico fue rechazado. */}
@@ -824,7 +825,7 @@ export function CierresBodegaAdminModule({
                 {/* El desglose por concepto de ESTE cierre_dia: sin cambios. */}
                 <TotalesIngresoPanel
                   totales={cierreDia.totalesIngreso}
-                  ariaLabel={`Ingreso de Ordenex · ${cierreDia.mensajeroNombre}`}
+                  ariaLabel={`Ingreso de ${MARCA.nombreCorto} · ${cierreDia.mensajeroNombre}`}
                 />
                 {/* FICHA 478 (T3) — las gestiones de ESTE mensajero en pestañas con fila
                     desplegable: la MISMA lista que el comprobante del cierre de mensajero, con

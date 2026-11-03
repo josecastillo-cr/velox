@@ -29,7 +29,7 @@ lo envía y el **monto a cobrar** si es contra entrega. Y la **ubicación**, cua
 
 ## Rastrear desde la página principal
 
-En la página principal de Ordenex está el botón **Rastrear envío**. Pide el **número de guía** y los
+En la página principal de Velox Courier está el botón **Rastrear envío**. Pide el **número de guía** y los
 **últimos 4 dígitos del teléfono** del destinatario, y muestra **en qué estado va el envío** y su
 recorrido, con fecha y hora de Costa Rica.
 
@@ -74,7 +74,7 @@ paquete sigue en reparto hasta que se registre su gestión.
 
 ## Por qué importa que sea pública
 
-El cliente final no tiene cuenta en Ordenex ni debería necesitarla. Esta página existe para que pueda
+El cliente final no tiene cuenta en Velox Courier ni debería necesitarla. Esta página existe para que pueda
 confirmar que su paquete existe, que va a su dirección y cuánto le van a cobrar, sin llamar a nadie.
 
 ## Si un cliente dice que no le funciona

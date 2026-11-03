@@ -4,6 +4,7 @@ import { COLUMNAS_DESCARGA_WALLET_CAJA } from "@/app/(app)/wallet/_components/wa
 import { filaDeLibroCaja as filaDescargaMovimientoCaja } from "@/tests/fixtures/libro-kardex";
 import type { AutoriaDeFilaDTO } from "@/lib/types/libro-caja-autoria";
 import type { WalletMovimientoDTO } from "@/lib/types/wallet";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Feature 170 / T C.3 (R5/R7/R8/R23) — columnas de export del libro de caja principal.
 
@@ -99,7 +100,7 @@ describe("columnas de descarga del libro de caja", () => {
 
   it("emite el concepto como ETIQUETA LEGIBLE, no como valor interno (R8; 468 R17)", () => {
     const fila = filaDescargaMovimientoCaja(MOV);
-    expect(fila.concepto).toBe("Gasto fijo de Ordenex");
+    expect(fila.concepto).toBe(`Gasto fijo de ${NOMBRE_CORTO_ESPERADO}`);
     expect(fila.concepto).not.toBe("egreso_gasto_fijo");
     // 468 R4: «Entra o sale» ya no existe: el sentido es la columna del importe.
     expect(fila).not.toHaveProperty("tipo");

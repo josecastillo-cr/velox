@@ -1,10 +1,12 @@
 // FICHA 458-D (T D.5; R34, R10, R78) — los textos de `/mi-wallet` como estado de cuenta de la propia
 // tienda. Módulo PURO. Segunda persona, como el resto de la pantalla; sin siglas ni ids.
 
+import { MARCA } from "@/lib/marca/identidad";
+
 export const MI_ESTADO_CUENTA_PAGINA = {
   titulo: "Mi wallet",
   descripcion:
-    "Tu estado de cuenta con Ordenex: cada movimiento con su saldo corrido, lo cobrado a tus clientes, lo que Ordenex te cobró y lo que te pagó",
+    `Tu estado de cuenta con ${MARCA.nombre}: cada movimiento con su saldo corrido, lo cobrado a tus clientes, lo que ${MARCA.nombre} te cobró y lo que te pagó`,
 } as const;
 
 export const MI_ESTADO_CUENTA_TEXTO = {
@@ -26,5 +28,5 @@ export const MI_ESTADO_CUENTA_TEXTO = {
  */
 export function textoAnuladoMiWallet(a: { motivo: string | null; fecha: string | null; hora: string | null }): string {
   const cuando = a.fecha === null ? "" : a.hora === null || a.hora === "" ? ` el ${a.fecha}` : ` el ${a.fecha} a las ${a.hora}`;
-  return `Anulado por Ordenex${cuando} · ${a.motivo ?? "motivo no registrado"}`;
+  return `Anulado por ${MARCA.nombre}${cuando} · ${a.motivo ?? "motivo no registrado"}`;
 }

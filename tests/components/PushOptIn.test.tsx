@@ -10,6 +10,7 @@ import {
   montarNavegadorPush,
   suscripcionFalsa,
 } from "../fixtures/navegador-push";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * FICHA 410 (tanda 5, T5.2) — EL CONTROL, EN SUS CUATRO CASOS.
@@ -231,7 +232,7 @@ describe("R45 — el hueco del control NUNCA se queda vacío en un iPhone sin in
 
     // Lo accionable, palabra por palabra: es lo que esas tres personas tienen que leer.
     expect(
-      await screen.findByText("Agrega Ordenex a tu pantalla de inicio"),
+      await screen.findByText(`Agrega ${NOMBRE_ESPERADO} a tu pantalla de inicio`),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -249,9 +250,9 @@ describe("R45 — el hueco del control NUNCA se queda vacío en un iPhone sin in
     montarNavegadorPush({ conPushManager: false });
 
     const { container } = montar();
-    await screen.findByText("Agrega Ordenex a tu pantalla de inicio");
+    await screen.findByText(`Agrega ${NOMBRE_ESPERADO} a tu pantalla de inicio`);
 
-    expect(container.textContent).toContain("Agrega Ordenex a tu pantalla de inicio");
+    expect(container.textContent).toContain(`Agrega ${NOMBRE_ESPERADO} a tu pantalla de inicio`);
     expect(container.firstElementChild).not.toBeNull();
   });
 });

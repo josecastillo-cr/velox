@@ -55,6 +55,7 @@ vi.mock("@/lib/actions/liquidacion", () => ({
 import { CuentasPorPagarTable } from "@/app/(app)/wallet/mensajeros/_components/CuentasPorPagarTable";
 import { EstadoCuentaMensajero } from "@/app/(app)/wallet/mensajeros/_components/EstadoCuentaMensajero";
 import { estado } from "@/tests/fixtures/estado-cuenta";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const MENSAJERO = "1e2d3c4b-5a69-4788-9900-aabbccddeeff";
 const CIERRE_A = "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa";
@@ -182,10 +183,10 @@ afterEach(() => {
 describe("P1 — pagar desde el ESTADO DE CUENTA deja al día su tarjeta y, al volver, la fila del listado", () => {
   it("tras registrar el reparto, el estado de cuenta relee SU cuenta y la tabla, al montarse, dice la cuenta nueva", async () => {
     montarEstadoCuenta();
-    expect(screen.getByText("Ordenex le debe ₡21.150 a Ana Mensajera")).toBeInTheDocument();
+    expect(screen.getByText(`${NOMBRE_ESPERADO} le debe ₡21.150 a Ana Mensajera`)).toBeInTheDocument();
 
     const bloque = await screen.findByRole("region", { name: "Pago al mensajero: Ana Mensajera" });
-    const abrir = within(bloque).getByRole("button", { name: "Ordenex le paga al mensajero" });
+    const abrir = within(bloque).getByRole("button", { name: `${NOMBRE_ESPERADO} le paga al mensajero` });
     await waitFor(() => expect(abrir).toBeEnabled());
     fireEvent.click(abrir);
     const dialogo = await screen.findByRole("dialog");
@@ -201,7 +202,7 @@ describe("P1 — pagar desde el ESTADO DE CUENTA deja al día su tarjeta y, al v
     for (const [input] of desgloseMock.mock.calls.slice(lecturasAntes)) {
       expect((input as { cuenta: unknown }).cuenta).toEqual({ tipo: "mensajero", id: MENSAJERO });
     }
-    await waitFor(() => expect(screen.getByText("Ordenex le debe ₡8.750 a Ana Mensajera")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(`${NOMBRE_ESPERADO} le debe ₡8.750 a Ana Mensajera`)).toBeInTheDocument());
 
     // …y al VOLVER al listado, la tabla se lee al montarse: su fila dice la cuenta nueva.
     cleanup();

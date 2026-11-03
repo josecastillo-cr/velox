@@ -29,6 +29,35 @@ final.
 
 - Verificación del negocio enviada a Meta (con la certificación del Registro Nacional); se espera la respuesta. Configuración básica de la app hecha en parte.
 - El redeploy del corte (4.2) incluye también `RECUPERACION_CONTRASENA_ACTIVA=true` (encendido de la 489) y la `ANTHROPIC_API_KEY` de José (decisión de Carlos, 2026-10-30).
+- 2026-10-31, ~04:40 UTC, PREPARACIÓN DEL CORTE HECHA (sin corte): el `WHATSAPP_WEBHOOK_VERIFY_TOKEN` nuevo y `RECUPERACION_CONTRASENA_ACTIVA=true` (489 encendida) están en prod, con redeploy `dpl_Cs614XTZoiCh76joTyUDDzte1Men` READY. El webhook de la app Velox apunta a velox-courier.company y la verificación respondió 200. `messages` suscrito, `subscribed_apps` hecho y la app PUBLICADA (Live). La app sigue enviando por el número de Nuform.
+- FALTA para el corte: plantillas APPROVED (siguen PENDING); luego José cambia las 4 `WHATSAPP_*` restantes (CLOUD_TOKEN, NUMERO_ID, WABA_ID, APP_SECRET) en Production y Preview, y la `ANTHROPIC_API_KEY` si ya la tiene. Después: redeploy y pruebas al +57 300 802 9714.
+- CORTE HECHO el 2026-10-31 ~05:43 UTC (Carlos: «ya no están usando la app»). José puso las 4 `WHATSAPP_*` en Production y Preview, y también la `ANTHROPIC_API_KEY`. Redeploy `dpl_EPxz3tzH6aWjXDUNtRwmKxCDf3JQ` READY. Pruebas:
+  - Entrada: el texto de +57 300 802 9714 llegó al webhook con firma válida, pero se descartó porque viene con `from_user_id` y sin `from` (ese usuario tiene nombre de usuario de WhatsApp) → ficha 491.
+  - Salida: texto libre por la API al +57 302 420 6707, que confirmó haberlo recibido.
+  - Pendiente: ver entrar al chat el mensaje de un cliente real con orden activa, y las plantillas siguen PENDING.
+## Pendiente para la próxima sesión (cierre del 2026-10-31 ~06:10 UTC)
+
+1. Plantillas: consultar `GET /2115650402656273/message_templates`. Cuando estén APPROVED, EDITAR el cuerpo, cambiando "Ordenex" por "Velox Courier" (mismas variables y mismo orden; los nombres se quedan), y actualizar `plantilla_mensaje.cuerpo` en prod. Decisión de Carlos del 2026-10-31. Si alguna sale REJECTED, ver el motivo.
+   - 2026-10-31 18:30 UTC: las 3 siguen PENDING; ninguna REJECTED.
+   - 2026-10-31 ~19:30 UTC: las 3 APPROVED. Por decisión de Carlos, editado ya el cuerpo ("Ordenex" → "Velox Courier") de `listo_para_entrega_mensajero` (28252813871058704) y `alerta_transito_ordenex` (1598724291390711), que vuelven a estar PENDING. `picking_bodega_ordenex` (1152229794427597) no cambia: su cuerpo no dice Ordenex. FALTA cuando estén APPROVED: actualizar `plantilla_mensaje.cuerpo` de las 2 en prod (mismo texto con variables con nombre). El `template_id` de prod aún apunta a los ids de Nuform.
+   - 2026-11-01: las 3 APPROVED en Meta con el cuerpo nuevo. En prod, `template_id` ya con los ids nuevos (03:00 UTC) y las 2 editadas seguían `pending` (la bienvenida no sale si no está `activo`, `whatsapp-bienvenida-handler.ts:121`). Actualizado `cuerpo` (Ordenex → Velox Courier, variables con nombre intactas) y `estado = activo` de las 2. CERRADO.
+   - Las 74 bienvenidas fallidas NO se reenvían (decisión de Carlos, 2026-10-31).
+   - Verificación del negocio: `pending_need_more_info` por el documento del teléfono +506 7075 9997; reenviada a revisión el 2026-10-31. Mientras tanto, `TIER_250` (250 destinatarios únicos/24 h) frente a ~370 bienvenidas/día.
+2. Envíos automáticos con plantilla fallidos durante la espera: medirlos en la base y reenviarlos si hace falta.
+   - Medido el 2026-10-31 18:30 UTC (prod): 74 bienvenidas `listo_para_entrega_mensajero` en `chat_mensaje` `failed` (15:16–15:31 UTC, 74 conversaciones) y 2 `whatsapp_envio_entrega` en `rechazo_permanente` (12:01 UTC). Todas con Meta 132001 «template name does not exist in es»: la plantilla sigue PENDING en la WABA nueva.
+   - Fallo mudo: los jobs `whatsapp_bienvenida` quedan `done` aunque Meta los rechace.
+   - Reenviar SOLO tras APPROVED y solo a órdenes aún activas; los 2 informes probablemente ya no valen.
+3. Primer entrante real de un cliente con orden activa: confirmar que entra en `chat_mensaje`.
+   - Medido el 2026-10-31 18:30 UTC: 0 entrantes desde las 02:26 UTC (antes del corte, 450–740 al día). En los logs, el webhook solo recibió de la WABA nueva la prueba de Carlos (05:46 UTC, descartada por `from_user_id` sin `from` → ficha 491).
+   - Sospecha sin medir: los clientes responden al número viejo; la app de Nuform sigue enviando su webhook a nuestra URL y la firma falla con 401 sin dejar log.
+   - 2026-11-02 (prod): 70 entrantes en `chat_mensaje` y 67 salientes (0 `failed`) en el día; el 2026-11-01 (domingo) hubo 0. Los clientes ya escriben al número nuevo. CERRADO.
+4. Respuesta de Meta a la verificación del negocio.
+5. ~~Integradores de la API: darles la URL nueva.~~ CERRADO (Carlos, 2026-10-31): no se avisa aparte; van con el manual nuevo de la ficha 493.
+6. ~~Limpieza de Nuform.~~ HECHO (Carlos, 2026-10-31).
+7. Cambio de marca: fichas 492 (identidad) y 493 (textos), `spec_ready` el 2026-10-31.
+8. Sigue pendiente: ficha 491 (entrantes con nombre de usuario), ficha para el envío por el ID de la cuenta de WhatsApp de Meta, actualizar el spec de la 490. Descartado por Carlos (2026-10-31): los ~450 jobs de geocodificación fallidos (se empieza de cero) y el teléfono/cédula de relleno del maestro de José (se queda así, no es pendiente).
+- El SMTP de Preview se borra (decisión de Carlos); no se migra.
+- OJO: el token de José (`meta_token.txt`) y el del webhook estaban en el scratchpad de ESTA sesión, que no se hereda. Para la API de Meta, Carlos tiene que volver a dejar el token en el scratchpad de la sesión nueva.
 - 6.1 Aviso a clientes: NO se hace (decisión de Carlos, 2026-10-30). El número viejo no está publicado en ningún sitio.
 
 ## 0.5 Inventario de plantillas (prod, `plantilla_mensaje` vigentes, leído el 2026-10-30)

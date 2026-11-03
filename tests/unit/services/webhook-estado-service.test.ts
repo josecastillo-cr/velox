@@ -250,8 +250,12 @@ describe("R17/R19 — entrega y complete", () => {
     expect(body.evento).toBe("orden.estado_actualizado");
     expect(body.eventoId).toContain("webhook_estado:orden-1:s-en-reparto:");
     // R18: firma valida sobre `${ts}.${cuerpo}` con el secreto descifrado.
-    const ts = Number(headers["X-Ordenex-Timestamp"]);
-    expect(headers["X-Ordenex-Signature"]).toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpo)}`);
+    const ts = Number(headers["X-Velox-Timestamp"]);
+    expect(headers["X-Velox-Signature"]).toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpo)}`);
+    // 493/R17 (L5b): SOLO las cabeceras nuevas; las viejas `X-Ordenex-*` no viajan (sin doble cabecera).
+    expect(Object.keys(headers).sort()).toEqual(["X-Velox-Signature", "X-Velox-Timestamp"]);
+    expect(Object.keys(headers)).not.toContain("X-Ordenex-Signature");
+    expect(Object.keys(headers)).not.toContain("X-Ordenex-Timestamp");
   });
 
   it("una respuesta 2xx completa el job (no lanza)", async () => {
@@ -362,12 +366,12 @@ describe("R23 — idempotencia", () => {
     ];
     // El cuerpo firmado es EL QUE SE ENVIA: contiene el campo nuevo.
     expect(cuerpo).toContain('"motivo":"not_found"');
-    const ts = Number(headers["X-Ordenex-Timestamp"]);
-    expect(headers["X-Ordenex-Signature"]).toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpo)}`);
+    const ts = Number(headers["X-Velox-Timestamp"]);
+    expect(headers["X-Velox-Signature"]).toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpo)}`);
     // Y NO verifica contra el cuerpo viejo (sin el campo): si alguien firmara antes de ampliar,
     // esta linea lo delata.
     const cuerpoViejo = cuerpo.replace(',"motivo":"not_found"', "");
-    expect(headers["X-Ordenex-Signature"]).not.toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpoViejo)}`);
+    expect(headers["X-Velox-Signature"]).not.toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpoViejo)}`);
   });
 });
 
@@ -872,8 +876,8 @@ describe("268/R22-R25 — `data.evidenciasUrl`: estable, determinista y sin cred
       Record<string, string>,
     ];
     expect(cuerpo).toContain(`"evidenciasUrl":"${ENLACE}"`);
-    const ts = Number(headers["X-Ordenex-Timestamp"]);
-    expect(headers["X-Ordenex-Signature"]).toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpo)}`);
+    const ts = Number(headers["X-Velox-Timestamp"]);
+    expect(headers["X-Velox-Signature"]).toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpo)}`);
   });
 });
 

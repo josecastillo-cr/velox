@@ -177,6 +177,34 @@ export interface IndemnizacionCapturada {
  */
 export interface ConfirmacionFisicaGestion {
   gestionId: string;
+  // Ficha 497 (design §5.4): `never` para que una entrada con las DOS claves no compile.
+  ordenId?: never;
+}
+
+/**
+ * Ficha 497 (T3.3, design §5.4, R22) — UNA barrida (orden que el corte paso a `novedad_interna` al
+ * crear el cierre, fila de `cierre_sin_gestion`) a marcar como confirmada fisicamente, ya con la
+ * cobertura exacta verificada por el servicio. Se identifica por su `ordenId` (el grano de la tabla
+ * es `(cierre_id, orden_id)` y el cierre ya viaja en la entrada). Sin `numGuia`, por la misma razon
+ * que la de gestion.
+ *
+ * Una UNION en el mismo campo `confirmacionFisica`, y no un campo nuevo: los literales de hoy
+ * (`[]` o `{ gestionId }`) siguen compilando sin tocar ningun doble (R40), y una entrada mal
+ * formada (`{ gestionId, ordenId }`) no compila.
+ */
+export interface ConfirmacionFisicaBarrida {
+  ordenId: string;
+  gestionId?: never;
+}
+
+/**
+ * Ficha 497 (T3.2, design §5.3, R5-R9) — una barrida del cierre tal como la necesita la cobertura
+ * exacta del servicio. `numGuia` es la CONGELADA al barrer (`cierre_sin_gestion.num_guia`), no la
+ * viva de la orden (R6, decision adoptada); puede ser nula y entonces el cierre no se aprueba (R16).
+ */
+export interface BarridaDelCierre {
+  ordenId: string;
+  numGuia: number | null;
 }
 
 /**
@@ -308,8 +336,11 @@ export type ResolverCierreInput =
        * echar de menos hasta que haga falta en una disputa con una tienda. Un olvido de cableado
        * tiene que romper el TYPECHECK, que es donde tiene que romper. Coste conocido y aceptado:
        * todos los dobles de `resolverCierre` tienen que pasarlo.
+       *
+       * Ficha 497 (design §5.4): el elemento pasa a ser la UNION gestion | barrida. Cada entrada
+       * dice su origen por su clave (`gestionId` u `ordenId`).
        */
-      confirmacionFisica: ReadonlyArray<ConfirmacionFisicaGestion>;
+      confirmacionFisica: ReadonlyArray<ConfirmacionFisicaGestion | ConfirmacionFisicaBarrida>;
     })
   | (ResolverCierreBase & {
       nuevoEstado: "rechazado";
@@ -470,6 +501,16 @@ export interface ICierresAdminRepository {
     cierreId: string,
     alcance: Alcance,
   ): Promise<GestionRetornableDelCierre[]>;
+  /**
+   * Ficha 497 (T3.2, design §5.3, R5-R9) — TODAS las barridas registradas para el cierre, con su
+   * guia CONGELADA, leidas del registro persistido (`cierre_sin_gestion`), no del estado vivo de
+   * las ordenes (R6). Sin filtro por la regla: las barridas vuelven «siempre» (`RETORNO_POR_ORIGEN`).
+   *
+   * R7: el ALCANCE va en el WHERE por la relacion al cierre; fuera de alcance o inexistente ->
+   * `[]`, sin distinguir. R9: un cierre sin filas (p. ej. anterior a la 264) -> `[]`; no se mira
+   * `cierre_dia.sin_gestion_registrado`.
+   */
+  findBarridasDelCierre(cierreId: string, alcance: Alcance): Promise<BarridaDelCierre[]>;
   /**
    * Feature 230 — Tanda 2 (T2.1, R11/R13/R14/R15/R22/R24/R41): TODAS las gestiones de los
    * cierres del dia del alcance que casan los recortes del dialogo, a grano de GESTION.

@@ -15,6 +15,7 @@ import {
   type WalletMovimientoTipo,
 } from "@/lib/types/wallet";
 import { codigoSinComentarios, LLAMADAS_PROHIBIDAS_EN_DINERO } from "../../fixtures/money-safe";
+import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * Feature 173 (T A.4) — la derivacion PURA de las dos cifras de la caja.
@@ -493,7 +494,7 @@ describe("ficha 488 — la clasificacion del IVA (R1)", () => {
 });
 
 describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
-  it("R2/R3/R6: la ganancia, sus ingresos y «De Ordenex» NO llevan IVA; el IVA va a su bolsillo", () => {
+  it(`R2/R3/R6: la ganancia, sus ingresos y «De ${NOMBRE_CORTO_ESPERADO}» NO llevan IVA; el IVA va a su bolsillo`, () => {
     // Flete 1 000 + su IVA 130 ; comision 100 + su IVA 13. Todo cargo: la caja no se mueve.
     // ganancia = 1 000 + 100 = 1 100 ; IVA cobrado = IVA por pagar = 130 + 13 = 143
     // De las tiendas = −(1 000 + 130 + 100 + 13) = −1 243 ; cifra 0 = 1 100 − 1 243 + 0 + 143
@@ -616,7 +617,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
     expect(r.signoIvaPorPagar).toBe("negativo");
   });
 
-  it("R7: cifra principal = «De Ordenex» + «De las tiendas» + IVA por pagar, al centimo, con TODO el catalogo", () => {
+  it(`R7: cifra principal = «De ${NOMBRE_CORTO_ESPERADO}» + «De las tiendas» + IVA por pagar, al centimo, con TODO el catalogo`, () => {
     // Cada categoria con un importe distinto (y con centimos): la identidad no puede cuadrar por azar.
     const filas = WALLET_MOVIMIENTO_CATEGORIA_SEED.map((c, i) =>
       fila(c, `${(i + 1) * 37}.${String((i * 7) % 100).padStart(2, "0")}`),

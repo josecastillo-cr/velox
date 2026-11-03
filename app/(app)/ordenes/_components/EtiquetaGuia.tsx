@@ -7,6 +7,7 @@ import Barcode from "react-barcode";
 import { formatMonto } from "@/lib/config/moneda";
 import {
   geografiaLegible,
+  ROTULO_GUIA,
   ROTULO_PARA,
   ROTULO_PRODUCTO,
   ROTULO_TIENDA,
@@ -127,8 +128,9 @@ export function EtiquetaGuia({
           mismo que en el papel y R23 lo exige medido, no de palabra. */}
       <header className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 flex-1 flex-col">
+          {/* Feature 492 (revision M1): el MISMO rotulo que imprime el PDF, leido de su constante. */}
           <span className="text-[9px] uppercase tracking-widest text-neutral-500">
-            Ordenex · Guía
+            {ROTULO_GUIA}
           </span>
           <p className="text-3xl font-bold leading-none">{numGuia}</p>
           <div className="mt-1 flex items-baseline justify-between gap-2 text-[10px] uppercase tracking-wide text-neutral-500">

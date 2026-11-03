@@ -11,6 +11,7 @@
 // Datos que entran: SOLO los de R26 y los nombres de zona y estado. `FilaTransito` no trae
 // telefono, direccion, tienda, mensajero ni producto (R30 por construccion).
 import { jsPDF } from "jspdf";
+import { MARCA } from "@/lib/marca/identidad";
 import { fuenteEtiqueta } from "@/lib/pdf/etiquetas-fuente";
 import { cubreCodePoint, registrarFuente } from "@/lib/pdf/etiquetas-fuente-registro";
 import { formatMontoString } from "@/lib/config/moneda";
@@ -201,7 +202,7 @@ function cantonDistrito(p: PaqueteTransito): string {
 
 function encabezado(l: Lienzo, m: ModeloInformeTransito): void {
   l.estilo(9, GRIS);
-  l.texto("Ordenex", MARGEN, 16);
+  l.texto(MARCA.nombre, MARGEN, 16);
   l.estilo(18);
   l.texto("Informe de tránsito", MARGEN, 24);
   l.estilo(8, GRIS);
@@ -365,7 +366,7 @@ function resumenParametros(l: Lienzo, m: ModeloInformeTransito): void {
 
 function pies(l: Lienzo, m: ModeloInformeTransito): void {
   const total = l.doc.getNumberOfPages();
-  const sello = `Ordenex · Informe de tránsito · ${fechaCRLegible(m.ahora)} ${horaCRLegible(m.ahora)}`;
+  const sello = `${MARCA.nombre} · Informe de tránsito · ${fechaCRLegible(m.ahora)} ${horaCRLegible(m.ahora)}`;
   for (let i = 1; i <= total; i++) {
     l.doc.setPage(i);
     l.linea(ALTO - 12);

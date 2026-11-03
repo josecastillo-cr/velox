@@ -40,6 +40,7 @@ import { EstadoCuenta } from "@/components/shared/estado-cuenta/EstadoCuenta";
 import { EstadoCuentaTienda, ROTULOS_TIENDA, PANEL_TIENDA } from "@/app/(app)/wallet/tiendas/_components/EstadoCuentaTienda";
 import { ROTULOS_MENSAJERO } from "@/app/(app)/wallet/mensajeros/_components/EstadoCuentaMensajero";
 import { ROTULOS_BODEGA } from "@/app/(app)/wallet/satelites/_components/EstadoCuentaSatelite";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 function envolver(nodo: ReactNode) {
   return render(
@@ -66,26 +67,26 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("R18 — las tarjetas dicen quién le debe a quién, en palabras", () => {
-  it("tienda con saldo a favor: «Ordenex le debe ₡1.000 a Tania Tienda»", () => {
+  it(`tienda con saldo a favor: «${NOMBRE_ESPERADO} le debe ₡1.000 a Tania Tienda»`, () => {
     montarTienda(estado({ saldoActual: "1000.00", signo: "positivo", sentido: "ordenex_debe" }));
-    expect(screen.getByText("Ordenex le debe ₡1.000 a Tania Tienda")).toBeTruthy();
+    expect(screen.getByText(`${NOMBRE_ESPERADO} le debe ₡1.000 a Tania Tienda`)).toBeTruthy();
   });
 
-  it("tienda con saldo en contra: «Tania Tienda le debe ₡2.500 a Ordenex» y el saldo con su signo", () => {
+  it(`tienda con saldo en contra: «Tania Tienda le debe ₡2.500 a ${NOMBRE_ESPERADO}» y el saldo con su signo`, () => {
     montarTienda(estado({ saldoActual: "-2500.00", signo: "negativo", sentido: "cuenta_debe", saldoFinal: "-2500.00" }));
-    expect(screen.getByText("Tania Tienda le debe ₡2.500 a Ordenex")).toBeTruthy();
+    expect(screen.getByText(`Tania Tienda le debe ₡2.500 a ${NOMBRE_ESPERADO}`)).toBeTruthy();
     const tarjetas = screen.getByRole("region", { name: "Saldo de Tania Tienda" });
     expect(tarjetas.textContent).toContain("-₡2.500");
   });
 
-  it("mensajero: «Ordenex le debe ₡3.500 a Mario Mensajero»", () => {
+  it(`mensajero: «${NOMBRE_ESPERADO} le debe ₡3.500 a Mario Mensajero»`, () => {
     envolver(
       <EstadoCuenta descargaDeLaSuperficie={{ ambitoColumnas: "prueba-estado-cuenta" }}
         inicial={estado({ tipo: "mensajero", nombre: "Mario Mensajero", saldoActual: "3500.00", filas: [], total: 0 })}
         rotulos={ROTULOS_MENSAJERO}
       />,
     );
-    expect(screen.getByText("Ordenex le debe ₡3.500 a Mario Mensajero")).toBeTruthy();
+    expect(screen.getByText(`${NOMBRE_ESPERADO} le debe ₡3.500 a Mario Mensajero`)).toBeTruthy();
   });
 
   it("bodega: «Bodega Norte tiene ₡4.000,10 por entregar»", () => {
@@ -142,7 +143,7 @@ describe("R19–R21/R23 — el extracto: saldo inicial arriba, orden y saldo cor
     expect(filas[0].textContent).toContain("2026-09-10");
     expect(filas[0].textContent).toContain("Contra-entrega cobrado a los clientes de la tienda");
     expect(filas[0].textContent).toContain("₡1.000");
-    expect(filas[1].textContent).toContain("Ordenex le cobra a la tienda");
+    expect(filas[1].textContent).toContain(`${NOMBRE_ESPERADO} le cobra a la tienda`);
     expect(filas[1].textContent).toContain("Cobro de etiquetas");
     expect(filas[1].textContent).toContain("Registró: Ana Admin");
     expect(filas[1].textContent).toContain("Con comprobante");
@@ -167,7 +168,7 @@ describe("R19–R21/R23 — el extracto: saldo inicial arriba, orden y saldo cor
     await elegirEnBarra(user, document.body, "Tipo de movimiento", "Cobros");
     await waitFor(() => {
       expect(filasDeLaTabla()).toHaveLength(2);
-      expect(filasDeLaTabla()[0].textContent).toContain("Ordenex le cobra a la tienda");
+      expect(filasDeLaTabla()[0].textContent).toContain(`${NOMBRE_ESPERADO} le cobra a la tienda`);
     });
     expect(filasDeLaTabla()[0].textContent).toContain("₡700");
   });
@@ -283,9 +284,9 @@ describe("«Ver» → el panel de la 458-C, y H6", () => {
         filas: [fila({ n: 2, categoria: "cobro_manual", origenTipo: "manual", abono: null, cargo: "300.00", naceDeUnCierre: false })],
       }),
     );
-    fireEvent.click(screen.getByRole("button", { name: "Ver Ordenex le cobra a la tienda del 2026-09-12 por ₡300" }));
+    fireEvent.click(screen.getByRole("button", { name: `Ver ${NOMBRE_ESPERADO} le cobra a la tienda del 2026-09-12 por ₡300` }));
     const panel = await screen.findByRole("dialog");
-    expect(within(panel).getByText("Ordenex le cobra a la tienda")).toBeTruthy();
+    expect(within(panel).getByText(`${NOMBRE_ESPERADO} le cobra a la tienda`)).toBeTruthy();
     // «A quién» = la cuenta; «Registró» = lo que trae la fila.
     expect(panel.textContent).toContain("Tania Tienda");
     expect(panel.textContent).toContain("Automático · Aprobación del cierre por Ana Admin");

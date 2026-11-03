@@ -74,6 +74,7 @@ import { SaldosSatelitesTable } from "@/app/(app)/wallet/satelites/_components/S
 import { ConciliacionSatelite } from "@/app/(app)/wallet/satelites/_components/ConciliacionSatelite";
 import { resolveActorFromSession } from "@/lib/auth/resolve-actor";
 
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 const resolveActorMock = vi.mocked(resolveActorFromSession);
 
 // --- Datos ---------------------------------------------------------------
@@ -347,7 +348,7 @@ describe("R23 — la tabla de saldos y sus tres tarjetas", () => {
     const nota = screen.getByRole("note");
     expect(nota).toHaveTextContent("El saldo no es un movimiento de caja.");
     expect(nota).toHaveTextContent(
-      /Ese dinero ya entró a la caja de Ordenex cuando se aprobó el cierre de cada mensajero/,
+      new RegExp(`Ese dinero ya entró a la caja de ${NOMBRE_ESPERADO} cuando se aprobó el cierre de cada mensajero`),
     );
     expect(nota).toHaveTextContent(/dónde está físicamente/);
     expect(nota).toHaveTextContent(

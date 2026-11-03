@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { usePushSuscripcion } from "@/hooks/usePushSuscripcion";
+import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * FICHA 410 (tanda 5, T5.2 — R11-R15, R45, R46) — EL INTERRUPTOR DE «AVISARME EN ESTE DISPOSITIVO».
@@ -59,7 +60,7 @@ const TEXTOS = {
   comoDesbloquear:
     "Bloqueaste los avisos para este sitio y el navegador no deja volver a pedírtelos. Para recibirlos, abre los ajustes del navegador, busca los permisos de este sitio y permite las notificaciones.",
   /** R45 — la instrucción que ven las tres personas que solo entran desde iPhone. */
-  instalarTitulo: "Agrega Ordenex a tu pantalla de inicio",
+  instalarTitulo: `Agrega ${MARCA.nombre} a tu pantalla de inicio`,
   instalarPasos:
     "En este dispositivo los avisos solo llegan si la aplicación está instalada. Toca Compartir y luego «Agregar a inicio»; después vuelve aquí y actívalos.",
 } as const;

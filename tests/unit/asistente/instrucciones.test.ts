@@ -7,6 +7,7 @@ import {
   instruccionesDelSistema,
   pareceNoLoSe,
 } from "@/lib/asistente/instrucciones";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
  * ⭑ FICHA 436 · R5 — LA ORDEN DE DECIR «no lo sé», ANCLADA POR SU LITERAL.
@@ -31,19 +32,19 @@ describe("R32 — el modelo SABE con quién habla, y lo dice la sesión", () => 
    */
   it("⭑⭑ cada uno de los cinco roles se nombra a sí mismo, con su etiqueta", () => {
     expect(instruccionesDelSistema("mensajero")).toContain(
-      "Esta persona entra a Ordenex como Mensajero",
+      `Esta persona entra a ${NOMBRE_ESPERADO} como Mensajero`,
     );
     expect(instruccionesDelSistema("maestro")).toContain(
-      "Esta persona entra a Ordenex como Maestro",
+      `Esta persona entra a ${NOMBRE_ESPERADO} como Maestro`,
     );
     expect(instruccionesDelSistema("admin")).toContain(
-      "Esta persona entra a Ordenex como Administrador",
+      `Esta persona entra a ${NOMBRE_ESPERADO} como Administrador`,
     );
     expect(instruccionesDelSistema("adminTienda")).toContain(
-      "Esta persona entra a Ordenex como Admin de tienda",
+      `Esta persona entra a ${NOMBRE_ESPERADO} como Admin de tienda`,
     );
     expect(instruccionesDelSistema("adminSatelite")).toContain(
-      "Esta persona entra a Ordenex como Admin satélite",
+      `Esta persona entra a ${NOMBRE_ESPERADO} como Admin satélite`,
     );
   });
 
@@ -57,7 +58,7 @@ describe("R32 — el modelo SABE con quién habla, y lo dice la sesión", () => 
 
     const delMaestro = instruccionesDelSistema("maestro");
     expect(delMaestro).not.toContain("como Mensajero");
-    expect(delMaestro).toContain("trabaja en la oficina de Ordenex");
+    expect(delMaestro).toContain(`trabaja en la oficina de ${NOMBRE_ESPERADO}`);
   });
 
   it("⭑ le prohíbe INVENTAR un límite de cuenta, que es el fallo que se midió", () => {

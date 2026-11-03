@@ -61,7 +61,7 @@ export function crearInformeAvisoInterno(
         clave: "enlace",
         nombre: "Enlace a la app",
         descripcion: "Dirección de la pantalla donde se atiende el aviso.",
-        ejemplo: "https://ordenex.co/cierres",
+        ejemplo: "https://velox-courier.company/cierres",
       },
       { clave: "fecha", nombre: "Fecha del aviso", descripcion: "Fecha del aviso (hora de Costa Rica).", ejemplo: "05/10/2026" },
       { clave: "hora", nombre: "Hora del aviso", descripcion: "Hora del aviso (hora de Costa Rica).", ejemplo: "05:00" },

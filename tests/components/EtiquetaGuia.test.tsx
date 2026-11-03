@@ -6,6 +6,7 @@ import { EtiquetaGuia } from "@/app/(app)/ordenes/_components/EtiquetaGuia";
 import { formatMonto } from "@/lib/config/moneda";
 import type { EtiquetaGuiaDTO } from "@/lib/types/etiqueta-guia";
 
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 32 (T2.1) — Etiqueta presentacional. Se doblan qrcode.react y
 // react-barcode con stubs que exponen el `value` recibido: así el test asserta
 // que la etiqueta les pasa `qrValue`/`barcodeValue` (R7/R8) sin depender de
@@ -131,5 +132,16 @@ describe("EtiquetaGuia — R30: no expone el conteo de intentos", () => {
     const { container } = render(<EtiquetaGuia etiqueta={makeEtiqueta()} />);
     expect(screen.queryByText(/Intentos/i)).toBeNull();
     expect(container.textContent ?? "").not.toContain("Intentos");
+  });
+});
+
+describe("EtiquetaGuia — feature 492 (revision M1): rotulo de marca igual al del PDF", () => {
+  it(`la vista previa pinta «VELOX · GUÍA», el mismo texto que ROTULO_GUIA, y nada de ${MARCA_RETIRADA}`, async () => {
+    const { ROTULO_GUIA } = await import("@/lib/pdf/etiquetas-dibujo");
+    const { container } = render(<EtiquetaGuia etiqueta={makeEtiqueta()} />);
+    // Literal de contrato (lo que se ve) Y la constante del PDF (que no diverjan).
+    expect(screen.getByText("VELOX · GUÍA")).toBeInTheDocument();
+    expect(screen.getByText(ROTULO_GUIA)).toBeInTheDocument();
+    expect(container.textContent ?? "").not.toMatch(/ordenex/i);
   });
 });

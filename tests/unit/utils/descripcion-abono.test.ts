@@ -5,12 +5,13 @@ import {
   descripcionAbonoEnTienda,
   descripcionAnulacionAbono,
 } from "@/lib/utils/descripcion-abono";
+import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /** FICHA 457 / T3.3 — R21: las lineas del pago de una tienda a Ordenex, sin ningun identificador interno. */
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
-describe("457/T3.3 — descripciones del pago de una tienda a Ordenex", () => {
+describe(`457/T3.3 — descripciones del pago de una tienda a ${NOMBRE_ESPERADO}`, () => {
   it("libro de la tienda, con referencia: motivo, metodo y referencia", () => {
     expect(
       descripcionAbonoEnTienda({
