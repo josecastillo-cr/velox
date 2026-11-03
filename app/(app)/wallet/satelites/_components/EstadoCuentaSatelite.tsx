@@ -21,7 +21,12 @@ const CONCEPTO_BODEGA: Readonly<Record<string, string>> = {
 };
 
 export const ROTULOS_BODEGA: RotulosEstadoCuenta = {
-  concepto: (f) => CONCEPTO_BODEGA[f.chip] ?? ESTADO_CUENTA_BODEGA_PAGINA.declarado,
+  // FICHA 498 (R30, design §7): la fila de un cierre aprobado que aún no entró en ninguna
+  // consolidación llega con `origenTipo: "cierre_dia"` y se nombra por eso, no por su chip.
+  concepto: (f) =>
+    f.origenTipo === "cierre_dia"
+      ? ESTADO_CUENTA_BODEGA_PAGINA.cierreSinConsolidar
+      : (CONCEPTO_BODEGA[f.chip] ?? ESTADO_CUENTA_BODEGA_PAGINA.declarado),
   origen: () => null,
 };
 

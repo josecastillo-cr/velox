@@ -102,6 +102,9 @@ const LISTADOS = [
     cabecera: [
       "Bodega",
       "Pendiente",
+      // Ficha 498 (R42): la columna «Sin consolidar» y su conteo.
+      "Sin consolidar",
+      "Cierres sin consolidar",
       "Efectivo consolidado",
       "Total consolidado",
       "Recibido",

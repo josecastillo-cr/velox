@@ -517,10 +517,10 @@ export function CierresBodegaAdminModule({
   // operacion.
   //
   // «RECHAZAR» NO TIENE SUSTITUTO, Y ES EL PUNTO (R16): no se rechaza una consolidacion, se
-  // marca si llego o no. Lo reversible es la MARCA, y eso lo hace «Desmarcar», que no es lo
-  // mismo —desmarcar no manda a nadie a corregir nada, solo dice «esto todavia no ha llegado»—.
-  // Las `rechazado` historicas se quedan en la base (cero en produccion) y dejan de tener
-  // rotulo en pantalla.
+  // marca si llego o no. FICHA 498 (R20/R43): marcar ASIENTA el dinero de los cierres en la caja,
+  // asi que una marca con asientos ya no se desmarca: el monto se corrige con «Corregir».
+  // «Desmarcar» solo prospera sobre una conciliada sin asientos. Las `rechazado` historicas se
+  // quedan en la base (cero en produccion) y dejan de tener rotulo en pantalla.
   //
   // El refresco de las listas (`refrescarListas`) SI se conserva: la fila marcada se mueve de
   // pestaña igual que antes se movia al aprobar.
@@ -850,10 +850,9 @@ export function CierresBodegaAdminModule({
               satelite no podia asignar ni una orden mas.
 
               Ahora hay UNO: «Marcar recibido». No es el mismo boton con otro nombre —es otra
-              cosa—: no autoriza nada, dice que el efectivo LLEGO y cuanto se conto. Por eso
-              abre un dialogo con el declarado a la vista y un monto editable, y por eso es
-              REVERSIBLE («Desmarcar»): una marca informativa puesta por error tiene que poder
-              deshacerse, y deshacerla no mueve un colon.
+              cosa—: no autoriza nada, dice que el dinero LLEGO a la central y cuanto. FICHA 498
+              (R43): marcar asienta ese dinero en la caja; por eso, una vez marcada, el monto se
+              corrige con «Corregir» y ya no se desmarca (el servidor responde `con_asientos`).
 
               «RECHAZAR» SE RETIRA SIN SUSTITUTO (R16). Rechazar una consolidacion era mandar a
               la satelite a corregir un bulto que ya habia salido; hoy la respuesta a «llego
@@ -879,7 +878,11 @@ export function CierresBodegaAdminModule({
                 cierreBodegaId={detalle.cierre.cierreBodegaId}
                 bodega={detalle.cierre.zonaNombre}
                 fecha={fechaCalendarioCR(new Date(detalle.cierre.solicitadoAt))}
-                declarado={detalle.cierre.totales.efectivo}
+                recaudado={detalle.cierre.totales}
+                // FICHA 498 (R16): `CierreBodegaResumen` NO trae `debe`/`debePositivo` (solo los
+                // gana `ConsolidacionSateliteDTO`). Sin ese dato del servidor el diálogo arranca
+                // VACÍO, nunca con el efectivo. Hueco de contrato anotado en `progress/impl_498.md`.
+                debe={null}
                 marca={detalle.cierre}
                 nota={detalle.cierre.conciliadoNota}
                 puedeConciliar={puedeConciliar}

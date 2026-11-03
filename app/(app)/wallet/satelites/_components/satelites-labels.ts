@@ -66,19 +66,19 @@ export const SATELITES_PAGINA = {
 } as const;
 
 /**
- * ⚠️ LA NOTA QUE IMPIDE QUE ALGUIEN SUME ESTE NÚMERO A LA CAJA Y CUENTE DOS VECES.
+ * ⚠️ LA NOTA AL PIE DE LA TABLA: QUÉ ES EL SALDO Y CUÁNDO ENTRA A LA CAJA.
  *
- * Va al pie de la tabla, visible y sin desplegable. El saldo de esta pantalla NO es un movimiento
- * de caja: ese dinero **ya entró** a la caja de Ordenex cuando se aprobó el cierre de cada
- * mensajero, y aquí sólo se dice DÓNDE ESTÁ FÍSICAMENTE. Sin la nota, un número de siete cifras
- * llamado «pendiente» dentro del módulo Wallet se lee como plata por cobrar, y quien la sume al
- * balance la habrá contado dos veces.
+ * Va al pie, visible y sin desplegable. FICHA 498 — antes decía que el dinero «ya entró» a la caja
+ * al aprobar el cierre de cada mensajero; desde esta ficha es al revés: el dinero de un cierre
+ * satélite entra a la caja cuando se MARCA RECIBIDA su consolidación. El saldo es lo que cada bodega
+ * le debe a la central y todavía NO está en la caja, así que sumarlo a la caja no lo cuenta dos
+ * veces: lo adelanta.
  */
-export const SALDO_NO_ES_CAJA_TITULO = "El saldo no es un movimiento de caja.";
+export const SALDO_NO_ES_CAJA_TITULO = "El saldo todavía no está en la caja.";
 export const SALDO_NO_ES_CAJA_NOTA_A =
-  `Ese dinero ya entró a la caja de ${MARCA.nombre} cuando se aprobó el cierre de cada mensajero. Lo que ` +
-  "esta pantalla dice es";
-export const SALDO_NO_ES_CAJA_NOTA_DESTACADO = "dónde está físicamente";
+  `Es lo que cada bodega le debe a la central: entra a la caja de ${MARCA.nombre} cuando se marca ` +
+  "recibida su consolidación. Hasta entonces, esta pantalla dice";
+export const SALDO_NO_ES_CAJA_NOTA_DESTACADO = "dónde está";
 export const SALDO_NO_ES_CAJA_NOTA_B =
   ": cuánto queda en manos de cada bodega esperando llegar a la central.";
 
@@ -103,6 +103,8 @@ export const RESUMEN_SATELITES = {
 export const SALDOS_SATELITES_COLUMNAS = {
   bodega: "Bodega",
   pendiente: "Pendiente",
+  /** FICHA 498 (R24/R42): lo aprobado que aún no se consolidó, con cuántos cierres lo forman. */
+  sinConsolidar: "Sin consolidar",
   masAntigua: "Más antigua sin conciliar",
   ultimaRecibida: "Última recibida",
   /** FICHA 458-D (R17): la columna del enlace al estado de cuenta. */
@@ -176,23 +178,54 @@ export const DESGLOSE_SATELITE = {
    * La diferencia EXPLICADA: qué se declaró, qué llegó y qué pasa con lo que falta. Los tres
    * importes llegan como STRING del servidor y se pintan tal cual; aquí no se resta nada.
    */
-  diferenciaDetalle: (declarado: string, recibido: string, falta: string) =>
-    `Se consolidaron ${declarado} y se recibieron ${recibido}. La diferencia de ${falta} sigue ` +
-    "contando como pendiente de esta bodega hasta que llegue o se corrija la marca.",
+  // FICHA 498 (R41): el primer importe es lo que DEBÍA (el aporte reconocido), ya no el efectivo.
+  diferenciaDetalle: (debe: string, recibido: string, falta: string) =>
+    `Debía ${debe} y se recibieron ${recibido}. La diferencia de ${falta} sigue ` +
+    "contando como pendiente de esta bodega hasta que llegue o se corrija el monto.",
   /** Cuando hay más de una incompleta, el detalle habla del conjunto y no de una fila. */
   diferenciaDetalleVarias: (falta: string) =>
     `Entre todas falta por llegar ${falta}. Esa diferencia sigue contando como pendiente de esta ` +
-    "bodega hasta que llegue o se corrija la marca.",
+    "bodega hasta que llegue o se corrija el monto.",
 } as const;
 
-/** Columnas del desglose. */
+/**
+ * Columnas del desglose. FICHA 498 (R41): «Declarado» (el efectivo) se sustituye por los TRES
+ * bloques de cada consolidación: lo recaudado, lo que es de la satélite y la cuenta con la central.
+ */
 export const DESGLOSE_SATELITE_COLUMNAS = {
   consolidada: "Consolidada",
-  declarado: "Declarado",
-  recibido: "Recibido",
+  recaudado: "Recaudado",
+  deLaSatelite: "De la satélite",
+  cuenta: "Debe y recibido",
   estado: "Estado",
   conciliadoPor: "Conciliado por",
 } as const;
+
+/** FICHA 498 (R41/R41a) — los rótulos de dentro de los tres bloques de una consolidación. */
+export const CONSOLIDACION_BLOQUES = {
+  recaudado: {
+    efectivo: "Efectivo",
+    simpe: "SINPE",
+    transferencia: "Transferencia",
+    total: "Total",
+  },
+  deLaSatelite: {
+    pagoMensajeros: "Pago a sus mensajeros",
+    rechazos: "Su ganancia por rechazos",
+  },
+  // «Monto recibido» y «Falta por recibir» NO se redefinen: son el vocabulario de la conciliación
+  // que esta pantalla reexporta de `cierre-labels` (ver la cabecera del archivo).
+  cuenta: {
+    debe: "Debe",
+  },
+  /** R41a — literal del requisito. */
+  saldadaReglaAnterior: "Saldada con la regla anterior",
+} as const;
+
+/** FICHA 498 (R42) — «N cierres» debajo del importe sin consolidar. */
+export function cierresSinConsolidarLabel(n: number): string {
+  return `${n} ${plural(n, "cierre", "cierres")}`;
+}
 
 /** Nombres accesibles de la conciliación de UNA bodega, con su nombre dentro. FICHA 458-D (R31): la
  *  sección vive en el estado de cuenta de la bodega; deja de llamarse «Desglose». */
@@ -229,4 +262,6 @@ export const ESTADO_CUENTA_BODEGA_PAGINA = {
   volver: "Volver a las bodegas satélite",
   declarado: "Consolidación declarada",
   recibido: "Recibido en la central",
+  /** FICHA 498 (R30) — la fila de un cierre aprobado que aún no entró en ninguna consolidación. */
+  cierreSinConsolidar: "Cierre del día sin consolidar",
 } as const;

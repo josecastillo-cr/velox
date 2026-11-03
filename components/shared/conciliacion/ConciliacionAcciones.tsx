@@ -23,10 +23,14 @@ import {
 import {
   CONCILIACION_ACCION,
   CONCILIACION_RESPUESTA,
-  DESMARCAR_NO_MUEVE_DINERO_NOTA,
-  DESMARCAR_NO_MUEVE_DINERO_TITULO,
+  NOTA_CONCILIACION_ASIENTA,
 } from "./conciliacion-labels";
-import { MarcarRecibidoDialog, type MarcarRecibidoCampos } from "./MarcarRecibidoDialog";
+import {
+  MarcarRecibidoDialog,
+  type DebeDeLaConsolidacion,
+  type MarcarRecibidoCampos,
+  type RecaudadoPorMetodo,
+} from "./MarcarRecibidoDialog";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 431 (R25) — LAS DOS ACCIONES DE UNA CONSOLIDACIÓN: marcar recibido y deshacer la marca.
@@ -47,11 +51,16 @@ import { MarcarRecibidoDialog, type MarcarRecibidoCampos } from "./MarcarRecibid
 // el rótulo del botón y el del estado no pueden contradecirse.
 //
 // ── POR QUÉ «DESMARCAR» PIDE CONFIRMACIÓN Y «MARCAR» NO
-// No por peligro —ninguna de las dos mueve un colón (R14)— sino por ASIMETRÍA DE INFORMACIÓN:
-// marcar abre un diálogo donde se ve el declarado y se teclea el monto, así que ya hay un paso
-// donde mirar. Desmarcar es un clic que, sin nada delante, borra el rastro de quién dijo que el
-// dinero llegó y de cuánto. La confirmación lleva escrito el importe que se va a borrar y la nota
-// de que la marca es informativa: las dos mitades de lo que hay que saber antes de pulsar.
+// Marcar abre un diálogo donde se ve lo que debe y se teclea el monto, así que ya hay un paso donde
+// mirar. Desmarcar es un clic que, sin nada delante, borra el rastro de quién dijo que el dinero
+// llegó y de cuánto. La confirmación lleva escrito el importe que se va a borrar y la nota de la
+// conciliación.
+//
+// ── FICHA 498 (R20/R21) — MARCAR ASIENTA EL DINERO, Y YA NO SE DESMARCA
+// Desde la 498, marcar recibido asienta en la caja el dinero de los cierres de la consolidación.
+// Con asientos, el servidor responde a «Desmarcar» con `con_asientos` sin cambiar nada, y la
+// pantalla lo dice DENTRO del diálogo (R21), que queda abierto: la marca sigue tal cual y lo que hay
+// que hacer es «Corregir». El botón se conserva para las conciliadas sin asientos (R22).
 //
 // ── QUIÉN DECIDE EL PERMISO: EL SERVIDOR
 // `puedeConciliar` baja por props desde un Server Component que lo resolvió con `esAccesoTotal`,
@@ -65,8 +74,13 @@ export interface ConciliacionAccionesProps {
   bodega: string;
   /** Día de la consolidación YA formateado por quien lo monta. */
   fecha: string;
-  /** `total_efectivo`, STRING del servidor: lo que la bodega declaró que iba en el bulto. */
-  declarado: string;
+  /** FICHA 498 (R16a) — lo recaudado por método, STRINGs del servidor. */
+  recaudado: RecaudadoPorMetodo;
+  /**
+   * FICHA 498 (R16) — lo que debe y su signo, del servidor. `null` si quien monta no lo tiene: el
+   * diálogo arranca vacío, nunca con el efectivo.
+   */
+  debe: DebeDeLaConsolidacion | null;
   /** La marca de hoy, tal como llega del servidor. Aquí no se deriva nada de dinero. */
   marca: { conciliado: boolean; faltaPorRecibir: string; montoRecibido: string | null };
   /** Nota ya guardada, si la hay: el diálogo de corregir parte de ella. */
@@ -89,7 +103,8 @@ export function ConciliacionAcciones({
   cierreBodegaId,
   bodega,
   fecha,
-  declarado,
+  recaudado,
+  debe,
   marca,
   nota = null,
   puedeConciliar = false,
@@ -98,6 +113,8 @@ export function ConciliacionAcciones({
   const toast = useToast();
   const [marcando, setMarcando] = useState(false);
   const [desmarcando, setDesmarcando] = useState(false);
+  /** FICHA 498 (R21) — el aviso de `con_asientos`, dentro del diálogo de «Desmarcar». */
+  const [avisoDesmarcar, setAvisoDesmarcar] = useState<string | null>(null);
 
   if (!puedeConciliar) return null;
 
@@ -151,8 +168,10 @@ export function ConciliacionAcciones({
     } else if (resultado.status === "unauthenticated") {
       toast.error(CONCILIACION_RESPUESTA.unauthenticated);
     } else if (resultado.status === "con_asientos") {
-      // FICHA 498 (R21): minimo del backend; la presentacion definitiva es de T7.2.
-      toast.error(CONCILIACION_RESPUESTA.conAsientos);
+      // FICHA 498 (R21): ya entró a la caja. No cambió nada: el diálogo queda abierto con el aviso
+      // y no se refresca nada (no hay nada nuevo que leer).
+      setAvisoDesmarcar(CONCILIACION_RESPUESTA.conAsientos);
+      return;
     } else {
       toast.error(CONCILIACION_RESPUESTA.fallo);
     }
@@ -196,7 +215,10 @@ export function ConciliacionAcciones({
           size={TAMANO}
           variant="ghost"
           aria-label={`${CONCILIACION_ACCION.desmarcar} la consolidación ${sufijo}`}
-          onClick={() => setDesmarcando(true)}
+          onClick={() => {
+            setAvisoDesmarcar(null);
+            setDesmarcando(true);
+          }}
         >
           {CONCILIACION_ACCION.desmarcar}
         </Button>
@@ -207,7 +229,8 @@ export function ConciliacionAcciones({
         onOpenChange={setMarcando}
         bodega={bodega}
         fecha={fecha}
-        declarado={declarado}
+        recaudado={recaudado}
+        debe={debe}
         montoActual={estado === "pendiente" ? null : marca.montoRecibido}
         notaActual={nota}
         onMarcar={enviar}
@@ -238,12 +261,14 @@ export function ConciliacionAcciones({
               .
             </p>
           )}
-          <p className="text-muted-foreground">
-            <strong className="font-semibold text-foreground">
-              {DESMARCAR_NO_MUEVE_DINERO_TITULO}
-            </strong>{" "}
-            {DESMARCAR_NO_MUEVE_DINERO_NOTA}
-          </p>
+          {/* FICHA 498 (R21): con asientos, el servidor no deshace nada y lo decimos aquí. */}
+          {avisoDesmarcar === null ? null : (
+            <p role="alert" data-aviso="con-asientos" className="font-medium text-destructive">
+              {avisoDesmarcar}
+            </p>
+          )}
+          {/* FICHA 498 (R43) — la nota literal de la conciliación. */}
+          <p className="text-muted-foreground">{NOTA_CONCILIACION_ASIENTA}</p>
         </div>
       </Modal>
     </div>
