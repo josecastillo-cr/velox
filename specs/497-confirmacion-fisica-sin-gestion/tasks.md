@@ -142,7 +142,7 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
 
 ## T4 · Frontend
 
-- [ ] **T4.1 — Vista unificada.** En `cierre-confirmacion-fisica.tsx`: `FilaAConfirmar` y
+- [x] **T4.1 — Vista unificada.** En `cierre-confirmacion-fisica.tsx`: `FilaAConfirmar` y
       `filasAConfirmar`; `interpretarLectura`, `clavePaquete`, `agruparPorPaquete` y
       `progresoDePaquetes` sobre la vista unificada (design §6.2). Las funciones que queden sin uso se
       borran **con sus tests sustituidos**.
@@ -150,18 +150,24 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
       con la misma aserción).
       *Depende de: T3.7.*
 
-- [ ] **T4.2 — Sección «Novedad interna» y aviso de filas sin guía.** Última sección de la misma lista
+- [x] **T4.2 — Sección «Novedad interna» y aviso de filas sin guía.** Última sección de la misma lista
       con el rótulo vigente y su badge; aviso encima de la lista con cuántas filas no tienen guía
       (design §6.1, R35).
       **Hecho:** casos de R30, R31 y R35 en `tests/components/CierresAdminConfirmacionFisica.test.tsx`
       verdes; `nombres-estado-retirados.guardia.test.ts` verde.
       *Depende de: T4.1.*
 
-- [ ] **T4.3 — Módulo.** En `CierresAdminModule.tsx`: `pedirAprobacion` con `filasAConfirmar`, envío de
+- [x] **T4.3 — Módulo.** En `CierresAdminModule.tsx`: `pedirAprobacion` con `filasAConfirmar`, envío de
       entradas `{ ordenId, numGuia }`, `repartirErroresDelServidor` con `gestionIds ∪ ordenIds`
       (design §6.2).
       **Hecho:** casos de R19 (payload idéntico sin barridas), R20, R32-R34 y R36-R38 verdes.
       *Depende de: T4.1.*
+      > **Hecho (frontend, 2026-11-02), T4.1-T4.3 en un solo commit:** la vista unificada cambia la
+      > firma de `interpretarLectura`/`progresoDePaquetes` y el módulo no compila a medias.
+      > `retornablesDelCierre` y `agruparRetornables` se borraron (sin tests directos: los cubre la
+      > suite del módulo, cuyos 34 casos de la 238 siguen verdes sin cambiar aserciones). 12 casos
+      > nuevos «497/…» en `tests/components/CierresAdminConfirmacionFisica.test.tsx`; rojo previo
+      > 10 de 12. Detalle en `progress/impl_497_frontend.md`.
 
 - [ ] **T4.4 — Ver la pantalla.** Con el dev server del propio agente (sin levantar un segundo):
       abrir un cierre `solicitado` con barridas, ver la sección «Novedad interna», escanear o teclear

@@ -45,7 +45,12 @@ import { montoValido } from "@/app/(app)/wallet/_components/wallet-labels";
 // reescribe. Sale de la precisión de la columna (`DECIMAL(12,2)` → 9999999999.99); si algún
 // día cambia, un literal duplicado aquí se quedaría desalineado en silencio y volvería el
 // mismo callejón: el cliente habilitando un monto que la transacción no puede escribir.
-import { INDEMNIZACION_MONTO_MAX } from "@/lib/types/cierres-admin";
+import {
+  INDEMNIZACION_MONTO_MAX,
+  // Ficha 497: una entrada de la confirmación física, `{ gestionId, numGuia }` o
+  // `{ ordenId, numGuia }`, tal como la tipa el borde (solo tipo: no arrastra el esquema).
+  type ConfirmacionFisicaBordeInput as EntradaConfirmacionFisica,
+} from "@/lib/types/cierres-admin";
 // Feature 158/R34: la etiqueta visible de la causa sale del catálogo derivado del SEED (mismo
 // módulo que usa el panel del mensajero para capturarla). El admin decide el monto MIRANDO la
 // causa: no puede ser un slug crudo ni, peor, no estar.
@@ -57,12 +62,13 @@ import {
   ConfirmacionFisicaCuerpo,
   interpretarLectura,
   progresoDePaquetes,
-  retornablesDelCierre,
+  filasAConfirmar,
   gestionesDelCierre,
   CONFIRMACION_TITULO,
   CONFIRMACION_DETALLE,
   CONFIRMACION_CONTINUAR,
   CONFIRMACION_APROBAR,
+  type FilaAConfirmar,
   type MedioDeCaptura,
 } from "./cierre-confirmacion-fisica";
 // `moneyTope` lo usan los mensajes de la indemnizacion (feature 230 de `dev`); los tres
@@ -604,12 +610,14 @@ export function CierresAdminModule({
   // detalle que ya se pidió al servidor (`grupos.incidente`), no de una consulta aparte:
   // el conjunto que la UI pide indemnizar es exactamente el que el service exige cubrir.
   const incidentes: CierreDetalleGestion[] = detalle?.grupos.incidente ?? [];
-  // Feature 238/R2/R7: el CONJUNTO ESPERADO — las gestiones del cierre cuyo paquete vuelve a
-  // bodega. Sale del MISMO detalle ya cargado, filtrado por el punto único
-  // (`RESULTADOS_QUE_VUELVEN`): la pantalla no decide por su cuenta qué vuelve, porque decidirlo
-  // dos veces es cómo se llega a que bodega escanee todo lo que ve y el botón siga bloqueado.
-  const retornables: CierreDetalleGestion[] = detalle
-    ? retornablesDelCierre(detalle.grupos)
+  // Feature 238/R2/R7 + ficha 497/R5/R30: el CONJUNTO ESPERADO — las gestiones del cierre cuyo
+  // paquete vuelve a bodega MÁS todas sus barridas (las órdenes que el corte pasó a
+  // `novedad_interna` al crear el cierre). Sale del MISMO detalle ya cargado, filtrado por el
+  // punto único (`vuelveABodega` / `vuelveABodegaElPaquete`): la pantalla no decide por su cuenta
+  // qué vuelve, porque decidirlo dos veces es cómo se llega a que bodega escanee todo lo que ve y
+  // el botón siga bloqueado.
+  const filas: FilaAConfirmar[] = detalle
+    ? filasAConfirmar(detalle.grupos, detalle.ordenesSinGestion)
     : [];
   // R30/R31: las cinco secciones, para poder distinguir la guía ajena de la que sí es del
   // cierre pero no vuelve.
@@ -621,7 +629,7 @@ export function CierresAdminModule({
   // no filas — dos gestiones vivas de la misma orden comparten guía y son un solo bulto. El
   // candado no se ablanda: un paquete cuenta como hecho sólo si todas sus filas están
   // confirmadas, así que «faltan 0» sigue queriendo decir «no queda ninguna fila pendiente».
-  const faltanPorConfirmar = progresoDePaquetes(retornables, confirmadas).faltan;
+  const faltanPorConfirmar = progresoDePaquetes(filas, confirmadas).faltan;
   // R34: no se puede confirmar mientras falte o sea inválido algún monto. Mismo criterio
   // que el servidor (`montoValido` de la wallet: > 0, hasta 2 decimales, sin `parseFloat`) —
   // incluido el TOPE (m5): sin él la UI habilitaba «Confirmar» con un monto de 11 dígitos que
@@ -791,7 +799,7 @@ export function CierresAdminModule({
    */
   async function confirmarAprobacion(
     indemnizaciones?: { gestionId: string; monto: string }[],
-    confirmacionFisica?: { gestionId: string; numGuia: number }[],
+    confirmacionFisica?: EntradaConfirmacionFisica[],
   ) {
     if (!detalle) return;
     const result = await aprobarCierre({
@@ -834,21 +842,22 @@ export function CierresAdminModule({
   /**
    * Feature 238 (T4.7) — reparte los `fieldErrors` del servidor entre las DOS ventanas.
    *
-   * Las claves son ids de gestión en los dos casos, y los conjuntos son disjuntos por
-   * construcción (un `incidente` no vuelve a bodega), así que basta preguntar si la gestión
-   * está en el conjunto esperado. Y la ventana que se abre es la que TIENE el error: si el
+   * Las claves son ids de gestión en los dos casos —y, desde la 497, el `ordenId` de una barrida
+   * en la confirmación física—, y los conjuntos son disjuntos por construcción (un `incidente` no
+   * vuelve a bodega, y una barrida no es una gestión), así que basta preguntar si la clave está
+   * en el conjunto esperado (`gestionIds ∪ ordenIds`, R36). Y la ventana que se abre es la que TIENE el error: si el
    * servidor discute la confirmación física, teclear montos no arregla nada.
    *
    * Una clave que no case con ninguna de las dos ramas cae en el bolsón de los montos, que es
    * exactamente donde caía antes de esta feature: no se pierde ni cambia de sitio.
    */
   function repartirErroresDelServidor(fieldErrors: Record<string, string[]>) {
-    const idsRetornables = new Set(retornables.map((g) => g.gestionId));
+    const clavesEsperadas = new Set(filas.map((f) => f.clave));
     const deConfirmacion: Record<string, string> = {};
     const deMontos: Record<string, string> = {};
     for (const [campo, mensajes] of Object.entries(fieldErrors)) {
       const mensaje = mensajes[0] ?? INDEMNIZACION_FALTAN;
-      if (idsRetornables.has(campo)) deConfirmacion[campo] = mensaje;
+      if (clavesEsperadas.has(campo)) deConfirmacion[campo] = mensaje;
       else deMontos[campo] = mensaje;
     }
     setConfirmacionErrores(deConfirmacion);
@@ -863,13 +872,14 @@ export function CierresAdminModule({
    * Feature 158/R34 + feature 238/R7/R37: pulsa "Aprobar" en el detalle. TRES caminos de igual
    * rango, no uno con dos excepciones:
    *
-   *   - con paquetes que vuelven  -> la ventana de confirmación física (y los montos después,
-   *     R37: si falta un paquete no se llega a teclear dinero que se va a descartar);
+   *   - con paquetes que vuelven (gestiones que vuelven O barridas, 497/R38) -> la ventana de
+   *     confirmación física (y los montos después, R37: si falta un paquete no se llega a
+   *     teclear dinero que se va a descartar);
    *   - sin ellos y con incidentes -> el sub-modal de montos, como hasta hoy;
    *   - sin ninguna de las dos cosas -> se aprueba directo, byte a byte como hasta hoy (R16).
    */
   function pedirAprobacion() {
-    if (retornables.length > 0) {
+    if (filas.length > 0) {
       setConfirmacionErrores({});
       setAvisoLectura(null);
       setConfirmando(true);
@@ -895,6 +905,7 @@ export function CierresAdminModule({
     const lectura = interpretarLectura(
       texto,
       medio,
+      filas,
       gestionesDelCierreAbierto,
       confirmadas,
     );
@@ -908,7 +919,7 @@ export function CierresAdminModule({
     // y con `find` la segunda fila no había forma de confirmarla nunca.
     setConfirmadas((prev) => {
       const siguiente = { ...prev };
-      for (const gestionId of lectura.gestionIds) siguiente[gestionId] = lectura.numGuia;
+      for (const clave of lectura.claves) siguiente[clave] = lectura.numGuia;
       return siguiente;
     });
     setUltimaGuiaConfirmada(lectura.numGuia);
@@ -916,19 +927,28 @@ export function CierresAdminModule({
     // Confirmar limpia el error del servidor de LAS FILAS CONFIRMADAS (no el de las otras),
     // igual que teclear limpia el del monto en el sub-modal de la 158.
     setConfirmacionErrores((prev) => {
-      if (!lectura.gestionIds.some((gestionId) => prev[gestionId])) return prev;
+      if (!lectura.claves.some((clave) => prev[clave])) return prev;
       const resto = { ...prev };
-      for (const gestionId of lectura.gestionIds) delete resto[gestionId];
+      for (const clave of lectura.claves) delete resto[clave];
       return resto;
     });
     return true;
   }
 
-  /** Feature 238/R7: lo confirmado, en la forma que el borde del servidor espera. */
-  function listaConfirmacionFisica(): { gestionId: string; numGuia: number }[] {
-    return retornables
-      .filter((g) => confirmadas[g.gestionId] !== undefined)
-      .map((g) => ({ gestionId: g.gestionId, numGuia: confirmadas[g.gestionId] }));
+  /**
+   * Feature 238/R7 + ficha 497: lo confirmado, en la forma que el borde del servidor espera —
+   * `{ gestionId, numGuia }` por gestión y `{ ordenId, numGuia }` por barrida (las dos ramas son
+   * estrictas: una entrada lleva UNA de las dos claves). Las gestiones van primero, así que un
+   * cierre sin barridas manda exactamente la lista de antes (R19).
+   */
+  function listaConfirmacionFisica(): EntradaConfirmacionFisica[] {
+    return filas
+      .filter((f) => confirmadas[f.clave] !== undefined)
+      .map((f) =>
+        f.origen === "gestion"
+          ? { gestionId: f.clave, numGuia: confirmadas[f.clave] }
+          : { ordenId: f.clave, numGuia: confirmadas[f.clave] },
+      );
   }
 
   /**
@@ -953,7 +973,7 @@ export function CierresAdminModule({
       incidentes.map((g) => ({ gestionId: g.gestionId, monto: montos[g.gestionId].trim() })),
       // Feature 238/R16: sin nada que devolver, la clave NO viaja y el payload de la 158 queda
       // exactamente como estaba.
-      retornables.length > 0 ? listaConfirmacionFisica() : undefined,
+      filas.length > 0 ? listaConfirmacionFisica() : undefined,
     );
   }
 
@@ -1447,7 +1467,7 @@ export function CierresAdminModule({
             que la primitiva de diálogo haga con su contenido, y se puede afirmar con un test. */}
         {confirmando ? (
           <ConfirmacionFisicaCuerpo
-            retornables={retornables}
+            filas={filas}
             incidentes={incidentes}
             confirmadas={confirmadas}
             errores={confirmacionErrores}
