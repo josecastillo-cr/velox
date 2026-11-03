@@ -103,6 +103,7 @@ function arbol(): ProvinciaArbolDTO[] {
               nombre: "Carmen",
               zonaId: null,
               zonaNombre: null,
+              zonas: [],
               zonaEspecial: false,
               activo: true,
             },

@@ -23,6 +23,14 @@ import { zonaUnicaDeDistrito } from "@/lib/repositories/_shared/zona-colapso";
 import { appendAccion, resolverActorCongelado } from "@/lib/repositories/registrar-accion";
 import { etiquetaDeEntidad, valorDeCatalogo } from "@/lib/types/historial-accion-etiquetas";
 
+/**
+ * FICHA 499 (R15): el orden de `DistritoArbolDTO.zonas`. El MISMO comparador español que
+ * `lib/utils/cobertura-distrito.ts` y que el service de zonas: tildes y mayusculas no reordenan.
+ */
+function porNombreEs(a: { nombre: string }, b: { nombre: string }): number {
+  return a.nombre.localeCompare(b.nombre, "es", { sensitivity: "base" });
+}
+
 // FICHA 374: el `Pick` gana `$transaction`, `historialAccion` y `usuario` porque
 // `cambiarActivacion` registra su accion en la MISMA transaccion del `update` — igual que lo hizo
 // `VehiculoPrismaClient` en la ficha 362.
@@ -235,6 +243,8 @@ export class GeoRepository implements IGeoRepository {
                 nombre: d.nombre,
                 zonaId: zona?.id ?? null,
                 zonaNombre: zona?.nombre ?? null,
+                // 499/R15: la lista SIN colapsar, ordenada por nombre con el comparador español.
+                zonas: d.zonas.map((z) => z.zona).sort(porNombreEs),
                 // `=== true` y no `!!`: con `null` los dos dan false, pero esto deja
                 // dicho que la columna es tri-valuada y que null NO es "no especial".
                 zonaEspecial: d.zonaEspecial === true,

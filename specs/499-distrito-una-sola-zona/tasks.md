@@ -87,7 +87,7 @@
     (R15, R16).
 
   *Hecho:* verde. M4 en rojo. Depende de B.5 y B.6.
-- [ ] **B.8 Árbol** (design §5). `zonas` en `DistritoArbolDTO` y en `listArbol`. Unitario con dobles
+- [x] **B.8 Árbol** (design §5). `zonas` en `DistritoArbolDTO` y en `listArbol`. Unitario con dobles
   `tests/unit/repositories/geo-repository-arbol-499.test.ts`: con dos zonas desordenadas salen ordenadas por
   nombre y `zonaId` es `null` (R15, R16).
 

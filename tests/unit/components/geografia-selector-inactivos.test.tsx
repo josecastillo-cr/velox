@@ -28,7 +28,7 @@ function distrito(
   nombre: string,
   activo: boolean,
 ): ProvinciaArbolDTO["cantones"][number]["distritos"][number] {
-  return { id, nombre, zonaId: "z-sur", zonaNombre: "Zona Sur", zonaEspecial: false, activo };
+  return { id, nombre, zonaId: "z-sur", zonaNombre: "Zona Sur", zonas: [{ id: "z-sur", nombre: "Zona Sur" }], zonaEspecial: false, activo };
 }
 
 //  Puntarenas (activa)
