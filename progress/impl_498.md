@@ -826,3 +826,11 @@ se repitió entera:
   `detalle-en-lote-464.test.ts` rojo en paralelo, verde aislado (6/6): intermitente, ajeno a la ficha.
 - `marca-fuente-unica-493` (timeout de 20 s bajo carga en la corrida invalidada): verde aislado (19/19)
   y verde en la corrida buena.
+
+## Revisión m2 — revertir una saldada con la regla anterior
+
+El backend añadió el desenlace `saldada_regla_anterior` al revertir. `ConciliacionAcciones` lo trataba como error genérico («No se pudo completar la operación»); ahora tiene su rama, igual que `con_asientos`: aviso `role="alert"` con `CONCILIACION_RESPUESTA.saldadaReglaAnterior` dentro del diálogo de «Desmarcar», que queda abierto, sin releer nada.
+
+- Test: `Conciliacion498.test.tsx` «revisión m2 — con `saldada_regla_anterior`…» (texto literal, diálogo abierto, `onCambio` sin llamar, sin el aviso genérico).
+- Mutación (quitar la rama): `1 failed | 21 passed (22)`; restaurado, diff limpio.
+- Aislados: 29 archivos que tocan la conciliación o el módulo de `/cierres-admin` + la guardia de la 498 → 459 en verde. typecheck y eslint limpios. Sin gate (lo permitió el leader).

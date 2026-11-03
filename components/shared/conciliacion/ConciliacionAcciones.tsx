@@ -172,6 +172,11 @@ export function ConciliacionAcciones({
       // y no se refresca nada (no hay nada nuevo que leer).
       setAvisoDesmarcar(CONCILIACION_RESPUESTA.conAsientos);
       return;
+    } else if (resultado.status === "saldada_regla_anterior") {
+      // FICHA 498 (revisión m2): saldada con la regla anterior, no se revierte. Mismo trato que
+      // `con_asientos`: no cambió nada, el diálogo queda abierto con el aviso y no se relee nada.
+      setAvisoDesmarcar(CONCILIACION_RESPUESTA.saldadaReglaAnterior);
+      return;
     } else {
       toast.error(CONCILIACION_RESPUESTA.fallo);
     }

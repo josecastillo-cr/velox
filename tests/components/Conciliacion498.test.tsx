@@ -280,6 +280,23 @@ describe("R21 — revertir una consolidación que ya entró a la caja", () => {
     expect(dialogo).not.toHaveTextContent(/no mueve|informativa|ningún col|ningun col/i);
   });
 
+  it("revisión m2 — con `saldada_regla_anterior`, el aviso LITERAL aparece en el diálogo y no cambia nada", async () => {
+    const user = userEvent.setup();
+    revertirMock.mockResolvedValue({ status: "saldada_regla_anterior" });
+    const onCambio = montar();
+    await user.click(screen.getByRole("button", { name: /Desmarcar la consolidación de FGAM Limón/ }));
+    const dialogo = await screen.findByRole("dialog");
+    await user.click(within(dialogo).getByRole("button", { name: "Desmarcar" }));
+
+    const aviso = await within(dialogo).findByRole("alert");
+    expect(aviso.textContent).toBe(
+      "Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el correcto, corrígelo.",
+    );
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(onCambio).not.toHaveBeenCalled();
+    expect(screen.queryByText(/No se pudo completar la operación/)).toBeNull();
+  });
+
   it("sin asientos (R22), revertir sigue como siempre: cierra y relee", async () => {
     const user = userEvent.setup();
     revertirMock.mockResolvedValue({ status: "ok", cierreBodegaId: "cb-9" });
