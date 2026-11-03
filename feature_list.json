@@ -5920,6 +5920,84 @@
       "spec_path": "specs/494-marca-velox-identificadores",
       "branch": "feat/494-marca-velox-identificadores",
       "status_note": "Registrada el 2026-11-02 a pedido del humano; arranca tras mergear la 493 (mismos archivos). Medido en la rama de la 493: 554 archivos (324 de test); db/schema.prisma solo en comentarios, sin migración de esquema. El spec mide si ganancia_ordenex, solo_ordenex, concepto_ordenex, gasto_ordenex, tienda_paga_a_ordenex u ordenex_debe están en filas de prod (backfill medido) y qué dominios ordenex.* son configuración viva. ganancia_ordenex rompe la API de métricas (0 consumidores: CHANGELOG sin transición). ordenex_tema y demás claves del navegador migran leyendo la vieja. Plantillas alerta_transito_ordenex y picking_bodega_ordenex: crear nuevas en Meta, esperar aprobación y cambiar plantilla_mensaje.nombre en prod, al final. Fuera: db/migrations, specs/progress/docs históricos, carpeta local."
+    },
+    {
+      "id": 495,
+      "title": "Fechas de cierre en hora de Costa Rica",
+      "description": "Las fechas de solicitud, resolución y conciliación de cierres (tarjetas, comprobantes y descargas) usan el día calendario de Costa Rica en vez de recortar el ISO en UTC; guardia contra slice(0, 10) en pantallas de cierres.",
+      "zone": "frontend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": null,
+      "spec_path": "specs/495-fechas-cierre-hora-cr",
+      "branch": "fix/495-fechas-cierre-hora-cr",
+      "status_note": "Registrada el 2026-11-02: bloque 1 de H5 de progress/prompt-hotfix-portable.md, adelantado por decisión del humano. Inventario: progress/inventario_hotfix_H2_H3_H5.md §3 (fechaCalendarioCR ya existe; slice en cierre-factura.tsx y CierreDiaModule.tsx). Ramas desde dev, gate --rapido, sale con la próxima release (decisión del humano)."
+    },
+    {
+      "id": 496,
+      "title": "Recolección recibida en central libera al mensajero",
+      "description": "Al recibir en bodega central una orden que viene de recolección, se limpia la asignación del mensajero para que salga en «Reasignables» y no cuente en Monitoreo; la devolución conserva el mensajero.",
+      "zone": "backend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "medium",
+      "depends_on": null,
+      "spec_path": "specs/496-recoleccion-central-libera-mensajero",
+      "branch": "fix/496-recoleccion-central-libera-mensajero",
+      "status_note": "Registrada el 2026-11-02: H1 de progress/prompt-hotfix-portable.md. El humano REVOCA la R18 de la spec 138 para en_ruta_bodega_central → en_bodega_central. Inventario: progress/inventario_hotfix_H1_H4.md. Medido en prod (solo lectura): la migración de datos sale vacía; se escribe igual con down.sql. Ramas desde dev, gate --rapido, sale con la próxima release."
+    },
+    {
+      "id": 497,
+      "title": "Confirmación física incluye las sin gestionar del cierre",
+      "description": "Al aprobar un cierre del día, bodega debe escanear también las órdenes barridas a novedad_interna (cierre_sin_gestion, guía congelada); marca confirmada_fisica_at por barrida y sin salida de emergencia.",
+      "zone": "fullstack",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "medium",
+      "depends_on": null,
+      "spec_path": "specs/497-confirmacion-fisica-sin-gestion",
+      "branch": "fix/497-confirmacion-fisica-sin-gestion",
+      "status_note": "Registrada el 2026-11-02: H2 de progress/prompt-hotfix-portable.md; extiende la feature 238. Inventario: progress/inventario_hotfix_H2_H3_H5.md §1. Puerta medida en prod: hay un cierre en cola con barridas, todas con guía; el humano ya avisó a bodega de que deberá escanearlas. Ramas desde dev, gate --rapido, sale con la próxima release."
+    },
+    {
+      "id": 498,
+      "title": "Dinero de satélite entra a la caja al conciliar",
+      "description": "Aprobar un cierre del día satélite no escribe en los libros; marcar recibido asienta los cierres y la diferencia en un bolsillo «Por cobrar a satélites»; deuda con paraLaCentral sobre todos los métodos; conciliación con dinero no se revierte.",
+      "zone": "fullstack",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "large",
+      "depends_on": 497,
+      "spec_path": "specs/498-satelite-dinero-al-conciliar",
+      "branch": "fix/498-satelite-dinero-al-conciliar",
+      "status_note": "Registrada el 2026-11-02: H3 de progress/prompt-hotfix-portable.md. El humano REVOCA la Q2 del 2026-09-16 (deuda solo efectivo) y el carácter informativo/reversible de la conciliación (431, 473): reescribir ayuda y textos. Va tras la 497 (misma transacción de aprobación). Sin multiempresa; esquema respaldo nuevo (sin garantía de inaccesible para la app); premios = premio_ranking + premio_dia (no hay incentivos). Medido en prod: conjunto S pequeño, guardas en 0. Abierto para el spec: ¿algún camino vivo aprueba una consolidación sin conciliarla (resolverCierreBodega)?"
+    },
+    {
+      "id": 499,
+      "title": "Un distrito en una sola zona",
+      "description": "Bloquear en selector, servicio y base que un distrito quede en dos zonas: índice único (distrito_id) en zona_distrito, error de validación con los conflictos, árbol con todas las zonas del distrito y preselección correcta al editar.",
+      "zone": "fullstack",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "medium",
+      "depends_on": null,
+      "spec_path": "specs/499-distrito-una-sola-zona",
+      "branch": "fix/499-distrito-una-sola-zona",
+      "status_note": "Registrada el 2026-11-02: H4 de progress/prompt-hotfix-portable.md. Inventario: progress/inventario_hotfix_H1_H4.md. Sin multiempresa: índice UNIQUE (distrito_id) global, sin requisitos de otra empresa ni RLS. Medido en prod: 0 duplicados, la limpieza sale vacía (se escribe igual con respaldo y down.sql). Reescribir los 4 tests que siembran un distrito en dos zonas; varias_zonas se queda como defensa. Ramas desde dev, gate --rapido."
+    },
+    {
+      "id": 500,
+      "title": "Deuda de satélites al conciliar y de zonas",
+      "description": "Bloques 2-4 y 6-9 de H5: Desmarcar solo sin dinero, revertir rechaza con ajuste, una sola fórmula del esperado, rastro de distritos en el histórico, textos definitivos y retiro de respaldos con puerta propia.",
+      "zone": "fullstack",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "medium",
+      "depends_on": 498,
+      "spec_path": "specs/500-deuda-satelites-zonas",
+      "branch": "fix/500-deuda-satelites-zonas",
+      "status_note": "Registrada el 2026-11-02: H5 de progress/prompt-hotfix-portable.md salvo bloque 1 (ficha 495) y bloque 5 (descartado: no hay multiempresa). Depende también de la 499 (bloque 6). El bloque 8 (retirar respaldos) es irreversible y pide autorización escrita del humano."
     }
   ]
 }
