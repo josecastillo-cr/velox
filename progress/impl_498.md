@@ -547,3 +547,213 @@ login) se borró.
 Mutaciones medidas contra los tests nuevos (restauradas, diff limpio): prefijar `debe.monto` sin mirar
 `positivo` → `3 failed | 18 passed (21)`; `con_asientos` por toast en vez del aviso en el diálogo →
 `1 failed | 20 passed (21)`.
+
+## Hueco R16 en `/cierres-admin` — CERRADO por el backend (2026-11-03)
+
+- **Contrato:** `CierreBodegaResumen` (`lib/interfaces/services/ICierreBodegaService.ts`) y su fila
+  `CierreBodegaResumenRow` (`lib/interfaces/repositories/ICierreBodegaRepository.ts`) ganan
+  **`debe: string`**, **`debePositivo: boolean`** y **`saldadaReglaAnterior: boolean`**, con la misma
+  semántica que en `ConsolidacionSateliteDTO`.
+- **Fuente única:** se derivan en `toBodegaResumenRow` (`lib/repositories/CierreBodegaRepository.ts`)
+  con `aporteDeConsolidacion` / `esSaldadaReglaAnterior` de `lib/utils/conciliacion-satelite.ts` (el
+  mismo valor que ya alimenta `faltaPorRecibir` de esa fila). `CierresBodegaAdminService` los pasa tal
+  cual (sin recalcular).
+- **Dónde lo cambia el frontend:** `app/(app)/cierres-admin/_components/CierresBodegaAdminModule.tsx:885`,
+  `debe={null}` → `debe={{ monto: detalle.cierre.debe, positivo: detalle.cierre.debePositivo }}`
+  (y el rótulo de R41a con `detalle.cierre.saldadaReglaAnterior`, si se quiere allí).
+- **Tests que pintan el valor:**
+  - `tests/unit/utils/conciliacion-satelite.test.ts`, caso «R16/R41a (cola de /cierres-admin)»: normal
+    (7 000, positivo), saldada (6 500, `saldadaReglaAnterior: true`) y aporte negativo (−2 000, no
+    positivo).
+  - `cierre-bodega-repository.test.ts` y `cierres-bodega-admin-repository.test.ts`: el DTO literal gana
+    `debe: "1.50", debePositivo: true, saldadaReglaAnterior: false`.
+  - `cierres-bodega-admin-service.test.ts`: «la cola de /cierres-admin lleva lo que debe, tal cual».
+- El fixture compartido `tests/fixtures/marca-conciliacion.ts` gana los tres campos (debe = lo que falta
+  sin marcar; recibido + falta si está marcada).
+
+## T8.3 — Nota para la release (sin ejecutar nada)
+
+**(a) No conciliar durante el despliegue.** Las migraciones corren en el build. Una consolidación
+conciliada por el código viejo después de M3 y antes del cambio de código queda sin asientos (corregir
+no asienta), y una conciliada después de M4 queda sin regularizar (design §13). Pedir que nadie marque,
+corrija ni revierta en `/wallet/satelites` ni en `/cierres-admin` mientras dura el despliegue.
+
+**(b) Verificación posterior, SOLO LECTURA** (la corre o la autoriza el humano; `:despliegue` = instante
+en que el código nuevo quedó sirviendo; sin cifras en el repositorio):
+
+```sql
+-- b1 · consolidaciones conciliadas DESPUES del despliegue cuyos cierres satelite aprobados NO tienen
+--      filas en la caja con origen en el cierre. Debe dar 0.
+SELECT count(*) AS conciliadas_sin_asiento
+  FROM cierre_bodega b
+  JOIN cierre_dia c ON c.cierre_bodega_id = b.id
+ WHERE b.conciliado_at >= :despliegue
+   AND c.estado::text = 'aprobado' AND c.destino_tipo::text = 'bodega_satelite'
+   AND NOT EXISTS (SELECT 1 FROM wallet_movimiento w
+                    WHERE w.origen_tipo::text = 'cierre_dia' AND w.origen_id = c.id);
+
+-- b2 · cierres satelite aprobados DESPUES del despliegue, SIN conciliar, con filas en alguno de los
+--      tres libros. Debe dar 0.
+SELECT count(*) AS asentados_sin_conciliar
+  FROM cierre_dia c
+  LEFT JOIN cierre_bodega b ON b.id = c.cierre_bodega_id
+ WHERE c.resuelto_at >= :despliegue
+   AND c.estado::text = 'aprobado' AND c.destino_tipo::text = 'bodega_satelite'
+   AND (c.cierre_bodega_id IS NULL OR b.conciliado_at IS NULL)
+   AND (   EXISTS (SELECT 1 FROM wallet_movimiento w WHERE w.origen_tipo::text = 'cierre_dia' AND w.origen_id = c.id)
+        OR EXISTS (SELECT 1 FROM wallet_tienda_movimiento t WHERE t.origen_tipo::text = 'cierre_dia' AND t.origen_id = c.id)
+        OR EXISTS (SELECT 1 FROM pago_mensajero_movimiento p WHERE p.origen_tipo::text = 'cierre_dia' AND p.origen_id = c.id));
+
+-- b3 · lo que M3 retiro (respaldo). Solo informativo: cuantas filas por libro.
+SELECT tabla, count(*) FROM respaldo.asientos_satelite_498 GROUP BY tabla ORDER BY tabla;
+```
+
+**(c) La analítica mueve el ingreso satélite.** Lo que leen los libros por fecha (caja, ganancia,
+tableros) deja de ver el dinero de un cierre satélite al aprobarlo y lo ve en la **fecha de
+conciliación** de su consolidación. Es el efecto buscado («nada entra al aprobar»); avisar a quien mire
+cifras por día el día del despliegue. Además, los asientos que M3 retira (cierres de S) desaparecen de
+los libros hasta que su consolidación se concilie: saldos de tienda y caja bajan en ese importe hasta
+entonces (design §13, ya medido por el humano).
+
+**(d) Verificación de M4 (Q4), SOLO LECTURA:**
+
+```sql
+-- d1 · regularizadas: numero, Σ monto_recibido y Σ esperado_regla_anterior. Deben coincidir con (a) de
+--      T8.4 (salvo las conciliadas entre la medicion y el despliegue, contadas aparte en d4), y las
+--      dos sumas deben ser IGUALES entre si.
+SELECT count(*) AS regularizadas,
+       COALESCE(SUM(monto_recibido), 0)          AS suma_recibido,
+       COALESCE(SUM(esperado_regla_anterior), 0) AS suma_reconocido
+  FROM cierre_bodega
+ WHERE esperado_regla_anterior IS NOT NULL;
+
+-- d2 · deuda de cada regularizada = 0 (su reconocido = su recibido). Debe dar 0 filas.
+SELECT id FROM cierre_bodega
+ WHERE esperado_regla_anterior IS NOT NULL
+   AND esperado_regla_anterior <> COALESCE(monto_recibido, 0);
+
+-- d3 · conciliadas sin regularizar y sin ninguna fila de ajuste, con `conciliado_at` en la ventana del
+--      despliegue (entre el inicio del build y :despliegue). Debe dar 0.
+SELECT count(*) AS conciliadas_en_la_ventana
+  FROM cierre_bodega b
+ WHERE b.conciliado_at >= :inicio_build AND b.conciliado_at < :despliegue
+   AND b.esperado_regla_anterior IS NULL
+   AND NOT EXISTS (SELECT 1 FROM conciliacion_bodega_ajuste a WHERE a.cierre_bodega_id = b.id);
+
+-- d4 · conciliadas entre la medicion de T8.4 y el despliegue (para explicar la diferencia con (a)).
+SELECT count(*) FROM cierre_bodega
+ WHERE conciliado_at >= :medicion AND conciliado_at < :inicio_build AND estado::text <> 'rechazado';
+```
+
+## T8.4 — Medición previa en producción, con puerta (Q4) — SQL de SOLO LECTURA
+
+La corre el leader con el MCP de producción (confirmando el proyecto con `get_project_url`) o el humano,
+**antes** de abrir la release y el mismo día. Las cifras se dicen en el chat y **no** se escriben en el
+repositorio. Aquí no se ejecutó nada contra producción.
+
+```sql
+-- (a) las que M4 regularizara (en produccion aun no existe la tabla de ajustes): conciliadas y no
+--     rechazadas, con la Σ de su monto_recibido.
+SELECT count(*) AS a_regularizar, COALESCE(SUM(monto_recibido), 0) AS suma_recibido
+  FROM cierre_bodega
+ WHERE conciliado_at IS NOT NULL AND estado::text <> 'rechazado';
+
+-- (b) de ellas, cuantas tienen hueco entre su aporte («Para la central» del snapshot) y lo recibido.
+SELECT count(*) AS con_hueco
+  FROM cierre_bodega
+ WHERE conciliado_at IS NOT NULL AND estado::text <> 'rechazado'
+   AND (total_general - total_pago_mensajero - total_ingreso_bodega_rechazos) <> monto_recibido;
+
+-- (c) consolidaciones rechazadas (Q3). PUERTA: debe ser 0.
+SELECT count(*) AS rechazadas FROM cierre_bodega WHERE estado::text = 'rechazado';
+
+-- (d) conciliadas con monto_recibido nulo. PUERTA: debe ser 0 (el CHECK de la 431 ya lo impide).
+SELECT count(*) AS conciliadas_sin_monto
+  FROM cierre_bodega WHERE conciliado_at IS NOT NULL AND monto_recibido IS NULL;
+
+-- (e) GUARDA DE M3 (R50), anticipada: pagos al mensajero contra cierres del conjunto S. Si no es 0, M3
+--     ABORTA el despliegue con este conteo. PUERTA: debe ser 0.
+SELECT count(*) AS pagos_contra_s
+  FROM liquidacion_pago l
+  JOIN cierre_dia c ON c.id = l.cierre_id
+  LEFT JOIN cierre_bodega b ON b.id = c.cierre_bodega_id
+ WHERE c.destino_tipo::text = 'bodega_satelite' AND c.estado::text = 'aprobado'
+   AND (c.cierre_bodega_id IS NULL OR b.conciliado_at IS NULL);
+
+-- (f) Informativo: tamaño de S y filas que M3 retirara por libro.
+WITH s AS (
+  SELECT c.id FROM cierre_dia c LEFT JOIN cierre_bodega b ON b.id = c.cierre_bodega_id
+   WHERE c.destino_tipo::text = 'bodega_satelite' AND c.estado::text = 'aprobado'
+     AND (c.cierre_bodega_id IS NULL OR b.conciliado_at IS NULL))
+SELECT (SELECT count(*) FROM s) AS cierres_s,
+       (SELECT count(*) FROM wallet_movimiento w JOIN s ON w.origen_id = s.id WHERE w.origen_tipo::text = 'cierre_dia') AS caja,
+       (SELECT count(*) FROM wallet_tienda_movimiento t JOIN s ON t.origen_id = s.id WHERE t.origen_tipo::text = 'cierre_dia') AS tienda,
+       (SELECT count(*) FROM pago_mensajero_movimiento p JOIN s ON p.origen_id = s.id
+         WHERE p.origen_tipo::text = 'cierre_dia' AND p.categoria::text <> 'premio_ranking' AND p.premio_dia IS NULL) AS mensajero;
+```
+
+**Puerta:** (c) = 0, (d) = 0 y (e) = 0. Si (c) ≠ 0 se revisa Q3 con el humano antes de desplegar; si (e) ≠
+0, M3 abortaría el build. **Veredicto: PENDIENTE** (no se ha medido; sin cifras aquí). Si no pasa, la
+release no sale con esta ficha.
+
+## T8.1 — Contraprueba por mutación (las 16 de design §14)
+
+Arnés: `scratchpad/mutar16.py` — aplica la mutación al archivo real, ejecuta `pnpm exec vitest run <tests>`, restaura y comprueba `git diff --quiet` sobre ese archivo. Corrida única sobre `a4c56df5`. Salida literal (nº de tests ejecutados por mutación y los rojos):
+
+```
+MUTACION 1 | Test Files  2 failed (2) · Tests  2 failed | 12 passed (14) | diff limpio tras restaurar: True
+     × ⭑ 498/T3.4: la aprobacion llama a `asentarCierreDia` en la rama `bodega_central` y NO en la satelite 9ms
+     × ⭑ T1.1 / R1: aprobar un cierre SATELITE no escribe NINGUNA fila en los tres libros 6ms
+MUTACION 2 | Test Files  2 failed (2) · Tests  3 failed | 11 passed (14) | diff limpio tras restaurar: True
+     × ⭑ 498/T3.4: la aprobacion llama a `asentarCierreDia` en la rama `bodega_central` y NO en la satelite 9ms
+     × ⭑ 498/T3.4 AUTOCOMPROBACION: la guardia se pone roja si se borra la llamada de la rama central 2ms
+     × ⭑ T1.2 / R3 / R55: aprobar un cierre CENTRAL escribe exactamente la foto de antes de la ficha 7ms
+MUTACION 3 | Test Files  1 failed | 1 passed (2) · Tests  1 failed | 16 passed (17) | diff limpio tras restaurar: True
+     × ⭑ R5: el ORDEN de la aprobacion de antes, literal 12ms
+MUTACION 4 | Test Files  1 failed (1) · Tests  3 skipped (3) | diff limpio tras restaurar: True
+MUTACION 5 | Test Files  1 failed (1) · Tests  7 failed | 19 passed (26) | diff limpio tras restaurar: True
+     × ⭑ T1.3 / R8: DESPUES de marcar, cada cierre tiene filas en los TRES libros 3ms
+     × R11: recibido = esperado → ni fila de ajuste ni movimiento de diferencia (y los asientos si) 0ms
+     × ⭑ R14: un feed que falla revierte la marca entera — sin conciliar, sin filas nuevas, sin historial 1ms
+     × R5: asentar otra vez un cierre ya asentado no añade filas (idempotente contra Postgres) 2ms
+MUTACION 6 | Test Files  1 failed (1) · Tests  2 failed | 24 passed (26) | diff limpio tras restaurar: True
+     × R15b: corregir a 0 una consolidacion con aporte cero → aceptado; la diferencia vuelve a cero 4ms
+     × ⭑ R17/R18: dos correcciones con variacion escriben SOLO la variacion; la del mismo monto, nada 1ms
+MUTACION 7 | Test Files  1 failed (1) · Tests  7 failed | 19 passed (26) | diff limpio tras restaurar: True
+     × ⭑ T1.3 / R9 / R10 / R12: UNA sola fila de caja `egreso_diferencia_satelite` por el faltante 5ms
+     × R10: llego de MAS → UN ingreso `ingreso_diferencia_satelite` por el valor absoluto 1ms
+     × R15b: con aporte NEGATIVO → marcada y UN ingreso de diferencia por el valor absoluto 1ms
+     × R15b: corregir a 0 una consolidacion con aporte cero → aceptado; la diferencia vuelve a cero 0ms
+MUTACION 8 | Test Files  1 failed (1) · Tests  1 failed | 25 passed (26) | diff limpio tras restaurar: True
+     × ⭑ R20: con asientos → `con_asientos` y NADA cambia (ni la fila, ni el historial, ni los libros) 3ms
+MUTACION 9 | Test Files  1 failed (1) · Tests  5 failed | 8 passed (13) | diff limpio tras restaurar: True
+     × ⭑ T1.4 / R23: la deuda de Saldos es la formula de R23 hecha a mano (todos los metodos, con los sin consolidar) 5ms
+     × ⭑ R23: con sin consolidar, SINPE, rechazada, conciliada con faltante y SALDADA, la deuda es la formula a mano 1ms
+     × R24 / R42: «Sin consolidar» = el aporte del cierre suelto + el de la consolidacion rechazada, y son 2 cierres 1ms
+     × ⭑ R29: el declarado de cada consolidacion es Σ aportes de sus cierres; el de la saldada, su reconocido 0ms
+MUTACION 10 | Test Files  1 failed (1) · Tests  3 failed | 10 passed (13) | diff limpio tras restaurar: True
+     × ⭑ R54c: una zona con SOLO una saldada (con hueco SINPE) debe 0 en Saldos y en el estado de cuenta 4ms
+     × ⭑ R30: hay UNA fila por cierre sin consolidar (el suelto y el de la rechazada), con origen `cierre_dia` 2ms
+     × ⭑ R31: sin filtros, el pendiente final = la deuda de Saldos 1ms
+MUTACION 11 | Test Files  2 failed (2) · Tests  11 failed | 78 passed (89) | diff limpio tras restaurar: True
+     × R19: ninguna fila de IVA ni del reverso del IVA; los totales son los de la tarjeta (R3) 7ms
+     × ⭑ R33: las dos categorias son del dueño `por_cobrar_satelite` y de liquidez efectivo 2ms
+     × ⭑ R35/R33: diferencia POSITIVA (faltaron 500) — Entro − Salio = ganancia + IVA + capital + De las tiendas − Por cobrar 1ms
+     × ⭑ R35/R33: diferencia NEGATIVA (sobraron 200) — Entro − Salio = ganancia + IVA + capital + De las tiendas − Por cobrar 0ms
+MUTACION 12 | Test Files  1 failed (1) · Tests  1 failed | 5 passed (6) | diff limpio tras restaurar: True
+     × R48/R49/R51: retira SOLO lo de S, conserva premios, centrales, conciliados y no aprobados, y lo respalda integro 453ms
+MUTACION 13 | Test Files  1 failed (1) · Tests  1 failed | 5 passed (6) | diff limpio tras restaurar: True
+     × R48/R49/R51: retira SOLO lo de S, conserva premios, centrales, conciliados y no aprobados, y lo respalda integro 332ms
+MUTACION 14 | Test Files  1 failed (1) · Tests  1 failed | 4 passed (5) | diff limpio tras restaurar: True
+     × R54a/R54b: marca SOLO las conciliadas no rechazadas sin ajuste, con = monto_recibido; nada mas cambia 279ms
+MUTACION 15 | Test Files  3 failed (3) · Tests  6 failed | 44 passed (50) | diff limpio tras restaurar: True
+     × ⭑ con `esperadoReglaAnterior` (saldada con la regla anterior): ESE valor, no el aporte 5ms
+     × ⭑ en una saldada con la regla anterior: Recibido + Falta = aporte reconocido, y Falta = 0 1ms
+     × ⭑ R16/R41a (cola de /cierres-admin): la cabecera trae `debe`, `debePositivo` y `saldadaReglaAnterior` 3ms
+     × ⭑ R41a / R26: el DTO de la saldada trae `saldadaReglaAnterior`, `debe` = su reconocido y falta 0 5ms
+MUTACION 16 | Test Files  1 failed (1) · Tests  2 failed | 24 passed (26) | diff limpio tras restaurar: True
+     × ⭑ R15a: con aporte POSITIVO → `recibido_cero_con_aporte`, sin conciliar, sin historial, sin filas 3ms
+     × R15a: corregir a 0 una consolidacion con aporte positivo → `recibido_cero_con_aporte` y el monto no cambia 1ms
+```
+
+**16/16 matadas**, diff limpio tras cada restauración. Notas: la 3 es «el libro del mensajero se mueve al final» (invierte el orden mensajero ↔ indemnización); la 4 deja `depsAsiento = {}` y el archivo cae en `beforeAll` (`Test Files 1 failed`, la acción responde INTERNAL); la 11 clasifica las diferencias como `propio`. Ninguna mutación necesitó un test de UI.
