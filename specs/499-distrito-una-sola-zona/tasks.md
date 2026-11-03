@@ -14,7 +14,7 @@
 
 ## B: backend_dev
 
-- [ ] **B.0 Test rojo (antes de tocar nada).** Crear `tests/integration/db/zona-distrito-unico-499.test.ts`
+- [x] **B.0 Test rojo (antes de tocar nada).** Crear `tests/integration/db/zona-distrito-unico-499.test.ts`
   con dos casos, contra Postgres:
   - (i) crear una zona con un distrito que ya está en otra espera `validation_error`;
   - (ii) actualizar la zona Y con un distrito de la zona X espera `validation_error`, y que Y conserve su
