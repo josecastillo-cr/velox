@@ -169,24 +169,32 @@ Rama `fix/497-confirmacion-fisica-sin-gestion` desde `dev`. Sale con la próxima
       > nuevos «497/…» en `tests/components/CierresAdminConfirmacionFisica.test.tsx`; rojo previo
       > 10 de 12. Detalle en `progress/impl_497_frontend.md`.
 
-- [ ] **T4.4 — Ver la pantalla.** Con el dev server del propio agente (sin levantar un segundo):
+- [x] **T4.4 — Ver la pantalla.** Con el dev server del propio agente (sin levantar un segundo):
       abrir un cierre `solicitado` con barridas, ver la sección «Novedad interna», escanear o teclear
       una guía de barrida, ver el contador moverse y el botón bloqueado hasta completar. Limpiar los
       datos creados en la base local.
       **Hecho:** capturas o descripción con números (filas, contador) en `progress/impl_497.md`; base
       local limpia.
       *Depende de: T4.2, T4.3.*
+      > **Hecho (frontend, 2026-11-02):** cierre `solicitado` local `ebc7caa5…` (3 barridas sin guía)
+      > más UNA barrida temporal con guía. Ventana: 4 secciones, «Novedad interna (4)» la última;
+      > «Paquetes confirmados: 0 de 12» → «1 de 12» al teclear la guía de la barrida; aviso «6 filas
+      > … sin número de guía»; botón bloqueado; guía ajena avisa y no marca; cerrar = 0 POST.
+      > Barrida temporal y usuario temporal borrados. Detalle en `progress/impl_497_frontend.md`.
 
 ---
 
 ## T5 · Cierre de la ficha
 
-- [ ] **T5.1 — Contraprueba por mutación.** Aplicar **una a una** las ocho mutaciones de design §11.
+- [x] **T5.1 — Contraprueba por mutación.** Aplicar **una a una** las ocho mutaciones de design §11.
       Para cada una: ver al menos un test nombrado en **rojo**, restaurar y comprobar que el diff de la
       mutación queda vacío. No se corren en paralelo con el gate.
       **Hecho:** tabla mutación → test rojo → diff vacío en `progress/impl_497.md`. Si una mutación
       sobrevive, se refuerza el test y se repite.
       *Depende de: T4.3.*
+      > **Hecho:** 1-6 (backend) en `progress/impl_497_backend.md`; 7 y 8 (UI) más tres extra
+      > (reparto de errores, envío de barridas, punto único en `"nunca"`) en
+      > `progress/impl_497_frontend.md`. Todas rojas; diff vacío tras restaurar.
 
 - [ ] **T5.2 — Gate final.** `./init.sh --rapido` y las guardias de design §8 a mano. Commit y PR contra
       `dev`. Antes de mergear, revisar el build de Vercel del PR (`gh pr checks`).
