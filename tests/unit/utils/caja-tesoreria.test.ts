@@ -47,7 +47,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
     for (const categoria of WALLET_MOVIMIENTO_CATEGORIA_SEED) {
       expect(NATURALEZA_POR_CATEGORIA[categoria], `categoria ${categoria}`).toBeDefined();
       // Ficha 488: + `iva`, el cuarto dueño.
-      expect(["propio", "terceros", "capital", "iva"]).toContain(NATURALEZA_POR_CATEGORIA[categoria]);
+      expect(["propio", "terceros", "capital", "iva", "por_cobrar_satelite"]).toContain(NATURALEZA_POR_CATEGORIA[categoria]);
     }
     expect(Object.keys(NATURALEZA_POR_CATEGORIA).sort()).toEqual(
       [...WALLET_MOVIMIENTO_CATEGORIA_SEED].sort(),
@@ -58,7 +58,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
     for (const categoria of WALLET_MOVIMIENTO_CATEGORIA_SEED) {
       const naturaleza: NaturalezaMovimiento = NATURALEZA_POR_CATEGORIA[categoria];
       expect(typeof naturaleza).toBe("string");
-      expect(["propio", "terceros", "capital", "iva"]).toContain(naturaleza); // ficha 459: tres; 488: cuatro
+      expect(["propio", "terceros", "capital", "iva", "por_cobrar_satelite"]).toContain(naturaleza); // ficha 459: tres; 488: cuatro; 498: cinco
     }
   });
 
@@ -239,6 +239,10 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
       ivaPorPagar: "0.00",
       signoIvaPorPagar: "cero",
       porcentajeIva: "0.00",
+      // Ficha 498 (§8.1): sin diferencias de la satelite, el bolsillo en cero y sin porcion.
+      porCobrarSatelites: "0.00",
+      signoPorCobrarSatelites: "cero",
+      porcentajePorCobrar: "0.00",
     });
   });
 
@@ -624,7 +628,8 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
     );
     for (const conjunto of [filas, filas.slice(0, 11), filas.slice(9), filas.filter((_, i) => i % 3 === 0)]) {
       const r = derivarCaja(conjunto);
-      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar)).toBe(r.enCaja);
+      // Ficha 498 (R35): el catalogo trae las diferencias de la satelite → − «Por cobrar a satelites».
+      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar, `${new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2)}`)).toBe(r.enCaja);
       // y «De Ordenex» sigue siendo ganancia + capital.
       expect(suma(r.ganancia, r.capital)).toBe(r.deOrdenex);
     }

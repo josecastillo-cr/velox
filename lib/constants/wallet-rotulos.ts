@@ -66,10 +66,12 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   // Ficha 488 (design §6): el pago a Hacienda del IVA cobrado a las tiendas, y su anulacion.
   egreso_pago_iva: "Pago de IVA",
   ingreso_reverso_pago_iva: "Pago de IVA anulado",
-  // Ficha 498 (design §8.3): la diferencia de la satelite al conciliar. El mismo texto para las dos: el
-  // tipo ya dice si entra o sale.
-  egreso_diferencia_satelite: "Diferencia de la satélite",
-  ingreso_diferencia_satelite: "Diferencia de la satélite",
+  // Ficha 498 (design §8.3): la diferencia de la satelite al conciliar. DESVIACION del design (que pedia
+  // el mismo texto para las dos): la guardia «ningun nombre se repite» de `wallet-labels.test.ts` lo
+  // prohibe —el filtro por concepto ofreceria dos opciones iguales—. Texto PROVISIONAL del backend;
+  // lo confirma T7.1.
+  egreso_diferencia_satelite: "Diferencia de la satélite (faltó)",
+  ingreso_diferencia_satelite: "Diferencia de la satélite (sobró o pagó)",
 };
 
 /**

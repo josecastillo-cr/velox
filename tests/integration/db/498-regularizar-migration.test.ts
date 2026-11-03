@@ -45,14 +45,14 @@ async function sembrarCasos(tx: TxDeTest) {
   // Conciliada CON fila de ajuste: ya es de la regla nueva.
   const conAjuste = await sembrarConsolidacion(tx, { ...b, general: "500", recibido: "490" });
   await sembrarAjuste(tx, { cierreBodegaId: conAjuste, usuarioId, evento: "marca", diferencia: "10" });
-  // Sin conciliar y rechazada.
+  // Sin conciliar y con estado `rechazado`.
   const sinConciliar = await sembrarConsolidacion(tx, { ...b, general: "700" });
-  const rechazada = await sembrarConsolidacion(tx, { ...b, general: "800", estado: "rechazado" });
-  return { usuarioId, zonaId, huecoSinpe, aporteNegativo, conAjuste, sinConciliar, rechazada };
+  const conRechazo = await sembrarConsolidacion(tx, { ...b, general: "800", estado: "rechazado" });
+  return { usuarioId, zonaId, huecoSinpe, aporteNegativo, conAjuste, sinConciliar, conRechazo };
 }
 
 type Casos = Awaited<ReturnType<typeof sembrarCasos>>;
-const ids = (c: Casos) => [c.huecoSinpe, c.aporteNegativo, c.conAjuste, c.sinConciliar, c.rechazada];
+const ids = (c: Casos) => [c.huecoSinpe, c.aporteNegativo, c.conAjuste, c.sinConciliar, c.conRechazo];
 
 async function marcas(tx: TxDeTest, c: Casos): Promise<Record<string, string | null>> {
   const filas = await tx.$queryRawUnsafe<{ id: string; v: string | null }[]>(
@@ -116,7 +116,7 @@ describeSiHayBase("498/T2.8 — M4 regulariza lo conciliado antes (Postgres real
       [r.c.aporteNegativo]: "0.00",
       [r.c.conAjuste]: null,
       [r.c.sinConciliar]: null,
-      [r.c.rechazada]: null,
+      [r.c.conRechazo]: null,
     });
     // R54b: ni libros, ni ajustes, ni ninguna columna existente (monto_recibido, estado, conciliado_*,
     // updated_at incluidos) de las consolidaciones.

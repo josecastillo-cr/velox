@@ -744,6 +744,10 @@ const CATALOGO = [
         // dos SI mueven la cifra (efectivo: el pago sale de verdad hacia Hacienda).
         "egreso_pago_iva",
         "ingreso_reverso_pago_iva",
+        // FICHA 498 (design §8.1): la diferencia de la satelite al conciliar. La caja entera, ahora
+        // 31. Las dos SI mueven la cifra (efectivo: lo que la satelite entrego de menos o de mas).
+        "egreso_diferencia_satelite",
+        "ingreso_diferencia_satelite",
       ],
     },
   },

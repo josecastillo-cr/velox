@@ -168,9 +168,12 @@ describe("457/T2.2 — R7 por construccion: identidad sobre 500 subconjuntos con
     // Ficha 488: el Pago de IVA y su anulacion.
     fila("egreso_pago_iva", "300000.00"),
     fila("ingreso_reverso_pago_iva", "12345.67"),
+    // Ficha 498: las dos diferencias de la satelite.
+    fila("egreso_diferencia_satelite", "15000.00"),
+    fila("ingreso_diferencia_satelite", "2500.50"),
   ];
 
-  it("el POOL cubre las 29 categorias del catalogo (anti-vacuidad)", () => {
+  it("el POOL cubre las 31 categorias del catalogo (anti-vacuidad)", () => {
     const cubiertas = new Set(POOL.map((f) => f.categoria));
     for (const c of WALLET_MOVIMIENTO_CATEGORIA_SEED) expect(cubiertas.has(c), c).toBe(true);
   });
@@ -187,7 +190,9 @@ describe("457/T2.2 — R7 por construccion: identidad sobre 500 subconjuntos con
       const sub = POOL.filter((_, j) => ((mascara >> (j % 31)) & 1) === 1 || siguiente() % 3 === 0);
       if (sub.some((f) => f.categoria === "ingreso_abono_tienda")) conAbono += 1;
       const r = derivarCaja(sub);
-      expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar), `subconjunto ${i}`).toBe(r.enCaja);
+      // Ficha 498 (R35): − «Por cobrar a satelites».
+      const menosPorCobrar = new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2);
+      expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar, menosPorCobrar), `subconjunto ${i}`).toBe(r.enCaja);
       expect(resta(r.entradas, r.salidas), `entradas − salidas ${i}`).toBe(r.enCaja);
     }
     // Anti-vacuidad: el pago de una tienda estuvo dentro en una parte sustancial de los subconjuntos.

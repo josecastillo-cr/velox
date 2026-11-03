@@ -440,8 +440,9 @@ describe("dueno en el DTO (R31/R32)", () => {
     // Y las DOS naturalezas aparecen de verdad: un `dueno` fijado a "propio" pasaria el bucle
     // de arriba en casi todo el catalogo, pero no esta afirmacion.
     // Ficha 459: y la tercera, `capital` (saldo inicial y aportes). Ficha 488: y la cuarta, `iva`.
+    // Ficha 498: y la quinta, `por_cobrar_satelite` (la diferencia de la satelite).
     expect(new Set(movimientos.map((m) => m.dueno))).toEqual(
-      new Set(["propio", "terceros", "capital", "iva"]),
+      new Set(["propio", "terceros", "capital", "iva", "por_cobrar_satelite"]),
     );
     // Nombradas, para que el fallo diga cual: el contra-entrega y el pago a tienda son de las
     // tiendas; el flete y el sueldo, de Ordenex.

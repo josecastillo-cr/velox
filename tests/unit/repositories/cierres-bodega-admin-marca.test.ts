@@ -81,10 +81,28 @@ function buildPrisma(opciones: OpcionesDoble = {}) {
     rol: { value: "maestro" },
   }));
 
+  // FICHA 498 (fixture): lo que marcar/corregir/revertir leen y escriben ademas desde la ficha —los
+  // cierres de la consolidacion (ninguno aqui), la tabla de ajustes y los tres libros—. El snapshot
+  // del aporte (600) solo lo lee `escribirDiferencia`; las aserciones de esta suite no cambian.
+  const findUniqueOrThrow = vi.fn(async () => ({
+    totalGeneral: new Prisma.Decimal("600.00"),
+    totalPagoMensajero: new Prisma.Decimal("0.00"),
+    totalIngresoBodegaRechazos: new Prisma.Decimal("0.00"),
+    esperadoReglaAnterior: null,
+  }));
   const tx = {
-    cierreBodega: { updateMany, findUnique, count },
+    cierreBodega: { updateMany, findUnique, findUniqueOrThrow, count },
     historialAccion: { createMany },
     usuario: { findUnique: usuarioFindUnique },
+    cierreDia: { findMany: vi.fn(async () => []) },
+    conciliacionBodegaAjuste: {
+      aggregate: vi.fn(async () => ({ _sum: { diferencia: null } })),
+      count: vi.fn(async () => 0),
+      create: vi.fn(async () => ({ id: "ajuste-1" })),
+    },
+    walletMovimiento: { createMany: vi.fn(async () => ({ count: 1 })), count: vi.fn(async () => 0) },
+    walletTiendaMovimiento: { count: vi.fn(async () => 0) },
+    pagoMensajeroMovimiento: { count: vi.fn(async () => 0) },
   };
   const prisma = {
     ...tx,

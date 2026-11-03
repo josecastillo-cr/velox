@@ -238,7 +238,9 @@ describeSiHayBase("431/T7 — la marca de conciliacion (Postgres real)", () => {
       await serializarEscriturasReales(tx);
       const usuarioId = await algunUsuarioId(tx);
       const zonaId = await sembrarZona(tx, "revertir");
-      const id = await sembrarConsolidacion(tx, zonaId, usuarioId, "500.00");
+      // FICHA 498 (fixture): el aporte es igual al recibido (485), asi la marca no escribe diferencia,
+      // la consolidacion no tiene asientos y se puede revertir (R22). Antes se sembraba con 500.
+      const id = await sembrarConsolidacion(tx, zonaId, usuarioId, "485.00");
 
       const repo = new CierresBodegaAdminRepository(tx as unknown as PrismaClient);
       await repo.marcarConciliado({
@@ -285,7 +287,9 @@ describeSiHayBase("431/T7 — la marca de conciliacion (Postgres real)", () => {
       await serializarEscriturasReales(tx);
       const usuarioId = await algunUsuarioId(tx);
       const zonaId = await sembrarZona(tx, "monto-borrado");
-      const id = await sembrarConsolidacion(tx, zonaId, usuarioId, "500.00");
+      // FICHA 498 (fixture): el aporte es igual al recibido (485), asi la marca no escribe diferencia,
+      // la consolidacion no tiene asientos y se puede revertir (R22). Antes se sembraba con 500.
+      const id = await sembrarConsolidacion(tx, zonaId, usuarioId, "485.00");
 
       const repo = new CierresBodegaAdminRepository(tx as unknown as PrismaClient);
       await repo.marcarConciliado({
@@ -333,10 +337,17 @@ describeSiHayBase("431/T7 — la marca de conciliacion (Postgres real)", () => {
     expect(r.filas).toBe(0);
   });
 
-  it("⭑ R14: marcar y revertir NO escriben en NINGUN libro de dinero", async () => {
-    // La marca es SEGUIMIENTO, no contabilidad. Es lo que hace que revertirla sea seguro, y es un
-    // limite declarado de la ficha. Se cuentan las filas de los TRES libros antes y despues.
+  // ⭑ FICHA 498 (T3.8, design §11) — SUSTITUYE al caso de la 431 «R14: marcar y revertir NO escriben
+  // en NINGUN libro de dinero». Ese contrato lo REVOCO el humano el 2026-11-02: desde la 498 marcar
+  // ASIENTA y escribe la diferencia, y revertir una consolidacion con asientos responde `con_asientos`
+  // sin cambiar nada. Aqui, sin cierres: marcar por 485 sobre 500 escribe UN egreso de diferencia en
+  // la caja (y nada en la tienda ni en el mensajero); revertir no cambia NINGUN libro. Los asientos
+  // de los cierres se miden en `498-conciliar-asienta-sql-real.test.ts`.
+  it("⭑ 498/R10/R20: marcar con faltante escribe UNA fila de caja; revertir con asientos no cambia ningun libro", async () => {
     const r = await enTransaccionRevertida(prisma, async (tx) => {
+      // REPEATABLE READ (como el caso hermano de `corregir-conciliacion.int.test.ts`): los conteos son
+      // de TABLA ENTERA y otro archivo puede commitear un movimiento en paralelo.
+      await tx.$executeRawUnsafe("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
       await serializarEscriturasReales(tx);
       const usuarioId = await algunUsuarioId(tx);
       const zonaId = await sembrarZona(tx, "sin-libro");
@@ -362,8 +373,8 @@ describeSiHayBase("431/T7 — la marca de conciliacion (Postgres real)", () => {
       return { antes, trasMarcar, trasRevertir };
     });
 
-    expect(r.trasMarcar).toEqual(r.antes);
-    expect(r.trasRevertir).toEqual(r.antes);
+    expect(r.trasMarcar).toEqual({ ...r.antes, caja: r.antes.caja + 1 });
+    expect(r.trasRevertir).toEqual(r.trasMarcar);
   });
 
   it("marcar -> revertir -> marcar otra vez: la marca es REVERSIBLE de verdad (D6)", async () => {
@@ -371,7 +382,9 @@ describeSiHayBase("431/T7 — la marca de conciliacion (Postgres real)", () => {
       await serializarEscriturasReales(tx);
       const usuarioId = await algunUsuarioId(tx);
       const zonaId = await sembrarZona(tx, "ciclo");
-      const id = await sembrarConsolidacion(tx, zonaId, usuarioId, "500.00");
+      // FICHA 498 (fixture): el aporte es igual al recibido (485), asi la marca no escribe diferencia,
+      // la consolidacion no tiene asientos y se puede revertir (R22). Antes se sembraba con 500.
+      const id = await sembrarConsolidacion(tx, zonaId, usuarioId, "485.00");
       const repo = new CierresBodegaAdminRepository(tx as unknown as PrismaClient);
 
       const a = await repo.marcarConciliado({

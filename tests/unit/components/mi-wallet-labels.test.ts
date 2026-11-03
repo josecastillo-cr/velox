@@ -239,6 +239,8 @@ const NO_ESCRIBEN_EN_LA_TIENDA: readonly WalletOrigenTipo[] = [
   "cobro_manual_reclasificado",
   // Las líneas de caja completadas por la migración de datos solo escriben en la caja.
   "cobro_tienda_completado",
+  // Ficha 498: la diferencia de la satélite solo escribe en la caja.
+  "conciliacion_bodega_ajuste",
 ];
 
 describe("ORIGEN_TIENDA_LABEL cubre cada origen que escribe en el libro de la tienda (459 R44 / 461 §7.3)", () => {
@@ -275,6 +277,7 @@ describe("ORIGEN_TIENDA_LABEL cubre cada origen que escribe en el libro de la ti
       aporte_capital: "Aporte de dinero a la caja",
       cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
       cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
+      conciliacion_bodega_ajuste: "Conciliación de satélite", // ficha 498: el texto de la caja
     });
   });
 

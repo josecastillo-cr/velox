@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Prisma, type PrismaClient } from "@prisma/client";
-import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
+import {
+  CierresAdminRepository,
+  DestinoDeCierreDesconocidoError,
+} from "@/lib/repositories/CierresAdminRepository";
 import { CierreDetalleFaltanteError } from "@/lib/utils/cierre-detalle";
 import type { Alcance } from "@/lib/interfaces/repositories/ICierresAdminRepository";
 import type { IWalletMovimientoRepository } from "@/lib/interfaces/repositories/IWalletMovimientoRepository";
@@ -152,6 +155,7 @@ function buildPrisma(overrides: Record<string, unknown> = {}) {
       count: vi.fn(),
       // FICHA 362: `resolverCierre` lee el total y el mensajero para congelar la fila del registro.
       findUnique: vi.fn().mockResolvedValue({
+        destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
         totalGeneral: new Prisma.Decimal("0.00"),
         solicitadoAt: new Date("2026-09-02T12:00:00Z"),
         mensajero: { nombre: "Mensa", primerApellido: "Uno" },
@@ -821,6 +825,69 @@ describe("CierresAdminRepository.forzarSolicitudVencido (feature 111/R16)", () =
   });
 });
 
+describe("FICHA 498 (T3.3; R1, R4) — la aprobacion mira el DESTINO del cierre", () => {
+  const aprobar = (repo: CierresAdminRepository) =>
+    repo.resolverCierre({
+      cierreId: "c1",
+      alcance: ALCANCE_MAESTRO,
+      nuevoEstado: "aprobado",
+      aplicacionGestiones: APLICACION_GESTIONES,
+      confirmacionFisica: [],
+      resueltoPor: "adm-maestro",
+      motivoRechazo: null,
+    });
+
+  function feedsDe(wallet: ReturnType<typeof buildWalletDeps>) {
+    return [
+      wallet.walletFeedService.construirMovimientosDeIngreso,
+      wallet.walletTiendaFeedService.construirMovimientosPorTienda,
+      wallet.walletMensajeroFeedService.construirMovimientosDePago,
+      wallet.walletIndemnizacionFeedService.construirEgresoIndemnizacion,
+      wallet.walletMovimientoRepo.crearMovimientos,
+      wallet.walletTiendaMovimientoRepo.crearMovimientos,
+      wallet.pagoMensajeroMovimientoRepo.crearMovimientos,
+    ];
+  }
+
+  it("⭑ R4: un `destinoTipo` desconocido LANZA `DestinoDeCierreDesconocidoError` y no llama a ningun feed", async () => {
+    const prisma = buildPrisma();
+    prisma.cierreDia.updateMany.mockResolvedValue({ count: 1 });
+    prisma.cierreDia.findUnique.mockResolvedValue({ destinoTipo: "bodega_luna" });
+    const wallet = buildWalletDeps();
+    const { repo } = makeRepo(prisma as unknown as Record<string, unknown>, wallet);
+
+    await expect(aprobar(repo)).rejects.toBeInstanceOf(DestinoDeCierreDesconocidoError);
+    for (const fn of feedsDe(wallet)) expect(fn).not.toHaveBeenCalled();
+  });
+
+  it("R4: el destino se lee DENTRO de la transaccion, por id del cierre", async () => {
+    const prisma = buildPrisma();
+    prisma.cierreDia.updateMany.mockResolvedValue({ count: 1 });
+    const { repo } = makeRepo(prisma as unknown as Record<string, unknown>);
+    await aprobar(repo);
+    expect(prisma.cierreDia.findUnique).toHaveBeenCalledWith({
+      where: { id: "c1" },
+      select: { destinoTipo: true },
+    });
+  });
+
+  it("⭑ R1: un cierre `bodega_satelite` se aprueba SIN llamar a ningun escritor de dinero", async () => {
+    const prisma = buildPrisma();
+    prisma.cierreDia.updateMany.mockResolvedValue({ count: 1 });
+    prisma.cierreDia.findUnique.mockResolvedValue({
+      destinoTipo: "bodega_satelite",
+      totalGeneral: new Prisma.Decimal("0.00"),
+      solicitadoAt: new Date("2026-09-02T12:00:00Z"),
+      mensajero: { nombre: "Mensa", primerApellido: "Uno" },
+    });
+    const wallet = buildWalletDeps();
+    const { repo } = makeRepo(prisma as unknown as Record<string, unknown>, wallet);
+
+    expect(await aprobar(repo)).toBe("updated");
+    for (const fn of feedsDe(wallet)) expect(fn).not.toHaveBeenCalled();
+  });
+});
+
 describe("CierresAdminRepository.resolverCierre — enganche wallet (feature 42/T8: R5/R7/R12)", () => {
   it("R5: aprobar (count=1) construye e inserta los movimientos de ingreso EN LA TX", async () => {
     const prisma = buildPrisma();
@@ -1242,7 +1309,7 @@ describe("CierresAdminRepository.resolverCierre — liberación de `novedad_inte
         updateMany: vi.fn().mockResolvedValue({ count: 0 }),
       },
     };
-    prisma.cierreDia.findUnique.mockResolvedValue(
+    const cierreLeido =
       opts.mensajeroId === null
         ? null
         : {
@@ -1251,7 +1318,10 @@ describe("CierresAdminRepository.resolverCierre — liberación de `novedad_inte
             totalGeneral: new Prisma.Decimal("0.00"),
             solicitadoAt: new Date("2026-09-02T12:00:00Z"),
             mensajero: { nombre: "Mensa", primerApellido: "Uno" },
-          },
+          };
+    // Ficha 498 (fixture): la lectura del DESTINO (R4) responde `bodega_central`; las demas, lo de siempre.
+    prisma.cierreDia.findUnique.mockImplementation(async (args?: { select?: { destinoTipo?: boolean } }) =>
+      args?.select?.destinoTipo ? { destinoTipo: "bodega_central" } : cierreLeido,
     );
     prisma.orden.findMany.mockResolvedValue(ordenes);
     // `where.id.in` es el updateMany de la LIBERACION (rutea por ids). Desde el pedido humano de
