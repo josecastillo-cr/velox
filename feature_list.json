@@ -5965,7 +5965,7 @@
       "title": "Dinero de satélite entra a la caja al conciliar",
       "description": "Aprobar un cierre del día satélite no escribe en los libros; marcar recibido asienta los cierres y la diferencia en un bolsillo «Por cobrar a satélites»; deuda con paraLaCentral sobre todos los métodos; conciliación con dinero no se revierte.",
       "zone": "fullstack",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "large",
       "depends_on": 497,
