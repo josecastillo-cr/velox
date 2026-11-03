@@ -5998,6 +5998,19 @@
       "spec_path": "specs/500-deuda-satelites-zonas",
       "branch": "fix/500-deuda-satelites-zonas",
       "status_note": "Registrada el 2026-11-02: H5 de progress/prompt-hotfix-portable.md salvo bloque 1 (ficha 495) y bloque 5 (descartado: no hay multiempresa). Depende también de la 499 (bloque 6). El bloque 8 (retirar respaldos) es irreversible y pide autorización escrita del humano."
+    },
+    {
+      "id": 501,
+      "title": "Fechas de Pagos registrados en hora de Costa Rica",
+      "description": "«Registrado el» y «Anulado el» de Pagos registrados (tabla y descarga) usan el día calendario de Costa Rica en vez de recortar el ISO en UTC.",
+      "zone": "frontend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 495,
+      "spec_path": "specs/501-pagos-registrados-fecha-cr",
+      "branch": "fix/501-pagos-registrados-fecha-cr",
+      "status_note": "Registrada el 2026-11-02 a pedido del humano (para el día siguiente). Hallazgo m2 de la revisión de la 495, confirmado por el leader: components/shared/liquidacion/PagosRegistradosTabla.tsx:65 y pagos-registrados-descarga-columnas.ts:71,74 pasan registradoAt/anuladoAt (createdAt.toISOString(), instantes) por fechaDiaISO; tras las 18:00 CR salen con el día siguiente. fechaPago es @db.Date y está bien. Reusar fechaDiaInstanteCR de la 495 y ampliar su guardia a esas rutas."
     }
   ]
 }
