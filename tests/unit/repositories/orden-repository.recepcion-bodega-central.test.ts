@@ -39,7 +39,7 @@ const HIST_RECEPCION = {
 describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 138+139)", () => {
   // --- Caso 138: en_ruta_bodega_central -> en_bodega_central ---
 
-  it("R2/R11/R18 (138): UPDATE guardado por id+deletedAt+origen (SIN zona/tienda); true si afecto 1 fila", async () => {
+  it("R2/R11 (138) + 496/R1: UPDATE guardado por id+deletedAt+origen (SIN zona/tienda); true si afecto 1 fila", async () => {
     const prisma = buildPrisma();
     prisma.orden.findFirst.mockResolvedValue({ estatusId: idEstado("en_ruta_bodega_central") });
     prisma.orden.updateMany.mockResolvedValue({ count: 1 });
@@ -49,6 +49,7 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
       "o1",
       "en_ruta_bodega_central",
       idEstado("en_bodega_central"),
+      true,
       HIST_RECEPCION,
     );
 
@@ -62,9 +63,14 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
     });
     expect(arg.where).not.toHaveProperty("zonaId");
     expect(arg.where).not.toHaveProperty("tiendaId");
-    // R18: solo fija estatusId; NO toca mensajeroAsignadoId ni numGuia.
-    expect(arg.data).toEqual({ estatusId: idEstado("en_bodega_central") });
-    expect(arg.data).not.toHaveProperty("mensajeroAsignadoId");
+    // Ficha 496/R1 (revoca la R18 de la 138 en esta arista): con `liberaAsignacion: true` el MISMO
+    // UPDATE deja el trio de asignacion en NULL. `numGuia` sigue sin tocarse (R18 vigente, R4).
+    expect(arg.data).toEqual({
+      estatusId: idEstado("en_bodega_central"),
+      mensajeroAsignadoId: null,
+      asignadoAt: null,
+      fechaReparto: null,
+    });
     expect(arg.data).not.toHaveProperty("numGuia");
   });
 
@@ -78,6 +84,7 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
       "o1",
       "en_ruta_bodega_central",
       idEstado("en_bodega_central"),
+      true,
       HIST_RECEPCION,
     );
 
@@ -101,6 +108,7 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
       "o1",
       "en_ruta_bodega_central",
       idEstado("en_bodega_central"),
+      true,
       HIST_RECEPCION,
     );
 
@@ -131,6 +139,7 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
       "o9",
       "devolviendo_a_bodega_central",
       idEstado("por_devolver_a_tienda"),
+      false,
       HIST_RECEPCION,
     );
 
@@ -141,9 +150,11 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
       deletedAt: null,
       estatus: { value: "devolviendo_a_bodega_central" },
     });
+    // Ficha 496/R2: la devolucion (`liberaAsignacion: false`) conserva el trio: solo el estado.
     expect(prisma.orden.updateMany.mock.calls[0][0].data).toEqual({
       estatusId: idEstado("por_devolver_a_tienda"),
     });
+    expect(prisma.orden.updateMany.mock.calls[0][0].data).not.toHaveProperty("numGuia");
     // El historial usa el origen pre-leido y el mismo tipo `recepcion_bodega_central`.
     expect(prisma.ordenHistorialEstado.createMany.mock.calls[0][0].data).toEqual([
       {
@@ -171,6 +182,7 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
         "o1",
         "en_ruta_bodega_central",
         idEstado("en_bodega_central"),
+        true,
         HIST_RECEPCION,
       ),
     ).toBe(false);
@@ -187,6 +199,7 @@ describe("OrdenRepository.recibirEnBodegaCentral (R2/R3/R9/R18 · STATE-AWARE 13
       "o1",
       "en_ruta_bodega_central",
       idEstado("en_bodega_central"),
+      true,
       HIST_RECEPCION,
     );
 

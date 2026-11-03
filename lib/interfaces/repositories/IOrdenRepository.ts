@@ -2060,13 +2060,19 @@ export interface IOrdenRepository {
    * (`estatus.value = origenValue`, pasado por el service) + no borrada (`deletedAt IS NULL`); origen
    * pre-leido bajo la misma guarda y append del historial (`origenTipo` = el pasado en `historial`,
    * `recepcion_bodega_central` en ambos casos) en la MISMA tx, SOLO si transiciono. Devuelve `true`
-   * si afecto 1 fila (recibida), `false` si 0 (ya no estaba en el origen -> race). NO toca
-   * `mensajeroAsignadoId` ni `numGuia` (R18).
+   * si afecto 1 fila (recibida), `false` si 0 (ya no estaba en el origen -> race). NUNCA toca
+   * `numGuia` (R18 de la 138, vigente).
+   *
+   * Ficha 496 (R1/R2/R3): `liberaAsignacion` (obligatorio, lo decide el service por la arista):
+   * `true` deja `mensajeroAsignadoId`, `asignadoAt` y `fechaReparto` en NULL en el MISMO UPDATE
+   * guardado que cambia el estado (recepcion de recoleccion; revoca la R18 de la 138 en esa arista);
+   * `false` los conserva (devolucion 139). Si la guarda no casa no se toca nada.
    */
   recibirEnBodegaCentral(
     ordenId: string,
     origenValue: string,
     destinoEstatusId: string,
+    liberaAsignacion: boolean,
     historial: HistorialContexto,
   ): Promise<boolean>;
 
