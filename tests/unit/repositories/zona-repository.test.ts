@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Prisma, type PrismaClient } from "@prisma/client";
 import { ZonaRepository } from "@/lib/repositories/ZonaRepository";
-import type { UpdateZonaResult } from "@/lib/interfaces/repositories/IZonaRepository";
+import type { CreateZonaResult, UpdateZonaResult } from "@/lib/interfaces/repositories/IZonaRepository";
 
 // tx mock que reciben las operaciones dentro de $transaction.
 function buildTx() {
@@ -58,6 +58,12 @@ function soloOk(res: UpdateZonaResult): Extract<UpdateZonaResult, { estado: "ok"
   return res;
 }
 
+/** 499: `create` devuelve `CreateZonaResult`; sin conflictos (la `findMany` responde []) es `ok`. */
+function zonaOk(res: CreateZonaResult) {
+  if (res.estado !== "ok") throw new Error(`se esperaba ok y llego ${res.estado}`);
+  return res.zona;
+}
+
 describe("ZonaRepository.create", () => {
   it("crea zona + N:M + tarifas en transaccion y devuelve el DTO", async () => {
     const tx = buildTx();
@@ -65,13 +71,16 @@ describe("ZonaRepository.create", () => {
     tx.tarifaZonaMensajero.findMany.mockResolvedValue([]);
     const prisma = buildPrisma(tx);
 
-    const dto = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
+    const res = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
       nombre: "GAM",
       cobroVehiculo: false,
       esCentral: false,
       distritoIds: ["d1", "d2"],
       tarifas: [],
     }, null);
+    // 499: `create` devuelve `CreateZonaResult`; aqui no hay conflictos (la `findMany` responde []).
+    if (res.estado !== "ok") throw new Error(`se esperaba ok y llego ${res.estado}`);
+    const dto = res.zona;
 
     // ⭑ FICHA 429 (R11/R12): el par del SINPE viaja en el MISMO acto de creacion, y la bodega
     // nace REVISADA —lo acaba de teclear una persona—. `sinpeRevisadoAt` se comprueba por su TIPO
@@ -109,13 +118,13 @@ describe("ZonaRepository.create", () => {
     ]);
     const prisma = buildPrisma(tx);
 
-    const dto = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
+    const dto = zonaOk(await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
       nombre: "GAM",
       cobroVehiculo: true,
       esCentral: false,
       distritoIds: ["d1"],
       tarifas: [{ cobroEntregado: 10, cobroRechazado: 5, vehiculoId: "v1" }],
-    }, null);
+    }, null));
 
     const arg = tx.tarifaZonaMensajero.createMany.mock.calls[0][0];
     expect(arg.data[0].cobroEntregado).toBeInstanceOf(Prisma.Decimal);
@@ -133,13 +142,13 @@ describe("ZonaRepository — invariante 'una central' (feature 55/R5/R6)", () =>
     tx.tarifaZonaMensajero.findMany.mockResolvedValue([]);
     const prisma = buildPrisma(tx);
 
-    const dto = await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
+    const dto = zonaOk(await repoOf(prisma).create({ sinpeNumero: "80000000", sinpeNombre: "Titular de Prueba",
       nombre: "NUEVA",
       cobroVehiculo: false,
       esCentral: true,
       distritoIds: ["d1"],
       tarifas: [],
-    }, null);
+    }, null));
 
     // sin id propio aun: desmarca TODAS las centrales previas
     expect(tx.zona.updateMany).toHaveBeenCalledWith({

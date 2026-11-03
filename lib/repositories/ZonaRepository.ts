@@ -13,6 +13,7 @@ import { etiquetaDeEntidad } from "@/lib/types/historial-accion-etiquetas";
 import type { ImpactoZonaCentralDTO, TarifaZonaMensajeroDTO, ZonaDTO } from "@/lib/types/zona";
 import type {
   CreateZonaData,
+  CreateZonaResult,
   DeleteZonaResult,
   IZonaRepository,
   ListZonasParams,
@@ -210,7 +211,7 @@ export class ZonaRepository implements IZonaRepository {
    * no tenga tipo propio en el catalogo no es motivo para que el traslado que provoca sea
    * invisible: las dos filas que escribe son las MISMAS que las de un guardado.
    */
-  async create(data: CreateZonaData, actorUsuarioId: string | null): Promise<ZonaDTO> {
+  async create(data: CreateZonaData, actorUsuarioId: string | null): Promise<CreateZonaResult> {
     try {
       return await this.prisma.$transaction(async (tx) => {
         // 376/R12: la central previa se lee ANTES del `updateMany` que la apaga. Despues ya no
@@ -263,7 +264,7 @@ export class ZonaRepository implements IZonaRepository {
         }
 
         const tarifas = await tx.tarifaZonaMensajero.findMany({ where: { zonaId: zona.id } });
-        return toDTO(zona, data.distritoIds.length, tarifas);
+        return { estado: "ok" as const, zona: toDTO(zona, data.distritoIds.length, tarifas) };
       });
     } catch (e) {
       translateEsCentralConflict(e);

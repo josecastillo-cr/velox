@@ -296,7 +296,7 @@ const ZONA_CENTRAL = "z-central";
 
 function repoConGuarda(): IZonaRepository {
   return {
-    create: vi.fn().mockResolvedValue(dto()),
+    create: vi.fn().mockResolvedValue({ estado: "ok", zona: dto() }), // 499: `CreateZonaResult`
     findById: vi.fn().mockResolvedValue(dto()),
     list: vi.fn().mockResolvedValue({ items: [], total: 0 }),
     listLite: vi.fn().mockResolvedValue([]),

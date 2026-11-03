@@ -10,6 +10,7 @@ import {
   enTransaccionRevertida,
   serializarEscriturasReales,
 } from "./_postgres-real";
+import { zonaCreada } from "./_fixtures/zona-creada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 429 — LA MARCA DE REVISION, CONTRA POSTGRES REAL (R5, R12, R25).
@@ -52,7 +53,7 @@ describeSiHayBase("⭑ 429 — la marca de revision del SINPE (Postgres real)", 
       await serializarEscriturasReales(tx);
       const repo = new ZonaRepository(clienteConSavepoint(tx));
 
-      const dto = await repo.create(
+      const dto = zonaCreada(await repo.create(
         {
           nombre: `429 Nueva ${unico()}`,
           cobroVehiculo: false,
@@ -63,7 +64,7 @@ describeSiHayBase("⭑ 429 — la marca de revision del SINPE (Postgres real)", 
           sinpeNombre: NOMBRE,
         },
         USUARIO,
-      );
+      ));
 
       const fila = await tx.zona.findUniqueOrThrow({
         where: { id: dto.id },

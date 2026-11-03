@@ -49,7 +49,7 @@
   - up, down y up: mismo estado, y el esquema `respaldo` se borra solo si queda vacío (R8).
 
   *Hecho:* verde. M5 de design §9 lo pone rojo. Depende de B.1.
-- [ ] **B.4 Contratos** (design §3). Añadir a `IZonaRepository` `ConflictoDistritoZona`,
+- [x] **B.4 Contratos** (design §3). Añadir a `IZonaRepository` `ConflictoDistritoZona`,
   `DistritoEnOtraZona` y `CreateZonaResult`, y la nueva rama de `UpdateZonaResult`. Ajustar las 7 llamadas a
   `create` de los 4 tests de `tests/integration/db` citados en design §3.1, sin cambiar sus aserciones.
 
