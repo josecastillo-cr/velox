@@ -1,0 +1,20 @@
+-- Ficha 497 (T2.1, design §4, R22/R25/R26/R41) — la MARCA de confirmacion fisica de las BARRIDAS.
+--
+-- QUE ES. El instante en que BODEGA declaro tener DELANTE el paquete de una orden que el corte
+-- diario barrio a `novedad_interna` al crear el cierre (fila de `cierre_sin_gestion`, 264). Se
+-- escribe UNICAMENTE dentro de la transaccion de aprobacion (`CierresAdminRepository.resolverCierre`),
+-- sobre las barridas del cierre aprobado, junto a la marca de las gestiones de la 238.
+--
+-- MISMO NOMBRE que `gestion_orden.confirmada_fisica_at` (238): es el mismo hecho sobre el otro
+-- origen del paquete, y asi la guardia `confirmacion-sin-lectores` lo cubre sin tocar su registro.
+--
+-- No contradice la inmutabilidad de la fila: los datos CONGELADOS al barrer no se tocan (R24); esto
+-- es un hecho nuevo, escrito una vez, en la transaccion que aprueba.
+--
+-- NULLABLE, SIN DEFAULT, SIN CHECK, SIN INDICE y SIN BACKFILL (decision adoptada el 2026-11-02):
+-- `NULL` significa «aprobado antes de esta ficha» o «sin confirmar» (R25). Ninguna consulta filtra
+-- por ella y nada deriva plazos, importes ni prelacion de su valor (R26).
+--
+-- ADITIVA: no toca filas, indices, RLS ni enums. Molde exacto de
+-- `20260819170000_gestion_orden_confirmacion_fisica`.
+ALTER TABLE "cierre_sin_gestion" ADD COLUMN "confirmada_fisica_at" TIMESTAMP(3);

@@ -202,6 +202,9 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       // `orden_traspaso_mensajero`.
       "20261102130000_zona_distrito_limpieza_499",
       "20261102130100_zona_distrito_unico_499",
+      // Ficha 497 (2026-11-02): la marca `confirmada_fisica_at` de las barridas en
+      // `cierre_sin_gestion`. No toca `orden_traspaso_mensajero`.
+      "20261102170000_cierre_sin_gestion_confirmacion_fisica",
     ]);
   });
 });
