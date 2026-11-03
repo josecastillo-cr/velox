@@ -25,7 +25,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   Ampliación del 2026-11-02: además se añadieron R10–R13 (incidentes) al spec y se commitearon antes
   de tocar código; la re-medición incluyó `app/(app)/incidentes` (I1–I5).
 
-- [ ] **T1 — Utilidad `fechaDiaInstanteCR` + su test (R6, R8).** En `lib/utils/fecha-dia-iso.ts`,
+- [x] **T1 — Utilidad `fechaDiaInstanteCR` + su test (R6, R8).** En `lib/utils/fecha-dia-iso.ts`,
   la función de `design.md §3.1`, delegando en `fechaCalendarioCR` y con JSDoc que distinga las tres
   funciones del módulo. Test nuevo `tests/unit/utils/fecha-dia-iso.test.ts` con literales:
   `2026-11-01T05:03:00Z` → `2026-10-31`; `2026-11-01T00:00:00.000Z` → `2026-10-31`;
@@ -34,7 +34,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   `fechaDiaISO(valor)` el test de `05:03Z` y el de `00:00:00.000Z` fallan, y con la rama de
   medianoche de `fechaDiaMovimientoCR` falla el de `00:00:00.000Z`.
 
-- [ ] **T2 [P] — Pantallas (R1, R2, R3, R7).** Depende de T1.
+- [x] **T2 [P] — Pantallas (R1, R2, R3, R7).** Depende de T1.
   - `cierre-factura.tsx:306-308`: `fecha(iso)` → `iso ? fechaDiaInstanteCR(iso) : "—"`; actualizar
     comentarios `:47-49` y `:305`.
   - `CierreDiaModule.tsx:935,1026`: `.slice(0, 10)` → `fechaDiaInstanteCR(...)`.
@@ -49,7 +49,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   **Hecho:** tests verdes; contraprueba anotada: revirtiendo `fecha()` a `iso.slice(0, 10)` fallan
   R1/R2/R3 del archivo nuevo, y revirtiendo `:935` falla el bloque de `CierreDiaModule`.
 
-- [ ] **T3 [P] — Descargas (R4, R5, R7).** Depende de T1.
+- [x] **T3 [P] — Descargas (R4, R5, R7).** Depende de T1.
   - `fechaDiaISO(…At)` → `fechaDiaInstanteCR(…At)` en `cierres-admin-descarga-columnas.ts:71,104`,
     `cierres-bodega-descarga-columnas.ts:144,177,239`, `cierre-dia-descarga-columnas.ts:256` y
     `cierres-gestiones-fundida-descarga-columnas.ts:422`; quitar el import de `fechaDiaISO` donde
@@ -64,7 +64,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   `tests/components/descarga/Cierres*.test.tsx` y `tests/unit/descarga/columnas-sensibles.guardia.test.ts`
   siguen verdes SIN tocarlos; contraprueba anotada (volver una línea a `fechaDiaISO` hace fallar su caso).
 
-- [ ] **T4 [P] — Guardia (R9).** Independiente de T2/T3 en archivos, pero solo puede quedar verde
+- [x] **T4 [P] — Guardia (R9).** Independiente de T2/T3 en archivos, pero solo puede quedar verde
   después de ellos. `tests/unit/guards/cierres-fecha-cr-495.guardia.test.ts` según
   `design.md §3.4`: carpetas `app/(app)/cierres-admin` y `app/(app)/cierre-dia`, tres formas
   prohibidas, sin excepciones, `revisados > 30`, normalización de `\r\n`, y contraprueba sintética
@@ -73,7 +73,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   **Hecho:** antes de T2/T3 la guardia FALLA listando exactamente S1–S7 (pegar la salida en el
   informe); después, verde con la lista vacía.
 
-- [ ] **T4b — Incidentes (R10, R11, R12, R13).** Ampliación del 2026-11-02. Depende de T1.
+- [x] **T4b — Incidentes (R10, R11, R12, R13).** Ampliación del 2026-11-02. Depende de T1.
   - `IncidentesAdminModule.tsx:485,501,771`, `IncidentesHistoricoTabla.tsx:193` e
     `incidentes-descarga-columnas.ts:51,85` según `design.md §3.3 bis`.
   - Test nuevo `tests/components/incidentes-fechas-cr-495.test.tsx` (R10, R12) y bloque «R11»/«R12»
@@ -83,7 +83,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   `IncidentesAdminR51.test.tsx`, `descarga/IncidentesDescarga.test.tsx` e
   `incidentes-descarga-columnas.test.ts` verdes sin tocarlos; contraprueba anotada.
 
-- [ ] **T5 — Fixtures existentes con instantes 00:00–05:59 UTC.** Depende de T2 y T3. Ejecutar
+- [x] **T5 — Fixtures existentes con instantes 00:00–05:59 UTC.** Depende de T2 y T3. Ejecutar
   aislados `tests/unit/actions/cierres-admin-descarga-action.test.ts`,
   `cierre-dia-descarga-action.test.ts`, `cierre-bodega-descarga-action.test.ts`,
   `cierre-bodega-admin-descarga-action.test.ts`, `tests/components/CierresAdminModule.test.tsx`,
@@ -91,7 +91,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   **Hecho:** todos verdes; si alguno afirmaba el día UTC, se corrigió el ESPERADO al día de Costa
   Rica (nunca el fixture) y se anota en el informe con el motivo.
 
-- [ ] **T6 — Comentarios y documentación local.** Revisar que ningún comentario de los archivos
+- [x] **T6 — Comentarios y documentación local.** Revisar que ningún comentario de los archivos
   tocados siga recomendando `slice`/`fechaDiaISO` para fechas de cierre. **Hecho:** grep limpio en
   los siete archivos (los comentarios que EXPLICAN por qué no se recorta pueden quedarse).
 
@@ -100,7 +100,7 @@ T2, T3 y T4 son paralelizables entre sí `[P]` (archivos disjuntos) una vez hech
   `tests/unit/guards/wallet-fecha-cr-459.guardia.test.ts` (guardias que leen con `fs`; el grafo no las
   relaciona). **Hecho:** `INIT_EXIT=0`, sin `skipped` inesperados, y las dos guardias verdes.
 
-- [ ] **T8 — Ver la app e informe.** Si hay dev server disponible (no levantar un segundo), abrir un
+- [x] **T8 — Ver la app e informe.** Si hay dev server disponible (no levantar un segundo), abrir un
   cierre local con `solicitadoAt` posterior a las 18:00 CR en `/cierres-admin` y en `/cierre-dia`
   y comprobar la fecha de la tarjeta y del comprobante; si no, declararlo inaplicable con el motivo.
   Escribir `progress/impl_495.md` con el mapa R1–R9 → test de `requirements.md` y las contrapruebas
