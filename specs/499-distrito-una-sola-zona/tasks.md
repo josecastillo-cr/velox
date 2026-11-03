@@ -22,7 +22,7 @@
 
   *Hecho:* los dos en **rojo** en `dev` sin cambios (hoy responden `ok`). El rojo se anota en
   `progress/impl_499.md`.
-- [ ] **B.1 Migraciones y esquema** (design §2).
+- [x] **B.1 Migraciones y esquema** (design §2).
   - Mirar `origin/dev` y fijar los timestamps (otras fichas del lote van en paralelo).
   - `…_zona_distrito_limpieza_499/{migration.sql,down.sql}` y `…_zona_distrito_unico_499/{migration.sql,down.sql}`.
   - `@@unique([distritoId])` en `ZonaDistrito` y `prisma generate`.
