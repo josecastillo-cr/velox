@@ -215,6 +215,7 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
       // lectura, el firmador se llamaría con esta ruta.
       const repo = fakeRepo({
         findCierreBodegaConDetalle: vi.fn(async () => ({
+          puedeDesmarcar: false, // ficha 500
           cierre: bodegaResumenRow(),
           cierresDia: [
             {
@@ -237,6 +238,7 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
     const repo = fakeRepo({
       findCierresBodega: vi.fn(async () => [bodegaResumenRow()]),
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [{ resumen: detalleCierreRow(), gestiones: [gestionRow()] }],
       })),
@@ -248,6 +250,23 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
     expect((await service.verCierreBodegaDetalle("cb1", ADMIN)).status).toBe("ok");
     expect((await service.aprobarCierreBodega("cb1", ADMIN)).status).toBe("ok");
     expect((await service.rechazarCierreBodega("cb1", "motivo", ADMIN)).status).toBe("ok");
+  });
+});
+
+describe("FICHA 500 (R3/R4) — el detalle propaga `puedeDesmarcar` del repositorio tal cual", () => {
+  it.each([true, false])("repositorio dice %s -> el DTO dice lo mismo (el servicio no recalcula)", async (valor) => {
+    const repo = fakeRepo({
+      findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: valor,
+        cierre: bodegaResumenRow(),
+        cierresDia: [],
+      })),
+    });
+    const { service } = newService({ repo });
+    const r = await service.verCierreBodegaDetalle("cb1", MAESTRO);
+    expect(r.status).toBe("ok");
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(r.puedeDesmarcar).toBe(valor);
   });
 });
 
@@ -351,6 +370,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — ingreso y gananci
   it("deriva el ingreso y la ganancia por cierre_dia Y agregados de toda la bodega", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         // Snapshot agregado de la bodega: 1500 + 500 de pago a mensajeros.
         cierre: bodegaResumenRow({ totalPagoMensajero: "2000.00" }),
         cierresDia: [
@@ -417,6 +437,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — ingreso y gananci
   it("la ganancia agregada es negativa si la bodega no factura pero igual paga", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ totalPagoMensajero: "2000.00" }),
         cierresDia: [
           {
@@ -441,6 +462,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R11/R13: detalle por cierre_dia con gestiones agrupadas por resultado + totales snapshot", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({
           totales: { efectivo: "20.00", simpe: "0.00", transferencia: "0.00", general: "20.00" },
         }),
@@ -491,6 +513,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R12: firma en LOTE las evidencias de todos los cierre_dia; expone SOLO URL firmada, no el path", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [
           {
@@ -524,6 +547,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("478/R13: firma la evidencia de una ENTREGADA, una REPROGRAMADA y una NOVEDAD, no solo de rechazos", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [
           {
@@ -569,6 +593,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R20: el detalle expone el pago al mensajero snapshoteado por cierre_dia, por gestion y el agregado", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ totalPagoMensajero: "12.00" }),
         cierresDia: [
           {
@@ -593,6 +618,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R19: el detalle expone el ingreso de bodega por devoluciones a origen por cierre_dia y el agregado (snapshot)", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ totalIngresoBodegaRechazos: "9.00" }),
         cierresDia: [
           {
@@ -626,6 +652,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R23: ver detalle NO muta (nunca invoca resolverCierreBodega)", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [{ resumen: detalleCierreRow(), gestiones: [gestionRow()] }],
       })),
@@ -944,6 +971,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
   ) {
     return fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ ...AGREGADO, ...cierre }),
         cierresDia: [
           {
@@ -1360,6 +1388,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
   function repoDeDosMensajeros(cierre: Partial<CierreBodegaResumenRow> = {}) {
     return fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ ...SNAPSHOT_AGREGADO, ...cierre }),
         cierresDia: [
           {
@@ -1654,6 +1683,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
     // error que la 264 ya documentó.
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({
           totales: {
             efectivo: "100000.00",
@@ -1701,6 +1731,7 @@ describe("486 · CierresBodegaAdminService.verCierreBodegaDetalle — todas las 
   function repoConVariasFotos() {
     return fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [
           {

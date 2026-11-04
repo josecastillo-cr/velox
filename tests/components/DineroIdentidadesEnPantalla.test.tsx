@@ -914,6 +914,7 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
       partesPorTienda: [],
       paraLaCentral: "111838.37",
       efectivoCubreDescuentos: true,
+      puedeDesmarcar: false, // ficha 500
     });
 
     render(

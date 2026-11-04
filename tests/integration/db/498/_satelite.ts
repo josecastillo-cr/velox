@@ -139,3 +139,15 @@ export async function filasDeDiferencia(e: Escenario, cierreBodegaId: string): P
     cierreBodegaId,
   )) as FilaDiferencia[];
 }
+
+// FICHA 500 (T1.2): movido aqui desde `498-conciliar-asienta-sql-real.test.ts`, SIN cambiar su cuerpo,
+// para que lo compartan los tests de la 500.
+/** Dos cierres satelite aprobados (efectivo + SINPE; solo efectivo) y consolidados. */
+export async function consolidacionConDosCierres(e: Escenario) {
+  await tarifaDeLaTienda(e);
+  const c1 = await cierreSateliteAprobado(e, [{ monto: 6000 }, { monto: 4000, metodo: "SINPE" }]);
+  const c2 = await cierreSateliteAprobado(e, [{ monto: 3000 }], e.actorMensajero2);
+  const cbId = await consolidar(e);
+  const snap = await e.tx.cierreBodega.findUniqueOrThrow({ where: { id: cbId }, select: SNAPSHOT_SELECT });
+  return { c1, c2, cbId, aporte: aporteAMano(snap) };
+}

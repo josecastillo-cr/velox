@@ -73,6 +73,7 @@ const CONSOLIDACION: ConsolidacionSateliteDTO = {
   debe: "620000.25",
   debePositivo: true,
   saldadaReglaAnterior: false,
+  puedeDesmarcar: false, // ficha 500
 };
 
 describe("orden de las columnas de descarga de los saldos de bodegas satélite", () => {

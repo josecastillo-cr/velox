@@ -169,6 +169,8 @@ export interface ICierresBodegaAdminRepository {
       resumen: CierreBodegaDetalleCierreRow;
       gestiones: CierreGestionPendienteRow[];
     }[];
+    /** FICHA 500 (R3/R4): conciliada, sin dinero (`consolidacionesConDinero`) y no saldada con la regla anterior. */
+    puedeDesmarcar: boolean;
   } | null>;
   /**
    * Feature 230 — Tanda 7 (T7.1, R11/R24/R26/R41): TODAS las gestiones de los cierres del dia YA

@@ -70,6 +70,7 @@ function consolidacion(over: Partial<ConsolidacionSateliteDTO> = {}): Consolidac
     debe: "91350.25",
     debePositivo: true,
     saldadaReglaAnterior: false,
+    puedeDesmarcar: false, // ficha 500
     conciliado: false,
     conciliadoAt: null,
     conciliadoPorNombre: null,

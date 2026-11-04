@@ -12,7 +12,12 @@ import {
   deudaDeZona,
   esSaldadaReglaAnterior,
   faltaPorRecibir,
+  puedeDesmarcarse,
 } from "@/lib/utils/conciliacion-satelite";
+import {
+  consolidacionesConDinero,
+  type ClienteConDinero,
+} from "@/lib/repositories/consolidaciones-con-dinero";
 import {
   aporteCierreSql,
   cuentaEnLaDeudaSql,
@@ -85,8 +90,10 @@ type ConsolidacionRow = Prisma.CierreBodegaGetPayload<{ select: typeof CONSOLIDA
 // dejado a la satelite y a la central capaces de leer la misma consolidacion con dos cifras
 // distintas. Sigue siendo `Prisma.Decimal` -> `toFixed(2)` en el emisor; aqui no cambia nada mas.
 
-function toConsolidacionDTO(r: ConsolidacionRow): ConsolidacionSateliteDTO {
+function toConsolidacionDTO(r: ConsolidacionRow, conDinero: boolean): ConsolidacionSateliteDTO {
   const debe = aporteDeConsolidacion(r);
+  const conciliado = r.conciliadoAt !== null;
+  const saldadaReglaAnterior = esSaldadaReglaAnterior(r);
   return {
     cierreBodegaId: r.id,
     solicitadoAt: r.solicitadoAt.toISOString(),
@@ -108,8 +115,10 @@ function toConsolidacionDTO(r: ConsolidacionRow): ConsolidacionSateliteDTO {
     ),
     debe: debe.toFixed(2),
     debePositivo: debe.greaterThan(0),
-    saldadaReglaAnterior: esSaldadaReglaAnterior(r),
-    conciliado: r.conciliadoAt !== null,
+    saldadaReglaAnterior,
+    // ⭑ FICHA 500 (R3/R4): los MISMOS dos cortes que `revertirConciliacion`.
+    puedeDesmarcar: puedeDesmarcarse({ conciliado, conDinero, saldadaReglaAnterior }),
+    conciliado,
     conciliadoAt: r.conciliadoAt === null ? null : r.conciliadoAt.toISOString(),
     conciliadoPorNombre:
       r.conciliadoPorUsuario === null ? null : etiquetaDeCuenta(r.conciliadoPorUsuario),
@@ -118,7 +127,9 @@ function toConsolidacionDTO(r: ConsolidacionRow): ConsolidacionSateliteDTO {
   };
 }
 
-type ClienteSaldosSatelites = Pick<PrismaClient, "cierreBodega" | "zona" | "$queryRaw">;
+// FICHA 500: + los cinco delegados de `consolidacionesConDinero` (R1).
+type ClienteSaldosSatelites = Pick<PrismaClient, "cierreBodega" | "zona" | "$queryRaw"> &
+  ClienteConDinero;
 
 /** FICHA 498: lo que las dos agregaciones de la deuda dan por zona (R23/R24). */
 interface DeudaDeZona {
@@ -371,7 +382,9 @@ export class SaldosSatelitesRepository implements ISaldosSatelitesRepository {
       }),
       this.prisma.cierreBodega.count({ where }),
     ]);
-    return { items: rows.map(toConsolidacionDTO), total };
+    // FICHA 500 (R1/R3): UNA llamada por pagina, no por fila.
+    const conDinero = await consolidacionesConDinero(this.prisma, rows.map((r) => r.id));
+    return { items: rows.map((r) => toConsolidacionDTO(r, conDinero.has(r.id))), total };
   }
 
   async findConsolidacionesCompleto(
@@ -383,7 +396,8 @@ export class SaldosSatelitesRepository implements ISaldosSatelitesRepository {
       orderBy: { solicitadoAt: "desc" }, // el MISMO orden que la pagina (R29)
       select: CONSOLIDACION_SELECT,
     });
-    return rows.map(toConsolidacionDTO);
+    const conDinero = await consolidacionesConDinero(this.prisma, rows.map((r) => r.id));
+    return rows.map((r) => toConsolidacionDTO(r, conDinero.has(r.id)));
   }
 
   /** UN solo `where` para las cuatro lecturas del desglose, por el motivo de arriba. */

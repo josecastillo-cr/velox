@@ -161,6 +161,7 @@ function consolidacion(over: Partial<ConsolidacionSateliteDTO> = {}): Consolidac
     debe: "100000.00",
     debePositivo: true,
     saldadaReglaAnterior: false,
+    puedeDesmarcar: false, // ficha 500
     ...over,
   };
 }

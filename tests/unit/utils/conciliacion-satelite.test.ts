@@ -7,6 +7,7 @@ import {
   deudaDeZona,
   esSaldadaReglaAnterior,
   faltaPorRecibir,
+  puedeDesmarcarse,
 } from "@/lib/utils/conciliacion-satelite";
 
 /**
@@ -98,5 +99,21 @@ describe("498/R27 — la tarjeta del cierre de bodega (mapper `toBodegaResumenRo
     // Aporte negativo (pago 12 000 > general 10 000): debe −2 000 y NO es positivo (el dialogo propone 0).
     const negativo = toBodegaResumenRow(fila({ totalPagoMensajero: D("12000.00"), montoRecibido: null, conciliadoAt: null, estado: "solicitado" }));
     expect([negativo.debe, negativo.debePositivo]).toEqual(["-2000.00", false]);
+  });
+});
+
+describe("FICHA 500 (R3/R4) — puedeDesmarcarse: los dos cortes de revertirConciliacion", () => {
+  // Tabla de verdad ENTERA (8 filas), escrita a mano: solo conciliada, sin dinero y no saldada -> true.
+  it.each([
+    [true, false, false, true],
+    [true, true, false, false],
+    [true, false, true, false],
+    [true, true, true, false],
+    [false, false, false, false],
+    [false, true, false, false],
+    [false, false, true, false],
+    [false, true, true, false],
+  ])("conciliado=%s conDinero=%s saldada=%s -> %s", (conciliado, conDinero, saldadaReglaAnterior, esperado) => {
+    expect(puedeDesmarcarse({ conciliado, conDinero, saldadaReglaAnterior })).toBe(esperado);
   });
 });

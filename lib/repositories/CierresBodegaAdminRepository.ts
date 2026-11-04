@@ -19,7 +19,11 @@ import {
   type DependenciasAsiento,
 } from "@/lib/repositories/asentar-cierre-dia";
 import type { CrearMovimientoInput } from "@/lib/interfaces/repositories/IWalletMovimientoRepository";
-import { aporteDeConsolidacion, esSaldadaReglaAnterior } from "@/lib/utils/conciliacion-satelite";
+import { aporteDeConsolidacion, esSaldadaReglaAnterior, puedeDesmarcarse } from "@/lib/utils/conciliacion-satelite";
+import {
+  consolidacionesConDinero,
+  type ClienteConDinero,
+} from "@/lib/repositories/consolidaciones-con-dinero";
 import type { CierreBodegaResumenRow } from "@/lib/interfaces/repositories/ICierreBodegaRepository";
 import type { CierreGestionPendienteRow } from "@/lib/interfaces/repositories/ICierreDiaRepository";
 import {
@@ -80,7 +84,9 @@ type CierresBodegaAdminPrismaClient = Pick<
   | "usuario"
   | "zona"
 > &
-  AsientoPrismaClient;
+  AsientoPrismaClient &
+  // FICHA 500 (R1/R3): el detalle calcula `puedeDesmarcar` con `consolidacionesConDinero`.
+  ClienteConDinero;
 
 type TxConciliacion = Prisma.TransactionClient;
 
@@ -361,6 +367,7 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
       resumen: CierreBodegaDetalleCierreRow;
       gestiones: CierreGestionPendienteRow[];
     }[];
+    puedeDesmarcar: boolean;
   } | null> {
     const cierre = await this.prisma.cierreBodega.findUnique({
       where: { id },
@@ -409,7 +416,15 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
       }),
     );
 
-    return { cierre: toBodegaResumenRow(cierre), cierresDia };
+    // ⭑ FICHA 500 (R3/R4): «Desmarcar» con el MISMO criterio que `revertirConciliacion`.
+    const resumen = toBodegaResumenRow(cierre);
+    const conDinero = (await consolidacionesConDinero(this.prisma, [id])).has(id);
+    const puedeDesmarcar = puedeDesmarcarse({
+      conciliado: resumen.conciliado,
+      conDinero,
+      saldadaReglaAnterior: resumen.saldadaReglaAnterior,
+    });
+    return { cierre: resumen, cierresDia, puedeDesmarcar };
   }
 
   /**
@@ -645,7 +660,8 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
     const resultado = await this.prisma.$transaction(async (tx) => {
       // ⭑ FICHA 498 (design §4.6, R20): si el dinero YA entro a la caja, no se revierte NADA —ni la
       // marca, ni el historial, ni los libros—. Se corrige el monto en vez de revertir (R21).
-      if (await this.tieneAsientos(tx, id)) return "con_asientos" as const;
+      // ⭑ FICHA 500 (R1/R2): el MISMO criterio que las pantallas, en `consolidacionesConDinero`.
+      if ((await consolidacionesConDinero(tx, [id])).has(id)) return "con_asientos" as const;
       // FICHA 498 (revision m2): una saldada con la regla anterior (Q4) no se revierte. Sin este corte,
       // el `updateMany` de abajo violaria el CHECK `cierre_bodega_esperado_regla_anterior_check` de M4
       // (`conciliado_at = NULL` con la marca puesta) y saldria como error interno. Desenlace de dominio.
@@ -876,22 +892,6 @@ export class CierresBodegaAdminRepository implements ICierresBodegaAdminReposito
     if (escritas !== 1) {
       throw new Error(`ficha 498: la diferencia de la consolidacion ${d.cierreBodegaId} no se escribio`);
     }
-  }
-
-  /**
-   * FICHA 498 (design §4.6, R20): ¿la consolidacion tiene asientos? Alguna fila de ajuste, o alguna
-   * fila de los tres libros con origen `cierre_dia` en uno de sus cierres.
-   */
-  private async tieneAsientos(tx: TxConciliacion, id: string): Promise<boolean> {
-    if ((await tx.conciliacionBodegaAjuste.count({ where: { cierreBodegaId: id } })) > 0) return true;
-    const cierres = (
-      await tx.cierreDia.findMany({ where: { cierreBodegaId: id }, select: { id: true } })
-    ).map((c) => c.id);
-    if (cierres.length === 0) return false;
-    const deCierres = { origenTipo: "cierre_dia" as const, origenId: { in: cierres } };
-    if ((await tx.walletMovimiento.count({ where: deCierres })) > 0) return true;
-    if ((await tx.walletTiendaMovimiento.count({ where: deCierres })) > 0) return true;
-    return (await tx.pagoMensajeroMovimiento.count({ where: deCierres })) > 0;
   }
 }
 

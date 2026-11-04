@@ -159,6 +159,12 @@ export type CierreBodegaDetalleServiceResult =
       paraLaCentral: string;
       /** Feature 393 (R37) — DERIVADO: ¿los descuentos caben en el EFECTIVO agregado? */
       efectivoCubreDescuentos: boolean;
+      /**
+       * ⭑ FICHA 500 (R3/R4) — ¿se ofrece «Desmarcar»? Lo calcula el REPOSITORIO con
+       * `consolidacionesConDinero` + `puedeDesmarcarse` (los dos cortes de `revertirConciliacion`);
+       * el servicio lo propaga tal cual, sin recalcularlo.
+       */
+      puedeDesmarcar: boolean;
     }
   | { status: "forbidden" } // rol != maestro (R2)
   | { status: "no_encontrada" }; // id inexistente (R19)

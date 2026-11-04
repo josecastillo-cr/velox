@@ -228,6 +228,7 @@ function detalle(gruposAna: CierreGrupos = GRUPOS_ANA) {
     partesPorTienda: [],
     paraLaCentral: "6949.75",
     efectivoCubreDescuentos: true,
+    puedeDesmarcar: false, // ficha 500
     ...marcaSinConciliar("6000.25"),
   };
 }
