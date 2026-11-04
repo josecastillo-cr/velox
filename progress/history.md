@@ -5784,3 +5784,8 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - Aprobar un cierre satélite ya no escribe en los libros; marcar recibida la consolidación asienta sus cierres y la diferencia en caja (bolsillo «Por cobrar a satélites»). Deuda sobre todos los métodos; conciliación con dinero no se revierte (se corrige). M1-M4, con M4 regularizando las conciliadas con la regla anterior.
 - Requisitos cubiertos: R1-R44 (64 con los bis/a/b), mapa en progress/impl_498.md; mutaciones 16/16.
 - Deuda: m3 (R2 solo indirecto), m4 (test «R34» no prueba R34), m5 (tono voseo/tuteo entre ayuda y conciliación). T8.4 (medición en prod) pendiente para la release.
+
+## 2026-11-03 — 500 deuda de satélites al conciliar y distritos de zonas
+- «Desmarcar» solo sin dinero (fuente única consolidacionesConDinero para servidor y pantallas); tests de la fórmula del esperado y del revertir con solo ajuste; rastro de distritos en el histórico (enum zona_distrito_cambiado); texto PROVISIONAL retirado.
+- Requisitos cubiertos: R1-R23. Bloque 8 (R24-R30) pendiente de su puerta.
+- Deuda: ficha 502 (m1 test tx vs this.prisma, m4 nota contradictoria en Desmarcar, m5 sobrante con dinero sin acciones).

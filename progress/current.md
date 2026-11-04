@@ -1,3 +1,10 @@
+# ESTADO 2026-11-03 (cierre) — 500 MERGEADA en `dev` (PR #884, 6af0749e), SIN DESPLEGAR; in_progress = 0
+
+- Gate post-merge verde (`progress/gate_dev_tras_884.log`). En dev sin desplegar: 498 y 500.
+- Siguiente: 501, 494, 502 (spec → aprobación → implementar). Release a prod con 498+500 cuando la pida el humano (T8.4 de la 498 el mismo día; gate COMPLETO antes).
+- Bloque 8 de la 500 (retirar respaldos): pendiente de su puerta.
+- Antes de lanzar subagentes: salir de auto mode.
+
 # CIERRE 2026-11-03 (noche) — 500 con PR #884 abierto (revisión OK, build verde), pendiente de merge del humano
 
 - Al mergear #884: `prisma migrate deploy` local, gate `--rapido` sobre dev, cerrar la 500 (feature_list, current, history), borrar worktrees R:/w498 y R:/w500 (robocopy /MIR antes de `git worktree remove`).
