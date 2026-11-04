@@ -10,6 +10,7 @@ import userEvent from "@testing-library/user-event";
 
 import { ToastProvider } from "@/providers/ToastProvider";
 import { PagosRegistradosTabla } from "@/components/shared/liquidacion/PagosRegistradosTabla";
+import { filaDescargaPagoRegistrado } from "@/components/shared/liquidacion/pagos-registrados-descarga-columnas";
 import { descargarBlob } from "@/components/shared/descargar-blob";
 import { buildXlsxRows } from "@/lib/utils/xlsx-template";
 import type { PagoRegistradoDTO } from "@/lib/types/liquidacion";
@@ -502,5 +503,84 @@ describe("descarga — Familia B, sobre lo que ya está en el cliente", () => {
     expect(
       (await screen.findAllByText(/No hay datos que descargar/)).length,
     ).toBeGreaterThan(0);
+  });
+});
+
+// Ficha 501. Los esperados son LITERALES: compararlos contra `fechaCalendarioCR` sería comparar la
+// función consigo misma. Y las horas caen a propósito en 00:00-05:59 UTC: entre las 09:00 y las
+// 18:00 UTC de los fixtures de arriba, el día UTC y el de Costa Rica coinciden y el defecto no se ve.
+describe("ficha 501 — «Registrado el» y «Anulado el» se ven en día de Costa Rica", () => {
+  const COL_FECHA_PAGO = 0;
+  const COL_REGISTRADO_EL = 6;
+
+  const anuladoEn = (anuladoAt: string): PagoRegistradoDTO => ({
+    ...VIGENTE,
+    anulacion: { motivo: "Duplicado", anuladoPorNombre: "Ana Maestra", anuladoAt },
+  });
+
+  const celda = (columna: number) =>
+    within(filaDe("2026-07-30")).getAllByRole("cell")[columna].textContent;
+
+  it("R1: un registro de las 20:30 de Costa Rica se ve con SU día, no con el siguiente", () => {
+    montar([{ ...VIGENTE, registradoAt: "2026-08-03T02:30:00.000Z" }]);
+    expect(celda(COL_REGISTRADO_EL)).toBe("2026-08-02");
+  });
+
+  it("R2: una anulación de las 20:30 de Costa Rica se ve con SU día, no con el siguiente", () => {
+    montar([anuladoEn("2026-08-04T02:30:00.000Z")]);
+    expect(
+      within(filaDe("2026-07-30")).getByText("Anulado por Ana Maestra el 2026-08-03"),
+    ).toBeInTheDocument();
+  });
+
+  it.each([
+    ["2026-08-03T00:00:00.000Z", "2026-08-02"],
+    ["2026-08-03T05:59:59.999Z", "2026-08-02"],
+    ["2026-08-03T06:00:00.000Z", "2026-08-03"],
+    ["2026-09-01T00:00:00.000Z", "2026-08-31"],
+    ["2027-01-01T05:00:00.000Z", "2026-12-31"],
+  ])("R5: el instante %s se ve como %s, en registro y en anulación", (instante, esperado) => {
+    montar([{ ...anuladoEn(instante), registradoAt: instante }]);
+    expect(celda(COL_REGISTRADO_EL)).toBe(esperado);
+    expect(
+      within(filaDe("2026-07-30")).getByText(`Anulado por Ana Maestra el ${esperado}`),
+    ).toBeInTheDocument();
+  });
+
+  it("R6: «Fecha del pago» es un día calendario y no recibe el desfase, ni en la frontera", () => {
+    montar([
+      { ...anuladoEn("2026-08-04T00:00:00.000Z"), registradoAt: "2026-08-03T00:00:00.000Z" },
+    ]);
+    expect(celda(COL_FECHA_PAGO)).toBe("2026-07-30");
+  });
+
+  it("R7: la pantalla y la descarga dicen el MISMO día de registro y de anulación", () => {
+    const pago: PagoRegistradoDTO = {
+      ...anuladoEn("2026-08-04T00:00:00.000Z"),
+      registradoAt: "2026-08-03T00:00:00.000Z",
+    };
+    montar([pago]);
+
+    expect(celda(COL_REGISTRADO_EL)).toBe("2026-08-02");
+    expect(
+      within(filaDe("2026-07-30")).getByText("Anulado por Ana Maestra el 2026-08-03"),
+    ).toBeInTheDocument();
+
+    const fila = filaDescargaPagoRegistrado(pago);
+    expect(fila.registradoEl).toBe("2026-08-02");
+    expect(fila.anuladoEl).toBe("2026-08-03");
+  });
+
+  it("R8: un pago VIGENTE en la frontera sigue sin texto de anulación", () => {
+    montar([{ ...VIGENTE, registradoAt: "2026-08-03T00:00:00.000Z" }]);
+    expect(within(filaDe("2026-07-30")).queryByText(/Anulado por/)).not.toBeInTheDocument();
+  });
+
+  it("R9: lo que no es un instante legible se ve TAL CUAL, sin inventar fecha ni fallar", () => {
+    montar([{ ...anuladoEn("pendiente"), registradoAt: "pendiente" }]);
+    expect(celda(COL_REGISTRADO_EL)).toBe("pendiente");
+    expect(
+      within(filaDe("2026-07-30")).getByText("Anulado por Ana Maestra el pendiente"),
+    ).toBeInTheDocument();
   });
 });

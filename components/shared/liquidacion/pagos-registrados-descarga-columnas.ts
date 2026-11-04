@@ -21,7 +21,7 @@
  */
 import type { DescargaColumna, DescargaFila } from "@/lib/types/descarga";
 import type { PagoRegistradoDTO } from "@/lib/types/liquidacion";
-import { fechaDiaISO } from "@/lib/utils/fecha-dia-iso";
+import { fechaDiaISO, fechaDiaInstanteCR } from "@/lib/utils/fecha-dia-iso";
 
 import {
   METODO_LIQUIDACION_LABEL,
@@ -58,6 +58,10 @@ export const COLUMNAS_DESCARGA_PAGOS_REGISTRADOS: DescargaColumna[] = [
  *
  * Las celdas ausentes van como `null` (celda vacía), no como `"—"`: el guion es presentación
  * y en una hoja de cálculo se lee como un dato.
+ *
+ * Las fechas son de dos tipos (ficha 501): `fechaPago` es un `@db.Date` y ya es el día calendario;
+ * `registradoAt` y `anuladoAt` son instantes en UTC y se leen en día de Costa Rica. La tabla usa las
+ * mismas funciones, así que pantalla y archivo dicen el mismo día.
  */
 export function filaDescargaPagoRegistrado(pago: PagoRegistradoDTO): DescargaFila {
   const anulacion = pago.anulacion;
@@ -68,10 +72,10 @@ export function filaDescargaPagoRegistrado(pago: PagoRegistradoDTO): DescargaFil
     referencia: pago.referencia,
     nota: pago.nota,
     registradoPor: pago.registradoPorNombre,
-    registradoEl: fechaDiaISO(pago.registradoAt),
+    registradoEl: fechaDiaInstanteCR(pago.registradoAt),
     estado: anulacion ? PAGO_ESTADO_LABEL.anulado : PAGO_ESTADO_LABEL.vigente,
     anuladoPor: anulacion ? anulacion.anuladoPorNombre : null,
-    anuladoEl: anulacion ? fechaDiaISO(anulacion.anuladoAt) : null,
+    anuladoEl: anulacion ? fechaDiaInstanteCR(anulacion.anuladoAt) : null,
     motivoAnulacion: anulacion ? anulacion.motivo : null,
   };
 }

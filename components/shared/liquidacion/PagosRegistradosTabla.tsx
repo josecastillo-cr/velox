@@ -11,7 +11,7 @@ import type {
   AnularRepartoResult,
   PagoRegistradoDTO,
 } from "@/lib/types/liquidacion";
-import { fechaDiaISO } from "@/lib/utils/fecha-dia-iso";
+import { fechaDiaISO, fechaDiaInstanteCR } from "@/lib/utils/fecha-dia-iso";
 
 import {
   AnularPagoDialog,
@@ -60,10 +60,10 @@ import {
 // Ocultar el botón NO es control de acceso: es la mitad visible. La otra mitad —que la acción
 // responda `forbidden` a quien no puede— vive en el servicio y se prueba aparte.
 
-/** Instante ISO como día calendario. La hora no aporta nada a la lectura de un comprobante. */
-function dia(iso: string): string {
-  return fechaDiaISO(iso);
-}
+// Las fechas de un comprobante son de dos tipos y cada sitio nombra su función (ficha 501):
+// `fechaPago` es un `@db.Date` y ya es el día calendario (`fechaDiaISO`); `registradoAt` y
+// `anuladoAt` son instantes en UTC y se leen en día de Costa Rica (`fechaDiaInstanteCR`). No se
+// les pone un alias común: con uno solo, una de las dos lecturas sale un día corrida.
 
 /** Celda de estado: la insignia y, si el pago está anulado, quién, cuándo y por qué (R74). */
 function EstadoCelda({ pago }: { pago: PagoRegistradoDTO }) {
@@ -77,7 +77,7 @@ function EstadoCelda({ pago }: { pago: PagoRegistradoDTO }) {
       <span className="text-xs text-muted-foreground">
         {PAGOS_REGISTRADOS_TEXTO.anuladoPor(
           anulacion.anuladoPorNombre,
-          dia(anulacion.anuladoAt),
+          fechaDiaInstanteCR(anulacion.anuladoAt),
         )}
       </span>
       <span className="text-xs text-muted-foreground">
@@ -95,7 +95,7 @@ const COLUMNS: Column<PagoRegistradoDTO>[] = [
   {
     id: "fechaPago",
     value: PAGOS_REGISTRADOS_COLUMNAS.fechaPago,
-    render: (p) => dia(p.fechaPago),
+    render: (p) => fechaDiaISO(p.fechaPago),
   },
   {
     id: "monto",
@@ -126,7 +126,7 @@ const COLUMNS: Column<PagoRegistradoDTO>[] = [
   {
     id: "registradoEl",
     value: PAGOS_REGISTRADOS_COLUMNAS.registradoEl,
-    render: (p) => dia(p.registradoAt),
+    render: (p) => fechaDiaInstanteCR(p.registradoAt),
   },
   {
     id: "estado",

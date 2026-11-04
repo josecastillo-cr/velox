@@ -7,13 +7,13 @@ Zona frontend. Implementa `frontend_dev`. Requisitos en `requirements.md`; casos
 
 ## Tests primero
 
-- [ ] **T1 [P]. Tests de pantalla y descarga** (R1-R7, R9)
+- [x] **T1 [P]. Tests de pantalla y descarga** (R1-R7, R9)
   - En `tests/components/PagosRegistradosTabla.test.tsx` y
     `tests/unit/descarga/pagos-registrados-descarga-columnas.test.ts`, con esperados literales.
   - **Hecho:** los casos de R1-R5 y R7 fallan contra el código actual, con el día siguiente como valor
     recibido. Salida anotada en `progress/impl_501.md`. Los de R6 y R9 ya pasan: su prueba es T5.
 
-- [ ] **T2 [P]. Ampliar la guardia** (R10)
+- [x] **T2 [P]. Ampliar la guardia** (R10)
   - En `tests/unit/guards/cierres-fecha-cr-495.guardia.test.ts`, según `design.md` D4, sin cambiar
     `CARPETAS` ni su test.
   - **Hecho:** la contraprueba pasa y el barrido real falla nombrando exactamente
@@ -22,18 +22,18 @@ Zona frontend. Implementa `frontend_dev`. Requisitos en `requirements.md`; casos
 
 ## Arreglo
 
-- [ ] **T3 [P]. Descarga** (depende de T1) (R3, R4, R5, R9)
+- [x] **T3 [P]. Descarga** (depende de T1) (R3, R4, R5, R9)
   - `:71` y `:74` pasan a `fechaDiaInstanteCR`. `:65` no se toca.
   - **Hecho:** los casos de descarga de T1 pasan y el módulo sigue exportando solo dos cosas.
 
-- [ ] **T4 [P]. Tabla** (depende de T1) (R1, R2, R5, R6)
+- [x] **T4 [P]. Tabla** (depende de T1) (R1, R2, R5, R6)
   - Se retira el alias `dia`. `:80` y `:129` pasan a `fechaDiaInstanteCR`; `:98` a `fechaDiaISO`.
   - **Hecho:** todo `tests/components/PagosRegistradosTabla.test.tsx` pasa, incluidos los existentes, y
     no queda ninguna referencia a `dia(`. T2 pasa a verde con T3 y T4.
 
 ## Verificación
 
-- [ ] **T5. Mutaciones, una a una** (depende de T3, T4)
+- [x] **T5. Mutaciones, una a una** (depende de T3, T4)
   - Autocomprobación primero: una mutación que deba caer tiene que poner rojo un test ejecutado, con
     número de tests mayor que cero.
   - Revertir a `fechaDiaISO` cada sitio por separado: tabla `registradoAt`, tabla `anuladoAt`, descarga
@@ -67,7 +67,7 @@ Zona frontend. Implementa `frontend_dev`. Requisitos en `requirements.md`; casos
   - **Hecho:** `innerText` y celdas del archivo citados en `progress/impl_501.md`, con pantallas mostradas
     y no mostradas; base local limpia o limpieza pendiente declarada.
 
-- [ ] **T8. Mapa de trazabilidad** (depende de T7)
+- [x] **T8. Mapa de trazabilidad** (depende de T7)
   - Mapa `R<n>` → test concreto en `progress/impl_501.md`, con mutaciones de T5, evidencia de T7 y la
     decisión sobre el alias `dia`.
   - **Hecho:** R1-R10 mapeados, cada uno con archivo y nombre real del test.
