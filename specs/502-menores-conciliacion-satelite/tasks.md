@@ -13,11 +13,11 @@ Q1 = salida A (humano, 2026-11-04): las tareas de la salida B ya están borradas
 
 ## T1-T3 · Backend (solo tests; no cambia `lib/`)
 
-- [ ] **T1 [P]** (R4, R5) Añadir a `tests/integration/db/zona-distrito-rastro-500.test.ts` el caso «502/R4/R5» y
+- [x] **T1 [P]** (R4, R5) Añadir a `tests/integration/db/zona-distrito-rastro-500.test.ts` el caso «502/R4/R5» y
   `raizDistintaDeTx` (`design.md` §2). Anti-vacuidad: `soloOk` del guardado y 2 filas dentro de la `tx`. La limpieza va
   antes de los `expect`. **Hecho:** el archivo está verde aislado. Depende de T0.2.
 
-- [ ] **T2** (R4, R5) Mutación T6.10. Cambiar `tx` por `this.prisma` en `lib/repositories/ZonaRepository.ts:775` y correr
+- [x] **T2** (R4, R5) Mutación T6.10. Cambiar `tx` por `this.prisma` en `lib/repositories/ZonaRepository.ts:775` y correr
   solo ese archivo. **Hecho:** en `progress/impl_502.md` constan:
   - el rojo exacto, que debe ser el caso nuevo y con `2` frente a `0` en la lectura desde la otra conexión;
   - que el resto del archivo sigue verde (prueba de que la mutación se aplicó y el rojo no viene de otra cosa);
@@ -25,7 +25,7 @@ Q1 = salida A (humano, 2026-11-04): las tareas de la salida B ya están borradas
   - una consulta que confirme 0 filas `zona_distrito_cambiado` residuales de esa zona en la base local.
   Depende de T1.
 
-- [ ] **T3 [P]** (R11, R12) Crear `tests/integration/db/502-corregir-de-mas-sql-real.test.ts` con las siete filas de
+- [x] **T3 [P]** (R11, R12) Crear `tests/integration/db/502-corregir-de-mas-sql-real.test.ts` con las siete filas de
   `design.md` §3.1, con literales a mano, más un caso con cierres reales (`consolidacionConDosCierres`) que afirme
   `filasDeLosLibros` igual antes y después, y filas de marca byte a byte iguales. **Hecho:** verde aislado contra el código
   actual. Si una fila no da lo calculado, **parar y avisar**: la recomendación de Q1 se apoyaba en esa tabla.
