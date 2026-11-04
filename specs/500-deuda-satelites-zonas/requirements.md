@@ -206,3 +206,9 @@ R30 no aplican. ¿A o B? Si no hay respuesta, el spec sigue con **B**.
 angulares van dentro del valor guardado (`«Carmen (San José)»`) o son solo la forma de citarlo en el
 documento (`Carmen (San José)`)? El precedente del repo (`nodo_geografico_renombrado`) guarda el nombre
 sin comillas. Si no hay respuesta, el spec sigue **sin comillas**.
+
+## Respuestas del humano (2026-11-03, 19:00)
+
+- **Spec APROBADO.**
+- **Q1 → B.** Los `down.sql` de la 498 (M3) y de la 499 no se tocan; la migración de retiro lo declara en su cabecera y en su `down.sql`. R29 y R30 NO aplican.
+- **Q2 → sin comillas.** Se guarda `Carmen (San José)`, como `nodo_geografico_renombrado`.

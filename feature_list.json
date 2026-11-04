@@ -5991,7 +5991,7 @@
       "title": "Deuda de satélites al conciliar y de zonas",
       "description": "Bloques 2-4 y 6-9 de H5: Desmarcar solo sin dinero, revertir rechaza con ajuste, una sola fórmula del esperado, rastro de distritos en el histórico, textos definitivos y retiro de respaldos con puerta propia.",
       "zone": "fullstack",
-      "status": "pending",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "medium",
       "depends_on": 498,
