@@ -1,7 +1,7 @@
-# ESTADO 2026-11-03 (noche) — 500 BACKEND HECHO en `fix/500-deuda-satelites-zonas` (f4358e1e, pusheado); frontend SIN EMPEZAR
+# ESTADO 2026-11-03 (noche) — 500 BACKEND HECHO en `fix/500-deuda-satelites-zonas` (f4358e1e, pusheado); frontend HECHO (e4d0240f)
 
 - Spec 500 aprobado (Q1=B, Q2 sin comillas). Worktree `R:/w500`. Backend R1-R4 y R9-R23 hecho: gate --rapido INIT_EXIT=0 (`R:/w500/progress/gate_500_backend.log`, 3 intermitentes verdes aislados), mutaciones 9/10 (T6.10 no distinguible con la fixture, anotado). Migración `20261104120000_historial_accion_zona_distrito_500` aplicada en la base local.
-- Siguiente: frontend_dev T7 (R5-R8, componente de R3, columnas de R21) leyendo «Contratos para el frontend» de `progress/impl_500.md`. OJO: fixtures de `Conciliacion498.test.tsx` y `wallet-satelites.test.tsx` tienen `puedeDesmarcar: false`. Luego T8.1, gate, reviewer, PR. Bloque 8 (R24-R30) bloqueado por su puerta.
+- Frontend T7.1-T7.5 hecho (e4d0240f, gate --rapido INIT_EXIT=0, 4 intermitentes verdes aislados). Siguiente: T7.6 ver la app («Desmarcar» con/sin dinero en /wallet/satelites y /cierres-admin; distritos en /historico/acciones), T8, reviewer, PR. Bloque 8 (R24-R30) bloqueado por su puerta.
 - 498 sigue mergeada sin desplegar (ver entrada de abajo).
 
 # ESTADO 2026-11-03 (tarde) — 498 MERGEADA en `dev` (PR #883, 2f5e38e9), SIN DESPLEGAR; in_progress = 0
