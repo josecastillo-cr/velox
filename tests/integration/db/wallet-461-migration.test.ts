@@ -61,7 +61,8 @@ describeSiHayBase("461 — migraciones 4, 5 y 6 (auditoria D2/D3/T2) contra Post
     expect([...tipos].sort()).toEqual([...HISTORIAL_ACCION_TIPOS].sort());
     // Ficha 457 (2026-09-25): sus dos tipos (`20260927120000`) van DETRAS; el orden relativo se conserva.
     // Ficha 458-B (2026-09-26): dos tipos mas detras de los de la 457.
-    expect(tipos.slice(-6, -4)).toEqual(["cobro_tienda_anulado", "wallet_movimiento_manual_anulado"]);
+    // Ficha 500: + 1 tipo del historial al final (`zona_distrito_cambiado`) → la ventana de tipos se corre 1.
+    expect(tipos.slice(-7, -5)).toEqual(["cobro_tienda_anulado", "wallet_movimiento_manual_anulado"]);
   });
 
   it("(b) R67: las dos columnas `clave_idempotencia` existen, admiten NULL y tienen su indice UNIQUE", async () => {

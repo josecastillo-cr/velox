@@ -135,6 +135,9 @@ describe("366/T1 — el `migration.sql` y el `down.sql`, como texto", () => {
       // caja (D13). Su migracion: `20260928120000_wallet_458_enums`.
       "cobro_rechazo_tienda_anulado",
       "egreso_caja_anulado",
+      // Ficha 500 (2026-11-03): el rastro de los distritos de una zona. Su archivo:
+      // `historial-accion-zona-distrito-500-migration.test.ts`.
+      "zona_distrito_cambiado",
     ];
     expect([...HISTORIAL_ACCION_TIPOS].sort()).toEqual(
       [...previos, VALOR_NUEVO, ...POSTERIORES].sort(),

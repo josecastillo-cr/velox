@@ -417,6 +417,9 @@ describe.skipIf(!HAY_BASE_DE_DATOS)("381/B.7 (b) — el down recrea 50 tipos y 2
       // caja (D13). Su migracion: `20260928120000_wallet_458_enums`.
       "cobro_rechazo_tienda_anulado",
       "egreso_caja_anulado",
+      // Ficha 500 (2026-11-03): el rastro de los distritos de una zona. Su archivo:
+      // `historial-accion-zona-distrito-500-migration.test.ts`.
+      "zona_distrito_cambiado",
     ];
     expect([...tiposAntes].sort()).toEqual(
       [...HISTORIAL_ACCION_TIPOS]

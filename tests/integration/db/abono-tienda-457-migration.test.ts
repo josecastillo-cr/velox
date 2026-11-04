@@ -105,11 +105,12 @@ describeSiHayBase(`457/T1.5 — las migraciones del pago de una tienda a ${NOMBR
     expect(caja.slice(-8, -6)).toEqual([...VALORES_457.wallet_movimiento_categoria]);
     expect(tienda.slice(-4, -2)).toEqual([...VALORES_457.wallet_tienda_movimiento_categoria]);
     expect(origen.slice(-2, -1)).toEqual([...VALORES_457.wallet_origen_tipo]);
-    expect(tipos.slice(-4, -2)).toEqual([...VALORES_457.historial_accion_tipo]);
+    // Ficha 500: + 1 tipo del historial al final (`zona_distrito_cambiado`) → la ventana de tipos se corre 1.
+    expect(tipos.slice(-5, -3)).toEqual([...VALORES_457.historial_accion_tipo]);
     expect(entidades.slice(-1)).toEqual([...VALORES_457.historial_accion_entidad]);
     // Los conteos de design §14 «despues»: 25 / 16 / 14 / 63 / 24; con la 458-B detras: 27 / 18 / 14 / 65 / 24;
     // con la 488 detras (+ 2 en la caja): 29 / 18 / 14 / 65 / 24; con la 498 (+ 2 caja, + 1 origen): 31 / 18 / 15 / 65 / 24.
-    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([31, 18, 15, 65, 24]);
+    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([31, 18, 15, 66, 24]); // ficha 500: 66 tipos
     // El `up` de la 1 es aditivo y solo eso: ocho `ADD VALUE IF NOT EXISTS`, ni un CHECK ni una tabla.
     const up1 = soloEjecutable(UP_1);
     expect(up1.match(/ADD VALUE IF NOT EXISTS/g)).toHaveLength(8);

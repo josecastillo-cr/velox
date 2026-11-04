@@ -452,6 +452,9 @@ describe.skipIf(!HAY_BASE_DE_DATOS)("398/T1.5 (b) — el down recrea las listas 
       // caja (D13). Su migracion: `20260928120000_wallet_458_enums`.
       "cobro_rechazo_tienda_anulado",
       "egreso_caja_anulado",
+      // Ficha 500 (2026-11-03): el rastro de los distritos de una zona. Su archivo:
+      // `historial-accion-zona-distrito-500-migration.test.ts`.
+      "zona_distrito_cambiado",
     ];
     expect([...origenAntes].sort()).toEqual(
       ORDEN_HISTORIAL_ORIGEN_TIPO_SEED.filter(
