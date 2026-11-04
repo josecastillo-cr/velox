@@ -199,3 +199,37 @@ a335eb90 feat(500): consolidacionesConDinero compartida y puedeDesmarcar en las 
 - T8.1 de cierre tras el frontend; T9 (bloque 8) bloqueado por P8.
 
 **Veredicto:** backend de R1–R4, R9–R23 hecho y probado contra Postgres; gate `--rapido` INIT_EXIT=0 con 3 intermitentes repetidos aislados en verde; una mutación superviviente explicada (T6.10).
+
+## T7 · Frontend (frontend_dev)
+
+- **T7.1/T7.2** `tests/components/ConciliacionAcciones500.test.tsx` (9 casos, R3/R5/R6/R7): ROJO antes
+  del cambio (4/9). `ConciliacionAcciones` con `puedeDesmarcar?: boolean = false`, el botón con
+  `estado !== "pendiente" && puedeDesmarcar`, cabecera «recibido sin dinero → Desmarcar»; avisos 498
+  intactos (R7). Montajes: `ConciliacionSatelite.tsx` → `c.puedeDesmarcar`; `CierresBodegaAdminModule.tsx`
+  → `DetalleAbierto.puedeDesmarcar` copiado de `verCierreBodegaDetalle` y pasado al componente; los dos
+  comentarios del módulo actualizados.
+  Suites del valor del DTO: `Conciliacion498.test.tsx` (dos conciliadas, solo la `true` ofrece
+  «Desmarcar» y revierte SU id) y `CierresBodegaAdminDebe498.test.tsx` (detalle `true` → hay; `false` → no).
+  Fixtures: `Conciliacion498` R21 monta con `puedeDesmarcar` (datos viejos, R7); `wallet-satelites`
+  INCOMPLETA y COMPLETA con `puedeDesmarcar: true`. Ningún assert cambiado.
+- **T7.3** Ayuda `docs/ayuda/oficina/wallet-satelites.md` («Una vez marcada, se corrige»): «**Desmarcar**
+  solo aparece en una consolidación que todavía no movió dinero en la caja.» + qué pasa con pantalla
+  vieja. Punto nuevo en `ayuda-wallet-satelites-498.test.ts` (R8).
+- **T7.4** `tests/components/HistorialAccionesZonaDistrito500.test.tsx` (R21): celdas de pantalla y fila
+  de descarga (añadido: «—» → «Carmen (San José)»; quitado: al revés; «Mueve dinero», «Zona», monto null)
+  y `accionesDeCategoria("mueve_dinero")` la contiene.
+- **T7.5 y demás mutaciones** (cada una con `vitest run` real, revertida, `git diff` vacío):
+  - default `puedeDesmarcar = true` → 2 rojos R6 («recibida SIN la prop», «incompleta SIN la prop»);
+  - componente ignora la prop → 4 rojos (R3/R5/R6);
+  - `ConciliacionSatelite` pasa `false` → rojo el caso 500/R3 de `Conciliacion498`;
+  - `CierresBodegaAdminModule` sin la prop → rojo «el detalle dice que se puede»; con `true` fijo → rojo
+    «el detalle dice que no»;
+  - ayuda sin «solo» → rojo el punto 500/R8;
+  - `zona_distrito_cambiado` en `ACCIONES_CON_RESULTADO_EN_VALOR` → 3 rojos R21; categoría cambiada →
+    rojo el del filtro.
+- **Gate** `progress/gate_500_frontend.log`: **INIT_EXIT=0**; typecheck y lint verdes; rapido ampliado
+  6489 passed / 1 failed / 26 skipped (los 26 `it.skip` de Analitica), guardias 3893/1, integración
+  4413 passed con 2 archivos rojos. Los 4 rojos repetidos AISLADOS por el propio gate en verde →
+  intermitentes: `AnaliticaNoSustitucion` (timeout 20 s), `marca-fuente-unica-493.guardia` (timeout 20 s),
+  `ranking-snapshot-migration` y `454/corte-concurrencia` (deadlock de la base compartida).
+- **T7.6 PENDIENTE**: ver la app (no se levantó dev server por instrucción del leader).
