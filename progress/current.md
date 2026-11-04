@@ -1,3 +1,10 @@
+# ESTADO 2026-11-04 — 501 y 502 `in_progress`; 494 aprobada, `spec_ready`
+
+- Specs aprobados por el humano: 501 (10 req.), 502 (13 req.; Q1 = A, Q2 = no ampliar), 494 (32 req.; P1-P5 por defecto).
+- Worktrees: `R:/w501` y `R:/w502`. La 494 arranca cuando 501 y 502 estén mergeadas.
+- 494 medida en prod (`progress/impl_494.md`): sin migración; plantillas en uso diario.
+- Después: release a prod con 498, 500 y estas tres (gate completo; T8.4 de la 498 el mismo día).
+
 # ESTADO 2026-11-03 (cierre) — 500 MERGEADA en `dev` (PR #884, 6af0749e), SIN DESPLEGAR; in_progress = 0
 
 - Gate post-merge verde (`progress/gate_dev_tras_884.log`). En dev sin desplegar: 498 y 500.
