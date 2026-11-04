@@ -17,13 +17,13 @@ import type {
 import { money } from "@/lib/config/moneda";
 import {
   estadoConciliacionDe,
+  llegoDeMas,
   type EstadoConciliacion,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
 
 import {
   CONCILIACION_ACCION,
   CONCILIACION_RESPUESTA,
-  NOTA_CONCILIACION_ASIENTA,
 } from "./conciliacion-labels";
 import {
   MarcarRecibidoDialog,
@@ -45,21 +45,24 @@ import {
 // ── UN BOTÓN, Y SÓLO EL QUE APLICA
 //   sin conciliar        → «Marcar recibido» (primario: es lo que hay que hacer)
 //   recibido incompleto  → «Corregir»        (no se re-marca: se cambia el monto que se dijo)
+//   recibido de más      → «Corregir»        (FICHA 502: el badge sigue diciendo «Recibido»)
 //   recibido sin dinero  → «Desmarcar»       (discreto: es una corrección, no una operación)
 //
 // FICHA 500 (R3/R5/R6): «Desmarcar» sale SOLO si quien monta pasa `puedeDesmarcar` — conciliada, sin
 // dinero en la caja y no saldada con la regla anterior, decidido en el SERVIDOR con los mismos dos
 // cortes con los que `revertirConciliacion` responde. Una «Recibido incompleto» sigue ofreciendo
-// «Corregir» se pueda desmarcar o no.
+// «Corregir» se pueda desmarcar o no, y una recibida de más también (502/R7).
 //
 // Los tres estados salen de `estadoConciliacionDe`, la MISMA función que pinta el badge, así que
-// el rótulo del botón y el del estado no pueden contradecirse.
+// el rótulo del botón y el del estado no pueden contradecirse. «De más» no es un estado: lo añade
+// `llegoDeMas` sobre el `faltaPorRecibir` que el servidor ya manda.
 //
 // ── POR QUÉ «DESMARCAR» PIDE CONFIRMACIÓN Y «MARCAR» NO
 // Marcar abre un diálogo donde se ve lo que debe y se teclea el monto, así que ya hay un paso donde
 // mirar. Desmarcar es un clic que, sin nada delante, borra el rastro de quién dijo que el dinero
-// llegó y de cuánto. La confirmación lleva escrito el importe que se va a borrar y la nota de la
-// conciliación.
+// llegó y de cuánto. La confirmación lleva escrito el importe que se va a borrar. FICHA 502 (R1): y NO
+// la nota de la conciliación, que dice que después no se puede desmarcar justo donde sí se puede; la
+// nota sigue al pie de `/wallet/satelites` y en la ayuda (R3).
 //
 // ── FICHA 498 (R20/R21) — MARCAR ASIENTA EL DINERO, Y YA NO SE DESMARCA
 // Desde la 498, marcar recibido asienta en la caja el dinero de los cierres de la consolidación.
@@ -133,10 +136,14 @@ export function ConciliacionAcciones({
 
   const estado: EstadoConciliacion = estadoConciliacionDe(marca);
 
-  // 473 (R14) — UN ENVÍO POR MODO. «Corregir» sólo existe sobre una «Recibido incompleto», que
-  // YA está conciliada: mandarla a la action de marcar —cuyo `WHERE` exige una SIN marcar— era
-  // un `conflict` garantizado sin escribir nada. Corregir sustituye el monto y la deja conciliada.
-  const esCorreccion = estado === "incompleto";
+  // 473 (R14) — UN ENVÍO POR MODO. «Corregir» sólo existe sobre una «Recibido incompleto» o, desde la
+  // 502 (R7/R9), una recibida de más, y las dos YA están conciliadas: mandarlas a la action de marcar
+  // —cuyo `WHERE` exige una SIN marcar— era un `conflict` garantizado sin escribir nada. Corregir
+  // sustituye el monto y la deja conciliada. Esta misma condición decide el botón y el envío, para que
+  // no puedan separarse; y exige `recibido` porque una SIN marcar que debe un negativo también trae la
+  // falta negativa (R8).
+  const esCorreccion =
+    estado === "incompleto" || (estado === "recibido" && llegoDeMas(marca.faltaPorRecibir));
 
   async function enviar(campos: MarcarRecibidoCampos): Promise<MarcaConciliacionActionResult> {
     const input = { ...campos, cierreBodegaId };
@@ -215,7 +222,7 @@ export function ConciliacionAcciones({
         </Button>
       ) : null}
 
-      {estado === "incompleto" ? (
+      {esCorreccion ? (
         <Button
           type="button"
           size={TAMANO}
@@ -285,8 +292,6 @@ export function ConciliacionAcciones({
               {avisoDesmarcar}
             </p>
           )}
-          {/* FICHA 498 (R43) — la nota literal de la conciliación. */}
-          <p className="text-muted-foreground">{NOTA_CONCILIACION_ASIENTA}</p>
         </div>
       </Modal>
     </div>

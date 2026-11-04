@@ -19,7 +19,7 @@ import { money } from "@/lib/config/moneda";
 export const CONCILIACION_ACCION = {
   /** Sobre una consolidación sin conciliar. */
   marcar: "Marcar recibido",
-  /** Sobre una que llegó incompleta: no se vuelve a marcar, se corrige el monto. */
+  /** Sobre una que llegó incompleta o de más (502/R7): no se vuelve a marcar, se corrige el monto. */
   corregir: "Corregir",
   /**
    * R12 — deshacer la marca. NO dice «Rechazar»: no rechaza nada, sólo borra la marca. FICHA 498
@@ -113,7 +113,7 @@ export const CONCILIACION_NOTA_MAX = 500;
  *
  * Sustituye a la de la 431, que decía lo contrario: desde esta ficha marcar recibido ASIENTA el
  * dinero de los cierres de la consolidación en la caja, y por eso la marca ya no se deshace —se
- * corrige el monto—. Va al pie de la conciliación y dentro del diálogo de «Desmarcar».
+ * corrige el monto—. Va al pie de la conciliación.
  */
 export const NOTA_CONCILIACION_ASIENTA =
   "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es " +

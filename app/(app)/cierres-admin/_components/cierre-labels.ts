@@ -653,6 +653,18 @@ export function hayFaltantePorRecibir(faltaPorRecibir: string): boolean {
   return !NADA_FALTA.test(faltaPorRecibir);
 }
 
+/** FICHA 502 (R7) — un negativo que no sea un cero escrito con signo: `-0.00` no cuenta. */
+const LLEGO_DE_MAS = /^\s*-(?!0+(\.0+)?\s*$)/;
+
+/**
+ * FICHA 502 (R7) — ¿Llegó más de lo que debía? Comparación TEXTUAL, money-safe, como
+ * `hayFaltantePorRecibir`. Por sí sola NO dice que esté marcada: una SIN marcar que debe un negativo
+ * también trae la falta negativa, así que quien pregunta lo combina con el estado (R8).
+ */
+export function llegoDeMas(faltaPorRecibir: string): boolean {
+  return LLEGO_DE_MAS.test(faltaPorRecibir);
+}
+
 /**
  * El estado de PRESENTACIÓN de una consolidación, derivado de los dos datos que el servidor ya
  * manda cuadrados. La pantalla no compara campos de la base ni resta dinero: sólo lee.

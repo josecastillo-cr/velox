@@ -275,12 +275,18 @@ describe("R21 — revertir una consolidación que ya entró a la caja", () => {
     expect(screen.queryByText(/Marca deshecha/)).toBeNull();
   });
 
-  it("el diálogo de «Desmarcar» lleva la nota literal de R43 y no dice que no mueve dinero", async () => {
+  // [S] Ficha 502 (R1), decisión del humano del 2026-11-04: este caso afirmaba la nota DENTRO del diálogo. Se
+  // invierte: quien está por desmarcar leía que «después no se puede desmarcar». El literal `NOTA_R43` se queda
+  // a mano; este archivo no importa la constante, que el texto es contrato.
+  it("502/R1 — el diálogo de «Desmarcar» NO lleva la nota de R43 ni dice que no se puede desmarcar", async () => {
     const user = userEvent.setup();
     montar();
     await user.click(screen.getByRole("button", { name: /Desmarcar la consolidación de FGAM Limón/ }));
     const dialogo = await screen.findByRole("dialog");
-    expect(within(dialogo).getByText(NOTA_R43)).toBeInTheDocument();
+    // Premisa: es el diálogo de Desmarcar, el que dice el importe (R2). Sin esto, las dos ausencias de abajo no prueban nada.
+    expect(dialogo).toHaveTextContent("Ahora mismo consta recibida por");
+    expect(within(dialogo).queryByText(NOTA_R43)).toBeNull();
+    expect(dialogo).not.toHaveTextContent(/no se puede desmarcar/i);
     expect(dialogo).not.toHaveTextContent(/no mueve|informativa|ningún col|ningun col/i);
   });
 
@@ -404,6 +410,25 @@ describe("R41/R41a/R43 — la conciliación de una bodega", () => {
   it("R43 — la nota del pie es LITERAL", async () => {
     const region = await montar([consolidacion()]);
     expect(within(region).getByRole("note").textContent).toBe(NOTA_R43);
+  });
+
+  it("502/R7 — una recibida de más ofrece «Corregir» en la conciliación, con su badge «Recibido»", async () => {
+    const region = await montar([
+      consolidacion({
+        montoRecibido: "91440.25",
+        faltaPorRecibir: "-90.00",
+        conciliado: true,
+        conciliadoAt: "2026-10-21T15:00:00.000Z",
+        conciliadoPorNombre: "Ana Rojas",
+      }),
+    ]);
+    expect(
+      await within(region).findByRole("button", { name: /Corregir el monto recibido de FGAM Limón del 20 oct/ }),
+    ).toBeInTheDocument();
+    expect(within(region).queryByRole("button", { name: /Desmarcar/ })).toBeNull();
+    // El estado no cambia (fuera de alcance de la 502): sigue diciendo «Recibido», no incompleto.
+    expect(within(region).getByText("Recibido")).toBeInTheDocument();
+    expect(within(region).queryByText("Recibido incompleto")).toBeNull();
   });
 
   it("500/R3 — `puedeDesmarcar` del DTO llega al botón: solo la conciliada sin dinero ofrece «Desmarcar»", async () => {

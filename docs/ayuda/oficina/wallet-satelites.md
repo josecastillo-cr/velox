@@ -90,7 +90,7 @@ Debajo del estado de cuenta de la bodega están sus consolidaciones. Cada una en
 | Estado | Qué significa |
 | --- | --- |
 | **Pendiente de conciliar** | La bodega lo envió; todavía no confirmaste que llegó |
-| **Recibido** | Llegó completo |
+| **Recibido** | Llegó completo o de más |
 | **Recibido incompleto** | Llegó, pero por menos de lo que debía |
 
 **Marcar recibido** abre un diálogo con el monto ya puesto: **lo que debe** la consolidación. Encima del
@@ -115,6 +115,8 @@ Si el monto que marcaste no era el correcto, **Corregir** lo cambia: la caja rec
 entre lo de antes y lo nuevo, y queda registrado **quién corrigió y cuándo**. Si intentás **Desmarcar**
 una consolidación que ya entró a la caja, la app no deshace nada y te dice «Ya entró a la caja: corrige el
 monto en vez de revertir».
+
+**Corregir** aparece en una consolidación recibida incompleta o recibida de más.
 
 **Desmarcar** solo aparece en una consolidación que todavía no movió dinero en la caja. Si lo ves en una
 que sí lo movió es porque la pantalla se cargó antes de que alguien corrigiera el monto: la app te avisa y
