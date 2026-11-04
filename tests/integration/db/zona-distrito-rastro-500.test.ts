@@ -55,6 +55,21 @@ function soloOk(res: UpdateZonaResult): Extract<UpdateZonaResult, { estado: "ok"
   return res;
 }
 
+/**
+ * FICHA 502 (design §2): un cliente cuya RAIZ es el `prisma` real (otra conexion del pool) y cuyo
+ * `$transaction` entrega la `tx` del escenario. Local a este archivo a proposito: `clienteConSavepoint`
+ * lo usan decenas de archivos y no compensa cambiarlo por un menor.
+ */
+function raizDistintaDeTx(raiz: PrismaClient, tx: TxDeTest): PrismaClient {
+  return new Proxy(raiz, {
+    get(objetivo, prop) {
+      if (prop === "$transaction") return async (fn: (t: TxDeTest) => unknown) => fn(tx);
+      const valor = Reflect.get(objetivo, prop) as unknown;
+      return typeof valor === "function" ? valor.bind(objetivo) : valor;
+    },
+  });
+}
+
 describeSiHayBase("⭑ 500 — los distritos de una zona dejan rastro al guardar (Postgres real)", () => {
   let prisma: PrismaClient;
   let CANTON: { id: string; nombre: string };
@@ -301,6 +316,43 @@ describeSiHayBase("⭑ 500 — los distritos de una zona dejan rastro al guardar
     expect(r.nmAntes).toEqual([r.antes]);
     expect(r.nmDespues).toEqual(r.nmAntes);
     expect(r.filas).toHaveLength(0);
+  });
+
+  // ⭑ FICHA 502 (T1; R4, R5). `clienteConSavepoint` entrega el MISMO proxy como raiz y como `tx`, asi que
+  // ningun caso de arriba distingue `appendAccion(tx, …)` de `appendAccion(this.prisma, …)` (m1 de la
+  // revision de la 500). Aqui la raiz es el `prisma` real, con la otra conexion del pool, y Postgres hace
+  // la distincion por visibilidad en READ COMMITTED: con `this.prisma` las filas salen ya commiteadas.
+  it("502/R4/R5: las filas del rastro existen dentro de la tx, no se ven desde otra conexion y no sobreviven al revertir", async () => {
+    const r = await conEscenario(async (e) => {
+      const sale = await e.distrito(undefined, e.A.id);
+      const entra = await e.distrito();
+      const repo = new ZonaRepository(raizDistintaDeTx(prisma, e.tx));
+      const guardado = soloOk(await repo.update(e.A.id, datos(e.A.nombre, [entra.id]), USUARIO));
+      return {
+        zonaId: e.A.id,
+        guardado: guardado.estado,
+        nm: await e.nm(e.A.id),
+        esperadoNm: [entra.id],
+        quitado: sale.id,
+        dentroDeLaTx: (await e.filas(e.A.id)).length,
+        // Premisa: esa conexion es otra de verdad. La zona sembrada sin commitear no se ve desde ella.
+        zonaDesdeOtraConexion: await prisma.zona.count({ where: { id: e.A.id } }),
+        desdeOtraConexion: await prisma.historialAccion.count({ where: { accion: ACCION, entidadId: e.A.id } }),
+      };
+    });
+    const tras = { accion: ACCION, entidadId: r.zonaId };
+    const trasRevertir = await prisma.historialAccion.count({ where: tras });
+    // ANTES de los `expect`: con el codigo mal, las filas quedan commiteadas en la base compartida y un
+    // `expect` rojo saltaria una limpieza puesta despues. Con el codigo bien, borra 0 filas.
+    await prisma.historialAccion.deleteMany({ where: tras });
+
+    expect(r.guardado).toBe("ok");
+    expect(r.nm).toEqual(r.esperadoNm);
+    expect(r.nm).not.toContain(r.quitado);
+    expect(r.zonaDesdeOtraConexion).toBe(0);
+    expect(r.dentroDeLaTx).toBe(2);
+    expect(r.desdeOtraConexion).toBe(0); // R4
+    expect(trasRevertir).toBe(0); // R5
   });
 
   it("R19: crear una zona con distritos y borrarla → 0 filas", async () => {

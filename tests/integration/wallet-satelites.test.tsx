@@ -550,7 +550,8 @@ describe("R25 — marcar recibido, corregir y desmarcar", () => {
     expect(dialogo).toHaveTextContent(/Ahora mismo consta recibida por/);
     expect(within(dialogo).getByText("₡485.000")).toBeInTheDocument();
     // [S] Ficha 498 (R43, decisión del humano del 2026-11-02 (ficha 498)): ya no dice «Desmarcar no mueve dinero».
-    expect(dialogo).toHaveTextContent("Marcar recibido asienta el dinero en la caja.");
+    // [S] Ficha 502 (R1, decisión del humano del 2026-11-04): la nota sale del diálogo; sigue al pie (R3).
+    expect(dialogo).not.toHaveTextContent("Marcar recibido asienta el dinero en la caja.");
     expect(dialogo).not.toHaveTextContent(/no mueve dinero|informativa/);
   });
 

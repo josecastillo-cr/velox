@@ -208,3 +208,23 @@ describe("500 (R3) — /cierres-admin: «Desmarcar» sale del `puedeDesmarcar` d
     expect(within(seccion).queryByRole("button", { name: /Desmarcar/ })).toBeNull();
   });
 });
+
+describe("502 (R7) — /cierres-admin: una recibida de más ofrece «Corregir»", () => {
+  it("con dinero (no se puede desmarcar) → «Corregir» sí, «Desmarcar» no", async () => {
+    const { seccion } = await abrirDetalle(
+      cabecera({
+        estado: "aprobado",
+        conciliado: true,
+        montoRecibido: "88090.75",
+        faltaPorRecibir: "-90.00",
+        conciliadoAt: "2026-10-21T15:00:00.000Z",
+        conciliadoPorNombre: "Ana Rojas",
+      }),
+      false,
+    );
+    expect(
+      within(seccion).getByRole("button", { name: /Corregir el monto recibido de Limón/ }),
+    ).toBeInTheDocument();
+    expect(within(seccion).queryByRole("button", { name: /Desmarcar/ })).toBeNull();
+  });
+});
