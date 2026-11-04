@@ -232,4 +232,128 @@ a335eb90 feat(500): consolidacionesConDinero compartida y puedeDesmarcar en las 
   4413 passed con 2 archivos rojos. Los 4 rojos repetidos AISLADOS por el propio gate en verde →
   intermitentes: `AnaliticaNoSustitucion` (timeout 20 s), `marca-fuente-unica-493.guardia` (timeout 20 s),
   `ranking-snapshot-migration` y `454/corte-concurrencia` (deadlock de la base compartida).
-- **T7.6 PENDIENTE**: ver la app (no se levantó dev server por instrucción del leader).
+
+## T7.6 · Ver la app (frontend_dev, 2026-11-03 21:20–21:45 hora local)
+
+Dev server propio, uno solo: `pnpm exec next dev --webpack -p 3500` desde `/r/w500`. Recorrido con
+Playwright (`@playwright/test` por `createRequire`, script en el scratchpad) como **`maestro.local`**
+(maestro: lo exige la edición de zonas). Login sin seeds de usuarios: se guardaron `password_hash` y
+`updated_at` de `maestro.local`, se puso una clave temporal y al terminar se restauraron **los dos
+exactos** (consulta: hash igual; `updated_at` = 2026-09-07 17:37:24.212, el original). Al entrar se abre
+el modal ajeno «Confirmá el SINPE de GAM» (se cierra con Escape).
+
+**Siembra** (base local): dos consolidaciones `solicitado` sin cierres en la bodega **Quepos**
+(`30d1fad3-…`), por `satelite.qa`: `50000000-0000-4000-8000-00000000000b` (total ₡100) y `…000c` (₡0).
+Se marcaron **por la app** (camino real del servidor):
+
+- `…000c` (debe ₡0) marcada con **₡90** → el servidor escribió 1 ajuste `marca` (diferencia −90) y 1
+  `wallet_movimiento` `ingreso_diferencia_satelite` de 90 → **con dinero**.
+- `…000b` (debe ₡100) marcada con **₡100** → sin ajuste y sin cierres en los libros → **sin dinero**.
+
+**`/wallet/satelites/<id de Quepos>`** (filtro «Todas», texto leído con `innerText`):
+
+| Consolidación | Fila | Botones |
+| --- | --- | --- |
+| con dinero | «Debe ₡0 · Monto recibido ₡90 · Falta por recibir -₡90 · Recibido · Maestro Local 374 · 3 nov» | **ninguno** (ni «Desmarcar» ni «Corregir») |
+| sin dinero | «Debe ₡100 · Monto recibido ₡100 · Falta por recibir ₡0 · Recibido · Maestro Local 374 · 3 nov» | **«Desmarcar»** |
+
+Pulsado «Desmarcar» en la sin dinero: el diálogo dice «Ahora mismo consta recibida por ₡100.» + la nota;
+al confirmar, POST 200, el diálogo se cierra y la fila vuelve a «Pendiente de conciliar · Marcar
+recibido» (R4 en la app). Historial: «Revirtió la conciliación de una consolidación de bodega · ₡100».
+
+**`/cierres-admin`** → «Bodega» → «Resueltos» → «Ver el cierre de bodega resuelto de Quepos» (antes de
+desmarcar): detalle de la con dinero (Total general ₡0) → botones **[«Cerrar»]**; detalle de la sin
+dinero (Total general ₡100) → **[«Desmarcar», «Cerrar»]**.
+
+**Zona** (`/configuracion/tarifas` → «Limón Abajo» → «Editar»): añadido Colorado (Abangares), quitado
+Llanuras del Gaspar (Sarapiquí) (ninguno de los dos tiene órdenes) → «Zona actualizada».
+**`/historico/acciones`** (columnas Cuándo · Quién · Rol · Categoría · Qué · Tipo · Sobre qué · Importe ·
+Valor anterior · Valor nuevo):
+
+- `Maestro Local 374 | Maestro | Mueve dinero | Cambió los distritos de una zona | Zona | Limón Abajo | — | — | Colorado (Abangares)`
+- `Maestro Local 374 | Maestro | Mueve dinero | Cambió los distritos de una zona | Zona | Limón Abajo | — | Llanuras del Gaspar (Sarapiquí) | —`
+
+En la base: las dos filas comparten `lote_id` (`793101aa-…`), distinto del de la otra fila del mismo
+guardado (R13); texto sin comillas (Q2).
+
+**Hallazgos (no contradicen el spec; para el leader):**
+
+1. **La nota de la 498 contradice el botón nuevo.** `NOTA_CONCILIACION_ASIENTA` («Marcar recibido asienta
+   el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»»)
+   sigue al pie de la conciliación y **dentro del propio diálogo de «Desmarcar»**, que ahora sí se ofrece
+   para una consolidación sin dinero. R23 declaró ese texto definitivo, así que no se tocó; candidato a
+   ficha de texto.
+2. El mismo guardado de zona escribió también «Cambió el pago al mensajero de una zona» (`— | —`): la zona
+   no tenía filas en `tarifa_zona_mensajero` y el formulario guarda una por defecto (vehículo null, 0/0).
+   Es de la 380 / del formulario, no de la 500.
+3. «Falta por recibir -₡90» y «Quepos entregó ₡190 de más»: importes negativos al recibir de más,
+   comportamiento de la 498, fuera del alcance.
+
+**Limpieza** (comprobada por consulta después): borrados 1 `wallet_movimiento` (`ingreso_diferencia_satelite`
+90), 1 `conciliacion_bodega_ajuste`, 6 `historial_accion` de `maestro.local` (2 marcas, 1 reversión,
+1 pago al mensajero, 2 `zona_distrito_cambiado`), las 2 consolidaciones, la fila por defecto de
+`tarifa_zona_mensajero` de Limón Abajo y la fila de `login_attempt`; Limón Abajo vuelve a «La Virgen,
+Las Horquetas, Llanuras del Gaspar» y Colorado sin zona. Consulta final: `cierre_bodega` 0,
+`…_diferencia_satelite` en caja 0, `zona_distrito_cambiado` en toda la tabla 0, `login_attempt` 1135
+(el conteo de antes), `tarifa_zona_mensajero` de Limón Abajo 0. Un barrido de `created_at` por las 72
+tablas que lo tienen no mostró otras filas de la sesión. Dev server matado; su log (imprime argumentos
+del login), la sesión de Playwright y el respaldo del hash, borrados; `rm -rf .next/dev` antes del gate.
+
+## T8 · Cierre
+
+### T8.1 · Gate
+
+`progress/gate_500.log`: **INIT_EXIT=0**, `init OK`. typecheck y lint verdes (solo warnings previos).
+Relacionados 537 archivos · 6490 passed / 26 skipped (los `it.skip` de `AnaliticaPage` 17 y
+`AnaliticaShell` 9); guardias 283 · 3894/3894; **`tests/integration/db` ampliado: 475 archivos · 4413
+passed, 0 skipped, 0 rojos**. Ningún rojo: nada que repetir aislado.
+
+### T8.2 · Mapa R → test (completo, R1–R23)
+
+| R | Test |
+| --- | --- |
+| R1 | `tests/integration/db/500-con-dinero-sql-real.test.ts` «R1: …exactamente {A, B}», «R1: con ids vacíos no consulta» |
+| R2 | ídem «R2: revertir A …» |
+| R3 | ídem «R3: /wallet/satelites…», «R3: el detalle de /cierres-admin…»; `tests/unit/utils/conciliacion-satelite.test.ts`; `tests/unit/services/cierres-bodega-admin-service.test.ts` «FICHA 500 (R3/R4)»; `tests/components/ConciliacionAcciones500.test.tsx` «500/R3»; `tests/components/Conciliacion498.test.tsx` «500/R3 — `puedeDesmarcar` del DTO llega al botón…»; `tests/components/CierresBodegaAdminDebe498.test.tsx` «500 (R3) — /cierres-admin…» |
+| R4 | `500-con-dinero-sql-real.test.ts` «R4: …⇔ revertir tiene éxito…» |
+| R5 | `ConciliacionAcciones500.test.tsx` «500/R5 — una incompleta sigue ofreciendo «Corregir»…» (2 casos) |
+| R6 | `ConciliacionAcciones500.test.tsx` «500/R6 — quien monta sin decirlo no ofrece «Desmarcar»» (2 casos) |
+| R7 | `ConciliacionAcciones500.test.tsx` «500/R7 — con datos viejos, el servidor sigue siendo la última palabra» (`it.each` `con_asientos` / `saldada_regla_anterior`) |
+| R8 | `tests/unit/docs/ayuda-wallet-satelites-498.test.ts` punto ««Desmarcar» solo aparece sin dinero en la caja (500/R8)» |
+| R9 | `500-con-dinero-sql-real.test.ts` «R9: revertir B …» |
+| R10, R11 | `tests/integration/db/500-esperado-una-formula-sql-real.test.ts` |
+| R12, R13, R14, R16 | `tests/integration/db/zona-distrito-rastro-500.test.ts` «R12/R13/R14/R16…»; `tests/unit/repositories/zona-distritos-rastro-500.test.ts` |
+| R15 | `zona-distrito-rastro-500.test.ts` «R15…»; unitario «R15» |
+| R17 | `zona-distrito-rastro-500.test.ts` «R17: otro orden»; unitario «otro orden y con repetidos» |
+| R18 | `zona-distrito-rastro-500.test.ts` «R18: zona inexistente…» y «R18: un error forzado…» (la mutación T6.10 sobrevive: limitación del arnés, ver T6) |
+| R19 | `zona-distrito-rastro-500.test.ts` «R19…» |
+| R20 | `tests/unit/historial-accion/catalogo-y-choke-point.test.ts` «FICHA 500 (R20)»; guardia `historial-accion-escrituras-cubiertas` |
+| R21 | `zona-distrito-rastro-500.test.ts` «R21…»; `tests/components/HistorialAccionesZonaDistrito500.test.tsx` (pantalla, descarga y filtro) |
+| R22 | `tests/integration/db/historial-accion-zona-distrito-500-migration.test.ts` |
+| R23 | `tests/unit/guards/textos-satelite-definitivos-500.guardia.test.ts` |
+
+**R sin test: 0.** R24–R30 son del bloque 8 (T9), bloqueado por la puerta P8.
+
+### T8.3 · Commits (`git log --oneline origin/dev..HEAD` antes del commit de cierre)
+
+```
+86db056c docs(500): logs de los gates de backend y frontend
+e4d0240f docs(500): bitacora del frontend (T7) en impl_500.md
+6852c87b test(500): el registro de acciones pinta y descarga zona_distrito_cambiado (R21)
+b8a436c4 docs(500): la ayuda de Wallet · Satélites dice cuándo aparece «Desmarcar» (R8)
+3d71d4b3 feat(500): «Desmarcar» solo cuando el servidor dice que se puede (R3, R5, R6, R7)
+f4358e1e docs(500): bitacora del backend (impl_500.md)
+e6ef0f69 test(500): los tests de enum del historial cuentan zona_distrito_cambiado (ventanas y POSTERIORES)
+033db045 chore(500): textos de la 498 definitivos y guardia que impide marcarlos provisionales (R23)
+fae53478 feat(500): rastro zona_distrito_cambiado al guardar una zona (R12-R22)
+3017fae3 test(500): esperado de una sola formula con los literales de H5 (R10, R11); dobles con los delegados de consolidacionesConDinero
+a335eb90 feat(500): consolidacionesConDinero compartida y puedeDesmarcar en las dos lecturas (R1-R4, R9)
+```
+
+Más el commit de cierre (T7.6 + T8 en esta bitácora, `tasks.md` marcado y `progress/gate_500.log`).
+Sin `feature_list.json`.
+
+**Veredicto (cierre):** T7.6 visto en la app y conforme al spec (con dinero sin «Desmarcar» en las dos
+pantallas, sin dinero con él y desmarcable; dos filas de distrito en el historial); base local limpia y
+comprobada; gate `--rapido` INIT_EXIT=0 sin rojos y sin integración saltada; R1–R23 con test. T9
+abierta (P8).
