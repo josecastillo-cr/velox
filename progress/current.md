@@ -1,9 +1,11 @@
-# ESTADO 2026-11-04 — 501 y 502 `in_progress`; 494 aprobada, `spec_ready`
+# ESTADO 2026-11-04 — 501 y 502 MERGEADAS (#885, #886), SIN DESPLEGAR; 494 `in_progress`
 
-- Specs aprobados por el humano: 501 (10 req.), 502 (13 req.; Q1 = A, Q2 = no ampliar), 494 (32 req.; P1-P5 por defecto).
-- Worktrees: `R:/w501` y `R:/w502`. La 494 arranca cuando 501 y 502 estén mergeadas.
-- 494 medida en prod (`progress/impl_494.md`): sin migración; plantillas en uso diario.
-- Después: release a prod con 498, 500 y estas tres (gate completo; T8.4 de la 498 el mismo día).
+- En `dev` sin desplegar: 498, 500, 501, 502. Gate post-merge verde (`progress/gate_dev_tras_886.log`, no versionado).
+- 494: spec aprobado, por tandas, un PR por tanda. Worktree `R:/w494`. Sin migración (`progress/impl_494.md`). Plantillas en Meta: al final, no bloquean el merge.
+- Después: release a prod con todo (gate completo; T8.4 de la 498 el mismo día; no conciliar durante el deploy).
+- Sin decidir: ficha para la frase de las saldadas en la ayuda de Wallet · Satélites.
+- Repo público a propósito: nada identificable de prod ni credenciales en archivos versionados. Logs del dev server fuera del repo.
+- Antes de lanzar subagentes en auto mode: el primer intento lo rechaza el hook de context-mode; repetir con el input que devuelve.
 
 # ESTADO 2026-11-03 (cierre) — 500 MERGEADA en `dev` (PR #884, 6af0749e), SIN DESPLEGAR; in_progress = 0
 

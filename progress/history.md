@@ -5789,3 +5789,13 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - «Desmarcar» solo sin dinero (fuente única consolidacionesConDinero para servidor y pantallas); tests de la fórmula del esperado y del revertir con solo ajuste; rastro de distritos en el histórico (enum zona_distrito_cambiado); texto PROVISIONAL retirado.
 - Requisitos cubiertos: R1-R23. Bloque 8 (R24-R30) pendiente de su puerta.
 - Deuda: ficha 502 (m1 test tx vs this.prisma, m4 nota contradictoria en Desmarcar, m5 sobrante con dinero sin acciones).
+
+## 2026-11-04 — 501 fechas de Pagos registrados en hora de Costa Rica
+- «Registrado el» y «Anulado el» (tabla y descarga) usan el día de Costa Rica; `fechaPago` no se mueve. PR #885.
+- Requisitos cubiertos: R1-R10. Vista en `/cierres-admin`; `/wallet/tiendas` sin pagos de tienda en local.
+- Deuda: m1 (guardia no ve alias por referencia), m2 (R9 con fechas imposibles, inalcanzable), m3 (`/wallet/tiendas` sin test en la frontera).
+
+## 2026-11-04 — 502 conciliación satélite, menores de la 500
+- Fuera la nota del diálogo de Desmarcar; «Corregir» en recibida de más (solo escribe la variación); test contra Postgres de `tx` frente a `this.prisma` en el rastro de distritos. PR #886.
+- Requisitos cubiertos: R1-R13 (salida A). Medido contra Postgres antes de tocar la pantalla.
+- Deuda: Q2, la ayuda promete «Corregir» en las saldadas (`wallet-satelites.md:129-130`).

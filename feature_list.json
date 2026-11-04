@@ -5913,13 +5913,13 @@
       "title": "Marca Velox Courier: identificadores internos",
       "description": "Sustituir \"ordenex\" en identificadores de código, valores guardados o de contrato, claves del navegador, dominios, package.json y nombres de plantillas de WhatsApp.",
       "zone": "fullstack",
-      "status": "spec_ready",
+      "status": "in_progress",
       "sdd": true,
       "complexity": "large",
       "depends_on": 493,
       "spec_path": "specs/494-marca-identificadores-internos",
       "branch": "feat/494-marca-velox-identificadores",
-      "status_note": "Registrada el 2026-11-02 a pedido del humano; arranca tras mergear la 493 (mismos archivos). Medido en la rama de la 493: 554 archivos (324 de test); db/schema.prisma solo en comentarios, sin migración de esquema. El spec mide si ganancia_ordenex, solo_ordenex, concepto_ordenex, gasto_ordenex, tienda_paga_a_ordenex u ordenex_debe están en filas de prod (backfill medido) y qué dominios ordenex.* son configuración viva. ganancia_ordenex rompe la API de métricas (0 consumidores: CHANGELOG sin transición). ordenex_tema y demás claves del navegador migran leyendo la vieja. Plantillas alerta_transito_ordenex y picking_bodega_ordenex: crear nuevas en Meta, esperar aprobación y cambiar plantilla_mensaje.nombre en prod, al final. Fuera: db/migrations, specs/progress/docs históricos, carpeta local."
+      "status_note": "Spec aprobado el 2026-11-04 con P1-P5 por defecto. Medido en prod: sin migración; las plantillas están en uso diario. Censo: 558 archivos (329 de test). Por tandas, una por PR. ganancia_ordenex no rompe la API de métricas."
     },
     {
       "id": 495,
@@ -6004,26 +6004,28 @@
       "title": "Fechas de Pagos registrados en hora de Costa Rica",
       "description": "«Registrado el» y «Anulado el» de Pagos registrados (tabla y descarga) usan el día calendario de Costa Rica en vez de recortar el ISO en UTC.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "small",
       "depends_on": 495,
       "spec_path": "specs/501-fechas-pagos-registrados-cr",
       "branch": "fix/501-pagos-registrados-fecha-cr",
-      "status_note": "Registrada el 2026-11-02 a pedido del humano (para el día siguiente). Hallazgo m2 de la revisión de la 495, confirmado por el leader: components/shared/liquidacion/PagosRegistradosTabla.tsx:65 y pagos-registrados-descarga-columnas.ts:71,74 pasan registradoAt/anuladoAt (createdAt.toISOString(), instantes) por fechaDiaISO; tras las 18:00 CR salen con el día siguiente. fechaPago es @db.Date y está bien. Reusar fechaDiaInstanteCR de la 495 y ampliar su guardia a esas rutas."
+      "status_note": "Mergeada en dev (PR #885) el 2026-11-04, sin desplegar. R1-R10 con test. Vista en /cierres-admin, pantalla y xlsx; /wallet/tiendas no se vio (sin pagos de tienda en local). Menores m1-m3 en progress/review_501.md.",
+      "merged_pr": 885
     },
     {
       "id": 502,
       "title": "Conciliación satélite: menores de la 500",
       "description": "Quitar la nota «después no se puede desmarcar» del diálogo de Desmarcar, decidir qué acción tiene una consolidación recibida de más con dinero, y un test que distinga tx de this.prisma en el rastro de distritos.",
       "zone": "fullstack",
-      "status": "in_progress",
+      "status": "done",
       "sdd": true,
       "complexity": "small",
       "depends_on": 500,
       "spec_path": "specs/502-menores-conciliacion-satelite",
       "branch": "fix/502-conciliacion-satelite-menores-500",
-      "status_note": "Registrada el 2026-11-03 a pedido del humano: menores m1, m4 y m5 de progress/review_500.md (en la rama de la 500). m4: NOTA_CONCILIACION_ASIENTA sale dentro del diálogo de Desmarcar (R23 de la 500 congeló el texto). m5: recibida de más con dinero queda sin acciones (Corregir solo con estado incompleto, ConciliacionAcciones.tsx:218); pregunta abierta al humano: ¿se ofrece Corregir? m1: mutación T6.10 (appendAccion con this.prisma) sobrevive porque clienteConSavepoint da el mismo cliente como tx."
+      "status_note": "Mergeada en dev (PR #886) el 2026-11-04, sin desplegar. Q1 = se ofrece Corregir en recibida de más; Q2 = no ampliar. Vista en las dos pantallas. Deuda: la ayuda promete Corregir en las saldadas (wallet-satelites.md:129-130).",
+      "merged_pr": 886
     }
   ]
 }
