@@ -106,7 +106,7 @@ Orden de trabajo para la próxima sesión:
 
 - En `dev` (sin desplegar): 473 (#847), 474 (#848 + botón #849), validaciones en español (#850), 475 (#851), 476 (#852). 472 ya resuelta por la 470. Lo que hay que hacer al desplegar está en `docs/release.md` › «473 y 474…» (Daniel apaga su sistema ANTES de encender envíos; NEXT_PUBLIC_APP_URL; Meta real T11.4; EXPLAIN de tránsito; verlo todo; un envío por tienda).
 - Arnés cambiado (pedido del humano): `--rapido` siempre, se amplía con integration/db en dinero/datos, repite aislados los rojos; completo SOLO antes de prod (o si se toca init.sh, tests/setup, instrumentation.ts o config de build).
-- Preview: entrar con `maestro.qa@ordenex.test` / `Preview474!Qa` (reseteada por Carlos con SQL). `.mcp.json` tiene `supabase-preview` (ref uyqzqxczfhfndlhpsmxq); requiere reiniciar la sesión para cargarlo.
+- Preview: entrar con `maestro.qa@ordenex.test` (contraseña fuera del repo, rotada el 2026-11-04). `.mcp.json` tiene `supabase-preview` (ref uyqzqxczfhfndlhpsmxq); requiere reiniciar la sesión para cargarlo.
 - Pendiente: 471 (texto del periodo cortado en la caja) registrada, sin empezar. Google Maps (403/REQUEST_DENIED): Carlos lo deja para después.
 
 # ESTADO 2026-10-05 — 470 VALIDADA EN PROD; siguiente: WhatsApp interno
