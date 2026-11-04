@@ -24,6 +24,8 @@ const PUNTOS_R44: { punto: string; archivo: "satelites" | "caja"; patron: RegExp
   { punto: "la columna «Sin consolidar»", archivo: "satelites", patron: /\*\*Sin consolidar\*\* \(lo aprobado que todavía no entró/ },
   { punto: "las saldadas con la regla anterior", archivo: "satelites", patron: /## Saldada con la regla anterior/ },
   { punto: "revertir con asientos no deshace nada", archivo: "satelites", patron: /la app no deshace nada y te dice «Ya entró a la caja: corrige el\s+monto en vez de revertir»/ },
+  // Ficha 500 (R8): «Desmarcar» solo se ofrece sin dinero en la caja.
+  { punto: "«Desmarcar» solo aparece sin dinero en la caja (500/R8)", archivo: "satelites", patron: /\*\*Desmarcar\*\* solo aparece en una consolidación que todavía no movió dinero en la caja\./ },
   { punto: "la nota literal de R43", archivo: "satelites", patron: /Marcar recibido asienta el dinero en la caja\. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»/ },
   { punto: "el bolsillo «Por cobrar a satélites» en la caja", archivo: "caja", patron: /### Por cobrar a satélites/ },
   { punto: "las dos pistas del bolsillo", archivo: "caja", patron: /«Lo que las satélites entregaron de menos al conciliar y aún no han pagado\.»[\s\S]*«La central les debe a las satélites\.»/ },
