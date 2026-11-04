@@ -1,7 +1,7 @@
 # ESTADO 2026-11-03 (cierre) — 500 MERGEADA en `dev` (PR #884, 6af0749e), SIN DESPLEGAR; in_progress = 0
 
 - Gate post-merge verde (`progress/gate_dev_tras_884.log`). En dev sin desplegar: 498 y 500.
-- Siguiente: 501, 494, 502 (spec → aprobación → implementar). Release a prod con 498+500 cuando la pida el humano (T8.4 de la 498 el mismo día; gate COMPLETO antes).
+- Siguiente (decisión del humano 2026-11-03): terminar 501, 494 y 502 (spec → aprobación → implementar) y DESPUÉS una sola release a prod con 498+500+esas fichas (T8.4 de la 498 el mismo día; gate COMPLETO antes).
 - Bloque 8 de la 500 (retirar respaldos): pendiente de su puerta.
 - Antes de lanzar subagentes: salir de auto mode.
 
