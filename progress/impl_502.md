@@ -202,8 +202,7 @@ Consulta tras cada una, la variación exacta y nada más:
 Además, una de más sin dinero sembrada por SQL (debe 600, marcada 650): la tarjeta de `/cierres-admin` dice «Recibido» y el
 detalle ofrece «Corregir» y «Desmarcar», los dos, como pide R7.
 
-**Límite de la medición.** En `/cierres-admin` la tarjeta y el detalle abierto no enseñan la falta: el `−₡50` no se vio allí
-en pantalla. Se vio el badge «Recibido», y el monto sale de la base (`750.00` sobre `700.00`). La falta negativa en pantalla
+**Límite de la medición.** En `/cierres-admin` el `−₡50` no se vio en pantalla: ni la tarjeta ni el detalle abierto lo enseñan. El desplegable «Ver detalles» sí pinta la falta (`cierre-factura.tsx:645-650`; corregido por m2 de la revisión), pero no se abrió en T9. Se vio el badge «Recibido», y el monto sale de la base (`750.00` sobre `700.00`). La falta negativa en pantalla
 se vio solo en `/wallet/satelites`.
 
 **Lo que T9 me enseñó y no es de esta ficha.**
@@ -242,3 +241,7 @@ por eso esa corrida va aparte.
 No se corrió `./init.sh` ni la suite completa: T10.2 es del leader.
 
 **Veredicto (frontend):** T4-T9 y T10.1 hechas; R1-R13 con test; la app hace lo que dice el spec en las dos pantallas.
+
+## T10.2: gate del leader
+
+`./init.sh --rapido` sobre 81a0dab1: `INIT_EXIT=0`, ampliado con `integration/db`. Intermitentes, verdes aislados: `CierresAdminFiltros`, `liquidacion-reparto-migration`, `454/caracterizacion/corte-concurrencia`. Después solo entró el informe de revisión.

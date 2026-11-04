@@ -81,5 +81,5 @@ Q1 = salida A (humano, 2026-11-04): las tareas de la salida B ya están borradas
 
 - [x] **T10.1** Mapa R → test en `progress/impl_502.md`, con cada R que quede tras T0.1 apuntando a un test real leído. **Hecho:**
   ningún R sin test. Depende de T9.
-- [ ] **T10.2** `./init.sh --rapido` con `INIT_EXIT=$?` dentro del log, sin `tail`. Mirar los `skipped`: si `integration/db` salió
+- [x] **T10.2** `./init.sh --rapido` con `INIT_EXIT=$?` dentro del log, sin `tail`. Mirar los `skipped`: si `integration/db` salió
   saltada, no vale. Un rojo se repite aislado. **Hecho:** verde, y T1 y T3 constan como ejecutados, no saltados. Depende de T10.1.
