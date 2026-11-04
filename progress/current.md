@@ -1,3 +1,10 @@
+# CIERRE 2026-11-03 (noche) — 500 con PR #884 abierto (revisión OK, build verde), pendiente de merge del humano
+
+- Al mergear #884: `prisma migrate deploy` local, gate `--rapido` sobre dev, cerrar la 500 (feature_list, current, history), borrar worktrees R:/w498 y R:/w500 (robocopy /MIR antes de `git worktree remove`).
+- 502 registrada (menores m1/m4/m5 de la 500), pending; m5 lleva pregunta al humano.
+- Siguen: 501, 494; release a prod con 498 (+500) y su T8.4 el mismo día.
+- CI revisado a pedido del humano: sin fallos (último ERROR de Vercel en velox: ninguno; último CANCELED: merge #880 del 2026-11-01, sustituido por el siguiente build).
+
 # RETOMAR AQUÍ — 2026-11-03 cierre de sesión
 
 **Antes de lanzar subagentes: salir de auto mode** (Shift+Tab). En auto, el hook de context-mode bloquea el Agent (memoria «context-mode bloquea agentes en auto»).

@@ -6011,6 +6011,19 @@
       "spec_path": "specs/501-pagos-registrados-fecha-cr",
       "branch": "fix/501-pagos-registrados-fecha-cr",
       "status_note": "Registrada el 2026-11-02 a pedido del humano (para el día siguiente). Hallazgo m2 de la revisión de la 495, confirmado por el leader: components/shared/liquidacion/PagosRegistradosTabla.tsx:65 y pagos-registrados-descarga-columnas.ts:71,74 pasan registradoAt/anuladoAt (createdAt.toISOString(), instantes) por fechaDiaISO; tras las 18:00 CR salen con el día siguiente. fechaPago es @db.Date y está bien. Reusar fechaDiaInstanteCR de la 495 y ampliar su guardia a esas rutas."
+    },
+    {
+      "id": 502,
+      "title": "Conciliación satélite: menores de la 500",
+      "description": "Quitar la nota «después no se puede desmarcar» del diálogo de Desmarcar, decidir qué acción tiene una consolidación recibida de más con dinero, y un test que distinga tx de this.prisma en el rastro de distritos.",
+      "zone": "fullstack",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 500,
+      "spec_path": "specs/502-conciliacion-satelite-menores-500",
+      "branch": "fix/502-conciliacion-satelite-menores-500",
+      "status_note": "Registrada el 2026-11-03 a pedido del humano: menores m1, m4 y m5 de progress/review_500.md (en la rama de la 500). m4: NOTA_CONCILIACION_ASIENTA sale dentro del diálogo de Desmarcar (R23 de la 500 congeló el texto). m5: recibida de más con dinero queda sin acciones (Corregir solo con estado incompleto, ConciliacionAcciones.tsx:218); pregunta abierta al humano: ¿se ofrece Corregir? m1: mutación T6.10 (appendAccion con this.prisma) sobrevive porque clienteConSavepoint da el mismo cliente como tx."
     }
   ]
 }
