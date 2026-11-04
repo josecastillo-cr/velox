@@ -107,31 +107,64 @@ instante.
 
 **Pendiente:** `./init.sh --rapido` lo corre el leader. T6 queda sin marcar por eso.
 
-## T7: ver la app, NO HECHO
+## T7: ver la app
 
-- Base local confirmada: host `localhost`.
-- **Bloqueo: el login no entra.** `admin.qa@ordenex.test` con el `QA_PASSWORD` del `.env` responde «Correo o
-  contraseña inválidos». No se rotó ninguna cuenta ni se corrió ningún seed, por instrucción del leader.
-- No se vio ninguna pantalla: ni `/cierres-admin` ni `/wallet/tiendas`. No hay `innerText` ni celdas de xlsx.
-- Lo medido en solo lectura sobre la base local: 3 pagos, todos de mensajero (Marco) y todos anulados, con
-  `created_at` entre las 15:05 y las 20:24 UTC. **Ninguno en la frontera**, y ninguno de tienda.
-- **Datos: base intacta.** No se creó ninguna fila. El script restaura los `created_at` en su `finally`; el
-  login falló antes de moverlos, y la lectura final dio los valores originales.
+Hecho el 2026-11-04 con `admin.qa@ordenex.test`, tras rotar el leader las cuentas QA locales. Primer intento
+fallido por contraseña rotada; segundo, con login correcto. Base `localhost`, dev server `next dev --webpack`
+en el 3501. El aviso «Confirmá el SINPE de GAM» se aplazó con «Ahora no», que no llama a ninguna acción.
 
-Para terminarlo, con una contraseña válida: `/cierres-admin`, cierre `942993c5-9c11-4153-a207-9af086b22fc3`.
-Una vía sin filas nuevas es llevar a la frontera los `created_at` de sus dos pagos anulados y restaurarlos:
+**Datos:** con autorización del leader se movieron y restauraron los `created_at` de dos pagos ya anulados
+del cierre `942993c5-9c11-4153-a207-9af086b22fc3`, sin crear filas.
 
-| Pago | `created_at` original | Anulación original | Pago a | Anulación a | Esperado: registrado / anulado |
-|---|---|---|---|---|---|
-| `6a657651-e3cb-45c4-a420-1030ad5a6e74` | `2026-08-13 15:05:20.245` | `2026-08-13 16:06:23.82` | `2026-08-16 00:00:00` | `2026-08-17 05:59:59.999` | `2026-08-15` / `2026-08-16` |
-| `e3b52741-7365-4ad8-a8fd-127fa594fe10` | `2026-08-13 20:23:43.478` | `2026-08-13 20:24:51.867` | `2026-08-18 06:00:00` | `2026-08-19 00:00:00` | `2026-08-18` / `2026-08-18` |
+| Pago | Pago, original | Anulación, original | Pago, en la prueba | Anulación, en la prueba |
+|---|---|---|---|---|
+| `6a657651-e3cb-45c4-a420-1030ad5a6e74` | `2026-08-13 15:05:20.245` | `2026-08-13 16:06:23.82` | `2026-08-16 00:00:00` | `2026-08-17 05:59:59.999` |
+| `e3b52741-7365-4ad8-a8fd-127fa594fe10` | `2026-08-13 20:23:43.478` | `2026-08-13 20:24:51.867` | `2026-08-18 06:00:00` | `2026-08-19 00:00:00` |
 
-«Fecha del pago» debe seguir en `2026-08-13`. Sin escribir en la base de otro modo, `/wallet/tiendas` no
-tiene ninguna fila que mostrar.
+**`/cierres-admin`, esperado contra obtenido.** El esperado se calculó a mano restando 6 h al `created_at` crudo.
+
+| `created_at` en la prueba (UTC) | Campo | Esperado | Pantalla | xlsx |
+|---|---|---|---|---|
+| `2026-08-16 00:00:00` | Registrado el | `2026-08-15` | `2026-08-15` | `2026-08-15` |
+| `2026-08-17 05:59:59.999` | Anulado el | `2026-08-16` | `2026-08-16` | `2026-08-16` |
+| `2026-08-18 06:00:00` | Registrado el | `2026-08-18` | `2026-08-18` | `2026-08-18` |
+| `2026-08-19 00:00:00` | Anulado el | `2026-08-18` | `2026-08-18` | `2026-08-18` |
+| `fecha_pago` `2026-08-13`, las dos filas | Fecha del pago | `2026-08-13` | `2026-08-13` | `2026-08-13` |
+
+`innerText` de las celdas:
+
+```
+["2026-08-13","₡3.400","Efectivo","—","—","Ana","2026-08-18","Anulado\nAnulado por Ana el 2026-08-18\nMotivo: Reparto mal imputado: se corrige entero.",""]
+["2026-08-13","₡1.400","Efectivo","—","—","Ana","2026-08-15","Anulado\nAnulado por Ana el 2026-08-16\nMotivo: Verificacion de la ficha 210: la insignia de anulado cambia de variante.",""]
+```
+
+Celdas del archivo `pagos-registrados-de-marco-mensajero-2026-11-04.xlsx`:
+
+```
+["Fecha del pago","Monto","Método","Referencia","Nota","Registró","Registrado el","Estado","Anulado por","Anulado el","Motivo de la anulación"]
+["2026-08-13","3400.00","Efectivo",null,null,"Ana","2026-08-18","Anulado","Ana","2026-08-18","Reparto mal imputado: se corrige entero."]
+["2026-08-13","1400.00","Efectivo",null,null,"Ana","2026-08-15","Anulado","Ana","2026-08-16","Verificacion de la ficha 210: la insignia de anulado cambia de variante."]
+```
+
+**Cobertura.** La frontera de las 18:00 CR (`T00:00:00.000Z`) se vio en tabla y descarga, tanto en registro
+como en anulación. `T05:59:59.999Z` se vio solo en anulación y `T06:00:00.000Z` solo en registro; las
+combinaciones restantes quedan cubiertas por los tests de R5.
+
+**No se vio:**
+
+- `/wallet/tiendas`: la base local no tiene ningún pago de tienda, y no se crearon filas. Monta la misma
+  `PagosRegistradosTabla`, pero en esa pantalla no hay observación directa.
+- Un pago VIGENTE en la frontera (R8): los tres pagos locales están anulados. R8 queda cubierto solo por tests.
+- Un valor no legible (R9): solo por tests.
+
+**Restauración comprobada con una consulta aparte**, ya terminada la prueba: los dos pagos volvieron a los
+valores originales de la tabla, el tercero (`b63ca15a-56fe-49aa-8741-399f391db8fa`) no se tocó y los totales
+siguen en 3 pagos y 3 anulaciones. Durante la prueba, otro agente que usara la misma base habría podido leer
+las fechas movidas de esas dos filas.
 
 Dos cosas para quien lo repita:
 
 - **Turbopack cae en un worktree con junction:** `Symlink [project]/node_modules is invalid`. Hay que usar
-  `next dev --webpack`.
+  `next dev --webpack`. Con webpack, el primer login tarda: esperar con `waitForURL`, no con un tiempo fijo.
 - **El dev server escribe la contraseña del login en claro en su log**, porque registra los argumentos de
-  las Server Actions. El log de esta sesión se borró sin commitear.
+  las Server Actions. Los logs de estas sesiones se borraron sin commitear.

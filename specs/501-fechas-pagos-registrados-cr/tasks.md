@@ -54,7 +54,7 @@ Zona frontend. Implementa `frontend_dev`. Requisitos en `requirements.md`; casos
     `columnas-asercion-de-orden.guardia` (en `tests/unit/descarga/`).
   - **Hecho:** `INIT_EXIT=0` escrito dentro del log, los `skipped` revisados y las guardias verdes.
 
-- [ ] **T7. Ver la app** (depende de T6)
+- [x] **T7. Ver la app** (depende de T6)
   - Solo base local: confirmar el host antes de nada. Un solo dev server.
   - **Datos, primero en solo lectura:** buscar en `liquidacion_pago` y `liquidacion_anulacion` filas con
     `created_at` entre las 00:00 y las 05:59 UTC. Si no hay, crear un pago de monto pequeño y anularlo
