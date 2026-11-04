@@ -318,6 +318,10 @@ export const PROPIOS = new Set([
   "tests/unit/guards/marca-fuente-unica-493.guardia.test.ts",
   "tests/fixtures/marca-retirada-493.ts",
   "tests/fixtures/marca-retirada-nombre-493.ts",
+  // 494: su guardia, su detector y su trinquete tambien la contienen a proposito. T8.2 retira el trinquete.
+  "tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts",
+  "tests/fixtures/marca-sin-ordenex-494.ts",
+  "tests/fixtures/marca-pendientes-494.ts",
 ]);
 
 /**
