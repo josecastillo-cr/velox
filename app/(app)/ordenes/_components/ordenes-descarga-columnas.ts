@@ -32,7 +32,7 @@ import { estatusLabel } from "./estatus-label";
  * Identificador del ÁMBITO de preferencia de columnas de esta descarga (314/R1, R10).
  *
  * Es lo único que `OrdenesModule` declara: con él, el control común arma la clave
- * `ordenex:descarga-columnas:ordenes` y aplica la preferencia. Un ámbito es un identificador,
+ * `app:descarga-columnas:ordenes` y aplica la preferencia. Un ámbito es un identificador,
  * no una configuración; encender otra tabla cuesta una línea en su módulo.
  * `tests/unit/descarga/ambito-columnas.guardia.test.ts` vigila que no se repita en dos sitios.
  */

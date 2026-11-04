@@ -36,8 +36,8 @@ const PUBLICADAS: readonly ColumnaFalsa[] = [
   { clave: "delta", encabezado: "Columna Delta" },
 ];
 
-const CLAVE_DESCARGA = "ordenex:descarga-columnas:sintetico";
-const CLAVE_MANIFIESTO = "ordenex:manifiesto-columnas:sintetico";
+const CLAVE_DESCARGA = "app:descarga-columnas:sintetico";
+const CLAVE_MANIFIESTO = "app:manifiesto-columnas:sintetico";
 
 const TITULO = "Columnas del archivo";
 const DISPARADOR = "Elegir columnas de la descarga";

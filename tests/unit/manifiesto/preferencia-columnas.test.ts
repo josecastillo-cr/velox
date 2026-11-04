@@ -101,11 +101,11 @@ describe("preferencia de columnas del manifiesto", () => {
   it("guarda las ocultas bajo la clave del flujo y las recupera (R14)", () => {
     guardarOcultas("carga_masiva", ["beta"]);
 
-    expect(window.localStorage.getItem("ordenex:manifiesto-columnas:carga_masiva")).toBe(
+    expect(window.localStorage.getItem("app:manifiesto-columnas:carga_masiva")).toBe(
       JSON.stringify({ ocultas: ["beta"] }),
     );
     expect(claveColumnas("carga_masiva")).toBe(
-      "ordenex:manifiesto-columnas:carga_masiva",
+      "app:manifiesto-columnas:carga_masiva",
     );
 
     const visibles = columnasVisibles(

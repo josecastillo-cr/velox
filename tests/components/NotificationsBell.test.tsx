@@ -681,7 +681,7 @@ describe("NotificationsBell — tono de aviso (feature 161, R18–R20)", () => {
 
   it("R14: con el sonido silenciado la subida de lo por hacer no suena", async () => {
     const user = userEvent.setup();
-    window.localStorage.setItem("ordenex:sonido-notificaciones", "off");
+    window.localStorage.setItem("app:sonido-notificaciones", "off");
     listarMock.mockResolvedValue(ok([informativa({ id: "a", read: true })]));
     renderBell();
 

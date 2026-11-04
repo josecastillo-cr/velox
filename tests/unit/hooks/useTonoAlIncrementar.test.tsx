@@ -22,7 +22,7 @@ vi.mock("@/lib/audio/tono-notificacion", () => ({
 vi.mock("@/lib/audio/preferencia-sonido", () => ({
   leerPreferenciaSonido: leerPreferenciaMock,
   guardarPreferenciaSonido: vi.fn(),
-  CLAVE_SONIDO: "ordenex:sonido-notificaciones",
+  CLAVE_SONIDO: "app:sonido-notificaciones",
 }));
 
 function Sonda({ contador }: { contador: number | null }) {

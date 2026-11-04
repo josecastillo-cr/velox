@@ -97,10 +97,19 @@ if (ES_DEV || RESCATE_FORZOSO) {
   // Mensajes que este SW acepta de la pagina. Los mismos literales viven en
   // `lib/pwa/actualizacion.ts` (el SW no puede importar del bundle) y una guardia comprueba
   // que no divergen.
-  const MENSAJE_RELEVO_AHORA = "ordenex:relevo-ahora";
-  const MENSAJE_PAGINA_LISTA = "ordenex:pagina-lista";
+  const MENSAJE_RELEVO_AHORA = "app:relevo-ahora";
+  const MENSAJE_PAGINA_LISTA = "app:pagina-lista";
   // FICHA 410 (R43): el unico mensaje que va en sentido CONTRARIO, del SW hacia la pagina.
-  const MENSAJE_PUSH_RECIBIDO = "ordenex:push-recibido";
+  const MENSAJE_PUSH_RECIBIDO = "app:push-recibido";
+
+  // FEATURE 494 (R21, design §5.5): ALIAS DE LECTURA, Y NO SOBRAN. El dia del despliegue la pagina
+  // abierta es la de la version ANTERIOR y este SW es el que esta en espera, asi que el boton
+  // "actualizar" le llega con el nombre viejo. Con solo el nuevo, este SW se quedaria en `waiting`
+  // para siempre y la app pareceria no actualizarse, sin ningun error (es el fallo que describe
+  // RESCATE_FORZOSO). Los mismos literales viven en `lib/navegador/claves-legadas.ts` y la guardia
+  // compara. Se retiran con la ficha de design §5.6, no antes de 90 dias en produccion.
+  const MENSAJE_RELEVO_AHORA_LEGADO = "ordenex:relevo-ahora";
+  const MENSAJE_PAGINA_LISTA_LEGADO = "ordenex:pagina-lista";
 
   // ---------------------------------------------------------------------------------------
   // FICHA 410 — EL PUSH. Vive DENTRO de la rama de produccion a proposito (R42): en la rama de
@@ -157,7 +166,7 @@ if (ES_DEV || RESCATE_FORZOSO) {
       // R41: la etiqueta se DERIVA DEL EVENTO, asi que un push posterior del mismo tipo REEMPLAZA
       // al anterior en vez de apilarse. Sin esto, tres avisos de cierres serian tres lineas en la
       // bandeja diciendo casi lo mismo.
-      tag: "ordenex:" + carga.evento,
+      tag: "app:" + carga.evento,
       // `false` para que el reemplazo sea silencioso: el primero ya sono.
       renotify: false,
       // El destino viaja en `data` porque es lo unico que sobrevive hasta el `notificationclick`.
@@ -221,7 +230,7 @@ if (ES_DEV || RESCATE_FORZOSO) {
   //     y solo purga si no queda ninguna;
   //   - mientras alguna siga viva, la cache vieja se queda Y ADEMAS se sigue leyendo: el
   //     `fetch` de estaticos busca en TODAS las caches del origen, no solo en la vigente;
-  //   - cada vez que una pagina avisa de que ya cargo (`ordenex:pagina-lista`) se reintenta la
+  //   - cada vez que una pagina avisa de que ya cargo (`app:pagina-lista`) se reintenta la
   //     purga, que es el momento en que la ultima pagina vieja acaba de desaparecer.
   //
   // Ventanas que existian cuando este SW tomo el control. `null` = todavia no activo.
@@ -237,12 +246,12 @@ if (ES_DEV || RESCATE_FORZOSO) {
 
   self.addEventListener("message", (event) => {
     const tipo = event.data && event.data.tipo;
-    if (tipo === MENSAJE_RELEVO_AHORA) {
+    if (tipo === MENSAJE_RELEVO_AHORA || tipo === MENSAJE_RELEVO_AHORA_LEGADO) {
       // UNICO camino por el que este SW pide el relevo, y lo dispara un gesto del usuario.
       self.skipWaiting();
       return;
     }
-    if (tipo === MENSAJE_PAGINA_LISTA) {
+    if (tipo === MENSAJE_PAGINA_LISTA || tipo === MENSAJE_PAGINA_LISTA_LEGADO) {
       event.waitUntil(purgarSiSeFueLaBuildAnterior());
     }
   });

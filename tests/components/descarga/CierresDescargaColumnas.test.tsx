@@ -697,7 +697,7 @@ const SUPERFICIES: readonly Superficie[] = [
 
 /** La clave del ámbito, tal y como la arma el control común (`DescargarDatasetButton`). */
 function claveDe(ambito: string): string {
-  return `ordenex:descarga-columnas:${ambito}`;
+  return `app:descarga-columnas:${ambito}`;
 }
 
 const DISPARADOR_SELECTOR = "Elegir columnas de la descarga";

@@ -157,8 +157,15 @@ export const EXCEPCIONES: readonly Excepcion[] = [
   {
     id: "E5",
     motivo: "La clave vieja del navegador hay que poder leerla. Se retira con design §5.6.",
-    rutas: ["lib/navegador/claves-legadas.ts", "public/sw.js", "tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
-    activaEn: "T2.5",
+    rutas: ["lib/navegador/claves-legadas.ts", "tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
+  },
+  {
+    // Por linea y no por archivo, para que estos archivos sigan contando: `public/sw.js` no puede tener
+    // la marca en ningun otro sitio, y los tests aun llevan datos de prueba que limpia T8.1.
+    id: "E5.1",
+    motivo: "Alias de relevo del service worker (R21, R22) y los tests que los afirman. Se retiran con design §5.6.",
+    rutas: ["public/sw.js", "tests/unit/guards/pwa-relevo-y-purga.guardia.test.ts", "tests/unit/hooks/usePushEnVentana.test.tsx"],
+    linea: /"ordenex:(relevo-ahora|relevo-ahora-no|pagina-lista|push-recibido|cualquier-otra-cosa)"/,
   },
   {
     id: "E6",
@@ -279,7 +286,7 @@ export function trinquete(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Bloque legado (R20). Activo desde T2.5; aqui solo el detector y su contraprueba.
+// Bloque legado (R20)
 // ---------------------------------------------------------------------------------------------
 
 export const MODULO_LEGADO = "lib/navegador/claves-legadas.ts";
@@ -310,6 +317,20 @@ export function hallazgosLegado(fuente: string, archivo: string): Hallazgo[] {
     }
   });
   return acc;
+}
+
+/** `providers/` no esta en el arbol del glosario, pero tambien corre en el navegador. */
+const DIRS_LEGADO = ["app", "components", "hooks", "lib", "providers", "public"] as const;
+
+export function archivosLegado(): string[] {
+  return DIRS_LEGADO.flatMap(recorrer);
+}
+
+export function censoLegado(): Hallazgo[] {
+  return archivosLegado().flatMap((f) => {
+    const t = leerTexto(f);
+    return t === null ? [] : hallazgosLegado(t, f);
+  });
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -40,8 +40,11 @@ export type TemaElegido = Tema | null;
  * HTML ya llega con la clase puesta, así que no hay parpadeo POR CONSTRUCCIÓN. Con
  * `localStorage` haría falta un script bloqueante en el `<head>` que corra antes del
  * primer pintado.
+ *
+ * Feature 494: el nombre anterior se sigue leyendo y lo caduca el cliente al montar
+ * (`COOKIE_TEMA_VIEJA` en `lib/navegador/claves-legadas.ts`, `migrarCookieTema`).
  */
-export const COOKIE_TEMA = "ordenex_tema";
+export const COOKIE_TEMA = "app_tema";
 
 /** Un año: es una preferencia de presentación, no una sesión. */
 export const COOKIE_TEMA_MAX_AGE = 60 * 60 * 24 * 365;

@@ -8,10 +8,13 @@ import {
   COLECCION_NUEVA,
   COLECCION_VIEJA,
   EXCEPCIONES,
+  MODULO_LEGADO,
   RAIZ,
   archivosDeHosts,
   archivosDelArbol,
+  archivosLegado,
   censoArbol,
+  censoLegado,
   censoMigraciones494,
   censoPlantillasConMarca,
   censoPlantillasLiteral,
@@ -112,8 +115,15 @@ describe("494 — excepciones (R3)", () => {
     expect(estaExceptuado("lib/x.ts", null, [e])).toBe(false);
   });
 
-  it("la lista es la cerrada de design §7, mas el andamiaje E9", () => {
-    expect(EXCEPCIONES.map((e) => e.id)).toEqual(["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9"]);
+  it("la lista es la cerrada de design §7, mas el andamiaje E9; E5 se parte en archivo y linea", () => {
+    expect(EXCEPCIONES.map((e) => e.id)).toEqual(["E1", "E2", "E3", "E4", "E5", "E5.1", "E6", "E7", "E8", "E9"]);
+  });
+
+  it("E5.1 cubre los alias y solo los alias: en `public/sw.js` lo demas sigue contando", () => {
+    expect(estaExceptuado("public/sw.js", `const A = "ordenex:relevo-ahora";`)).toBe(true);
+    expect(estaExceptuado("public/sw.js", `// ordenex en un comentario`)).toBe(false);
+    expect(estaExceptuado("public/sw.js", `tag: "ordenex:" + carga.evento,`)).toBe(false);
+    expect(estaExceptuado("public/sw.js", null)).toBe(false);
   });
 
   // T8.2: al cerrar, ninguna entrada puede seguir sin activar, y E9 ya no existe.
@@ -171,7 +181,18 @@ describe("494 — legado del navegador (R20)", () => {
     expect(hallazgosLegado(fuente, "lib/navegador/claves-legadas.ts")).toEqual([]);
   });
 
-  it.todo("T2.5: ningun archivo de app/, components/, hooks/, lib/ ni public/ tiene hallazgos de legado");
+  it("no-vacuidad: el recorrido ve el modulo, el service worker y quien migra la cookie", () => {
+    expect(archivosLegado()).toEqual(
+      expect.arrayContaining([MODULO_LEGADO, "public/sw.js", "lib/tema/preferencia-tema.ts", "providers/TemaProvider.tsx"]),
+    );
+    // El modulo y el SW siguen conteniendo lo viejo: si no, esta guardia no estaria mirando nada.
+    expect(leerTexto(MODULO_LEGADO)).toContain("ordenex_tema");
+    expect(leerTexto("public/sw.js")).toContain("ordenex:relevo-ahora");
+  });
+
+  it("T2.5: ningun archivo de app/, components/, hooks/, lib/, providers/ ni public/ tiene hallazgos de legado", () => {
+    expect(lista(censoLegado())).toEqual([]);
+  });
 });
 
 describe("494 — migraciones (R11, R30)", () => {
