@@ -192,6 +192,12 @@ export interface ConsolidacionSateliteDTO {
   debePositivo: boolean;
   /** FICHA 498 (R41a) — saldada con la regla anterior (rotulo propio en la pantalla). */
   saldadaReglaAnterior: boolean;
+  /**
+   * ⭑ FICHA 500 (R3/R4) — ¿se ofrece «Desmarcar»? Conciliada, sin dinero (`consolidacionesConDinero`,
+   * el criterio de `revertirConciliacion`) y no saldada con la regla anterior. Lo decide el SERVIDOR;
+   * la pantalla no lo deriva de otros campos. No baja a la descarga.
+   */
+  puedeDesmarcar: boolean;
   /** Derivado de `conciliadoAt !== null`. */
   conciliado: boolean;
   conciliadoAt: string | null;

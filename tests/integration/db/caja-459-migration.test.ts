@@ -104,15 +104,17 @@ describeSiHayBase("459/B.5 — las migraciones de la 459 contra Postgres", () =>
     // `wallet_movimiento_manual_anulado`).
     // Ficha 457: DOS tipos y UNA entidad detras de los de la 461.
     // Ficha 458-B: DOS tipos mas detras de los de la 457 (ninguna entidad).
-    expect(tipos.slice(-10, -6)).toEqual([
+    // Ficha 500: + 1 tipo del historial al final (`zona_distrito_cambiado`) → la ventana de tipos se corre 1.
+    expect(tipos.slice(-11, -7)).toEqual([
       "pago_por_cuenta_tienda_registrado",
       "pago_por_cuenta_tienda_anulado",
       "aporte_capital_registrado",
       "aporte_capital_anulado",
     ]);
-    expect(tipos.slice(-6, -4)).toEqual(["cobro_tienda_anulado", "wallet_movimiento_manual_anulado"]);
-    expect(tipos.slice(-4, -2)).toEqual(["abono_tienda_registrado", "abono_tienda_anulado"]);
-    expect(tipos.slice(-2)).toEqual(["cobro_rechazo_tienda_anulado", "egreso_caja_anulado"]);
+    expect(tipos.slice(-7, -5)).toEqual(["cobro_tienda_anulado", "wallet_movimiento_manual_anulado"]);
+    expect(tipos.slice(-5, -3)).toEqual(["abono_tienda_registrado", "abono_tienda_anulado"]);
+    expect(tipos.slice(-3, -1)).toEqual(["cobro_rechazo_tienda_anulado", "egreso_caja_anulado"]);
+    expect(tipos.slice(-1)).toEqual(["zona_distrito_cambiado"]); // ficha 500
     expect(entidades.slice(-3, -1)).toEqual(["pago_por_cuenta_tienda", "aporte_capital"]);
     expect(entidades.slice(-1)).toEqual(["abono_tienda"]);
   });

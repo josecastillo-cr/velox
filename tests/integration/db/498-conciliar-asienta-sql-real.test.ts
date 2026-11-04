@@ -13,13 +13,11 @@ import { derivarCaja } from "@/lib/utils/caja-tesoreria";
 import { HAY_BASE_DE_DATOS, clienteConSavepoint } from "./_postgres-real";
 import { conEscenario, prepararMundo, type Escenario, type Mundo } from "./454/_escenario";
 import {
-  SNAPSHOT_SELECT,
-  aporteAMano,
   cierreSateliteAprobado,
+  consolidacionConDosCierres,
   consolidar,
   filasDeDiferencia,
   filasDeLosLibros,
-  tarifaDeLaTienda,
 } from "./498/_satelite";
 import { DIR_M3, UP, correr, sembrarConsolidacion } from "./498/_migraciones";
 
@@ -34,16 +32,6 @@ import { DIR_M3, UP, correr, sembrarConsolidacion } from "./498/_migraciones";
 const describeSiHayBase = HAY_BASE_DE_DATOS ? describe : describe.skip;
 
 const repoDe = (e: Escenario) => new CierresBodegaAdminRepository(e.cliente as unknown as PrismaClient);
-
-/** Dos cierres satelite aprobados (efectivo + SINPE; solo efectivo) y consolidados. */
-async function consolidacionConDosCierres(e: Escenario) {
-  await tarifaDeLaTienda(e);
-  const c1 = await cierreSateliteAprobado(e, [{ monto: 6000 }, { monto: 4000, metodo: "SINPE" }]);
-  const c2 = await cierreSateliteAprobado(e, [{ monto: 3000 }], e.actorMensajero2);
-  const cbId = await consolidar(e);
-  const snap = await e.tx.cierreBodega.findUniqueOrThrow({ where: { id: cbId }, select: SNAPSHOT_SELECT });
-  return { c1, c2, cbId, aporte: aporteAMano(snap) };
-}
 
 async function marcar(e: Escenario, cbId: string, monto: string) {
   return repoDe(e).marcarConciliado({ id: cbId, montoRecibido: monto, nota: null, actorUsuarioId: e.maestroId });

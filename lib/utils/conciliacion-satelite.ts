@@ -82,3 +82,20 @@ export function faltaPorRecibir(
 export function deudaDeZona(aportes: Prisma.Decimal, recibido: Prisma.Decimal): Prisma.Decimal {
   return aportes.minus(recibido);
 }
+
+/**
+ * ⭑ FICHA 500 (R3/R4) — ¿se ofrece «Desmarcar»? Los MISMOS dos cortes que
+ * `CierresBodegaAdminRepository.revertirConciliacion`: con dinero (`con_asientos`) y saldada con la
+ * regla anterior (`saldada_regla_anterior`). Ofrecer un boton que el servidor siempre rechaza
+ * contradice «solo cuando se puede» (decision tecnica anotada en el design de la 500, §2.2).
+ *
+ * `conDinero` sale de `consolidacionesConDinero` (el criterio unico del servidor); esta funcion no
+ * lo recalcula.
+ */
+export function puedeDesmarcarse(c: {
+  conciliado: boolean;
+  conDinero: boolean;
+  saldadaReglaAnterior: boolean;
+}): boolean {
+  return c.conciliado && !c.conDinero && !c.saldadaReglaAnterior;
+}

@@ -102,10 +102,11 @@ describeSiHayBase("458-B/TB.2–TB.3 — las migraciones de la wallet contra Pos
     // Ficha 498: + 2 valores de caja mas al final (la diferencia de la satelite) → se corre otros 2.
     expect(caja.slice(-6, -4)).toEqual([...VALORES_458.wallet_movimiento_categoria]);
     expect(tienda.slice(-2)).toEqual([...VALORES_458.wallet_tienda_movimiento_categoria]);
-    expect(tipos.slice(-2)).toEqual([...VALORES_458.historial_accion_tipo]);
+    // Ficha 500: + 1 tipo del historial al final (`zona_distrito_cambiado`) → la ventana de tipos se corre 1.
+    expect(tipos.slice(-3, -1)).toEqual([...VALORES_458.historial_accion_tipo]);
     // Antes (457): 25 / 16 / 14 / 63 / 24. Despues (458-B): 27 / 18 / 14 / 65 / 24. Con la 488: 29 en la caja.
     // Con la 498: 31 en la caja y 15 origenes (+ `conciliacion_bodega_ajuste`).
-    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([31, 18, 15, 65, 24]);
+    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([31, 18, 15, 66, 24]); // ficha 500: 66 tipos
     const up1 = soloEjecutable(UP_1);
     expect(up1.match(/ADD VALUE IF NOT EXISTS/g)).toHaveLength(6);
     expect(up1).not.toMatch(/CHECK|CREATE TABLE|UPDATE|DELETE|INSERT/);

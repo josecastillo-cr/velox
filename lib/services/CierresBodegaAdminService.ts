@@ -441,6 +441,8 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
       partesPorTienda: partesDeLasTiendas,
       paraLaCentral: resumen.paraLaCentral,
       efectivoCubreDescuentos: resumen.efectivoCubreDescuentos,
+      // FICHA 500 (R3/R4): del repositorio, tal cual (el servicio no lo recalcula).
+      puedeDesmarcar: found.puedeDesmarcar,
     };
   }
 

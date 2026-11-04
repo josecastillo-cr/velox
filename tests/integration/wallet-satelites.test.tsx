@@ -161,6 +161,7 @@ function consolidacion(over: Partial<ConsolidacionSateliteDTO> = {}): Consolidac
     debe: "100000.00",
     debePositivo: true,
     saldadaReglaAnterior: false,
+    puedeDesmarcar: false, // ficha 500
     ...over,
   };
 }
@@ -175,6 +176,7 @@ const INCOMPLETA = consolidacion({
   montoRecibido: "485000.00",
   faltaPorRecibir: "15000.00",
   conciliado: true,
+  puedeDesmarcar: true, // ficha 500: sin dinero en la caja en este doble, así que se ofrece «Desmarcar»
   conciliadoAt: "2026-09-15T17:40:00.000Z",
   conciliadoPorNombre: "Ana Rojas",
 });
@@ -189,6 +191,7 @@ const COMPLETA = consolidacion({
   montoRecibido: "284900.00",
   faltaPorRecibir: "0.00",
   conciliado: true,
+  puedeDesmarcar: true, // ficha 500: sin dinero en la caja en este doble, así que se ofrece «Desmarcar»
   conciliadoAt: "2026-09-13T16:02:00.000Z",
   conciliadoPorNombre: "Ana Rojas",
 });

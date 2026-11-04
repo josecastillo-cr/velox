@@ -4234,6 +4234,12 @@ enum HistorialAccionTipo {
   /// y a la ganancia. Tipo PROPIO: `wallet_movimiento_manual_anulado` dice «corrección de caja».
   /// Entidad: `wallet_movimiento` (el egreso original).
   egreso_caja_anulado
+  /// FICHA 500 (bloque 6 de H5, R12-R20): un distrito ENTRO o SALIO de una zona al guardar su
+  /// edicion. Mueve dinero: el distrito decide la zona de una orden y la zona decide la tarifa. Una
+  /// fila por distrito, colgada de la zona (`entidad_tipo = 'zona'`), con lote propio por guardado.
+  /// Añadido: `valor_anterior` NULL y `valor_nuevo` = «<distrito> (<canton>)» (≤ 60); quitado, al
+  /// reves. Sin monto. SOLO lo escribe `ZonaRepository.update`: crear y borrar una zona no.
+  zona_distrito_cambiado
 
   @@map("historial_accion_tipo")
 }

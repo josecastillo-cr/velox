@@ -422,6 +422,18 @@ const CENSO: EntradaCenso[] = [
     mutacion: /tx\.ajusteCajaAnulacion\.createMany\(/,
   },
   {
+    // ⭑ FICHA 500 (bloque 6 de H5) — los DISTRITOS de una zona. Vive en `update`, que ya escribe
+    // otros tres tipos: esta guardia mide POR METODO y quitar SOLO el bloque nuevo la dejaria verde
+    // (memoria «La guardia mide por metodo»). Lo que de verdad lo vigila es
+    // `tests/integration/db/zona-distrito-rastro-500.test.ts` (mutacion T6.6). Sin entrada para
+    // `create` ni `hardDelete`: no lo escriben (R19). La mutacion exigida es el reemplazo de la N:M.
+    tipos: ["zona_distrito_cambiado"],
+    archivo: "lib/repositories/ZonaRepository.ts",
+    metodo: "update",
+    forma: "abre_tx",
+    mutacion: /tx\.zonaDistrito\.deleteMany\(/,
+  },
+  {
     // ⭑ FICHA 458-B (D7, R64) — la ANULACION de un cobro por devolución a origen aprobado. `recibe_tx`; los
     // reversos de la caja y los creditos de la tienda los escribe `RechazoTiendaCobroService` en la
     // misma transaccion. La mutacion exigida es la constancia.
@@ -983,7 +995,8 @@ describe("362/R16 — cada tipo del catalogo tiene al menos un punto de escritur
     // de `AbonoTiendaRepository`).
     // 65 desde la ficha 458-B (`cobro_rechazo_tienda_anulado` y `egreso_caja_anulado`, cada uno con
     // su metodo propio).
-    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(65);
+    // 66 desde la ficha 500 (`zona_distrito_cambiado`, productor `ZonaRepository.update`).
+    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(66);
   });
 });
 

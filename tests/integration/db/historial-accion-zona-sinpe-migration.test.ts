@@ -370,6 +370,9 @@ describe.skipIf(!HAY_BASE_DE_DATOS)("429/T3 (b) — el down recrea la lista PREV
       // caja (D13). Su migracion: `20260928120000_wallet_458_enums`.
       "cobro_rechazo_tienda_anulado",
       "egreso_caja_anulado",
+      // Ficha 500 (2026-11-03): el rastro de los distritos de una zona. Su archivo:
+      // `historial-accion-zona-distrito-500-migration.test.ts`.
+      "zona_distrito_cambiado",
     ];
     const catalogoPrevio = HISTORIAL_ACCION_TIPOS.filter(
       (t) => t !== VALOR_NUEVO && !POSTERIORES.includes(t),

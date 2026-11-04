@@ -288,6 +288,7 @@ const DETALLE_OK = {
   partesPorTienda: [],
   paraLaCentral: "111838.37",
   efectivoCubreDescuentos: true,
+  puedeDesmarcar: false, // ficha 500
   // FICHA 431: la marca de conciliacion, CUADRADA con el efectivo de este doble.
   ...marcaSinConciliar("40000.07"),
 };

@@ -335,6 +335,11 @@ export const HISTORIAL_ACCION_TIPOS = [
   // Y la fila SOBREVIVE a la key: `entidad_id` es opaco y sin FK, y `entidad_etiqueta` va
   // denormalizada (R26).
   "api_key_eliminada", // api-keys.eliminarApiKey -> ApiKeyRepository.eliminar
+  // ⭑ FICHA 500 (bloque 6 de H5, R12-R20) — un distrito ENTRO o SALIO de una zona al guardar su
+  // edicion. Una fila por distrito, colgada de la zona, con lote propio. SOLO la edicion: crear y
+  // borrar no lo escriben. `update` ya escribe otros tres tipos: la guardia del censo mide POR
+  // METODO, asi que lo que de verdad lo vigila es `zona-distrito-rastro-500.test.ts`.
+  "zona_distrito_cambiado", // zonas.actualizarZona -> ZonaRepository.update
 ] as const satisfies readonly PrismaHistorialAccionTipo[];
 
 export type HistorialAccionTipo = (typeof HISTORIAL_ACCION_TIPOS)[number];
@@ -453,6 +458,8 @@ export const CATEGORIA_POR_ACCION: Record<HistorialAccionTipo, CategoriaAccion> 
   // ganancia; anular un egreso devuelve el importe a la caja y a la ganancia.
   cobro_rechazo_tienda_anulado: "mueve_dinero",
   egreso_caja_anulado: "mueve_dinero",
+  // FICHA 500 (R20): el distrito decide la zona de una orden y la zona decide la tarifa.
+  zona_distrito_cambiado: "mueve_dinero",
   // FICHA 398: la correccion saca del cierre un cobro que nadie recaudo y pone en cero el pago
   // de esa gestion al mensajero. No hay lectura mas directa de «mueve dinero», y R17 exige
   // exactamente una categoria por tipo.
@@ -535,6 +542,7 @@ export const ACCION_LABELS: Record<HistorialAccionTipo, string> = {
   // Ficha 458-B (R63/R64): verbo en pasado con la persona como sujeto, como el resto del catálogo.
   cobro_rechazo_tienda_anulado: "Anuló un cobro por devolución a origen a una tienda",
   egreso_caja_anulado: "Anuló un gasto de la caja",
+  zona_distrito_cambiado: "Cambió los distritos de una zona", // FICHA 500 (R20)
   cierre_dia_gestion_corregida: "Corrigió el resultado de una gestión",
   cierre_bodega_conciliado: "Marcó recibida una consolidación de bodega",
   cierre_bodega_conciliacion_revertida: "Revirtió la conciliación de una consolidación de bodega",

@@ -143,6 +143,11 @@ function buildPrisma(overrides: Record<string, unknown> = {}) {
     gestionOrden: { findMany: vi.fn() },
     // Feature 69/T23 (R15): el detalle de un cierre YA CREADO sale del SNAPSHOT.
     cierreDetail: { findMany: vi.fn().mockResolvedValue([]) },
+    // FICHA 500: lo que lee `consolidacionesConDinero` (sin dinero en este doble).
+    conciliacionBodegaAjuste: { findMany: vi.fn().mockResolvedValue([]) },
+    walletMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+    walletTiendaMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+    pagoMensajeroMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
     // Dobles de las tablas VIVAS que esta vista NO debe volver a mirar. No estan en el tipo
     // del cliente del repo: existen solo para que un `expect(...).not.toHaveBeenCalled()`
     // pueda MORDER si alguien reintroduce la lectura viva.

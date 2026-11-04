@@ -227,6 +227,11 @@ interface DetalleAbierto {
    * evalua esta pantalla, nivel por nivel.
    */
   partesPorTienda: ParteDeTienda[];
+  /**
+   * FICHA 500 (R3) — ¿se ofrece «Desmarcar»? Del SERVIDOR (`verCierreBodegaDetalle`), tal cual: sin
+   * dinero en la caja y no saldada con la regla anterior. La cabecera del listado no lo lleva.
+   */
+  puedeDesmarcar: boolean;
 }
 
 /**
@@ -468,6 +473,7 @@ export function CierresBodegaAdminModule({
         // Ficha 396 (R20/R8): se guarda TAL CUAL llega. La pantalla no lo filtra, no lo suma y
         // no lo reordena — el orden es el que emitio el servidor.
         partesPorTienda: result.partesPorTienda,
+        puedeDesmarcar: result.puedeDesmarcar,
       });
       return;
     }
@@ -519,7 +525,8 @@ export function CierresBodegaAdminModule({
   // «RECHAZAR» NO TIENE SUSTITUTO, Y ES EL PUNTO (R16): no se rechaza una consolidacion, se
   // marca si llego o no. FICHA 498 (R20/R43): marcar ASIENTA el dinero de los cierres en la caja,
   // asi que una marca con asientos ya no se desmarca: el monto se corrige con «Corregir».
-  // «Desmarcar» solo prospera sobre una conciliada sin asientos. Las `rechazado` historicas se
+  // FICHA 500 (R3): «Desmarcar» solo APARECE sobre una conciliada sin dinero y no saldada con la
+  // regla anterior (`puedeDesmarcar` del detalle, calculado en el servidor). Las `rechazado` historicas se
   // quedan en la base (cero en produccion) y dejan de tener rotulo en pantalla.
   //
   // El refresco de las listas (`refrescarListas`) SI se conserva: la fila marcada se mueve de
@@ -852,7 +859,9 @@ export function CierresBodegaAdminModule({
               Ahora hay UNO: «Marcar recibido». No es el mismo boton con otro nombre —es otra
               cosa—: no autoriza nada, dice que el dinero LLEGO a la central y cuanto. FICHA 498
               (R43): marcar asienta ese dinero en la caja; por eso, una vez marcada, el monto se
-              corrige con «Corregir» y ya no se desmarca (el servidor responde `con_asientos`).
+              corrige con «Corregir» y ya no se desmarca: desde la ficha 500 «Desmarcar» ni
+              aparece si la consolidacion movio dinero (`puedeDesmarcar` del servidor), y si la
+              pantalla esta desactualizada el servidor responde `con_asientos`.
 
               «RECHAZAR» SE RETIRA SIN SUSTITUTO (R16). Rechazar una consolidacion era mandar a
               la satelite a corregir un bulto que ya habia salido; hoy la respuesta a «llego
@@ -885,6 +894,8 @@ export function CierresBodegaAdminModule({
                 marca={detalle.cierre}
                 nota={detalle.cierre.conciliadoNota}
                 puedeConciliar={puedeConciliar}
+                // FICHA 500 (R3): del DETALLE, no de la cabecera del listado (que no lo lleva).
+                puedeDesmarcar={detalle.puedeDesmarcar}
                 onCambio={() => {
                   cerrarDetalle();
                   refrescarListas();
