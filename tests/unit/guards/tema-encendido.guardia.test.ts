@@ -19,6 +19,8 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { COOKIE_TEMA_VIEJA } from "@/lib/navegador/claves-legadas";
+
 // Feature 223 (R32): el parser de reglas con ancestros vivia AQUI y ahora vive en el fixture
 // compartido. Ningun caso de este archivo cambia: cambia de donde salen `reglasDe`,
 // `selectoresDe` y `declaracionesDe`.
@@ -437,6 +439,7 @@ describe("feature 211 — donde se estampa la clase", () => {
   it("el layout del portal lee la cookie EN EL SERVIDOR y monta el proveedor", () => {
     expect(layout, "no lee la cookie del tema").toMatch(/cookies\(\)/);
     expect(layout).toMatch(/COOKIE_TEMA/);
+    expect(layout, "feature 494/R17: no lee la cookie con el nombre anterior").toMatch(/COOKIE_TEMA_VIEJA/);
     expect(layout, "no normaliza el valor de la cookie").toMatch(/normalizarTema/);
     expect(layout, "no monta el proveedor: el control no encenderia nada").toMatch(
       /<TemaProvider\s+temaInicial=/,
@@ -446,7 +449,9 @@ describe("feature 211 — donde se estampa la clase", () => {
   it("la cookie NO se lee en el layout raiz: eso volveria dinamica la landing publica", () => {
     const raiz = codigoSinComentarios("app/layout.tsx");
     expect(raiz).not.toMatch(/cookies\(\)/);
-    expect(raiz).not.toMatch(/ordenex_tema|COOKIE_TEMA|TemaProvider/);
+    expect(raiz).not.toMatch(/app_tema|COOKIE_TEMA|TemaProvider/);
+    // Tampoco con el nombre anterior (feature 494): se lee en el layout del portal, no aquí.
+    expect(raiz).not.toContain(COOKIE_TEMA_VIEJA);
   });
 
   it("el interruptor vive en el encabezado, que es la unica pieza de toda pagina autenticada", () => {

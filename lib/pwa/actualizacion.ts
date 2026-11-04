@@ -1,3 +1,4 @@
+import { MENSAJE_PUSH_RECIBIDO_LEGADO } from "@/lib/navegador/claves-legadas";
 import { hayTrabajoDeclarado } from "@/lib/pwa/trabajo-en-curso";
 
 /**
@@ -17,15 +18,19 @@ import { hayTrabajoDeclarado } from "@/lib/pwa/trabajo-en-curso";
  * El literal esta duplicado en `public/sw.js` porque el service worker no puede importar del
  * bundle (es un archivo estatico que no pasa por el compilador). La guardia
  * `pwa-relevo-y-purga.guardia.test.ts` comprueba que los dos textos siguen siendo el mismo.
+ *
+ * Feature 494 (R21, design §5.5): `public/sw.js` acepta además el nombre anterior. El día del despliegue
+ * la página abierta es la vieja y el SW en espera es el nuevo: sin ese alias, el botón «actualizar» no
+ * haría nada y el SW nuevo se quedaría en `waiting` sin ningún error.
  */
-export const MENSAJE_RELEVO_AHORA = "ordenex:relevo-ahora";
+export const MENSAJE_RELEVO_AHORA = "app:relevo-ahora";
 
 /**
  * Mensaje que la pagina manda al cargar. Le sirve al SW para reintentar la purga de caches
  * viejas: el momento en que una pagina nueva avisa es justo el momento en que la ultima
  * pagina de la build anterior puede haber desaparecido.
  */
-export const MENSAJE_PAGINA_LISTA = "ordenex:pagina-lista";
+export const MENSAJE_PAGINA_LISTA = "app:pagina-lista";
 
 /**
  * FICHA 410 (R43) — mensaje que el SERVICE WORKER manda a la pagina cuando acaba de mostrar un push
@@ -40,7 +45,16 @@ export const MENSAJE_PAGINA_LISTA = "ordenex:pagina-lista";
  * El literal esta duplicado en `public/sw.js` porque el service worker no puede importar del bundle;
  * la guardia `pwa-push.guardia.test.ts` comprueba que los dos textos siguen siendo el mismo.
  */
-export const MENSAJE_PUSH_RECIBIDO = "ordenex:push-recibido";
+export const MENSAJE_PUSH_RECIBIDO = "app:push-recibido";
+
+/**
+ * Feature 494 (R22, design §5.5) — mientras dure el relevo, el service worker que controla una
+ * página nueva puede ser todavía el de la versión anterior, que manda el mensaje con su nombre viejo.
+ * Sin aceptarlo, esa página oiría dos avisos del mismo hecho.
+ */
+export function esMensajePushRecibido(tipo: unknown): boolean {
+  return tipo === MENSAJE_PUSH_RECIBIDO || tipo === MENSAJE_PUSH_RECIBIDO_LEGADO;
+}
 
 /**
  * Parametro de rescate (`?rescate=sw`). Lo lee un script INLINE del `<head>`; ver

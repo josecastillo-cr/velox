@@ -305,6 +305,11 @@ export function leerConMigracion(
 el ámbito `analitica-productos-dinero`, `traducir` reemplaza `"ordenex"` por `"empresa"` en `ocultas` y en `orden` (R16). JSON
 inválido: se copia tal cual y el saneo existente lo trata como hoy.
 
+`traducir` corre **también sobre lo ya guardado bajo `app:`** en ese ámbito, sin condición, no solo al leer la clave vieja. La tanda 1
+traslada el valor a `app:` con la columna aún sin traducir, porque hasta T5.1 el catálogo publica el nombre viejo. Traducir solo la
+vieja dejaría ese valor sin pasar por `traducir`, y la columna oculta reaparecería al renombrar el catálogo (medido en
+`progress/review_494_t1.md`). Es idempotente: una vez traducido no queda nada que cambiar, no se escribe y el snapshot no varía.
+
 ### 5.4 Cookie de tema
 
 - Servidor (`app/(app)/layout.tsx:45`): nueva, si no vieja, ya normalizada. Evita el parpadeo: el servidor no puede
@@ -323,6 +328,7 @@ se quedaría en `waiting`: la app parecería no actualizarse nunca, sin ningún 
 | Página vieja | SW nuevo (relevo) | Mensaje viejo | **El SW acepta los dos nombres** (R21) |
 | Página nueva | SW viejo que controla (página lista) | Lo ignora: la purga se aplaza hasta el relevo | Se acepta |
 | SW viejo | Página nueva (push) | Mensaje viejo | **La página acepta los dos nombres** (R22) |
+| SW nuevo | Pestaña vieja (push, con otra pestaña que ya relevó) | No entiende el mensaje nuevo: suena un tono de más hasta recargar. Ningún aviso se pierde: la notificación del sistema sale igual y el sondeo de 60 s pone la campana al día | Se acepta. Mandar los dos nombres haría revalidar dos veces a toda página nueva |
 | Tag | — | Una notificación con el tag viejo no se fusiona con una del nuevo durante el cambio | Se acepta: es una vez |
 
 `pwa-relevo-y-purga.guardia` y `pwa-push.guardia` ya comprueban la paridad de literales entre `sw.js` y

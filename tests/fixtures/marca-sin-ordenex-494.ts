@@ -157,8 +157,15 @@ export const EXCEPCIONES: readonly Excepcion[] = [
   {
     id: "E5",
     motivo: "La clave vieja del navegador hay que poder leerla. Se retira con design §5.6.",
-    rutas: ["lib/navegador/claves-legadas.ts", "public/sw.js", "tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
-    activaEn: "T2.5",
+    rutas: ["lib/navegador/claves-legadas.ts", "tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
+  },
+  {
+    // Por linea y no por archivo, para que estos archivos sigan contando: `public/sw.js` no puede tener
+    // la marca en ningun otro sitio, y los tests aun llevan datos de prueba que limpia T8.1.
+    id: "E5.1",
+    motivo: "Alias de relevo del service worker (R21, R22) y los tests que los afirman. Se retiran con design §5.6.",
+    rutas: ["public/sw.js", "tests/unit/guards/pwa-relevo-y-purga.guardia.test.ts", "tests/unit/hooks/usePushEnVentana.test.tsx"],
+    linea: /"ordenex:(relevo-ahora|relevo-ahora-no|pagina-lista|push-recibido|cualquier-otra-cosa)"/,
   },
   {
     id: "E6",
@@ -279,37 +286,84 @@ export function trinquete(
 }
 
 // ---------------------------------------------------------------------------------------------
-// Bloque legado (R20). Activo desde T2.5; aqui solo el detector y su contraprueba.
+// Bloque legado (R20)
 // ---------------------------------------------------------------------------------------------
 
 export const MODULO_LEGADO = "lib/navegador/claves-legadas.ts";
-const CLAVE_VIEJA = /["'`]ordenex(?::[\w-]|_tema)/;
+const CLAVE_VIEJA = /["'`]ordenex(?::|_tema)/;
 const ES_COMENTARIO = /^\s*(\/\/|\/\*|\*)/;
+
+/** Lo que el modulo exporta y da el nombre viejo sin escribirlo: un literal no los delataria. */
+const SIMBOLO_VIEJO = /\b(?:COOKIE_TEMA_VIEJA|claveViejaDe|MENSAJE_\w+_LEGADO)\b/;
+
+/** Escrituras: almacen, cookie (de navegador o de `next/headers`) y mensaje al service worker. */
+const ESCRITURA = /setItem\s*\(|document\.cookie\s*=|\.set\s*\(|postMessage\s*\(/;
+
+/**
+ * La UNICA escritura admitida con un simbolo viejo, y por linea exacta: caducar la cookie al trasladarla
+ * (R17). Si esa linea cambia, la guardia lo dice en vez de abrirse.
+ */
+export const ESCRITURA_LEGADO_ADMITIDA = {
+  archivo: "lib/tema/preferencia-tema.ts",
+  linea: "document.cookie = `${COOKIE_TEMA_VIEJA}=; path=/; max-age=0; SameSite=Lax`;",
+} as const;
+
+/** Desde la escritura hasta que se cierra: una llamada puede llevar la clave en la linea siguiente. */
+function tramoDeEscritura(lineas: readonly string[], i: number): string {
+  const inicio = lineas[i].search(ESCRITURA);
+  let tramo = lineas[i].slice(inicio);
+  for (let j = i + 1; j < Math.min(i + 8, lineas.length); j++) {
+    const abiertos = (tramo.match(/\(/g) ?? []).length - (tramo.match(/\)/g) ?? []).length;
+    if (abiertos <= 0 && tramo.includes(";")) break;
+    if (abiertos <= 0 && !/=\s*$/.test(tramo)) break;
+    tramo += ` ${lineas[j].trim()}`;
+  }
+  return tramo;
+}
 
 /**
  * Dos reglas: fuera del modulo unico (y de los alias de `public/sw.js`) la clave vieja no existe; y
- * en NINGUN sitio, tampoco en el modulo, se pasa a `setItem` ni a `document.cookie`, ni directa ni
- * a traves de una constante del mismo archivo.
+ * en NINGUN sitio, tampoco en el modulo, se escribe con ella: ni directa, ni a traves de una constante
+ * del mismo archivo, ni con lo que exporta el modulo (`SIMBOLO_VIEJO`, leerlo si se puede).
  */
 export function hallazgosLegado(fuente: string, archivo: string): Hallazgo[] {
   const lineas = fuente.replace(/\r\n/g, "\n").split("\n");
   const constantes = new Set<string>();
   for (const l of lineas) {
     const m = l.match(/\b(?:const|let|var)\s+(\w+)\s*(?::[^=]+)?=\s*(.*)$/);
-    if (m && CLAVE_VIEJA.test(m[2])) constantes.add(m[1]);
+    if (m && (CLAVE_VIEJA.test(m[2]) || SIMBOLO_VIEJO.test(m[2]))) constantes.add(m[1]);
   }
   const admitida = archivo === MODULO_LEGADO || archivo === "public/sw.js";
   const acc: Hallazgo[] = [];
   lineas.forEach((l, i) => {
     if (ES_COMENTARIO.test(l)) return;
-    const escribe =
-      /(setItem\s*\(|document\.cookie\s*=)/.test(l) &&
-      (CLAVE_VIEJA.test(l) || [...constantes].some((c) => new RegExp(`(setItem\\s*\\(\\s*|document\\.cookie\\s*=.*)\\b${c}\\b`).test(l)));
+    let escribe = false;
+    if (ESCRITURA.test(l)) {
+      const tramo = tramoDeEscritura(lineas, i);
+      const esLaAdmitida = archivo === ESCRITURA_LEGADO_ADMITIDA.archivo && l.trim() === ESCRITURA_LEGADO_ADMITIDA.linea;
+      escribe =
+        !esLaAdmitida &&
+        (CLAVE_VIEJA.test(tramo) || SIMBOLO_VIEJO.test(tramo) || [...constantes].some((c) => new RegExp(`\\b${c}\\b`).test(tramo)));
+    }
     if (escribe || (!admitida && CLAVE_VIEJA.test(l))) {
       acc.push({ archivo, linea: i + 1, fragmento: l.trim().slice(0, 120) });
     }
   });
   return acc;
+}
+
+/** `providers/` no esta en el arbol del glosario, pero tambien corre en el navegador. */
+const DIRS_LEGADO = ["app", "components", "hooks", "lib", "providers", "public"] as const;
+
+export function archivosLegado(): string[] {
+  return DIRS_LEGADO.flatMap(recorrer);
+}
+
+export function censoLegado(): Hallazgo[] {
+  return archivosLegado().flatMap((f) => {
+    const t = leerTexto(f);
+    return t === null ? [] : hallazgosLegado(t, f);
+  });
 }
 
 // ---------------------------------------------------------------------------------------------

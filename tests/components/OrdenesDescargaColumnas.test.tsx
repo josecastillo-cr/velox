@@ -78,7 +78,7 @@ import {
 } from "@/app/(app)/ordenes/_components/ordenes-descarga-columnas";
 
 /** La clave del ámbito de órdenes, tal y como la arma el control común. */
-const CLAVE_ORDENES = `ordenex:descarga-columnas:${AMBITO_DESCARGA_ORDENES}`;
+const CLAVE_ORDENES = `app:descarga-columnas:${AMBITO_DESCARGA_ORDENES}`;
 
 /** Todos los encabezados del catálogo, DERIVADOS. Nunca una lista escrita a mano. */
 const ENCABEZADOS = COLUMNAS_DESCARGA_ORDENES.map((c) => c.encabezado);

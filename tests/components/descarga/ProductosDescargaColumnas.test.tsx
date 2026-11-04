@@ -118,8 +118,8 @@ function dto(concedido: boolean): ConteoProductosDTO {
 }
 
 /** Las claves de `localStorage` de los dos ámbitos, tal y como las arma el control común. */
-const CLAVE_SIN_DINERO = `ordenex:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS}`;
-const CLAVE_CON_DINERO = `ordenex:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO}`;
+const CLAVE_SIN_DINERO = `app:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS}`;
+const CLAVE_CON_DINERO = `app:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO}`;
 
 /** Todos los encabezados de cada juego, DERIVADOS. Nunca una lista escrita a mano. */
 const ENCABEZADOS_BASE = COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS.map((c) => c.encabezado);

@@ -239,3 +239,168 @@ $ pnpm exec vitest run guard
    Test Files  284 passed (284)
         Tests  3926 passed | 4 todo (3930)
 ```
+
+## Tanda 1 (T2.1–T2.5), 2026-11-04
+
+MCP `codebase-memory` sin conexión (*connection timed out*): medido con `grep` y leyendo los archivos.
+
+### Punto de montaje del tema (T2.3), confirmado en el archivo
+
+`TemaProvider` se monta en un solo sitio, `app/(app)/layout.tsx`, y envuelve todo el portal. Es `"use client"`. La migración va en un `useEffect` suyo, sin tocar el estado: el tema ya llegó bien del servidor. El layout raíz no lee la cookie (lo exige `tema-encendido.guardia`). `/login` y la landing no lo montan: la cookie vieja se queda hasta que la persona entra al portal, sin efecto, porque esas pantallas no leen el tema.
+
+### Decisiones y desvíos
+
+1. **§5.3, `traducir` NO se conecta en esta tanda.** El catálogo aún publica la columna con el nombre viejo (T5.1). Traducirla ya haría que `clavesUtiles` la descartara y la oculta reapareciera. El valor se copia tal cual; hay mutación que lo prueba. T5.3 conecta `traducir`.
+   **Consecuencia para T5.3, anotada en `tasks.md`:** el valor ya vive bajo `app:` con el nombre viejo dentro, y `traducir` solo corre al leer la clave vieja. Con release entre la tanda 1 y la 4 (§10 prevé una sola, tras la 7) habría que traducir también lo guardado bajo `app:`. `preferencias-494.test.tsx` sale rojo al renombrar la columna: es el aviso.
+2. **E5 se parte en E5 y E5.1.** El fixture tenía `public/sw.js` entero exceptuado, y §7 dice «los alias». E5.1 es por línea (`"ordenex:<nombre de alias>"`) y cubre `public/sw.js`, `pwa-relevo-y-purga.guardia` y `usePushEnVentana.test`: cualquier otra aparición en esos archivos sigue contando. Con contraprueba.
+3. **`claveViejaDe` y `leerConLegado`, además de la firma de §5.2.** `leerCrudo` solo recibe la clave nueva, sin saber de qué familia es.
+4. **R20 también mira `providers/`**, que no está en el árbol del glosario pero corre en el navegador y monta la migración de la cookie.
+5. **El detector de R20 no ve una constante importada.** `hallazgosLegado` busca constantes del mismo archivo, así que no detectaría una escritura a `document.cookie` con `COOKIE_TEMA_VIEJA` fuera del módulo; es lo que permite a `preferencia-tema.ts` caducarla. Dentro del módulo sí sale rojo (mutación abajo). Lo cubre `cookie-legada-494.test.ts`: lo único que se escribe a la vieja es su caducidad.
+6. **Nueva con basura y vieja válida: gana la vieja**, en servidor y cliente. §5.4 dice «nueva, si no vieja, ya normalizada».
+7. **Comentarios con la clave vieja reescritos aquí** (`cierres-bodega-descarga-columnas.ts`, `ordenes-descarga-columnas.ts`, `usePreferenciaColumnas.ts`): el script de la tanda 7 deja fuera el prefijo a propósito.
+
+### Una combinación que §5.5 no lista
+
+**SW nuevo → página vieja (push).** Tras el relevo, otra pestaña aún vieja queda controlada por el SW nuevo y recibe `app:push-recibido`, que no entiende: no revalida al instante (el sondeo de 60 s la alcanza) y puede sonar dos veces. El SW no manda los dos nombres, porque la página nueva revalidaría dos veces (`pwa-push.guardia` lo fija). Dura hasta que esa pestaña recargue, y `AvisoVersionNueva` ya lo pide. Se acepta, como las otras filas de esa tabla.
+
+### Trinquete
+
+```
+$ pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes
+antes  2.365 en 556 archivos (origin/dev 32dae01e)
+ahora  2.311 en 531 archivos
+comparado por archivo: 0 nuevos, 0 suben, 30 bajan
+```
+
+### Mutaciones, ejecutadas de verdad y restauradas
+
+Script en el scratchpad; salida en `progress/494_t1_mutaciones.log` (ignorado por git). Cada una comprueba que el archivo cambió, lee `numTotalTests` del JSON de vitest y aborta si es 0. Se restaura con `git checkout` sobre un árbol commiteado.
+
+| Mutación | Tests ejecutados | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 182 | 0 | exit=0 (3 todo) |
+| **T2.4** Quitar el alias de relevo de `sw.js` | 31 | 1 | `el mensaje de relevo VIEJO dispara skipWaiting` |
+| Alias convertido en prefijo | 31 | 4 | `solo el mensaje del usuario pide el relevo`, `el alias es ese mensaje y no un prefijo` |
+| Quitar el alias de página lista | 31 | 1 | `ordenex:pagina-lista reintenta la purga` |
+| Tag vuelve al nombre viejo | 21 | 1 | `R41: la etiqueta se deriva del evento` |
+| La página deja de aceptar el push viejo | 14 | 1 | `R22: el mensaje del service worker de la versión anterior` |
+| **T2.5** `setItem` sintético con clave vieja en `preferencia-sonido.ts` | 35 | 2 | `T2.5: ningun archivo … tiene hallazgos de legado` y el trinquete |
+| `document.cookie` con la vieja, en el módulo | 35 | 1 | `T2.5: ningun archivo …` |
+| Falla la escritura y aun así se borra la vieja | 19 | 1 | `solo falla la escritura` |
+| `leerCrudo` vuelve a `getItem` directo | 11 | 5 | los de columnas |
+| SINPE vuelve a `getItem` directo | 11 | 1 | `R18: con la marca vieja no vuelve a salir` |
+| §5.3: traducir la columna ya, con el catálogo de hoy | 11 | 1 | `la columna oculta sigue oculta tras migrar` |
+| El servidor deja de leer la cookie vieja | 39 | 2 | `R17: quien solo tiene la cookie con el nombre anterior` |
+| `TemaProvider` deja de migrar | 12 | 1 | `montarlo traslada la cookie` |
+| Base restaurada | 182 | 0 | exit=0; `git status` limpio |
+
+Supervivientes: 0 de 13.
+
+### Service worker en un navegador de verdad
+
+En `localhost` el SW se autodestruye, pero `*.localhost` es contexto seguro y no cuenta como tal. Sonda en el scratchpad: el `sw.js` de `origin/dev` y el de la rama servidos en `http://velox.localhost:3495` a Chromium real, con páginas mínimas. Mide el protocolo, no la app. Salida en `progress/494_t1_sw_real.log` (ignorado).
+
+| Montaje | Mensaje a `reg.waiting` | Resultado |
+| --- | --- | --- |
+| SW viejo activo, SW nuevo en espera | `ordenex:cualquier-otra-cosa` | Sigue en espera, 0 relevos |
+| Igual | `ordenex:pagina-lista` | Sigue en espera, 0 relevos |
+| Igual | `ordenex:relevo-ahora` | **Releva**, 1 `controllerchange` |
+| Igual | `app:relevo-ahora` | **Releva**, 1 `controllerchange` |
+| **Control:** SW sin el alias en espera | `ordenex:relevo-ahora` | **Se queda en espera**, 0 relevos: la trampa de §5.5 existe |
+| SW nuevo activo, push real por CDP | — | Notificación con tag `app:cierre_dia_vencido`; la ventana visible recibe `{tipo: "app:push-recibido"}` |
+
+### La app, con las claves viejas sembradas
+
+`next dev --webpack -p 3494`, Chromium con `colorScheme: light` (si sale oscuro, no viene del sistema), cuenta `admin.qa` con el `QA_PASSWORD` del `.env`. Sin seeds ni rotación. Tras el login se borró lo nuevo y se sembró solo lo viejo.
+
+| Qué | Sembrado | Visto |
+| --- | --- | --- |
+| Primer HTML del servidor | `ordenex_tema=oscuro` | `data-tema="oscuro"`, `class="contents dark"`, y la cookie sigue sin migrar |
+| Tras cargar `/ordenes` | | Fondo `rgb(10, 21, 36)`; `app_tema=oscuro`, y `ordenex_tema` desaparece. Interruptor: «Tema: Oscuro. Cambiar a Claro.» |
+| Cambiar el tema | | Solo `app_tema=claro` |
+| Sonido | `ordenex:sonido-notificaciones=off` | `app:…=off`, vieja borrada; la campana ofrece «Activar el sonido de las notificaciones» |
+| Columnas de `/ordenes` | `ocultas: [telefonoDest]`, `orden: [estatus, numGuia]` | «Teléfono del destinatario» desmarcada; «Estado» encabeza la lista; clave movida |
+| **§5.3**, columnas de `/analitica` | `analitica-productos-dinero`, `ocultas: [ordenex]` | «Cobró Velox (no sumar…)» **desmarcada, y es la única**, de 21; clave movida, valor intacto |
+| **R18**, aviso de SINPE | Marca aplazada dejada solo con el nombre viejo | Tras recargar el aviso no sale, y la marca pasa a `app:` |
+| Consola (primera sonda, `/ordenes`, recarga y `/analitica`) | | 0 errores de hidratación ni de bucle de render |
+
+**No se vio:**
+
+- La app de navegación en pantalla (`ordenex:app-navegacion`): solo la lee el modal de `/mis-asignaciones`, del mensajero. La clave se queda sin migrar hasta entonces, como está previsto. Cubierta con `preferencias-494.test.tsx`.
+- Columnas de manifiesto en pantalla: mismo `leerCrudo` que las de descarga, y cubiertas con el hook real.
+- **PWA instalada real** con la app servida en producción: la sonda mide el `sw.js` real con páginas mínimas, no la app desplegada ni `useActualizacionPwa` pulsando el botón. Queda para T8.3 en preview.
+- SW viejo real → página nueva (R22) en navegador: solo en `usePushEnVentana.test.tsx`.
+
+**Limpieza.** Los 6 logins de las sondas dejaron 6 filas en `login_attempt` y 6 en `Session`, y 0 en `historial_accion`. Borradas por id y recontadas: 0. Servidor matado, log borrado (estaba fuera del repo), `.next/dev` borrado.
+
+### Verificación
+
+```
+$ pnpm typecheck                                 TSC_EXIT=0, 0 errores
+$ pnpm lint                                      LINT_EXIT=0, 235 problems (0 errors, 235 warnings), el mismo número que en la tanda 0
+$ pnpm exec vitest related --run <17 archivos>   RELATED_EXIT=0
+   Test Files  340 passed (340)
+        Tests  4786 passed | 26 skipped (4812)
+$ pnpm exec vitest run guard                     GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3936 passed | 3 todo (3939)
+```
+
+Las dos guardias a mano van dentro de `run guard`, y también se corrieron solas durante la tanda. Los 26 `skipped` son casos sueltos, ningún archivo entero; no se desglosaron. `./init.sh --rapido`: no corrido aquí, lo corre el leader.
+
+### Mapa `R<n>` → test, tanda 1
+
+| R | Test |
+| --- | --- |
+| R14 | `tests/unit/navegador/migrar-clave-494.test.ts` (módulo) y `tests/unit/navegador/preferencias-494.test.tsx` (lectores reales) |
+| R15 | `migrar-clave-494.test.ts`; cookie, en `tests/unit/tema/cookie-legada-494.test.ts` y `tests/components/AppLayout.test.tsx` |
+| R16 | **T5.3.** Hoy `preferencias-494.test.tsx` fija lo contrario a propósito: con el catálogo actual, no se traduce |
+| R17 | `AppLayout.test.tsx` (primer render de servidor), `cookie-legada-494.test.ts` (montaje), `tests/unit/guards/tema-encendido.guardia.test.ts` |
+| R18 | `preferencias-494.test.tsx` |
+| R19 | `migrar-clave-494.test.ts`; cookie, en `cookie-legada-494.test.ts` |
+| R20 | `tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts`, bloque «legado», ya con el árbol; `cookie-legada-494.test.ts` |
+| R21 | `tests/unit/guards/pwa-relevo-y-purga.guardia.test.ts` |
+| R22 | `tests/unit/hooks/usePushEnVentana.test.tsx`, `tests/unit/guards/pwa-push.guardia.test.ts` |
+| R23 | `pwa-push.guardia.test.ts` (R41 de la 410, con los nombres nuevos a mano) |
+
+**Veredicto:** Tanda 1 lista; las preferencias se leen con la clave vieja y migran, y el relevo con SW viejo y página vieja funciona en Chromium real.
+
+### Hallazgos de `progress/review_494_t1.md`, cerrados antes del PR
+
+**M1 (R20), guardia.** Corrige el punto 5 de «Decisiones y desvíos»: el hueco era más ancho de lo declarado y `cookie-legada-494.test.ts` no lo cubría. `hallazgosLegado` ahora:
+
+- Trata como clave vieja `COOKIE_TEMA_VIEJA`, `claveViejaDe` y `MENSAJE_*_LEGADO` en cualquier escritura, también dentro del módulo y de `public/sw.js`. Leerlos sigue permitido.
+- Cuenta como escritura `setItem`, `document.cookie`, `.set(` (cookies de `next/headers`) y `postMessage`, estas dos últimas añadidas por mí.
+- Sigue a las constantes del mismo archivo derivadas de esos símbolos, lee la llamada aunque ocupe varias líneas y ve el prefijo concatenado (`"ordenex:" + k`).
+- Admite una sola escritura: `ESCRITURA_LEGADO_ADMITIDA`, la línea exacta de caducidad de `lib/tema/preferencia-tema.ts`. Si esa línea cambia, la guardia sale roja.
+
+Ningún uso legítimo se quedó fuera de la guardia. Además, `preferencias-494.test.tsx` afirma que aplazar el aviso de SINPE escribe solo la clave nueva, como proponía el informe. `claveViejaDe` sigue exportada: la guardia ya la cubre y el test de familias la usa.
+
+Mutaciones de verdad, restauradas con el contenido exacto. Salida en `progress/494_t1_m1_mutaciones.log` (ignorado por git).
+
+| Mutación | Tests ejecutados | Rojos | Rojo |
+| --- | --- | --- | --- |
+| Base sin mutar | 51 | 0 | exit=0 |
+| **m26 del reviewer:** `RevisionSinpeBodega.tsx` escribe con `claveViejaDe`, contra la guardia | 39 | 1 | `T2.5: ningun archivo … tiene hallazgos de legado` |
+| m26, contra el test de conducta | 12 | 1 | `R20: aplazar el aviso escribe solo la clave nueva` |
+| `preferencia-tema.ts` escribe un valor en la cookie vieja | 39 | 1 | `T2.5: ningun archivo …` |
+| La línea admitida cambia | 39 | 2 | `la caducidad de la cookie se admite por linea exacta` y `T2.5` |
+| `useActualizacionPwa.ts` manda el mensaje viejo con el símbolo importado | 39 | 1 | `T2.5: ningun archivo …` |
+| `setItem` a la vieja dentro del módulo | 39 | 1 | `T2.5: ningun archivo …` |
+| Base restaurada | 51 | 0 | exit=0 |
+
+Supervivientes: 0 de 6.
+
+**M2, spec.** T5.3 pide `traducir` también sobre lo guardado bajo `app:`, sin condición, y R16 con los dos casos; `design.md §5.3` lo dice. `traducir` sigue sin conectar.
+
+**M3, spec.** Fila «SW nuevo → pestaña vieja» añadida a la tabla de `design.md §5.5`.
+
+**M4:** no se toca, queda en el informe.
+
+Trinquete regenerado sin cambios: 2.311 en 531.
+
+```
+$ pnpm exec vitest run guard                     GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3940 passed | 3 todo (3943)
+```

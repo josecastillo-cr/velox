@@ -7,11 +7,15 @@ import { PENDIENTES_494 } from "@/tests/fixtures/marca-pendientes-494";
 import {
   COLECCION_NUEVA,
   COLECCION_VIEJA,
+  ESCRITURA_LEGADO_ADMITIDA,
   EXCEPCIONES,
+  MODULO_LEGADO,
   RAIZ,
   archivosDeHosts,
   archivosDelArbol,
+  archivosLegado,
   censoArbol,
+  censoLegado,
   censoMigraciones494,
   censoPlantillasConMarca,
   censoPlantillasLiteral,
@@ -112,8 +116,15 @@ describe("494 — excepciones (R3)", () => {
     expect(estaExceptuado("lib/x.ts", null, [e])).toBe(false);
   });
 
-  it("la lista es la cerrada de design §7, mas el andamiaje E9", () => {
-    expect(EXCEPCIONES.map((e) => e.id)).toEqual(["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8", "E9"]);
+  it("la lista es la cerrada de design §7, mas el andamiaje E9; E5 se parte en archivo y linea", () => {
+    expect(EXCEPCIONES.map((e) => e.id)).toEqual(["E1", "E2", "E3", "E4", "E5", "E5.1", "E6", "E7", "E8", "E9"]);
+  });
+
+  it("E5.1 cubre los alias y solo los alias: en `public/sw.js` lo demas sigue contando", () => {
+    expect(estaExceptuado("public/sw.js", `const A = "ordenex:relevo-ahora";`)).toBe(true);
+    expect(estaExceptuado("public/sw.js", `// ordenex en un comentario`)).toBe(false);
+    expect(estaExceptuado("public/sw.js", `tag: "ordenex:" + carga.evento,`)).toBe(false);
+    expect(estaExceptuado("public/sw.js", null)).toBe(false);
   });
 
   // T8.2: al cerrar, ninguna entrada puede seguir sin activar, y E9 ya no existe.
@@ -171,7 +182,66 @@ describe("494 — legado del navegador (R20)", () => {
     expect(hallazgosLegado(fuente, "lib/navegador/claves-legadas.ts")).toEqual([]);
   });
 
-  it.todo("T2.5: ningun archivo de app/, components/, hooks/, lib/ ni public/ tiene hallazgos de legado");
+  it("contraprueba: escribir con lo que exporta el modulo sale rojo, aunque no haya literal", () => {
+    for (const fuente of [
+      `window.sessionStorage.setItem(claveViejaDe(claveDeSesion(zonaId))!, "1");`,
+      `almacen.setItem(MENSAJE_RELEVO_AHORA_LEGADO, "x");`,
+      "document.cookie = `${COOKIE_TEMA_VIEJA}=oscuro; path=/`;",
+      `(await cookies()).set(COOKIE_TEMA_VIEJA, "oscuro");`,
+      `esperando.postMessage({ tipo: MENSAJE_RELEVO_AHORA_LEGADO });`,
+    ]) {
+      expect(hallazgosLegado(fuente, "lib/audio/x.ts"), fuente).toHaveLength(1);
+      expect(hallazgosLegado(fuente, MODULO_LEGADO), fuente).toHaveLength(1);
+    }
+  });
+
+  it("contraprueba: tampoco por una constante, en varias lineas, ni concatenando el prefijo", () => {
+    const porConstante = [`const k = claveViejaDe(CLAVE);`, `almacen.setItem(k!, "on");`].join("\n");
+    expect(hallazgosLegado(porConstante, "lib/audio/x.ts").map((h) => h.linea)).toEqual([2]);
+    const enVariasLineas = [`almacen.setItem(`, `  claveViejaDe(CLAVE)!,`, `  "on",`, `);`].join("\n");
+    expect(hallazgosLegado(enVariasLineas, "lib/audio/x.ts").map((h) => h.linea)).toEqual([1]);
+    const conLiteral = [`almacen.setItem(`, `  "ordenex:sonido",`, `  "on",`, `);`].join("\n");
+    expect(hallazgosLegado(conLiteral, MODULO_LEGADO).map((h) => h.linea)).toEqual([1]);
+    expect(hallazgosLegado(`almacen.setItem("ordenex:" + k, v);`, MODULO_LEGADO)).toHaveLength(1);
+    expect(hallazgosLegado(`almacen.setItem("ordenex:" + k, v);`, "lib/audio/x.ts")).toHaveLength(1);
+    const cookieEnDosLineas = ["document.cookie =", "  `${COOKIE_TEMA_VIEJA}=oscuro`;"].join("\n");
+    expect(hallazgosLegado(cookieEnDosLineas, "lib/audio/x.ts").map((h) => h.linea)).toEqual([1]);
+  });
+
+  it("sano: leer con esos simbolos no es escribir, y escribir en la clave nueva tampoco", () => {
+    const fuente = [
+      `const tema = normalizarTema(almacenCookies.get(COOKIE_TEMA_VIEJA)?.value);`,
+      `const vale = tipo === MENSAJE_PUSH_RECIBIDO_LEGADO;`,
+      `const vieja = claveViejaDe(nueva);`,
+      `almacen.setItem(nueva, valor);`,
+      `almacen.removeItem(vieja);`,
+      `esperando.postMessage({ tipo: MENSAJE_RELEVO_AHORA });`,
+    ].join("\n");
+    expect(hallazgosLegado(fuente, "lib/audio/x.ts")).toEqual([]);
+  });
+
+  it("la caducidad de la cookie se admite por linea exacta, y solo en su archivo", () => {
+    const { archivo, linea } = ESCRITURA_LEGADO_ADMITIDA;
+    // Si esa linea deja de existir, la excepcion esta muerta: rojo, como pide R3 para las demas.
+    expect(leerTexto(archivo)?.split("\n").map((l) => l.trim())).toContain(linea);
+    expect(hallazgosLegado(linea, archivo)).toEqual([]);
+    expect(hallazgosLegado(linea, "lib/audio/x.ts")).toHaveLength(1);
+    // En el mismo archivo, cualquier otra escritura con el nombre viejo sale roja.
+    expect(hallazgosLegado("document.cookie = `${COOKIE_TEMA_VIEJA}=oscuro; path=/`;", archivo)).toHaveLength(1);
+  });
+
+  it("no-vacuidad: el recorrido ve el modulo, el service worker y quien migra la cookie", () => {
+    expect(archivosLegado()).toEqual(
+      expect.arrayContaining([MODULO_LEGADO, "public/sw.js", "lib/tema/preferencia-tema.ts", "providers/TemaProvider.tsx"]),
+    );
+    // El modulo y el SW siguen conteniendo lo viejo: si no, esta guardia no estaria mirando nada.
+    expect(leerTexto(MODULO_LEGADO)).toContain("ordenex_tema");
+    expect(leerTexto("public/sw.js")).toContain("ordenex:relevo-ahora");
+  });
+
+  it("T2.5: ningun archivo de app/, components/, hooks/, lib/, providers/ ni public/ tiene hallazgos de legado", () => {
+    expect(lista(censoLegado())).toEqual([]);
+  });
 });
 
 describe("494 — migraciones (R11, R30)", () => {

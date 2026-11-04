@@ -33,11 +33,11 @@
 
 ## Tanda 1 — Navegador y service worker
 
-- [ ] **T2.1 — Módulo.** Depende de T1.1. `lib/navegador/claves-legadas.ts` con `leerConMigracion` (`design.md §5.2`). **Hecho:** R14, R15, R19 verdes en `tests/unit/navegador/migrar-clave-494.test.ts`; la clave vieja, literal en el test.
-- [ ] **T2.2 — Preferencias.** Depende de T2.1. Sonido, navegación, columnas de manifiesto y de descarga, y `sessionStorage` de SINPE pasan por el módulo. Eventos de ventana renombrados. Reescribir los comentarios de `lib/manifiesto/preferencia-columnas.ts:9-12` y `lib/columnas/preferencia-columnas.ts:66-68`. **Hecho:** R14, R18 verdes; `tests/unit/hooks/useTonoAlIncrementar.test.tsx` y `tests/components/OrdenesDescargaColumnas.test.tsx` migrados; con preferencia vieja sembrada, se aplica.
-- [ ] **T2.3 — Cookie de tema.** Depende de T2.1. Servidor lee nueva o vieja; al montar en el cliente, migra. **Hecho:** R17 verde; `tema-encendido.guardia` migrada; confirmado en el archivo el punto de montaje.
-- [ ] **T2.4 — Service worker.** `public/sw.js` y `lib/pwa/actualizacion.ts`: nombres nuevos y alias de lectura; `hooks/usePushEnVentana.ts` acepta los dos; tag nuevo. **Hecho:** R21, R22, R23 verdes; enviar al SW el mensaje viejo dispara `skipWaiting`, y `ordenex:cualquier-otra-cosa` sigue sin hacer nada. **Mutación:** quitar el alias de relevo pone rojo `pwa-relevo-y-purga.guardia` (anotado y restaurado).
-- [ ] **T2.5 — Legado.** Bloque R20 activo y E5 con sus rutas reales. **Hecho:** un `setItem` sintético con clave vieja sale rojo.
+- [x] **T2.1 — Módulo.** Depende de T1.1. `lib/navegador/claves-legadas.ts` con `leerConMigracion` (`design.md §5.2`). **Hecho:** R14, R15, R19 verdes en `tests/unit/navegador/migrar-clave-494.test.ts`; la clave vieja, literal en el test.
+- [x] **T2.2 — Preferencias.** Depende de T2.1. Sonido, navegación, columnas de manifiesto y de descarga, y `sessionStorage` de SINPE pasan por el módulo. Eventos de ventana renombrados. Reescribir los comentarios de `lib/manifiesto/preferencia-columnas.ts:9-12` y `lib/columnas/preferencia-columnas.ts:66-68`. **Hecho:** R14, R18 verdes; `tests/unit/hooks/useTonoAlIncrementar.test.tsx` y `tests/components/OrdenesDescargaColumnas.test.tsx` migrados; con preferencia vieja sembrada, se aplica.
+- [x] **T2.3 — Cookie de tema.** Depende de T2.1. Servidor lee nueva o vieja; al montar en el cliente, migra. **Hecho:** R17 verde; `tema-encendido.guardia` migrada; confirmado en el archivo el punto de montaje.
+- [x] **T2.4 — Service worker.** `public/sw.js` y `lib/pwa/actualizacion.ts`: nombres nuevos y alias de lectura; `hooks/usePushEnVentana.ts` acepta los dos; tag nuevo. **Hecho:** R21, R22, R23 verdes; enviar al SW el mensaje viejo dispara `skipWaiting`, y `ordenex:cualquier-otra-cosa` sigue sin hacer nada. **Mutación:** quitar el alias de relevo pone rojo `pwa-relevo-y-purga.guardia` (anotado y restaurado).
+- [x] **T2.5 — Legado.** Bloque R20 activo y E5 con sus rutas reales. **Hecho:** un `setItem` sintético con clave vieja sale rojo.
 
 ## Tanda 2 — Familia cierres
 
@@ -56,7 +56,7 @@
 
 - [ ] **T5.1 — Script.** Depende de tanda 3 mergeada y de T2.1. `--familia analitica`. **Hecho:** `tsc` limpio; R5 verde con el id literal.
 - [ ] **T5.2 — Caché.** Prefijo nuevo en `claveDeConteoProductos`; revisar los otros 11 usos de `envolver`. **Hecho:** R9 verde, y la revisión anotada.
-- [ ] **T5.3 — Columna guardada.** `traducir` del ámbito `analitica-productos-dinero` (`design.md §5.3`). **Hecho:** R16 verde. **Mutación:** sin `traducir`, la columna oculta reaparece y el test sale rojo (anotado y restaurado).
+- [ ] **T5.3 — Columna guardada.** `traducir` del ámbito `analitica-productos-dinero` (`design.md §5.3`), al leer la clave vieja **y también sobre lo ya guardado bajo `app:`, sin condición**. **Por qué sin condición:** la tanda 1 deja el valor bajo `app:` con el nombre viejo de la columna dentro; una release antes de esta tarea lo lleva a los navegadores, y sin esa traducción la columna oculta reaparece. **Hecho:** R16 verde con los dos casos, clave vieja y clave `app:`. `tests/unit/navegador/preferencias-494.test.tsx` sale rojo a propósito al renombrar la columna, hasta sustituirlo por R16. **Mutación:** sin `traducir` en cualquiera de los dos caminos, la columna oculta reaparece y el test sale rojo (anotado y restaurado).
 - [ ] **T5.4 — Contrato.** `tests/unit/api/contrato-sin-cambios-494.test.ts`. **Hecho:** R6 verde; `docs/api/**` sin cambio de campos.
 - [ ] **T5.5 — Ver la app.** Tablero financiero y productos con dinero, y descarga de CSV. **Hecho:** encabezado «Cobró Velox …», misma posición de columna, cifra de ganancia igual.
 

@@ -7,10 +7,12 @@
  * queda declarado aquí y no escondido.
  */
 
+import { leerConLegado } from "@/lib/navegador/claves-legadas";
+
 import { APPS_NAVEGACION, type AppNavegacion } from "./navegacion-externa";
 
-/** Clave de almacenamiento. Prefijo `ordenex:` para no colisionar con nada del host. */
-export const CLAVE_APP_NAVEGACION = "ordenex:app-navegacion";
+/** Clave de almacenamiento. Prefijo `app:` para no colisionar con nada del host. */
+export const CLAVE_APP_NAVEGACION = "app:app-navegacion";
 
 /**
  * La última app usada, o `null` si no hay ninguna guardada.
@@ -22,7 +24,7 @@ export const CLAVE_APP_NAVEGACION = "ordenex:app-navegacion";
 export function leerAppPreferida(): AppNavegacion | null {
   if (typeof window === "undefined") return null;
   try {
-    const guardado = window.localStorage.getItem(CLAVE_APP_NAVEGACION);
+    const guardado = leerConLegado(window.localStorage, CLAVE_APP_NAVEGACION);
     return APPS_NAVEGACION.includes(guardado as AppNavegacion)
       ? (guardado as AppNavegacion)
       : null;

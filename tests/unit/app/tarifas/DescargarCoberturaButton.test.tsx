@@ -40,7 +40,7 @@ vi.mock("@/lib/actions/cobertura", () => ({
 
 import { DescargarCoberturaButton } from "@/app/(app)/configuracion/tarifas/_components/DescargarCoberturaButton";
 
-const CLAVE_PREFERENCIA = "ordenex:descarga-columnas:tarifas-cobertura";
+const CLAVE_PREFERENCIA = "app:descarga-columnas:tarifas-cobertura";
 
 const ITEM: CoberturaDistritoDTO = {
   provincia: "San José",
