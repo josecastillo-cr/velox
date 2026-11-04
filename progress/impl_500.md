@@ -56,7 +56,8 @@
   `down.sql` dinámico (función de la 498 byte a byte salvo el sufijo; lo comprueba el test).
 - Aplicada en la base local compartida (`prisma migrate deploy`); `migrate status` limpio.
 - up → down → up: medido dentro de una transacción revertida en el test de migración (no se ejecutó el
-  down en vivo sobre la base compartida).
+  down en vivo sobre la base compartida). Desde la revisión m2 el test SÍ reaplica el up tras el down
+  (`errorReUp` null y el valor vuelve al final del enum).
 - Declarada en `posteriores` de `orden-traspaso-migration.test.ts` (verde).
 - `tests/integration/db/historial-accion-zona-distrito-500-migration.test.ts`: forma (una sentencia;
   función igual a la de la 498), down conserva un valor sembrado después, down aborta con una fila viva.
@@ -182,6 +183,24 @@ limpias.
     habría subido, no bajado);
   - `corte-diario-segundo-cierre-sql-real.test.ts` (271/T10.3);
   - `SaldosTiendasBuscador463.test.tsx` (componente, fuera del alcance).
+
+## Revisión 1 (`progress/review_500.md`, HEAD 55fdee73) — correcciones
+
+- **B1** `500-con-dinero-sql-real.test.ts`: `fotoDeTodo(e, ids)` ya no compara seis tablas enteras; se
+  acota a la fila de `cierre_bodega`, sus ajustes, los movimientos de los tres libros con origen en sus
+  cierres o en sus ajustes, y el historial con `entidad_id` A/B. Nuevo caso de anti-vacuidad (A: fila,
+  caja y historial no vacíos; B: 1 ajuste y 1 movimiento de caja). La foto se afirma ANTES que el estado.
+  Aislado 3 veces: 9/9, 9/9, 9/9. Mutaciones repetidas:
+  - T6.1 (sin ajustes): ROJO R1, R9, R3 ×2, R4 (5 failed / 9).
+  - T6.2 (sin `!saldadaReglaAnterior`): ROJO R3 ×2, R4 (3 failed / 9).
+  - Nueva B1.sincorte (quitar el corte `con_asientos` de `revertirConciliacion`): ROJO R2 y R9 **por la
+    foto** («expected 'cierre_bodega=1:13b7…' to be 'cierre_bodega=1:ab1d…'» y la de B), y R4. La foto
+    acotada sigue cazando el fallo. `git diff -- lib` vacío al terminar.
+- **m2** `historial-accion-zona-distrito-500-migration.test.ts`: reaplica el up dentro de la transacción
+  revertida y afirma `[...trasDown, VALOR]`. 4/4.
+- **m3** `docs/ayuda/oficina/wallet-satelites.md`: «antes de que alguien la marcara» → «antes de que
+  alguien corrigiera el monto». `ayuda-wallet-satelites-498.test.ts` no fija esa frase; verde (17/17 junto
+  con m2: 21/21).
 
 ## Commits
 

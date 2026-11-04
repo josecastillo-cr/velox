@@ -66,13 +66,18 @@ describeSiHayBase("500/T3.3 — R22 contra Postgres", () => {
       const antesDelDown = await etiquetasDeEnum(tx, TIPO);
       const errorDown = await intentarConMensaje(tx, DOWN(DIR));
       const trasDown = await etiquetasDeEnum(tx, TIPO);
-      return { trasUp, posterior, antesDelDown, errorDown, trasDown };
+      // Revision m2: el up OTRA VEZ, dentro de la misma transaccion revertida.
+      const errorReUp = await intentarConMensaje(tx, UP(DIR));
+      const trasReUp = await etiquetasDeEnum(tx, TIPO);
+      return { trasUp, posterior, antesDelDown, errorDown, trasDown, errorReUp, trasReUp };
     });
     expect(r.trasUp).toContain(VALOR);
     expect(r.errorDown).toBeNull();
     expect(r.trasDown).not.toContain(VALOR);
     expect(r.trasDown).toContain(r.posterior);
     expect(r.trasDown).toEqual(r.antesDelDown.filter((v) => v !== VALOR));
+    expect(r.errorReUp).toBeNull();
+    expect(r.trasReUp).toEqual([...r.trasDown, VALOR]);
   });
 
   it("R22: con una fila del historial que usa el valor, el down ABORTA y no borra nada", async () => {

@@ -117,8 +117,8 @@ una consolidación que ya entró a la caja, la app no deshace nada y te dice «Y
 monto en vez de revertir».
 
 **Desmarcar** solo aparece en una consolidación que todavía no movió dinero en la caja. Si lo ves en una
-que sí lo movió es porque la pantalla se cargó antes de que alguien la marcara: la app te avisa y no cambia
-nada.
+que sí lo movió es porque la pantalla se cargó antes de que alguien corrigiera el monto: la app te avisa y
+no cambia nada.
 
 ## Saldada con la regla anterior
 

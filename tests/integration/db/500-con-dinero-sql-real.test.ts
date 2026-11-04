@@ -11,7 +11,7 @@ import {
 import { HAY_BASE_DE_DATOS } from "./_postgres-real";
 import { conEscenario, prepararMundo, type Escenario, type Mundo } from "./454/_escenario";
 import { consolidacionConDosCierres, filasDeDiferencia } from "./498/_satelite";
-import { huella, sembrarConsolidacion } from "./498/_migraciones";
+import { sembrarConsolidacion } from "./498/_migraciones";
 
 /**
  * FICHA 500 (T1.2; R1, R2, R3, R4, R9) — «DESMARCAR» SOLO CUANDO SE PUEDE, contra Postgres real y por
@@ -34,18 +34,35 @@ const describeSiHayBase = HAY_BASE_DE_DATOS ? describe : describe.skip;
 const adminDe = (e: Escenario) => new CierresBodegaAdminRepository(e.cliente as unknown as PrismaClient);
 const saldosDe = (e: Escenario) => new SaldosSatelitesRepository(e.cliente as unknown as PrismaClient);
 
-/** Todo lo que un revertir rechazado NO debe cambiar: tablas enteras, por huella (conteo + md5). */
-async function fotoDeTodo(e: Escenario): Promise<string> {
-  const tablas = [
-    "cierre_bodega",
-    "conciliacion_bodega_ajuste",
-    "wallet_movimiento",
-    "wallet_tienda_movimiento",
-    "pago_mensajero_movimiento",
-    "historial_accion",
+/**
+ * Todo lo que un revertir rechazado NO debe cambiar, ACOTADO a las consolidaciones medidas (revision
+ * B1): su fila de `cierre_bodega`, sus filas de ajuste, los movimientos de los tres libros con origen
+ * en sus cierres o en sus ajustes, y el historial con `entidad_id` en ellas. Huella por tramo (conteo +
+ * md5 del texto de cada fila). No mira tablas enteras: la base es compartida y otro test puede
+ * commitear filas ajenas en medio.
+ */
+async function fotoDeTodo(e: Escenario, ids: string[]): Promise<string> {
+  const tramos: [string, string][] = [
+    ["cierre_bodega", `SELECT t::text AS f FROM cierre_bodega t WHERE t.id = ANY($1::text[])`],
+    ["ajustes", `SELECT t::text AS f FROM conciliacion_bodega_ajuste t WHERE t.cierre_bodega_id = ANY($1::text[])`],
+    ...(["wallet_movimiento", "wallet_tienda_movimiento", "pago_mensajero_movimiento"] as const).map(
+      (libro): [string, string] => [
+        libro,
+        `SELECT t::text AS f FROM ${libro} t
+          WHERE t.origen_id IN (SELECT c.id FROM cierre_dia c WHERE c.cierre_bodega_id = ANY($1::text[]))
+             OR t.origen_id IN (SELECT a.id FROM conciliacion_bodega_ajuste a WHERE a.cierre_bodega_id = ANY($1::text[]))`,
+      ],
+    ),
+    ["historial", `SELECT t::text AS f FROM historial_accion t WHERE t.entidad_id = ANY($1::text[])`],
   ];
   const partes: string[] = [];
-  for (const t of tablas) partes.push(`${t}=${await huella(e.tx, t)}`);
+  for (const [nombre, sql] of tramos) {
+    const [fila] = await e.tx.$queryRawUnsafe<{ n: bigint; h: string | null }[]>(
+      `SELECT count(*) AS n, md5(string_agg(f, '|' ORDER BY f)) AS h FROM (${sql}) s`,
+      ids,
+    );
+    partes.push(`${nombre}=${Number(fila.n)}:${fila.h ?? "vacia"}`);
+  }
   return partes.join(";");
 }
 
@@ -153,12 +170,12 @@ describeSiHayBase("500 — consolidacionesConDinero y «Desmarcar» (Postgres re
       for (const id of [A, B, C, D]) revertirEnSavepoint[id] = await revertirYDeshacer(e, id);
 
       // R2 / R9 — revertir A y B de verdad: con_asientos y NADA cambia.
-      const antesA = await fotoDeTodo(e);
+      const antesA = await fotoDeTodo(e, [A]);
       const revA = await adminDe(e).revertirConciliacion({ id: A, actorUsuarioId: e.maestroId });
-      const despuesA = await fotoDeTodo(e);
-      const antesB = await fotoDeTodo(e);
+      const despuesA = await fotoDeTodo(e, [A]);
+      const antesB = await fotoDeTodo(e, [B]);
       const revB = await adminDe(e).revertirConciliacion({ id: B, actorUsuarioId: e.maestroId });
-      const despuesB = await fotoDeTodo(e);
+      const despuesB = await fotoDeTodo(e, [B]);
 
       return {
         ids,
@@ -214,14 +231,26 @@ describeSiHayBase("500 — consolidacionesConDinero y «Desmarcar» (Postgres re
     expect(r.vacio.size).toBe(0);
   });
 
+  it("anti-vacuidad (revision B1): la foto acotada ve la fila, el dinero y el historial de A y de B", () => {
+    expect(r.A.antes).toMatch(/cierre_bodega=1:/);
+    expect(r.A.antes).not.toMatch(/wallet_movimiento=0:/); // A: caja con origen en sus cierres
+    expect(r.A.antes).not.toMatch(/historial=0:/);
+    expect(r.B.antes).toMatch(/cierre_bodega=1:/);
+    expect(r.B.antes).toMatch(/ajustes=1:/);
+    expect(r.B.antes).toMatch(/wallet_movimiento=1:/); // B: el egreso de la diferencia
+    expect(r.B.antes).not.toMatch(/historial=0:/);
+  });
+
   it("R2: revertir A (asientos de cierres) responde con_asientos y no cambia nada", () => {
-    expect(r.revA).toBe("con_asientos");
+    // La foto PRIMERO (revision B1): si el corte faltara, la mutacion la tiene que ver cambiar.
     expect(r.A.despues).toBe(r.A.antes);
+    expect(r.revA).toBe("con_asientos");
   });
 
   it("R9: revertir B (SOLO una fila de ajuste) responde con_asientos y no cambia consolidacion, ajuste, egreso ni historial", () => {
-    expect(r.revB).toBe("con_asientos");
+    // La foto PRIMERO (revision B1): si el corte faltara, la mutacion la tiene que ver cambiar.
     expect(r.B.despues).toBe(r.B.antes);
+    expect(r.revB).toBe("con_asientos");
   });
 
   it("R3: /wallet/satelites (pagina y completo) ofrece «Desmarcar» solo en C", () => {
