@@ -227,3 +227,15 @@ Fuente: `docs/api/api-key-openapi.yaml` sobre `981473d7`, generado desde `lib/ap
 - `Zona`: id, nombre
 
 Total: 96 nombres de campo distintos. Con la marca retirada: 0.
+
+### Rojo del gate de la tanda 0: `no-embalaje`
+
+El gate del leader (`progress/gate_494_t0.log`) cayó en `tests/unit/guards/no-embalaje.test.ts`: el trinquete cita la ruta de esa guardia y el nombre del archivo cuenta como referencia. No lo vi antes porque corrí las guardias vecinas por lista, no `vitest run guard`, y esta no estaba en la lista. Arreglo: alta por archivo en su `WHITELIST_FILES`; T8.2 la retira.
+
+Al anotarlo en T8.2 con el nombre de la guardia, el propio `tasks.md` volvió a ponerla roja, porque también lee `specs/`. T8.2 la describe sin nombrarla. El trinquete se regeneró sin cambios: 2.365 en 556.
+
+```
+$ pnpm exec vitest run guard
+   Test Files  284 passed (284)
+        Tests  3926 passed | 4 todo (3930)
+```
