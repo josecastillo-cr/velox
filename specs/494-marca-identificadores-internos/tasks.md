@@ -21,15 +21,15 @@
   antes de seguir. **Hecho:** anotado en `progress/impl_494.md`.
 - [x] **T0.2 — Medición de prod (leader).** Correr Q1–Q5 de `design.md §4` con el MCP `supabase`, tras confirmar con `get_project_url`. **Hecho:** resultados
   en `progress/impl_494.md`, y la decisión de la tabla «Qué se hace según el número». Q1 ≠ 0: se para y se vuelve al spec. T0.2 no bloquea las tandas 0–4, pero **sí la 5**.
-- [ ] **T0.3 — Línea de base.** SHA de `origin/dev`, comprobar que 501 y 502 están mergeadas o decidido lo contrario, listando los archivos que toquen (`design.md §10`), y confirmar si `plantilla-sync-solo-estados.test.ts` ya cubre R27.
+- [x] **T0.3 — Línea de base.** SHA de `origin/dev`, comprobar que 501 y 502 están mergeadas o decidido lo contrario, listando los archivos que toquen (`design.md §10`), y confirmar si `plantilla-sync-solo-estados.test.ts` ya cubre R27.
   Lista literal de rutas y campos de la OpenAPI para R6. **Hecho:** anotado.
 
 ## Tanda 0 — Red (sin renombrar nada)
 
-- [ ] **T1.1 — Detector y guardia.** Depende de T0.3. `tests/fixtures/marca-sin-ordenex-494.ts` y `tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts`, con los bloques de `design.md §7` y sus contrapruebas: código, cadena, comentario y nombre de archivo salen con hallazgo; una excepción muerta sale roja. **Hecho:** contrapruebas verdes; quitar `/i` del detector pone rojo (anotado y restaurado).
-- [ ] **T1.2 — Trinquete.** `tests/fixtures/marca-pendientes-494.ts`, generado por el detector con el recuento por archivo. **Hecho:** guardia verde; añadir «ordenex» a un archivo limpio y una aparición a uno pendiente la pone roja (anotado y restaurado).
-- [ ] **T1.3 — Censo.** `progress/censo_marca_494.md` emitido por el detector, y clasificados los `empresa` ya existentes (`design.md §3.1`: 9 en `cierre-factura.tsx`). **Hecho:** sin colisión con la tabla, o se vuelve al spec.
-- [ ] **T1.4 — Script.** `scripts/marca-494-renombrar.mjs`: tabla por familias, palabra completa, sensible a mayúsculas, listas de rutas, aborta si el destino existe, `--familia`, `--comprobar` sin escribir. **Hecho:** ejecutarlo dos veces no produce diff en la segunda; no toca `db/migrations`, `specs`, `progress`. Se corre en un worktree de prueba y se descarta.
+- [x] **T1.1 — Detector y guardia.** Depende de T0.3. `tests/fixtures/marca-sin-ordenex-494.ts` y `tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts`, con los bloques de `design.md §7` y sus contrapruebas: código, cadena, comentario y nombre de archivo salen con hallazgo; una excepción muerta sale roja. **Hecho:** contrapruebas verdes; quitar `/i` del detector pone rojo (anotado y restaurado).
+- [x] **T1.2 — Trinquete.** `tests/fixtures/marca-pendientes-494.ts`, generado por el detector con el recuento por archivo. **Hecho:** guardia verde; añadir «ordenex» a un archivo limpio y una aparición a uno pendiente la pone roja (anotado y restaurado).
+- [x] **T1.3 — Censo.** `progress/censo_marca_494.md` emitido por el detector, y clasificados los `empresa` ya existentes (`design.md §3.1`: 9 en `cierre-factura.tsx`). **Hecho:** sin colisión con la tabla, o se vuelve al spec.
+- [x] **T1.4 — Script.** `scripts/marca-494-renombrar.mjs`: tabla por familias, palabra completa, sensible a mayúsculas, listas de rutas, aborta si el destino existe, `--familia`, `--comprobar` sin escribir. **Hecho:** ejecutarlo dos veces no produce diff en la segunda; no toca `db/migrations`, `specs`, `progress`. Se corre en un worktree de prueba y se descarta.
 
 ## Tanda 1 — Navegador y service worker
 
