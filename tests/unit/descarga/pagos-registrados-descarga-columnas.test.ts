@@ -214,3 +214,50 @@ describe("columnas de descarga de los comprobantes de pago", () => {
     );
   });
 });
+
+// Ficha 501. Los esperados son LITERALES: compararlos contra `fechaCalendarioCR` sería comparar la
+// función consigo misma. Y las horas caen a propósito en 00:00-05:59 UTC: entre las 09:00 y las
+// 18:00 UTC de los fixtures de arriba, el día UTC y el de Costa Rica coinciden y el defecto no se ve.
+describe("ficha 501 — «Registrado el» y «Anulado el» salen en día de Costa Rica", () => {
+  const anuladoEn = (anuladoAt: string): PagoRegistradoDTO => ({
+    ...PAGO,
+    anulacion: { motivo: "Duplicado", anuladoPorNombre: "Beto Admin", anuladoAt },
+  });
+
+  it("R3: un registro de las 20:30 de Costa Rica sale con SU día, no con el siguiente", () => {
+    const fila = filaDescargaPagoRegistrado({ ...PAGO, registradoAt: "2026-08-03T02:30:00.000Z" });
+    expect(fila.registradoEl).toBe("2026-08-02");
+  });
+
+  it("R4: una anulación de las 20:30 de Costa Rica sale con SU día, no con el siguiente", () => {
+    const fila = filaDescargaPagoRegistrado(anuladoEn("2026-08-04T02:30:00.000Z"));
+    expect(fila.anuladoEl).toBe("2026-08-03");
+  });
+
+  it.each([
+    ["2026-08-03T00:00:00.000Z", "2026-08-02"],
+    ["2026-08-03T05:59:59.999Z", "2026-08-02"],
+    ["2026-08-03T06:00:00.000Z", "2026-08-03"],
+    ["2026-09-01T00:00:00.000Z", "2026-08-31"],
+    ["2027-01-01T05:00:00.000Z", "2026-12-31"],
+  ])("R5: el instante %s sale como %s, en registro y en anulación", (instante, esperado) => {
+    expect(filaDescargaPagoRegistrado({ ...PAGO, registradoAt: instante }).registradoEl).toBe(
+      esperado,
+    );
+    expect(filaDescargaPagoRegistrado(anuladoEn(instante)).anuladoEl).toBe(esperado);
+  });
+
+  it("R6: «Fecha del pago» es un día calendario y no recibe el desfase, ni en la frontera", () => {
+    const fila = filaDescargaPagoRegistrado({
+      ...anuladoEn("2026-08-04T00:00:00.000Z"),
+      registradoAt: "2026-08-03T00:00:00.000Z",
+    });
+    expect(fila.fechaPago).toBe("2026-07-30");
+  });
+
+  it("R9: lo que no es un instante legible sale TAL CUAL, sin inventar fecha ni fallar", () => {
+    const fila = filaDescargaPagoRegistrado({ ...anuladoEn("pendiente"), registradoAt: "pendiente" });
+    expect(fila.registradoEl).toBe("pendiente");
+    expect(fila.anuladoEl).toBe("pendiente");
+  });
+});
