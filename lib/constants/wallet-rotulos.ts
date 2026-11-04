@@ -68,8 +68,8 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   ingreso_reverso_pago_iva: "Pago de IVA anulado",
   // Ficha 498 (design §8.3): la diferencia de la satelite al conciliar. DESVIACION del design (que pedia
   // el mismo texto para las dos): la guardia «ningun nombre se repite» de `wallet-labels.test.ts` lo
-  // prohibe —el filtro por concepto ofreceria dos opciones iguales—. Texto PROVISIONAL del backend;
-  // lo confirma T7.1.
+  // prohibe —el filtro por concepto ofreceria dos opciones iguales—. Textos DEFINITIVOS: decididos en
+  // la 498 y confirmados en su T7.1 (ficha 500, R23; lo vigila `textos-satelite-definitivos-500`).
   egreso_diferencia_satelite: "Diferencia de la satélite (faltó)",
   ingreso_diferencia_satelite: "Diferencia de la satélite (sobró o pagó)",
 };
