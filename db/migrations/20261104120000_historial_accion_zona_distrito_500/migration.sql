@@ -1,0 +1,13 @@
+-- FICHA 500 (bloque 6 de H5) — el tipo de accion `zona_distrito_cambiado`.
+--
+-- QUE REGISTRA: cada distrito que entra o sale de una zona al GUARDAR SU EDICION
+-- (`ZonaRepository.update`). Una fila por distrito añadido y una por distrito quitado, colgadas de
+-- la ZONA (`entidad_tipo = 'zona'`, que ya existe en `historial_accion_entidad`). Crear y borrar una
+-- zona NO lo escriben.
+--
+-- «mueve dinero»: el distrito decide la zona de una orden y la zona decide la tarifa.
+--
+-- VA SOLA: Postgres prohibe USAR un valor de enum en la misma transaccion que lo añade (55P04).
+-- ADITIVA: no toca tablas, columnas, indices, datos ni RLS. Sin backfill (no hay fuente).
+-- El `down.sql` es DINAMICO: lee `pg_enum` y quita solo este valor.
+ALTER TYPE "historial_accion_tipo" ADD VALUE IF NOT EXISTS 'zona_distrito_cambiado';

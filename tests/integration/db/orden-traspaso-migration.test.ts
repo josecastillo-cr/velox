@@ -215,6 +215,8 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       "20261103120100_satelite_498_ajuste",
       "20261103120200_satelite_498_retirar_asientos",
       "20261103120300_satelite_498_regularizar",
+      // Ficha 500: un valor de `historial_accion_tipo`; no toca `orden_traspaso_mensajero`.
+      "20261104120000_historial_accion_zona_distrito_500",
     ]);
   });
 });

@@ -93,8 +93,9 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     // 63 desde la ficha 457: `abono_tienda_registrado` y `abono_tienda_anulado` (un tipo por metodo); y
     // 24 entidades: `abono_tienda`, la TERCERA ampliacion del enum (1:1 con su tabla).
     // 65 desde la ficha 458-B: `cobro_rechazo_tienda_anulado` y `egreso_caja_anulado` (un tipo por metodo).
-    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(65);
-    expect(new Set(HISTORIAL_ACCION_TIPOS).size).toBe(65);
+    // 66 desde la ficha 500: `zona_distrito_cambiado` (el rastro de los distritos de una zona).
+    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(66);
+    expect(new Set(HISTORIAL_ACCION_TIPOS).size).toBe(66);
     expect(HISTORIAL_ACCION_ENTIDADES).toHaveLength(24); // 24 desde la ficha 457
     expect(new Set(HISTORIAL_ACCION_ENTIDADES).size).toBe(24);
     expect(CATEGORIAS_ACCION).toHaveLength(3);
@@ -450,9 +451,16 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     // ganancia. 39 con `wallet_movimiento_manual_anulado` (auditoria D3): el contra-asiento de una
     // correccion de caja deshace su efecto en la ganancia.
     // 43 desde la ficha 458-B: anular un cobro por devolución a origen y anular un egreso de caja mueven dinero.
-    expect(accionesDeCategoria("mueve_dinero")).toHaveLength(43);
+    // 44 desde la ficha 500: `zona_distrito_cambiado` (el distrito decide la zona y la zona la tarifa).
+    expect(accionesDeCategoria("mueve_dinero")).toHaveLength(44);
     expect(accionesDeCategoria("hace_desaparecer")).toHaveLength(10);
     expect(accionesDeCategoria("cambia_permisos")).toHaveLength(12);
+  });
+
+  it("FICHA 500 (R20): `zona_distrito_cambiado` es «mueve dinero» y se rotula «Cambió los distritos de una zona»", () => {
+    expect(CATEGORIA_POR_ACCION.zona_distrito_cambiado).toBe("mueve_dinero");
+    expect(ACCION_LABELS.zona_distrito_cambiado).toBe("Cambió los distritos de una zona");
+    expect(accionesDeCategoria("mueve_dinero")).toContain("zona_distrito_cambiado");
   });
 
   it("⭑ FICHA 461 (R51/R55): `cobro_tienda_anulado` es DINERO, con los textos de design §7.7 y sin entidad nueva", () => {
