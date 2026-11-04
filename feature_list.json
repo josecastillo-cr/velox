@@ -6026,6 +6026,18 @@
       "branch": "fix/502-conciliacion-satelite-menores-500",
       "status_note": "Mergeada en dev (PR #886) el 2026-11-04, sin desplegar. Q1 = se ofrece Corregir en recibida de más; Q2 = no ampliar. Vista en las dos pantallas. Deuda: la ayuda promete Corregir en las saldadas (wallet-satelites.md:129-130).",
       "merged_pr": 886
+    },
+    {
+      "id": 503,
+      "title": "Ayuda de Wallet · Satélites: la frase de las saldadas",
+      "description": "La ayuda dice que una consolidación saldada con la regla anterior se arregla con «Corregir», pero esa fila no ofrece el botón. Alinear la ayuda con lo que hace la pantalla.",
+      "zone": "frontend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 502,
+      "branch": null,
+      "status_note": "Deuda de la 502 (Q2 = no ampliar). Frase en docs/ayuda/oficina/wallet-satelites.md:129-130. El servidor sí admite la corrección (498-conciliar-asienta-sql-real.test.ts:549). Registrada el 2026-11-04 con OK del humano. No bloquea la release."
     }
   ]
 }
