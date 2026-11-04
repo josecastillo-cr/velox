@@ -340,6 +340,9 @@ export function ConciliacionSatelite({
           marca={c}
           nota={c.nota}
           puedeConciliar={puedeConciliar}
+          // FICHA 500 (R3): «Desmarcar» solo si el SERVIDOR dice que se puede (sin dinero y no
+          // saldada con la regla anterior). Sin esta línea no saldría nunca: el default es `false`.
+          puedeDesmarcar={c.puedeDesmarcar}
           onCambio={refrescar}
         />
       ),

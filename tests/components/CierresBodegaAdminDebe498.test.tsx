@@ -100,7 +100,11 @@ function cabecera(over: Partial<CierreBodegaResumen> = {}): CierreBodegaResumen 
   };
 }
 
-async function abrirDialogo(cab: CierreBodegaResumen) {
+/**
+ * Monta la cola con `cab` y abre su detalle. `puedeDesmarcar` viaja en el resultado de
+ * `verCierreBodegaDetalle` (ficha 500), no en la cabecera del listado.
+ */
+async function abrirDetalle(cab: CierreBodegaResumen, puedeDesmarcar = false) {
   vi.mocked(listarPendientesCierresBodegaPaginado).mockResolvedValue({
     status: "ok",
     page: 1,
@@ -134,6 +138,7 @@ async function abrirDialogo(cab: CierreBodegaResumen) {
     conciliadoAt: cab.conciliadoAt,
     conciliadoPorNombre: cab.conciliadoPorNombre,
     conciliadoNota: cab.conciliadoNota,
+    puedeDesmarcar,
   } as never);
 
   render(
@@ -147,6 +152,11 @@ async function abrirDialogo(cab: CierreBodegaResumen) {
   );
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: "Ver / decidir el cierre de bodega de Limón" }));
+  return { user, seccion: await screen.findByRole("region", { name: "Conciliación del cierre de bodega" }) };
+}
+
+async function abrirDialogo(cab: CierreBodegaResumen) {
+  const { user } = await abrirDetalle(cab);
   await user.click(await screen.findByRole("button", { name: /Marcar recibido la consolidación de Limón/ }));
   const dialogos = await screen.findAllByRole("dialog");
   const dialogo = dialogos.find((d) => within(d).queryByLabelText(/Monto recibido/)) as HTMLElement;
@@ -175,5 +185,26 @@ describe("498 (R16) — /cierres-admin: el diálogo propone lo que DEBE, o 0; nu
     );
     expect(within(dialogo).getByLabelText(/Monto recibido/)).toHaveValue("0");
     expect(dialogo.querySelector('[data-banda="debe"]')).toHaveTextContent("-₡450");
+  });
+});
+
+describe("500 (R3) — /cierres-admin: «Desmarcar» sale del `puedeDesmarcar` del DETALLE", () => {
+  const conciliada = cabecera({
+    estado: "aprobado",
+    conciliado: true,
+    montoRecibido: "88000.75",
+    faltaPorRecibir: "0.00",
+    conciliadoAt: "2026-10-21T15:00:00.000Z",
+    conciliadoPorNombre: "Ana Rojas",
+  });
+
+  it("el detalle dice que se puede → hay «Desmarcar»", async () => {
+    const { seccion } = await abrirDetalle(conciliada, true);
+    expect(within(seccion).getByRole("button", { name: /Desmarcar la consolidación de Limón/ })).toBeInTheDocument();
+  });
+
+  it("el detalle dice que no (movió dinero) → no hay «Desmarcar»", async () => {
+    const { seccion } = await abrirDetalle(conciliada, false);
+    expect(within(seccion).queryByRole("button", { name: /Desmarcar/ })).toBeNull();
   });
 });

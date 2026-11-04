@@ -45,7 +45,12 @@ import {
 // ── UN BOTÓN, Y SÓLO EL QUE APLICA
 //   sin conciliar        → «Marcar recibido» (primario: es lo que hay que hacer)
 //   recibido incompleto  → «Corregir»        (no se re-marca: se cambia el monto que se dijo)
-//   recibido             → «Desmarcar»       (discreto: es una corrección, no una operación)
+//   recibido sin dinero  → «Desmarcar»       (discreto: es una corrección, no una operación)
+//
+// FICHA 500 (R3/R5/R6): «Desmarcar» sale SOLO si quien monta pasa `puedeDesmarcar` — conciliada, sin
+// dinero en la caja y no saldada con la regla anterior, decidido en el SERVIDOR con los mismos dos
+// cortes con los que `revertirConciliacion` responde. Una «Recibido incompleto» sigue ofreciendo
+// «Corregir» se pueda desmarcar o no.
 //
 // Los tres estados salen de `estadoConciliacionDe`, la MISMA función que pinta el badge, así que
 // el rótulo del botón y el del estado no pueden contradecirse.
@@ -60,7 +65,9 @@ import {
 // Desde la 498, marcar recibido asienta en la caja el dinero de los cierres de la consolidación.
 // Con asientos, el servidor responde a «Desmarcar» con `con_asientos` sin cambiar nada, y la
 // pantalla lo dice DENTRO del diálogo (R21), que queda abierto: la marca sigue tal cual y lo que hay
-// que hacer es «Corregir». El botón se conserva para las conciliadas sin asientos (R22).
+// que hacer es «Corregir». Desde la 500 el botón ni aparece en una con dinero; el aviso SE CONSERVA
+// para la pantalla abierta desde antes de que otra persona marcara (datos viejos): el servidor sigue
+// siendo la última palabra (500/R7).
 //
 // ── QUIÉN DECIDE EL PERMISO: EL SERVIDOR
 // `puedeConciliar` baja por props desde un Server Component que lo resolvió con `esAccesoTotal`,
@@ -88,6 +95,11 @@ export interface ConciliacionAccionesProps {
   /** Ver la cabecera. Default `false`: falla cerrado. */
   puedeConciliar?: boolean;
   /**
+   * FICHA 500 (R3/R6) — ¿se ofrece «Desmarcar»? Lo calcula el SERVIDOR (sin dinero y no saldada con
+   * la regla anterior). Default `false`: falla cerrado, igual que `puedeConciliar`.
+   */
+  puedeDesmarcar?: boolean;
+  /**
    * Refresco DIRIGIDO tras marcar o desmarcar. Lo aporta quien monta porque es quien sabe qué
    * claves de SWR describen SU pantalla: la de saldos invalida su tabla y su desglose; la cola de
    * `/cierres-admin` invalida sus dos listados. Un `mutate()` sin argumentos refrescaría también
@@ -108,6 +120,7 @@ export function ConciliacionAcciones({
   marca,
   nota = null,
   puedeConciliar = false,
+  puedeDesmarcar = false,
   onCambio,
 }: Readonly<ConciliacionAccionesProps>) {
   const toast = useToast();
@@ -214,7 +227,7 @@ export function ConciliacionAcciones({
         </Button>
       ) : null}
 
-      {estado !== "pendiente" ? (
+      {estado !== "pendiente" && puedeDesmarcar ? (
         <Button
           type="button"
           size={TAMANO}

@@ -248,6 +248,9 @@ describe("R21 — revertir una consolidación que ya entró a la caja", () => {
         debe={{ monto: "91350.25", positivo: true }}
         marca={{ conciliado: true, faltaPorRecibir: "0.00", montoRecibido: "91350.25" }}
         puedeConciliar
+        // Ficha 500: la pantalla se cargó cuando aún se podía desmarcar (datos viejos, R7); el
+        // servidor es quien responde `con_asientos` / `saldada_regla_anterior`.
+        puedeDesmarcar
         onCambio={onCambio}
       />,
       { wrapper: Envoltura },
@@ -401,6 +404,36 @@ describe("R41/R41a/R43 — la conciliación de una bodega", () => {
   it("R43 — la nota del pie es LITERAL", async () => {
     const region = await montar([consolidacion()]);
     expect(within(region).getByRole("note").textContent).toBe(NOTA_R43);
+  });
+
+  it("500/R3 — `puedeDesmarcar` del DTO llega al botón: solo la conciliada sin dinero ofrece «Desmarcar»", async () => {
+    const user = userEvent.setup();
+    const conciliada = {
+      montoRecibido: "91350.25",
+      faltaPorRecibir: "0.00",
+      conciliado: true,
+      conciliadoAt: "2026-10-21T15:00:00.000Z",
+      conciliadoPorNombre: "Ana Rojas",
+    };
+    revertirMock.mockResolvedValue({ status: "ok", cierreBodegaId: "cb-sin-dinero" });
+    const region = await montar([
+      consolidacion({ ...conciliada, cierreBodegaId: "cb-con-dinero", puedeDesmarcar: false }),
+      consolidacion({
+        ...conciliada,
+        cierreBodegaId: "cb-sin-dinero",
+        solicitadoAt: "2026-10-21T14:00:00.000Z",
+        puedeDesmarcar: true,
+      }),
+    ]);
+
+    await within(region).findByRole("button", { name: /Desmarcar la consolidación de FGAM Limón del 21 oct/ });
+    const botones = within(region).getAllByRole("button", { name: /Desmarcar/ });
+    expect(botones).toHaveLength(1);
+
+    await user.click(botones[0]);
+    const dialogo = await screen.findByRole("dialog");
+    await user.click(within(dialogo).getByRole("button", { name: "Desmarcar" }));
+    await waitFor(() => expect(revertirMock).toHaveBeenCalledWith({ cierreBodegaId: "cb-sin-dinero" }));
   });
 });
 
