@@ -161,3 +161,25 @@ Si el humano quiere permitir corregir un sobrante, es una ficha nueva.
   - `zona-repository.test.ts` siembra `d1` previo para que los casos «no se registró nada» sigan midiendo lo mismo;
   - `498-conciliar-asienta` solo mueve `consolidacionConDosCierres` a `498/_satelite.ts` sin cambiar el cuerpo.
   - Ningún assert se debilitó.
+
+---
+
+## Segunda vuelta (2026-11-03) — `55fdee73..7f864b21`
+
+Solo se revisó el diff de la revisión 1: `500-con-dinero-sql-real.test.ts`, el test de migración de la
+500, la ayuda y la bitácora. Lo aprobado en la primera vuelta no se volvió a revisar.
+
+| Hallazgo | Comprobación | Estado |
+| --- | --- | --- |
+| **B1** | `fotoDeTodo(e, ids)` ya no mira tablas enteras, solo lo que es de A/B: su fila de `cierre_bodega`, sus ajustes, los movimientos de los tres libros con origen en sus cierres o en sus ajustes, y el historial con `entidad_id` A/B. Un caso nuevo de anti-vacuidad prueba que la foto no está vacía (A: caja e historial; B: 1 ajuste, 1 egreso e historial). Corrido aislado dos veces: 9/9 y 9/9. **Mutación repetida por mí:** quitar la línea del corte `con_asientos` de `revertirConciliacion` pone 3 rojos: R2 y R9 **por la foto** (`expected 'cierre_bodega=1:bc12…' to be 'cierre_bodega=1:cf0c…'`; la foto se afirma antes que el desenlace) y R4. Revertida con `git checkout`; `git status` limpio | **Resuelto** |
+| **m2** | El test reaplica el up dentro de la misma transacción revertida y afirma `errorReUp` nulo y `trasReUp == [...trasDown, VALOR]` | Resuelto |
+| **m3** | La ayuda ahora dice «…antes de que alguien corrigiera el monto»; el test de R8 sigue verde | Resuelto |
+| m1, m4, m5 | Sin cambios: son recomendaciones o quedan fuera del alcance | Abiertos (menores) |
+
+Tests corridos: `500-con-dinero-sql-real` aislado ×2 (9/9); `historial-accion-zona-distrito-500-migration`
++ `ayuda-wallet-satelites-498` (21/21). El gate `--rapido` no se repitió: el diff solo toca tests y docs,
+y estos son los tres archivos afectados.
+
+### Veredicto de la segunda vuelta: **OK**
+
+No queda ningún bloqueante. Quedan abiertos los menores m1, m4 y m5, que no impiden el cierre.
