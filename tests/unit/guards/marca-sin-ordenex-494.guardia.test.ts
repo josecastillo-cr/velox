@@ -7,6 +7,7 @@ import { PENDIENTES_494 } from "@/tests/fixtures/marca-pendientes-494";
 import {
   COLECCION_NUEVA,
   COLECCION_VIEJA,
+  ESCRITURA_LEGADO_ADMITIDA,
   EXCEPCIONES,
   MODULO_LEGADO,
   RAIZ,
@@ -179,6 +180,54 @@ describe("494 — legado del navegador (R20)", () => {
       `almacen.removeItem(VIEJA);`,
     ].join("\n");
     expect(hallazgosLegado(fuente, "lib/navegador/claves-legadas.ts")).toEqual([]);
+  });
+
+  it("contraprueba: escribir con lo que exporta el modulo sale rojo, aunque no haya literal", () => {
+    for (const fuente of [
+      `window.sessionStorage.setItem(claveViejaDe(claveDeSesion(zonaId))!, "1");`,
+      `almacen.setItem(MENSAJE_RELEVO_AHORA_LEGADO, "x");`,
+      "document.cookie = `${COOKIE_TEMA_VIEJA}=oscuro; path=/`;",
+      `(await cookies()).set(COOKIE_TEMA_VIEJA, "oscuro");`,
+      `esperando.postMessage({ tipo: MENSAJE_RELEVO_AHORA_LEGADO });`,
+    ]) {
+      expect(hallazgosLegado(fuente, "lib/audio/x.ts"), fuente).toHaveLength(1);
+      expect(hallazgosLegado(fuente, MODULO_LEGADO), fuente).toHaveLength(1);
+    }
+  });
+
+  it("contraprueba: tampoco por una constante, en varias lineas, ni concatenando el prefijo", () => {
+    const porConstante = [`const k = claveViejaDe(CLAVE);`, `almacen.setItem(k!, "on");`].join("\n");
+    expect(hallazgosLegado(porConstante, "lib/audio/x.ts").map((h) => h.linea)).toEqual([2]);
+    const enVariasLineas = [`almacen.setItem(`, `  claveViejaDe(CLAVE)!,`, `  "on",`, `);`].join("\n");
+    expect(hallazgosLegado(enVariasLineas, "lib/audio/x.ts").map((h) => h.linea)).toEqual([1]);
+    const conLiteral = [`almacen.setItem(`, `  "ordenex:sonido",`, `  "on",`, `);`].join("\n");
+    expect(hallazgosLegado(conLiteral, MODULO_LEGADO).map((h) => h.linea)).toEqual([1]);
+    expect(hallazgosLegado(`almacen.setItem("ordenex:" + k, v);`, MODULO_LEGADO)).toHaveLength(1);
+    expect(hallazgosLegado(`almacen.setItem("ordenex:" + k, v);`, "lib/audio/x.ts")).toHaveLength(1);
+    const cookieEnDosLineas = ["document.cookie =", "  `${COOKIE_TEMA_VIEJA}=oscuro`;"].join("\n");
+    expect(hallazgosLegado(cookieEnDosLineas, "lib/audio/x.ts").map((h) => h.linea)).toEqual([1]);
+  });
+
+  it("sano: leer con esos simbolos no es escribir, y escribir en la clave nueva tampoco", () => {
+    const fuente = [
+      `const tema = normalizarTema(almacenCookies.get(COOKIE_TEMA_VIEJA)?.value);`,
+      `const vale = tipo === MENSAJE_PUSH_RECIBIDO_LEGADO;`,
+      `const vieja = claveViejaDe(nueva);`,
+      `almacen.setItem(nueva, valor);`,
+      `almacen.removeItem(vieja);`,
+      `esperando.postMessage({ tipo: MENSAJE_RELEVO_AHORA });`,
+    ].join("\n");
+    expect(hallazgosLegado(fuente, "lib/audio/x.ts")).toEqual([]);
+  });
+
+  it("la caducidad de la cookie se admite por linea exacta, y solo en su archivo", () => {
+    const { archivo, linea } = ESCRITURA_LEGADO_ADMITIDA;
+    // Si esa linea deja de existir, la excepcion esta muerta: rojo, como pide R3 para las demas.
+    expect(leerTexto(archivo)?.split("\n").map((l) => l.trim())).toContain(linea);
+    expect(hallazgosLegado(linea, archivo)).toEqual([]);
+    expect(hallazgosLegado(linea, "lib/audio/x.ts")).toHaveLength(1);
+    // En el mismo archivo, cualquier otra escritura con el nombre viejo sale roja.
+    expect(hallazgosLegado("document.cookie = `${COOKIE_TEMA_VIEJA}=oscuro; path=/`;", archivo)).toHaveLength(1);
   });
 
   it("no-vacuidad: el recorrido ve el modulo, el service worker y quien migra la cookie", () => {

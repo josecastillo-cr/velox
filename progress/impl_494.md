@@ -364,3 +364,43 @@ Las dos guardias a mano van dentro de `run guard`, y también se corrieron solas
 | R23 | `pwa-push.guardia.test.ts` (R41 de la 410, con los nombres nuevos a mano) |
 
 **Veredicto:** Tanda 1 lista; las preferencias se leen con la clave vieja y migran, y el relevo con SW viejo y página vieja funciona en Chromium real.
+
+### Hallazgos de `progress/review_494_t1.md`, cerrados antes del PR
+
+**M1 (R20), guardia.** Corrige el punto 5 de «Decisiones y desvíos»: el hueco era más ancho de lo declarado y `cookie-legada-494.test.ts` no lo cubría. `hallazgosLegado` ahora:
+
+- Trata como clave vieja `COOKIE_TEMA_VIEJA`, `claveViejaDe` y `MENSAJE_*_LEGADO` en cualquier escritura, también dentro del módulo y de `public/sw.js`. Leerlos sigue permitido.
+- Cuenta como escritura `setItem`, `document.cookie`, `.set(` (cookies de `next/headers`) y `postMessage`, estas dos últimas añadidas por mí.
+- Sigue a las constantes del mismo archivo derivadas de esos símbolos, lee la llamada aunque ocupe varias líneas y ve el prefijo concatenado (`"ordenex:" + k`).
+- Admite una sola escritura: `ESCRITURA_LEGADO_ADMITIDA`, la línea exacta de caducidad de `lib/tema/preferencia-tema.ts`. Si esa línea cambia, la guardia sale roja.
+
+Ningún uso legítimo se quedó fuera de la guardia. Además, `preferencias-494.test.tsx` afirma que aplazar el aviso de SINPE escribe solo la clave nueva, como proponía el informe. `claveViejaDe` sigue exportada: la guardia ya la cubre y el test de familias la usa.
+
+Mutaciones de verdad, restauradas con el contenido exacto. Salida en `progress/494_t1_m1_mutaciones.log` (ignorado por git).
+
+| Mutación | Tests ejecutados | Rojos | Rojo |
+| --- | --- | --- | --- |
+| Base sin mutar | 51 | 0 | exit=0 |
+| **m26 del reviewer:** `RevisionSinpeBodega.tsx` escribe con `claveViejaDe`, contra la guardia | 39 | 1 | `T2.5: ningun archivo … tiene hallazgos de legado` |
+| m26, contra el test de conducta | 12 | 1 | `R20: aplazar el aviso escribe solo la clave nueva` |
+| `preferencia-tema.ts` escribe un valor en la cookie vieja | 39 | 1 | `T2.5: ningun archivo …` |
+| La línea admitida cambia | 39 | 2 | `la caducidad de la cookie se admite por linea exacta` y `T2.5` |
+| `useActualizacionPwa.ts` manda el mensaje viejo con el símbolo importado | 39 | 1 | `T2.5: ningun archivo …` |
+| `setItem` a la vieja dentro del módulo | 39 | 1 | `T2.5: ningun archivo …` |
+| Base restaurada | 51 | 0 | exit=0 |
+
+Supervivientes: 0 de 6.
+
+**M2, spec.** T5.3 pide `traducir` también sobre lo guardado bajo `app:`, sin condición, y R16 con los dos casos; `design.md §5.3` lo dice. `traducir` sigue sin conectar.
+
+**M3, spec.** Fila «SW nuevo → pestaña vieja» añadida a la tabla de `design.md §5.5`.
+
+**M4:** no se toca, queda en el informe.
+
+Trinquete regenerado sin cambios: 2.311 en 531.
+
+```
+$ pnpm exec vitest run guard                     GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3940 passed | 3 todo (3943)
+```

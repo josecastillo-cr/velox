@@ -290,28 +290,61 @@ export function trinquete(
 // ---------------------------------------------------------------------------------------------
 
 export const MODULO_LEGADO = "lib/navegador/claves-legadas.ts";
-const CLAVE_VIEJA = /["'`]ordenex(?::[\w-]|_tema)/;
+const CLAVE_VIEJA = /["'`]ordenex(?::|_tema)/;
 const ES_COMENTARIO = /^\s*(\/\/|\/\*|\*)/;
+
+/** Lo que el modulo exporta y da el nombre viejo sin escribirlo: un literal no los delataria. */
+const SIMBOLO_VIEJO = /\b(?:COOKIE_TEMA_VIEJA|claveViejaDe|MENSAJE_\w+_LEGADO)\b/;
+
+/** Escrituras: almacen, cookie (de navegador o de `next/headers`) y mensaje al service worker. */
+const ESCRITURA = /setItem\s*\(|document\.cookie\s*=|\.set\s*\(|postMessage\s*\(/;
+
+/**
+ * La UNICA escritura admitida con un simbolo viejo, y por linea exacta: caducar la cookie al trasladarla
+ * (R17). Si esa linea cambia, la guardia lo dice en vez de abrirse.
+ */
+export const ESCRITURA_LEGADO_ADMITIDA = {
+  archivo: "lib/tema/preferencia-tema.ts",
+  linea: "document.cookie = `${COOKIE_TEMA_VIEJA}=; path=/; max-age=0; SameSite=Lax`;",
+} as const;
+
+/** Desde la escritura hasta que se cierra: una llamada puede llevar la clave en la linea siguiente. */
+function tramoDeEscritura(lineas: readonly string[], i: number): string {
+  const inicio = lineas[i].search(ESCRITURA);
+  let tramo = lineas[i].slice(inicio);
+  for (let j = i + 1; j < Math.min(i + 8, lineas.length); j++) {
+    const abiertos = (tramo.match(/\(/g) ?? []).length - (tramo.match(/\)/g) ?? []).length;
+    if (abiertos <= 0 && tramo.includes(";")) break;
+    if (abiertos <= 0 && !/=\s*$/.test(tramo)) break;
+    tramo += ` ${lineas[j].trim()}`;
+  }
+  return tramo;
+}
 
 /**
  * Dos reglas: fuera del modulo unico (y de los alias de `public/sw.js`) la clave vieja no existe; y
- * en NINGUN sitio, tampoco en el modulo, se pasa a `setItem` ni a `document.cookie`, ni directa ni
- * a traves de una constante del mismo archivo.
+ * en NINGUN sitio, tampoco en el modulo, se escribe con ella: ni directa, ni a traves de una constante
+ * del mismo archivo, ni con lo que exporta el modulo (`SIMBOLO_VIEJO`, leerlo si se puede).
  */
 export function hallazgosLegado(fuente: string, archivo: string): Hallazgo[] {
   const lineas = fuente.replace(/\r\n/g, "\n").split("\n");
   const constantes = new Set<string>();
   for (const l of lineas) {
     const m = l.match(/\b(?:const|let|var)\s+(\w+)\s*(?::[^=]+)?=\s*(.*)$/);
-    if (m && CLAVE_VIEJA.test(m[2])) constantes.add(m[1]);
+    if (m && (CLAVE_VIEJA.test(m[2]) || SIMBOLO_VIEJO.test(m[2]))) constantes.add(m[1]);
   }
   const admitida = archivo === MODULO_LEGADO || archivo === "public/sw.js";
   const acc: Hallazgo[] = [];
   lineas.forEach((l, i) => {
     if (ES_COMENTARIO.test(l)) return;
-    const escribe =
-      /(setItem\s*\(|document\.cookie\s*=)/.test(l) &&
-      (CLAVE_VIEJA.test(l) || [...constantes].some((c) => new RegExp(`(setItem\\s*\\(\\s*|document\\.cookie\\s*=.*)\\b${c}\\b`).test(l)));
+    let escribe = false;
+    if (ESCRITURA.test(l)) {
+      const tramo = tramoDeEscritura(lineas, i);
+      const esLaAdmitida = archivo === ESCRITURA_LEGADO_ADMITIDA.archivo && l.trim() === ESCRITURA_LEGADO_ADMITIDA.linea;
+      escribe =
+        !esLaAdmitida &&
+        (CLAVE_VIEJA.test(tramo) || SIMBOLO_VIEJO.test(tramo) || [...constantes].some((c) => new RegExp(`\\b${c}\\b`).test(tramo)));
+    }
     if (escribe || (!admitida && CLAVE_VIEJA.test(l))) {
       acc.push({ archivo, linea: i + 1, fragmento: l.trim().slice(0, 120) });
     }

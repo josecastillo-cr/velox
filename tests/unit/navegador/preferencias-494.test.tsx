@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, renderHook, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -154,6 +155,14 @@ describe("494/R18 — el aviso de SINPE aplazado", () => {
     window.sessionStorage.setItem("ordenex:sinpe-revision-aplazada:z-prueba", "1");
     render(<RevisionSinpeBodega bodega={BODEGA} />);
     expect(screen.queryByText("Confirmá el SINPE de Guanacaste")).toBeNull();
+    expect(window.sessionStorage.getItem("app:sinpe-revision-aplazada:z-prueba")).toBe("1");
+    expect(window.sessionStorage.getItem("ordenex:sinpe-revision-aplazada:z-prueba")).toBeNull();
+  });
+
+  it("R20: aplazar el aviso escribe solo la clave nueva", async () => {
+    const user = userEvent.setup();
+    render(<RevisionSinpeBodega bodega={BODEGA} />);
+    await user.click(screen.getByRole("button", { name: "Ahora no" }));
     expect(window.sessionStorage.getItem("app:sinpe-revision-aplazada:z-prueba")).toBe("1");
     expect(window.sessionStorage.getItem("ordenex:sinpe-revision-aplazada:z-prueba")).toBeNull();
   });
