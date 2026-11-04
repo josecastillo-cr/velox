@@ -105,7 +105,16 @@ instante.
 | `pnpm exec vitest related --run` sobre los dos componentes | 39 archivos, 654 tests, todos verdes |
 | Guardias a mano: `cierres-fecha-cr-495.guardia`, `wallet-fecha-cr-459.guardia`, `liquidacion-money-safe`, `liquidacion-alcance`, `columnas-sensibles.guardia`, `columnas-asercion-de-orden.guardia` | 6 archivos, 27 tests, todos verdes |
 
-**Pendiente:** `./init.sh --rapido` lo corre el leader. T6 queda sin marcar por eso.
+**Gate del leader (T6), sobre 3291f771:** `./init.sh --rapido` dio `INIT_EXIT=1` con 4 archivos en rojo, ninguno de esta ficha. Se repitieron aislados, sin repetir el gate (CLAUDE.md, regla 5):
+
+| Archivo | Aislado | Causa |
+| --- | --- | --- |
+| `marca-fuente-unica-493.guardia` | verde | intermitente |
+| `ranking-snapshot-migration` | verde | intermitente |
+| `498-satelite-migraciones` | rojo y luego verde (7/7) | datos del T9 de la 502 en la base compartida: 4 filas donde esperaba 1 |
+| `iva-488-migration` | rojo y luego verde (8/8) | rojo a la vez que esos datos; verde al limpiarlos |
+
+No se abrió el PR hasta tener los cuatro en verde. Las guardias a mano y `vitest related` están arriba.
 
 ## T7: ver la app
 

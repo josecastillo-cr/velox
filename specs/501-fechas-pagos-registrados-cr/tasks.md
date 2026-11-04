@@ -46,7 +46,7 @@ Zona frontend. Implementa `frontend_dev`. Requisitos en `requirements.md`; casos
   - **Hecho:** cada mutación tumba al menos un test, anotado con su nombre en `progress/impl_501.md`, y
     el árbol queda restaurado. Una superviviente reabre T1 o T2.
 
-- [ ] **T6. Gate** (depende de T5, sin mutaciones en curso)
+- [x] **T6. Gate** (depende de T5, sin mutaciones en curso). Corrida con `INIT_EXIT=1` por rojos ajenos a la ficha, verdes al repetirlos aislados: detalle en `progress/impl_501.md`.
   - `./init.sh --rapido`. No correr el completo. Un rojo se repite aislado.
   - Guardias a mano, porque leen con `fs` y el grafo no las relaciona:
     `cierres-fecha-cr-495.guardia`, `wallet-fecha-cr-459.guardia`, `liquidacion-money-safe`,
