@@ -4,8 +4,8 @@
 
 Orden de trabajo para la próxima sesión:
 1. **500, terminar** (worktree `R:/w500`, rama `fix/500-deuda-satelites-zonas`, HEAD 86db056c, todo pusheado; backend y frontend hechos, gates verdes):
-   a. frontend_dev: T7.6 ver la app («Desmarcar» oculto con dinero / visible sin dinero en `/wallet/satelites` y `/cierres-admin`; filas de distritos en `/historico/acciones`). Dev server con `next dev --webpack`; login: el QA_PASSWORD del .env no coincide (clave temporal en `admin.qa` y restaurar hash+updated_at). Limpiar la base.
-   b. T8: gate `--rapido` final, mapa R1-R23 → test completo en `progress/impl_500.md`, tasks.md marcadas (T9 abierta).
+   a-b. HECHOS: T7.6 (app vista, base limpia) y T8 (gate --rapido verde sin rojos, R1-R23 con test). HEAD ccf92468.
+   OJO para el reviewer: en la app, una consolidación conciliada CON dinero (debe ₡0, marcada con ₡90) no mostró ni «Desmarcar» ni «Corregir» en /wallet/satelites; R5 dice que «Corregir» no cambia. Confirmar si es regresión de la 500 o comportamiento previo de la 498. Notas menores en impl_500.md (nota de la 498 contradictoria en el diálogo de Desmarcar; fila «pago al mensajero —→—» al guardar zona; «Falta por recibir -₡90»).
    c. reviewer (que COMMITEE su informe) → PR contra `dev` → `gh pr checks` → el humano mergea (el auto mode bloquea el merge) → `prisma migrate deploy` local, gate post-merge, cerrar ficha (feature_list, current, history).
    d. Bloque 8 (R24-R30, retirar respaldos): NO hasta 498 en prod y verificada + medición + autorización escrita.
 2. **501** (fechas de Pagos registrados en hora CR, frontend, pending) y **494** (marca en identificadores, fullstack, pending): spec_author → aprobación del humano → implementar.
