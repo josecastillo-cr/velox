@@ -383,6 +383,11 @@ describe("feature 393 — el mapper deriva «Para la central» para TODAS las le
       cierreDia: { findMany: vi.fn().mockResolvedValue([]) },
       gestionOrden: { findMany: vi.fn().mockResolvedValue([]) },
       cierreDetail: { findMany: vi.fn().mockResolvedValue([]) },
+      // FICHA 500: lo que lee `consolidacionesConDinero` (sin dinero en este doble).
+      conciliacionBodegaAjuste: { findMany: vi.fn().mockResolvedValue([]) },
+      walletMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+      walletTiendaMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+      pagoMensajeroMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
       $transaction: vi.fn(),
       historialAccion: { createMany: vi.fn() },
       usuario: { findUnique: vi.fn() },

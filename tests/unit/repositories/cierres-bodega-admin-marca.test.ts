@@ -104,10 +104,15 @@ function buildPrisma(opciones: OpcionesDoble = {}) {
       aggregate: vi.fn(async () => ({ _sum: { diferencia: null } })),
       count: vi.fn(async () => 0),
       create: vi.fn(async () => ({ id: "ajuste-1" })),
+      findMany: vi.fn(async () => []), // FICHA 500: `consolidacionesConDinero`
     },
-    walletMovimiento: { createMany: vi.fn(async () => ({ count: 1 })), count: vi.fn(async () => 0) },
-    walletTiendaMovimiento: { count: vi.fn(async () => 0) },
-    pagoMensajeroMovimiento: { count: vi.fn(async () => 0) },
+    walletMovimiento: {
+      createMany: vi.fn(async () => ({ count: 1 })),
+      count: vi.fn(async () => 0),
+      findMany: vi.fn(async () => []),
+    },
+    walletTiendaMovimiento: { count: vi.fn(async () => 0), findMany: vi.fn(async () => []) },
+    pagoMensajeroMovimiento: { count: vi.fn(async () => 0), findMany: vi.fn(async () => []) },
   };
   const prisma = {
     ...tx,
