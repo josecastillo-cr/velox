@@ -1,3 +1,17 @@
+# RETOMAR AQUÍ — 2026-11-03 cierre de sesión
+
+**Antes de lanzar subagentes: salir de auto mode** (Shift+Tab). En auto, el hook de context-mode bloquea el Agent (memoria «context-mode bloquea agentes en auto»).
+
+Orden de trabajo para la próxima sesión:
+1. **500, terminar** (worktree `R:/w500`, rama `fix/500-deuda-satelites-zonas`, HEAD 86db056c, todo pusheado; backend y frontend hechos, gates verdes):
+   a. frontend_dev: T7.6 ver la app («Desmarcar» oculto con dinero / visible sin dinero en `/wallet/satelites` y `/cierres-admin`; filas de distritos en `/historico/acciones`). Dev server con `next dev --webpack`; login: el QA_PASSWORD del .env no coincide (clave temporal en `admin.qa` y restaurar hash+updated_at). Limpiar la base.
+   b. T8: gate `--rapido` final, mapa R1-R23 → test completo en `progress/impl_500.md`, tasks.md marcadas (T9 abierta).
+   c. reviewer (que COMMITEE su informe) → PR contra `dev` → `gh pr checks` → el humano mergea (el auto mode bloquea el merge) → `prisma migrate deploy` local, gate post-merge, cerrar ficha (feature_list, current, history).
+   d. Bloque 8 (R24-R30, retirar respaldos): NO hasta 498 en prod y verificada + medición + autorización escrita.
+2. **501** (fechas de Pagos registrados en hora CR, frontend, pending) y **494** (marca en identificadores, fullstack, pending): spec_author → aprobación del humano → implementar.
+3. **Release a prod** cuando el humano la pida: incluye 498 (+500 si está). Mismo día: T8.4 de la 498 (SQL solo lectura en prod, puerta (c)=(d)=(e)=0; `progress/impl_498.md`), no conciliar durante el deploy, verificaciones b1-b3/d1-d4 tras el deploy. Gate COMPLETO antes de la release.
+4. Limpieza: worktrees `R:/w498` (mergeada) y `R:/w489` por borrar con el procedimiento seguro (robocopy /MIR antes de `git worktree remove`).
+
 # ESTADO 2026-11-03 (noche) — 500 BACKEND HECHO en `fix/500-deuda-satelites-zonas` (f4358e1e, pusheado); frontend HECHO (e4d0240f)
 
 - Spec 500 aprobado (Q1=B, Q2 sin comillas). Worktree `R:/w500`. Backend R1-R4 y R9-R23 hecho: gate --rapido INIT_EXIT=0 (`R:/w500/progress/gate_500_backend.log`, 3 intermitentes verdes aislados), mutaciones 9/10 (T6.10 no distinguible con la fixture, anotado). Migración `20261104120000_historial_accion_zona_distrito_500` aplicada en la base local.
