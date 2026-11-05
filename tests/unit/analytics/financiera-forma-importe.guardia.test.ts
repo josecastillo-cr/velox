@@ -11,7 +11,7 @@ import { armarServicio, consultaDe } from "../services/_dobles-analitica-financi
 // dos accidentes que eso abre no los ve ningun test de una metrica concreta:
 //
 //   1. GENERALIZAR LA RETIRADA «porque es mas limpio» (R14). El neto de `dinero_en_caja`, de
-//      `ganancia_ordenex`, de las dos cuentas por pagar y de la vista B de recaudo significa
+//      `ganancia_empresa`, de las dos cuentas por pagar y de la vista B de recaudo significa
 //      algo real: mezclan prefijos o tienen dos direcciones. Perderlo no rompe ninguna cifra,
 //      solo la esconde — y por eso nadie se enteraria.
 //   2. UNA VISTA QUE MEZCLA FORMAS (R18): el total con una y sus filas con otra. Compila, se
@@ -78,7 +78,7 @@ const FORMA_ESPERADA: Readonly<Record<string, "solo_bruto" | "bruto_y_neto" | "s
   // R14 — las siete que NO cambian. Su neto significa algo real y se conserva.
   cod_recaudado: "bruto_y_neto",
   dinero_en_caja: "bruto_y_neto",
-  ganancia_ordenex: "bruto_y_neto",
+  ganancia_empresa: "bruto_y_neto",
   cuenta_por_pagar_tienda: "bruto_y_neto",
   cuenta_por_pagar_mensajero: "bruto_y_neto",
   conciliacion_cierres: "sin_importes",

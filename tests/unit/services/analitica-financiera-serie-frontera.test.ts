@@ -69,7 +69,7 @@ describe("los cubos que el servicio pasa al repositorio son los del troceo de la
 
   it("R22 · caja: clave a clave y frontera a frontera, iguales a `trocear(consulta.rango)`", async () => {
     for (const raw of [RANGO_CINCO_DIAS, RANGO_LARGO]) {
-      for (const id of ["ingreso_flete", "egresos", "dinero_en_caja", "ganancia_ordenex"]) {
+      for (const id of ["ingreso_flete", "egresos", "dinero_en_caja", "ganancia_empresa"]) {
         const { servicio, ingresos } = armarServicio({});
         const consulta = consultaDe(id, raw);
         await servicio.consultar(consulta);

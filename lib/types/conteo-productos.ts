@@ -81,19 +81,19 @@ export interface FilaProductoDTO {
  * FICHA 347 — lo LIQUIDADO de una fila: el dinero de ordenes cuyo cierre YA FUE APROBADO y
  * tienen sus entradas congeladas (R26).
  *
- * ⚠ `ordenex` y `tienda` son `string | null`, y el `null` es un requisito (R27/R30/R31): si la
+ * ⚠ `empresa` y `tienda` son `string | null`, y el `null` es un requisito (R27/R30/R31): si la
  * fila no tiene NINGUNA orden liquidada, el reparto NO EXISTE y se emite ausente, jamas `0.00`.
  * No se proyecta, no se estima y no se extrapola.
  *
- * ⚠ INVARIANTE EXACTA, SIN MARGEN DE REDONDEO (R20): cuando `ordenex` no es `null`,
- * `ordenex + tienda === recaudado`. Es cierta POR CONSTRUCCION —`tienda` se calcula como esa
+ * ⚠ INVARIANTE EXACTA, SIN MARGEN DE REDONDEO (R20): cuando `empresa` no es `null`,
+ * `empresa + tienda === recaudado`. Es cierta POR CONSTRUCCION —`tienda` se calcula como esa
  * resta con `pagoTiendaEmpresa`— y no por coincidencia aritmetica.
  */
 export interface DineroLiquidadoDTO {
   /** Lo recaudado que ya esta liquidado. STRING escala 2. */
   readonly recaudado: string;
   /** Flete + IVA + comision COD + IVA. `null` = no hay ninguna orden liquidada. */
-  readonly ordenex: string | null;
+  readonly empresa: string | null;
   /** Lo recaudado liquidado MENOS lo que Ordenex le factura. `null`, mismo motivo. */
   readonly tienda: string | null;
   /** Cuantas ORDENES distintas lo componen. Una orden en dos cierres cuenta UNA vez (R18). */
@@ -144,17 +144,17 @@ export interface DineroProductoDTO {
    *
    * ⚠ POR QUE FUERA: un rechazo NO recauda cobro contra entrega, asi que no hay plata recogida
    * que repartir; y `pagoTiendaEmpresa` NO descuenta ese flete, por decision ya escrita. Meterlo
-   * dentro romperia R20 —`ordenex + tienda` daria `recaudado + retorno`— y, peor, afirmaria que
+   * dentro romperia R20 —`empresa + tienda` daria `recaudado + retorno`— y, peor, afirmaria que
    * de la plata que el mensajero trajo salio un cobro que nadie recaudo.
    */
   readonly retorno: string | null;
   /**
    * FICHA 449 — EL SERVICIO DE BODEGA de las ordenes LIQUIDADAS de esta fila. CIFRA PROPIA.
    *
-   * ⚠ NO SE SUMA A `liquidado.ordenex`, y no es un matiz contable. `ordenex` es exactamente
+   * ⚠ NO SE SUMA A `liquidado.empresa`, y no es un matiz contable. `empresa` es exactamente
    * `fleteConIva + comisionConIva`, y `liquidado.tienda` se calcula como la RESTA de eso contra
    * `liquidado.recaudado`: es lo que hace cierta R20 POR CONSTRUCCION. Meter el fulfillment
-   * dentro de `ordenex` romperia esa igualdad en silencio. Y no se puede meter «bien» tampoco:
+   * dentro de `empresa` romperia esa igualdad en silencio. Y no se puede meter «bien» tampoco:
    * el fulfillment NO es una entrada de `derivarIngresoOrden` —`ITarifaVigenteRepository` lo
    * prohibe desde el 2026-08-19— asi que no participa del reparto de lo recogido. Vive al lado
    * de `retorno`, que esta fuera por el mismo tipo de motivo.
@@ -166,7 +166,7 @@ export interface DineroProductoDTO {
    * devuelto). Acumularlo por gestion multiplicaria una sola preparacion por el numero de
    * intentos de entrega registrados.
    *
-   * ⚠ `null` = NINGUNA orden de esta fila esta liquidada, el mismo caso en que `ordenex`,
+   * ⚠ `null` = NINGUNA orden de esta fila esta liquidada, el mismo caso en que `empresa`,
    * `tienda` y `retorno` tambien son `null` (R30). Nunca es un `0.00` disfrazado. Y `"0.00"` SI
    * es una cifra real: hay ordenes liquidadas y ninguna cobro bodega (la tienda no hace
    * fulfillment, o su snapshot es anterior al 2026-08-19).

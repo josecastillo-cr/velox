@@ -23,7 +23,7 @@ import type { OrdenCongelada } from "@/lib/utils/aporte-por-orden";
 //
 //   flete            = 3.000,00                    iva flete   = 13 % = 390,00
 //   comision COD     =  5 % de 10.000 = 500,00     iva comision = 13 % =  65,00
-//   ordenex          = 3.000 + 390 + 500 + 65      = 3.955,00
+//   empresa          = 3.000 + 390 + 500 + 65      = 3.955,00
 //   tienda           = 10.000 - 3.390 - 565        = 6.045,00
 //   retorno (rechazo)= 2.000 + 13 %                = 2.260,00
 
@@ -151,18 +151,18 @@ describe("R14 / R15 / R20 · el reparto de una entrega liquidada", () => {
     expect(r.recaudado).toBe("10000.00");
     expect(r.liquidadoRecaudado).toBe("10000.00");
     expect(r.pendienteRecaudado).toBe("0.00");
-    expect(r.ordenex).toBe("3955.00"); // 3000 + 390 + 500 + 65
+    expect(r.empresa).toBe("3955.00"); // 3000 + 390 + 500 + 65
     expect(r.tienda).toBe("6045.00"); // 10000 - 3390 - 565
     expect(r.retorno).toBe("0.00");
     expect(r.hayLiquidado).toBe(true);
   });
 
-  it("R20 · `ordenex + tienda === liquidado.recaudado`, EXACTO y sin margen", () => {
+  it("R20 · `empresa + tienda === liquidado.recaudado`, EXACTO y sin margen", () => {
     for (const monto of ["10000.00", "7333.33", "0.01", "123456.78"]) {
       const r = repartoDeOrden([
         g({ montoRecibido: monto, congelada: congelada({ montoCobrar: monto }) }),
       ]);
-      const suma = new Prisma.Decimal(r.ordenex!).plus(r.tienda!);
+      const suma = new Prisma.Decimal(r.empresa!).plus(r.tienda!);
       expect(suma.toFixed(2), monto).toBe(r.liquidadoRecaudado);
     }
   });
@@ -179,19 +179,19 @@ describe("R14 / R15 / R20 · el reparto de una entrega liquidada", () => {
 
   it("sin comision COD la orden solo factura flete + IVA (R14)", () => {
     const r = repartoDeOrden([g({ congelada: congelada({ cobraComision: false }) })]);
-    expect(r.ordenex).toBe("3390.00"); // 3000 + 390, sin comision
+    expect(r.empresa).toBe("3390.00"); // 3000 + 390, sin comision
     expect(r.tienda).toBe("6610.00"); // 10000 - 3390
   });
 });
 
 describe("R19 · el RETORNO entra, pero FUERA del reparto", () => {
-  it("una rechazada liquidada aporta retorno y NO toca `ordenex` ni `tienda`", () => {
+  it("una rechazada liquidada aporta retorno y NO toca `empresa` ni `tienda`", () => {
     const r = repartoDeOrden([g({ resultado: "devolucion_a_origen_por_rechazo", montoRecibido: null })]);
 
     // Un rechazo NO recauda: no hay plata recogida que repartir.
     expect(r.recaudado).toBe("0.00");
     expect(r.retorno).toBe("2260.00"); // 2000 + 13 %
-    expect(r.ordenex).toBe("0.00");
+    expect(r.empresa).toBe("0.00");
     expect(r.tienda).toBe("0.00");
   });
 
@@ -202,17 +202,17 @@ describe("R19 · el RETORNO entra, pero FUERA del reparto", () => {
     ]);
 
     expect(r.retorno).toBe("2260.00");
-    // ⚠ SI EL RETORNO ENTRARA EN `ordenex` (mutacion M3), esto valdria 6.215,00 y la suma daria
+    // ⚠ SI EL RETORNO ENTRARA EN `empresa` (mutacion M3), esto valdria 6.215,00 y la suma daria
     // 12.260,00 sobre un recaudado de 10.000,00.
-    expect(r.ordenex).toBe("3955.00");
-    expect(new Prisma.Decimal(r.ordenex!).plus(r.tienda!).toFixed(2)).toBe(r.liquidadoRecaudado);
+    expect(r.empresa).toBe("3955.00");
+    expect(new Prisma.Decimal(r.empresa!).plus(r.tienda!).toFixed(2)).toBe(r.liquidadoRecaudado);
   });
 
   it("una `devuelta` no aporta NADA (regla de la ficha 301, que esta ficha lee y no reescribe)", () => {
     const r = repartoDeOrden([g({ resultado: "novedad", montoRecibido: null })]);
     expect(r.recaudado).toBe("0.00");
     expect(r.retorno).toBe("0.00");
-    expect(r.ordenex).toBe("0.00");
+    expect(r.empresa).toBe("0.00");
   });
 });
 
@@ -225,7 +225,7 @@ describe("R21 / R26 / R27 / R30 · liquidado vs pendiente", () => {
     expect(r.liquidadoRecaudado).toBe("0.00");
     // ⚠ R30 — `null`, NUNCA `"0.00"`: no se proyecta, no se estima, no se extrapola (R31).
     // Es la mutacion M6.
-    expect(r.ordenex).toBeNull();
+    expect(r.empresa).toBeNull();
     expect(r.tienda).toBeNull();
     expect(r.retorno).toBeNull();
     expect(r.hayLiquidado).toBe(false);
@@ -236,7 +236,7 @@ describe("R21 / R26 / R27 / R30 · liquidado vs pendiente", () => {
 
     expect(r.recaudado).toBe("10000.00");
     expect(r.pendienteRecaudado).toBe("10000.00");
-    expect(r.ordenex).toBeNull();
+    expect(r.empresa).toBeNull();
   });
 
   it("R21 · `liquidado + pendiente === recaudado`, EXACTO, con la orden a caballo", () => {
@@ -266,12 +266,12 @@ describe("R18 · una orden en DOS cierres: los aportes se SUMAN, con el snapshot
     ]);
 
     // Cierre A: 3000 + 390 + 500 + 65 = 3955. Cierre B: 1000 + 130 + 0 + 0 = 1130.
-    expect(r.ordenex).toBe("5085.00");
+    expect(r.empresa).toBe("5085.00");
     expect(r.recaudado).toBe("15000.00");
     expect(r.liquidadoRecaudado).toBe("15000.00");
     expect(r.tienda).toBe("9915.00"); // 15000 - 5085
     // Y R20 se mantiene con las dos derivaciones sumadas.
-    expect(new Prisma.Decimal(r.ordenex!).plus(r.tienda!).toFixed(2)).toBe(r.liquidadoRecaudado);
+    expect(new Prisma.Decimal(r.empresa!).plus(r.tienda!).toFixed(2)).toBe(r.liquidadoRecaudado);
   });
 });
 
@@ -286,7 +286,7 @@ describe("R25 · determinismo", () => {
   it("sin gestiones no hay cifras derivadas y el recaudo es cero", () => {
     const r = repartoDeOrden([]);
     expect(r.recaudado).toBe("0.00");
-    expect(r.ordenex).toBeNull();
+    expect(r.empresa).toBeNull();
     expect(aporteEsCero(r)).toBe(true);
   });
 });

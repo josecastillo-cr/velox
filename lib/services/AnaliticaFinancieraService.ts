@@ -236,7 +236,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
       // las dos cifras que `derivarCaja` produce se publica como `neto`, y eso entra como
       // selector explicito en vez de como un `if` por id dentro del manejador.
       dinero_en_caja: (c) => this.deTesoreria(c, (r) => r.enCaja),
-      ganancia_ordenex: (c) => this.deTesoreria(c, (r) => r.ganancia),
+      ganancia_empresa: (c) => this.deTesoreria(c, (r) => r.ganancia),
       cod_recaudado: (c) => this.deRecaudo(c),
       cuenta_por_pagar_tienda: (c) => this.deSaldoDeTiendas(c),
       cuenta_por_pagar_mensajero: (c) => this.deCuentaDeMensajeros(c),
@@ -379,7 +379,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
   }
 
   /* ------------------------------------------------------------------ */
-  /* F.3 (173) — la caja en TESORERIA: `dinero_en_caja` y `ganancia_ordenex` */
+  /* F.3 (173) — la caja en TESORERIA: `dinero_en_caja` y `ganancia_empresa` */
   /* ------------------------------------------------------------------ */
 
   /**
@@ -426,7 +426,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
           id: consulta.metrica.id,
           grano: "fecha",
           fuente: "wallet_movimiento",
-          // `[]` como todas: `dinero_en_caja` y `ganancia_ordenex` NO se suman entre si (la
+          // `[]` como todas: `dinero_en_caja` y `ganancia_empresa` NO se suman entre si (la
           // primera contiene dinero de terceros que la segunda excluye a proposito), ni con
           // `egresos`, que es un subconjunto de las dos.
           sumableCon: [],

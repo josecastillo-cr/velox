@@ -22,7 +22,7 @@
 //
 // ─── LOS `null` NO SON CEROS ────────────────────────────────────────────────────────────────
 //
-// `ordenex`, `tienda` y `retorno` llegan `null` cuando esa orden todavia no esta liquidada, y se
+// `empresa`, `tienda` y `retorno` llegan `null` cuando esa orden todavia no esta liquidada, y se
 // pintan «—» (R30). `money(null)` ya devuelve la raya larga, asi que no hace falta —ni se debe—
 // escribir un `?? "0.00"` en ningun sitio: «todavia no es un hecho» y «fue cero» son dos cosas
 // distintas y esta pantalla las distingue.
@@ -82,8 +82,8 @@ export const DETALLE_DINERO_TEXTOS = {
   totales: {
     recaudado: "Recaudado",
     recaudadoPista: "En órdenes que incluyen este producto",
-    ordenex: `Cobró ${MARCA.nombreCorto}`,
-    ordenexPista: "Solo de lo ya liquidado: flete + IVA y comisión + IVA",
+    empresa: `Cobró ${MARCA.nombreCorto}`,
+    empresaPista: "Solo de lo ya liquidado: flete + IVA y comisión + IVA",
     tienda: "Para la tienda",
     tiendaPista: "Solo de lo ya liquidado: lo recaudado menos lo anterior",
     pendiente: "Pendiente de cierre",
@@ -116,7 +116,7 @@ export const DETALLE_DINERO_TEXTOS = {
      * texto contra esa constante, que es OTRA fuente y no ésta.
      *
      * ⚠ NO SE SUMA A «Cobró Ordenex» y la pista lo dice de la única forma que sirve: diciendo
-     * lo que la cifra ES. `ordenex` es exactamente flete + IVA y comisión + IVA, y «Para la
+     * lo que la cifra ES. `empresa` es exactamente flete + IVA y comisión + IVA, y «Para la
      * tienda» se calcula como la resta de eso contra lo recaudado; el fulfillment vive fuera de
      * esa igualdad, igual que el flete por rechazo de al lado.
      *
@@ -134,7 +134,7 @@ export const DETALLE_DINERO_TEXTOS = {
     resultados: "Resultados",
     estado: "Estado",
     recaudado: "Recaudado",
-    ordenex: `Cobró ${MARCA.nombreCorto}`,
+    empresa: `Cobró ${MARCA.nombreCorto}`,
     tienda: "Para la tienda",
     retorno: "Flete por devolución a origen",
   },
@@ -284,10 +284,10 @@ const COLUMNAS: Column<OrdenDineroDTO>[] = [
     render: (o) => <Importe valor={o.recaudado} />,
   },
   {
-    id: "ordenex",
-    value: DETALLE_DINERO_TEXTOS.columnas.ordenex,
+    id: "empresa",
+    value: DETALLE_DINERO_TEXTOS.columnas.empresa,
     align: "right",
-    render: (o) => <Importe valor={o.ordenex} />,
+    render: (o) => <Importe valor={o.empresa} />,
   },
   {
     id: "tienda",
@@ -393,9 +393,9 @@ export function DineroProductoDetalle({
           pista={DETALLE_DINERO_TEXTOS.totales.recaudadoPista}
         />
         <ImporteCabecera
-          rotulo={DETALLE_DINERO_TEXTOS.totales.ordenex}
-          valor={totales?.liquidado.ordenex ?? null}
-          pista={DETALLE_DINERO_TEXTOS.totales.ordenexPista}
+          rotulo={DETALLE_DINERO_TEXTOS.totales.empresa}
+          valor={totales?.liquidado.empresa ?? null}
+          pista={DETALLE_DINERO_TEXTOS.totales.empresaPista}
         />
         <ImporteCabecera
           rotulo={DETALLE_DINERO_TEXTOS.totales.tienda}

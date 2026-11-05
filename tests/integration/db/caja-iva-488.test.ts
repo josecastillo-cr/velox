@@ -311,7 +311,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
     await sembrar("ingreso", "ingreso_reverso_pago_iva", "5.00", DIA, "gasto", pagoDelDia.id);
     await sembrar("ingreso", "ingreso_iva_flete", "999.00", DIA_FUERA, "cierre_dia", randomUUID()); // fuera del periodo
     const periodo = await leer(actor, PERIODO);
-    const gananciaMetrica = await metrica("ganancia_ordenex", actor);
+    const gananciaMetrica = await metrica("ganancia_empresa", actor);
     const egresosMetricaDespues = await metrica("egresos", actor);
     const diaDespues = await delDia();
 
@@ -603,7 +603,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
   // ───────────────────────────────────────────────────────────────────────────────────────────
   // §7 — R31/R32: la analitica financiera sobre el mismo periodo.
   // ───────────────────────────────────────────────────────────────────────────────────────────
-  it("§7 R31: `ganancia_ordenex` del tablero = la ganancia de la tarjeta sobre el MISMO periodo (sin IVA)", () => {
+  it("§7 R31: `ganancia_empresa` del tablero = la ganancia de la tarjeta sobre el MISMO periodo (sin IVA)", () => {
     const { gananciaMetrica, periodo } = m();
     expect(gananciaMetrica.forma).toBe("bruto_y_neto");
     expect((gananciaMetrica as { neto: string }).neto).toBe(periodo.resumen.ganancia);

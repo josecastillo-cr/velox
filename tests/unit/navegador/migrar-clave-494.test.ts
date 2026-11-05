@@ -81,12 +81,30 @@ describe("494/R15 — hay las dos: manda la nueva y la vieja se borra", () => {
     expect(window.localStorage.getItem(VIEJA)).toBeNull();
   });
 
-  it("no pasa `traducir` sobre la nueva: ya está en la forma vigente", () => {
+  it("`traducir` corre también sobre la nueva, y la reescribe solo si cambió (design §5.3)", () => {
     window.localStorage.setItem(VIEJA, "off");
     window.localStorage.setItem(NUEVA, "on");
-    const traducir = vi.fn((crudo: string) => crudo);
-    leerConMigracion(window.localStorage, NUEVA, VIEJA, traducir);
-    expect(traducir).not.toHaveBeenCalled();
+    const traducir = (crudo: string) => crudo.toUpperCase();
+    expect(leerConMigracion(window.localStorage, NUEVA, VIEJA, traducir)).toBe("ON");
+    expect(window.localStorage.getItem(NUEVA)).toBe("ON");
+    expect(window.localStorage.getItem(VIEJA)).toBeNull();
+  });
+
+  it("si `traducir` no cambia nada, la nueva no se escribe: el snapshot no varía", () => {
+    window.localStorage.setItem(NUEVA, "on");
+    const escribir = vi.spyOn(Storage.prototype, "setItem");
+    expect(leerConMigracion(window.localStorage, NUEVA, VIEJA, (crudo) => crudo)).toBe("on");
+    expect(escribir).not.toHaveBeenCalled();
+    escribir.mockRestore();
+  });
+
+  it("un `traducir` que lanza sobre la nueva no se la lleva", () => {
+    window.localStorage.setItem(NUEVA, "on");
+    const traducir = () => {
+      throw new Error("no se puede");
+    };
+    expect(leerConMigracion(window.localStorage, NUEVA, VIEJA, traducir)).toBe("on");
+    expect(window.localStorage.getItem(NUEVA)).toBe("on");
   });
 });
 

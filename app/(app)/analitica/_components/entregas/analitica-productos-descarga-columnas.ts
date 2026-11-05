@@ -113,7 +113,7 @@ export const COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS: DescargaColumna[] = [
  *    numero que hace legible la marca anterior — y este SI es aditivo.
  *  - `liquidado_recaudado` y `liquidado_ordenes`: la parte de lo recaudado que ya esta en un
  *    cierre aprobado, y sobre cuantas ordenes.
- *  - `ordenex` y `para_la_tienda`: el reparto, SOLO de lo liquidado (R29). Su suma es
+ *  - `empresa` y `para_la_tienda`: el reparto, SOLO de lo liquidado (R29). Su suma es
  *    exactamente `liquidado_recaudado` (R20), y por eso se leen los tres juntos.
  *  - `pendiente_recaudado` y `pendiente_ordenes`: lo cobrado y aun sin liquidar (R28). No se
  *    reparte y no se proyecta (R31).
@@ -123,7 +123,7 @@ export const COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS: DescargaColumna[] = [
  *    archivo —y no como columna de la pantalla— justamente porque FUERA del reparto: como
  *    columna de la tabla se sumaria mentalmente al reparto de al lado.
  *  - `fulfillment` (FICHA 449): el servicio de bodega de sus ordenes liquidadas, UNA vez por
- *    orden. Tambien FUERA del reparto, y por eso va detras de `retorno` y no entre `ordenex` y
+ *    orden. Tambien FUERA del reparto, y por eso va detras de `retorno` y no entre `empresa` y
  *    `para_la_tienda`: ahi se leeria como un tercer trozo de lo recaudado. Se llama
  *    «Fulfillment» porque ya se llama asi en el detalle del cierre y en las cinco descargas de
  *    gestiones (`FULFILLMENT_COL`); esta ficha nace de que la misma orden enseñaba la cifra
@@ -151,7 +151,7 @@ export const COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO: DescargaColumna[] = [
     encabezado: `Recaudado liquidado ${MARCA_NO_SUMABLE_ARCHIVO}`,
   },
   { clave: "liquidado_ordenes", encabezado: "Órdenes liquidadas" },
-  { clave: "ordenex", encabezado: `Cobró ${MARCA.nombreCorto} ${MARCA_NO_SUMABLE_ARCHIVO}` },
+  { clave: "empresa", encabezado: `Cobró ${MARCA.nombreCorto} ${MARCA_NO_SUMABLE_ARCHIVO}` },
   { clave: "para_la_tienda", encabezado: `Para la tienda ${MARCA_NO_SUMABLE_ARCHIVO}` },
   {
     clave: "pendiente_recaudado",
@@ -257,7 +257,7 @@ function puntosPorcentuales(fraccion: number | null): number | null {
  * id, ni un correo, ni un telefono, ni una ruta.
  *
  * ⚠ R70 — UN IMPORTE AUSENTE ES UNA CELDA VACIA, NUNCA `0`. `fila.dinero` puede ser `null` (esa
- * fila no tiene ninguna orden que aporte) y, aun teniendolo, `ordenex`, `tienda`, `retorno` y
+ * fila no tiene ninguna orden que aporte) y, aun teniendolo, `empresa`, `tienda`, `retorno` y
  * —desde la ficha 449— `fulfillment` pueden ser `null` (no hay nada liquidado, R30). Los dos
  * casos salen como `null` y ninguno se rellena con un cero: un `0,00` en la columna «Cobró
  * Ordenex» afirma que Ordenex no cobro nada, cuando lo cierto es que todavia no se sabe.
@@ -301,7 +301,7 @@ export function filaDescargaAnaliticaProductos(
     ordenes_con_otro_producto: fila.ordenesAcompanadas,
     liquidado_recaudado: dinero?.liquidado.recaudado ?? null,
     liquidado_ordenes: dinero?.liquidado.ordenes ?? null,
-    ordenex: dinero?.liquidado.ordenex ?? null,
+    empresa: dinero?.liquidado.empresa ?? null,
     para_la_tienda: dinero?.liquidado.tienda ?? null,
     pendiente_recaudado: dinero?.pendiente.recaudado ?? null,
     pendiente_ordenes: dinero?.pendiente.ordenes ?? null,

@@ -175,7 +175,7 @@ describe("R43 · esAcumulado es true EXACTAMENTE en las dos cuentas por pagar", 
       egresos: false,
       // Feature 173 (P4): flujo del periodo, no saldo al corte, las dos.
       dinero_en_caja: false,
-      ganancia_ordenex: false,
+      ganancia_empresa: false,
       cuenta_por_pagar_tienda: true,
       cuenta_por_pagar_mensajero: true,
       conciliacion_cierres: false,
@@ -448,7 +448,7 @@ async function totalDe(metricaId: string, caja: readonly (typeof LIBRO_MIXTO)[nu
   return { ...vista, total: conNeto(vista.total, metricaId) };
 }
 
-describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma dos veces", () => {
+describe("R54 · dinero_en_caja y ganancia_empresa son DOS cifras, no la misma dos veces", () => {
   it("`dinero_en_caja` es entradas − salidas, con el dinero de terceros dentro", async () => {
     const vista = await totalDe("dinero_en_caja", LIBRO_MIXTO);
 
@@ -459,7 +459,7 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
     expect(vista.id).toBe("dinero_en_caja");
     expect(vista.fuente).toBe("wallet_movimiento");
     expect(vista.grano).toBe("fecha");
-    // No suma con nada: contiene dinero que `ganancia_ordenex` excluye a proposito.
+    // No suma con nada: contiene dinero que `ganancia_empresa` excluye a proposito.
     expect(vista.sumableCon).toEqual([]);
     // Feature 180 — la vista ya trae serie: una fila por cubo del rango (aqui, uno), y su
     // importe es el del total porque todo el libro cae en ese cubo (R12).
@@ -478,19 +478,19 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
     expect(tarjeta.enCaja).toBe("1800.00");
   });
 
-  it("`ganancia_ordenex` deja fuera el dinero de terceros y, desde la 488, el IVA: 600, no 2930", async () => {
-    const vista = await totalDe("ganancia_ordenex", LIBRO_MIXTO);
+  it("`ganancia_empresa` deja fuera el dinero de terceros y, desde la 488, el IVA: 600, no 2930", async () => {
+    const vista = await totalDe("ganancia_empresa", LIBRO_MIXTO);
 
     // FICHA 488 (R31): el IVA del flete (130) ya no es ganancia: 1 000 − 400 = 600 (antes 730).
     expect(vista.total.neto).toBe("600.00");
     // El bruto es el de lo agregado, igual que en las demas metricas de caja ⟨D1(c)⟩.
     expect(vista.total.bruto).toBe("9730.00");
-    expect(vista.id).toBe("ganancia_ordenex");
+    expect(vista.id).toBe("ganancia_empresa");
   });
 
   it("las dos cifras son DISTINTAS sobre el mismo libro, y esa diferencia es el punto", async () => {
     const enCaja = await totalDe("dinero_en_caja", LIBRO_MIXTO);
-    const ganancia = await totalDe("ganancia_ordenex", LIBRO_MIXTO);
+    const ganancia = await totalDe("ganancia_empresa", LIBRO_MIXTO);
 
     expect(enCaja.total.neto).not.toBe(ganancia.total.neto);
     // Ficha 459 (reescrito): 1800 − 730 = 1070 = lo que se les debe a las tiendas
@@ -503,8 +503,8 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
   });
 
   it("R51 en el servicio: anadir contra-entrega NO mueve la ganancia y SI mueve la caja", async () => {
-    const gananciaSinTerceros = await totalDe("ganancia_ordenex", LIBRO_SOLO_PROPIO);
-    const gananciaConTerceros = await totalDe("ganancia_ordenex", LIBRO_MIXTO);
+    const gananciaSinTerceros = await totalDe("ganancia_empresa", LIBRO_SOLO_PROPIO);
+    const gananciaConTerceros = await totalDe("ganancia_empresa", LIBRO_MIXTO);
     const cajaSinTerceros = await totalDe("dinero_en_caja", LIBRO_SOLO_PROPIO);
     const cajaConTerceros = await totalDe("dinero_en_caja", LIBRO_MIXTO);
 
@@ -522,14 +522,14 @@ describe("R54 · dinero_en_caja y ganancia_ordenex son DOS cifras, no la misma d
     // conteo F2: el flete (1 000) y su IVA (130) no son efectivo. Ganancia 730; caja −400.
     // Ficha 488 (R31): la ganancia sin el IVA: 1 000 − 400 = 600.
     const enCaja = await totalDe("dinero_en_caja", LIBRO_SOLO_PROPIO);
-    const ganancia = await totalDe("ganancia_ordenex", LIBRO_SOLO_PROPIO);
+    const ganancia = await totalDe("ganancia_empresa", LIBRO_SOLO_PROPIO);
 
     expect(enCaja.total.neto).toBe("-400.00");
     expect(ganancia.total.neto).toBe("600.00");
   });
 
   it("las dos consultan el libro de la caja y NINGUN otro repositorio", async () => {
-    for (const id of ["dinero_en_caja", "ganancia_ordenex"]) {
+    for (const id of ["dinero_en_caja", "ganancia_empresa"]) {
       const { servicio, ingresos, consultasHechas } = armarServicio({ caja: [...LIBRO_MIXTO] });
       await servicio.consultar(consultaDe(id));
 
@@ -571,10 +571,10 @@ describe("R55 · la coherencia catalogo ↔ servicio falla por exceso Y por defe
     const servidos = [...servicio.idsServidos];
     const catalogo = new Set(IDS_DEL_CATALOGO);
 
-    // (1) POR DEFECTO — el servicio deja de despachar `ganancia_ordenex`.
-    const sinUna = servidos.filter((id) => id !== "ganancia_ordenex");
+    // (1) POR DEFECTO — el servicio deja de despachar `ganancia_empresa`.
+    const sinUna = servidos.filter((id) => id !== "ganancia_empresa");
     expect(sinUna).toHaveLength(servidos.length - 1);
-    expect(IDS_DEL_CATALOGO.filter((id) => !new Set(sinUna).has(id))).toEqual(["ganancia_ordenex"]);
+    expect(IDS_DEL_CATALOGO.filter((id) => !new Set(sinUna).has(id))).toEqual(["ganancia_empresa"]);
 
     // (2) POR EXCESO — el servicio despacha un id que el catalogo no tiene.
     const conUnaDeMas = [...servidos, "margen_bruto"];
@@ -587,7 +587,7 @@ describe("R55 · la coherencia catalogo ↔ servicio falla por exceso Y por defe
 
   it("las dos metricas nuevas estan en las TRES fuentes independientes", () => {
     const { servicio } = armarServicio();
-    for (const id of ["dinero_en_caja", "ganancia_ordenex"]) {
+    for (const id of ["dinero_en_caja", "ganancia_empresa"]) {
       expect(IDS_DEL_CATALOGO, `catalogo: ${id}`).toContain(id);
       expect(servicio.idsServidos, `servicio: ${id}`).toContain(id);
       expect([...IDS_FINANCIERAS_SERVIDAS] as string[], `contrato: ${id}`).toContain(id);

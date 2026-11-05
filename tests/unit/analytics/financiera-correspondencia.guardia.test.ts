@@ -89,7 +89,7 @@ const REPOSITORIO_DE: Readonly<Record<string, Servidor>> = {
   // Feature 173 (P4): las dos cifras de la caja salen del MISMO repositorio y de la MISMA
   // tabla que las cuatro de la 127; lo unico propio de cada una es que categorias declara.
   dinero_en_caja: { archivo: "lib/repositories/IngresosAnaliticaRepository.ts" },
-  ganancia_ordenex: { archivo: "lib/repositories/IngresosAnaliticaRepository.ts" },
+  ganancia_empresa: { archivo: "lib/repositories/IngresosAnaliticaRepository.ts" },
   cod_recaudado: { archivo: "lib/repositories/RecaudoAnaliticaRepository.ts" },
   cuenta_por_pagar_tienda: {
     archivo: "lib/repositories/CuentasPorPagarAnaliticaRepository.ts",

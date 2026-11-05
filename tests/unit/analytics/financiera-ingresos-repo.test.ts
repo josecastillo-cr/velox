@@ -296,9 +296,9 @@ describe("R57 · las dos metricas de la 173 salen de este repositorio, con sus c
     expect(filas.map((f) => f.suma)).not.toContain("5999.00");
   });
 
-  it("`ganancia_ordenex` no llega a ver el dinero de terceros: lo excluye ya el WHERE", async () => {
+  it("`ganancia_empresa` no llega a ver el dinero de terceros: lo excluye ya el WHERE", async () => {
     const { repo, fake } = repositorio(LIBRO_TESORERIA);
-    const filas = await repo.sumarPorCategoria(consultaDe("ganancia_ordenex"));
+    const filas = await repo.sumarPorCategoria(consultaDe("ganancia_empresa"));
 
     expect(filas).toEqual([
       { categoria: "egreso_sueldo", tipo: "egreso", suma: "400.00" },

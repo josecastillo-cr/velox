@@ -247,7 +247,7 @@ export const PRODUCTOS_COLUMNAS = {
    * abre la fila, que es cuando interesa.
    */
   recaudado: "Recaudado",
-  ordenex: `Cobró ${MARCA.nombreCorto}`,
+  empresa: `Cobró ${MARCA.nombreCorto}`,
   paraTienda: "Para la tienda",
   /**
    * FICHA 449 — EL SERVICIO DE BODEGA, con el nombre que YA tiene en el resto de la app.
@@ -475,7 +475,7 @@ function cifrasDeFila(fila: FilaProductoDTO): Readonly<Record<IdCifra, string>> 
  *
  * FICHA 449 — son CUATRO: entra el servicio de bodega, en el detalle y solo cuando hay monto.
  */
-type IdDinero = "recaudado" | "ordenex" | "paraTienda" | "fulfillment";
+type IdDinero = "recaudado" | "empresa" | "paraTienda" | "fulfillment";
 
 interface DeclaracionDinero {
   readonly id: IdDinero;
@@ -495,9 +495,9 @@ interface DeclaracionDinero {
 
 const DINERO: readonly DeclaracionDinero[] = [
   { id: "recaudado", etiqueta: PRODUCTOS_COLUMNAS.recaudado, enColumna: true },
-  { id: "ordenex", etiqueta: PRODUCTOS_COLUMNAS.ordenex, enColumna: false },
+  { id: "empresa", etiqueta: PRODUCTOS_COLUMNAS.empresa, enColumna: false },
   { id: "paraTienda", etiqueta: PRODUCTOS_COLUMNAS.paraTienda, enColumna: false },
-  // FICHA 449 — DETRAS del reparto y nunca dentro de el. `ordenex + paraTienda` es exactamente
+  // FICHA 449 — DETRAS del reparto y nunca dentro de el. `empresa + paraTienda` es exactamente
   // lo recaudado liquidado (R20) y esa igualdad es cierta POR CONSTRUCCION; una cuarta cifra
   // entre las dos se leeria como un tercer trozo del mismo reparto, que es justo lo que NO es.
   {
@@ -546,7 +546,7 @@ export function textoColumnasNoSumables(etiquetas: readonly string[]): string {
  *
  * ⚠ LOS TRES CAMINOS QUE DEVUELVEN `null` SON DISTINTOS Y SE PINTAN IGUAL, y esta bien que asi
  * sea: la fila no tiene ninguna orden que aporte (`fila.dinero === null`), o la tiene pero
- * ninguna esta liquidada (`ordenex`/`tienda` llegan `null` del servidor, R30). En los dos casos
+ * ninguna esta liquidada (`empresa`/`tienda` llegan `null` del servidor, R30). En los dos casos
  * el hecho es el mismo —«todavia no hay reparto»— y `money(null)` lo pinta «—».
  *
  * ⚠ AQUI NO HAY —NI PUEDE HABER— UN `?? "0.00"`. Ese es exactamente el defecto que la mutacion
@@ -556,7 +556,7 @@ function importeDeFila(fila: FilaProductoDTO, id: IdDinero): string | null {
   const dinero = fila.dinero;
   if (dinero === null) return null;
   if (id === "recaudado") return dinero.recaudado;
-  if (id === "ordenex") return dinero.liquidado.ordenex;
+  if (id === "empresa") return dinero.liquidado.empresa;
   // FICHA 449 — SALE DE LA RAIZ DEL DTO, no de `liquidado`, y el sitio del que se lee es la
   // afirmacion: `liquidado` es el reparto de lo recaudado y el fulfillment no forma parte de el.
   if (id === "fulfillment") return dinero.fulfillment;
@@ -880,9 +880,9 @@ const MIN_CIFRA: Readonly<Record<IdCifra, string>> = {
 };
 const MIN_DINERO: Readonly<Record<IdDinero, string>> = {
   recaudado: "6.5rem",
-  ordenex: "6rem",
+  empresa: "6rem",
   paraTienda: "6rem",
-  // FICHA 449 — declarado aunque hoy NO sea columna, igual que `ordenex` y `paraTienda`: el
+  // FICHA 449 — declarado aunque hoy NO sea columna, igual que `empresa` y `paraTienda`: el
   // `Record` exige una entrada por cifra. Se le da el MISMO 6rem que a esos dos, y no un numero
   // propio, porque ese numero no esta medido contra la tipografia de la app y aqui no se
   // inventa: hoy nadie lo lee. Lo que SI esta medido (Chromium, tipografia del sistema, mismo

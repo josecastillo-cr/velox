@@ -237,7 +237,7 @@ describe("FICHA 346 · la fila del archivo SUMA", () => {
 /**
  * Las cifras de dinero de una fila. STRING escala 2, tal y como cruzan la frontera.
  *
- * Los números son los del caso de `design.md §4.1`: `ordenex + tienda === liquidado.recaudado`
+ * Los números son los del caso de `design.md §4.1`: `empresa + tienda === liquidado.recaudado`
  * (R20) y `liquidado.recaudado + pendiente.recaudado === recaudado` (R21). Se escriben aquí ya
  * cuadrados a mano para que el archivo se pruebe con un dato que es posible de verdad.
  */
@@ -245,14 +245,14 @@ const DINERO: DineroProductoDTO = {
   recaudado: "45000.00",
   liquidado: {
     recaudado: "35000.00",
-    ordenex: "6215.00",
+    empresa: "6215.00",
     tienda: "28785.00",
     ordenes: 4,
   },
   pendiente: { recaudado: "10000.00", ordenes: 1 },
   retorno: "2260.00",
   // FICHA 449 — el servicio de bodega de sus 4 ordenes liquidadas (4 x 696). Cifra PROPIA: NO
-  // entra en `liquidado.ordenex`, asi que los dos cuadres de arriba no la incluyen.
+  // entra en `liquidado.empresa`, asi que los dos cuadres de arriba no la incluyen.
   fulfillment: "2784.00",
 };
 
@@ -290,7 +290,7 @@ describe("FICHA 347 · columnas del archivo con dinero concedido (R66/R68)", () 
       "ordenes_con_otro_producto",
       "liquidado_recaudado",
       "liquidado_ordenes",
-      "ordenex",
+      "empresa",
       "para_la_tienda",
       "pendiente_recaudado",
       "pendiente_ordenes",
@@ -342,7 +342,7 @@ describe("FICHA 347 · columnas del archivo con dinero concedido (R66/R68)", () 
     expect(conMarca).toEqual([
       "recaudado",
       "liquidado_recaudado",
-      "ordenex",
+      "empresa",
       "para_la_tienda",
       "pendiente_recaudado",
       // El retorno tambien: es un importe, y ademas uno que esta FUERA del reparto (R19), asi
@@ -444,7 +444,7 @@ describe("FICHA 347 · la proyección con dinero", () => {
     // repo ya perdió un céntimo por una conversión.
     expect(fila.recaudado).toBe("45000.00");
     expect(fila.liquidado_recaudado).toBe("35000.00");
-    expect(fila.ordenex).toBe("6215.00");
+    expect(fila.empresa).toBe("6215.00");
     expect(fila.para_la_tienda).toBe("28785.00");
     expect(fila.pendiente_recaudado).toBe("10000.00");
     expect(fila.retorno).toBe("2260.00");
@@ -472,7 +472,7 @@ describe("FICHA 347 · la proyección con dinero", () => {
     const fila = filaDescargaAnaliticaProductos(FILA_CON_DINERO, false);
 
     expect(Object.keys(fila)).toEqual(COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS.map((c) => c.clave));
-    for (const clave of ["recaudado", "ordenex", "para_la_tienda", "retorno", "fulfillment"]) {
+    for (const clave of ["recaudado", "empresa", "para_la_tienda", "retorno", "fulfillment"]) {
       expect(Object.keys(fila)).not.toContain(clave);
     }
     // Ni siquiera en cero: R5 prohíbe emitir la cifra «ni recortada, ni agregada, ni en cero».
@@ -480,7 +480,7 @@ describe("FICHA 347 · la proyección con dinero", () => {
   });
 
   it("R70 — un importe ausente es celda VACÍA, nunca `0`", () => {
-    // La fila tiene dinero pero NADA liquidado: `ordenex`, `tienda` y `retorno` llegan `null`
+    // La fila tiene dinero pero NADA liquidado: `empresa`, `tienda` y `retorno` llegan `null`
     // del servidor (R30). El archivo tiene que decir «no se sabe», no «fue cero». Es la
     // mutación M6 vista desde el archivo.
     const sinLiquidar = filaDescargaAnaliticaProductos(
@@ -488,7 +488,7 @@ describe("FICHA 347 · la proyección con dinero", () => {
         ...FILA_CON_DINERO,
         dinero: {
           recaudado: "10000.00",
-          liquidado: { recaudado: "0.00", ordenex: null, tienda: null, ordenes: 0 },
+          liquidado: { recaudado: "0.00", empresa: null, tienda: null, ordenes: 0 },
           pendiente: { recaudado: "10000.00", ordenes: 1 },
           retorno: null,
           // FICHA 449 — `null` por el mismo motivo: nada liquidado, nada que afirmar.
@@ -498,14 +498,14 @@ describe("FICHA 347 · la proyección con dinero", () => {
       true,
     );
 
-    expect(sinLiquidar.ordenex).toBeNull();
+    expect(sinLiquidar.empresa).toBeNull();
     expect(sinLiquidar.para_la_tienda).toBeNull();
     expect(sinLiquidar.retorno).toBeNull();
     // FICHA 449 — el `null` del fulfillment es el de «no hay snapshot que leer», y sale VACIO
     // por el mismo motivo que los tres de arriba.
     expect(sinLiquidar.fulfillment).toBeNull();
-    expect(sinLiquidar.ordenex).not.toBe(0);
-    expect(sinLiquidar.ordenex).not.toBe("0.00");
+    expect(sinLiquidar.empresa).not.toBe(0);
+    expect(sinLiquidar.empresa).not.toBe("0.00");
     // Lo que SÍ es un hecho se escribe: lo recaudado existe desde que se registró la gestión.
     expect(sinLiquidar.recaudado).toBe("10000.00");
   });
@@ -529,7 +529,7 @@ describe("FICHA 347 · la proyección con dinero", () => {
     expect(sinBodega.fulfillment).toBe("0.00");
     expect(sinBodega.fulfillment).not.toBeNull();
     // Y el resto de la fila no se entera: es una celda, no un modo.
-    expect(sinBodega.ordenex).toBe("6215.00");
+    expect(sinBodega.empresa).toBe("6215.00");
   });
 
   it("FICHA 449 — el encabezado lleva el nombre que la cifra YA tiene en el resto de la app", () => {
@@ -552,7 +552,7 @@ describe("FICHA 347 · la proyección con dinero", () => {
       "recaudado",
       "liquidado_recaudado",
       "liquidado_ordenes",
-      "ordenex",
+      "empresa",
       "para_la_tienda",
       "pendiente_recaudado",
       "pendiente_ordenes",

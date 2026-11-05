@@ -202,7 +202,7 @@ const ETIQUETAS: Readonly<Record<MetricaFinancieraId, string>> = {
   // Feature 173 ⟨P4⟩ — las dos de la caja en modo tesoreria. Las etiquetas son las
   // del catalogo (`lib/analytics/metrics.ts`), como las otras ocho.
   dinero_en_caja: "Dinero en caja",
-  ganancia_ordenex: `Ganancia de ${NOMBRE_CORTO_ESPERADO}`,
+  ganancia_empresa: `Ganancia de ${NOMBRE_CORTO_ESPERADO}`,
   cod_recaudado: "Recaudo COD",
   cuenta_por_pagar_tienda: "Cuenta por pagar a tiendas",
   cuenta_por_pagar_mensajero: "Devengado de mensajeros",
@@ -217,7 +217,7 @@ const ETIQUETAS: Readonly<Record<MetricaFinancieraId, string>> = {
  * de seguir en verde sin cubrirla.
  *
  * Y es exactamente lo que paso: la 173 ⟨P4⟩ sirvio la novena y la decima
- * (`dinero_en_caja`, `ganancia_ordenex`) y el typecheck lo caza aqui (TS2739).
+ * (`dinero_en_caja`, `ganancia_empresa`) y el typecheck lo caza aqui (TS2739).
  */
 const DTOS: Readonly<Record<MetricaFinancieraId, ResultadoFinanciero>> = {
   // Feature 183 ⟨D12⟩ — LAS TRES de lista homogenea de prefijo publican `solo_bruto`.
@@ -244,9 +244,9 @@ const DTOS: Readonly<Record<MetricaFinancieraId, ResultadoFinanciero>> = {
   // del rango. Por eso van con el mismo helper que sus vecinas y con importes que
   // continuan su serie.
   dinero_en_caja: dtoKpi("dinero_en_caja", ETIQUETAS.dinero_en_caja, importeConNeto("5000.00", "4500.00")),
-  ganancia_ordenex: dtoKpi(
-    "ganancia_ordenex",
-    ETIQUETAS.ganancia_ordenex,
+  ganancia_empresa: dtoKpi(
+    "ganancia_empresa",
+    ETIQUETAS.ganancia_empresa,
     importeConNeto("6000.00", "5400.00"),
   ),
   // TANDA 2 de la guardia de arne (2026-08-07) — la IDENTIDAD de las dos vistas
@@ -415,7 +415,7 @@ describe("Feature 132 (R13) — un panel por metrica servida, y ninguno de mas",
 
     const nombres = seccionesDePanel().map(nombreDe);
     expect(nombres.sort()).toEqual(nombresEsperados(IDS_FINANCIERAS_SERVIDAS).sort());
-    // 9 hasta la 173, que anadio `dinero_en_caja` y `ganancia_ordenex`: una vista
+    // 9 hasta la 173, que anadio `dinero_en_caja` y `ganancia_empresa`: una vista
     // cada una. El ancla sigue siendo un numero ESCRITO A MANO (que es lo que la
     // hace util) y no un `toBeGreaterThan`; lo que cambia es el mundo que cuenta.
     expect(nombres).toHaveLength(11);
@@ -807,7 +807,7 @@ describe("Feature 183 (R22) — lo que pinta el tablero lo decide la FORMA del D
       const seccion = screen.getByRole("region", { name: ETIQUETAS[id] });
       expect(seccion.textContent ?? "").not.toMatch(/neto/i);
     }
-    for (const id of ["egresos", "dinero_en_caja", "ganancia_ordenex"] as const) {
+    for (const id of ["egresos", "dinero_en_caja", "ganancia_empresa"] as const) {
       const seccion = screen.getByRole("region", { name: ETIQUETAS[id] });
       expect(seccion.textContent ?? "").toMatch(/neto/i);
     }

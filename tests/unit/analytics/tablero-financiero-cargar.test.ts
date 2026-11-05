@@ -17,7 +17,7 @@ import { importeConNeto } from "@/tests/fixtures/importe-analitico";
 // respuesta que NO trajo dato acaba pintandose como un cero.
 //
 // Eran OCHO hasta la feature 173 ⟨P4⟩ (`progress/decision_F2_173.md`), que anadio
-// `dinero_en_caja` y `ganancia_ordenex` a `IDS_FINANCIERAS_SERVIDAS`. Los enteros
+// `dinero_en_caja` y `ganancia_empresa` a `IDS_FINANCIERAS_SERVIDAS`. Los enteros
 // de este archivo se actualizaron a mano DESPUES de medirlos: siguen siendo anclas
 // escritas, no conteos derivados de la constante — un conteo derivado pasaria en
 // verde el dia que alguien anada una metrica sin querer.
@@ -235,7 +235,7 @@ describe("FICHA 459 (m3) → 458-A R62 · la cifra de la caja del panel mensual 
     // entero de la caja ya NO se pide en cada carga (antes: `toHaveBeenCalledWith({})`).
     expect(resumenCaja).not.toHaveBeenCalled();
     // Las demas metricas conservan la etiqueta de su catalogo.
-    expect(etiquetaDe(paneles, "ganancia_ordenex")).toBe("Etiqueta de ganancia_ordenex");
+    expect(etiquetaDe(paneles, "ganancia_empresa")).toBe("Etiqueta de ganancia_empresa");
   });
 
   it("con saldo inicial vigente: tampoco «Dinero en caja» (es un periodo)", async () => {

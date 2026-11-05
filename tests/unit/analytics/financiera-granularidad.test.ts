@@ -162,7 +162,7 @@ const GRANULARIDAD_ESPERADA_RANGO_CORTO: Readonly<Record<string, GranularidadVis
   ingreso_iva: "dia",
   egresos: "dia",
   dinero_en_caja: "dia",
-  ganancia_ordenex: "dia",
+  ganancia_empresa: "dia",
   // La septima del conjunto con desglose.
   cuenta_por_pagar_mensajero: "dia",
   // Las tres que NO se miden en el tiempo (Q1 = (a) las deja fuera del conjunto).
@@ -182,7 +182,7 @@ const GRANULARIDAD_ESPERADA_RANGO_LARGO: Readonly<Record<string, GranularidadVis
   ingreso_iva: "semana",
   egresos: "semana",
   dinero_en_caja: "semana",
-  ganancia_ordenex: "semana",
+  ganancia_empresa: "semana",
   cuenta_por_pagar_mensajero: "semana",
   [VISTA_COD_RECAUDADO_POR_METODO]: "no_temporal",
   [VISTA_COD_RECAUDADO_POR_TIENDA]: "no_temporal",

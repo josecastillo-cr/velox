@@ -92,7 +92,7 @@ describe("R32 / R35 / R36 / R37 · que trae cada fila del detalle", () => {
       resultados: ["entregado"],
       estado: "liquidada",
       recaudado: "10000.00",
-      ordenex: "3955.00",
+      empresa: "3955.00",
       tienda: "6045.00",
       retorno: "0.00",
     });
@@ -100,7 +100,7 @@ describe("R32 / R35 / R36 / R37 · que trae cada fila del detalle", () => {
     expect(porGuia.get("2")).toMatchObject({
       estado: "pendiente",
       recaudado: "1500.00",
-      ordenex: null,
+      empresa: null,
       tienda: null,
       retorno: null,
     });
@@ -147,7 +147,7 @@ describe("R32 / R35 / R36 / R37 · que trae cada fila del detalle", () => {
       return acc.toFixed(2);
     };
     expect(suma((o) => o.recaudado)).toBe(r.datos.totales.recaudado);
-    expect(suma((o) => o.ordenex)).toBe(r.datos.totales.liquidado.ordenex);
+    expect(suma((o) => o.empresa)).toBe(r.datos.totales.liquidado.empresa);
     expect(suma((o) => o.tienda)).toBe(r.datos.totales.liquidado.tienda);
   });
 

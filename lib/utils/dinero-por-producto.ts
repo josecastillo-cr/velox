@@ -27,11 +27,11 @@
 //
 // ─── LAS DOS INVARIANTES, Y LAS DOS POR CONSTRUCCION ──────────────────────────────────────
 //
-//   ordenex + tienda === liquidadoRecaudado                   (R20)
+//   empresa + tienda === liquidadoRecaudado                   (R20)
 //   liquidadoRecaudado + pendienteRecaudado === recaudado      (R21)
 //
 // La primera es cierta porque `tienda` SE CALCULA COMO ESA RESTA
-// (`pagoTiendaEmpresa(liquidadoRecaudado, fleteConIva, comisionConIva)`) y `ordenex` es
+// (`pagoTiendaEmpresa(liquidadoRecaudado, fleteConIva, comisionConIva)`) y `empresa` es
 // exactamente `fleteConIva + comisionConIva`. No es una coincidencia aritmetica que haya que
 // vigilar: es la definicion. La segunda es cierta porque las gestiones de entrega se
 // PARTICIONAN en dos —liquidadas y no liquidadas— y cada una cae en una y solo una.
@@ -169,7 +169,7 @@ export interface RepartoDeOrden {
   /** El resto de `recaudado`. `liquidadoRecaudado + pendienteRecaudado === recaudado` (R21). */
   readonly pendienteRecaudado: string;
   /** Flete + IVA + comision COD + IVA. `null` = no hay ni una gestion liquidada (R30). */
-  readonly ordenex: string | null;
+  readonly empresa: string | null;
   /** Lo recaudado liquidado menos lo que Ordenex le factura. `null` por el mismo motivo. */
   readonly tienda: string | null;
   /** Flete de devolucion + su IVA de las RECHAZADAS liquidadas. FUERA del reparto (R19). */
@@ -194,7 +194,7 @@ function sumar(acc: Prisma.Decimal, aporte: Prisma.Decimal | undefined): Prisma.
  * ⚠ LAS GESTIONES ANULADAS NO LLEGAN AQUI, y se dice donde se decide: la consulta las deja
  * fuera con `anulada_at IS NULL` (⟨Q3⟩, decision del humano, ver `DineroProductosRepository`).
  *
- * ⚠ EL RETORNO NO ENTRA EN `ordenex` (R19). Si entrara, `ordenex + tienda` daria
+ * ⚠ EL RETORNO NO ENTRA EN `empresa` (R19). Si entrara, `empresa + tienda` daria
  * `liquidadoRecaudado + retorno` y R20 dejaria de ser cierta. Y no es un detalle contable:
  * seria afirmar que de la plata que el mensajero trajo salio un cobro que NADIE RECAUDO. El
  * retorno es una cuenta por cobrar a la tienda, no una division de lo recogido — el
@@ -262,7 +262,7 @@ export function repartoDeOrden(gestiones: readonly GestionDeDinero[]): RepartoDe
     pendienteRecaudado: recaudado.minus(liquidadoRecaudado).toFixed(2),
     // `null` y no `"0.00"` cuando no hay nada liquidado (R30): «no hubo» y «salio cero» son
     // hechos distintos, y la pantalla los pinta distinto.
-    ordenex: hayLiquidado ? fleteConIva.plus(comisionConIva).toFixed(2) : null,
+    empresa: hayLiquidado ? fleteConIva.plus(comisionConIva).toFixed(2) : null,
     tienda: hayLiquidado
       ? // R20 POR CONSTRUCCION: `tienda` es la RESTA, no un segundo conteo. Es la misma
         // funcion que produce el pago a la tienda en el cierre.
@@ -280,5 +280,5 @@ export function repartoDeOrden(gestiones: readonly GestionDeDinero[]): RepartoDe
 /** `true` si esta orden no aporta NADA en ninguna de las cuatro cifras de dinero (R39). */
 export function aporteEsCero(r: RepartoDeOrden): boolean {
   const cero = (v: string | null): boolean => v === null || new Prisma.Decimal(v).isZero();
-  return cero(r.recaudado) && cero(r.ordenex) && cero(r.tienda) && cero(r.retorno);
+  return cero(r.recaudado) && cero(r.empresa) && cero(r.tienda) && cero(r.retorno);
 }

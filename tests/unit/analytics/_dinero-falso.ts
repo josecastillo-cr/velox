@@ -12,7 +12,7 @@
 //   iva flete        = 13 % de 3.000  =   390,00
 //   comision COD     =  5 % de 10.000 =   500,00
 //   iva comision     = 13 % de 500    =    65,00
-//   ordenex          = 3.955,00
+//   empresa          = 3.955,00
 //   tienda           = 10.000 - 3.390 - 565 = 6.045,00
 //
 // y un rechazo deriva `retorno = 2.000 + 13 % = 2.260,00`.

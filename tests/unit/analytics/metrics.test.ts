@@ -10,11 +10,13 @@ import {
 import { DIMENSIONES, MENSAJERO_SIN_ASIGNAR, ROLES_ANALITICA } from "@/lib/analytics/types";
 import type { DimensionAnalitica, EstadoProduccion, Metrica } from "@/lib/analytics/types";
 import { esAccesoTotal } from "@/lib/auth/acceso-total";
+import { IDS_FINANCIERAS_SERVIDAS } from "@/lib/types/analitica-financiera";
+import { METRICA_RETIRADA_494 } from "@/tests/fixtures/marca-retirada-nombre-493";
 
 // Feature 135 / T3.2 + T3.5 — invariantes ESTRUCTURALES del catalogo de KPIs.
 // Cada grupo lleva el `R<n>` que verifica. El catalogo es contrato (D1 «todas»,
 // 2026-07-30): 15 ids operativos + 8 financieros = 23 metricas. La feature 173 anadio
-// DOS financieras (`dinero_en_caja` y `ganancia_ordenex`) con autorizacion humana propia y
+// DOS financieras (`dinero_en_caja` y `ganancia_empresa`) con autorizacion humana propia y
 // fechada: `progress/decision_F2_173.md` (P4), 2026-08-03. Total vigente: 15 + 10 = 25.
 //
 // Estos tests NO comprueban ningun calculo (la 135 declara, no computa): comprueban
@@ -463,5 +465,18 @@ describe("R36 · la unidad de conteo es evidente en la propia metrica", () => {
   it("sonSumables devuelve false entre una metrica de dinero y una de gestiones", () => {
     expect(sonSumables("ingreso_flete", "entregas")).toBe(false);
     expect(sonSumables("tiempo_ciclo", "ordenes_creadas")).toBe(false);
+  });
+});
+
+describe("494/R5 — la métrica de ganancia, sin la marca retirada", () => {
+  it("el catálogo la sirve con el id nuevo y no contiene el viejo", () => {
+    expect(getMetrica("ganancia_empresa")?.dominio).toBe("financiera");
+    expect(getMetrica(METRICA_RETIRADA_494)).toBeUndefined();
+    expect(METRICAS.map((m) => m.id)).not.toContain(METRICA_RETIRADA_494);
+  });
+
+  it("el servicio la despacha con el id nuevo", () => {
+    expect(IDS_FINANCIERAS_SERVIDAS).toContain("ganancia_empresa");
+    expect(IDS_FINANCIERAS_SERVIDAS).not.toContain(METRICA_RETIRADA_494);
   });
 });

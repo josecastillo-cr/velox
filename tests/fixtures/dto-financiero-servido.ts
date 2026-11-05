@@ -119,7 +119,7 @@ export const UNIDAD_SERVIDA: Readonly<Record<MetricaFinancieraId, MetricaUnidad>
   ingreso_iva: "moneda",
   egresos: "moneda",
   dinero_en_caja: "moneda",
-  ganancia_ordenex: "moneda",
+  ganancia_empresa: "moneda",
   cod_recaudado: "moneda",
   cuenta_por_pagar_tienda: "moneda",
   cuenta_por_pagar_mensajero: "moneda",
@@ -146,7 +146,7 @@ export const FUENTE_TEMPORAL: Readonly<Record<MetricaTemporalServida, TablaDiner
   ingreso_iva: "wallet_movimiento",
   egresos: "wallet_movimiento",
   dinero_en_caja: "wallet_movimiento",
-  ganancia_ordenex: "wallet_movimiento",
+  ganancia_empresa: "wallet_movimiento",
   cuenta_por_pagar_mensajero: "pago_mensajero_movimiento",
 };
 
