@@ -10,7 +10,7 @@ import { quitarComentarios } from "../../fixtures/sin-comentarios";
 //
 // Que este archivo NO demuestra, dicho aqui para que nadie lo confunda: que la migracion
 // se aplique y se revierta de verdad. Eso es el round-trip real de R43 (T8), medido contra
-// `localhost:5432/ordenex` y escrito en `progress/roundtrip_123_analytics_daily.md`. Este
+// `localhost:5432` y escrito en `progress/roundtrip_123_analytics_daily.md`. Este
 // archivo verifica la FORMA del DDL; el round-trip verifica su EFECTO.
 //
 // Cubre R1, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15, R16, R20, R21, R22, R23,

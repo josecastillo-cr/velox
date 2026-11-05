@@ -422,7 +422,7 @@ describeSiHayBase("381/G.1 — cobrarle un costo a una tienda (Postgres real)", 
       const inactiva = await sembrarCuenta(tx, "inactiva", ROL_ADMIN_TIENDA, "inactivo");
       const servicio = servicioReal(tx);
       // Por DIFERENCIA: la base local es compartida y puede traer cobros ya commiteados (el
-      // recorrido de la 459 dejo dos en `ordenex_459`). Lo que se afirma es que ESTE caso no
+      // recorrido de la 459 dejo dos en su clon local). Lo que se afirma es que ESTE caso no
       // escribe ninguno.
       const cobrosAntes = await tx.walletTiendaMovimiento.count({ where: { categoria: "cobro_manual" } });
 

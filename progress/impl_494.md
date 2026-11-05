@@ -1006,3 +1006,186 @@ $ ... --familia caja --comprobar                                         0
 Supervivientes: 0 de 6.
 
 **Trinquete:** sin cambios, 1.133 en 418.
+
+## Tandas 5 y 6 (T6.0, T7.1–T7.6), configuración, scripts, docs y esquema, 2026-11-05
+
+MCP `codebase-memory` sin conexión (*connection timed out*): medido con `git grep` y leyendo los archivos. Rama `feat/494-t6-config`, desde `feat/494-t4-analitica` (`a6a54c4c`), porque #891 espera merge.
+
+### T6.0 — Sin migración
+
+En T0.2, `filas_con_valor` = 0. R10 no aplica; T6.1 a T6.3 no aplican. R12 no se toca: esta ficha no añade migración.
+
+### T7.1 — Scripts
+
+- **E4 activa**, con rutas reales: `scripts/drenar-jobs.ts`, `scripts/rollup-analitica-manual.ts`, `scripts/contraste-454.ts` y `tests/unit/services/analitica-rollup-handler.test.ts`, el test que afirma qué URL acepta la guarda. El patrón de línea pasa a `:\d+/ordenex`, porque ese test también usa `127.0.0.1:5432` y `localhost:6543`.
+- **Desvío de `design.md §7`, corregido allí:** `tests/unit/scripts/*` no entra en E4. Allí `ordenex_prod` era una base inventada, y pasa a `base_prod`. El script ya no excluye esa carpeta de `comentarios`, y sí el test de arriba.
+- `esDestinoLocalOrdenex` pasa a `esDestinoLocal`. Los scripts que escriben siguen apuntando y abortando igual: la comprobación del nombre de la base no cambia.
+- **Fuera de la lista de la tarea, y limpiado porque T8.1 no lo alcanza:** el script de comentarios no toca `/ordenex` en minúscula. Son 5 comentarios con `localhost:5432/ordenex` en `tests/integration/db` y 1 con `ordenex_459`. Solo comentarios.
+- `.claude/commands/test_jobs.md`: la guarda se describe sin el nombre de la base.
+- **`seed-maestro.ts`:** ejemplo `admin@ejemplo.test` en el comentario y en el mensaje de error, y nombre por defecto `Maestro`. **No cambia ningún correo de prod:** el correo llega siempre por `MAESTRO_EMAIL` y el script no tiene valor por defecto. El nombre solo se usa al crear: `update` no lo toca.
+
+### T7.2 — Siembra QA
+
+`seed-usuarios-qa.ts`: `main` pasa a `seedUsuariosQa(prisma, passwordHash)`, y solo se ejecuta como entrypoint, igual que `seed-maestro`. Antes del upsert, si existe el correo viejo y no el nuevo, hace `UPDATE` de `email` por `id`, en esa cuenta. Si existen los dos, no toca ninguno y avisa. Solo actúa sobre los 4 correos literales (R30).
+
+**El test corre en una transacción revertida.** La base local es compartida, y sembrar de verdad cambiaría la contraseña de las cuentas con las que entran otras sesiones.
+
+**Corrida en local.** `prisma migrate status` antes: `database "ordenex" ... at "localhost:5432"`. La medición aborta si el host no es local y no imprime credenciales.
+
+| Cuenta (`id`) | Antes | Corrida 1 (exit 0) | Corrida 2 (exit 0) | Contraseña de `QA_PASSWORD` |
+| --- | --- | --- | --- | --- |
+| `006fa4e9` | `admin.qa@` dominio viejo | `admin.qa@empresa.test` | igual | vale |
+| `9cbcccb6` | `mensajero.qa@` dominio viejo | `mensajero.qa@empresa.test` | igual | vale |
+| `773e9313` | `tienda.qa@` dominio viejo | `tienda.qa@empresa.test` | igual | vale |
+| `dd72b8e8` | `satelite.qa@` dominio viejo | `satelite.qa@empresa.test` | igual | vale |
+
+`usuario` total: 443 antes y después de las dos corridas. La segunda corrida no pasa ninguna cuenta: solo «listo».
+
+**Logins de QA del `.env` local: no se rompen por el `.env`.** Solo tiene `QA_PASSWORD`, sin correo, y sigue valiendo. **Lo que sí cambia es el correo con el que se entra en la base local compartida**, para todas las sesiones, desde ya: `<rol>.qa@empresa.test`. Hay que actualizar la receta de acceso de la memoria (T10.2), porque una sesión que siga usando el correo viejo verá «credenciales inválidas». Ningún test ni `e2e/` usa esos correos.
+
+**Dos cosas que hay que saber:**
+
+- Un checkout con el script anterior, por ejemplo `dev` antes del merge, ya no puede sembrar contra la base local: su upsert no ve la cuenta y choca con la cédula. Basta con correr la versión de esta rama.
+- `mensajero1.qa@` y `maestro.qa@`, con el dominio viejo, también existen en la base local. Este script no las siembra, así que no las toca (R30). Solo están en local.
+
+**Preview: pendiente, para el leader.** Con `DATABASE_URL` de preview, confirmar el host con `prisma migrate status` y correr `pnpm exec tsx scripts/seed-usuarios-qa.ts` dos veces. **Rota la contraseña de esas cuentas a `QA_PASSWORD`:** hay que usar el valor con el que ya se entra en preview. **Prod: no** (Q5 no mostró ninguna cuenta de QA allí).
+
+### T7.3 — Postman
+
+`git mv` a `docs/api/api-key.postman_collection.json`, con `info.name` = `Velox Courier — API key`. Actualizados `openapi-320-eliminar`, `openapi-266-habilitar` y los comentarios de `openapi-canal-rutas-reales`. Una entrada en `CHANGELOG.md`, sin ruptura. La entrada antigua que cita el nombre viejo se queda: es histórica. `POSTMAN` de `tests/fixtures/marca-retirada-493.ts` queda con el nombre viejo y un comentario ya falso; lo retira T8.2, como dice su tarea.
+
+### T7.4 — Docs y entorno
+
+**`.env.example`: solo cambia un comentario, y ningún nombre de variable.** El comentario daba un valor por defecto de `VAPID_SUBJECT` que ya no era cierto; ahora remite a `DEFAULT_SUBJECT` de `lib/config/push.ts`, para no volver a desfasarse.
+
+Cruce de nombres, con script: los 36 nombres de `.env.example` tienen quien los lea en el código, y ninguno lleva la marca. Al revés, 18 de los 27 `process.env.X` que se leen en `app`, `lib` y compañía no están en el archivo (`DATABASE_URL`, `CRON_SECRET`, `SUPABASE_URL`…). Es anterior a esta ficha, y no se añaden: no es de esta tarea.
+
+`DESIGN.md`: el título. `docs/release.md`: filas B2 (`velox`) y B4 (`velox-courier.company`), y el apartado «494» en «Pendiente para la PRÓXIMA release», con la medición de `design.md §3.2`.
+
+**El título de `CLAUDE.md` no se toca:** lo aplica el leader.
+
+**Sin tocar, y con el mismo defecto que B2:** la fila A5 de `docs/release.md` cita el proyecto de Vercel viejo para revisar variables de entorno. El spec solo pide B2 y B4 (R32) y dice que el resto es registro fechado, pero A5 sigue en la lista de la próxima release. Lo decide el leader.
+
+### Lo que no se cambia porque apunta fuera del repo
+
+Nada de esta tanda lo necesitó: ningún script de `scripts/` tiene host de la app vieja, webhook ni plantilla con la marca (medido con `git grep`). Se quedan:
+
+- **Nombre de la base local `ordenex`** (E4): es el entorno de cada máquina y la guarda de esos scripts.
+- **`esDestinoLocal` y compañía** siguen exigiendo ese nombre.
+- **Variables de Vercel:** ninguna renombrada.
+
+### T7.5 — Esquema, solo comentarios
+
+46 líneas, con un script que aborta si la marca está en código y comprueba que, sin comentarios, los dos lados son idénticos. La ruta `ingreso-ordenex.ts` de un comentario pasa a la real. El detalle de mayúsculas de dos continuaciones se corrigió aparte.
+
+```
+$ prisma migrate diff --from-schema <esquema anterior> --to-schema db/schema.prisma --script --exit-code
+-- This is an empty migration.
+DIFF_EXIT=0
+$ prisma migrate diff --from-config-datasource --to-schema db/schema.prisma --exit-code      (base local)
+No difference detected.
+DIFF_BASE_EXIT=0
+$ prisma validate    The schema at db\schema.prisma is valid
+```
+
+`prisma generate`, con salida propia y sin tocar el `node_modules` compartido, antes y después: 6 `.d.ts` y 11,2 MB; **sin comentarios difieren 0**, con comentarios difiere 1 (los `///` salen como JSDoc). El cliente del `node_modules` no se regeneró: no hace falta.
+
+### T7.6 — Paquete
+
+`"name": "velox"`, en commit propio. Nada lee ese nombre: `verificar-dependencias.mjs` y las guardias leen dependencias y `scripts`. **`pnpm-lock.yaml` no cambia:** `pnpm install --lockfile-only` lo deja idéntico byte a byte.
+
+**El aviso de que `--rapido` pide el completo lo gestiona el leader.** No lo corrí.
+
+### Mutaciones, ejecutadas de verdad y restauradas
+
+Script en el scratchpad. Comprueba que el patrón aparece una vez y que el archivo cambió, aborta con 0 tests, y restaura los bytes comparándolos. La primera corrida abortó sin mutar nada por un patrón ambiguo, y se corrigió.
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 63 | 0 | |
+| R13 Quita un @default(now()) de updated_at que el SQL si creo (drift) | 16 | 1 | cada una de esas tablas declara @default(now()) en su updatedAt · migrate diff exit 2 ALTER TABLE "vista_filtro" ALTER COLUMN "updated_at" DROP DE |
+| R13 Cambia un @map de columna (migrate diff) | 16 | 0 |  · migrate diff exit 2 ALTER TABLE "wallet_comprobante" DROP CONSTRAINT "wallet_com |
+| R29 No pasa al correo nuevo | 5 | 3 | R29 — dos corridas: misma id, misma cedula, ninguna con el correo viejo y ninguna cuenta d |
+| R29 Cambia otro campo en vez del correo | 5 | 3 | R29 — dos corridas: misma id, misma cedula, ninguna con el correo viejo y ninguna cuenta d |
+| R29 Correo anterior equivocado en una cuenta | 5 | 3 | R29 — dos corridas: misma id, misma cedula, ninguna con el correo viejo y ninguna cuenta d |
+| R29 Correo nuevo equivocado en una cuenta | 5 | 5 | R29 — dos corridas: misma id, misma cedula, ninguna con el correo viejo y ninguna cuenta d |
+| R29 Con las dos, pisa la vieja | 5 | 1 | R29 — si existen las dos, la vieja se queda como esta y no se crea otra |
+| R29 Crea otra en vez de renombrar | 5 | 2 | R29 — dos corridas: misma id, misma cedula, ninguna con el correo viejo y ninguna cuenta d |
+| R30 Toca otra cuenta del mismo dominio | 5 | 1 | R30 — ninguna otra cuenta cambia de correo |
+| R31 package.json vuelve al nombre viejo | 42 | 2 | nada fuera de lo pendiente ni por encima de su numero |
+| R31 package.json con otro nombre, sin la marca | 42 | 1 | R31: package.json se llama velox, contra el archivo y contra el detector |
+| R31 La coleccion con otro titulo, sin la marca | 42 | 1 | R31: la coleccion se titula sin la marca retirada |
+| R32 B2 con el proyecto viejo | 42 | 1 | R32: B2 y B4 de docs/release.md nombran el proyecto y el dominio vigentes |
+| R32 B4 con el dominio viejo | 42 | 1 | R32: B2 y B4 de docs/release.md nombran el proyecto y el dominio vigentes |
+| T7.4 El paso de release sin Skew Protection | 42 | 1 | T7.4: docs/release.md trae el paso del cruce entre versiones de design §3.2 |
+| R3 E4 con una ruta que no tiene base local | 42 | 1 | todas declaran motivo y coinciden con algo real |
+| R3 E6 con una linea que no coincide | 42 | 2 | todas declaran motivo y coinciden con algo real |
+| R1 Un correo fuera de los cuatro en el script de siembra | 42 | 1 | nada fuera de lo pendiente ni por encima de su numero |
+| R1 La marca en .env.example | 42 | 1 | nada fuera de lo pendiente ni por encima de su numero |
+| Base restaurada | 63 | 0 | |
+| R31 La coleccion vuelve a su nombre viejo (a mano) | 42 + 1 archivo | 4 + 1 archivo | `R31: la coleccion publicada existe con su nombre nuevo`, y `openapi-266` no carga |
+
+Supervivientes: 0 de 19, más la de la colección.
+
+**Lo que esta batería enseña de R13:** `schema-drift-saneamiento` solo vigila sus reconciliaciones. Cambiar un `@map` cualquiera lo deja verde, con 0 rojos; lo caza `prisma migrate diff`, con exit 2. **Por eso R13 de esta tanda se sostiene en el diff anotado arriba, no en la suite.** Un test no puede hacerlo: cualquier ficha futura cambia el esquema a propósito.
+
+### Trinquete
+
+```
+$ pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes
+antes  1.133 en 418 archivos
+ahora  1.026 en 393 archivos
+```
+
+### Ediciones a mano
+
+Esta tanda no ejecuta el script de renombrado. Todo es a mano o con scripts de un solo uso en el scratchpad, con número de coincidencias exigido.
+
+### Verificación
+
+```
+$ pnpm exec tsc --noEmit --incremental false                 TSC_EXIT=0
+$ pnpm lint                                                  LINT_EXIT=0, 235 problems (0 errors, 235 warnings), el mismo número que en la tanda 4
+$ pnpm exec vitest related --run <22 archivos de scripts/ y tests/>     RELATED_EXIT=0
+   Test Files  15 passed (15)
+        Tests  314 passed | 1 todo (315)
+$ pnpm exec vitest run tests/integration/db/seed-usuarios-qa-494.test.ts tests/integration/db/schema-drift-saneamiento.test.ts <guardia>     63 tests, 0 rojos
+$ pnpm exec vitest run guard, con todo ya commiteado, y otra vez tras el commit final   GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3945 passed | 1 todo (3946)
+```
+
+**`test-citado-desaparecido`:** esta tanda no renombra ni borra ningún archivo de test.
+
+### Mapa `R<n>` → test, tandas 5 y 6
+
+| R | Test |
+| --- | --- |
+| R10, R12 | No aplican (T6.0) |
+| R13 | `prisma migrate diff` anotado arriba + `tests/integration/db/schema-drift-saneamiento.test.ts` |
+| R29 | `tests/integration/db/seed-usuarios-qa-494.test.ts`, contra Postgres |
+| R30 | el mismo test, `R30 — ninguna otra cuenta cambia de correo` |
+| R31 | `tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts`, bloque «proyecto», + `tests/unit/api/openapi-320-eliminar.test.ts` y `openapi-266-habilitar.test.ts` |
+| R32 | la misma guardia, bloque «proyecto»: `R32` y el paso de T7.4, contra el `docs/release.md` real |
+| R3 | la misma guardia: E4 y E6 ya activas |
+
+**Veredicto:** Tandas 5 y 6 listas, sin migración y sin cambio de esquema, con la marca fuera de configuración, scripts y docs vivos, y a falta de la siembra en preview y del título de `CLAUDE.md`, que son del leader.
+
+### Rojo del gate completo: `changelog-api-493`
+
+Único rojo del gate completo que corrió el leader. La entrada del 2026-11-05 de T7.3 es correcta y va arriba, pero `tests/unit/docs/changelog-api-493.test.ts` exigía que la ruptura de la 493 fuera la primera de todas, y eso se rompe con cualquier entrada posterior. La entrada no se mueve.
+
+El `it` pasa a afirmar el contrato real: el primer encabezado con `RUPTURA` casa con `/^## 2026-11-\d\d — ⚠️ RUPTURA — /`. Otro nuevo afirma que los encabezados `## YYYY-MM-DD` van por fecha descendente. Las 25 entradas actuales ya lo cumplen: no hizo falta tocar el histórico.
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 8 | 0 | |
+| Quitar `RUPTURA` del encabezado de la 493 | 8 | 5 | `es la RUPTURA más reciente del canal, fechada`; las otras 4 dependen de localizar esa entrada |
+| Entrada del 2026-11-05 debajo de la de la 493 | 8 | 1 | `las entradas van por fecha descendente` |
+| Base restaurada | 8 | 0 | |
+
+```
+$ pnpm exec vitest run guard, después del commit del test    GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3945 passed | 1 todo (3946)
+```

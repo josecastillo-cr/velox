@@ -62,19 +62,19 @@
 
 ## Tanda 5 — Filas (condicional)
 
-- [ ] **T6.0 — Decisión.** Depende de T0.2. Con `filas_con_valor` = 0 en columnas leídas, se anota «sin migración» y se saltan T6.1–T6.3. **Hecho:** anotado; R10 no aplica.
-- [ ] **T6.1 — Migración.** Solo si T6.0 la pide. `migration.sql` + `down.sql`, con respaldo, y timestamp posterior al último de `dev`. **Hecho:** aplicada y revertida en un clon.
-- [ ] **T6.2 — Declarada.** Solo si T6.1. Entrada en `posteriores` de `tests/integration/db/orden-traspaso-migration.test.ts`. **Hecho:** R12 verde.
-- [ ] **T6.3 — Prueba.** Solo si T6.1. `tests/integration/db/marca-494-backfill.test.ts` contra Postgres, con su mutación; volver a medir el `SELECT` en prod antes de desplegar. **Hecho:** R10 verde; número anotado.
+- [x] **T6.0 — Decisión.** Medido en T0.2: `filas_con_valor` = 0. Sin migración; R10 no aplica. Depende de T0.2. Con `filas_con_valor` = 0 en columnas leídas, se anota «sin migración» y se saltan T6.1–T6.3. **Hecho:** anotado; R10 no aplica.
+- [x] **T6.1 — Migración.** No aplica (T6.0). Solo si T6.0 la pide. `migration.sql` + `down.sql`, con respaldo, y timestamp posterior al último de `dev`. **Hecho:** aplicada y revertida en un clon.
+- [x] **T6.2 — Declarada.** No aplica (T6.0). Solo si T6.1. Entrada en `posteriores` de `tests/integration/db/orden-traspaso-migration.test.ts`. **Hecho:** R12 verde.
+- [x] **T6.3 — Prueba.** No aplica (T6.0). Solo si T6.1. `tests/integration/db/marca-494-backfill.test.ts` contra Postgres, con su mutación; volver a medir el `SELECT` en prod antes de desplegar. **Hecho:** R10 verde; número anotado.
 
 ## Tanda 6 — Configuración, scripts, docs, esquema
 
-- [ ] **T7.1 — Scripts.** [P] Tratar `scripts/`: E4 se queda (lista exacta de archivos, también sus tests); `seed-maestro.ts` con ejemplo y nombre por defecto nuevos; `generate-pwa-icons.mjs`, `backfill-analitica.ts` limpios. **Hecho:** E4 con rutas reales, y bloque de excepciones verde.
-- [ ] **T7.2 — Siembra QA.** [P] `scripts/seed-usuarios-qa.ts` pasa la cuenta al correo nuevo (P3). **Hecho:** R29 verde con dos corridas; ejecutada en local; preview, anotado para el leader. Prod: no.
-- [ ] **T7.3 — Postman.** [P] Renombrar colección y `name`; `openapi-320` y `openapi-266`; línea en `CHANGELOG.md`, sin ruptura. **Hecho:** R31 verde.
-- [ ] **T7.4 — Docs y entorno.** [P] `.env.example`, `DESIGN.md`, `.claude/commands/test_jobs.md`, y las filas B2 y B4 de `docs/release.md`. Además, en `docs/release.md`, el paso de `design.md §3.2` para esta release: medir Skew Protection y si `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` está fijada en producción (comparar ids entre previews no predice la release: la sal caduca a los 14 días y va ligada a la caché de build); si no hay ninguna de las dos, desplegar fuera de la operación y avisar de que recarguen. **Hecho:** R32 verde y ese paso escrito. El título de `CLAUDE.md`, lo aplica el leader.
-- [ ] **T7.5 — Comentarios del esquema.** [P] `db/schema.prisma`, solo comentarios. **Hecho:** `prisma migrate diff` sin diferencias, salida anotada; `prisma generate` sin cambio de tipos; R13 verde.
-- [ ] **T7.6 — Paquete.** `package.json`, commit propio y al final de la tanda. **Hecho:** R31 verde. Si `--rapido` pide el completo, parar: lo decide el leader, ningún subagente lo corre.
+- [x] **T7.1 — Scripts.** [P] Tratar `scripts/`: E4 se queda (lista exacta de archivos, también sus tests); `seed-maestro.ts` con ejemplo y nombre por defecto nuevos; `generate-pwa-icons.mjs`, `backfill-analitica.ts` limpios. **Hecho:** E4 con rutas reales, y bloque de excepciones verde.
+- [x] **T7.2 — Siembra QA.** [P] `scripts/seed-usuarios-qa.ts` pasa la cuenta al correo nuevo (P3). **Hecho:** R29 verde con dos corridas; ejecutada en local; preview, anotado para el leader. Prod: no.
+- [x] **T7.3 — Postman.** [P] Renombrar colección y `name`; `openapi-320` y `openapi-266`; línea en `CHANGELOG.md`, sin ruptura. **Hecho:** R31 verde.
+- [x] **T7.4 — Docs y entorno.** [P] `.env.example`, `DESIGN.md`, `.claude/commands/test_jobs.md`, y las filas B2 y B4 de `docs/release.md`. Además, en `docs/release.md`, el paso de `design.md §3.2` para esta release: medir Skew Protection y si `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` está fijada en producción (comparar ids entre previews no predice la release: la sal caduca a los 14 días y va ligada a la caché de build); si no hay ninguna de las dos, desplegar fuera de la operación y avisar de que recarguen. **Hecho:** R32 verde y ese paso escrito. El título de `CLAUDE.md`, lo aplica el leader.
+- [x] **T7.5 — Comentarios del esquema.** [P] `db/schema.prisma`, solo comentarios. **Hecho:** `prisma migrate diff` sin diferencias, salida anotada; `prisma generate` sin cambio de tipos; R13 verde.
+- [x] **T7.6 — Paquete.** `package.json`, commit propio y al final de la tanda. **Hecho:** R31 verde. Si `--rapido` pide el completo, parar: lo decide el leader, ningún subagente lo corre.
 
 ## Tanda 7 — Comentarios, datos de prueba y cierre de guardia
 

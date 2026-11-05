@@ -21,7 +21,7 @@ import { DEDUPE_PREFIX_INVALIDACION } from "@/lib/services/jobs/analitica-invali
 // (`revalidate.js:104-107`) y esto es un proceso `tsx`. Por eso ENCOLA.
 
 const AHORA = new Date("2026-08-02T15:00:00.000Z");
-const URL = "postgresql://u:p@db.ejemplo.interno:6543/ordenex_prod";
+const URL = "postgresql://u:p@db.ejemplo.interno:6543/base_prod";
 
 interface Encolado {
   tipo: JobTipo;

@@ -10,7 +10,7 @@ import {
   dedupeKeyRollup,
 } from "@/lib/services/jobs/analitica-rollup-diario-encolado";
 import { seedJobAnaliticaRollupDiario } from "@/scripts/seed-jobs-analitica-rollup-diario";
-import { esDestinoLocalOrdenex } from "@/scripts/rollup-analitica-manual";
+import { esDestinoLocal } from "@/scripts/rollup-analitica-manual";
 import { validarFechaInvocacionManual } from "@/lib/analytics/rollup-dia";
 import type {
   IAnaliticaRollupService,
@@ -300,16 +300,16 @@ describe("R39 — la invocacion manual admite SOLO hoy o ayer", () => {
 
 describe("R39 — guarda de host de la invocacion manual (patron de la 123)", () => {
   it("acepta solo `localhost:5432/ordenex`", () => {
-    expect(esDestinoLocalOrdenex("postgresql://u:p@localhost:5432/ordenex?schema=public")).toBe(
+    expect(esDestinoLocal("postgresql://u:p@localhost:5432/ordenex?schema=public")).toBe(
       true,
     );
-    expect(esDestinoLocalOrdenex("postgresql://u:p@127.0.0.1:5432/ordenex")).toBe(true);
+    expect(esDestinoLocal("postgresql://u:p@127.0.0.1:5432/ordenex")).toBe(true);
   });
 
   it("aborta ante cualquier otro destino: puerto, base u host distintos", () => {
-    expect(esDestinoLocalOrdenex("postgresql://u:p@db.supabase.co:5432/postgres")).toBe(false);
-    expect(esDestinoLocalOrdenex("postgresql://u:p@localhost:6543/ordenex")).toBe(false);
-    expect(esDestinoLocalOrdenex("postgresql://u:p@localhost:5432/otra_base")).toBe(false);
-    expect(esDestinoLocalOrdenex("no-es-una-url")).toBe(false);
+    expect(esDestinoLocal("postgresql://u:p@db.supabase.co:5432/postgres")).toBe(false);
+    expect(esDestinoLocal("postgresql://u:p@localhost:6543/ordenex")).toBe(false);
+    expect(esDestinoLocal("postgresql://u:p@localhost:5432/otra_base")).toBe(false);
+    expect(esDestinoLocal("no-es-una-url")).toBe(false);
   });
 });

@@ -166,7 +166,7 @@ type Reporte = z.infer<typeof esquemaReporte>;
 
 /**
  * R27/R29 — `host:puerto/base` de `DATABASE_URL`, **sin usuario y sin contrasena**. Se
- * reconstruye con `new URL(...)` (patron de `esDestinoLocalOrdenex`, feature 124) en vez de
+ * reconstruye con `new URL(...)` (patron de `esDestinoLocal`, feature 124) en vez de
  * recortar la cadena a mano: cualquier recorte textual acaba imprimiendo la credencial el dia
  * que la URL trae un `@` en la contrasena.
  */

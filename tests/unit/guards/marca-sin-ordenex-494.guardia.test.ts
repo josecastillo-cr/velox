@@ -311,11 +311,41 @@ describe("494 — proyecto (R31, R32)", () => {
   });
 
   it("las rutas de la coleccion son las de design §9", () => {
-    // La vieja sigue existiendo hasta T7.3, y la nueva aun no: lo ata el `todo` de abajo.
-    expect(existsSync(path.join(RAIZ, COLECCION_VIEJA))).toBe(true);
+    expect(COLECCION_VIEJA).toBe("docs/api/ordenex-api-key.postman_collection.json");
     expect(COLECCION_NUEVA).toBe("docs/api/api-key.postman_collection.json");
   });
 
-  it.todo("T7.3 y T7.6: R31 contra `package.json` y `docs/api/`");
-  it.todo("T7.4: R32 contra `docs/release.md`");
+  it("R31: la coleccion publicada existe con su nombre nuevo, y la vieja no", () => {
+    expect(existsSync(path.join(RAIZ, COLECCION_VIEJA))).toBe(false);
+    expect(existsSync(path.join(RAIZ, COLECCION_NUEVA))).toBe(true);
+  });
+
+  it("R31: la coleccion se titula sin la marca retirada", () => {
+    const coleccion = JSON.parse(leerTexto(COLECCION_NUEVA) ?? "") as { info: { name: string } };
+    expect(coleccion.info.name).toBe("Velox Courier — API key");
+  });
+
+  it("R31: package.json se llama velox, contra el archivo y contra el detector", () => {
+    const paquete = JSON.parse(leerTexto("package.json") ?? "") as { name: string };
+    expect(paquete.name).toBe("velox");
+    expect(
+      hallazgosProyecto({
+        nombrePaquete: paquete.name,
+        hayColeccionVieja: existsSync(path.join(RAIZ, COLECCION_VIEJA)),
+        hayColeccionNueva: existsSync(path.join(RAIZ, COLECCION_NUEVA)),
+      }),
+    ).toEqual([]);
+  });
+
+  it("R32: B2 y B4 de docs/release.md nombran el proyecto y el dominio vigentes", () => {
+    expect(hallazgosReleaseB2B4(leerTexto("docs/release.md") ?? "")).toEqual([]);
+  });
+
+  it("T7.4: docs/release.md trae el paso del cruce entre versiones de design §3.2", () => {
+    const md = leerTexto("docs/release.md") ?? "";
+    const tramo = md.slice(md.indexOf("### 494 "), md.indexOf("### 473 y 474"));
+    for (const exigido of ["Skew Protection", "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY", "se despliega fuera de la operación"]) {
+      expect(tramo, exigido).toContain(exigido);
+    }
+  });
 });

@@ -9,7 +9,7 @@ import path from "path";
 // del archivo.
 //
 // ⚠ ESTA MIGRACION NO SE HA APLICADO NI REVERTIDO DESDE EL WORKTREE. La base local
-// `localhost:5432/ordenex` la comparten varias sesiones y su historial local ya esta
+// `localhost:5432` la comparten varias sesiones y su historial local ya esta
 // desalineado con el remoto. La reversibilidad esta verificada POR TEXTO —que es lo que este
 // archivo hace— y NO por ejecucion; se declara asi en `progress/impl_128.md`.
 
@@ -126,7 +126,7 @@ describe("R24 · el datamodel declara el valor", () => {
 // --- Contra la base local: PENDIENTE, y se dice con todas las letras -------------------------
 //
 // La mitad de la 124 que consultaba `pg_enum` NO se replica aqui todavia, y no por descuido:
-// la migracion de esta feature **no se ha aplicado** a `localhost:5432/ordenex`. Esa base la
+// la migracion de esta feature **no se ha aplicado** a `localhost:5432`. Esa base la
 // comparten varios worktrees y su historial local ya esta desalineado con el remoto, asi que
 // aplicar o revertir desde aqui es una decision del leader, no del implementer
 // (`tasks.md > T6.1`). Escribir la asercion antes de aplicar dejaria un rojo permanente que no

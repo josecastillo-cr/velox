@@ -30,7 +30,7 @@ import {
 
 /** Credenciales feas a propósito: si alguna se colara en la salida, se vería. */
 const URL_DE_PRUEBA =
-  "postgresql://usuario_de_prueba:contrasena_que_no_debe_salir@db.ejemplo.interno:6543/ordenex_prod";
+  "postgresql://usuario_de_prueba:contrasena_que_no_debe_salir@db.ejemplo.interno:6543/base_prod";
 
 /**
  * `ejecutarCli` llama a `backfillMarcadorConfigGeocode` con el cliente que le da el entorno.

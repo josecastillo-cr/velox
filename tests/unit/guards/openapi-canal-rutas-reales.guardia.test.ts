@@ -7,7 +7,7 @@
 //     que renderiza el Swagger UI que abre un integrador.
 //   - `docs/api/api-key-openapi.yaml` — espejo textual. Su cabecera dice «GENERADO … no editar a
 //     mano», pero **nada lo regenera**: lo sincronizan los asserts de `tests/unit/api/openapi-*`.
-//   - `docs/api/ordenex-api-key.postman_collection.json` y `docs/api/CHANGELOG.md`.
+//   - `docs/api/api-key.postman_collection.json` y `docs/api/CHANGELOG.md`.
 //
 // **Dónde estaba el agujero.** El censo `PATHS_ESPERADOS` de
 // `tests/unit/api/openapi-177-paths-pdf-y-carga-id.test.ts` afirma la lista de paths contra el
@@ -49,7 +49,7 @@
 //   - El CONTENIDO de cada operación (schemas, códigos, ejemplos, parámetros de query): eso lo
 //     cubren las suites por endpoint (`openapi-320-eliminar`, `openapi-266-habilitar`,
 //     `openapi-257-filtros-listado`, `openapi-carga-*`…). Aquí solo se afirma la EXISTENCIA.
-//   - `docs/api/ordenex-api-key.postman_collection.json` y `docs/api/CHANGELOG.md`. Medido el
+//   - `docs/api/api-key.postman_collection.json` y `docs/api/CHANGELOG.md`. Medido el
 //     2026-08-28: la colección de Postman NO tiene carpeta para `GET /api/ordenes/api-key/analitica`
 //     (feature 267), así que ese hueco está ABIERTO y esta guardia no lo ve. Se deja anotado a
 //     propósito en vez de ampliar el alcance de contrabando: la colección es una comodidad de
