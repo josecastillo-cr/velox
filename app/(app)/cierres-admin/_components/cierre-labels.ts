@@ -165,7 +165,7 @@ export const GESTION_TIENDA_BADGE_NOTA =
 // --- Desglose del ingreso de la empresa por orden (texto separado, i18n-ready) ---
 export const MONTO_COBRAR_COL = "A cobrar";
 // Monto FIJO de fulfillment de la tarifa CONGELADA del cierre (2026-08-19). No es un concepto
-// derivado: no se suma al «Total la empresa» ni a las wallets. Vacío en los cierres anteriores a
+// derivado: no se suma al «Total Velox» ni a las wallets. Vacío en los cierres anteriores a
 // la columna `cierre_detail.tarifa_fulfillment`.
 export const FULFILLMENT_COL = "Fulfillment";
 // Conceptos AGRUPADOS (cada uno con su IVA incluido): así se leen en tablas y paneles.
@@ -280,7 +280,7 @@ export const FLETE_RECHAZO_NO_DEDUCIBLE_NOTA =
 // FICHA 395 (2026-09-08) — LAS TRES CASCADAS DEL CIERRE DE **MENSAJERO**.
 //
 // El detalle del cierre de mensajero —el que se mira todos los días— enseñaba «Pago a tienda»
-// y «Total la empresa» sueltos e invitaba a restarlos. Esa resta NO da: los dos números no salen
+// y «Total Velox» sueltos e invitaba a restarlos. Esa resta NO da: los dos números no salen
 // de la misma bolsa. El humano se confundió leyendo su propia pantalla y lo dijo así: «si yo
 // me confundo, no quiero imaginar los operarios».
 //

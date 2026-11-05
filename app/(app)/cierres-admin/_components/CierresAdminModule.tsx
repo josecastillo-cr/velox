@@ -1146,7 +1146,7 @@ export function CierresAdminModule({
                 : descargaHistoricoCierres(filtros)
             }
             catalogo={catalogoFiltros}
-            accion={(f) => descargarDatos("listarGestionesCierresAdminCompleto", f)}
+            accion={(f) => descargarDatos("listarGestionesCierresAdminCompletoV2", f)}
             disabled={pendientesCargando || historicoCargando}
             audiencia={audiencia}
           />
@@ -1255,7 +1255,7 @@ export function CierresAdminModule({
           <div className="flex max-h-[70vh] flex-col gap-6 overflow-y-auto pr-1">
             {/* FICHA 395 — DE QUIÉN ES EL DINERO, ANTES QUE NADA.
                 Va ARRIBA DEL TODO, y el sitio es la mitad del arreglo: lo primero que se leía al
-                abrir este detalle era «Pago a tienda» junto a «Total la empresa», dos cifras sueltas
+                abrir este detalle era «Pago a tienda» junto a «Total Velox», dos cifras sueltas
                 que invitan a una resta que NO da. Ahora lo primero es la partición —recaudado
                 menos lo facturado igual a lo que gana la tienda—, que cierra siempre, y sólo
                 después el desglose de lo facturado y el pago de hoy. El comprobante entero sigue

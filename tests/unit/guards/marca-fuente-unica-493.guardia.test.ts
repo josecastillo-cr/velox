@@ -82,6 +82,7 @@ describe("493 — el detector de marca no esta roto", () => {
     const clave = `const k = "ordenex:sonido";`;
     expect(hallazgosRetiradaExigibles(clave, "lib/audio/x.ts")).toHaveLength(1);
     expect(hallazgosRetiradaExigibles(clave, "lib/navegador/claves-legadas.ts")).toEqual([]);
+    expect(hallazgosRetiradaExigibles(`const t = "Cobró Ordenex";`, "lib/navegador/claves-legadas.ts")).toHaveLength(1);
     // E5.1 va por linea: en `public/sw.js` el alias se admite y otra clave no.
     expect(hallazgosRetiradaExigibles(`const A = "ordenex:relevo-ahora";`, "public/sw.js")).toEqual([]);
     expect(hallazgosRetiradaExigibles(clave, "public/sw.js")).toHaveLength(1);

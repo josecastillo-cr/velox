@@ -1,4 +1,3 @@
-import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect } from "vitest";
 
 import {
@@ -284,7 +283,7 @@ describe("488 — los textos de la tarjeta de la caja (R11–R13, R17, R18)", ()
       `Las tiendas le deben a ${NOMBRE_ESPERADO}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
     );
     // Contraprueba escrita a mano: la frase retirada.
-    expect(CAJA_COMPOSICION_MENSAJE.solo_empresa).not.toMatch(new RegExp(`todo lo que hay en la caja es de ${MARCA_RETIRADA}`));
+    expect(CAJA_COMPOSICION_MENSAJE.solo_empresa).not.toMatch(new RegExp(`todo lo que hay en la caja es de ${NOMBRE_ESPERADO}`));
   });
 
   it("R18: la nota de la diferencia dice que la ganancia no incluye el IVA", () => {

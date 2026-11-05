@@ -597,7 +597,7 @@ export function CierresBodegaAdminModule({
                 : descargaBodegaResueltos(filtros)
             }
             catalogo={catalogoFiltros}
-            accion={(f) => descargarDatos("listarGestionesCierresBodegaCompleto", f)}
+            accion={(f) => descargarDatos("listarGestionesCierresBodegaCompletoV2", f)}
             disabled={pendientesCargando}
             audiencia={audiencia}
           />

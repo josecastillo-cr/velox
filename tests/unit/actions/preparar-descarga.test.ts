@@ -20,7 +20,7 @@ import type { IEntregaDescargaService } from "@/lib/interfaces/services/IEntrega
 function montar(resultadoAccion: unknown = { status: "ok", items: [{ id: "o-1" }], total: 1 }) {
   const accion = vi.fn(async (..._args: unknown[]) => resultadoAccion);
   const otra = vi.fn(async (..._args: unknown[]) => ({ status: "ok", items: [], total: 0 }));
-  const registro = { listarOrdenesCompleto: accion, libroCajaKardexConDetalle: otra };
+  const registro = { listarOrdenesCompleto: accion, libroCajaKardexConDetalleV2: otra };
   const entregar = vi.fn(async (r: unknown) => ({ modo: "directo" as const, resultado: r }));
   const entrega = { entregar } as unknown as IEntregaDescargaService;
   return { accion, otra, registro, entregar, entrega };
@@ -131,12 +131,12 @@ describe("el registro real (design §2.1)", () => {
         "listarCierresPasadosCompleto",
         "listarPendientesCierresAdminCompleto",
         "listarHistoricoCierresAdminCompleto",
-        "listarGestionesCierresAdminCompleto",
+        "listarGestionesCierresAdminCompletoV2",
         "listarCierresBodegaSolicitadosCompleto",
         "listarConsolidablesCompleto",
         "listarPendientesCierresBodegaCompleto",
         "listarHistoricoCierresBodegaCompleto",
-        "listarGestionesCierresBodegaCompleto",
+        "listarGestionesCierresBodegaCompletoV2",
         "listarSaldosSatelitesCompleto",
         "listarConsolidacionesSateliteCompleto",
         "listarHistorialAccionesCompleto",
@@ -146,8 +146,8 @@ describe("el registro real (design §2.1)", () => {
         "listarAyudaTiendaCompleto",
         "listarOrdenesBodegaCompleto",
         "listarCuentasPorPagarCompleto",
-        "libroCajaKardex",
-        "libroCajaKardexConDetalle",
+        "libroCajaKardexV2",
+        "libroCajaKardexConDetalleV2",
         "verDetalleDeMovimientoCompleto",
         "listarSaldosTiendasCompleto",
         "verDetalleDeMiMovimientoCompleto",

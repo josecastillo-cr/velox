@@ -225,11 +225,11 @@ async function descargaLibroCaja(input: Record<string, unknown>, conDetalle: boo
   const entrada = { ...input, sortBy: "fecha", sortDir: "asc" };
   const desde = typeof input.desde === "string" ? input.desde : null;
   if (conDetalle) {
-    const res = await descargarDatos("libroCajaKardexConDetalle", entrada);
+    const res = await descargarDatos("libroCajaKardexConDetalleV2", entrada);
     if (res.status !== "ok") return errorDeDescargaCaja(res);
     return colocarLibroCaja(res.items, res.kardex, res.porGuia, desde);
   }
-  const res = await descargarDatos("libroCajaKardex", entrada);
+  const res = await descargarDatos("libroCajaKardexV2", entrada);
   if (res.status !== "ok") return errorDeDescargaCaja(res);
   return colocarLibroCaja(res.items, res.kardex, undefined, desde);
 }

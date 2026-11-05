@@ -47,7 +47,7 @@ import {
  * 💰 FICHA 395 — EL DETALLE DEL CIERRE DE MENSAJERO DICE QUÉ PLATA ES PARA QUIÉN.
  *
  * ── EL DEFECTO QUE MATA ESTE ARCHIVO
- * La pantalla enseñaba «Pago a tienda ₡225.176,33» y «Total la empresa ₡70.946,67» sueltos e
+ * La pantalla enseñaba «Pago a tienda ₡225.176,33» y «Total Velox ₡70.946,67» sueltos e
  * invitaba a restarlos. **Esa resta no da.** El humano se confundió con su propia pantalla y lo
  * dijo así: «si yo me confundo, no quiero imaginar los operarios».
  *

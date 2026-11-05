@@ -43,7 +43,7 @@ import {
  * 💰 FICHA 395 (2026-09-08) — LAS TRES CASCADAS DEL DETALLE DEL CIERRE DE **MENSAJERO**.
  *
  * ── EL FALLO QUE ESTO ARREGLA, Y ES DE DINERO
- * El detalle enseñaba «Pago a tienda ₡225.176,33» y «Total la empresa ₡70.946,67» SUELTOS, uno al
+ * El detalle enseñaba «Pago a tienda ₡225.176,33» y «Total Velox ₡70.946,67» SUELTOS, uno al
  * lado del otro, e invitaba a restarlos. **Esa resta no da**, porque los dos números no salen de
  * la misma bolsa: el pago a la tienda no descuenta el flete por rechazo —ese flete se le factura
  * pero nunca entró en lo recaudado, porque un rechazo no cobra contra entrega—. El humano se

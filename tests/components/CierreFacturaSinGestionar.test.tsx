@@ -195,7 +195,7 @@ function seccion(): HTMLElement {
 
 /**
  * La rejilla de KPI de la cabecera. Se ancla en «Gestiones», que sólo existe ahí: los otros tres
- * rótulos («Total general», «Total la empresa», «Pago al mensajero») se repiten más abajo en los
+ * rótulos («Total general», «Total Velox», «Pago al mensajero») se repiten más abajo en los
  * renglones y en la caja de pago, así que buscarlos en toda la hoja devuelve varios.
  */
 function rejillaKpi(hoja: HTMLElement): HTMLElement {

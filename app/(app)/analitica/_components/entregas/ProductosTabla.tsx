@@ -768,7 +768,7 @@ function DetalleDeFila({
       {/**
        * `data-slot` para que una suite pueda leer ESTE bloque y no el del panel de la 347, que
        * repite los mismos rótulos a propósito: sus totales existen «para cotejar» (R38). Sin el
-       * marcador, un `getByText("Cobró la empresa")` encuentra dos y no se sabe cuál mide.
+       * marcador, un `getByText("Cobró Velox")` encuentra dos y no se sabe cuál mide.
        */}
       <div data-slot="detalle-producto" className="flex flex-wrap gap-x-8 gap-y-3">
         {CIFRAS_EN_DETALLE.map((cifra) => (
@@ -888,7 +888,7 @@ const MIN_DINERO: Readonly<Record<IdDinero, string>> = {
   // inventa: hoy nadie lo lee. Lo que SI esta medido (Chromium, tipografia del sistema, mismo
   // `text-xs font-bold` del `<th>` para los cuatro rotulos) es la comparacion RELATIVA, que es
   // la que sobrevive a un cambio de fuente: `Fulfillment` mide 57 px, lo mismo que `Recaudado`
-  // y MENOS que `Cobró la empresa` (80) y `Para la tienda` (72). O sea: el minimo que ya sostiene
+  // y MENOS que `Cobró Velox` (80) y `Para la tienda` (72). O sea: el minimo que ya sostiene
   // a esos dos sostiene tambien a este. Si algun dia vuelve a ser columna, hay que remedirlo
   // contra la fuente real, que es lo que la 348 dejo escrito.
   fulfillment: "6rem",

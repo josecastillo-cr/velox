@@ -176,7 +176,7 @@ function cifra(td: HTMLTableCellElement): string {
 async function valorDeDetalle(rotulo: string): Promise<string> {
   // ⚠ SE BUSCA DENTRO DE `[data-slot="detalle-producto"]` Y NO EN TODO EL DOCUMENTO. El panel de
   // órdenes de la 347 repite los mismos rótulos a propósito —sus totales están ahí «para
-  // cotejar» (R38)—, así que un `screen.getByText("Cobró la empresa")` encuentra DOS y falla. Lo
+  // cotejar» (R38)—, así que un `screen.getByText("Cobró Velox")` encuentra DOS y falla. Lo
   // que estos casos miden es la cifra de la FILA, que sale del DTO ya en pantalla y no de una
   // segunda consulta: es la que mata la mutación M6.
   const bloque = await waitFor(() => {
@@ -1165,7 +1165,7 @@ describe("FICHA 348 · `textoColumnasNoSumables` deriva la leyenda, no la escrib
  *     vino a hacer. El fulfillment no lo tiene contratado la mayoría de las tiendas, así que
  *     para ellas la cifra es un `"0.00"` CIERTO que se leería como un concepto que les aplica y
  *     les salió en cero. Los dos estados sin monto —`"0.00"` y `null`— se callan.
- *  3. QUE NO ES UN SUMANDO DE «Cobró la empresa». Es la afirmación cara: dentro de `empresa` vive
+ *  3. QUE NO ES UN SUMANDO DE «Cobró Velox». Es la afirmación cara: dentro de `empresa` vive
  *     la igualdad `empresa + tienda === liquidado.recaudado`, cierta POR CONSTRUCCIÓN, y un
  *     sumando nuevo la rompería en silencio. El caso lo mide por comportamiento —la celda sigue
  *     diciendo lo mismo Y la suma de las dos NO aparece en el DOM—, no leyendo el código.

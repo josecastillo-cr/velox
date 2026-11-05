@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, within, cleanup } from "@testing-library/react";
 
@@ -322,7 +321,7 @@ describe("CajaResumenCard — «De las tiendas» (R34 de la 173 → R23/R24 de l
 
     // Con la cifra positiva la frase no existe.
     pintar();
-    expect(screen.queryByText(new RegExp(`Las tiendas le deben a ${MARCA_RETIRADA}`))).toBeNull();
+    expect(screen.queryByText(new RegExp(`Las tiendas le deben a ${NOMBRE_ESPERADO}`))).toBeNull();
   });
 
   it("la única mención a la deuda del bloque es el enlace a la otra pantalla", () => {

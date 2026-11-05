@@ -115,7 +115,7 @@ export const DETALLE_DINERO_TEXTOS = {
      * leen como dos cifras. Lo fija un caso de `ProductosTablaDinero.test.tsx` que compara este
      * texto contra esa constante, que es OTRA fuente y no ésta.
      *
-     * ⚠ NO SE SUMA A «Cobró la empresa» y la pista lo dice de la única forma que sirve: diciendo
+     * ⚠ NO SE SUMA A «Cobró Velox» y la pista lo dice de la única forma que sirve: diciendo
      * lo que la cifra ES. `empresa` es exactamente flete + IVA y comisión + IVA, y «Para la
      * tienda» se calcula como la resta de eso contra lo recaudado; el fulfillment vive fuera de
      * esa igualdad, igual que el flete por rechazo de al lado.
@@ -417,7 +417,7 @@ export function DineroProductoDetalle({
         {/* FICHA 449 — el servicio de bodega, la sexta y la ULTIMA, pegada al flete por rechazo
             porque las dos estan FUERA del reparto y por el mismo tipo de motivo: ninguna sale
             de la plata que el mensajero recogio. Va detras y no en medio del reparto a
-            proposito: entre «Cobró la empresa» y «Para la tienda» se leeria como un tercer trozo
+            proposito: entre «Cobró Velox» y «Para la tienda» se leeria como un tercer trozo
             de lo recaudado, que es exactamente lo que NO es.
 
             ⚠ SOLO CUANDO HAY MONTO (ver `hayMonto`). Aparece y desaparece la SEXTA celda, no un

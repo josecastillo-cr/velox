@@ -77,8 +77,10 @@ export const ARBOL_DIRS = [
   "docs/ayuda",
   "docs/api",
   ".claude/commands",
+  // Revision final (m5): corre en el navegador o describe el repo, y el glosario no los nombraba.
+  "providers",
 ] as const;
-export const ARBOL_ARCHIVOS = ["db/schema.prisma", "package.json", ".env.example", "DESIGN.md"] as const;
+export const ARBOL_ARCHIVOS = ["db/schema.prisma", "package.json", ".env.example", "DESIGN.md", "instrumentation.ts", "AGENTS.md", "README.md"] as const;
 const DENTRO_DE_ARBOL_PERO_FUERA = new Set(["docs/api/CHANGELOG.md"]);
 
 function recorrer(dir: string): string[] {
@@ -149,7 +151,14 @@ export const EXCEPCIONES: readonly Excepcion[] = [
   {
     id: "E5",
     motivo: "La clave vieja del navegador hay que poder leerla. Se retira con design §5.6.",
-    rutas: ["lib/navegador/claves-legadas.ts", "tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
+    rutas: ["tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
+  },
+  {
+    // Por linea (m4): el modulo solo puede nombrarla como clave entre comillas. Un texto visible con la marca sale rojo.
+    id: "E5.2",
+    motivo: "El modulo unico de las claves viejas del navegador (R20). Se retira con design §5.6.",
+    rutas: ["lib/navegador/claves-legadas.ts"],
+    linea: /"ordenex(?::[a-z-]+:?|_tema)?"/,
   },
   {
     // Por linea y no por archivo, para que estos archivos sigan contando: ni `public/sw.js` ni sus tests
