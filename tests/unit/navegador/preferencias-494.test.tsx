@@ -10,7 +10,7 @@ import {
 import { usePreferenciaColumnas } from "@/hooks/usePreferenciaColumnas";
 import { usePreferenciaSonido } from "@/hooks/usePreferenciaSonido";
 import { leerPreferenciaSonido } from "@/lib/audio/preferencia-sonido";
-import { claveDeAmbitoDescarga } from "@/lib/columnas/preferencia-columnas";
+import { claveDeAmbitoDescarga, leerCrudo } from "@/lib/columnas/preferencia-columnas";
 import { leerAppPreferida } from "@/lib/utils/preferencia-navegacion";
 import type { SinpeBodegaDTO } from "@/lib/types/sinpe-bodega";
 
@@ -151,8 +151,28 @@ describe("494/R16, design §5.3 — la columna de dinero guardada con su nombre 
     expect(window.localStorage.getItem(vieja)).toBeNull();
   });
 
+  // El hook lee varias veces por render, así que por el hook un camino tapa al otro: la segunda lectura
+  // traduce lo que la primera dejó bajo `app:`. Cada camino se afirma aquí, en UNA sola lectura.
+  it.each([
+    ["la clave vieja", vieja],
+    ["lo ya guardado bajo `app:`", nueva],
+  ])("%s: la primera lectura ya sale traducida, y la segunda da el mismo string sin escribir", (_camino, sembrada) => {
+    window.localStorage.setItem(sembrada, JSON.stringify({ ocultas: ["ordenex"], orden: ["ordenex"] }));
+
+    const primera = leerCrudo(nueva);
+
+    expect(primera).toBe(JSON.stringify({ ocultas: ["empresa"], orden: ["empresa"] }));
+    expect(window.localStorage.getItem(nueva)).toBe(primera);
+
+    const escribir = vi.spyOn(Storage.prototype, "setItem");
+    expect(leerCrudo(nueva)).toBe(primera);
+    expect(escribir).not.toHaveBeenCalled();
+    escribir.mockRestore();
+  });
+
   it("volver a leer no escribe, y una preferencia sin esa columna no se reserializa", () => {
-    const guardado = JSON.stringify({ orden: ["recaudado"], ocultas: ["producto"] });
+    // Con un espacio a propósito: reserializarlo lo cambiaría, y el snapshot variaría sin motivo.
+    const guardado = '{"orden": ["recaudado"], "ocultas": ["producto"]}';
     window.localStorage.setItem(nueva, guardado);
     const escribir = vi.spyOn(Storage.prototype, "setItem");
 

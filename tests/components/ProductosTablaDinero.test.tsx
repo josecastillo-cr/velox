@@ -802,6 +802,30 @@ describe("FICHA 347 · el detalle orden por orden (R32/R33/R34)", () => {
     expect(within(panel).getByText(DETALLE_DINERO_TEXTOS.estado.liquidada)).toBeInTheDocument();
   });
 
+  it("494/R4 — «Cobró» de la cabecera sale de los totales, no de la suma de las órdenes de la página", async () => {
+    const usuario = userEvent.setup();
+    consultarMock.mockResolvedValue({ status: "ok", datos: datos(DOS_FILAS) });
+    const base = payloadDe("Base Dr");
+    if (base.status !== "ok") throw new Error("el payload de prueba no es ok");
+    detalleMock.mockResolvedValue({
+      ...base,
+      datos: { ...base.datos, ordenes: base.datos.ordenes.map((o) => ({ ...o, empresa: "1111.00" })) },
+    });
+    renderTabla(true);
+
+    await screen.findByText("Base Dr");
+    await usuario.click(
+      screen.getByRole("button", { name: PRODUCTOS_TEXTOS.abrirDetalle("Base Dr", "Tienda Uno") }),
+    );
+
+    const panel = await screen.findByRole("region", {
+      name: DETALLE_DINERO_TEXTOS.region("Base Dr", "Tienda Uno"),
+    });
+    // Con la orden en otra cifra, el único sitio del panel del que puede salir 6.215 es el total.
+    expect(within(panel).getByText(money("1111.00"))).toBeInTheDocument();
+    expect(within(panel).getByText(money("6215.00"))).toBeInTheDocument();
+  });
+
   it("R42 — un producto sin ninguna orden que aporte enseña su estado vacío, no un error", async () => {
     const usuario = userEvent.setup();
     consultarMock.mockResolvedValue({ status: "ok", datos: datos(DOS_FILAS) });
