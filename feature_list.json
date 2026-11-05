@@ -6056,12 +6056,12 @@
       "title": "Aviso de versión nueva: tarjeta descompuesta",
       "description": "Los botones «Ahora no» y «Actualizar ahora» caen en la columna del icono y descomponen la tarjeta. Colocarlos a lo ancho y comprobarlo en el navegador.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "small",
       "depends_on": null,
       "branch": "fix/505-aviso-version-tarjeta",
-      "status_note": "Visto en la tanda 7 de la 494; el defecto es anterior. components/shared/AvisoVersionNueva.tsx:62. Registrada el 2026-11-05 con OK del humano. Va en la release: es lo que se ve al desplegar."
+      "status_note": "MERGEADA en dev el 2026-11-05 (PR #894, merge d99faa18); aún no en prod. Vista en navegador en ruta temporal; sin ver dentro del portal ni con service worker real."
     }
   ]
 }

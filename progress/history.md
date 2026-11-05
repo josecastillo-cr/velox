@@ -5804,3 +5804,8 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - «ordenex» sustituido en identificadores de código, valores de contrato, claves del navegador, dominios y `package.json`, por tandas. PR #887-#893. Sin migración.
 - Requisitos cubiertos: ver `specs/494-marca-identificadores-internos/` y `progress/review_494_t*.md`. Gate completo pendiente en la release.
 - Deuda: PWA instalada y R22 en dispositivo real; T9 plantillas de Meta (humano); T10 ficha de retirada, índice y portar.
+
+## 2026-11-05 — 505 aviso de versión nueva, tarjeta descompuesta
+- Los botones ocupan las dos columnas de la tarjeta (`col-span-2`) y el texto vuelve junto al icono. PR #894.
+- Medido en navegador a 375 y 1280 px, en ruta temporal; test que falla sin la clase.
+- Deuda: sin ver dentro del portal ni con service worker real.
