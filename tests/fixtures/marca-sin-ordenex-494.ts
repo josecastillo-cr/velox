@@ -446,10 +446,12 @@ export function hallazgosReleaseB2B4(md: string): string[] {
 const RUTA_CENSO = "progress/censo_marca_494.md";
 
 export function censoPorExcepcion(lista: readonly Excepcion[] = EXCEPCIONES): { id: string; motivo: string; archivos: number; apariciones: number }[] {
+  // Solo lo versionado: `progress/` guarda logs locales ignorados que no son el repo.
+  const versionados = new Set(execFileSync("git", ["ls-files", "-z"], { cwd: RAIZ, maxBuffer: 1e9 }).toString("utf8").split("\0"));
   return lista.map((e) => {
     const archivos = new Set<string>();
     let apariciones = 0;
-    for (const f of [...new Set(e.rutas.flatMap(archivosDeRuta))]) {
+    for (const f of [...new Set(e.rutas.flatMap(archivosDeRuta))].filter((r) => versionados.has(r))) {
       const texto = leerTexto(f);
       const enNombre = e.linea === undefined ? hallazgosEnRuta(f).length : 0;
       const lineas = texto?.split("\n") ?? [];
@@ -474,7 +476,7 @@ export function emitirCenso(hallazgos: readonly Hallazgo[], sha: string): string
     ...(hallazgos.length > 0 ? [""] : []),
     "## Lo que se queda, por excepción",
     "",
-    "Se cuenta la cadena, sin distinguir mayúsculas. E2 sube sola: incluye este archivo y la bitácora.",
+    "Se cuenta la cadena en lo versionado, sin distinguir mayúsculas. E2 sube sola: incluye este archivo y la bitácora.",
     "",
     "| Id | Motivo | Archivos | Apariciones |",
     "| --- | --- | --- | --- |",
