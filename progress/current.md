@@ -3,7 +3,7 @@
 - En `dev` sin desplegar: 498, 500, 501, 502. Gate post-merge verde (`progress/gate_dev_tras_886.log`, no versionado).
 - 494: spec aprobado, por tandas, un PR por tanda. Worktree `R:/w494`. Sin migración (`progress/impl_494.md`). Plantillas en Meta: al final, no bloquean el merge.
 - Después: release a prod con todo (gate completo; T8.4 de la 498 el mismo día; no conciliar durante el deploy).
-- Ficha 503 registrada, `pending`: la frase de las saldadas en la ayuda de Wallet · Satélites. No bloquea la release.
+- Fichas 503 y 504 registradas, `pending`, no bloquean la release: la frase de las saldadas en la ayuda de Wallet · Satélites, y «no se deben nada» por descarte en la frase del saldo.
 - Repo público a propósito: nada identificable de prod ni credenciales en archivos versionados. Logs del dev server fuera del repo.
 - Antes de lanzar subagentes en auto mode: el primer intento lo rechaza el hook de context-mode; repetir con el input que devuelve.
 
