@@ -5799,3 +5799,8 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - Fuera la nota del diálogo de Desmarcar; «Corregir» en recibida de más (solo escribe la variación); test contra Postgres de `tx` frente a `this.prisma` en el rastro de distritos. PR #886.
 - Requisitos cubiertos: R1-R13 (salida A). Medido contra Postgres antes de tocar la pantalla.
 - Deuda: Q2, la ayuda promete «Corregir» en las saldadas (`wallet-satelites.md:129-130`).
+
+## 2026-11-05 — 494 marca Velox Courier, identificadores internos
+- «ordenex» sustituido en identificadores de código, valores de contrato, claves del navegador, dominios y `package.json`, por tandas. PR #887-#893. Sin migración.
+- Requisitos cubiertos: ver `specs/494-marca-identificadores-internos/` y `progress/review_494_t*.md`. Gate completo pendiente en la release.
+- Deuda: PWA instalada y R22 en dispositivo real; T9 plantillas de Meta (humano); T10 ficha de retirada, índice y portar.
