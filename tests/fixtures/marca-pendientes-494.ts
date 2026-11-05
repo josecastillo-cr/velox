@@ -3,7 +3,7 @@
 // GENERADO: no se edita a mano. `pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes`.
 // Solo puede bajar con cada tanda. En un conflicto de merge se descarta y se regenera. T8.2 lo borra.
 
-/** 1074 apariciones en 395 archivos. */
+/** 1027 apariciones en 394 archivos. */
 export const PENDIENTES_494: Readonly<Record<string, number>> = {
   "app/(app)/analitica/_components/entregas/DineroProductoDetalle.tsx": 3,
   "app/(app)/analitica/_components/entregas/ProductosTabla.tsx": 5,
@@ -68,7 +68,6 @@ export const PENDIENTES_494: Readonly<Record<string, number>> = {
   "components/shared/wallet/conceptos-filtro.ts": 1,
   "components/shared/wallet/detalle-movimiento-panel-labels.ts": 1,
   "components/shared/wallet/registrar-movimiento-labels.ts": 2,
-  "db/schema.prisma": 47,
   "e2e/mi-wallet.spec.ts": 3,
   "e2e/wallet-mensajeros.spec.ts": 1,
   "e2e/wallet.spec.ts": 1,
