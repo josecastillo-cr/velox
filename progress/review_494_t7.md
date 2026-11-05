@@ -165,3 +165,104 @@ Causa, leída y no medida en navegador: `Alert` usa `has-[>svg]:grid-cols-[auto_
 - `next build`: no se corrió. Lo que dice que no depende del nombre es que nada lee `name` y el lockfile no cambia.
 - La tarjeta del aviso en un navegador.
 - Tanda 7 en navegador (T8.3): tomada de la bitácora, sin repetirla.
+
+---
+
+# Segunda vuelta (HEAD `63d420448`, contra `5d9d9e7e8`)
+
+> MCP `codebase-memory`: no conectó en esta sesión; medido con `git`, `typescript` y mutaciones. El gate no se corrió, por orden.
+
+## Veredicto: OK con menores
+
+B1 y B2 están cerrados. Quedan dos menores nuevos, ninguno frena el merge, y lo que debe decidir el humano está abajo. Este veredicto sustituye al RECHAZADO de arriba.
+
+## B1: cerrado
+
+`tests/integration/db/plantilla-renombrada-envio-494.test.ts` afirma lo que manda `requirements.md:138`:
+
+- El enviador recibe `[viejo, nuevo]`, exactamente uno de cada.
+- La fila de `whatsapp_envio` y sus destinatarios no cambian, comparados por `to_jsonb` desde antes de la primera ejecución.
+- La ejecución anterior conserva `plantilla_nombre` y `plantilla_id`, y la siguiente toma el nombre nuevo.
+
+Corre contra Postgres con los repositorios reales, en transacción revertida. Sin caminos verdes de salida: las aserciones van sobre lo que devuelve la transacción, `tocadas` exige 1 fila y las fotos exigen su fila. El único salto es `describe.skip` sin base, como en el resto de `integration/db`. Corrido por mí: 2 tests, 0 saltados.
+
+**R26:** cubierto. El primer envío sale con el nombre vigente, sea cual sea, y el bloque «plantillas» de la guardia sigue vigilando que ningún test nombre una plantilla con la marca.
+
+## B2: cerrado
+
+- **Referencias a las claves viejas:** solo quedan como literales de `ClaveDescargaRetirada494.test.tsx:39-42` y como cadenas de prueba de `descargas-por-registro.guardia.test.ts:96,111-112`. La búsqueda de esas cadenas en `app`, `components`, `lib`, `hooks`, `tests`, `e2e` y `docs` no da ningún cliente, mapa ni permiso por rol.
+- **Las 33 del registro:** 33 entradas y 33 `descargarDatos("…")` distintos, sin llamadas con clave dinámica.
+- **Campos renombrados, comprobado por mi cuenta.** Saqué de la base todos los identificadores con la marca en código, sin comentarios, y crucé cuáles lee el cliente:
+  - En archivo: `gestion.ingresoOrdenex` y `a.esOrdenex`, las cuatro claves V2; `.liquidado.ordenex` y `o.ordenex`, las actions V2 de productos.
+  - Solo en pantalla: `g.ingresoOrdenex`, `netoOrdenex`, `resumen.deOrdenex`, `solo_ordenex`, `ordenex_debe`.
+  - Solo en servidor: `gananciaOrdenex`, `pagoTiendaOrdenex`, `gastoDeOrdenex`, `netoOrdenexAgregado`, `concepto_ordenex`.
+- **Fuera del registro, sin más casos:**
+  - La exportación del tablero financiero pide una métrica cada vez, y un `validation_error` no genera archivo (`ExportarVistaFinanciera.tsx:158`). La pestaña vieja que pida el id retirado recibe eso. Leído.
+  - Etiquetas, manifiesto, carga masiva y chat generan archivo en el navegador, pero ninguno está entre los lectores de un identificador renombrado.
+  - `cierre-factura.tsx` lee `g.ingresoEmpresa`, solo en pantalla: no está entre los generadores de archivo.
+- **`ClaveDescargaRetirada494.test.tsx`:** usa la action, el registro y `descargarDatos` reales. Su botón es el de `DataTable`, no el de cierres: los botones reales los midió el implementador en navegador, con el POST reescrito, y no lo repetí.
+
+## Textos
+
+- **`design.md` §3.2 y `docs/release.md`:** ahora dicen la verdad. El peor caso pasa de archivo sin cifras a no hay archivo, y es cierto, por lectura del código, que este corte no depende del id de la action ni de Turbopack: la clave se comprueba en el servidor. También declaran que el aviso dice «vuelve a intentarlo» y reintentar falla igual hasta recargar.
+- **Fila A12:** ejecutable, con dónde se mira cada cosa y qué hacer sin ninguna de las dos. Ver n1.
+
+## Solo cambian comentarios y las cuatro claves
+
+Quitador en los dos lados, en `app lib components hooks public scripts`: 9 archivos y **8 líneas de código cambiadas**: las 4 claves del registro y sus 4 llamadas en `CierresAdminModule`, `CierresBodegaAdminModule` y `WalletModule`. Los comentarios de m6, en esos directorios y en `CierreFactura*`, `CierreMensajeroDetalleCascadas`, `ProductosTablaDinero`, `etiquetas-visibles` y `factura-contraste`: 0 líneas de código.
+
+## Mutaciones repetidas
+
+Arnés con autocomprobación, bytes restaurados y comparados, árbol limpio al terminar.
+
+| Mutación | Tests | Saltados | Rojos | Resultado |
+| --- | --- | --- | --- | --- |
+| Base | 77 | 0 | 0 | |
+| R25: se envía con un nombre fijo | 2 | 0 | 2 | Muerta |
+| R25: la foto no guarda el nombre vigente | 2 | 0 | 2 | Muerta |
+| R25: el `UPDATE` del test no toca filas | 2 | 0 | 2 | Muerta |
+| B2: alias de `libroCajaKardex` | 13 | 0 | 2 | Muerta |
+| B2: alias de gestiones de bodega | 13 | 0 | 2 | Muerta |
+| m3: E5 a `lib/utils/` con texto | 62 | 0 | 1 | Muerta, antes sobrevivía. La caza solo la lista en literal |
+| m3: E5.2 con patrón ancho y texto | 62 | 0 | 3 | Muerta |
+| m4: texto visible en `claves-legadas.ts` | 62 | 0 | 2 | Muerta, antes sobrevivía; las dos guardias |
+| m5: la marca en `providers/` | 42 | 0 | 1 | Muerta, antes sobrevivía |
+| m1: la frase en positivo | 33 | 0 | 2 | Muerta, ahora también ese `it` |
+| Base restaurada | 77 | 0 | 0 | |
+
+«E6 con patrón ancho» no se aplicó otra vez: mi patrón no casó y el arnés lo dijo. No cuenta como mía. La misma aserción literal fija E6, leído, y la bitácora la anota muerta. m2 tampoco se mutó: leída la línea, y `toBe` en `:283` sigue fijando el texto.
+
+## Menores
+
+| Id | Dónde | Estado |
+| --- | --- | --- |
+| m1 a m5, m8 | | Cerrados como dice `impl_494.md`, salvo n1 |
+| m6 | | Cerrado, salvo n2 |
+| m7 y la tarjeta del aviso | `scripts/seed-usuarios-qa.ts`, `AvisoVersionNueva.tsx:62` | Abiertos, fuera de esta corrección por orden |
+
+**Nuevos:**
+
+- **n1, menor:** `docs/release.md:664`. A12 tiene 4 columnas y la tabla 5: falta «Detiene». Quien la siga no sabe si frena la release.
+- **n2, menor:** quedan 3 comentarios con el rótulo sin tilde que la corrección no vio: `app/(app)/analitica/_components/entregas/ProductosTabla.tsx:19`, `tests/fixtures/marca-esperada.ts:4` y `tests/unit/analytics/conteo-productos-dinero.test.ts:452` («Cobro la empresa»). Nada que se ejecute.
+
+## Gate
+
+`INIT_EXIT=1` no se toma como verde. El archivo `liquidacion-reparto-migration` no tiene diff en toda la feature (comprobado) y su deadlock es el riesgo R5 de `docs/release.md:812`. Los 35 skipped en vez de 26 coinciden con lo que `docs/release.md:658` describe para ese mismo flake; no leí el log, así que no confirmé que esos 9 sean de ese archivo. Vale para esta revisión por la regla 5 de `CLAUDE.md`. **No vale como pre-vuelo:** A6 exige `INIT_EXIT=0` y 26 skipped sobre el SHA que se despliega.
+
+## Lo que debe decidir el humano antes de `prod` (actualizado)
+
+1. **Medir A12:** Skew Protection y `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`. Sin ninguna, desplegar fuera de la operación y avisar de que recarguen. Decidir si A12 detiene (n1).
+2. **Confirmar «sin alias»** (`design.md:93`), ya con los textos correctos. Lo que acepta: en pantalla, frase de saldo falsa, panel que no abre o «—» en «A quién», hasta recargar; en descargas de cierres y libro, aviso sin archivo, que dice «vuelve a intentarlo» aunque hay que recargar.
+3. **V2 de productos con Turbopack:** sigue medido solo con webpack. Medir en un checkout sin junction, o aceptarlo. El corte de las cuatro claves no depende de esto.
+4. **Vuelta atrás de `prod`:** «actualizar» no hace nada hasta cerrar pestañas y el código anterior no lee `app:`. Además, razonado sin medir: una pestaña abierta en la versión nueva pediría claves V2 que el servidor anterior no conoce, y no descargaría hasta recargar.
+5. **Gate de release:** repetir el completo sobre el SHA final hasta `INIT_EXIT=0` y 26 skipped.
+6. **Siembra QA en preview:** con el `QA_PASSWORD` vigente, y actualizar la receta de acceso de la memoria.
+7. **Tarjeta del aviso de versión:** arreglarla antes o después de esta release. Es lo que la gente verá al desplegar.
+8. **Tras desplegar:** PWA instalada y R22 en un dispositivo real, T9 de Meta y ficha de retirada del legado.
+9. **Merge:** #891, #892 y esta rama van apilados: confirmar los SHA en `origin/dev` y `gh pr checks` con Vercel `pass`.
+
+## Lo que no se pudo comprobar
+
+- El bundle viejo real contra un servidor nuevo: la bitácora lo simula reescribiendo el POST, y no lo repetí.
+- Turbopack, y la configuración de Vercel: nada contra prod ni preview.
+- La exportación financiera en una pestaña vieja: leída, sin ejecutar.
