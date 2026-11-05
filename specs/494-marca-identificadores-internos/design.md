@@ -96,6 +96,7 @@ RELEASE.** Sin alias y sin código.
 - **Navegación RSC:** el build distinto hace carga completa, así que la respuesta nueva no llega a la pestaña vieja.
 - **Respuesta de Server Action:** llega si el id de la action sigue valiendo.
 - **Daño:** frase falsa de saldo debajo de la cifra correcta, o panel que no abre, hasta recargar. No se escribe nada.
+- **Medido en la tanda 4, con otro peor caso:** la pestaña vieja que descarga el archivo de productos lo guarda con la columna «Cobró Velox» vacía, sin error, y recargar no corrige un archivo ya guardado. Abrir una fila lanza. Detalle en `progress/impl_494.md`. La decisión sigue pendiente, con esto delante.
 - **Antes de la release:** medir Skew Protection y comparar los ids de action entre dos despliegues de preview. Si
   sobreviven, desplegar fuera de la operación y avisar de que recarguen. Es parte de T7.4, para que entre en
   `docs/release.md` con R32.

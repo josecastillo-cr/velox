@@ -54,11 +54,11 @@
 
 ## Tanda 4 — Familia analítica
 
-- [ ] **T5.1 — Script.** Depende de tanda 3 mergeada y de T2.1. `--familia analitica`. **Hecho:** `tsc` limpio; R5 verde con el id literal.
-- [ ] **T5.2 — Caché.** Prefijo nuevo en `claveDeConteoProductos`; revisar los otros 11 usos de `envolver`. **Hecho:** R9 verde, y la revisión anotada.
-- [ ] **T5.3 — Columna guardada.** `traducir` del ámbito `analitica-productos-dinero` (`design.md §5.3`), al leer la clave vieja **y también sobre lo ya guardado bajo `app:`, sin condición**. **Por qué sin condición:** la tanda 1 deja el valor bajo `app:` con el nombre viejo de la columna dentro; una release antes de esta tarea lo lleva a los navegadores, y sin esa traducción la columna oculta reaparece. **Hecho:** R16 verde con los dos casos, clave vieja y clave `app:`. `tests/unit/navegador/preferencias-494.test.tsx` sale rojo a propósito al renombrar la columna, hasta sustituirlo por R16. **Mutación:** sin `traducir` en cualquiera de los dos caminos, la columna oculta reaparece y el test sale rojo (anotado y restaurado).
-- [ ] **T5.4 — Contrato.** `tests/unit/api/contrato-sin-cambios-494.test.ts`. **Hecho:** R6 verde; `docs/api/**` sin cambio de campos.
-- [ ] **T5.5 — Ver la app.** Tablero financiero y productos con dinero, y descarga de CSV. **Hecho:** encabezado «Cobró Velox …», misma posición de columna, cifra de ganancia igual.
+- [x] **T5.1 — Script.** Depende de tanda 3 mergeada y de T2.1. `--familia analitica`. **Hecho:** `tsc` limpio; R5 verde con el id literal.
+- [x] **T5.2 — Caché.** Prefijo nuevo en `claveDeConteoProductos`; revisar los otros 11 usos de `envolver`. **Hecho:** R9 verde, y la revisión anotada.
+- [x] **T5.3 — Columna guardada.** `traducir` del ámbito `analitica-productos-dinero` (`design.md §5.3`), al leer la clave vieja **y también sobre lo ya guardado bajo `app:`, sin condición**. **Por qué sin condición:** la tanda 1 deja el valor bajo `app:` con el nombre viejo de la columna dentro; una release antes de esta tarea lo lleva a los navegadores, y sin esa traducción la columna oculta reaparece. **Hecho:** R16 verde con los dos casos, clave vieja y clave `app:`. `tests/unit/navegador/preferencias-494.test.tsx` sale rojo a propósito al renombrar la columna, hasta sustituirlo por R16. **Mutación:** sin `traducir` en cualquiera de los dos caminos, la columna oculta reaparece y el test sale rojo (anotado y restaurado).
+- [x] **T5.4 — Contrato.** `tests/unit/api/contrato-sin-cambios-494.test.ts`. **Hecho:** R6 verde; `docs/api/**` sin cambio de campos.
+- [x] **T5.5 — Ver la app.** Tablero financiero y productos con dinero, y descarga de CSV. **Hecho:** encabezado «Cobró Velox …», misma posición de columna, cifra de ganancia igual.
 
 ## Tanda 5 — Filas (condicional)
 
