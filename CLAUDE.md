@@ -1,4 +1,4 @@
-# Arnés SDD — Ordenex
+# Arnés SDD — Velox Courier
 
 > Stack: Next.js (App Router) · TypeScript strict · Supabase (Postgres) · Vercel · Orm (Prisma).
 > Este repo NO es solo código: es un arnés para que un agente trabaje de forma
