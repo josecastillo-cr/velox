@@ -27,6 +27,16 @@ describe("493/R8 — PWA y landing con la marca", () => {
     expect(document.body.textContent).not.toContain(MARCA_RETIRADA);
   });
 
+  // FEATURE 505 — `Alert` es un grid `auto 1fr` cuando lleva icono: sin extenderse a las dos
+  // columnas, los botones caen en la del icono, la ensanchan y empujan el texto a la derecha.
+  // jsdom no calcula grid, así que lo comprobable aquí es la clase; la medida se hizo en navegador.
+  it("los botones del aviso ocupan todo el ancho de la tarjeta, no la columna del icono", () => {
+    render(<AvisoVersionNueva />);
+    const fila = screen.getByRole("button", { name: "Actualizar ahora" }).parentElement as HTMLElement;
+    expect(fila.parentElement).toBe(screen.getByRole("status"));
+    expect(fila.classList.contains("col-span-2")).toBe(true);
+  });
+
   it("la sección de postulación invita a sumarse a la marca, con sus dos copys", () => {
     render(<LandingPostular />);
     expect(screen.getByText(`Sumate a ${NOMBRE_ESPERADO}`)).toBeInTheDocument();
