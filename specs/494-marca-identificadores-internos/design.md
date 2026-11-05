@@ -86,8 +86,19 @@ ninguna métrica financiera (R17 de la 267). `lib/api/openapi-spec.ts` solo cont
 entrada de ruptura en el `CHANGELOG.md`. R6 lo deja atado con un test.
 
 **Pestaña vieja abierta durante el despliegue.** Si envía `gasto_ordenex` a la previsualización, recibe error de validación
-(R7) hasta recargar, y `AvisoVersionNueva` ya pide recargar. No se acepta el alias en el servidor: la previsualización
-no escribe, así que el peor caso es un «Así queda» que no carga unos minutos. Se acepta.
+(R7) hasta recargar. `AvisoVersionNueva` no cuenta como mitigación: `useActualizacionPwa` no llama a `reg.update()`, así
+que una pestaña que no recarga puede no ver el aviso. No se acepta el alias en el servidor: la previsualización no
+escribe, así que el peor caso es un «Así queda» que no carga hasta recargar. Se acepta.
+
+**Servidor nuevo con pestaña vieja (tandas 2, 3 y 4). Decisión del leader, PENDIENTE DE CONFIRMAR POR EL HUMANO ANTES DE LA
+RELEASE.** Sin alias y sin código.
+
+- **Navegación RSC:** el build distinto hace carga completa, así que la respuesta nueva no llega a la pestaña vieja.
+- **Respuesta de Server Action:** llega si el id de la action sigue valiendo.
+- **Daño:** frase falsa de saldo debajo de la cifra correcta, o panel que no abre, hasta recargar. No se escribe nada.
+- **Antes de la release:** medir Skew Protection y comparar los ids de action entre dos despliegues de preview. Si
+  sobreviven, desplegar fuera de la operación y avisar de que recarguen. Es parte de T7.4, para que entre en
+  `docs/release.md` con R32.
 
 ### 3.3 Caché de analítica
 

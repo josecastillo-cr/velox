@@ -586,9 +586,10 @@ Es lectura, no escribe nada, y dura hasta recargar. Se da si la pestaña vieja r
 
 **Sin medir, y es lo que decide si pasa de verdad:**
 
-- Si la clave de actions se conserva entre builds de Vercel (`.next/cache/.rscinfo` o `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`, que el repo no fija), y si el proyecto tiene Skew Protection (`next.config.ts` y `vercel.json` no dicen nada). Si la clave cambia, la pestaña vieja recibe 404 en todas las actions, por esta o por cualquier otra release. Eso sí se midió: «No se pudo calcular» y «No se pudo confirmar si el movimiento quedó registrado».
+- Si la clave de actions se conserva entre builds de Vercel (`.next/cache/.rscinfo`, que caduca a los 14 días de generarse, o `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`, que el repo no fija), y si el proyecto tiene Skew Protection (`next.config.ts` y `vercel.json` no dicen nada). Si la clave cambia, la pestaña vieja recibe 404 en todas las actions, por esta o por cualquier otra release. Eso sí se midió: «No se pudo calcular» y «No se pudo confirmar si el movimiento quedó registrado».
 - Que la excepción acabe en `app/(app)/error.tsx`: se vio el `throw` en el render, no la pantalla.
-- La tanda 2 renombró campos de DTO del mismo tipo (`ingresoEmpresa` y compañía). No se midió con esta sonda.
+- Con `esEmpresa`, el `textoAQuien` viejo pinta una raya en «A quién» de un aporte, en vez de «Velox». Leído, no ejecutado.
+- La tanda 2 tiene el mismo problema: `verCierreDetalle` devuelve `netoEmpresa`, que el cliente viejo no conoce. Leído, sin ejecutar.
 
 No lo he cambiado: §11.8 rechaza los alias en el servidor y este caso es de la misma familia, aunque con otro peor caso. **Lo decide el leader antes de la release.**
 
@@ -621,7 +622,7 @@ Lo que se ve:
 - **Así queda, tienda paga:** saldo ₡146.427,40 → ₡147.661,90; caja ₡13.477.932,72 → ₡13.479.167,22; ganancia sin cambio.
 - **Gasto real de ₡1.111,11**, registrado en la rama: el libro de las dos versiones dice «Gasto de Velox · …». En el panel del aporte, «A quién» dice «Velox».
 
-Capturas, fuera del repo: `C:\Users\ArqDev\AppData\Local\Temp\claude\9d5dc6783b45f6dc\7779d971-c7f6-49d0-b2c6-2ad00c4a32ee\scratchpad\t3_capturas\` (`<pantalla>-base.png` y `<pantalla>-nuevo.png`).
+Las capturas no se versionan.
 
 **No se vio:**
 
@@ -682,6 +683,14 @@ Script en el scratchpad; salida en `t3_mutaciones.log`, fuera del repo. Comprueb
 | Base restaurada | 257 | 0 | 0 | exit=0 |
 
 Supervivientes: 0 de 19. `"empresa"` de `A_QUIEN_POR_ORIGEN` no se muta: en ejecución no se compara con nada, y la cubre el tipo.
+
+**m3 de la revisión.** La mutación `textoAQuien` lee la clave vieja sobrevivía: ningún test la cubría. Ahora la caza un test nuevo en `tests/components/DetalleMovimientoPanel.test.tsx`, con el nombre corto literal del fixture:
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 18 | 0 | exit=0 |
+| `DetalleMovimientoPanel.tsx`, `textoAQuien` lee `a.esOrdenex` | 18 | 1 | `494 (R4): un aporte dice a quién con el nombre corto de la marca` |
+| Base restaurada, bytes iguales | 18 | 0 | exit=0 |
 
 ### Trinquete
 
