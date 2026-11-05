@@ -27,7 +27,7 @@
 // vez de anadirse a ella: si el usuario hubiera filtrado tres tiendas arriba, mandarlas todas
 // seria un `validation_error` y el panel de la fila no es de tres tiendas, es de una.
 
-import { consultarDetalleDineroProducto } from "@/lib/actions/detalle-dinero-producto";
+import { consultarDetalleDineroProductoV2 } from "@/lib/actions/detalle-dinero-producto";
 import type { ResultadoDetalleDineroProducto } from "@/lib/types/dinero-productos";
 
 import { CLAVE_TABLERO } from "../operativo/PanelOperativo";
@@ -88,7 +88,7 @@ export async function consultarDetalleDineroProductoSwr(
   producto: string,
   page: number,
 ): Promise<ResultadoDetalleDineroProducto> {
-  return consultarDetalleDineroProducto(
+  return consultarDetalleDineroProductoV2(
     rawDetalleDineroProducto(filtroSerializado, tiendaId, producto, page),
   );
 }

@@ -46,6 +46,38 @@ export function claveViejaDe(nueva: string): string | null {
   return null;
 }
 
+/**
+ * Design §5.3: la clave de una columna renombrada, guardada DENTRO del valor. `clavesUtiles` descarta
+ * en silencio lo que el catálogo ya no publica, así que sin traducirla la columna oculta vuelve a
+ * salir en el archivo de quien la quitó, sin ningún error.
+ *
+ * Devuelve el MISMO string si no hay nada que traducir: es lo que hace seguro llamarla desde un
+ * snapshot de `useSyncExternalStore`. Un JSON inválido lanza y lo recoge `traducirSinLanzar`, que deja
+ * el valor tal cual para que el saneo lo trate como hoy.
+ */
+const COLUMNA_DINERO_VIEJA = "ordenex";
+const COLUMNA_DINERO_NUEVA = "empresa";
+
+function traducirColumnasDinero(crudo: string): string {
+  const parseado: unknown = JSON.parse(crudo);
+  if (typeof parseado !== "object" || parseado === null || Array.isArray(parseado)) return crudo;
+  const preferencia = { ...(parseado as Record<string, unknown>) };
+  let cambio = false;
+  for (const campo of ["ocultas", "orden"]) {
+    const lista = preferencia[campo];
+    if (Array.isArray(lista) && lista.includes(COLUMNA_DINERO_VIEJA)) {
+      preferencia[campo] = lista.map((clave: unknown) => (clave === COLUMNA_DINERO_VIEJA ? COLUMNA_DINERO_NUEVA : clave));
+      cambio = true;
+    }
+  }
+  return cambio ? JSON.stringify(preferencia) : crudo;
+}
+
+/** Los valores cuyo contenido nombra algo renombrado, por clave nueva. Ámbito: el del catálogo con dinero. */
+const TRADUCCIONES: Readonly<Record<string, (crudo: string) => string>> = {
+  "app:descarga-columnas:analitica-productos-dinero": traducirColumnasDinero,
+};
+
 function borrarSinLanzar(almacen: Storage, clave: string): void {
   try {
     almacen.removeItem(clave);
@@ -63,10 +95,28 @@ function traducirSinLanzar(crudo: string, traducir: ((crudo: string) => string) 
   }
 }
 
+/** Lo ya guardado bajo la nueva. Solo escribe si cambió, y si no puede escribir devuelve la traducción igual. */
+function traducirGuardado(
+  almacen: Storage,
+  nueva: string,
+  guardado: string,
+  traducir: ((crudo: string) => string) | undefined,
+): string {
+  const valor = traducirSinLanzar(guardado, traducir);
+  if (valor === guardado) return guardado;
+  try {
+    almacen.setItem(nueva, valor);
+  } catch {
+    // Se reintentará en la siguiente lectura, y mientras tanto la traducción da el mismo string.
+  }
+  return valor;
+}
+
 /**
  * Lee una preferencia y, de paso, la traslada a su clave nueva.
  *
- * - Hay nueva: se devuelve, y si queda vieja se borra (R15).
+ * - Hay nueva: se devuelve, y si queda vieja se borra (R15). Si procede se traduce también, y se reescribe
+ *   solo si cambió: la tanda 1 pudo dejar el valor bajo la nueva con el nombre viejo dentro (design §5.3).
  * - Solo hay vieja: se traduce si procede, se copia a la nueva, se borra la vieja y se devuelve (R14).
  * - El almacén lanza al leer: `null`, como sin preferencia (R19). Nunca propaga.
  * - Solo falla la escritura: se devuelve el valor viejo y la vieja SE CONSERVA. Borrarla perdería la
@@ -93,15 +143,15 @@ export function leerConMigracion(
   try {
     enVieja = almacen.getItem(vieja);
   } catch {
-    return enNueva;
+    enVieja = null;
   }
-
-  if (enVieja === null) return enNueva;
 
   if (enNueva !== null) {
-    borrarSinLanzar(almacen, vieja);
-    return enNueva;
+    if (enVieja !== null) borrarSinLanzar(almacen, vieja);
+    return traducirGuardado(almacen, nueva, enNueva, traducir);
   }
+
+  if (enVieja === null) return null;
 
   const valor = traducirSinLanzar(enVieja, traducir);
   try {
@@ -119,7 +169,7 @@ export function leerConMigracion(
  */
 export function leerConLegado(almacen: Storage, nueva: string): string | null {
   const vieja = claveViejaDe(nueva);
-  if (vieja !== null) return leerConMigracion(almacen, nueva, vieja);
+  if (vieja !== null) return leerConMigracion(almacen, nueva, vieja, TRADUCCIONES[nueva]);
   try {
     return almacen.getItem(nueva);
   } catch {

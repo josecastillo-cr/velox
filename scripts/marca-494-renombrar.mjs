@@ -26,8 +26,10 @@ const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const RAICES = ["app", "components", "hooks", "lib", "scripts", "tests", "e2e"];
 
-// E7 y E9 (design §7): definen lo prohibido. Las contrapruebas de la 493 las retira T8.2 a mano.
+// E7, E8 y E9 (design §7): definen lo prohibido. Las contrapruebas de la 493 las retira T8.2 a mano. El test
+// de contrato cita `ganancia_ordenex` a proposito: con el destino en el arbol, comprobar abortaria.
 const NUNCA = new Set([
+  "tests/unit/api/contrato-sin-cambios-494.test.ts",
   "tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts",
   "tests/fixtures/marca-sin-ordenex-494.ts",
   "tests/fixtures/marca-pendientes-494.ts",
@@ -48,7 +50,6 @@ const NUNCA_EN_COMENTARIOS = new Set([
   "tests/integration/db/seed-usuarios-qa-494.test.ts",
   "tests/unit/tema/cookie-legada-494.test.ts",
   "tests/unit/analytics/cache-clave-conteo-productos-494.test.ts",
-  "tests/unit/api/contrato-sin-cambios-494.test.ts",
 ]);
 const CARPETAS_NUNCA_EN_COMENTARIOS = ["tests/unit/navegador/", "tests/unit/scripts/"];
 

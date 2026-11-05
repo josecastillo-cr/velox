@@ -1064,12 +1064,12 @@ describe("ficha 359 · C — el resto del censo, por su propia etiqueta", () => 
   });
 
   it(`dinero por producto: recaudado = liquidado a ${NOMBRE_ESPERADO} + liquidado a la tienda + pendiente`, () => {
-    const ordenex = new Prisma.Decimal("416.47");
+    const empresa = new Prisma.Decimal("416.47");
     const tienda = new Prisma.Decimal("11482.53");
     const pendiente = new Prisma.Decimal("0.50");
-    const recaudado = ordenex.add(tienda).add(pendiente);
+    const recaudado = empresa.add(tienda).add(pendiente);
     laCuentaCierra(
-      [money(ordenex.toFixed(2)), money(tienda.toFixed(2)), money(pendiente.toFixed(2))],
+      [money(empresa.toFixed(2)), money(tienda.toFixed(2)), money(pendiente.toFixed(2))],
       money(recaudado.toFixed(2)),
       "dinero por producto",
     );

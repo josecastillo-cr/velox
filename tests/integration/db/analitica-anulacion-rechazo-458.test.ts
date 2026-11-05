@@ -117,7 +117,7 @@ describeSiHayBase("⭑ 458-B/B2 — la anulacion del cobro por devolución a ori
     const leer = async (): Promise<Lectura> => ({
       flete: await leerMetrica("ingreso_flete"),
       iva: await leerMetrica("ingreso_iva"),
-      ganancia: await leerMetrica("ganancia_ordenex"),
+      ganancia: await leerMetrica("ganancia_empresa"),
     });
 
     const cobro = await tx.rechazoTiendaCobro.findFirstOrThrow({

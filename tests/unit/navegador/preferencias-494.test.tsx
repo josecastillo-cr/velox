@@ -10,7 +10,7 @@ import {
 import { usePreferenciaColumnas } from "@/hooks/usePreferenciaColumnas";
 import { usePreferenciaSonido } from "@/hooks/usePreferenciaSonido";
 import { leerPreferenciaSonido } from "@/lib/audio/preferencia-sonido";
-import { claveDeAmbitoDescarga } from "@/lib/columnas/preferencia-columnas";
+import { claveDeAmbitoDescarga, leerCrudo } from "@/lib/columnas/preferencia-columnas";
 import { leerAppPreferida } from "@/lib/utils/preferencia-navegacion";
 import type { SinpeBodegaDTO } from "@/lib/types/sinpe-bodega";
 
@@ -109,34 +109,115 @@ describe("494/R14 — columnas por el hook real, sin bucle de `useSyncExternalSt
   });
 });
 
-describe("494, design §5.3 — la columna de dinero con el catálogo de HOY", () => {
-  // `clavesUtiles` descarta en silencio las claves no publicadas. Este ámbito guarda el identificador
-  // de columna DENTRO del valor, y hoy el catálogo aún publica el nombre viejo: traducirlo ya haría
-  // reaparecer la columna oculta, sin error. Por eso aquí se copia tal cual.
+describe("494/R16, design §5.3 — la columna de dinero guardada con su nombre viejo", () => {
+  // `clavesUtiles` descarta en silencio las claves no publicadas, y este ámbito guarda la clave de la
+  // columna DENTRO del valor. Sin `traducir` la columna oculta vuelve a salir, sin ningún error.
   //
-  // AVISO PARA T5.1/T5.3: al renombrar la columna este test sale rojo, y es lo que tiene que pasar. Ahí
-  // se sustituye por R16 (con `traducir`). Sin `traducir`, la columna oculta reaparecería.
-  const COLUMNA = "ordenex";
-  const nueva = claveDeAmbitoDescarga(AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO);
-  const vieja = `ordenex:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO}`;
+  // Hay DOS caminos, y por eso dos casos: el navegador que aún tiene la clave vieja, y el que ya pasó por
+  // la tanda 1, que dejó el valor bajo `app:` con el nombre viejo dentro.
+  const nueva = "app:descarga-columnas:analitica-productos-dinero";
+  const vieja = "ordenex:descarga-columnas:analitica-productos-dinero";
 
-  it("el catálogo real publica esa columna (si no, este test no prueba nada)", () => {
-    expect(COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO.map(claveDeColumna)).toContain(COLUMNA);
+  const montar = () =>
+    renderHook(() => usePreferenciaColumnas(nueva, COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO, claveDeColumna));
+
+  it("el ámbito del catálogo es el de estas claves, y publica la columna con el nombre nuevo", () => {
+    expect(claveDeAmbitoDescarga(AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO)).toBe(nueva);
+    const publicadas = COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO.map(claveDeColumna);
+    expect(publicadas).toContain("empresa");
+    expect(publicadas).not.toContain("ordenex");
   });
 
-  it("la columna oculta sigue oculta tras migrar, y el orden elegido se conserva", () => {
-    const publicadas = COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO.map(claveDeColumna);
-    const primera = publicadas[0]!;
-    window.localStorage.setItem(vieja, JSON.stringify({ ocultas: [COLUMNA], orden: [publicadas[1], primera] }));
-
-    const { result } = renderHook(() =>
-      usePreferenciaColumnas(nueva, COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO, claveDeColumna),
+  it.each([
+    ["la clave vieja", vieja],
+    ["lo ya guardado bajo `app:`", nueva],
+  ])("%s: la columna oculta sigue oculta y el orden elegido se conserva", (_camino, sembrada) => {
+    window.localStorage.setItem(
+      sembrada,
+      JSON.stringify({ ocultas: ["ordenex"], orden: ["recaudado", "ordenex", "producto"] }),
     );
 
-    expect(result.current.clavesVisibles).not.toContain(COLUMNA);
-    expect(result.current.clavesVisibles.length).toBe(publicadas.length - 1);
-    expect(result.current.clavesVisibles.indexOf(publicadas[1]!)).toBeLessThan(result.current.clavesVisibles.indexOf(primera));
+    const { result } = montar();
+
+    expect(result.current.clavesVisibles).not.toContain("empresa");
+    expect(result.current.clavesVisibles.indexOf("recaudado")).toBeLessThan(result.current.clavesVisibles.indexOf("producto"));
+    // La oculta conserva su sitio en el orden: se ve en el selector, que lista también las desmarcadas.
+    const ordenadas = result.current.ordenadas.map(claveDeColumna);
+    expect(ordenadas.filter((c) => ["recaudado", "empresa", "producto"].includes(c))).toEqual(["recaudado", "empresa", "producto"]);
+    expect(JSON.parse(window.localStorage.getItem(nueva)!)).toEqual({
+      ocultas: ["empresa"],
+      orden: ["recaudado", "empresa", "producto"],
+    });
     expect(window.localStorage.getItem(vieja)).toBeNull();
+  });
+
+  // El hook lee varias veces por render, así que por el hook un camino tapa al otro: la segunda lectura
+  // traduce lo que la primera dejó bajo `app:`. Cada camino se afirma aquí, en UNA sola lectura.
+  it.each([
+    ["la clave vieja", vieja],
+    ["lo ya guardado bajo `app:`", nueva],
+  ])("%s: la primera lectura ya sale traducida, y la segunda da el mismo string sin escribir", (_camino, sembrada) => {
+    window.localStorage.setItem(sembrada, JSON.stringify({ ocultas: ["ordenex"], orden: ["ordenex"] }));
+
+    const primera = leerCrudo(nueva);
+
+    expect(primera).toBe(JSON.stringify({ ocultas: ["empresa"], orden: ["empresa"] }));
+    expect(window.localStorage.getItem(nueva)).toBe(primera);
+
+    const escribir = vi.spyOn(Storage.prototype, "setItem");
+    expect(leerCrudo(nueva)).toBe(primera);
+    expect(escribir).not.toHaveBeenCalled();
+    escribir.mockRestore();
+  });
+
+  it("volver a leer no escribe, y una preferencia sin esa columna no se reserializa", () => {
+    // Con un espacio a propósito: reserializarlo lo cambiaría, y el snapshot variaría sin motivo.
+    const guardado = '{"orden": ["recaudado"], "ocultas": ["producto"]}';
+    window.localStorage.setItem(nueva, guardado);
+    const escribir = vi.spyOn(Storage.prototype, "setItem");
+
+    const { result } = montar();
+
+    expect(result.current.clavesVisibles).not.toContain("producto");
+    expect(escribir).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(nueva)).toBe(guardado);
+    escribir.mockRestore();
+  });
+
+  it("alternar tras traducir parte de lo traducido y nunca vuelve a escribir el nombre viejo (R20)", () => {
+    window.localStorage.setItem(nueva, JSON.stringify({ ocultas: ["ordenex"] }));
+
+    const { result } = montar();
+    act(() => result.current.alternar("producto"));
+
+    expect(JSON.parse(window.localStorage.getItem(nueva)!).ocultas).toEqual(["empresa", "producto"]);
+    expect(window.localStorage.getItem(nueva)).not.toContain("ordenex");
+  });
+
+  it("si no se puede escribir, la columna oculta sigue oculta en esta carga", () => {
+    window.localStorage.setItem(nueva, JSON.stringify({ ocultas: ["ordenex"] }));
+    const escribir = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("cuota");
+    });
+
+    const { result } = montar();
+
+    expect(result.current.clavesVisibles).not.toContain("empresa");
+    escribir.mockRestore();
+  });
+
+  it("JSON inválido bajo `app:`: se deja tal cual y el saneo lo trata como sin preferencia", () => {
+    window.localStorage.setItem(nueva, "{no es json");
+    const { result } = montar();
+    expect(result.current.clavesVisibles).toContain("empresa");
+    expect(window.localStorage.getItem(nueva)).toBe("{no es json");
+  });
+
+  it("otro ámbito con una columna que se llame igual no se traduce", () => {
+    const guardado = JSON.stringify({ ocultas: ["ordenex"] });
+    window.localStorage.setItem("app:descarga-columnas:ordenes", guardado);
+    renderHook(() => usePreferenciaColumnas("app:descarga-columnas:ordenes", COLUMNAS_SINTETICAS, claveDeColumna));
+    expect(window.localStorage.getItem("app:descarga-columnas:ordenes")).toBe(guardado);
   });
 });
 

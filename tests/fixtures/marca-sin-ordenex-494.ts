@@ -188,7 +188,6 @@ export const EXCEPCIONES: readonly Excepcion[] = [
     id: "E8",
     motivo: "Negativas: afirman que lo viejo no esta.",
     rutas: ["tests/unit/analytics/cache-clave-conteo-productos-494.test.ts", "tests/unit/api/contrato-sin-cambios-494.test.ts"],
-    activaEn: "T5.4",
   },
   {
     id: "E9",

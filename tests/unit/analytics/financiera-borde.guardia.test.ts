@@ -298,7 +298,7 @@ describe("E.4 / R14 · ninguna respuesta financiera contiene un id de mensajero"
   }
 
   it("el barrido cubre EXACTAMENTE las diez financieras", () => {
-    // 8 de la 127 + `dinero_en_caja` y `ganancia_ordenex` (173, P4), que tambien cruzan el borde.
+    // 8 de la 127 + `dinero_en_caja` y `ganancia_empresa` (173, P4), que tambien cruzan el borde.
     expect(IDS_FINANCIERAS_SERVIDAS).toHaveLength(10);
   });
 

@@ -17,7 +17,7 @@
 //     IMPORTA, nunca se reescribe: un literal aqui dejaria la tabla fuera del refresco el dia
 //     que la constante cambie, y en silencio.
 
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import type { ResultadoConteoProductos } from "@/lib/types/conteo-productos";
 
 import { CLAVE_TABLERO } from "../operativo/PanelOperativo";
@@ -45,5 +45,5 @@ export function claveConteoProductos(
 export async function consultarConteoProductosSwr(
   filtroSerializado: string,
 ): Promise<ResultadoConteoProductos> {
-  return consultarConteoProductos(JSON.parse(filtroSerializado) as unknown);
+  return consultarConteoProductosV2(JSON.parse(filtroSerializado) as unknown);
 }

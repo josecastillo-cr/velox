@@ -39,7 +39,7 @@ export interface OrdenDineroDTO {
   /** Lo que sus gestiones de ENTREGA cobraron. STRING escala 2. Es un hecho, siempre existe. */
   readonly recaudado: string;
   /** Flete + IVA + comision + IVA de sus gestiones liquidadas. `null` si esta pendiente. */
-  readonly ordenex: string | null;
+  readonly empresa: string | null;
   /** Lo recaudado liquidado menos lo anterior. `null` si esta pendiente. */
   readonly tienda: string | null;
   /** Flete de devolucion + IVA si fue rechazada y liquidada. FUERA del reparto (R19). */

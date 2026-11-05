@@ -17,3 +17,13 @@ export const MARCA_RETIRADA = MARCAS_RETIRADAS[0];
  * durante el despliegue los sigue enviando: el servidor tiene que rechazarlos, sin alias (design §3.2).
  */
 export const CONCEPTOS_RETIRADOS_494 = ["gasto_ordenex", "tienda_paga_a_ordenex"] as const;
+
+/** FEATURE 494 (R5, design §3.2) — el id anterior de la métrica de ganancia. El catálogo no puede servirlo. */
+export const METRICA_RETIRADA_494 = "ganancia_ordenex";
+
+/**
+ * FEATURE 494 (R16, design §5.3) — la columna de dinero con su nombre anterior, y la clave vieja de su
+ * ámbito. Están en el navegador de quien la ocultó.
+ */
+export const COLUMNA_DINERO_RETIRADA_494 = "ordenex";
+export const CLAVE_DESCARGA_DINERO_RETIRADA_494 = "ordenex:descarga-columnas:analitica-productos-dinero";

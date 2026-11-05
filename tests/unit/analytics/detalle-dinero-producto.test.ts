@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Prisma } from "@prisma/client";
 
-import { consultarDetalleDineroProducto } from "@/lib/actions/detalle-dinero-producto";
+import { consultarDetalleDineroProductoV2 } from "@/lib/actions/detalle-dinero-producto";
 import { prepararConsultaProductos } from "@/lib/analytics/productos-consulta";
 import type { ConsultaProductos } from "@/lib/analytics/productos-consulta";
 import { detalleMovimientoConfig } from "@/lib/config/detalle-movimiento";
@@ -92,7 +92,7 @@ describe("R32 / R35 / R36 / R37 · que trae cada fila del detalle", () => {
       resultados: ["entregado"],
       estado: "liquidada",
       recaudado: "10000.00",
-      ordenex: "3955.00",
+      empresa: "3955.00",
       tienda: "6045.00",
       retorno: "0.00",
     });
@@ -100,7 +100,7 @@ describe("R32 / R35 / R36 / R37 · que trae cada fila del detalle", () => {
     expect(porGuia.get("2")).toMatchObject({
       estado: "pendiente",
       recaudado: "1500.00",
-      ordenex: null,
+      empresa: null,
       tienda: null,
       retorno: null,
     });
@@ -147,7 +147,7 @@ describe("R32 / R35 / R36 / R37 · que trae cada fila del detalle", () => {
       return acc.toFixed(2);
     };
     expect(suma((o) => o.recaudado)).toBe(r.datos.totales.recaudado);
-    expect(suma((o) => o.ordenex)).toBe(r.datos.totales.liquidado.ordenex);
+    expect(suma((o) => o.empresa)).toBe(r.datos.totales.liquidado.empresa);
     expect(suma((o) => o.tienda)).toBe(r.datos.totales.liquidado.tienda);
   });
 
@@ -293,7 +293,7 @@ describe("R39 / R42 · lo que NO entra y lo que se dice cuando no hay nada", () 
 
 describe("R43 / R44 · el alcance del detalle es el MISMO que el de la fila", () => {
   it("R44 · una tienda ajena da `forbidden`, NO un resultado vacio", async () => {
-    const r = await consultarDetalleDineroProducto(
+    const r = await consultarDetalleDineroProductoV2(
       { filtro: { tienda_id: [T2] }, producto_clave: "base c" },
       {
         getActor: async () => ({ usuarioId: T1, rol: "adminTienda" }) as never,
@@ -308,7 +308,7 @@ describe("R43 / R44 · el alcance del detalle es el MISMO que el de la fila", ()
   it("su propia tienda SI, y el `tienda_id` acaba en el alcance de la consulta", async () => {
     const service = new DetalleDineroProductoService(dineroFalso(siembra()));
     const espia = vi.spyOn(service, "consultar");
-    const r = await consultarDetalleDineroProducto(
+    const r = await consultarDetalleDineroProductoV2(
       { filtro: { tienda_id: [T1] }, producto_clave: "base c" },
       {
         service,
@@ -350,7 +350,7 @@ describe("R43 / R44 · el alcance del detalle es el MISMO que el de la fila", ()
     const service = new DetalleDineroProductoService(dineroFalso(siembra()));
     const espia = vi.spyOn(service, "consultar");
     for (const rol of ["adminSatelite", "mensajero"]) {
-      const r = await consultarDetalleDineroProducto(
+      const r = await consultarDetalleDineroProductoV2(
         { filtro: { tienda_id: [T1] }, producto_clave: "base c" },
         {
           service,
@@ -365,7 +365,7 @@ describe("R43 / R44 · el alcance del detalle es el MISMO que el de la fila", ()
   });
 
   it("sin sesion responde `unauthenticated`, que es otra cosa que `forbidden`", async () => {
-    const r = await consultarDetalleDineroProducto(
+    const r = await consultarDetalleDineroProductoV2(
       { filtro: { tienda_id: [T1] }, producto_clave: "base c" },
       { getActor: async () => null, logger: { logError: vi.fn() }, now: () => AHORA },
     );
@@ -381,7 +381,7 @@ describe("R8 / R73 · la frontera: `.strict()`, y ni base ni alcance si no valid
       { filtro: { tienda_id: [T1] }, producto_clave: "base c", dinero: "concedido" },
       { filtro: { tienda_id: [T1] }, producto_clave: "base c", tiendaId: T2 },
     ]) {
-      const r = await consultarDetalleDineroProducto(raw, { getActor, now: () => AHORA });
+      const r = await consultarDetalleDineroProductoV2(raw, { getActor, now: () => AHORA });
       expect(r.status, JSON.stringify(raw)).toBe("validation_error");
     }
     // ⚠ R73 — no se resolvio el actor ni una vez: la validacion va PRIMERO.
@@ -397,7 +397,7 @@ describe("R8 / R73 · la frontera: `.strict()`, y ni base ni alcance si no valid
       null,
       "base c",
     ]) {
-      const r = await consultarDetalleDineroProducto(raw, { now: () => AHORA });
+      const r = await consultarDetalleDineroProductoV2(raw, { now: () => AHORA });
       expect(r.status, JSON.stringify(raw)).toBe("validation_error");
     }
   });
@@ -407,7 +407,7 @@ describe("R8 / R73 · la frontera: `.strict()`, y ni base ni alcance si no valid
     // `tienda_id` abriria un panel que mezcla tiendas y cuyos totales no serian los de NINGUNA
     // fila de la tabla — un cuadre roto que nadie veria.
     for (const filtro of [{}, { tienda_id: [T1, T2] }, { tienda_id: [] }]) {
-      const r = await consultarDetalleDineroProducto(
+      const r = await consultarDetalleDineroProductoV2(
         { filtro, producto_clave: "base c" },
         { now: () => AHORA },
       );
@@ -419,7 +419,7 @@ describe("R8 / R73 · la frontera: `.strict()`, y ni base ni alcance si no valid
 describe("R10 · la denegacion deja rastro sin revelar el motivo", () => {
   it("registra el denegado y responde `forbidden` a secas", async () => {
     const logError = vi.fn();
-    const r = await consultarDetalleDineroProducto(
+    const r = await consultarDetalleDineroProductoV2(
       { filtro: { tienda_id: [T2] }, producto_clave: "base c" },
       {
         getActor: async () => ({ usuarioId: T1, rol: "adminTienda" }) as never,
@@ -436,7 +436,7 @@ describe("R10 · la denegacion deja rastro sin revelar el motivo", () => {
 
   it("el rastro nombra esta puerta y no la de la tabla", async () => {
     const logError = vi.fn();
-    await consultarDetalleDineroProducto(
+    await consultarDetalleDineroProductoV2(
       { filtro: { tienda_id: [T2] }, producto_clave: "base c" },
       {
         getActor: async () => ({ usuarioId: T1, rol: "adminTienda" }) as never,

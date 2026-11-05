@@ -62,7 +62,7 @@ const ESPERADAS_CON_DESGLOSE: readonly string[] = [
   "ingreso_iva",
   "egresos",
   "dinero_en_caja",
-  "ganancia_ordenex",
+  "ganancia_empresa",
   "cuenta_por_pagar_mensajero",
 ];
 

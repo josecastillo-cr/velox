@@ -189,7 +189,7 @@ function comoFila(o: OrdenQueAporta): OrdenDineroDTO {
     recaudado: o.reparto.recaudado,
     // R27/R30/R31 — de una orden pendiente NO se emite reparto. `null`, nunca `"0.00"`: no se
     // proyecta, no se estima y no se extrapola.
-    ordenex: o.reparto.ordenex,
+    empresa: o.reparto.empresa,
     tienda: o.reparto.tienda,
     retorno: o.reparto.retorno,
   };

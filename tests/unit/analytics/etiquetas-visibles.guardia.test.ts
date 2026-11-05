@@ -74,7 +74,7 @@ describe("las etiquetas del catálogo de métricas — el texto que se lee en el
       ["egresos", "Egresos"],
       ["dinero_en_caja", "Dinero en caja"],
       // «Ordenex» es la marca: no lleva tilde, y no es un olvido.
-      ["ganancia_ordenex", `Ganancia de ${NOMBRE_CORTO_ESPERADO}`],
+      ["ganancia_empresa", `Ganancia de ${NOMBRE_CORTO_ESPERADO}`],
       ["cuenta_por_pagar_tienda", "Cuenta por pagar a tiendas"],
       ["cuenta_por_pagar_mensajero", "Cuenta por pagar a mensajeros"],
       ["conciliacion_cierres", "Conciliación de cierres"],

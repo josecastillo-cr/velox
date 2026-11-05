@@ -337,7 +337,7 @@ describe("R43 · el saldo al corte esta marcado y el flujo del periodo no", () =
       // Feature 173 (P4): las dos son FLUJO del periodo, no saldo al corte. `dinero_en_caja`
       // suena a saldo y no lo es: agrega la ventana [desde, hasta) como las demas.
       dinero_en_caja: false,
-      ganancia_ordenex: false,
+      ganancia_empresa: false,
       cuenta_por_pagar_tienda: true,
       cuenta_por_pagar_mensajero: true,
       conciliacion_cierres: false,

@@ -6,7 +6,7 @@
 // el humano el 2026-07-30 (D1 «todas») = **15 ids operativos + 8 financieros = 23**.
 // Anadir o quitar una metrica exige una decision humana nueva y fechada.
 // ⟨P4⟩ humano, 2026-08-03 (`progress/decision_F2_173.md`): +2 financieras (`dinero_en_caja`
-// y `ganancia_ordenex`) = **15 operativos + 10 financieros = 25**.
+// y `ganancia_empresa`) = **15 operativos + 10 financieros = 25**.
 //
 // R1 (modulo puro): este archivo no importa `@/lib/db`, ni repositorios, ni servicios,
 // ni `next/headers`, ni `@prisma/client` como valor, ni ejecuta efectos al importarse.
@@ -692,7 +692,7 @@ const CATALOGO = [
     id: "dinero_en_caja",
     etiqueta: "Dinero en caja",
     descripcion:
-      `TESORERIA: el flujo de dinero registrado de la caja principal — el dinero que entro de verdad menos todo lo que salio, sin distinguir de quien es: incluye el contra-entrega cobrado a nombre de las tiendas, lo que las tiendas le pagan a ${MARCA.nombre} y su anulacion, los reversos y los ajustes. NO suma aparte el flete, la comision ni sus impuestos: son la parte de ${MARCA.nombre} que se descuenta del contra-entrega de la tienda (o una deuda de la tienda), no dinero que entre a la caja; ni el cobro de ${MARCA.nombre} a una tienda ni su anulacion, que tampoco son dinero que entre o salga (se toman del saldo de la tienda y se le devuelven). Es la misma cifra principal de la tarjeta de la caja; solo es el saldo real si hay un saldo inicial registrado. NO es lo que ${MARCA.nombre} gano (eso es ganancia_ordenex). Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
+      `TESORERIA: el flujo de dinero registrado de la caja principal — el dinero que entro de verdad menos todo lo que salio, sin distinguir de quien es: incluye el contra-entrega cobrado a nombre de las tiendas, lo que las tiendas le pagan a ${MARCA.nombre} y su anulacion, los reversos y los ajustes. NO suma aparte el flete, la comision ni sus impuestos: son la parte de ${MARCA.nombre} que se descuenta del contra-entrega de la tienda (o una deuda de la tienda), no dinero que entre a la caja; ni el cobro de ${MARCA.nombre} a una tienda ni su anulacion, que tampoco son dinero que entre o salga (se toman del saldo de la tienda y se le devuelven). Es la misma cifra principal de la tarjeta de la caja; solo es el saldo real si hay un saldo inicial registrado. NO es lo que ${MARCA.nombre} gano (eso es ganancia_empresa). Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -752,7 +752,7 @@ const CATALOGO = [
     },
   },
   {
-    id: "ganancia_ordenex",
+    id: "ganancia_empresa",
     etiqueta: `Ganancia de ${MARCA.nombreCorto}`,
     descripcion:
       `RESULTADO: ingresos propios de ${MARCA.nombre} menos sus egresos propios, dejando fuera el dinero de terceros que solo pasa por la caja (el contra-entrega y su devolucion a la tienda). Incluye lo que ${MARCA.nombre} les cobra a las tiendas (el cobro de ${MARCA.nombre} a una tienda es ganancia: se toma del saldo que le guardaba) y descuenta sus anulaciones. Es, numero por numero, lo que \`derivarBalance\` devolvia sobre el libro entero antes de la 173: no cambia de valor, cambia de nombre. DESDE LA FICHA 488 NO incluye el IVA cobrado a las tiendas ni su anulacion: es IVA por pagar a Hacienda, no ganancia; la cifra baja a partir de esa fecha sin que su id ni su nombre cambien. Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,

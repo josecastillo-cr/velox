@@ -54,11 +54,11 @@
 
 ## Tanda 4 — Familia analítica
 
-- [ ] **T5.1 — Script.** Depende de tanda 3 mergeada y de T2.1. `--familia analitica`. **Hecho:** `tsc` limpio; R5 verde con el id literal.
-- [ ] **T5.2 — Caché.** Prefijo nuevo en `claveDeConteoProductos`; revisar los otros 11 usos de `envolver`. **Hecho:** R9 verde, y la revisión anotada.
-- [ ] **T5.3 — Columna guardada.** `traducir` del ámbito `analitica-productos-dinero` (`design.md §5.3`), al leer la clave vieja **y también sobre lo ya guardado bajo `app:`, sin condición**. **Por qué sin condición:** la tanda 1 deja el valor bajo `app:` con el nombre viejo de la columna dentro; una release antes de esta tarea lo lleva a los navegadores, y sin esa traducción la columna oculta reaparece. **Hecho:** R16 verde con los dos casos, clave vieja y clave `app:`. `tests/unit/navegador/preferencias-494.test.tsx` sale rojo a propósito al renombrar la columna, hasta sustituirlo por R16. **Mutación:** sin `traducir` en cualquiera de los dos caminos, la columna oculta reaparece y el test sale rojo (anotado y restaurado).
-- [ ] **T5.4 — Contrato.** `tests/unit/api/contrato-sin-cambios-494.test.ts`. **Hecho:** R6 verde; `docs/api/**` sin cambio de campos.
-- [ ] **T5.5 — Ver la app.** Tablero financiero y productos con dinero, y descarga de CSV. **Hecho:** encabezado «Cobró Velox …», misma posición de columna, cifra de ganancia igual.
+- [x] **T5.1 — Script.** Depende de tanda 3 mergeada y de T2.1. `--familia analitica`. **Hecho:** `tsc` limpio; R5 verde con el id literal.
+- [x] **T5.2 — Caché.** Prefijo nuevo en `claveDeConteoProductos`; revisar los otros 11 usos de `envolver`. **Hecho:** R9 verde, y la revisión anotada.
+- [x] **T5.3 — Columna guardada.** `traducir` del ámbito `analitica-productos-dinero` (`design.md §5.3`), al leer la clave vieja **y también sobre lo ya guardado bajo `app:`, sin condición**. **Por qué sin condición:** la tanda 1 deja el valor bajo `app:` con el nombre viejo de la columna dentro; una release antes de esta tarea lo lleva a los navegadores, y sin esa traducción la columna oculta reaparece. **Hecho:** R16 verde con los dos casos, clave vieja y clave `app:`. `tests/unit/navegador/preferencias-494.test.tsx` sale rojo a propósito al renombrar la columna, hasta sustituirlo por R16. **Mutación:** sin `traducir` en cualquiera de los dos caminos, la columna oculta reaparece y el test sale rojo (anotado y restaurado).
+- [x] **T5.4 — Contrato.** `tests/unit/api/contrato-sin-cambios-494.test.ts`. **Hecho:** R6 verde; `docs/api/**` sin cambio de campos.
+- [x] **T5.5 — Ver la app.** Tablero financiero y productos con dinero, y descarga de CSV. **Hecho:** encabezado «Cobró Velox …», misma posición de columna, cifra de ganancia igual.
 
 ## Tanda 5 — Filas (condicional)
 
@@ -72,7 +72,7 @@
 - [ ] **T7.1 — Scripts.** [P] Tratar `scripts/`: E4 se queda (lista exacta de archivos, también sus tests); `seed-maestro.ts` con ejemplo y nombre por defecto nuevos; `generate-pwa-icons.mjs`, `backfill-analitica.ts` limpios. **Hecho:** E4 con rutas reales, y bloque de excepciones verde.
 - [ ] **T7.2 — Siembra QA.** [P] `scripts/seed-usuarios-qa.ts` pasa la cuenta al correo nuevo (P3). **Hecho:** R29 verde con dos corridas; ejecutada en local; preview, anotado para el leader. Prod: no.
 - [ ] **T7.3 — Postman.** [P] Renombrar colección y `name`; `openapi-320` y `openapi-266`; línea en `CHANGELOG.md`, sin ruptura. **Hecho:** R31 verde.
-- [ ] **T7.4 — Docs y entorno.** [P] `.env.example`, `DESIGN.md`, `.claude/commands/test_jobs.md`, y las filas B2 y B4 de `docs/release.md`. Además, en `docs/release.md`, el paso de `design.md §3.2` para esta release: medir Skew Protection y comparar los ids de action entre dos despliegues de preview; si sobreviven, desplegar fuera de la operación y avisar de que recarguen. **Hecho:** R32 verde y ese paso escrito. El título de `CLAUDE.md`, lo aplica el leader.
+- [ ] **T7.4 — Docs y entorno.** [P] `.env.example`, `DESIGN.md`, `.claude/commands/test_jobs.md`, y las filas B2 y B4 de `docs/release.md`. Además, en `docs/release.md`, el paso de `design.md §3.2` para esta release: medir Skew Protection y si `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` está fijada en producción (comparar ids entre previews no predice la release: la sal caduca a los 14 días y va ligada a la caché de build); si no hay ninguna de las dos, desplegar fuera de la operación y avisar de que recarguen. **Hecho:** R32 verde y ese paso escrito. El título de `CLAUDE.md`, lo aplica el leader.
 - [ ] **T7.5 — Comentarios del esquema.** [P] `db/schema.prisma`, solo comentarios. **Hecho:** `prisma migrate diff` sin diferencias, salida anotada; `prisma generate` sin cambio de tipos; R13 verde.
 - [ ] **T7.6 — Paquete.** `package.json`, commit propio y al final de la tanda. **Hecho:** R31 verde. Si `--rapido` pide el completo, parar: lo decide el leader, ningún subagente lo corre.
 

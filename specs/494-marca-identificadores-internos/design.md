@@ -95,10 +95,15 @@ RELEASE.** Sin alias y sin código.
 
 - **Navegación RSC:** el build distinto hace carga completa, así que la respuesta nueva no llega a la pestaña vieja.
 - **Respuesta de Server Action:** llega si el id de la action sigue valiendo.
-- **Daño:** frase falsa de saldo debajo de la cifra correcta, o panel que no abre, hasta recargar. No se escribe nada.
-- **Antes de la release:** medir Skew Protection y comparar los ids de action entre dos despliegues de preview. Si
-  sobreviven, desplegar fuera de la operación y avisar de que recarguen. Es parte de T7.4, para que entre en
-  `docs/release.md` con R32.
+- **Daño en cierres y caja (tandas 2 y 3):** frase falsa de saldo debajo de la cifra correcta, o panel que no abre, hasta recargar. No se escribe nada.
+- **Daño en productos (tanda 4), cerrado con otro nombre de action:** recargar no lo arreglaba. Las filas pedidas después del despliegue llegaban con `liquidado.empresa`, y su archivo se guardaba con «Cobró Velox» vacía, sin error, que además se lee como «nada liquidado». Un archivo ya bajado no se corrige recargando. Lo ya cargado antes del despliegue seguía en memoria con su forma, y se descargaba bien.
+  `consultarConteoProductosV2` y `consultarDetalleDineroProductoV2` cortan ese caso: **medido en `next build --webpack`, con la misma caché y la misma sal, los dos ids viejos desaparecen y los otros 332 de 334 no cambian.** **Producción construye con Turbopack** (`next build`, sin `--webpack`) y allí no se pudo medir: en un worktree cae por el junction de `node_modules`. Que el id dependa del nombre también con Turbopack es supuesto, comprobable en un checkout sin junction. La pestaña vieja recibe `UnrecognizedActionError` (leído en Next, sin ejecutar) y la tabla pinta su mensaje de error (`ProductosTabla.test.tsx`). Sin alias y sin excepción de guardia. Si la forma del DTO vuelve a cambiar, el sufijo sube.
+- **Antes de la release:** comparar los ids de dos despliegues de preview **no predice** la release: la sal es la clave de cifrado, guardada en `.rscinfo` dentro de la caché de build, caduca a los 14 días y depende de que esa caché se restaure. Por eso se mide lo que no caduca:
+  1. **Skew Protection en el proyecto de Vercel:** es lo único que da una respuesta firme. Activa, la pestaña vieja sigue hablando con su despliegue y el cruce no se da mientras dure su ventana.
+  2. **`NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` en el entorno de producción:** si está fijada, los ids sobreviven siempre.
+  3. **Sin ninguna de las dos:** no se sabe si los ids sobreviven a ese despliegue, y se actúa como si sí. Se despliega fuera de la operación y se avisa de que recarguen.
+
+  Es parte de T7.4, para que entre en `docs/release.md` con R32.
 
 ### 3.3 Caché de analítica
 

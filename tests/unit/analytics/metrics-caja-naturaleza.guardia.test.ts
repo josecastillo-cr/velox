@@ -366,12 +366,12 @@ describe("R53/R54 · lo que las descripciones del catalogo declaran de la caja e
     expect(actual.endsWith("las gestiones anuladas no generan movimiento que contar.")).toBe(true);
   });
 
-  it("R54 · `dinero_en_caja` y `ganancia_ordenex` tienen descripcion PROPIA, no prestada", () => {
+  it("R54 · `dinero_en_caja` y `ganancia_empresa` tienen descripcion PROPIA, no prestada", () => {
     // La otra mitad de R54 («id propio y descripcion propia»): el id ya lo fija el catalogo, pero
     // nada afirmaba que las descripciones fueran distintas ENTRE SI y del resto. Dos metricas que
     // existen precisamente para no confundirse pueden acabar contando lo mismo con dos nombres.
     const enCaja = getMetrica("dinero_en_caja")?.descripcion ?? "";
-    const ganancia = getMetrica("ganancia_ordenex")?.descripcion ?? "";
+    const ganancia = getMetrica("ganancia_empresa")?.descripcion ?? "";
 
     expect(enCaja.length).toBeGreaterThan(80);
     expect(ganancia.length).toBeGreaterThan(80);
@@ -380,7 +380,7 @@ describe("R53/R54 · lo que las descripciones del catalogo declaran de la caja e
     // Distintas tambien de las de TODAS las demas del catalogo: una descripcion copiada seria un
     // id propio con el significado de otra cifra.
     const ajenas = METRICAS.filter(
-      (m) => m.id !== "dinero_en_caja" && m.id !== "ganancia_ordenex",
+      (m) => m.id !== "dinero_en_caja" && m.id !== "ganancia_empresa",
     ).map((m) => m.descripcion);
     expect(ajenas.length, "el censo mira un catalogo poblado").toBeGreaterThanOrEqual(23);
     expect(ajenas).not.toContain(enCaja);
@@ -469,12 +469,12 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     expect(declaradas).toContain("egreso_reverso_abono_tienda");
   });
 
-  it("`ganancia_ordenex` declara EXACTAMENTE las de naturaleza propio, y ni una de terceros", () => {
+  it("`ganancia_empresa` declara EXACTAMENTE las de naturaleza propio, y ni una de terceros", () => {
     const propiasDelRecord = Object.entries(NATURALEZA_POR_CATEGORIA)
       .filter(([, n]) => n === "propio")
       .map(([c]) => c)
       .sort();
-    const declaradas = [...(getMetrica("ganancia_ordenex")?.definicion.categorias ?? [])].sort();
+    const declaradas = [...(getMetrica("ganancia_empresa")?.definicion.categorias ?? [])].sort();
 
     expect(declaradas).toEqual(propiasDelRecord);
     // ficha 461 (R29): 14 + el cobro a una tienda y su reverso; ficha 458-B: + los dos reversos del cobro
@@ -506,10 +506,10 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
 
   it("la diferencia entre las dos listas son las TRES de terceros, ni una mas", () => {
     const enCaja = getMetrica("dinero_en_caja")?.definicion.categorias ?? [];
-    const ganancia = new Set(getMetrica("ganancia_ordenex")?.definicion.categorias ?? []);
+    const ganancia = new Set(getMetrica("ganancia_empresa")?.definicion.categorias ?? []);
     // Ficha 459: + los dos de terceros del pago por cuenta y los dos de CAPITAL, que tampoco son
     // ganancia. Ficha 457 (R52, D11): + el pago de una tienda a Ordenex y su anulacion, que son de
-    // TERCEROS (DH1) y por eso `ganancia_ordenex` no los ve: 9 categorias. Ficha 488 (R31): + las SEIS
+    // TERCEROS (DH1) y por eso `ganancia_empresa` no los ve: 9 categorias. Ficha 488 (R31): + las SEIS
     // de dueño `iva` (los tres IVA, el reverso del IVA, el Pago de IVA y su anulacion): 15. Ficha 498:
     // + las DOS diferencias de la satelite (dueño `por_cobrar_satelite`, no ganancia): 17.
     expect(enCaja.filter((c) => !ganancia.has(c)).sort()).toEqual([
@@ -541,8 +541,8 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
   const declaraLa488SinIva = (d: string) => /DESDE LA FICHA 488 NO incluye el IVA/.test(d);
   const declaraLa488PagoDeIva = (d: string) =>
     /DESDE LA FICHA 488 incluye el PAGO DE IVA/.test(d) && /egreso_pago_iva/.test(d) && /ingreso_reverso_pago_iva/.test(d);
-  it("488 (R31): la descripcion de `ganancia_ordenex` declara que desde la 488 NO incluye el IVA", () => {
-    const d = getMetrica("ganancia_ordenex")?.descripcion ?? "";
+  it("488 (R31): la descripcion de `ganancia_empresa` declara que desde la 488 NO incluye el IVA", () => {
+    const d = getMetrica("ganancia_empresa")?.descripcion ?? "";
     expect(declaraLa488SinIva(d)).toBe(true);
     // Autocomprobacion: sin la frase de la 488, el predicado se pone rojo.
     expect(declaraLa488SinIva(d.replace(/DESDE LA FICHA 488[^.]*\./, ""))).toBe(false);
@@ -563,7 +563,7 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
   });
 
   it("las dos son financieras del catalogo, `live` y sobre el libro de la caja", () => {
-    for (const id of ["dinero_en_caja", "ganancia_ordenex"]) {
+    for (const id of ["dinero_en_caja", "ganancia_empresa"]) {
       const metrica = getMetrica(id);
       expect(metrica?.dominio, id).toBe("financiera");
       expect(metrica?.clase, id).toBe("live");
