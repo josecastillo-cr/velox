@@ -25,7 +25,7 @@
 //
 // ⚠ TODO IMPORTE ES STRING escala 2 de punta a punta (R22). Aqui no se escribe ni una formula de
 // dinero: la unica aritmetica monetaria vive en `repartoDeOrden`, que a su vez solo LLAMA a
-// `derivarIngresoOrden` y a `pagoTiendaOrdenex`.
+// `derivarIngresoOrden` y a `pagoTiendaEmpresa`.
 
 // FICHA 449 — `Prisma.Decimal` entra aqui SOLO como ARITMETICA (es lo mismo que hace
 // `lib/utils/dinero-por-producto.ts`, que lo importa por el mismo motivo). No es una formula de

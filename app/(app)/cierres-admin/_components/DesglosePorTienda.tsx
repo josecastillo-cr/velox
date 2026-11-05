@@ -1,10 +1,10 @@
 "use client";
 
 // FICHA 396 — el tipo del desglose se pide DONDE VIVE la identidad que particiona
-// (`lib/utils/ingreso-ordenex.ts`), igual que hacen los dos contratos de servicio. Es un
+// (`lib/utils/ingreso-empresa.ts`), igual que hacen los dos contratos de servicio. Es un
 // `import type`: se borra al compilar y no arrastra ni `Prisma` ni una línea de servidor al
 // navegador.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 
 import { CascadaDinero, type LineaCascada } from "./CascadaDinero";
 // Los rótulos se piden al módulo PURO directamente, y NO por el re-export de

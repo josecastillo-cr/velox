@@ -223,7 +223,7 @@ export const PARA_LA_CENTRAL_LABEL = "Para la central";
  * Resultado de la cascada A. NO es la «Ganancia» de hoy: aquella no resta el pago a la bodega
  * satélite, así que las dos sólo coinciden cuando ese pago es cero.
  */
-export const NETO_ORDENEX_LABEL = `Neto de ${MARCA.nombreCorto}`;
+export const NETO_EMPRESA_LABEL = `Neto de ${MARCA.nombreCorto}`;
 
 /**
  * La LÍNEA PUENTE (R10): lo que Ordenex cobra sobre lo recaudado. Sin ella la cascada A enseña
@@ -232,7 +232,7 @@ export const NETO_ORDENEX_LABEL = `Neto de ${MARCA.nombreCorto}`;
 export const COBRADO_SOBRE_RECAUDADO_LABEL = "Cobrado sobre lo recaudado";
 
 /** El mismo número que el «Ingreso bruto» del cierre de mensajero, dicho como lo dice quien lo lee. */
-export const FACTURADO_ORDENEX_LABEL = `Lo que ${MARCA.nombre} facturó`;
+export const FACTURADO_EMPRESA_LABEL = `Lo que ${MARCA.nombre} facturó`;
 
 /**
  * `total_ingreso_bodega_rechazos` dicho desde el punto de vista de quien mira (R25, D3′), y con
@@ -332,11 +332,11 @@ export const COBRADO_SOBRE_RECAUDADO_NOTA =
   "Flete + IVA y comisión + IVA de lo que sí se entregó: sale del dinero que el mensajero recaudó.";
 
 /** FICHA 395 — de qué resta sale el neto de Ordenex, en el idioma de quien la hace. */
-export const NETO_ORDENEX_NOTA =
+export const NETO_EMPRESA_NOTA =
   `Lo que ${MARCA.nombre} facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.`;
 
 /** FICHA 395 — qué significa un neto NEGATIVO: no es un fallo, es una pérdida del cierre. */
-export const NETO_ORDENEX_NEGATIVO_NOTA =
+export const NETO_EMPRESA_NEGATIVO_NOTA =
   `${MARCA.nombre} pagó más de lo que facturó en este cierre: ese neto es una pérdida, no una ganancia.`;
 
 /**
@@ -369,7 +369,7 @@ export const FLETE_RECHAZO_NO_SE_COBRARA_NOTA =
  * la misma sección según por qué pantalla se entre.
  */
 export const CASCADA_FACTURA_TIENDA_TITULO = `Lo que ${MARCA.nombre} le factura a la tienda`;
-export const CASCADA_NETO_ORDENEX_TITULO = `Lo que le queda a ${MARCA.nombre}`;
+export const CASCADA_NETO_EMPRESA_TITULO = `Lo que le queda a ${MARCA.nombre}`;
 
 // ---------------------------------------------------------------------------
 // FICHA 396 (2026-09-08) — DE QUÉ TIENDA ES CADA PARTE DEL «PAGO A TIENDA».

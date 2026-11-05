@@ -127,7 +127,7 @@ export interface CierreDetalleGestion {
    * leeria como una deuda suya. La decision es de `design.md` §7.2 («el mensajero no ve la
    * indemnizacion: no es plata suya») y se implementa en el REPO, no en la UI: la columna ni
    * siquiera se selecciona en la consulta del mensajero, asi que no puede filtrarse por un
-   * cambio de pantalla. Mismo patron que `ingresoOrdenex`, que tampoco cruza a esa vista.
+   * cambio de pantalla. Mismo patron que `ingresoEmpresa`, que tampoco cruza a esa vista.
    */
   indemnizacion: string | null;
   /**
@@ -136,7 +136,7 @@ export interface CierreDetalleGestion {
    * EN VIVO del mensajero es `undefined` (no ve el ingreso de la empresa, y ademas no hay
    * snapshot todavia). `null` en cierres pre-snapshot.
    */
-  ingresoOrdenex?: IngresoOrdenexDTO | null;
+  ingresoEmpresa?: IngresoEmpresaDTO | null;
 }
 
 /**
@@ -178,7 +178,7 @@ export interface TarifaSnapshotDTO {
  * `tarifa === null` es el gap conocido (feature 69/R9): la tienda no tenia tarifa vigente al
  * solicitar, asi que ningun concepto se derivo. No bloquea el cierre; se avisa en la UI.
  */
-export interface IngresoOrdenexDTO {
+export interface IngresoEmpresaDTO {
   montoCobrar: string | null; // COD a recaudar, congelado (distinto de montoRecibido)
   cobraComision: boolean;
   esCentral: boolean; // zona GAM: elige la COLUMNA de tarifa, no la formula (R21)
@@ -212,7 +212,7 @@ export interface IngresoOrdenexDTO {
  * concepto se emite siempre: es una vista de auditoria, y un "0.00" explicito dice algo
  * distinto a una fila ausente. Money-safe: STRING escala 2.
  */
-export interface TotalesIngresoOrdenex {
+export interface TotalesIngresoEmpresa {
   montoCobrar: string;
   // Agrupados (concepto + su IVA): lo que se muestra en los paneles.
   fleteConIva: string;

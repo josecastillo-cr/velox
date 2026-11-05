@@ -13,7 +13,7 @@ import type {
   IRechazoTiendaService,
   RechazarNovedadResult,
 } from "@/lib/interfaces/services/IRechazoTiendaService";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { clavePar } from "@/lib/utils/cascada-tarifa";
 import { fechaCalendarioCR } from "@/lib/utils/fecha-cr";
 

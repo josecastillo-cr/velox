@@ -24,7 +24,7 @@ import {
 import type { CierreAdminResumen } from "@/lib/interfaces/services/ICierresAdminService";
 // FICHA 396: el desglose por tienda viaja YA DERIVADO y YA ORDENADO en el detalle. El tipo se
 // pide donde vive la identidad que particiona, igual que hace `ICierresAdminService`.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 import type {
   CatalogoFiltrosCierresDTO,
   FiltrosCierres,
@@ -38,7 +38,7 @@ import type {
   CierreGrupos,
   CierreOrdenSinGestion,
   CierreRechazoDeTienda,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import { montoValido } from "@/app/(app)/wallet/_components/wallet-labels";
 // Feature 158 (m5 del review): el tope del monto se IMPORTA del borde del servidor, no se
@@ -346,7 +346,7 @@ interface DetalleAbierto {
   cierre: CierreAdminResumen;
   grupos: CierreGrupos;
   /** Ingreso de Ordenex del cierre por concepto (derivado del snapshot, money-safe). */
-  totalesIngreso: TotalesIngresoOrdenex;
+  totalesIngreso: TotalesIngresoEmpresa;
   /**
    * Feature 102/R8/R10: desglose del ingreso de bodega por rechazos particionado por origen
    * (SLA del cron 99 / manual del mensajero). `total` = snapshot leído; `sla + manual === total`
@@ -362,12 +362,12 @@ interface DetalleAbierto {
    * tres importes son STRING con su signo y NINGUNO se recorta a cero.
    *
    * `ganancia` y `pagoTienda` siguen aquí arriba, intactos y con el mismo significado: nadie los
-   * absorbió. `netoOrdenex` NO es `ganancia` (resta ADEMÁS el ingreso de bodega) y `ganaLaTienda`
+   * absorbió. `netoEmpresa` NO es `ganancia` (resta ADEMÁS el ingreso de bodega) y `ganaLaTienda`
    * NO es `pagoTienda` (aquel no descuenta el flete por rechazo, que nunca entró en lo
    * recaudado). Los cuatro se pasan tal cual a `CascadasCierreMensajero`: aquí no se deriva nada.
    */
   cobradoSobreRecaudado: string;
-  netoOrdenex: string;
+  netoEmpresa: string;
   ganaLaTienda: string;
   fleteRechazoYaCobradoATienda: boolean;
   /**
@@ -675,7 +675,7 @@ export function CierresAdminModule({
         // FICHA 395: los cuatro llegan DERIVADOS del servidor y se guardan tal cual. Ni una
         // resta aquí: el navegador no hace aritmética de dinero.
         cobradoSobreRecaudado: result.cobradoSobreRecaudado,
-        netoOrdenex: result.netoOrdenex,
+        netoEmpresa: result.netoEmpresa,
         ganaLaTienda: result.ganaLaTienda,
         fleteRechazoYaCobradoATienda: result.fleteRechazoYaCobradoATienda,
         // FICHA 396: el desglose por tienda, tal cual llega. Ya viene ordenado por el servidor
@@ -1270,7 +1270,7 @@ export function CierresAdminModule({
               totalIngresoBodegaRechazos={detalle.cierre.totalIngresoBodegaRechazos}
               pagoTienda={detalle.pagoTienda}
               cobradoSobreRecaudado={detalle.cobradoSobreRecaudado}
-              netoOrdenex={detalle.netoOrdenex}
+              netoEmpresa={detalle.netoEmpresa}
               ganaLaTienda={detalle.ganaLaTienda}
               fleteRechazoYaCobradoATienda={detalle.fleteRechazoYaCobradoATienda}
               // FICHA 396: «Pago a tienda» y «Gana la tienda» son la SUMA de las tiendas del

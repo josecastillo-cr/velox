@@ -101,7 +101,7 @@ export const RECHAZO_TITULO = "Rechazar la orden";
  *
  * ⏳ FICHA 338 (2026-08-31): el concepto se llamaba aquí «flete de devolución», y ese nombre
  * decía justo el caso que NO cobra. Sólo un RECHAZO cobra este flete; una devolución no cobra
- * nada (`lib/utils/ingreso-ordenex.ts`, ficha 301). El nombre en toda la app es «flete por
+ * nada (`lib/utils/ingreso-empresa.ts`, ficha 301). El nombre en toda la app es «flete por
  * rechazo», y en esta ventana además cierra el círculo: el botón que se está pulsando es
  * «Rechazar».
  */

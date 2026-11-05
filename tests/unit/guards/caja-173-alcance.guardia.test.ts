@@ -5,7 +5,7 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import { WalletMovimientoRepository } from "@/lib/repositories/WalletMovimientoRepository";
 import { WalletMensajeroFeedService } from "@/lib/services/WalletMensajeroFeedService";
 import type { WalletMensajeroFeedTxClient } from "@/lib/interfaces/services/IWalletMensajeroFeedService";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { pagoPorResultado } from "@/lib/utils/pago-mensajero";
 import { calcularSplitPago, derivarCuentaPorPagar } from "@/lib/utils/cuenta-por-pagar";
 import { derivarSaldoTienda } from "@/lib/utils/saldo-tienda";
@@ -589,7 +589,7 @@ describe("R67 — no nace ningun ciclo de corte, arqueo ni conciliacion de caja"
 
 /** Donde vive cada formula que R68 protege. Se comprueba que las NUEVE existen (no-vacuidad). */
 const MODULOS_DE_FORMULA = [
-  "lib/utils/ingreso-ordenex.ts", // flete, flete de devolucion, comision COD y sus IVA
+  "lib/utils/ingreso-empresa.ts", // flete, flete de devolucion, comision COD y sus IVA
   "lib/utils/pago-mensajero.ts", // pago al mensajero por gestion
   "lib/utils/cuenta-por-pagar.ts", // `min(P, E)` y la cuenta por pagar
   "lib/utils/ingreso-bodega.ts", // ingreso de bodega por resultado
@@ -676,7 +676,7 @@ describe("R68 — las formulas de flete, comision, IVA y pago al mensajero no se
     // La guardia de la 173 mide que las formulas de dinero no se alteren de pasada. Esta
     // linea es la excepcion declarada: el 2026-08-28 el humano cambio la REGLA (no la
     // formula) y una devuelta dejo de facturar. Queda medido aqui para que el proximo cambio
-    // "de pasada" en ingreso-ordenex.ts tenga que pasar tambien por este archivo.
+    // "de pasada" en ingreso-empresa.ts tenga que pasar tambien por este archivo.
     const r = derivarIngresoOrden(
       { resultado: "novedad", esCentral: false, esZonaEspecial: false, montoCobrar: "20000.00", cobraComision: true },
       TARIFA,

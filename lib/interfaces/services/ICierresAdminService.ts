@@ -19,14 +19,14 @@ import type {
   CierreRechazoDeTienda,
   CierreResultado,
   CierreTotales,
-  IngresoOrdenexDTO,
-  TotalesIngresoOrdenex,
+  IngresoEmpresaDTO,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 // Ficha 396 — la parte de UNA tienda se DECLARA junto a la funcion que la produce
 // (`partesPorTienda`), donde viven las identidades que particiona, y se importa aqui como TIPO.
 // Mismo camino que `OrigenFlete`, que ya viaja asi desde ese mismo modulo: un `import type` se
 // borra al compilar, asi que esto no arrastra ni un byte de `lib/utils/` al bundle.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 
 // Feature 38 — contrato del servicio "Cierres del dia" del admin (maestro /
 // adminSatelite). Logica de negocio pura (sin HTTP ni Prisma); el borde (Server
@@ -326,7 +326,7 @@ export interface CierreGestionDescargaDTO {
   pagoMensajero: string | null;
   ingresoBodegaRechazo: string | null;
   /** `null` = la orden no tenia tarifa vigente al solicitar (gap conocido de la feature 69). */
-  ingresoOrdenex: IngresoOrdenexDTO | null;
+  ingresoEmpresa: IngresoEmpresaDTO | null;
 }
 
 /**
@@ -360,7 +360,7 @@ export type CierreDetalleAdminServiceResult =
       cierre: CierreAdminResumen;
       grupos: CierreGrupos; // por resultado (reuso 37)
       // Totales por concepto del ingreso de Ordenex del cierre, derivados del snapshot.
-      totalesIngreso: TotalesIngresoOrdenex;
+      totalesIngreso: TotalesIngresoEmpresa;
       // Feature 102/R4-R8/R10: desglose money-safe (STRING escala 2) del ingreso de bodega por
       // rechazos, particionado por origen. `sla` = escalados del cron SLA (99); `manual` =
       // rechazos del mensajero; `total` = el SNAPSHOT `cierre.totalIngresoBodegaRechazos` (leido,
@@ -394,7 +394,7 @@ export type CierreDetalleAdminServiceResult =
        * rechazos vale "0.00" y divergen en cuanto hay un rechazo. Puede ser NEGATIVO y se emite
        * CON SU SIGNO, nunca recortado a "0.00".
        */
-      netoOrdenex: string;
+      netoEmpresa: string;
       /**
        * Feature 395 — DERIVADO: `cierre.totales.general` − `totalesIngreso.total`. LO QUE LA
        * TIENDA GANA EN TOTAL con este cierre.

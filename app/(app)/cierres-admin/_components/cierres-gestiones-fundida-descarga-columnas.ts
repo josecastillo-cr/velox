@@ -468,7 +468,7 @@ function celdasComunes(gestion: CierreGestionDescargaDTO): DescargaFila {
 function celdasEspecificas(
   gestion: CierreGestionDescargaDTO,
 ): Record<ClaveEspecifica, DescargaCelda> {
-  const ingreso = gestion.ingresoOrdenex;
+  const ingreso = gestion.ingresoEmpresa;
   const mediosPago = montoPorMetodo(gestion.pagos);
   return {
     // `null` cuando la orden no tenía tarifa vigente al solicitar (gap conocido de la feature

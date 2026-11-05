@@ -4,7 +4,7 @@ import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigente
 import {
   agregarIngresosPorConcepto,
   type OrdenIngresoInput,
-} from "@/lib/utils/ingreso-ordenex";
+} from "@/lib/utils/ingreso-empresa";
 import {
   CRITERIO_INDEMNIZACION,
   CRITERIO_PAGO_MENSAJERO,

@@ -191,7 +191,7 @@ describe("app/page.tsx — `/?guia=4321` llega hasta la nav", () => {
  * Esta aserción NO es un espejo del literal: es NEGATIVA y codifica la regla de negocio. Si
  * alguien devuelve la redacción vieja —o escribe cualquier otra que le cuelgue el costo a la
  * devolución— se pone en rojo. La fuente de verdad de la regla vive en
- * `lib/utils/ingreso-ordenex.ts`, no aquí.
+ * `lib/utils/ingreso-empresa.ts`, no aquí.
  */
 describe("app/_landing/LandingPoliticas.tsx — el flete de retorno lo cobra el RECHAZO (ficha 301)", () => {
   it("ningún punto le dice al cliente que una devolución tiene costo", async () => {

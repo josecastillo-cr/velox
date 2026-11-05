@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-import { paraLaCentral } from "@/lib/utils/ingreso-ordenex";
+import { paraLaCentral } from "@/lib/utils/ingreso-empresa";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 431 → FICHA 498 — LA DEUDA DE UNA SATELITE, ESCRITA UNA SOLA VEZ (en TypeScript).

@@ -24,7 +24,7 @@ import {
   saldadaReglaAnteriorSql,
   sinConsolidarSql,
 } from "@/lib/repositories/deuda-satelite-sql";
-import { paraLaCentral } from "@/lib/utils/ingreso-ordenex";
+import { paraLaCentral } from "@/lib/utils/ingreso-empresa";
 import { diasNaturalesCRDesde, inicioDelMesCREnUtc } from "@/lib/utils/fecha-cr";
 import { CUENTA_USUARIO_SELECT, etiquetaDeCuenta } from "@/lib/utils/etiqueta-cuenta";
 import type { PaginaRepositorio, RangoPagina } from "@/lib/utils/rango-pagina";

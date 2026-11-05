@@ -37,7 +37,7 @@ import type { CierreEstado } from "@/lib/types/cierre";
 import { nombreDeEstado } from "@/lib/types/order-status";
 import type {
   CierreRechazoDeTienda,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
   TarifaSnapshotDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreGestionDescargaDTO } from "@/lib/interfaces/services/ICierresAdminService";
@@ -62,7 +62,7 @@ import { RESULTADOS_QUE_VUELVEN } from "@/lib/types/gestion-retorno";
 const ROL_ADMIN_SATELITE = "adminSatelite";
 const ROL_MENSAJERO = "mensajero";
 import { CierreDetalleFaltanteError, tarifaDe } from "@/lib/utils/cierre-detalle";
-import { derivarIngresoOrden, resolverFlete } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden, resolverFlete } from "@/lib/utils/ingreso-empresa";
 import { esRechazoSla, ORIGEN_TIPO_RECHAZO_SLA } from "@/lib/utils/rechazo-sla-flag";
 import type { OrdenHistorialOrigenTipo } from "@/lib/types/orden-historial";
 import {
@@ -357,10 +357,10 @@ function toTarifaSnapshot(d: DetalleAdminRow): TarifaSnapshotDTO | null {
  * resultado (una entrega no tiene flete de devolucion). Eso es distinto de "0.00", que es un
  * monto real. El `total` suma solo los presentes.
  */
-function toIngresoOrdenex(
+function toIngresoEmpresa(
   g: Pick<GestionAdminRow, "resultado">,
   d: DetalleAdminRow,
-): IngresoOrdenexDTO {
+): IngresoEmpresaDTO {
   const tarifa = tarifaDe(d);
   const montoCobrar = decimalToString(d.montoCobrar);
   const derivado = derivarIngresoOrden(
@@ -481,7 +481,7 @@ export function toPendienteRowDesdeSnapshot(
     // «monto cero». A diferencia de la vista del mensajero, el detalle de ADMIN SI lo lleva —
     // es quien lo captura y quien tiene que poder auditarlo despues.
     indemnizacion: decimalToString(g.indemnizacion),
-    ingresoOrdenex: toIngresoOrdenex(g, d),
+    ingresoEmpresa: toIngresoEmpresa(g, d),
   };
 }
 
@@ -790,7 +790,7 @@ type GestionDescargaRow = Prisma.GestionOrdenGetPayload<{
  * hoja fundida.
  *
  * Gemelo de `toPendienteRowDesdeSnapshot` y con las MISMAS derivaciones (`decimalToString`,
- * `toLineasPago`, `esRechazoSla`, `toIngresoOrdenex`), pero NO es aquel con campos de menos:
+ * `toLineasPago`, `esRechazoSla`, `toIngresoEmpresa`), pero NO es aquel con campos de menos:
  * es otro DTO. Lo que sale y lo que NO sale son requisitos verificables —sin uuid (R42), sin
  * nada de evidencia (R41), con mensajero y fecha del cierre (R8/R11)—, y un DTO que los
  * declarara opcionales no los sostendria.
@@ -872,7 +872,7 @@ export function toGestionDescargaDTO(
     indemnizacion: decimalToString(g.indemnizacion),
     pagoMensajero: decimalToString(g.pagoMensajero),
     ingresoBodegaRechazo: decimalToString(g.ingresoBodegaRechazo),
-    ingresoOrdenex: toIngresoOrdenex(g, d),
+    ingresoEmpresa: toIngresoEmpresa(g, d),
   };
 }
 

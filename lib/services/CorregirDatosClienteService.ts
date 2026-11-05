@@ -23,7 +23,7 @@ import {
   type CampoCorregible,
 } from "@/lib/types/correccion-datos-cliente";
 import { paqueteEnEstanteSatelite } from "@/lib/utils/estados-bodega-satelite";
-import { costosListadoOrden } from "@/lib/utils/ingreso-ordenex";
+import { costosListadoOrden } from "@/lib/utils/ingreso-empresa";
 import {
   mensajeCorreccionCaracterNoImprimible,
   mensajeCorreccionSugerencia,

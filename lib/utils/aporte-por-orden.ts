@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { GestionResultado } from "@prisma/client";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import type { WalletIngresoConcepto, WalletMovimientoCategoria } from "@/lib/types/wallet";
 import type { WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda";
 import type { PagoMensajeroMovimientoCategoria } from "@/lib/types/wallet-mensajero";
@@ -17,7 +17,7 @@ import type { MotivoSinReparto } from "@/lib/types/detalle-movimiento";
  * NO HAY NI UNA FORMULA DE DINERO NUEVA (R46). El aporte de una orden a un concepto se
  * RE-DERIVA con `derivarIngresoOrden` —la misma funcion que produjo el importe del movimiento—
  * sobre las ENTRADAS que `cierre_detail` congelo. Es el camino de auditoria que el propio
- * esquema declara y que `CierresAdminRepository.toIngresoOrdenex` ya recorre.
+ * esquema declara y que `CierresAdminRepository.toIngresoEmpresa` ya recorre.
  *
  * CORRECCION DE PREMISA, escrita para que nadie la busque en vano: `cierre_detail` congela las
  * ENTRADAS de la formula (tarifa, `monto_cobrar`, `cobra_comision`, `es_central`,

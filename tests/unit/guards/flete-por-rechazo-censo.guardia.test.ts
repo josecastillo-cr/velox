@@ -12,7 +12,7 @@ import { quitarComentarios } from "../../fixtures/sin-comentarios";
  * ── QUÉ PROTEGE, Y POR QUÉ NO ES COSMÉTICA
  * Sólo un RECHAZO cobra este flete. Desde la ficha 301 (2026-08-28) una `devuelta` NO deriva
  * ningún concepto —el paquete sigue vivo en la calle y todavía puede reprogramarse— y
- * `lib/utils/ingreso-ordenex.ts` lo emite únicamente con `resultado === "rechazada"`. El nombre
+ * `lib/utils/ingreso-empresa.ts` lo emite únicamente con `resultado === "rechazada"`. El nombre
  * viejo decía JUSTO EL CASO QUE NO COBRA, y no es una hipótesis: el humano abrió esta ficha
  * después de leer «Flete devuelto» en el detalle de un cierre y creer que se le estaba cobrando
  * a una tienda por una devolución. No había plata mal cobrada; había vocabulario que asusta.

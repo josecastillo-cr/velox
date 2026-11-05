@@ -101,7 +101,7 @@ const ORDEN_COLA: Prisma.RechazoTiendaCobroOrderByWithRelationInput[] = [
  * Prisma: sin logica de negocio, sin guardias de rol y sin decidir nada.
  *
  * ⚠️ AQUI NO SE CALCULA UN SOLO COLON. Los dos importes llegan ya derivados por
- * `derivarIngresoOrden` (`lib/utils/ingreso-ordenex.ts`) desde la tarifa que resolvia en el
+ * `derivarIngresoOrden` (`lib/utils/ingreso-empresa.ts`) desde la tarifa que resolvia en el
  * instante del rechazo, y este archivo solo los guarda como `Decimal` y los devuelve como STRING.
  * Ni una multiplicacion, ni una suma, ni un porcentaje.
  *

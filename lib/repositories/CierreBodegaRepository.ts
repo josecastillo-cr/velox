@@ -26,7 +26,7 @@ import {
 } from "@/lib/utils/conciliacion-satelite";
 // Feature 393 (design §2.3): las dos derivaciones de la cascada «lo que va a la central».
 // La resta vive en la funcion pura; el repositorio solo la llama.
-import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-ordenex";
+import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-empresa";
 
 // Estados/destino relevantes (fuente de verdad en lib/types/cierre.ts). El cierre de
 // bodega se crea SIEMPRE en `solicitado`; consolida SOLO cierre_dia `aprobado`.
@@ -107,7 +107,7 @@ type BodegaResumenRow = Prisma.CierreBodegaGetPayload<{ select: typeof BODEGA_RE
 // tarjeta del maestro y la del adminSatelite NO PUEDAN decir cosas distintas. Escribirlo en
 // cada servicio serian cuatro copias y una de ellas se quedaria atras.
 //
-// La RESTA no se escribe aqui: la hacen las funciones puras de `lib/utils/ingreso-ordenex.ts`.
+// La RESTA no se escribe aqui: la hacen las funciones puras de `lib/utils/ingreso-empresa.ts`.
 // El `.toFixed(2)` de los snapshots es la frontera del dinero (Decimal -> STRING), no logica.
 export function toBodegaResumenRow(r: BodegaResumenRow): CierreBodegaResumenRow {
   const totales = totalesToString(r);

@@ -52,7 +52,7 @@ import { mananaCalendarioCR } from "@/lib/utils/fecha-cr";
 //      `cobroEntregado`. En la billetera de la tienda no hay apunte por este concepto.
 //   2. A la tienda un rechazo SÍ le cuesta, pero POR OTRA VÍA Y DESDE SU PROPIA TARIFA: el flete de
 //      retorno más su IVA — `ingreso_flete_devolucion` + `ingreso_iva_flete_devolucion` en
-//      `derivarIngresoOrden` (`lib/utils/ingreso-ordenex.ts`), calculados sobre
+//      `derivarIngresoOrden` (`lib/utils/ingreso-empresa.ts`), calculados sobre
 //      `Tarifa.valorFleteDevuelto` / `valorFleteDevueltoGam` y el `ivaFlete` de esa misma fila.
 //      Ése es el cobro que la tienda ve dos días después.
 //
@@ -135,7 +135,7 @@ export const GESTION_AYUDA_TITULO = "Resolver la orden por tu cuenta";
  *   · `pagoPorResultado` (`lib/utils/pago-mensajero.ts:22`) — sólo `entregada` paga al mensajero.
  *   · `ingresoBodegaPorResultado` (`lib/utils/ingreso-bodega.ts:23`) — sólo `rechazada` da ingreso
  *     de bodega.
- *   · `derivarIngresoOrden` (`lib/utils/ingreso-ordenex.ts:185-186`) — desde la ficha 301 emite
+ *   · `derivarIngresoOrden` (`lib/utils/ingreso-empresa.ts:185-186`) — desde la ficha 301 emite
  *     conceptos únicamente para `entregada` y `rechazada`; `reprogramada` cae en el `return {}`.
  *
  * **Lo que NO se hizo, y conviene saberlo antes de «simplificar»:** quitar el aviso entero del modo

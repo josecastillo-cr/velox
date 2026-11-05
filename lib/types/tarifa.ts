@@ -11,7 +11,7 @@ import { tarifasConfig } from "@/lib/config/tarifas";
  *                           pero queda dicho: es un hueco de configuracion, no una decision.
  *
  * VIVE AQUI Y NO JUNTO A `resolverFlete` a proposito: `lib/types/orden.ts` lo necesita para el
- * DTO del listado, y ese modulo lo consumen componentes de CLIENTE. `ingreso-ordenex.ts`
+ * DTO del listado, y ese modulo lo consumen componentes de CLIENTE. `ingreso-empresa.ts`
  * importa `Prisma` como valor, asi que colgar el tipo de alli metia el cliente de Prisma en el
  * grafo del navegador. Este archivo no importa nada de `@prisma/client`.
  */

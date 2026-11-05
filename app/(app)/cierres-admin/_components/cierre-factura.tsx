@@ -36,7 +36,7 @@ import type {
   CierreOrdenSinGestion,
   CierreRechazoDeTienda,
   CierreResultado,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreDestinoTipo, CierreEstado } from "@/lib/types/cierre";
 import {
@@ -82,7 +82,7 @@ import {
   ORDEN_RESULTADOS,
   RESULTADO_LABEL,
   RESULTADO_VACIO,
-  DesgloseIngresoOrdenex,
+  DesgloseIngresoEmpresa,
   desgloseAriaLabel,
   renderPagoMensajero,
   renderFleteOrigen,
@@ -142,7 +142,7 @@ import { CAUSA_INCIDENTE_LABEL } from "@/app/(app)/mis-asignaciones/_components/
 import { FULFILLMENT_COL } from "./cierre-labels";
 // Feature 213 (T6/T7): el desglose de pago se formatea en UN solo sitio (R25).
 import { desglosePantalla } from "./desglose-pago";
-import type { OrigenFlete } from "@/lib/utils/ingreso-ordenex";
+import type { OrigenFlete } from "@/lib/utils/ingreso-empresa";
 import { MARCA } from "@/lib/marca/identidad";
 
 /**
@@ -1299,7 +1299,7 @@ export interface CierreFacturaDetalleProps {
   cierre: CierreFacturaCabecera;
   grupos: CierreGrupos;
   /** Solo `admin`: en la vista del mensajero estos bloques no se pintan. */
-  totalesIngreso?: TotalesIngresoOrdenex;
+  totalesIngreso?: TotalesIngresoEmpresa;
   /**
    * `sla`/`manual` son el desglose por origen del cierre del mensajero. El cierre de
    * BODEGA solo conserva el agregado, así que ahí llega el total solo y la sublínea de
@@ -1687,7 +1687,7 @@ function FilaGestion({
   verFulfillment?: boolean;
 }>) {
   const [open, setOpen] = useState(false);
-  const ing = g.ingresoOrdenex ?? null;
+  const ing = g.ingresoEmpresa ?? null;
   // Feature 213 (T7): un método -> su etiqueta, como siempre; dos o más -> cada uno con su
   // monto, en el orden del DTO. `null` cuando la entrega no tiene líneas de pago.
   const desglose = desglosePantalla(g.pagos);
@@ -1962,7 +1962,7 @@ function FilaGestion({
               con qué fórmula. Es lo que antes vivía en la fila desplegable de la tabla. */}
           {ing ? (
             <div className="mt-3 border-t border-border pt-2.5">
-              <DesgloseIngresoOrdenex g={g} />
+              <DesgloseIngresoEmpresa g={g} />
             </div>
           ) : null}
         </div>

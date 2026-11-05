@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 // de la bodega (`EstadoCuentaRepository`).
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
-// `aporteCierreSql` es la GEMELA declarada de `paraLaCentral` (`lib/utils/ingreso-ordenex.ts`):
+// `aporteCierreSql` es la GEMELA declarada de `paraLaCentral` (`lib/utils/ingreso-empresa.ts`):
 // `498-deuda-satelite-sql-real.test.ts` compara las dos contra Postgres con signo positivo, cero y
 // negativo. La guardia `aporte-satelite-fuente-unica-498` prohibe una tercera copia de la resta en
 // `lib/`.

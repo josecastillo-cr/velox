@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { SWRConfig } from "swr";
 
 import type { CierreBodegaResumen } from "@/lib/interfaces/services/ICierreBodegaService";
-import type { TotalesIngresoOrdenex } from "@/lib/interfaces/services/ICierreDiaService";
+import type { TotalesIngresoEmpresa } from "@/lib/interfaces/services/ICierreDiaService";
 
 /**
  * FICHA 498 (R16, design §8.4) — en la cola de `/cierres-admin`, el diálogo de «Marcar recibido» de una
@@ -68,7 +68,7 @@ const TOTALES_INGRESO = {
   fleteConIva: "3000.00",
   comisionConIva: "0.00",
   fleteDevolucionConIva: "0.00",
-} as TotalesIngresoOrdenex;
+} as TotalesIngresoEmpresa;
 
 function cabecera(over: Partial<CierreBodegaResumen> = {}): CierreBodegaResumen {
   return {
@@ -123,7 +123,7 @@ async function abrirDetalle(cab: CierreBodegaResumen, puedeDesmarcar = false) {
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     partesPorTienda: [],
     paraLaCentral: cab.paraLaCentral,

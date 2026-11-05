@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
-import { partesPorTienda } from "@/lib/utils/ingreso-ordenex";
+import { partesPorTienda } from "@/lib/utils/ingreso-empresa";
 import type { Alcance } from "@/lib/interfaces/repositories/ICierresAdminRepository";
 
 import {

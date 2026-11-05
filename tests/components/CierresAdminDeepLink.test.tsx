@@ -21,7 +21,7 @@ import type { CierreAdminResumen } from "@/lib/interfaces/services/ICierresAdmin
 import type {
   CierreGrupos,
   CierreTotales,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
 vi.mock("@/lib/actions/cierres-admin", () => ({
@@ -123,7 +123,7 @@ function emptyGrupos(): CierreGrupos {
   return { entregado: [], reprogramado: [], novedad: [], devolucion_a_origen_por_rechazo: [], incidente: [] };
 }
 
-function zeroIngreso(): TotalesIngresoOrdenex {
+function zeroIngreso(): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     fleteConIva: "0.00",
@@ -149,7 +149,7 @@ function detalleOk(cierreId: string, mensajeroNombre = "Zoe del Histórico") {
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     fleteRechazoYaCobradoATienda: false,
     // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola

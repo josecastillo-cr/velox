@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
 import type { ApiOrdenCostoDTO } from "@/lib/types/api-orden";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { serializarMontoCotizacion } from "@/lib/utils/monto-cotizacion";
 
 /**

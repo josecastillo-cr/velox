@@ -1,11 +1,11 @@
 "use client";
 
-import type { TotalesIngresoOrdenex } from "@/lib/interfaces/services/ICierreDiaService";
+import type { TotalesIngresoEmpresa } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreEstado } from "@/lib/types/cierre";
 // FICHA 396 — el tipo del desglose se pide DONDE VIVE la identidad que particiona
-// (`lib/utils/ingreso-ordenex.ts`), igual que hace `ICierresAdminService`. Es un `import type`:
+// (`lib/utils/ingreso-empresa.ts`), igual que hace `ICierresAdminService`. Es un `import type`:
 // se borra al compilar y no arrastra ni `Prisma` ni una línea de servidor al navegador.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 
 import { CascadaDinero, type LineaCascada } from "./CascadaDinero";
 // FICHA 396 (D2) — el desglose y su umbral viven en un archivo PROPIO desde la tanda de bodega:
@@ -15,10 +15,10 @@ import { DesglosePorTienda, marcaDeVariasTiendas } from "./DesglosePorTienda";
 import {
   CASCADA_DUENO_TITULO,
   CASCADA_FACTURA_TIENDA_TITULO,
-  CASCADA_NETO_ORDENEX_TITULO,
+  CASCADA_NETO_EMPRESA_TITULO,
   COBRADO_SOBRE_RECAUDADO_LABEL,
   COBRADO_SOBRE_RECAUDADO_NOTA,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   FLETE_DEV_CON_IVA_LABEL,
   FLETE_RECHAZO_AUN_NO_COBRADO_NOTA,
   FLETE_RECHAZO_NO_DEDUCIBLE_NOTA,
@@ -28,9 +28,9 @@ import {
   GANA_LA_TIENDA_NEGATIVO_NOTA,
   GANA_LA_TIENDA_NOTA,
   INGRESO_BODEGA_RECHAZOS_LABEL,
-  NETO_ORDENEX_LABEL,
-  NETO_ORDENEX_NEGATIVO_NOTA,
-  NETO_ORDENEX_NOTA,
+  NETO_EMPRESA_LABEL,
+  NETO_EMPRESA_NEGATIVO_NOTA,
+  NETO_EMPRESA_NOTA,
   PAGO_MENSAJERO_LABEL,
   PAGO_TIENDA_HOY_NOTA,
   PAGO_TIENDA_LABEL,
@@ -77,7 +77,7 @@ import {
  * `CascadaDinero`— y los dos lectores del TEXTO, `esMontoNegativo` y `esMontoCero`.
  *
  * ── LOS NEGATIVOS SE PINTAN CON SU SIGNO
- * `ganaLaTienda` y `netoOrdenex` pueden ser negativos y salen CON SU SIGNO, nunca recortados a
+ * `ganaLaTienda` y `netoEmpresa` pueden ser negativos y salen CON SU SIGNO, nunca recortados a
  * cero ni en valor absoluto. `CascadaDinero` los tiñe con `text-danger-strong` sólo cuando son el
  * RESULTADO destacado, que es el precedente que dejaron los cierres de bodega (393/R11/R36): un
  * negativo no es un fallo de la pantalla, es lo que pasó.
@@ -142,7 +142,7 @@ export interface CascadasCierreMensajeroProps {
   /** Lo recaudado: `cierre.totales.general` (snapshot). */
   general: string;
   /** El ingreso de Ordenex por concepto (derivado del snapshot). */
-  totalesIngreso: TotalesIngresoOrdenex;
+  totalesIngreso: TotalesIngresoEmpresa;
   /** Snapshot del pago al mensajero. */
   totalPagoMensajero: string;
   /** Snapshot del ingreso de bodega por rechazos. */
@@ -152,7 +152,7 @@ export interface CascadasCierreMensajeroProps {
   /** La LÍNEA PUENTE: `fleteConIva + comisionConIva`. Se pinta SIEMPRE (ver abajo). */
   cobradoSobreRecaudado: string;
   /** Facturado − pago al mensajero − ingreso de bodega. NO es `ganancia`. */
-  netoOrdenex: string;
+  netoEmpresa: string;
   /** Recaudado − facturado. NO es `pagoTienda`. */
   ganaLaTienda: string;
   /** ¿El cargo del flete por rechazo YA está en el saldo de la tienda? Resuelto en el servidor. */
@@ -197,7 +197,7 @@ function lineasParticion(
     // renglón del comprobante de abajo). Estrenar un «Lo recaudado» sería dar dos nombres a la
     // misma cifra en la misma superficie, que es el defecto que esta ficha viene a arreglar.
     { label: TOTAL_GENERAL_LABEL, monto: general, signo: "neutro" },
-    { label: FACTURADO_ORDENEX_LABEL, monto: facturado, signo: "resta" },
+    { label: FACTURADO_EMPRESA_LABEL, monto: facturado, signo: "resta" },
     { label: GANA_LA_TIENDA_LABEL, monto: ganaLaTienda, signo: "neutro", destacado: true, notas },
   ];
 }
@@ -273,7 +273,7 @@ function lineasFacturaTienda(
       notas: notasDelFlete,
     },
     {
-      label: FACTURADO_ORDENEX_LABEL,
+      label: FACTURADO_EMPRESA_LABEL,
       monto: totalesIngreso.total,
       signo: "neutro",
       destacado: true,
@@ -291,7 +291,7 @@ function lineasFacturaTienda(
 }
 
 /**
- * LO QUE LE QUEDA A ORDENEX. `netoOrdenex` NO es la `ganancia` que este mismo detalle ya pinta
+ * LO QUE LE QUEDA A ORDENEX. `netoEmpresa` NO es la `ganancia` que este mismo detalle ya pinta
  * cuando es negativa: aquella resta SÓLO el pago al mensajero, y ésta resta ADEMÁS el ingreso de
  * bodega por rechazos. Las dos coinciden exactamente cuando ese ingreso es cero.
  *
@@ -299,19 +299,19 @@ function lineasFacturaTienda(
  * cierre de bodega: en un cierre de MENSAJERO la bodega puede ser la CENTRAL, así que ahí aquel
  * rótulo sería falso. Lo dejó escrito la propia 393 en `cierre-labels`.
  */
-function lineasNetoOrdenex(props: CascadasCierreMensajeroProps): LineaCascada[] {
-  const notas = [NETO_ORDENEX_NOTA];
-  if (esMontoNegativo(props.netoOrdenex)) notas.push(NETO_ORDENEX_NEGATIVO_NOTA);
+function lineasNetoEmpresa(props: CascadasCierreMensajeroProps): LineaCascada[] {
+  const notas = [NETO_EMPRESA_NOTA];
+  if (esMontoNegativo(props.netoEmpresa)) notas.push(NETO_EMPRESA_NEGATIVO_NOTA);
 
   return [
-    { label: FACTURADO_ORDENEX_LABEL, monto: props.totalesIngreso.total, signo: "neutro" },
+    { label: FACTURADO_EMPRESA_LABEL, monto: props.totalesIngreso.total, signo: "neutro" },
     { label: PAGO_MENSAJERO_LABEL, monto: props.totalPagoMensajero, signo: "resta" },
     {
       label: INGRESO_BODEGA_RECHAZOS_LABEL,
       monto: props.totalIngresoBodegaRechazos,
       signo: "resta",
     },
-    { label: NETO_ORDENEX_LABEL, monto: props.netoOrdenex, signo: "neutro", destacado: true, notas },
+    { label: NETO_EMPRESA_LABEL, monto: props.netoEmpresa, signo: "neutro", destacado: true, notas },
   ];
 }
 
@@ -351,9 +351,9 @@ export function CascadasCierreMensajero(props: Readonly<CascadasCierreMensajeroP
           que es la cifra que parte, y antes de la de Ordenex, que ya no habla de tiendas. */}
       {marca !== null ? <DesglosePorTienda partes={props.partesPorTienda} de={de} /> : null}
       <CascadaDinero
-        titulo={CASCADA_NETO_ORDENEX_TITULO}
-        ariaLabel={`${CASCADA_NETO_ORDENEX_TITULO} · ${de}`}
-        lineas={lineasNetoOrdenex(props)}
+        titulo={CASCADA_NETO_EMPRESA_TITULO}
+        ariaLabel={`${CASCADA_NETO_EMPRESA_TITULO} · ${de}`}
+        lineas={lineasNetoEmpresa(props)}
       />
     </div>
   );
