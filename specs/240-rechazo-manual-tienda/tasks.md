@@ -455,3 +455,6 @@
 
 **Antes de registrar cualquier id o rama nuevos**, mirar `origin/dev`: ya hubo **dos** colisiones de
 id entre sesiones.
+
+<!-- @test-desaparecido tests/unit/utils/ingreso-ordenex.test.ts: la ficha 494 (tanda 2) lo renombro a
+     tests/unit/utils/ingreso-empresa.test.ts, sin cambiar lo que comprueba. R22 sigue cubierto ahi. -->
