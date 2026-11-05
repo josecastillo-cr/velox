@@ -1491,3 +1491,5 @@ $ vitest run guard, tras el commit c9cd9e86                         GUARD_EXIT=0
 | `design.md §3.2`, descargas | `tests/components/descarga/ClaveDescargaRetirada494.test.tsx` |
 
 **Veredicto:** B1, B2, m1 a m6 y m8 cerrados; la conducta de R25 es la esperada y una descarga en pestaña vieja ya no puede guardar un archivo sin cifras.
+
+**Últimos menores de la revisión (n1, n2):** la fila A12 de `docs/release.md` lleva su columna «Detiene» (`sí`), y tres comentarios «Cobro» sin tilde pasan al rótulo real «Cobró Velox».

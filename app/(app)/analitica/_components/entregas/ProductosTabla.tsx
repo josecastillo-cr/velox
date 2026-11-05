@@ -16,7 +16,7 @@
 // | posicion de «Efectividad»         | **13.ª — fuera de pantalla** |
 // | ancho de la tabla                 | 1584 px en una ventana de 1440 |
 //
-// Y lo primero que se veia eran las TRES columnas de dinero —Recaudado, Cobro la empresa, Para la
+// Y lo primero que se veia eran las TRES columnas de dinero —Recaudado, Cobró Velox, Para la
 // tienda—, las tres en «—» en las 25 filas, cada una arrastrando una linea secundaria («Con otro
 // producto: 0 de 6») que doblaba el alto de cada fila. «Tienda» repetia el mismo nombre 25 veces
 // y encima de la tabla habia SEIS lineas de advertencias en gris.
