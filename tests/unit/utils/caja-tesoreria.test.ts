@@ -229,7 +229,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
       // vacio, sin dia de arranque.
       capital: "0.00",
       signoCapital: "cero",
-      deOrdenex: "0.00",
+      deEmpresa: "0.00",
       signoDeTerceros: "cero",
       deTercerosAbsoluto: "0.00",
       estado: "flujo",
@@ -284,7 +284,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
     expect(r.ganancia).toBe("430.26");
     expect(r.deTerceros).toBe("3549.63");
     expect(r.capital).toBe("0.00");
-    expect(r.deOrdenex).toBe("430.26");
+    expect(r.deEmpresa).toBe("430.26");
   });
 });
 
@@ -369,7 +369,7 @@ describe("derivarCaja — money-safe y frontera (R7/R10)", () => {
     expect(r.enCaja).toBe("5.00");
     expect(r.ganancia).toBe("1.50");
     expect(r.deTerceros).toBe("3.50");
-    for (const clave of ["capital", "deOrdenex", "deTercerosAbsoluto"] as const) {
+    for (const clave of ["capital", "deEmpresa", "deTercerosAbsoluto"] as const) {
       expect(r[clave], clave).toMatch(/^-?\d+\.\d{2}$/);
     }
   });
@@ -512,7 +512,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
       ingresosPropios: r.ingresosPropios,
       egresosPropios: r.egresosPropios,
       ganancia: r.ganancia,
-      deOrdenex: r.deOrdenex,
+      deEmpresa: r.deEmpresa,
       ivaCobrado: r.ivaCobrado,
       ivaPorPagar: r.ivaPorPagar,
       signoIvaPorPagar: r.signoIvaPorPagar,
@@ -522,7 +522,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
       ingresosPropios: "1100.00",
       egresosPropios: "0.00",
       ganancia: "1100.00",
-      deOrdenex: "1100.00",
+      deEmpresa: "1100.00",
       ivaCobrado: "143.00",
       ivaPorPagar: "143.00",
       signoIvaPorPagar: "positivo",
@@ -629,9 +629,9 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
     for (const conjunto of [filas, filas.slice(0, 11), filas.slice(9), filas.filter((_, i) => i % 3 === 0)]) {
       const r = derivarCaja(conjunto);
       // Ficha 498 (R35): el catalogo trae las diferencias de la satelite → − «Por cobrar a satelites».
-      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar, `${new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2)}`)).toBe(r.enCaja);
+      expect(suma(r.deEmpresa, r.deTerceros, r.ivaPorPagar, `${new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2)}`)).toBe(r.enCaja);
       // y «De Ordenex» sigue siendo ganancia + capital.
-      expect(suma(r.ganancia, r.capital)).toBe(r.deOrdenex);
+      expect(suma(r.ganancia, r.capital)).toBe(r.deEmpresa);
     }
   });
 
@@ -669,9 +669,9 @@ describe("ficha 488 — la barra con tres bolsillos (R14/R16, design §2.3)", ()
     { nombre: "solo_tiendas con I = 0", filas: OM200_T300, modo: "solo_tiendas", tiendas: "100.00", iva: "0.00" },
     { nombre: "solo_tiendas con I < 0", filas: [...OM200_T300, IVA_MENOS_50], modo: "solo_tiendas", tiendas: "100.00", iva: "0.00" },
     // O = 500, T = −500 (un flete sin contra-entrega). Con I = 100: S = 600 → 0,00 / 16,67.
-    { nombre: "solo_ordenex con I > 0", filas: [...O500_TM500, IVA_100], modo: "solo_ordenex", tiendas: "0.00", iva: "16.67" },
-    { nombre: "solo_ordenex con I = 0", filas: O500_TM500, modo: "solo_ordenex", tiendas: "0.00", iva: "0.00" },
-    { nombre: "solo_ordenex con I < 0", filas: [...O500_TM500, IVA_MENOS_50], modo: "solo_ordenex", tiendas: "0.00", iva: "0.00" },
+    { nombre: "solo_empresa con I > 0", filas: [...O500_TM500, IVA_100], modo: "solo_empresa", tiendas: "0.00", iva: "16.67" },
+    { nombre: "solo_empresa con I = 0", filas: O500_TM500, modo: "solo_empresa", tiendas: "0.00", iva: "0.00" },
+    { nombre: "solo_empresa con I < 0", filas: [...O500_TM500, IVA_MENOS_50], modo: "solo_empresa", tiendas: "0.00", iva: "0.00" },
     // O = −100, T = 0. Con I = 100: S = 100 → la barra es TODA IVA (100,00). Sin IVA: nada.
     { nombre: "sin_reparto con I > 0", filas: [...OM100_T0, IVA_100], modo: "sin_reparto", tiendas: "0.00", iva: "100.00" },
     { nombre: "sin_reparto con I = 0", filas: OM100_T0, modo: "sin_reparto", tiendas: "0.00", iva: "0.00" },
@@ -790,7 +790,7 @@ describe("ficha 498 — la diferencia de la satelite en la caja (R33-R36, R38, R
     expect(r.porcentajeTiendas).toBe("60.00");
     expect(r.porcentajePorCobrar).toBe("20.00");
     expect(r.porcentajeIva).toBe("0.00");
-    expect(r.deOrdenex).toBe("1000.00"); // la empresa no cambia
+    expect(r.deEmpresa).toBe("1000.00"); // la empresa no cambia
     expect(r.modoComposicion).toBe("dos_bolsillos"); // el modo sale solo de G y T
   });
 

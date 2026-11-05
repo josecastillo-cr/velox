@@ -560,7 +560,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
         ]),
         `R7 diferencia · ${p.nombre}`,
       ).toBe(delta(p, (l) => l.resumen.enCaja));
-      expect(r.deOrdenex, `«De ${NOMBRE_CORTO_ESPERADO}» · ${p.nombre}`).toBe(suma([r.ganancia, r.capital]));
+      expect(r.deEmpresa, `«De ${NOMBRE_CORTO_ESPERADO}» · ${p.nombre}`).toBe(suma([r.ganancia, r.capital]));
     }
   });
 

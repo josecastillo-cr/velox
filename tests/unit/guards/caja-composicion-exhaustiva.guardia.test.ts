@@ -71,7 +71,7 @@ function tipoDe(categoria: string): AgregadoCajaRow["tipo"] {
  * que nadie ha decidido como se llama». La suma de la columna deja de ser «4 conceptos + otros»
  * y pasa a ser «4 conceptos + 2 nombrados + otros»; el TOTAL no se mueve un centimo.
  */
-const OTROS_EGRESOS_DE_ORDENEX = ["egreso_gasto"];
+const OTROS_EGRESOS_DE_EMPRESA = ["egreso_gasto"];
 
 /**
  * EL DETECTOR. Dada una lista de categorias, devuelve las de naturaleza `propio` que la
@@ -91,7 +91,7 @@ function categoriasSinCubrir(categorias: readonly string[]): string[] {
     // Ficha 339: el conjunto CON FILA (los cuatro del desglose + los dos nombrados) mas lo
     // que sigue cayendo en el complemento.
     ...WALLET_EGRESO_CON_FILA_SEED,
-    ...OTROS_EGRESOS_DE_ORDENEX,
+    ...OTROS_EGRESOS_DE_EMPRESA,
   ]);
   const naturaleza = NATURALEZA_POR_CATEGORIA as Readonly<Record<string, string | undefined>>;
 
@@ -179,7 +179,7 @@ describe("R23/R26 — la particion de la ganancia cubre TODAS las categorias pro
         !(WALLET_EGRESO_CON_FILA_SEED as readonly string[]).includes(c),
     );
 
-    expect([...derivadas].sort()).toEqual([...OTROS_EGRESOS_DE_ORDENEX].sort());
+    expect([...derivadas].sort()).toEqual([...OTROS_EGRESOS_DE_EMPRESA].sort());
     // Control de no-vacuidad del `toEqual`: la lista NO esta vacia — sigue habiendo un hueco,
     // y es exactamente `egreso_gasto` (ficha 343, T2.3).
     expect(derivadas.length).toBe(1);
@@ -232,7 +232,7 @@ describe("R23/R26 — la particion de la ganancia cubre TODAS las categorias pro
       "egreso_reverso_flete_devolucion", // ficha 458-B
     ]);
     expect(NATURALEZA_POR_CATEGORIA.egreso_reverso_cobro_tienda).toBe("propio");
-    expect(OTROS_EGRESOS_DE_ORDENEX).toEqual(["egreso_gasto"]);
+    expect(OTROS_EGRESOS_DE_EMPRESA).toEqual(["egreso_gasto"]);
   });
 });
 
@@ -335,7 +335,7 @@ describe("R23/R26 — MEDIDO sobre el catalogo entero: las dos columnas cuadran"
         );
       }
       const otrosEsperado =
-        (OTROS_EGRESOS_DE_ORDENEX as readonly string[]).includes(categoria)
+        (OTROS_EGRESOS_DE_EMPRESA as readonly string[]).includes(categoria)
           ? new Prisma.Decimal(completo.otrosEgresos).minus(importe).toFixed(2)
           : completo.otrosEgresos;
       expect(sinElla.otrosEgresos, `${categoria} movio «otros»`).toBe(otrosEsperado);

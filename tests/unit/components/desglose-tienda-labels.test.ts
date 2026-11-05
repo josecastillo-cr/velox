@@ -35,7 +35,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 // desde la tienda («Ordenex te cobró», R44). Los literales van escritos a mano.
 
 /** design §7.4 — el libro de la tienda, desde Ordenex, los 14 conceptos. */
-const DESDE_ORDENEX: Record<WalletTiendaMovimientoCategoria, string> = {
+const DESDE_EMPRESA: Record<WalletTiendaMovimientoCategoria, string> = {
   cod_recaudado: "Contra-entrega cobrado a los clientes de la tienda",
   flete: "Flete cobrado a la tienda",
   flete_devolucion: "Flete por devolución a origen cobrado a la tienda",
@@ -76,9 +76,9 @@ describe("etiquetas del desglose por tienda — R20: tipo, origen y moneda son l
 
 describe(`⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde ${NOMBRE_ESPERADO} (R43, design §7.4)`, () => {
   it("dice exactamente los 14 textos aprobados, y el seed es exactamente esas 14 claves", () => {
-    expect(CATEGORIA_TIENDA_LABEL).toEqual(DESDE_ORDENEX);
+    expect(CATEGORIA_TIENDA_LABEL).toEqual(DESDE_EMPRESA);
     expect([...WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED].sort()).toEqual(
-      Object.keys(DESDE_ORDENEX).sort(),
+      Object.keys(DESDE_EMPRESA).sort(),
     );
   });
 
@@ -134,7 +134,7 @@ describe(`⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde
     expect(lista[0]).toEqual({ value: "", label: "Todos los conceptos" });
     expect(valores.slice(1)).toEqual([...WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED]);
     const opciones = new Map(lista.slice(1).map((o) => [o.value, o.label]));
-    for (const [clave, texto] of Object.entries(DESDE_ORDENEX)) {
+    for (const [clave, texto] of Object.entries(DESDE_EMPRESA)) {
       expect(opciones.get(clave), clave).toBe(`${texto} (3)`);
     }
   });

@@ -650,6 +650,6 @@ function registroDe(f: FilaDeLibroRow, aprobadores: Map<string, string | null>):
 function sentidoDe(tipo: TipoDeCuenta, saldo: string): SentidoDelSaldo {
   const s = new Prisma.Decimal(saldo);
   if (s.isZero()) return "en_cero";
-  if (tipo === "bodega") return s.gt(0) ? "por_entregar" : "ordenex_debe";
-  return s.gt(0) ? "ordenex_debe" : "cuenta_debe";
+  if (tipo === "bodega") return s.gt(0) ? "por_entregar" : "empresa_debe";
+  return s.gt(0) ? "empresa_debe" : "cuenta_debe";
 }

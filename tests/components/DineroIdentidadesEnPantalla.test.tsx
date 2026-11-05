@@ -312,7 +312,7 @@ const CAJA_CON_CENTIMOS: CajaResumenDTO = {
   modoComposicion: "dos_bolsillos",
   capital: "1000.33",
   signoCapital: "positivo",
-  deOrdenex: "3416.25",
+  deEmpresa: "3416.25",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "8999.67",
   // Estado «flujo»: el de producción hoy. La identidad no depende del estado (R7).
@@ -331,7 +331,7 @@ describe("ficha 359 · B1 — la tarjeta de la caja: las tres identidades (459: 
     expect(c("deTerceros").add(c("ganancia")).add(c("capital")).toFixed(2)).toBe(
       CAJA_CON_CENTIMOS.enCaja,
     );
-    expect(c("ganancia").add(c("capital")).toFixed(2)).toBe(CAJA_CON_CENTIMOS.deOrdenex);
+    expect(c("ganancia").add(c("capital")).toFixed(2)).toBe(CAJA_CON_CENTIMOS.deEmpresa);
     // Capital con céntimos y distinto de cero: con 0 la identidad de dos sumandos también
     // cerraría y el caso no probaría la de tres.
     expect(CAJA_CON_CENTIMOS.capital).not.toBe("0.00");

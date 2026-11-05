@@ -143,7 +143,7 @@ const BASE: CajaResumenDTO = {
   modoComposicion: "sin_reparto",
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "-4405636.53",
+  deEmpresa: "-4405636.53",
   signoDeTerceros: "negativo",
   deTercerosAbsoluto: "4780583.97",
   estado: "flujo",
@@ -162,7 +162,7 @@ describe("guardia 459 — R16: en «flujo» la tarjeta nunca dice «Dinero en ca
   it("en ninguna combinación de signo, modo y filtro", () => {
     let combinaciones = 0;
     for (const signoEnCaja of ["positivo", "negativo", "cero"] as const) {
-      for (const modoComposicion of ["dos_bolsillos", "solo_tiendas", "solo_ordenex", "sin_reparto"] as const) {
+      for (const modoComposicion of ["dos_bolsillos", "solo_tiendas", "solo_empresa", "sin_reparto"] as const) {
         for (const periodoFiltrado of [false, true]) {
           const { container } = render(
             createElement(CajaResumenCard, {

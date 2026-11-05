@@ -72,7 +72,7 @@ export function fraseDelSaldo(tipo: TipoDeCuenta, sentido: SentidoDelSaldo, nomb
     if (sentido === "en_cero") return `${nombre} no tiene nada por entregar`;
     return `${nombre} entregó ${monto} de más`;
   }
-  if (sentido === "ordenex_debe") return `${MARCA.nombre} le debe ${monto} a ${nombre}`;
+  if (sentido === "empresa_debe") return `${MARCA.nombre} le debe ${monto} a ${nombre}`;
   if (sentido === "cuenta_debe") return `${nombre} le debe ${monto} a ${MARCA.nombre}`;
   return `${MARCA.nombre} y ${nombre} no se deben nada`;
 }
@@ -82,7 +82,7 @@ export function fraseDelSaldo(tipo: TipoDeCuenta, sentido: SentidoDelSaldo, nomb
  * (como el resto de esa pantalla). `monto` llega ya pintado y sin signo, igual que arriba.
  */
 export function fraseDelSaldoParaLaTienda(sentido: SentidoDelSaldo, monto: string): string {
-  if (sentido === "ordenex_debe") return `${MARCA.nombre} te debe ${monto}`;
+  if (sentido === "empresa_debe") return `${MARCA.nombre} te debe ${monto}`;
   if (sentido === "cuenta_debe") return `Le debés ${monto} a ${MARCA.nombre}`;
   return `${MARCA.nombre} y vos no se deben nada`;
 }

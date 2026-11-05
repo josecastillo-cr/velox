@@ -246,7 +246,7 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       modoComposicion: "dos_bolsillos",
       capital: "0.00",
       signoCapital: "cero",
-      deOrdenex: "700.00",
+      deEmpresa: "700.00",
       signoDeTerceros: "positivo",
       deTercerosAbsoluto: "4000.00",
       estado: "flujo",
@@ -371,7 +371,7 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       // servidor no redacta») se conserva entera: sigue sin haber ni un texto que la pantalla
       // deba limitarse a repetir.
       if (clave === "modoComposicion") {
-        expect(["dos_bolsillos", "solo_tiendas", "solo_ordenex", "sin_reparto"]).toContain(valor);
+        expect(["dos_bolsillos", "solo_tiendas", "solo_empresa", "sin_reparto"]).toContain(valor);
         continue;
       }
       // Ficha 459 (R14/R15): el ESTADO es un cuarto enum cerrado y `flujoDesde` una fecha (o

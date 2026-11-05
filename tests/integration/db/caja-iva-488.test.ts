@@ -397,24 +397,24 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
       ganancia: d(antes, base, "ganancia"),
       ivaCobrado: d(antes, base, "ivaCobrado"),
       ivaPorPagar: d(antes, base, "ivaPorPagar"),
-      deOrdenex: d(antes, base, "deOrdenex"),
+      deEmpresa: d(antes, base, "deEmpresa"),
     }).toEqual({
       ingresosPropios: "64979.22",
       egresosPropios: "154845.77",
       ganancia: "-89866.55",
       ivaCobrado: "1362.21",
       ivaPorPagar: "1362.21",
-      deOrdenex: "-69866.55",
+      deEmpresa: "-69866.55",
     });
   });
 
   it(`§1 R7: cifra principal = «De ${NOMBRE_CORTO_ESPERADO}» + «De las tiendas» + IVA por pagar, al centimo (diferencia y libro entero)`, () => {
     const { antes, base, trasPago, trasAnular } = m();
-    expect(suma(d(antes, base, "deOrdenex"), d(antes, base, "deTerceros"), d(antes, base, "ivaPorPagar"))).toBe(
+    expect(suma(d(antes, base, "deEmpresa"), d(antes, base, "deTerceros"), d(antes, base, "ivaPorPagar"))).toBe(
       d(antes, base, "enCaja"),
     );
     for (const r of [base, trasPago, trasAnular]) {
-      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar)).toBe(r.enCaja);
+      expect(suma(r.deEmpresa, r.deTerceros, r.ivaPorPagar)).toBe(r.enCaja);
     }
   });
 

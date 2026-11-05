@@ -159,7 +159,7 @@ function estadoEC(tipo: EstadoCuentaDTO["cuenta"]["tipo"], id: string, nombre: s
     cuenta: { tipo, id, nombre },
     saldoActual: "8500.00",
     signo: "positivo",
-    sentido: tipo === "bodega" ? "por_entregar" : "ordenex_debe",
+    sentido: tipo === "bodega" ? "por_entregar" : "empresa_debe",
     saldoInicial: "0.00",
     abonos: "9000.00",
     cargos: "500.00",

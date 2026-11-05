@@ -134,7 +134,7 @@ function estadoTienda(filas: FilaEstadoCuentaDTO[], parcial: Partial<EstadoCuent
     saldoActual: ultimo,
     saldoFinal: ultimo,
     signo: ultimo.startsWith("-") ? "negativo" : ultimo === "0.00" ? "cero" : "positivo",
-    sentido: ultimo.startsWith("-") ? "cuenta_debe" : ultimo === "0.00" ? "en_cero" : "ordenex_debe",
+    sentido: ultimo.startsWith("-") ? "cuenta_debe" : ultimo === "0.00" ? "en_cero" : "empresa_debe",
     ...parcial,
   });
 }
@@ -242,7 +242,7 @@ describe("MiWalletPage — pre-fetch del adminTienda (R18/R21, 458-D R34/R36)", 
 describe("458-D R34 + 463 R39 — el estado de cuenta de la tienda: saldo inicial al final y saldo corrido", () => {
   it("la ÚLTIMA fila es el saldo inicial y el corrido de la PRIMERA (la más reciente) es el saldo de la tarjeta", async () => {
     // El saldo de la tarjeta es el corrido de la fila MÁS RECIENTE, que en «Más recientes» es la primera.
-    sembrar(estadoTienda([PAGO, FLETE, COD], { saldoActual: PAGO.saldoCorrido, saldoFinal: PAGO.saldoCorrido, signo: "positivo", sentido: "ordenex_debe" }));
+    sembrar(estadoTienda([PAGO, FLETE, COD], { saldoActual: PAGO.saldoCorrido, saldoFinal: PAGO.saldoCorrido, signo: "positivo", sentido: "empresa_debe" }));
     await verMiWallet();
 
     const filas = within(tabla()).getAllByRole("row").slice(1);

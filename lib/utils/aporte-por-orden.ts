@@ -32,7 +32,7 @@ import type { MotivoSinReparto } from "@/lib/types/detalle-movimiento";
  * se abra igual y diga de donde sale su importe en vez de callar (R48).
  */
 export type FuenteDeAporte =
-  | { tipo: "concepto_ordenex"; concepto: WalletIngresoConcepto }
+  | { tipo: "concepto_empresa"; concepto: WalletIngresoConcepto }
   | { tipo: "cod_recaudado" }
   // FICHA 468 (design §2.1, R27) — un SNAPSHOT por gestion que el cierre ya guardo y cuya suma ES el
   // importe del movimiento (medido en produccion el 2026-10-02: 100 % cuadra, `progress/medicion_468.md`).
@@ -60,15 +60,15 @@ export type CampoDeSnapshot = "pago_mensajero" | "indemnizacion";
  * `ingreso_reverso_pago_tienda`) no nace de un cierre: no hay ordenes que ensenar.
  */
 export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
-  ingreso_flete: { tipo: "concepto_ordenex", concepto: "ingreso_flete" },
-  ingreso_flete_devolucion: { tipo: "concepto_ordenex", concepto: "ingreso_flete_devolucion" },
-  ingreso_comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_comision_cod" },
-  ingreso_iva_flete: { tipo: "concepto_ordenex", concepto: "ingreso_iva_flete" },
+  ingreso_flete: { tipo: "concepto_empresa", concepto: "ingreso_flete" },
+  ingreso_flete_devolucion: { tipo: "concepto_empresa", concepto: "ingreso_flete_devolucion" },
+  ingreso_comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_comision_cod" },
+  ingreso_iva_flete: { tipo: "concepto_empresa", concepto: "ingreso_iva_flete" },
   ingreso_iva_flete_devolucion: {
-    tipo: "concepto_ordenex",
+    tipo: "concepto_empresa",
     concepto: "ingreso_iva_flete_devolucion",
   },
-  ingreso_iva_comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_iva_comision_cod" },
+  ingreso_iva_comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_iva_comision_cod" },
   egreso_pago_mensajero: { tipo: "snapshot_gestion", campo: "pago_mensajero" },
   ingreso_cod_recaudado: { tipo: "cod_recaudado" },
   egreso_indemnizacion: { tipo: "snapshot_gestion", campo: "indemnizacion" },
@@ -119,12 +119,12 @@ export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
  * aqui seria anadir una condicion que no gobierna dinero.
  */
 export const FUENTE_TIENDA: Record<WalletTiendaMovimientoCategoria, FuenteDeAporte> = {
-  flete: { tipo: "concepto_ordenex", concepto: "ingreso_flete" },
-  flete_devolucion: { tipo: "concepto_ordenex", concepto: "ingreso_flete_devolucion" },
-  comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_comision_cod" },
-  iva_flete: { tipo: "concepto_ordenex", concepto: "ingreso_iva_flete" },
-  iva_flete_devolucion: { tipo: "concepto_ordenex", concepto: "ingreso_iva_flete_devolucion" },
-  iva_comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_iva_comision_cod" },
+  flete: { tipo: "concepto_empresa", concepto: "ingreso_flete" },
+  flete_devolucion: { tipo: "concepto_empresa", concepto: "ingreso_flete_devolucion" },
+  comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_comision_cod" },
+  iva_flete: { tipo: "concepto_empresa", concepto: "ingreso_iva_flete" },
+  iva_flete_devolucion: { tipo: "concepto_empresa", concepto: "ingreso_iva_flete_devolucion" },
+  iva_comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_iva_comision_cod" },
   cod_recaudado: { tipo: "cod_recaudado" },
   pago_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   ajuste_credito: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
@@ -387,7 +387,7 @@ export function satisfaceCriterio(criterio: CriterioDeAporte, hechos: HechosDeAp
 
 /** El criterio que le toca a una fuente. `sin_reparto` no tiene: esa fila no lista ordenes. */
 export function criterioDeFuente(fuente: FuenteDeAporte): CriterioDeAporte | null {
-  if (fuente.tipo === "concepto_ordenex") return CRITERIO_DE_APORTE[fuente.concepto];
+  if (fuente.tipo === "concepto_empresa") return CRITERIO_DE_APORTE[fuente.concepto];
   if (fuente.tipo === "cod_recaudado") return CRITERIO_COD_RECAUDADO;
   if (fuente.tipo === "snapshot_gestion") return CRITERIO_DE_SNAPSHOT[fuente.campo];
   return null;
@@ -471,7 +471,7 @@ function acumularCampo(gestiones: readonly GestionDelCierre[], campo: ImporteDeG
 /**
  * Cuanto aporta UNA ORDEN al importe de UN movimiento, o `undefined` si no aporta nada.
  *
- * `concepto_ordenex` — se llama a `derivarIngresoOrden` por CADA gestion de esa orden en ese
+ * `concepto_empresa` — se llama a `derivarIngresoOrden` por CADA gestion de esa orden en ese
  * cierre y se acumulan los aportes PRESENTES. Un concepto AUSENTE significa «esta gestion no
  * aporta a ese concepto» (no es un 0,00), asi que si ninguna lo trae, la orden no aporta.
  *

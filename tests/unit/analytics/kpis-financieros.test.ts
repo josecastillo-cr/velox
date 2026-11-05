@@ -36,7 +36,7 @@ const RESUMEN = {
   modoComposicion: "dos_bolsillos",
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "300.00",
+  deEmpresa: "300.00",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "300.00",
   estado: "flujo",

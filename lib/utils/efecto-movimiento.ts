@@ -27,7 +27,7 @@ export interface EfectoDeConcepto {
  * clave que el enrutado del dialogo (458-C). `Record` TOTAL: un concepto nuevo no compila sin su fila.
  */
 export const EFECTO_POR_TIPO: Record<ConceptoRegistro, EfectoDeConcepto> = {
-  gasto_ordenex: { cuenta: null, caja: [{ tipo: "egreso", categoria: "egreso_gasto_variable" }], enCuenta: null },
+  gasto_empresa: { cuenta: null, caja: [{ tipo: "egreso", categoria: "egreso_gasto_variable" }], enCuenta: null },
   sueldo: { cuenta: null, caja: [{ tipo: "egreso", categoria: "egreso_sueldo" }], enCuenta: null },
   // FICHA 488 (design §4.3): el Pago de IVA es una salida de la caja, sin cuenta.
   pago_iva: { cuenta: null, caja: [{ tipo: "egreso", categoria: "egreso_pago_iva" }], enCuenta: null },
@@ -42,7 +42,7 @@ export const EFECTO_POR_TIPO: Record<ConceptoRegistro, EfectoDeConcepto> = {
   pago_a_mensajero: { cuenta: "mensajero", caja: [], enCuenta: "pago" },
   aporte: { cuenta: null, caja: [{ tipo: "ingreso", categoria: "ingreso_aporte_capital" }], enCuenta: null },
   correccion_suma: { cuenta: null, caja: [{ tipo: "ingreso", categoria: "ingreso_ajuste" }], enCuenta: null },
-  tienda_paga_a_ordenex: {
+  tienda_paga_a_empresa: {
     cuenta: "tienda",
     caja: [{ tipo: "ingreso", categoria: "ingreso_abono_tienda" }],
     enCuenta: "credito",
@@ -105,7 +105,7 @@ export function efectoDeMovimiento(
       if (concepto === "pago_a_tienda") {
         // 172 R31/R32: se paga contra el saldo A FAVOR; sin saldo, o mas de el, no cabe.
         superaDisponible = disponible.lte(0) || new Prisma.Decimal(importe).gt(disponible);
-      } else if (concepto === "tienda_paga_a_ordenex") {
+      } else if (concepto === "tienda_paga_a_empresa") {
         // 457 R14/R15: solo con saldo EN CONTRA, y hasta lo que la tienda debe.
         superaDisponible = disponible.gte(0) || new Prisma.Decimal(importe).gt(disponible.abs());
       }

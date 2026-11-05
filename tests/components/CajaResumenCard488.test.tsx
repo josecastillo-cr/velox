@@ -39,7 +39,7 @@ const RESUMEN: CajaResumenDTO = {
   modoComposicion: "dos_bolsillos",
   capital: "264.50",
   signoCapital: "positivo",
-  deOrdenex: "1764.50",
+  deEmpresa: "1764.50",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "9000.00",
   estado: "saldo",
@@ -122,10 +122,10 @@ describe("488 — el tercer bolsillo «IVA por pagar» (R13)", () => {
     const { container } = pintar();
     const iva = container.querySelector<HTMLElement>('[data-bolsillo="iva"]') as HTMLElement;
     const tiendas = container.querySelector<HTMLElement>('[data-bolsillo="tiendas"]') as HTMLElement;
-    const ordenex = container.querySelector<HTMLElement>('[data-bolsillo="ordenex"]') as HTMLElement;
+    const empresa = container.querySelector<HTMLElement>('[data-bolsillo="empresa"]') as HTMLElement;
     expect(iva.parentElement).toBe(tiendas.parentElement);
-    expect(iva.parentElement).toBe(ordenex.parentElement);
-    expect(ordenex.contains(iva)).toBe(false);
+    expect(iva.parentElement).toBe(empresa.parentElement);
+    expect(empresa.contains(iva)).toBe(false);
   });
 
   it("el signo lo da el servidor: negativo y cero con su insignia", () => {

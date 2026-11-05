@@ -122,18 +122,18 @@ const SUPERFICIE_NEUTRA = "border-border bg-muted/40";
 const TONO_INFORMATIVO = "text-muted-foreground";
 const TONO_PELIGRO = "font-medium text-danger-strong";
 
-type SuperficieOrdenex = { superficie: "neutra" | "peligro"; clase: string; tonoMensaje: string };
+type SuperficieEmpresa = { superficie: "neutra" | "peligro"; clase: string; tonoMensaje: string };
 
-const ORDENEX_NEUTRO: SuperficieOrdenex = {
+const EMPRESA_NEUTRO: SuperficieEmpresa = {
   superficie: "neutra",
   clase: SUPERFICIE_NEUTRA,
   tonoMensaje: TONO_INFORMATIVO,
 };
 
-const BOLSILLO_ORDENEX: Record<ModoComposicionCaja, SuperficieOrdenex> = {
-  dos_bolsillos: ORDENEX_NEUTRO,
-  solo_ordenex: ORDENEX_NEUTRO,
-  sin_reparto: ORDENEX_NEUTRO,
+const BOLSILLO_EMPRESA: Record<ModoComposicionCaja, SuperficieEmpresa> = {
+  dos_bolsillos: EMPRESA_NEUTRO,
+  solo_empresa: EMPRESA_NEUTRO,
+  sin_reparto: EMPRESA_NEUTRO,
   solo_tiendas: {
     superficie: "peligro",
     clase: "border-danger/30 bg-danger-soft dark:bg-danger/15",
@@ -206,7 +206,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
   const badgeIva = SIGNO_BADGE[resumen.signoIvaPorPagar];
   const badgePorCobrar = SIGNO_BADGE[resumen.signoPorCobrarSatelites];
   const pistaPorCobrar = PISTA_POR_COBRAR[resumen.signoPorCobrarSatelites];
-  const ordenex = conBarra ? BOLSILLO_ORDENEX[resumen.modoComposicion] : ORDENEX_NEUTRO;
+  const empresa = conBarra ? BOLSILLO_EMPRESA[resumen.modoComposicion] : EMPRESA_NEUTRO;
   // R16/R17/R18 de la 231: lo que hay que decir cuando la barra no se puede partir. Solo con barra.
   const mensajeModo = conBarra ? CAJA_COMPOSICION_MENSAJE[resumen.modoComposicion] : null;
 
@@ -315,14 +315,14 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
           {/* El bolsillo de Ordenex: la ganancia (sin cambios) y, HERMANA suya dentro del mismo
               padre acotado, la region del capital (R25). */}
           <div
-            data-bolsillo="ordenex"
-            data-superficie={ordenex.superficie}
-            className={cn(BOLSILLO, ordenex.clase)}
+            data-bolsillo="empresa"
+            data-superficie={empresa.superficie}
+            className={cn(BOLSILLO, empresa.clase)}
           >
             <section aria-label={CAJA_RESUMEN_LABEL.ganancia} className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {CAJA_COMPOSICION_LABEL.ordenex}
+                  {CAJA_COMPOSICION_LABEL.empresa}
                 </span>
                 <Badge variant={badgeGanancia.variant}>{badgeGanancia.label}</Badge>
               </div>
@@ -374,7 +374,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             </section>
 
             {mensajeModo === null ? null : (
-              <p role="note" className={cn("text-xs", ordenex.tonoMensaje)}>
+              <p role="note" className={cn("text-xs", empresa.tonoMensaje)}>
                 {mensajeModo}
               </p>
             )}

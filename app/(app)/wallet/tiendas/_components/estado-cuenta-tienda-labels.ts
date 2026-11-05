@@ -13,9 +13,9 @@ export const ACCIONES_TIENDA_TEXTO = {
   /** R26 (457) — solo con saldo en contra. */
   tiendaPaga: `La tienda le paga a ${MARCA.nombre}`,
   /** R27 (461). */
-  ordenexCobra: `${MARCA.nombre} le cobra a la tienda`,
+  empresaCobra: `${MARCA.nombre} le cobra a la tienda`,
   /** R28 (172). */
-  ordenexPaga: `${MARCA.nombre} le paga a la tienda`,
+  empresaPaga: `${MARCA.nombre} le paga a la tienda`,
   /** R28 — el motivo del botón deshabilitado, en texto visible. */
   sinSaldoAFavor: (tienda: string) =>
     `${MARCA.nombre} no le debe nada a ${tienda}: sin saldo a favor no hay nada que pagarle.`,

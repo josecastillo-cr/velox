@@ -38,7 +38,7 @@ const RESUMEN: CajaResumenDTO = {
   modoComposicion: "dos_bolsillos",
   capital: "264.50",
   signoCapital: "positivo",
-  deOrdenex: "1764.50",
+  deEmpresa: "1764.50",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "9000.00",
   estado: "saldo",
@@ -108,7 +108,7 @@ describe("498 — el bolsillo «Por cobrar a satélites» (R37)", () => {
   it("es HERMANO de los otros tres bolsillos, no está dentro de ninguno", () => {
     const { container } = pintar();
     const b = bolsillo(container);
-    for (const otro of ["tiendas", "ordenex", "iva"]) {
+    for (const otro of ["tiendas", "empresa", "iva"]) {
       const o = container.querySelector<HTMLElement>(`[data-bolsillo="${otro}"]`) as HTMLElement;
       expect(b.parentElement).toBe(o.parentElement);
       expect(o.contains(b)).toBe(false);

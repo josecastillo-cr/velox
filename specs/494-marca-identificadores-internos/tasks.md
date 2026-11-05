@@ -48,9 +48,9 @@
 
 ## Tanda 3 — Familia caja
 
-- [ ] **T4.1 — Script.** Depende de tanda 2 mergeada. `--familia caja`. **Hecho:** `tsc` limpio.
-- [ ] **T4.2 — Valores.** `solo_empresa`, `empresa_debe`, `gasto_empresa`, `tienda_paga_a_empresa`, `concepto_empresa`, `"empresa"` de `A_QUIEN_POR_ORIGEN`. **Hecho:** R7 y R8 verdes; etiquetas literales iguales a las de antes; `tests/fixtures/estado-cuenta.ts` migrado.
-- [ ] **T4.3 — Ver la app.** Caja, estado de cuenta de tienda y mi wallet con Playwright, y un movimiento en el registro (`gasto`, `tienda paga`). **Hecho:** mismas frases y cifras; capturas referidas en `impl_494.md`; base local limpia al terminar (memoria «Ver la app ensucia la base local»).
+- [x] **T4.1 — Script.** Depende de tanda 2 mergeada. `--familia caja`. **Hecho:** `tsc` limpio.
+- [x] **T4.2 — Valores.** `solo_empresa`, `empresa_debe`, `gasto_empresa`, `tienda_paga_a_empresa`, `concepto_empresa`, `"empresa"` de `A_QUIEN_POR_ORIGEN`. **Hecho:** R7 y R8 verdes; etiquetas literales iguales a las de antes; `tests/fixtures/estado-cuenta.ts` migrado.
+- [x] **T4.3 — Ver la app.** Caja, estado de cuenta de tienda y mi wallet con Playwright, y un movimiento en el registro (`gasto`, `tienda paga`). **Hecho:** mismas frases y cifras; capturas referidas en `impl_494.md`; base local limpia al terminar (memoria «Ver la app ensucia la base local»).
 
 ## Tanda 4 — Familia analítica
 
@@ -72,7 +72,7 @@
 - [ ] **T7.1 — Scripts.** [P] Tratar `scripts/`: E4 se queda (lista exacta de archivos, también sus tests); `seed-maestro.ts` con ejemplo y nombre por defecto nuevos; `generate-pwa-icons.mjs`, `backfill-analitica.ts` limpios. **Hecho:** E4 con rutas reales, y bloque de excepciones verde.
 - [ ] **T7.2 — Siembra QA.** [P] `scripts/seed-usuarios-qa.ts` pasa la cuenta al correo nuevo (P3). **Hecho:** R29 verde con dos corridas; ejecutada en local; preview, anotado para el leader. Prod: no.
 - [ ] **T7.3 — Postman.** [P] Renombrar colección y `name`; `openapi-320` y `openapi-266`; línea en `CHANGELOG.md`, sin ruptura. **Hecho:** R31 verde.
-- [ ] **T7.4 — Docs y entorno.** [P] `.env.example`, `DESIGN.md`, `.claude/commands/test_jobs.md`, y las filas B2 y B4 de `docs/release.md`. **Hecho:** R32 verde. El título de `CLAUDE.md`, lo aplica el leader.
+- [ ] **T7.4 — Docs y entorno.** [P] `.env.example`, `DESIGN.md`, `.claude/commands/test_jobs.md`, y las filas B2 y B4 de `docs/release.md`. Además, en `docs/release.md`, el paso de `design.md §3.2` para esta release: medir Skew Protection y comparar los ids de action entre dos despliegues de preview; si sobreviven, desplegar fuera de la operación y avisar de que recarguen. **Hecho:** R32 verde y ese paso escrito. El título de `CLAUDE.md`, lo aplica el leader.
 - [ ] **T7.5 — Comentarios del esquema.** [P] `db/schema.prisma`, solo comentarios. **Hecho:** `prisma migrate diff` sin diferencias, salida anotada; `prisma generate` sin cambio de tipos; R13 verde.
 - [ ] **T7.6 — Paquete.** `package.json`, commit propio y al final de la tanda. **Hecho:** R31 verde. Si `--rapido` pide el completo, parar: lo decide el leader, ningún subagente lo corre.
 

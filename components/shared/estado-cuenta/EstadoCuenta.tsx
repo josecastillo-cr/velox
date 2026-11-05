@@ -837,7 +837,7 @@ export function EstadoCuenta({
           }}
           movimiento={detalle}
           autoria={{
-            aQuien: { nombre, beneficiario: null, cuenta: tipo === "bodega" ? null : { tipo, id }, esOrdenex: false },
+            aQuien: { nombre, beneficiario: null, cuenta: tipo === "bodega" ? null : { tipo, id }, esEmpresa: false },
             registro: registroAbierta,
           }}
           onCambio={() => void refrescarCuenta()}

@@ -257,7 +257,7 @@ describe("461 — el resto de textos de la caja que esta ficha toca (R42/R50, de
 /** Un resumen con importes distintos entre si, para que el nombre accesible no case por casualidad. */
 const RESUMEN_488 = {
   deTerceros: "10000.00",
-  deOrdenex: "2500.25",
+  deEmpresa: "2500.25",
   ivaPorPagar: "340.50",
 } as unknown as CajaResumenDTO;
 
@@ -279,11 +279,11 @@ describe("488 — los textos de la tarjeta de la caja (R11–R13, R17, R18)", ()
   });
 
   it(`R17: con las tiendas debiendo, el mensaje ya no dice que TODO lo de la caja es de ${NOMBRE_ESPERADO}`, () => {
-    expect(CAJA_COMPOSICION_MENSAJE.solo_ordenex).toBe(
+    expect(CAJA_COMPOSICION_MENSAJE.solo_empresa).toBe(
       `Las tiendas le deben a ${NOMBRE_ESPERADO}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
     );
     // Contraprueba escrita a mano: la frase retirada.
-    expect(CAJA_COMPOSICION_MENSAJE.solo_ordenex).not.toMatch(/todo lo que hay en la caja es de Ordenex/);
+    expect(CAJA_COMPOSICION_MENSAJE.solo_empresa).not.toMatch(/todo lo que hay en la caja es de Ordenex/);
   });
 
   it("R18: la nota de la diferencia dice que la ganancia no incluye el IVA", () => {
@@ -319,7 +319,7 @@ describe("488 — el Pago de IVA y el dueño «IVA por pagar» (R21, R29)", () =
       CAJA_RESUMEN_LABEL.ivaPorPagar,
       CAJA_RESUMEN_LABEL.ivaPorPagarPista,
       CAJA_COMPOSICION_LABEL.iva,
-      CAJA_COMPOSICION_MENSAJE.solo_ordenex ?? "",
+      CAJA_COMPOSICION_MENSAJE.solo_empresa ?? "",
       CAJA_RESUMEN_NOTA_DIFERENCIA("Dinero en caja"),
       composicionCajaNombreAccesible(RESUMEN_488),
       DUENO_LABEL.iva,

@@ -138,7 +138,7 @@ const RESUMEN = {
   modoComposicion: "dos_bolsillos" as const,
   capital: "3000.00",
   signoCapital: "positivo" as const,
-  deOrdenex: "-17000.00",
+  deEmpresa: "-17000.00",
   signoDeTerceros: "positivo" as const,
   deTercerosAbsoluto: "10000.00",
   estado: "flujo" as const,

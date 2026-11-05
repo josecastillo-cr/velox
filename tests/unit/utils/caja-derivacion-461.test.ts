@@ -196,7 +196,7 @@ describe("461/A.2 — R24: R7 sobre subconjuntos al azar CON los conceptos nuevo
       // − «Por cobrar a satelites» (el catalogo trae las diferencias de la satelite).
       const menosPorCobrar = new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2);
       expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar, menosPorCobrar), `conjunto ${n}`).toBe(r.enCaja);
-      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar, menosPorCobrar), `conjunto ${n}`).toBe(r.enCaja);
+      expect(suma(r.deEmpresa, r.deTerceros, r.ivaPorPagar, menosPorCobrar), `conjunto ${n}`).toBe(r.enCaja);
       // Y ni el cobro ni su reverso estan en «Entro»/«Salio»: la cifra es la de los efectivos solos.
       const efectivos = derivarCaja(
         filas.filter(

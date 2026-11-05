@@ -229,7 +229,7 @@ export const CAJA_RESUMEN_AVISO_PERIODO =
 export const CAJA_COMPOSICION_LABEL = {
   barra: "Reparto del dinero en caja",
   tiendas: "De las tiendas",
-  ordenex: `De ${MARCA.nombreCorto}`,
+  empresa: `De ${MARCA.nombreCorto}`,
   // Ficha 488 (decision 1a, R13–R15) — el tercer bolsillo de la barra.
   iva: "IVA por pagar",
   // Ficha 498 (design §8.2, R38) — el cuarto: solo se pinta si es positivo.
@@ -255,7 +255,7 @@ export const CAJA_COMPOSICION_MENSAJE: Record<ModoComposicionCaja, string | null
   // R17 de la 231 (D4): el espejo — «De las tiendas» negativo.
   // Ficha 488 (R17): ya no dice que «todo» es de Ordenex, porque con IVA por pagar positivo parte
   // de la caja es IVA que se le debe a Hacienda.
-  solo_ordenex:
+  solo_empresa:
     `Las tiendas le deben a ${MARCA.nombre}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
   // R18 de la 231: nada que repartir. Ni se enuncia porcentaje ni se pinta segmento alguno.
   sin_reparto:
@@ -275,7 +275,7 @@ export function composicionCajaNombreAccesible(resumen: CajaResumenDTO): string 
   return (
     `${CAJA_COMPOSICION_LABEL.barra}. ` +
     `${CAJA_COMPOSICION_LABEL.tiendas}: ${money(resumen.deTerceros)}. ` +
-    `${CAJA_COMPOSICION_LABEL.ordenex}: ${money(resumen.deOrdenex)} (ganancia y aportes). ` +
+    `${CAJA_COMPOSICION_LABEL.empresa}: ${money(resumen.deEmpresa)} (ganancia y aportes). ` +
     // Ficha 488 (R15): el tercer bolsillo, con su importe.
     `${CAJA_COMPOSICION_LABEL.iva}: ${money(resumen.ivaPorPagar)}.` +
     // Ficha 498 (R38): el cuarto, SOLO cuando la barra lo pinta (signo positivo del servidor). Con

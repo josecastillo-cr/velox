@@ -343,7 +343,7 @@ function porcion(bolsillo: Prisma.Decimal, positivos: Prisma.Decimal): string {
  *
  *  1. `G < 0` y `T > 0`  -> `solo_tiendas`   (100.00): Ordenex pierde y el dinero de las
  *                                            tiendas esta cubriendo ese saldo.
- *  2. `T < 0` y `G > 0`  -> `solo_ordenex`   (  0.00): el espejo (D4).
+ *  2. `T < 0` y `G > 0`  -> `solo_empresa`   (  0.00): el espejo (D4).
  *  3. `T <= 0` y `G <= 0`-> `sin_reparto`    (  0.00): no hay nada que repartir.
  *  4. resto              -> `dos_bolsillos`  (T / enCaja x 100).
  *
@@ -385,7 +385,7 @@ function derivarReparto(
     porcentajePorCobrar: porcion(porCobrar, positivos),
   };
   if (ganancia.lt(0) && deTerceros.gt(0)) return { ...porcentajes, modoComposicion: "solo_tiendas" };
-  if (deTerceros.lt(0) && ganancia.gt(0)) return { ...porcentajes, modoComposicion: "solo_ordenex" };
+  if (deTerceros.lt(0) && ganancia.gt(0)) return { ...porcentajes, modoComposicion: "solo_empresa" };
   if (!deTerceros.gt(0) && !ganancia.gt(0)) return { ...porcentajes, modoComposicion: "sin_reparto" };
   return { ...porcentajes, modoComposicion: "dos_bolsillos" };
 }
@@ -452,15 +452,15 @@ export function derivarCaja(
   // proposito: el bolsillo SUBE con el egreso de diferencia (llego menos) y BAJA con el ingreso (pago,
   // o llego de mas). Identidad R35, por construccion: las cinco particiones por dueño cubren todas las
   // categorias y las diferencias son efectivo, asi que
-  //   Entro − Salio = (G + C) + T + I + (ingP − egP) = deOrdenex + T + I − P.
+  //   Entro − Salio = (G + C) + T + I + (ingP − egP) = deEmpresa + T + I − P.
   const porCobrar = derivarBalance(acc.egresosPorCobrar, acc.ingresosPorCobrar);
 
   // «De Ordenex» (R11, P2) = ganancia + capital. Una SUMA, no una resta.
-  const deOrdenex = new Prisma.Decimal(propio.balance).add(new Prisma.Decimal(capital.balance));
+  const deEmpresa = new Prisma.Decimal(propio.balance).add(new Prisma.Decimal(capital.balance));
   const deTerceros = new Prisma.Decimal(terceros.balance);
 
   const reparto = derivarReparto(
-    deOrdenex,
+    deEmpresa,
     deTerceros,
     new Prisma.Decimal(iva.balance),
     new Prisma.Decimal(porCobrar.balance),
@@ -481,7 +481,7 @@ export function derivarCaja(
     modoComposicion: reparto.modoComposicion,
     capital: capital.balance,
     signoCapital: capital.signo,
-    deOrdenex: montoEscala2(deOrdenex),
+    deEmpresa: montoEscala2(deEmpresa),
     signoDeTerceros: terceros.signo,
     deTercerosAbsoluto: montoEscala2(deTerceros.abs()),
     estado: opciones.haySaldoInicialVigente === true ? "saldo" : "flujo",

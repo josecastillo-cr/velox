@@ -36,7 +36,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const PAGA = `La tienda le paga a ${NOMBRE_ESPERADO}`;
 const COBRA = `${NOMBRE_ESPERADO} le cobra a la tienda`;
-const ORDENEX_PAGA = `${NOMBRE_ESPERADO} le paga a la tienda`;
+const EMPRESA_PAGA = `${NOMBRE_ESPERADO} le paga a la tienda`;
 const SIN_SALDO = `${NOMBRE_ESPERADO} no le debe nada a Tania Tienda: sin saldo a favor no hay nada que pagarle.`;
 
 function montar(e: EstadoCuentaDTO) {
@@ -52,7 +52,7 @@ function montar(e: EstadoCuentaDTO) {
 }
 
 const EN_CONTRA = estado({ saldoActual: "-2500.00", signo: "negativo", sentido: "cuenta_debe" });
-const A_FAVOR = estado({ saldoActual: "1000.00", signo: "positivo", sentido: "ordenex_debe" });
+const A_FAVOR = estado({ saldoActual: "1000.00", signo: "positivo", sentido: "empresa_debe" });
 const EN_CERO = estado({ saldoActual: "0.00", signo: "cero", sentido: "en_cero" });
 
 beforeEach(() => vi.clearAllMocks());
@@ -91,7 +91,7 @@ describe(`R28 — «${NOMBRE_ESPERADO} le paga a la tienda»: sin saldo a favor,
     ["en cero", EN_CERO],
   ])("%s: deshabilitado, con el motivo en texto visible que lo describe", (_caso, e) => {
     montar(e);
-    const boton = screen.getByRole("button", { name: ORDENEX_PAGA });
+    const boton = screen.getByRole("button", { name: EMPRESA_PAGA });
     expect(boton).toBeDisabled();
     expect(screen.getByText(SIN_SALDO)).toBeVisible();
     expect(boton).toHaveAccessibleDescription(SIN_SALDO);
@@ -99,7 +99,7 @@ describe(`R28 — «${NOMBRE_ESPERADO} le paga a la tienda»: sin saldo a favor,
 
   it("a favor: habilitado y sin el aviso", () => {
     montar(A_FAVOR);
-    expect(screen.getByRole("button", { name: ORDENEX_PAGA })).toBeEnabled();
+    expect(screen.getByRole("button", { name: EMPRESA_PAGA })).toBeEnabled();
     expect(screen.queryByText(SIN_SALDO)).toBeNull();
   });
 });
@@ -108,7 +108,7 @@ describe("R40 — cada acción abre el diálogo único con concepto y tienda YA 
   it.each([
     [PAGA, `Una tienda le paga a ${NOMBRE_ESPERADO}`, /^Tienda que paga/, EN_CONTRA],
     [COBRA, `${NOMBRE_ESPERADO} le cobra a una tienda`, /^Tienda a la que se le cobra/, A_FAVOR],
-    [ORDENEX_PAGA, `${NOMBRE_ESPERADO} le paga a una tienda`, /^Tienda a la que se le paga/, A_FAVOR],
+    [EMPRESA_PAGA, `${NOMBRE_ESPERADO} le paga a una tienda`, /^Tienda a la que se le paga/, A_FAVOR],
   ])("«%s» → concepto «%s» elegido y fijo; la tienda, fija por su nombre", async (boton, concepto, campo, e) => {
     montar(e);
     fireEvent.click(screen.getByRole("button", { name: boton }));

@@ -27,7 +27,7 @@ export interface AQuienDTO {
   /** El estado de cuenta al que enlazar (tienda o mensajero). Viaja, no se pinta. */
   cuenta: { tipo: "tienda" | "mensajero"; id: string } | null;
   /** El aporte de capital: «Ordenex». */
-  esOrdenex: boolean;
+  esEmpresa: boolean;
 }
 
 /**

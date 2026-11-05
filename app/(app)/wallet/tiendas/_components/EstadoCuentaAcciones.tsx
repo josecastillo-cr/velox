@@ -46,19 +46,19 @@ export function EstadoCuentaAcciones({ estado, onCambio }: Readonly<EstadoCuenta
         <RegistrarMovimientoDialog
           conceptoInicial="cobro_tienda"
           cuentaFija={cuenta}
-          etiquetaBoton={ACCIONES_TIENDA_TEXTO.ordenexCobra}
+          etiquetaBoton={ACCIONES_TIENDA_TEXTO.empresaCobra}
           onRegistrado={refrescar}
         />
         {aFavor ? (
           <RegistrarMovimientoDialog
             conceptoInicial="pago_a_tienda"
             cuentaFija={cuenta}
-            etiquetaBoton={ACCIONES_TIENDA_TEXTO.ordenexPaga}
+            etiquetaBoton={ACCIONES_TIENDA_TEXTO.empresaPaga}
             onRegistrado={refrescar}
           />
         ) : (
           <Button type="button" variant="outline" disabled aria-describedby="estado-cuenta-sin-saldo-a-favor">
-            {ACCIONES_TIENDA_TEXTO.ordenexPaga}
+            {ACCIONES_TIENDA_TEXTO.empresaPaga}
           </Button>
         )}
       </div>
