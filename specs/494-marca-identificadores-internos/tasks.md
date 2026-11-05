@@ -48,9 +48,9 @@
 
 ## Tanda 3 — Familia caja
 
-- [ ] **T4.1 — Script.** Depende de tanda 2 mergeada. `--familia caja`. **Hecho:** `tsc` limpio.
-- [ ] **T4.2 — Valores.** `solo_empresa`, `empresa_debe`, `gasto_empresa`, `tienda_paga_a_empresa`, `concepto_empresa`, `"empresa"` de `A_QUIEN_POR_ORIGEN`. **Hecho:** R7 y R8 verdes; etiquetas literales iguales a las de antes; `tests/fixtures/estado-cuenta.ts` migrado.
-- [ ] **T4.3 — Ver la app.** Caja, estado de cuenta de tienda y mi wallet con Playwright, y un movimiento en el registro (`gasto`, `tienda paga`). **Hecho:** mismas frases y cifras; capturas referidas en `impl_494.md`; base local limpia al terminar (memoria «Ver la app ensucia la base local»).
+- [x] **T4.1 — Script.** Depende de tanda 2 mergeada. `--familia caja`. **Hecho:** `tsc` limpio.
+- [x] **T4.2 — Valores.** `solo_empresa`, `empresa_debe`, `gasto_empresa`, `tienda_paga_a_empresa`, `concepto_empresa`, `"empresa"` de `A_QUIEN_POR_ORIGEN`. **Hecho:** R7 y R8 verdes; etiquetas literales iguales a las de antes; `tests/fixtures/estado-cuenta.ts` migrado.
+- [x] **T4.3 — Ver la app.** Caja, estado de cuenta de tienda y mi wallet con Playwright, y un movimiento en el registro (`gasto`, `tienda paga`). **Hecho:** mismas frases y cifras; capturas referidas en `impl_494.md`; base local limpia al terminar (memoria «Ver la app ensucia la base local»).
 
 ## Tanda 4 — Familia analítica
 

@@ -526,3 +526,196 @@ ahora  1.682 en 468 archivos
 **Otras notas.** `origin/dev` avanzó durante la tanda con `c76c76489` (solo `feature_list.json` y `progress/current.md`, de la 503). No se mergeó: no comparte archivos con esta rama. `./init.sh --rapido`: no corrido aquí, lo corre el leader.
 
 **Veredicto:** Tanda 2 lista; 110 archivos renombrados por script, sin ediciones a mano, y ninguna línea cambia de valor.
+
+## Tanda 3 (T4.1–T4.3), familia caja, 2026-11-04
+
+MCP `codebase-memory` sin conexión (*connection timed out*): medido con `git grep` y leyendo los archivos.
+
+### T4.1 — Script
+
+```
+$ node scripts/marca-494-renombrar.mjs --familia caja      caja: 0 archivos movidos, 74 reescritos. SCRIPT_EXIT=0
+$ node scripts/marca-494-renombrar.mjs --familia caja --comprobar    0 a mover, 0 a reescribir. COMPROBAR_EXIT=0
+$ pnpm exec tsc --noEmit --incremental false               TSC_EXIT=0, 0 errores
+```
+
+267 líneas cambiadas en 74 archivos, 50 de ellos de test, `tests/fixtures/estado-cuenta.ts` incluido.
+
+**Ediciones a mano en lo que toca el script: ninguna.** A mano solo va lo de R7: `tests/unit/types/efecto-movimiento-494.test.ts` (nuevo) y `CONCEPTOS_RETIRADOS_494` en `tests/fixtures/marca-retirada-nombre-493.ts`. El test pide el concepto viejo a ese fixture (E7): con el literal en un archivo nuevo, el trinquete subiría.
+
+### T4.2 — Cada valor: si viaja o se persiste
+
+Ninguno aparece en `db/schema.prisma`, `docs/api/**`, `app/api/**`, `lib/api/**`, `lib/types/api-*`, `e2e/` ni `docs/ayuda/`. Prod: 0 filas (T0.2). `ConceptoRegistro` solo lo consumen `AsiQueda` y la previsualización: `CONCEPTO_REGISTRO_DE` lo traduce desde `ConceptoManualId`, que no cambia, y el registro real no lo recibe.
+
+En los 24 archivos de producción tocados, ninguno usa `envolver`, `unstable_cache`, `localStorage`, `sessionStorage`, `searchParams`, `router.push`, `$queryRaw` ni escribe en historial. El único `JSON.stringify` es `destinoComprobante` de `DetalleMovimientoPanel.tsx:242`, que lleva `libro` y `movimientoId`, ninguno renombrado.
+
+| Valor | Viaja | Se persiste | Caché o URL |
+| --- | --- | --- | --- |
+| `gasto_empresa`, `tienda_paga_a_empresa` | Página → servidor: entrada de `previsualizarMovimientoAction` | No | No |
+| `solo_empresa` | Servidor → página: `modoComposicion`, en el RSC y en `verResumenCajaAction` | No | No |
+| `empresa_debe` | Servidor → página: `sentido`, en el RSC y en `verEstadoCuentaAction` | No | No |
+| `deEmpresa`, `esEmpresa` (campos de DTO) | Servidor → página, por RSC y actions (`verResumenCajaAction`, `autoriaDelLibroCajaAction`) | No | No |
+| `concepto_empresa` | No: discriminante interno de `aporte-por-orden`; `claveDeFuente` devuelve `fuente.concepto` | No | No |
+| `"empresa"` de `A_QUIEN_POR_ORIGEN` | No: tabla de código. No llega al SQL, `typeof ramas === "string"` la salta. En ejecución no se compara con nada; la protege el tipo | No | No |
+| `clave: "empresa"`, `data-bolsillo`, `data-segmento`, `data-modo` | Solo DOM; ningún lector fuera de los tests | No | No |
+
+Nada se persiste ni sale por un contrato de API, así que no hubo que parar por eso. El orden de `Object.keys(A_QUIEN_POR_ORIGEN)` no cambia: no se reordenó ninguna fila.
+
+### Cruce entre versiones: **hay una dirección que el spec no decide**
+
+Sonda: cliente de `origin/dev` y servidor de la rama sobre la misma base, con las actions reenviadas por Playwright. El id de una action sale de su ruta y de la clave de cifrado: con la misma clave por entorno y el id traducido por `server-reference-manifest.json`, las llamadas llegan con 200.
+
+**Página vieja → servidor nuevo (`design.md §11.8`): se cumple.**
+
+```
+POST {"concepto":"gasto_ordenex","monto":"1234.50"} → 200, validation_error
+```
+
+Lo que pinta `AsiQueda` ante un estado que no es `ok`: «No se pudo calcular cómo queda. Podés registrar igual: el servidor revisa el movimiento antes de guardarlo.» Esa frase se vio con la action en 404; con `validation_error` el código recorre la misma rama (`throw new Error(res.status)`), pero la pestaña de la sonda se quedó en «Calculando» (abajo). Un gasto real enviado desde el cliente viejo también llegó y se escribió: el registro no lleva estos valores.
+
+**Servidor nuevo → página vieja: no está en §3.2, y es peor que un «Así queda» que no carga.** Es la respuesta de `verResumenCajaAction` y `verEstadoCuentaAction`. Medido renderizando el cliente de `origin/dev` con la respuesta nueva:
+
+| Componente viejo | Respuesta nueva | Resultado |
+| --- | --- | --- |
+| `fraseDelSaldo` | `sentido: "empresa_debe"` | **«Velox Courier y Tania no se deben nada»**, con saldo a favor de la tienda. Frase falsa y sin error |
+| `fraseDelSaldoParaLaTienda` | igual | **«Velox Courier y vos no se deben nada»** |
+| `CajaResumenCard`, estado `saldo`, `dos_bolsillos` | `deEmpresa` en vez de `deOrdenex` | **Lanza** (`reading 'trim'`: `money(undefined)` en el nombre accesible de la barra) |
+| `CajaResumenCard`, estado `saldo`, `solo_empresa` | `modoComposicion` desconocido | **Lanza** (`reading 'superficie'`) |
+
+Es lectura, no escribe nada, y dura hasta recargar. Se da si la pestaña vieja relee después del despliegue y su id de action sigue valiendo en el servidor nuevo.
+
+**Sin medir, y es lo que decide si pasa de verdad:**
+
+- Si la clave de actions se conserva entre builds de Vercel (`.next/cache/.rscinfo` o `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`, que el repo no fija), y si el proyecto tiene Skew Protection (`next.config.ts` y `vercel.json` no dicen nada). Si la clave cambia, la pestaña vieja recibe 404 en todas las actions, por esta o por cualquier otra release. Eso sí se midió: «No se pudo calcular» y «No se pudo confirmar si el movimiento quedó registrado».
+- Que la excepción acabe en `app/(app)/error.tsx`: se vio el `throw` en el render, no la pantalla.
+- La tanda 2 renombró campos de DTO del mismo tipo (`ingresoEmpresa` y compañía). No se midió con esta sonda.
+
+No lo he cambiado: §11.8 rechaza los alias en el servidor y este caso es de la misma familia, aunque con otro peor caso. **Lo decide el leader antes de la release.**
+
+Límite de la sonda: con la respuesta 200 reenviada, el cliente viejo no terminó de procesarla (se quedó en «Calculando» y la tarjeta no cambió, también sin las cabeceras de compresión). Es del montaje, y no se aisló la causa. Por eso la tabla sale de renderizar el componente, no del navegador.
+
+### T4.3 — Ver la app
+
+Dos servidores a la vez con `next dev --webpack`: `origin/dev` (`cb023c5a`, worktree temporal) y la rama, sobre la misma base. La misma pantalla en los dos; se compara texto visible línea a línea, atributos de dinero y todas las cifras `₡`. Solo se normaliza lo que la ficha cambia: `solo_ordenex` y `ordenex` en atributos.
+
+| Pantalla | Cuenta | Líneas | Cifras | Texto distinto | Atributos distintos |
+| --- | --- | --- | --- | --- | --- |
+| Caja, estado flujo | `admin.qa` | 356 | 47 | 0 | 0 |
+| **Caja con `solo_empresa`** (filas temporales) | `admin.qa` | 357 | 48 | 0 | 0 |
+| Caja con un gasto recién registrado | `admin.qa` | 355 | 48 | 0 | 0 |
+| Estado de cuenta de la tienda | `admin.qa` | 185 | 47 | 0 | 0 |
+| Mi wallet | `tienda.qa` | 150 | 51 | 0 | 0 |
+| Registro, «Así queda» de `gasto` | `admin.qa` | 69 | 7 | 0 | 0 |
+| Registro, «Así queda» de `tienda paga` | `admin.qa` | 76 | 9 | 0 | 0 |
+| Panel «Ver» de un gasto | `admin.qa` | 32 | 6 | 0 | 0 |
+| Panel «Ver» de un aporte (`esEmpresa`) | `admin.qa` | 31 | 6 | 0 | 0 |
+
+La primera pasada de la caja dio 40 líneas distintas, todas «Cargando…» de la autoría: la sonda miraba antes de tiempo. Ahora espera a que se vaya.
+
+Lo que se ve:
+
+- **`data-modo`:** `solo_ordenex` en `origin/dev`, `solo_empresa` en la rama. Segmentos `iva, ordenex` e `iva, empresa`. Mismo tono y mismo nombre accesible: «De las tiendas: -₡253.572,60. De Velox: ₡13.827.021,72 (ganancia y aportes). IVA por pagar: ₡4.483,60.»
+- **Mensaje del modo:** «Las tiendas le deben a Velox Courier, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.»
+- **`empresa_debe`:** «Velox Courier le debe ₡146.427,40 a Tania Tienda» y «Velox Courier te debe ₡146.427,40».
+- **Así queda, gasto de ₡1.234,50:** caja ₡13.477.932,72 → ₡13.476.698,22; ganancia ₡13.327.021,72 → ₡13.325.787,22.
+- **Así queda, tienda paga:** saldo ₡146.427,40 → ₡147.661,90; caja ₡13.477.932,72 → ₡13.479.167,22; ganancia sin cambio.
+- **Gasto real de ₡1.111,11**, registrado en la rama: el libro de las dos versiones dice «Gasto de Velox · …». En el panel del aporte, «A quién» dice «Velox».
+
+Capturas, fuera del repo: `C:\Users\ArqDev\AppData\Local\Temp\claude\9d5dc6783b45f6dc\7779d971-c7f6-49d0-b2c6-2ad00c4a32ee\scratchpad\t3_capturas\` (`<pantalla>-base.png` y `<pantalla>-nuevo.png`).
+
+**No se vio:**
+
+- **Registro real de `tienda paga`.** La tienda QA tiene saldo a favor y el concepto solo se admite con saldo en contra. Se vio su «Así queda», que es donde viaja el valor. El tope lo cubre `tests/unit/utils/efecto-movimiento.test.ts`.
+- Una tienda con saldo en contra: `cuenta_debe` no cambia de nombre.
+- Mensajeros y satélites en pantalla: la frase de mensajero está en `EstadoCuenta.test.tsx` y comparte rama con la de tienda.
+- La pantalla de error del cruce (arriba).
+
+**Limpieza de la base local.** Conteo por tabla antes y después: `sin diferencias`. Borrado, por id:
+
+| Tabla | Filas | De dónde |
+| --- | --- | --- |
+| `login_attempt` | 18 | Logins de las sondas |
+| `Session` | 18 | Logins de las sondas |
+| `wallet_movimiento` | 3 | Gastos registrados |
+| `wallet_anotacion` | 3 | Sus anotaciones |
+| `historial_accion` | 3 | Sus entradas |
+
+Además, en cada corrida de `solo_empresa`: 1 `aporte_capital` (saldo inicial) y 2 `wallet_movimiento`, insertados por SQL y borrados en el `finally`. Recontados: 0. Servidores matados, sus logs borrados (estaban fuera del repo), `.next/dev` borrado y worktree temporal retirado, con el `node_modules` del checkout principal intacto (48 entradas).
+
+### Importes intactos (la comprobación de T3.4)
+
+Script en el scratchpad, sobre `git diff cb023c5a -U0 -M`, sin `specs/`, `progress/`, el trinquete ni los archivos a mano. **A:** mismos números y en el mismo orden. **B:** la línea vieja más la tabla da exactamente la nueva. Aborta si no ve pares.
+
+```
+archivos 74 | pares 267 | con numero 80 | de dinero 12
+A numero cambiado: 0 | B no es la tabla: 0 | hunks desiguales: 0
+```
+
+En producción, fuera de comentarios, 5 líneas renombradas llevan un dígito y ninguno es un importe: `s.gt(0)` (2), `"solo_empresa", // R17`, `deTerceros.lt(0)` y `montoEscala2`. B también garantiza que ninguna etiqueta visible cambió: cambian las claves de esos objetos, y sus literales solo podrían cambiar por un nombre de la tabla, que no contienen.
+
+### Mutaciones, ejecutadas de verdad y restauradas
+
+Script en el scratchpad; salida en `t3_mutaciones.log`, fuera del repo. Comprueba que el patrón aparece una vez y que el archivo cambió, aborta si `numTotalTests` es 0, y restaura los bytes exactos comparándolos. `t3.4` es el código de salida de la comprobación de arriba con la mutación puesta: volver a un nombre viejo no sale en el diff y da 0, y esas las cazan los tests.
+
+| Mutación | Tests | Rojos | t3.4 | Rojo que importa |
+| --- | --- | --- | --- | --- |
+| Base sin mutar | 257 | 0 | 0 | exit=0 |
+| **R7** El esquema acepta otra vez `gasto_ordenex` | 9 | 3 | 1 | `gasto_ordenex: el esquema lo rechaza por el campo concepto` |
+| **R7** `gasto_empresa` mal escrito en el catálogo | 9 | 2 | 1 | `gasto_empresa: el nombre nuevo sí llega al servicio` |
+| **R7** `tienda_paga_a_empresa` se queda con el viejo | 9 | 4 | 0 | `tienda_paga_a_ordenex: el esquema lo rechaza` |
+| **R7** El diálogo pide `gasto_ordenex` | 9 | 1 | 0 | `el diálogo pide el «Así queda» … con el nombre nuevo` |
+| **R7** La tabla de efectos conserva la fila vieja | 9 | 1 | 0 | `la tabla de efectos tiene una fila por concepto` |
+| Tope del abono compara con el nombre viejo | 49 | 1 | 0 | `458-B/TB.12 — avisos (R47, tope del servidor)` |
+| **R8** El servidor deriva `solo_ordenex` | 119 | 3 | 0 | `R17: deTerceros negativo → solo_empresa` |
+| **R8** La barra con la clave de modo vieja | 119 | 3 | 1 | `R17 (D4): solo_empresa pinta la barra entera` |
+| **R8** El mensaje con la clave de modo vieja | 119 | 3 | 0 | `R17 (D4)` |
+| **R8** La tarjeta con la clave de tono vieja | 119 | 2 | 1 | `R17 (D4)` |
+| **R8** Tono: el modo pasa a peligro | 119 | 1 | 1 | `R17 (D4)` |
+| **R8** La frase de la tienda con el sentido viejo | 119 | 2 | 0 | `/mi-wallet — los TRES signos se distinguen con palabras` |
+| **R8** La frase de admin con el sentido viejo | 119 | 2 | 0 | `R18 — las tarjetas dicen quién le debe a quién` |
+| **R8** Etiqueta: «te debe» → «te adeuda» | 119 | 1 | 1 | `/mi-wallet — signo positivo` |
+| **R8** Etiqueta: «le debe» → «adeuda» | 119 | 2 | 1 | `R18` |
+| **R8** Etiqueta: «De Velox» → «Del negocio» | 119 | 2 | 1 | `la barra reparte «De las tiendas» y «De Velox»` |
+| **R8** Etiqueta: el mensaje de `solo_empresa` | 119 | 2 | 1 | `R26: los tres mensajes con el significado` |
+| Importe: `deEmpresa` deja fuera el capital | 101 | 1 | 1 | `R7: cifra principal = «De Velox» + «De las tiendas» + IVA` |
+| **R8** El servicio deriva `ordenex_debe`, contra Postgres | 13 | 2 | | `TB.6 R20–R23: la tienda C entera, fila a fila` |
+| Base restaurada | 257 | 0 | 0 | exit=0 |
+
+Supervivientes: 0 de 19. `"empresa"` de `A_QUIEN_POR_ORIGEN` no se muta: en ejecución no se compara con nada, y la cubre el tipo.
+
+### Trinquete
+
+```
+$ pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes
+antes  1.682 en 468 archivos
+ahora  1.389 en 442 archivos
+comparado por archivo: 0 nuevos, 0 suben, 74 bajan
+```
+
+### Verificación
+
+```
+$ pnpm exec tsc --noEmit --incremental false       TSC_EXIT=0, 0 errores
+$ pnpm lint                                        LINT_EXIT=0, 235 problems (0 errors, 235 warnings), el mismo número que en la tanda 2
+$ pnpm exec eslint <test nuevo y fixture>          ESLINT_EXIT=0, sin salida
+$ pnpm exec vitest run <tests tocados, R7, las dos guardias de marca, previsualizar-movimiento-action: 53 archivos>     VITEST_EXIT=0
+   Test Files  53 passed (53)
+        Tests  1002 passed | 3 todo (1005), 0 skipped
+$ pnpm exec vitest run guard, después del commit   GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3940 passed | 3 todo (3943)
+```
+
+Incluye 8 de integración: `mi-wallet-page` 39, `wallet-page` 13, `caja-caracterizacion-459` 25, `caja-invariante-tiendas` 9, `caja-iva-488` 21, `efecto-movimiento-predice` 5, `libro-caja-a-quien` 7, `wallet-caracterizacion-458` 13. No corrí `vitest related` ni toda `integration/db`: eso es del `--rapido` del leader, que aquí se amplía solo.
+
+**`test-citado-desaparecido`:** esta tanda no renombra ni borra ningún archivo de test, así que no hace falta anotación. Verde después del commit, dentro de `run guard`.
+
+### Mapa `R<n>` → test, tanda 3
+
+| R | Test |
+| --- | --- |
+| R4 | `tests/unit/utils/aporte-por-orden.test.ts`, `tests/integration/db/caja-iva-488.test.ts`, y la comprobación del diff |
+| R7 | `tests/unit/types/efecto-movimiento-494.test.ts` |
+| R8 | `tests/components/CajaResumenCard.test.tsx`, `tests/components/CajaComposicionBarra.test.tsx`, `tests/components/EstadoCuenta.test.tsx`; además, los que cazaron mutaciones: `tests/unit/components/saldo-tienda-card.negativo.test.tsx`, `tests/unit/utils/caja-composicion.test.ts`, `tests/integration/db/wallet-caracterizacion-458.test.ts` |
+
+**Veredicto:** Tanda 3 lista, ninguna frase ni cifra cambia y nada se persiste, con un cruce de versiones sin decidir: servidor nuevo y pestaña vieja dan una frase falsa de saldo o una caja que lanza.
