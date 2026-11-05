@@ -737,7 +737,7 @@ MCP `codebase-memory` sin conexión (*connection timed out*): medido con `git gr
 
 ```
 $ node scripts/marca-494-renombrar.mjs --familia analitica             analitica: 0 archivos movidos, 42 reescritos. SCRIPT_EXIT=0
-$ node scripts/marca-494-renombrar.mjs --familia analitica --comprobar 0 a mover, 0 a reescribir. COMPROBAR_EXIT=0
+$ node scripts/marca-494-renombrar.mjs --familia analitica --comprobar 0 a mover, 0 a reescribir. COMPROBAR_EXIT=0   (corregido en M6, abajo: con el test de contrato ya en el árbol salía 1 hasta que el script lo excluyó)
 $ pnpm exec tsc --noEmit --incremental false                           TSC_EXIT=0, 0 errores
 ```
 
@@ -783,7 +783,7 @@ Además hay adaptadores que implementan el puerto y no eligen clave (`next-anali
 
 **Lo que la mutación enseñó, y corrige la premisa de T5.3.** Quitar `traducir` **solo del camino de la clave vieja** no hace reaparecer la columna: la primera lectura deja el valor bajo `app:` y la siguiente lo traduce por el otro camino; `useSyncExternalStore` lee varias veces por render. En la primera batería esa mutación sobrevivió. Ahora la caza un test de una sola lectura, que es lo único que puede verla. Quitar el camino `app:`, o los dos, sí la hace reaparecer. Se dejan los dos, como pide el spec.
 
-**Rastro que queda:** una vuelta atrás tras esta tanda deja el valor con `empresa`, que el catálogo anterior no publica, y la columna oculta reaparece hasta que la persona la vuelva a quitar.
+**Rastro que queda:** corregido en M5, abajo. Una vuelta atrás a `origin/prod` lee `ordenex:`, ya borrada, y enseña la columna mientras dure; `app:` sigue ahí y al volver a desplegar se recupera. Solo una versión de `dev` con `app:` y el catálogo viejo lee `empresa` sin publicarla, y esa no se despliega en esta release.
 
 ### T5.4 — Contrato
 
@@ -913,7 +913,7 @@ Sin cambiar la decisión de `design.md §3.2`. Medido renderizando el cliente de
 
 La métrica no tiene este problema: `ganancia_empresa` se pide en el servidor (`cargarTableroFinanciero`), en un render que no llega a la pestaña vieja, y el botón que la pide desde el cliente está en la región comentada. Si se encendiera, `consultarMetricaFinanciera("ganancia_ordenex")` respondería `forbidden` con motivo `metrica_desconocida` (`lib/analytics/consulta.ts:131`), sin ceros. Leído, no ejecutado.
 
-**Pestaña vieja y preferencia traducida.** Lee `empresa`, que su catálogo no publica: esa pestaña ve la columna hasta recargar, y si toca el selector reescribe la preferencia sin la oculta. Una pestaña de la versión anterior que escriba `ordenex` bajo `app:` se traduce en la siguiente lectura nueva. Leído, no ejecutado. Lo peor es perder una preferencia.
+**Pestaña vieja y preferencia traducida (corregido en M5).** La pestaña de la release es `origin/prod`, que lee `ordenex:` y nunca pisa `app:`. Si la nueva ya borró `ordenex:`, la vieja enseña la columna hasta recargar. Si toca el selector escribe `ordenex:`, y la nueva lee las dos, gana `app:` y borra la vieja (R15). Solo se pierde lo tocado en esa pestaña vieja. Leído en `origin/prod`, no ejecutado.
 
 Anotado en `design.md §3.2`. **Lo decide el leader antes de la release.**
 
@@ -950,8 +950,59 @@ Incluye 4 de integración contra Postgres: `analitica-financiera-action` 15, `di
 | --- | --- |
 | R4 | `tests/unit/descarga/analitica-productos-descarga-columnas.test.ts`, `tests/components/ProductosTablaDinero.test.tsx`, `tests/integration/repositories/dinero-productos.int.test.ts`, y la comprobación del diff |
 | R5 | `tests/unit/analytics/metrics.test.ts`, `tests/unit/services/analitica-financiera-service.test.ts`, `tests/components/TableroFinanciero.test.tsx`; el valor, contra Postgres, en `tests/integration/db/caja-iva-488.test.ts` |
-| R6 | `tests/unit/api/contrato-sin-cambios-494.test.ts`, `tests/unit/analytics/publicacion-api-key.test.ts` |
+| R6 | `tests/unit/api/contrato-sin-cambios-494.test.ts`, `tests/unit/analytics/publicacion-api-key.test.ts` (la declaración); `tests/integration/db/455/caracterizacion/webhook-estado.test.ts`, `tests/integration/api/ordenes-api-key-listado.route.test.ts` (la salida del serializador, M3) |
 | R9 | `tests/unit/analytics/cache-clave-conteo-productos-494.test.ts` |
 | R16 | `tests/components/descarga/ProductosDescargaColumnas.test.tsx` (hasta el archivo; los literales viejos vienen del fixture E7, como en R7), `tests/unit/navegador/preferencias-494.test.tsx` (por el hook y en una sola lectura, literales), `tests/unit/navegador/migrar-clave-494.test.ts` |
 
 **Veredicto:** Tanda 4 lista, ningún encabezado, posición ni cifra cambia y la columna oculta sigue oculta, con un peor caso nuevo en el cruce de versiones: un archivo descargado con «Cobró Velox» vacía.
+
+### Menores de `progress/review_494_t4.md`, cerrados
+
+**M1, salida barata del cruce.** `consultarConteoProductos` y `consultarDetalleDineroProducto` pasan a `...V2`: renombradas en 14 archivos, sin alias ni excepción. Test con los nombres literales: `tests/unit/analytics/acciones-productos-nombre-494.test.ts`.
+
+Build real, dos veces en este worktree, reutilizando `.next/cache`:
+
+```
+$ pnpm exec next build --webpack      antes y después: Compiled successfully, y luego para en el type check
+$ comparar .next/server/server-reference-manifest.json
+misma clave de cifrado: true | ids 334 / 334 | iguales 332
+conteo:   60 9a4d98f6... ya no existe -> consultarConteoProductosV2         60 e7ba5a1f...
+detalle:  60 b9f741c9... ya no existe -> consultarDetalleDineroProductoV2   60 84b306a2...
+```
+
+- **Límite del build:** en los dos pasos para con un error de tipos en `.next/types/app/(app)/historico/acciones/page.ts`, que esta tanda no toca. El manifiesto ya está escrito en la fase de compilación, que es lo que se compara. El build de Vercel de #890 sobre la base sale verde: no se investigó más, es de este worktree. El build completo lo dice el check del PR.
+- **Medido con webpack, y producción construye con Turbopack: `package.json` corre `next build`, sin `--webpack`. Se intentó una vez aquí y cae: `Symlink [project]/node_modules is invalid, it points out of the filesystem root`. **Con Turbopack, sin medir:** que el id dependa del nombre es supuesto, comprobable en un checkout sin junction.**
+- **Sin medir:** que la pestaña vieja reciba `UnrecognizedActionError` (leído en `server-action-reducer.js`). Que la tabla pinte el error está en `ProductosTabla.test.tsx`, con la action que rechaza.
+
+**M2.** `design.md §3.2` y T7.4 corregidos. Sigue pendiente de confirmar por el humano. Las actions de cierres y caja no se tocan: su daño es hasta recargar.
+
+**M3.** Mapa de R6 corregido aquí y en `requirements.md`. Sin test nuevo. `WebhookEventoOrdenService` sigue sin mutar.
+
+**M4.** `ProductosTablaDinero.test.tsx` compara con `Cobró ${NOMBRE_CORTO_ESPERADO}`, del fixture y no de la pantalla. Además de las líneas citadas, también las otras 8 de ese archivo que usaban la constante, y el panel afirma sus dos rótulos.
+
+**M5.** Corregidos los dos párrafos de arriba: la pestaña de la release es `origin/prod`.
+
+**M6.** `scripts/marca-494-renombrar.mjs` excluye el test de contrato en todas las familias (E8). Pasa de `NUNCA_EN_COMENTARIOS` a `NUNCA`.
+
+```
+$ node scripts/marca-494-renombrar.mjs --familia analitica --comprobar   COMPROBAR_EXIT=0
+$ ... --familia cierres --comprobar                                      0
+$ ... --familia caja --comprobar                                         0
+```
+
+**Mutaciones**, con archivo cambiado, tests > 0 y bytes restaurados:
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 50 | 0 | |
+| La action de conteo vuelve al nombre viejo | 2 | 1 | `el conteo se exporta con este nombre` |
+| La action de detalle vuelve al nombre viejo | 2 | 1 | `el detalle se exporta con este nombre` |
+| Se añade un alias con el nombre viejo | 2 | 1 | `el conteo se exporta con este nombre` |
+| Cambia la etiqueta de la fila (antes sobrevivía) | 48 | 7 | `las dos cifras del reparto YA NO son columna` |
+| Cambia la etiqueta de la cabecera del panel (antes sobrevivía) | 48 | 1 | `R38/R36/R37` |
+| Cambia la etiqueta de la columna del panel (antes sobrevivía) | 48 | 1 | `R38/R36/R37` |
+| Base restaurada | 50 | 0 | |
+
+Supervivientes: 0 de 6.
+
+**Trinquete:** sin cambios, 1.133 en 418.

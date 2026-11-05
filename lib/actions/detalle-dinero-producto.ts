@@ -63,7 +63,7 @@ export interface DetalleDineroProductoDeps {
  * anotacion sobrevive a su motivo, y con razon — una excepcion que sobrevive a su causa es
  * basura que crece hasta que nadie lee ninguna.
  */
-export async function consultarDetalleDineroProducto(
+export async function consultarDetalleDineroProductoV2(
   raw: unknown,
   deps: DetalleDineroProductoDeps = {},
 ): Promise<ResultadoDetalleDineroProducto> {

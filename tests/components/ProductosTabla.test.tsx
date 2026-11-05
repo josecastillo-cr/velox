@@ -32,15 +32,15 @@ import {
   FiltroEntregasProvider,
   useFiltroEntregas,
 } from "@/app/(app)/_components/filtro-entregas";
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import { ToastProvider } from "@/providers/ToastProvider";
 import type { ConteoProductosDTO, FilaProductoDTO } from "@/lib/types/conteo-productos";
 
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(),
+  consultarConteoProductosV2: vi.fn(),
 }));
 
-const consultarMock = vi.mocked(consultarConteoProductos);
+const consultarMock = vi.mocked(consultarConteoProductosV2);
 
 /** Un status que NO es ninguno de los cinco desenlaces: la orden sigue su curso. */
 const EN_CURSO = "en_reparto";
@@ -150,7 +150,7 @@ afterEach(cleanup);
 /* ========================================================================== */
 
 describe("FICHA 345 · la tabla responde al filtro de la sección (R40/R41)", () => {
-  it("consulta `consultarConteoProductos` y por ninguna otra puerta", async () => {
+  it("consulta `consultarConteoProductosV2` y por ninguna otra puerta", async () => {
     consultarMock.mockResolvedValue({ status: "ok", datos: datos([fila({ producto: "Dr Melaxin" })]) });
     renderTabla();
 

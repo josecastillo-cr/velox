@@ -30,7 +30,7 @@ import { ToastProvider } from "@/providers/ToastProvider";
 import { TEXTO_PROHIBIDO } from "@/app/(app)/analitica/_components/operativo/textos";
 import { refrescarCacheAnalitica } from "@/lib/actions/analitica-refrescar";
 import { consultarConteoEntregas } from "@/lib/actions/conteo-entregas";
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import type { ConteoEntregasDTO } from "@/lib/types/conteo-entregas";
 
 vi.mock("@/lib/actions/analitica-refrescar", () => ({
@@ -42,12 +42,12 @@ vi.mock("@/lib/actions/conteo-entregas", () => ({
 // FICHA 345 (T7.5) — la septima lectura viva de la seccion. Se mockea para poder AFIRMAR sobre
 // sus llamadas: el punto del caso de mas abajo es cuantas veces se consulta, no que consulte.
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(),
+  consultarConteoProductosV2: vi.fn(),
 }));
 
 const refrescarMock = vi.mocked(refrescarCacheAnalitica);
 const consultarMock = vi.mocked(consultarConteoEntregas);
-const productosMock = vi.mocked(consultarConteoProductos);
+const productosMock = vi.mocked(consultarConteoProductosV2);
 
 /** Dos instantes distintos: la lectura que ya estaba y la que trae el refresco. */
 const LECTURA_VIEJA = "2026-08-17T18:30:00.000Z";

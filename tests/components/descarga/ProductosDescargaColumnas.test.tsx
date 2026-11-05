@@ -48,7 +48,7 @@ import {
   COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO,
   MARCA_NO_SUMABLE_ARCHIVO,
 } from "@/app/(app)/analitica/_components/entregas/analitica-productos-descarga-columnas";
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import {
   CLAVE_DESCARGA_DINERO_RETIRADA_494,
   COLUMNA_DINERO_RETIRADA_494,
@@ -60,14 +60,14 @@ import type {
 } from "@/lib/types/conteo-productos";
 
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(),
+  consultarConteoProductosV2: vi.fn(),
 }));
-const consultarMock = vi.mocked(consultarConteoProductos);
+const consultarMock = vi.mocked(consultarConteoProductosV2);
 
 // El detalle por fila no se abre en este archivo, pero su acción es un módulo de servidor: se
 // aísla igual que en `ProductosTablaDinero.test.tsx`.
 vi.mock("@/lib/actions/detalle-dinero-producto", () => ({
-  consultarDetalleDineroProducto: vi.fn(),
+  consultarDetalleDineroProductoV2: vi.fn(),
 }));
 
 vi.mock("@/components/shared/descargar-blob", () => ({ descargarBlob: vi.fn() }));

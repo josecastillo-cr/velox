@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import type { ConsultaProductos } from "@/lib/analytics/productos-consulta";
 import type { ConteoProductosDTO } from "@/lib/types/conteo-productos";
 
@@ -45,7 +45,7 @@ describe("El camino feliz", () => {
   it("maestro recibe las filas y el sello", async () => {
     const { deps: d } = deps({ usuarioId: "u1", rol: "maestro" });
 
-    expect(await consultarConteoProductos({ rango: "semana" }, d)).toEqual({
+    expect(await consultarConteoProductosV2({ rango: "semana" }, d)).toEqual({
       status: "ok",
       datos: DATOS,
     });
@@ -54,7 +54,7 @@ describe("El camino feliz", () => {
   it("el servicio recibe la consulta YA recortada por el alcance", async () => {
     const { deps: d, service } = deps({ usuarioId: "t-propia", rol: "adminTienda" });
 
-    await consultarConteoProductos({ rango: "semana" }, d);
+    await consultarConteoProductosV2({ rango: "semana" }, d);
 
     expect(service.consultar).toHaveBeenCalledTimes(1);
     expect(service.consultar.mock.lastCall?.[0] as never).toMatchObject({
@@ -65,7 +65,7 @@ describe("El camino feliz", () => {
 
   it("el camino feliz no escribe nada en el log", async () => {
     const { deps: d, logger } = deps({ usuarioId: "u1", rol: "admin" });
-    await consultarConteoProductos({}, d);
+    await consultarConteoProductosV2({}, d);
     expect(logger.logError).not.toHaveBeenCalled();
   });
 });
@@ -74,7 +74,7 @@ describe("R53 · si la entrada no valida, ni base ni alcance", () => {
   it("un filtro invalido no toca el servicio NI el log", async () => {
     const { deps: d, service, logger } = deps({ usuarioId: "u1", rol: "maestro" });
 
-    const res = await consultarConteoProductos({ rango: "trimestre" }, d);
+    const res = await consultarConteoProductosV2({ rango: "trimestre" }, d);
 
     expect(res.status).toBe("validation_error");
     expect(service.consultar).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe("R53 · si la entrada no valida, ni base ni alcance", () => {
   it("una clave desconocida es `validation_error` y no un extra inocuo (R8)", async () => {
     const { deps: d, service } = deps({ usuarioId: "u1", rol: "adminTienda" });
 
-    const res = await consultarConteoProductos({ rol: "maestro", alcance: "global" }, d);
+    const res = await consultarConteoProductosV2({ rol: "maestro", alcance: "global" }, d);
 
     expect(res.status).toBe("validation_error");
     expect(service.consultar).not.toHaveBeenCalled();
@@ -97,7 +97,7 @@ describe("R53 · si la entrada no valida, ni base ni alcance", () => {
     // `forbidden`.
     const { deps: d, logger } = deps({ usuarioId: "u1", rol: "mensajero" });
 
-    expect((await consultarConteoProductos({ clave_inventada: 1 }, d)).status).toBe(
+    expect((await consultarConteoProductosV2({ clave_inventada: 1 }, d)).status).toBe(
       "validation_error",
     );
     expect(logger.logError).not.toHaveBeenCalled();
@@ -106,7 +106,7 @@ describe("R53 · si la entrada no valida, ni base ni alcance", () => {
   it("`validation_error` lleva los campos que fallaron y ningun motivo de permisos", async () => {
     const { deps: d } = deps({ usuarioId: "u1", rol: "maestro" });
 
-    const res = await consultarConteoProductos({ zona_id: [] }, d);
+    const res = await consultarConteoProductosV2({ zona_id: [] }, d);
 
     expect(res.status).toBe("validation_error");
     if (res.status !== "validation_error") throw new Error("imposible");
@@ -119,7 +119,7 @@ describe("R4 · adminSatelite y mensajero: `forbidden` SIN tocar el repositorio"
   it.each(["adminSatelite", "mensajero"])("%s recibe `forbidden` y el servicio no se llama", async (rol) => {
     const { deps: d, service } = deps({ usuarioId: "u9", rol, zonaId: "z1" });
 
-    const res = await consultarConteoProductos({}, d);
+    const res = await consultarConteoProductosV2({}, d);
 
     // Ni recortada, ni agregada, ni en cero: `forbidden` a secas.
     expect(res).toEqual({ status: "forbidden" });
@@ -129,14 +129,14 @@ describe("R4 · adminSatelite y mensajero: `forbidden` SIN tocar el repositorio"
   it("un rol inventado tambien es `forbidden`", async () => {
     const { deps: d, service } = deps({ usuarioId: "u9", rol: "superadmin" });
 
-    expect(await consultarConteoProductos({}, d)).toEqual({ status: "forbidden" });
+    expect(await consultarConteoProductosV2({}, d)).toEqual({ status: "forbidden" });
     expect(service.consultar).not.toHaveBeenCalled();
   });
 
   it("pedir una tienda ajena es `forbidden`, NO un `ok` con lista vacia", async () => {
     const { deps: d, service } = deps({ usuarioId: "t-propia", rol: "adminTienda" });
 
-    const res = await consultarConteoProductos({ tienda_id: ["t-ajena"] }, d);
+    const res = await consultarConteoProductosV2({ tienda_id: ["t-ajena"] }, d);
 
     expect(res).toEqual({ status: "forbidden" });
     expect(service.consultar).not.toHaveBeenCalled();
@@ -149,13 +149,13 @@ describe("Sin sesion", () => {
 
     // «No sabemos quien eres» se arregla volviendo a entrar; «no puedes» no. La pantalla tiene
     // dos textos distintos para eso.
-    expect(await consultarConteoProductos({}, d)).toEqual({ status: "unauthenticated" });
+    expect(await consultarConteoProductosV2({}, d)).toEqual({ status: "unauthenticated" });
     expect(service.consultar).not.toHaveBeenCalled();
   });
 
   it("un actor sin `usuarioId` tambien es `unauthenticated`", async () => {
     const { deps: d } = deps({ rol: "maestro" });
-    expect(await consultarConteoProductos({}, d)).toEqual({ status: "unauthenticated" });
+    expect(await consultarConteoProductosV2({}, d)).toEqual({ status: "unauthenticated" });
   });
 });
 
@@ -163,7 +163,7 @@ describe("R9 · el rastro del denegado: con motivo, sin PII y sin revelarlo al c
   it("audita el motivo, el rol, el usuario y QUE se intento leer", async () => {
     const { deps: d, logger } = deps({ usuarioId: "u9", rol: "mensajero" });
 
-    await consultarConteoProductos({ tienda_id: ["t1"] }, d);
+    await consultarConteoProductosV2({ tienda_id: ["t1"] }, d);
 
     expect(logger.logError).toHaveBeenCalledTimes(1);
     expect(logger.logError.mock.lastCall?.[0]).toMatchObject({
@@ -179,7 +179,7 @@ describe("R9 · el rastro del denegado: con motivo, sin PII y sin revelarlo al c
 
   it("el id de auditoria es distinto del de las otras lecturas de la seccion", async () => {
     const { deps: d, logger } = deps({ usuarioId: "u9", rol: "mensajero" });
-    await consultarConteoProductos({}, d);
+    await consultarConteoProductosV2({}, d);
     const registro = logger.logError.mock.lastCall?.[0] as { metricaId: string };
     expect(registro.metricaId).toBe("conteo_productos");
     expect(registro.metricaId).not.toBe("conteo_por_status");
@@ -189,7 +189,7 @@ describe("R9 · el rastro del denegado: con motivo, sin PII y sin revelarlo al c
   it("un filtro con claves de PII NI SIQUIERA LLEGA al log: el `.strict()` lo para antes", async () => {
     const { deps: d, logger } = deps({ usuarioId: "u9", rol: "adminSatelite", zonaId: "z1" });
 
-    const res = await consultarConteoProductos(
+    const res = await consultarConteoProductosV2(
       { tienda_id: ["t-ajena"], email: "cliente@example.test", telefono: "88887777" },
       d,
     );
@@ -203,7 +203,7 @@ describe("R9 · el rastro del denegado: con motivo, sin PII y sin revelarlo al c
   it("del filtro VALIDO solo sobreviven las listas de ids del contrato", async () => {
     const { deps: d, logger } = deps({ usuarioId: "u9", rol: "adminSatelite", zonaId: "z1" });
 
-    await consultarConteoProductos(
+    await consultarConteoProductosV2(
       { tienda_id: ["t-ajena"], mensajero_id: ["m1"], distrito_id: ["d1"] },
       d,
     );
@@ -226,7 +226,7 @@ describe("R9 · el rastro del denegado: con motivo, sin PII y sin revelarlo al c
       nombre: "Nombre Apellido",
     });
 
-    await consultarConteoProductos({}, d);
+    await consultarConteoProductosV2({}, d);
 
     const registro = JSON.stringify(logger.logError.mock.lastCall?.[0]);
     expect(registro).not.toContain("mensajero@example.test");
@@ -242,7 +242,7 @@ describe("R9 · el rastro del denegado: con motivo, sin PII y sin revelarlo al c
 
     for (const [actor, motivo] of casos) {
       const { deps: d, logger } = deps(actor);
-      const res = await consultarConteoProductos({}, d);
+      const res = await consultarConteoProductosV2({}, d);
 
       // El motivo SI esta en el log...
       expect(logger.logError.mock.lastCall?.[0]).toMatchObject({ motivo });
@@ -258,7 +258,7 @@ describe("R9 · el rastro del denegado: con motivo, sin PII y sin revelarlo al c
         { usuarioId: "u9", rol: "mensajero" },
         { usuarioId: "u9", rol: "adminSatelite", zonaId: "z1" },
         { usuarioId: "u9", rol: "superadmin" },
-      ].map((actor) => consultarConteoProductos({}, deps(actor).deps)),
+      ].map((actor) => consultarConteoProductosV2({}, deps(actor).deps)),
     );
 
     expect(respuestas).toEqual([

@@ -35,17 +35,17 @@ import { SWRConfig } from "swr";
 
 import { ProductosTabla } from "@/app/(app)/analitica/_components/entregas/ProductosTabla";
 import { FiltroEntregasProvider } from "@/app/(app)/_components/filtro-entregas";
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import { money } from "@/lib/config/moneda";
 import { ToastProvider } from "@/providers/ToastProvider";
 import type { ConteoProductosDTO, FilaProductoDTO } from "@/lib/types/conteo-productos";
 import { codigoSinComentarios, LLAMADAS_PROHIBIDAS_EN_DINERO } from "@/tests/fixtures/money-safe";
 
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(),
+  consultarConteoProductosV2: vi.fn(),
 }));
 
-const consultarMock = vi.mocked(consultarConteoProductos);
+const consultarMock = vi.mocked(consultarConteoProductosV2);
 
 /** Los archivos de la ficha por los que pasa un importe. */
 const FUENTES_CON_DINERO = [

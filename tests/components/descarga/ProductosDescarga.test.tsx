@@ -26,13 +26,13 @@ import {
   PRODUCTOS_TEXTOS,
 } from "@/app/(app)/analitica/_components/entregas/ProductosTabla";
 import { COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS } from "@/app/(app)/analitica/_components/entregas/analitica-productos-descarga-columnas";
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import type { ConteoProductosDTO, FilaProductoDTO } from "@/lib/types/conteo-productos";
 
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(),
+  consultarConteoProductosV2: vi.fn(),
 }));
-const consultarMock = vi.mocked(consultarConteoProductos);
+const consultarMock = vi.mocked(consultarConteoProductosV2);
 
 vi.mock("@/components/shared/descargar-blob", () => ({ descargarBlob: vi.fn() }));
 const descargarBlobMock = vi.mocked(descargarBlob);
