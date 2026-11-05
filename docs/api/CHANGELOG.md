@@ -21,6 +21,12 @@
 
 ---
 
+## 2026-11-05 — La colección de Postman cambia de nombre (sin ruptura)
+
+El archivo `docs/api/ordenex-api-key.postman_collection.json` pasa a ser `docs/api/api-key.postman_collection.json`, y la colección se titula «Velox Courier — API key». Mismas peticiones: el contrato no cambia, y quien ya la tenga importada no tiene que hacer nada.
+
+---
+
 ## 2026-11-02 — ⚠️ RUPTURA — La empresa pasa a llamarse Velox Courier: cabeceras de la firma, dominio y encabezados de descarga
 
 > **Fecha de despliegue: 2026-11-03.** Este cambio

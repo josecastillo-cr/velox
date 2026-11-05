@@ -1,4 +1,4 @@
-# DESIGN.md — Ordenex
+# DESIGN.md — Velox Courier
 
 Sistema de diseño de la app (product UI). Dirección: **refinar la identidad actual, no rediseñar**. Toda pantalla nueva o refactorizada referencia estas reglas. Fuente de verdad de tokens: `app/globals.css`.
 

@@ -162,7 +162,7 @@ const POSTMAN_PATH = path.join(
   "..",
   "docs",
   "api",
-  "ordenex-api-key.postman_collection.json",
+  "api-key.postman_collection.json",
 );
 const CHANGELOG_PATH = path.join(__dirname, "..", "..", "..", "docs", "api", "CHANGELOG.md");
 

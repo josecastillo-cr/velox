@@ -3,10 +3,8 @@
 // GENERADO: no se edita a mano. `pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes`.
 // Solo puede bajar con cada tanda. En un conflicto de merge se descarta y se regenera. T8.2 lo borra.
 
-/** 1082 apariciones en 400 archivos. */
+/** 1074 apariciones en 395 archivos. */
 export const PENDIENTES_494: Readonly<Record<string, number>> = {
-  ".env.example": 1,
-  "DESIGN.md": 1,
   "app/(app)/analitica/_components/entregas/DineroProductoDetalle.tsx": 3,
   "app/(app)/analitica/_components/entregas/ProductosTabla.tsx": 5,
   "app/(app)/analitica/_components/entregas/analitica-productos-descarga-columnas.ts": 2,
@@ -71,7 +69,6 @@ export const PENDIENTES_494: Readonly<Record<string, number>> = {
   "components/shared/wallet/detalle-movimiento-panel-labels.ts": 1,
   "components/shared/wallet/registrar-movimiento-labels.ts": 2,
   "db/schema.prisma": 47,
-  "docs/api/ordenex-api-key.postman_collection.json": 2,
   "e2e/mi-wallet.spec.ts": 3,
   "e2e/wallet-mensajeros.spec.ts": 1,
   "e2e/wallet.spec.ts": 1,
@@ -298,8 +295,6 @@ export const PENDIENTES_494: Readonly<Record<string, number>> = {
   "tests/unit/analytics/finanzas-diario.test.ts": 2,
   "tests/unit/analytics/metrics-caja-naturaleza.guardia.test.ts": 6,
   "tests/unit/analytics/metrics-cuenta-por-pagar-tienda-457.test.ts": 1,
-  "tests/unit/api/openapi-266-habilitar.test.ts": 1,
-  "tests/unit/api/openapi-320-eliminar.test.ts": 1,
   "tests/unit/api/openapi-406-evidencias-url.test.ts": 4,
   "tests/unit/api/openapi-titulo-marca.test.ts": 1,
   "tests/unit/api/openapi-webhook-estado-actualizado.test.ts": 8,
@@ -343,7 +338,7 @@ export const PENDIENTES_494: Readonly<Record<string, number>> = {
   "tests/unit/guards/mensajero-forma-unica.guardia.test.ts": 1,
   "tests/unit/guards/no-embalaje.test.ts": 1,
   "tests/unit/guards/nombres-wallet-461.guardia.test.ts": 6,
-  "tests/unit/guards/openapi-canal-rutas-reales.guardia.test.ts": 3,
+  "tests/unit/guards/openapi-canal-rutas-reales.guardia.test.ts": 1,
   "tests/unit/guards/paginas-legales-estaticas.guardia.test.ts": 1,
   "tests/unit/guards/pwa-manifiesto-atajos.guardia.test.ts": 3,
   "tests/unit/guards/pwa-push.guardia.test.ts": 2,

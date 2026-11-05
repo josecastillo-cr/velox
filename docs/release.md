@@ -565,6 +565,15 @@ umbral `RUTA_ORIGEN_MAX_KM = 200` continúa **declarado sin calibrar**.
 >
 > **Plan de pruebas por rol en preview:** `progress/plan_pruebas_release.md`.
 
+### 494 (marca en identificadores internos) — lo que hay que hacer al desplegarla
+
+- **Antes de desplegar, medir el cruce entre versiones** (`specs/494-marca-identificadores-internos/design.md` §3.2). La 494 renombra campos en respuestas de Server Action: una pestaña abierta con la versión anterior puede recibir la forma nueva si el id de la action sigue valiendo en el servidor nuevo. **Comparar los ids entre dos previews no predice la release:** la sal es la clave de cifrado, guardada en `.rscinfo` dentro de la caché de build, caduca a los 14 días y depende de que esa caché se restaure. Por eso se mide lo que no caduca, en este orden:
+  1. **Skew Protection en el proyecto de Vercel:** es lo único que da una respuesta firme. Activa, la pestaña vieja sigue hablando con su despliegue y el cruce no se da mientras dure su ventana.
+  2. **`NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` en el entorno de producción:** si está fijada, los ids sobreviven siempre.
+  3. **Sin ninguna de las dos:** no se sabe si los ids sobreviven a ese despliegue, y se actúa como si sí: **se despliega fuera de la operación y se avisa de que recarguen.**
+- **Qué se arriesga si se cruza.** En cierres y caja, una frase de saldo falsa bajo la cifra correcta o un panel que no abre, hasta recargar; no se escribe nada. En productos, el nombre nuevo de las actions (`...V2`) corta el peor caso, un archivo guardado con «Cobró Velox» vacía; medido con webpack, y sin medir con Turbopack, que es con lo que construye producción. La decisión de no poner alias está **pendiente de confirmar por el humano antes de esta release**.
+- **Siembra QA:** en preview, `scripts/seed-usuarios-qa.ts` pasa las cuentas al correo `@empresa.test` (T7.2). **En producción no se corre.**
+
 ### 473 y 474 (en `dev` desde el 2026-10-05) — lo que hay que hacer al desplegarlas
 
 - **473** (Corregir la recepción de dinero de una satélite): sin migración. Tras desplegar, que un
@@ -708,9 +717,9 @@ ya se desplegó, se para y se diagnostica antes de seguir).
 | # | Paso | Quién | Cómo se verifica | Detiene |
 | --- | --- | --- | --- | --- |
 | B1 | **PR de `dev` → `prod`** con el cuerpo diciendo qué cambia para quien usa la app (no qué archivos). **Merge commit** («Create a merge commit»). **NUNCA squash ni rebase**: rompe la ascendencia y la siguiente release sale con decenas de archivos en conflicto (memoria «Release a `prod`: nunca squash»). | L abre · H ordena el merge | Antes de mergear, `gh pr checks <n>` con **Vercel `pass`** (A2b). Después, `git log -1 origin/prod` es un merge con **2 padres** y el segundo es el SHA de A6. | sí |
-| B2 | **Vercel creó el build.** Un PR `MERGED` con `prod` apuntando bien **no** garantiza despliegue: ya pasó que Vercel no creó build y el estado del commit se quedó en `pending` para siempre (memoria «Release mergeada sin despliegue»). | L | `list_deployments` del proyecto **`ordenex`**, target production, con el SHA del merge, en los primeros minutos. | sí |
+| B2 | **Vercel creó el build.** Un PR `MERGED` con `prod` apuntando bien **no** garantiza despliegue: ya pasó que Vercel no creó build y el estado del commit se quedó en `pending` para siempre (memoria «Release mergeada sin despliegue»). | L | `list_deployments` del proyecto **`velox`**, target production, con el SHA del merge, en los primeros minutos. | sí |
 | B3 | **Leer el log del build**, líneas `[migrate]` y `[siembra]`: las 27 aplicadas, la línea del SINPE si hubo `P3009`, y la siembra de los recurrentes. ⚠️ Si las migraciones se aplicaron y **después** falla `next build`, producción sigue con el código VIEJO sobre el esquema NUEVO (códigos de la 455 renombrados): eso es un incidente, se arregla hacia delante (§2 bis) **de inmediato**. | L | Log del deployment. | sí |
-| B4 | **READY** y alias `ordenex.co` con `aliasError: null`. | L | `get_deployment`. | sí |
+| B4 | **READY** y alias `velox-courier.company` con `aliasError: null`. | L | `get_deployment`. | sí |
 
 ### C · Después de desplegar (en este orden)
 
