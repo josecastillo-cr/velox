@@ -6050,6 +6050,18 @@
       "depends_on": 494,
       "branch": null,
       "status_note": "Hallazgo m6 de progress/review_494_t3.md. fraseDelSaldo y fraseDelSaldoParaLaTienda en components/shared/estado-cuenta/estado-cuenta-labels.ts. Se vio con el cruce de versiones de la 494, pero el defecto es anterior. Se empieza con la tanda 3 de la 494 mergeada: renombra esos valores. Registrada el 2026-11-04 con OK del humano. No bloquea la release."
+    },
+    {
+      "id": 505,
+      "title": "Aviso de versión nueva: tarjeta descompuesta",
+      "description": "Los botones «Ahora no» y «Actualizar ahora» caen en la columna del icono y descomponen la tarjeta. Colocarlos a lo ancho y comprobarlo en el navegador.",
+      "zone": "frontend",
+      "status": "in_progress",
+      "sdd": false,
+      "complexity": "small",
+      "depends_on": null,
+      "branch": "fix/505-aviso-version-tarjeta",
+      "status_note": "Visto en la tanda 7 de la 494; el defecto es anterior. components/shared/AvisoVersionNueva.tsx:62. Registrada el 2026-11-05 con OK del humano. Va en la release: es lo que se ve al desplegar."
     }
   ]
 }
