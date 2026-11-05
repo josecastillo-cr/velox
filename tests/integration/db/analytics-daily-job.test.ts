@@ -29,7 +29,7 @@ import {
 
 /**
  * Feature 124 / T6 — la suite de INTEGRACION del job de agregacion diaria contra el Postgres
- * local (`localhost:5432/ordenex`). Cubre R1, R7, R10-R20, R22-R31, R34, R35, R45, R46 y R49.
+ * local (`localhost:5432`). Cubre R1, R7, R10-R20, R22-R31, R34, R35, R45, R46 y R49.
  *
  * Por que contra base y no con dobles: lo que se mide aqui es el SQL. Los casos de la 123 que
  * hasta hoy solo verificaba una regex sobre el texto de la migracion —la cota estricta del

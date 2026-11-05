@@ -150,9 +150,8 @@ export const EXCEPCIONES: readonly Excepcion[] = [
   {
     id: "E4",
     motivo: "Nombre real de la base local: esos scripts abortan si no coincide, y es lo que evita que escriban en prod.",
-    rutas: ["scripts/drenar-jobs.ts", "scripts/rollup-analitica-manual.ts", "scripts/contraste-454.ts"],
-    linea: /localhost:5432\/ordenex|ordenex_|BASE_LOCAL|=== "ordenex"/,
-    activaEn: "T7.1",
+    rutas: ["scripts/drenar-jobs.ts", "scripts/rollup-analitica-manual.ts", "scripts/contraste-454.ts", "tests/unit/services/analitica-rollup-handler.test.ts"],
+    linea: /:\d+\/ordenex|ordenex_|BASE_LOCAL|=== "ordenex"/,
   },
   {
     id: "E5",
@@ -171,7 +170,8 @@ export const EXCEPCIONES: readonly Excepcion[] = [
     id: "E6",
     motivo: "Hace falta para pasar la cuenta QA al correo nuevo (R29).",
     rutas: ["scripts/seed-usuarios-qa.ts", "tests/integration/db/seed-usuarios-qa-494.test.ts"],
-    activaEn: "T7.2",
+    // Los 4 correos de la siembra, y la cuenta ajena con la que el test comprueba que el pase va por correo exacto (R30).
+    linea: /\b(?:admin|mensajero|tienda|satelite)\.qa@ordenex\.test\b|\botra\.persona@ordenex\.test\b/,
   },
   {
     id: "E7",

@@ -11,7 +11,7 @@
 // Feature 284 — este script estaba ROTO: leia `public/next.svg`, un archivo que ya no
 // existe en el arbol, y pintaba el logotipo de Next sobre un cuadrado naranja. O sea que
 // no podia reproducir ni uno de los iconos que la app servia entonces. Desde la 284 lee las
-// fuentes reales de la marca (entonces el monograma "ex" de Ordenex; desde la 492 el simbolo
+// fuentes reales de la marca (entonces el monograma "ex" de la marca anterior; desde la 492 el simbolo
 // de Velox Courier) y emite las imagenes que declaran el manifiesto, el `<head>` y `sw.js`.
 //
 // POR QUE DOS VECTORES Y NO UNO (decision del humano, 2026-08-25):

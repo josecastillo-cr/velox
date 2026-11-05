@@ -89,7 +89,7 @@ describe("T4.1 — la migracion del enum `job_tipo`", () => {
   // garantizar que, en el momento de correr el round-trip de T8.2, `pnpm db:rollback` revirtiera
   // ESTA migracion y no otra, de modo que la medicion fuera de esta feature. Ese round-trip ya
   // ocurrio y su evidencia esta registrada en `progress/roundtrip_124_job_tipo.md` (UP → DOWN →
-  // UP contra `localhost:5432/ordenex`, con la comprobacion de «ultima por nombre» hecha y
+  // UP contra `localhost:5432`, con la comprobacion de «ultima por nombre» hecha y
   // anotada en su §2). La propiedad que afirmaba es TEMPORAL: dejo de ser cierta en cuanto otra
   // feature anadio una migracion posterior (la 172, `20260802120000_liquidacion_pago`), y
   // mantenerla haria fallar a TODA feature futura que anada una migracion, sin decir nada sobre

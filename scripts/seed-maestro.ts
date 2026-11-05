@@ -10,7 +10,7 @@ import { getPrismaClient } from "@/lib/db/prisma-client";
 // acceso al codigo). Aqui la credencial llega por entorno y nunca se versiona.
 //
 // Uso:
-//   MAESTRO_EMAIL=admin@ordenex.co MAESTRO_PASSWORD='...' pnpm db:seed:maestro
+//   MAESTRO_EMAIL=admin@ejemplo.test MAESTRO_PASSWORD='...' pnpm db:seed:maestro
 //
 // Es idempotente y sirve tambien para ROTAR la contrasena: si el email ya
 // existe, actualiza el hash y reactiva la cuenta.
@@ -37,7 +37,7 @@ export function readMaestroInput(env: NodeJS.ProcessEnv): MaestroInput {
 
   if (!email) {
     throw new Error(
-      "Falta MAESTRO_EMAIL. Ej: MAESTRO_EMAIL=admin@ordenex.co pnpm db:seed:maestro"
+      "Falta MAESTRO_EMAIL. Ej: MAESTRO_EMAIL=admin@ejemplo.test pnpm db:seed:maestro"
     );
   }
   if (!email.includes("@")) {
@@ -58,7 +58,7 @@ export function readMaestroInput(env: NodeJS.ProcessEnv): MaestroInput {
   return {
     email,
     password,
-    nombre: env.MAESTRO_NOMBRE?.trim() || "Maestro Ordenex",
+    nombre: env.MAESTRO_NOMBRE?.trim() || "Maestro",
     telefono: env.MAESTRO_TELEFONO?.trim() || "0999999999",
     cedula: env.MAESTRO_CEDULA?.trim() || "1700000001",
   };

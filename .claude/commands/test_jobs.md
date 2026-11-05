@@ -61,7 +61,7 @@ Argumentos recibidos: `$ARGUMENTS`
   claim → handler → complete / backoff / dead-letter es el `JobQueueService` real. Lo único
   propio es un decorador del repositorio cuyo `claimBatch` añade `tipo = ANY(tipos)`,
   conservando la misma sentencia (CTE + `FOR UPDATE SKIP LOCKED` + `intentos + 1`).
-- **Guarda de host**: aborta si `DATABASE_URL` no es `localhost:5432/ordenex`. Si el usuario
+- **Guarda de host**: aborta si `DATABASE_URL` no es la base local (`localhost:5432`, con el nombre que exige `scripts/drenar-jobs.ts`). Si el usuario
   pide explícitamente correrlo contra otra base, existe `--host-remoto`; **no lo pases por tu
   cuenta**, solo si lo piden con esas palabras.
 - El drenado repite vueltas hasta que una devuelve `procesados: 0` (tope `--vueltas`, 20 por

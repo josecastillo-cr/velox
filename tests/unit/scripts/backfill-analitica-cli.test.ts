@@ -20,7 +20,7 @@ import { ejecutarBackfillCli, destinoLegible, type EntornoCli } from "@/scripts/
 /** Credenciales de mentira, y a proposito feas: si alguna se cuela en la salida, se ve. */
 const USUARIO = "usuario_de_prueba";
 const CONTRASENA = "contrasena_que_no_debe_salir";
-const URL_DE_PRUEBA = `postgresql://${USUARIO}:${CONTRASENA}@db.ejemplo.interno:6543/ordenex_prod`;
+const URL_DE_PRUEBA = `postgresql://${USUARIO}:${CONTRASENA}@db.ejemplo.interno:6543/base_prod`;
 
 const AHORA = new Date("2026-08-02T15:00:00.000Z");
 
@@ -364,7 +364,7 @@ describe("R27 · el eco trae host, puerto, base, modo, rango, numero de fechas y
     const texto = a.todo();
     expect(texto).toContain("db.ejemplo.interno");
     expect(texto).toContain("6543");
-    expect(texto).toContain("ordenex_prod");
+    expect(texto).toContain("base_prod");
     expect(texto).toContain("Modo: escritura");
     expect(texto).toContain("2026-07-11 .. 2026-07-15");
     expect(texto).toContain("Fechas: 5");
@@ -379,9 +379,9 @@ describe("R27 · el eco trae host, puerto, base, modo, rango, numero de fechas y
   });
 
   it("destinoLegible reconstruye host:puerto/base y no devuelve nada de la credencial", () => {
-    expect(destinoLegible(URL_DE_PRUEBA)).toBe("db.ejemplo.interno:6543/ordenex_prod");
+    expect(destinoLegible(URL_DE_PRUEBA)).toBe("db.ejemplo.interno:6543/base_prod");
     // Sin puerto explicito: se asume el de Postgres.
-    expect(destinoLegible("postgresql://u:p@localhost/ordenex")).toBe("localhost:5432/ordenex");
+    expect(destinoLegible("postgresql://u:p@localhost/base_local")).toBe("localhost:5432/base_local");
     // Una contrasena con `@` dentro es justo lo que rompe cualquier recorte textual.
     expect(destinoLegible("postgresql://u:p%40ss@host.local:5432/base")).toBe("host.local:5432/base");
     expect(destinoLegible("no-es-una-url")).toBeNull();

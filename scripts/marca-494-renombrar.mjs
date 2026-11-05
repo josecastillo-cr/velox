@@ -50,8 +50,9 @@ const NUNCA_EN_COMENTARIOS = new Set([
   "tests/integration/db/seed-usuarios-qa-494.test.ts",
   "tests/unit/tema/cookie-legada-494.test.ts",
   "tests/unit/analytics/cache-clave-conteo-productos-494.test.ts",
+  "tests/unit/services/analitica-rollup-handler.test.ts",
 ]);
-const CARPETAS_NUNCA_EN_COMENTARIOS = ["tests/unit/navegador/", "tests/unit/scripts/"];
+const CARPETAS_NUNCA_EN_COMENTARIOS = ["tests/unit/navegador/"];
 
 const EXTENSIONES = /\.(tsx?|jsx?|mjs|cjs|css|json|md|sql|html|ya?ml)$/;
 

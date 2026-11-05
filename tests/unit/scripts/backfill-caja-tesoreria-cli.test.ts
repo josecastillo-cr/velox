@@ -32,7 +32,7 @@ const rutaDe = (rel: string) => path.join(RAIZ, ...rel.split("/"));
 /** Credenciales de mentira, y a proposito feas: si alguna se cuela en la salida, se ve. */
 const USUARIO = "usuario_de_prueba";
 const CONTRASENA = "contrasena_que_no_debe_salir";
-const URL_DE_PRUEBA = `postgresql://${USUARIO}:${CONTRASENA}@db.ejemplo.interno:6543/ordenex_prod`;
+const URL_DE_PRUEBA = `postgresql://${USUARIO}:${CONTRASENA}@db.ejemplo.interno:6543/base_prod`;
 
 const INSTANTE = "2026-12-25T18:30:00.000Z";
 
@@ -263,7 +263,7 @@ describe("argumentos: se rechazan en alto y sin tocar la base", () => {
 
     await ejecutarBackfillCajaCli(entorno);
 
-    expect(a.salida[0]).toBe("Base de destino: db.ejemplo.interno:6543/ordenex_prod");
+    expect(a.salida[0]).toBe("Base de destino: db.ejemplo.interno:6543/base_prod");
     expect(a.todo()).not.toContain(USUARIO);
     expect(a.todo()).not.toContain(CONTRASENA);
   });

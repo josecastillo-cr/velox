@@ -28,7 +28,7 @@ const PUERTO_LOCAL = "5432";
 const BASE_LOCAL = "ordenex";
 
 /** `true` solo si la URL apunta a `localhost:5432/ordenex`. Cualquier duda -> `false`. */
-export function esDestinoLocalOrdenex(url: string): boolean {
+export function esDestinoLocal(url: string): boolean {
   try {
     const u = new URL(url);
     const host = u.hostname.replace(/^\[|\]$/g, "");
@@ -64,7 +64,7 @@ async function main(): Promise<void> {
 
   // Guarda 2 (host): este script ESCRIBE. Produccion no se toca ni por error.
   const url = process.env.DATABASE_URL;
-  if (url === undefined || !esDestinoLocalOrdenex(url)) {
+  if (url === undefined || !esDestinoLocal(url)) {
     console.error(
       "ABORTA: DATABASE_URL no apunta a localhost:5432/ordenex. Este script ESCRIBE el rollup " +
         "de una fecha; no se corre contra ninguna otra base.",
