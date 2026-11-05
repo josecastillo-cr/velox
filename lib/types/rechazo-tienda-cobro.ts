@@ -15,7 +15,7 @@ import type { ActionError } from "@/lib/types/orden";
 // `Prisma.Decimal`.
 //
 // ⚠️ Y ADEMAS: EN TODO ESTE DOMINIO NO SE CALCULA DINERO. Los dos importes salen de
-// `derivarIngresoOrden` (`lib/utils/ingreso-ordenex.ts`) en el instante del rechazo y viajan
+// `derivarIngresoOrden` (`lib/utils/ingreso-empresa.ts`) en el instante del rechazo y viajan
 // COPIADOS hasta el libro. Por eso el DTO **no lleva un total**: sumarlos aqui seria la unica
 // operacion de dinero de la ficha, y existiria solo para pintar una celda. La cola enseña los
 // dos conceptos por separado, que es como los enseña el detalle del cierre.

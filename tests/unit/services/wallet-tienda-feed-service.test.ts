@@ -4,7 +4,7 @@ import { WalletTiendaFeedService } from "@/lib/services/WalletTiendaFeedService"
 import { CierreDetalleFaltanteError } from "@/lib/utils/cierre-detalle";
 import type { WalletTiendaFeedTxClient } from "@/lib/interfaces/services/IWalletTiendaFeedService";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
-import { agregarIngresosPorConcepto, type OrdenIngresoInput } from "@/lib/utils/ingreso-ordenex";
+import { agregarIngresosPorConcepto, type OrdenIngresoInput } from "@/lib/utils/ingreso-empresa";
 import { txVigilado } from "@/tests/fixtures/tx-una-consulta-a-la-vez";
 
 // Feature 43/T9 — tests unit del WalletTiendaFeedService (CORAZON). Cubre R8/R9/R10/R11/R14/
@@ -418,14 +418,14 @@ describe("WalletTiendaFeedService — INVARIANTE R15 (cuadre con la 42, ambos es
       tarifa: TARIFA,
     }));
     const ing = ingreso42(entradas);
-    const ingresoOrdenex = new Prisma.Decimal(ing.ingreso_flete_devolucion)
+    const ingresoEmpresa = new Prisma.Decimal(ing.ingreso_flete_devolucion)
       .add(new Prisma.Decimal(ing.ingreso_iva_flete_devolucion));
     const codRecaudado = new Prisma.Decimal(0);
 
     // COD recaudado - (saldo tienda + ingreso Ordenex) = flete_dev + iva_flete_dev (lo absorbe Ordenex).
-    const diferencia = codRecaudado.sub(saldoTienda.add(ingresoOrdenex)).abs();
+    const diferencia = codRecaudado.sub(saldoTienda.add(ingresoEmpresa)).abs();
     expect(diferencia.toFixed(2)).toBe("452.00");
-    expect(ingresoOrdenex.toFixed(2)).toBe("452.00"); // ingreso 42 intacto
+    expect(ingresoEmpresa.toFixed(2)).toBe("452.00"); // ingreso 42 intacto
   });
 });
 

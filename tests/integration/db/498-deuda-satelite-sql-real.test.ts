@@ -6,7 +6,7 @@ import { EstadoCuentaRepository } from "@/lib/repositories/EstadoCuentaRepositor
 import { SaldosSatelitesRepository } from "@/lib/repositories/SaldosSatelitesRepository";
 import { aporteCierreSql } from "@/lib/repositories/deuda-satelite-sql";
 import { aporteDeConsolidacion } from "@/lib/utils/conciliacion-satelite";
-import { paraLaCentral } from "@/lib/utils/ingreso-ordenex";
+import { paraLaCentral } from "@/lib/utils/ingreso-empresa";
 import { HAY_BASE_DE_DATOS } from "./_postgres-real";
 import { conEscenario, prepararMundo, type Escenario, type Mundo } from "./454/_escenario";
 import {

@@ -70,7 +70,7 @@ function dto(numRemision: string): CierreGestionDescargaDTO {
     indemnizacion: null,
     pagoMensajero: "10.00",
     ingresoBodegaRechazo: null,
-    ingresoOrdenex: null,
+    ingresoEmpresa: null,
   };
 }
 

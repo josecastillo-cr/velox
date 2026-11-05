@@ -32,7 +32,7 @@ export const TARIFA_CAMPO_LABEL = {
   valorFlete: "Valor flete",
   /**
    * Antes «Valor flete devuelto», y entre medias «Flete de retorno (solo rechazos)». Este monto
-   * se cobra SOLO cuando la gestión es `rechazada` (`lib/utils/ingreso-ordenex.ts`): desde la
+   * se cobra SOLO cuando la gestión es `rechazada` (`lib/utils/ingreso-empresa.ts`): desde la
    * ficha 301, una `devuelta` NO genera nada —el paquete sigue vivo en la calle y todavía puede
    * reprogramarse—. «Devuelto» nombraba justo el caso que no cobra.
    *

@@ -179,7 +179,7 @@ import { traspasarConversaciones } from "@/lib/repositories/traspasar-conversaci
 import { encolarOptimizacionDebounce } from "@/lib/services/jobs/optimizacion-ruta-encolado";
 import { loadRouteOptimizationConfig } from "@/lib/config/route-optimization";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
-import { costosListadoOrden } from "@/lib/utils/ingreso-ordenex";
+import { costosListadoOrden } from "@/lib/utils/ingreso-empresa";
 // ⏳ 2026-09-10 (feature 415, T3): la reconstruccion de la tarifa CONGELADA se importa de su fuente
 // UNICA y no se reescribe aqui. `TarifaCongeladaRow` es justo el subconjunto de columnas que
 // `tarifaDe` necesita, asi que el `select` de `cierreDetalles` y este tipo no pueden divergir.

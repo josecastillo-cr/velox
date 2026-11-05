@@ -6,7 +6,7 @@ import type {
 } from "@/lib/interfaces/services/IWalletTiendaFeedService";
 import { walletTiendaConfig, type WalletTiendaConfig } from "@/lib/config/wallet-tienda";
 import { detalleDe, leerDetallePorOrden, tarifaDe } from "@/lib/utils/cierre-detalle";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { conceptoIngresoADebitoTienda } from "@/lib/utils/mapeo-concepto-tienda";
 import { WALLET_INGRESO_CONCEPTO_SEED, type WalletIngresoConcepto } from "@/lib/types/wallet";
 import type { WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda";

@@ -12,7 +12,7 @@
 //  - `derivarIngresoOrden(input, tarifa)` — lo que Ordenex factura por UNA gestion, sobre las
 //    ENTRADAS CONGELADAS de esa orden en ese cierre (`cierre_detail`), nunca sobre la tarifa
 //    vigente hoy (R17).
-//  - `pagoTiendaOrdenex(totalGeneral, fleteConIva, comisionConIva)` — lo que le queda a la
+//  - `pagoTiendaEmpresa(totalGeneral, fleteConIva, comisionConIva)` — lo que le queda a la
 //    tienda de lo que se recogio.
 //
 // La ACUMULACION tampoco es nueva: es la misma que `agregarIngresosPorConcepto` ya hace sobre
@@ -22,8 +22,8 @@
 // hay deriva de redondeo.
 //
 // Y la AGRUPACION «concepto + su IVA» en `fleteConIva`/`comisionConIva` tampoco se inventa: es
-// la que `CierresAdminRepository.toIngresoOrdenex` ya escribe y la que la FIRMA de
-// `pagoTiendaOrdenex` exige por contrato — esa funcion recibe justo esos dos parametros.
+// la que `CierresAdminRepository.toIngresoEmpresa` ya escribe y la que la FIRMA de
+// `pagoTiendaEmpresa` exige por contrato — esa funcion recibe justo esos dos parametros.
 //
 // ─── LAS DOS INVARIANTES, Y LAS DOS POR CONSTRUCCION ──────────────────────────────────────
 //
@@ -31,7 +31,7 @@
 //   liquidadoRecaudado + pendienteRecaudado === recaudado      (R21)
 //
 // La primera es cierta porque `tienda` SE CALCULA COMO ESA RESTA
-// (`pagoTiendaOrdenex(liquidadoRecaudado, fleteConIva, comisionConIva)`) y `ordenex` es
+// (`pagoTiendaEmpresa(liquidadoRecaudado, fleteConIva, comisionConIva)`) y `ordenex` es
 // exactamente `fleteConIva + comisionConIva`. No es una coincidencia aritmetica que haya que
 // vigilar: es la definicion. La segunda es cierta porque las gestiones de entrega se
 // PARTICIONAN en dos —liquidadas y no liquidadas— y cada una cae en una y solo una.
@@ -45,7 +45,7 @@ import {
   type CriterioDeAporte,
   type OrdenCongelada,
 } from "@/lib/utils/aporte-por-orden";
-import { derivarIngresoOrden, pagoTiendaOrdenex } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden, pagoTiendaEmpresa } from "@/lib/utils/ingreso-empresa";
 
 /* -------------------------------------------------------------------------- */
 /* 1. El criterio del recaudo                                                  */
@@ -198,7 +198,7 @@ function sumar(acc: Prisma.Decimal, aporte: Prisma.Decimal | undefined): Prisma.
  * `liquidadoRecaudado + retorno` y R20 dejaria de ser cierta. Y no es un detalle contable:
  * seria afirmar que de la plata que el mensajero trajo salio un cobro que NADIE RECAUDO. El
  * retorno es una cuenta por cobrar a la tienda, no una division de lo recogido — el
- * razonamiento esta escrito en `pagoTiendaOrdenex`, que NO lo descuenta.
+ * razonamiento esta escrito en `pagoTiendaEmpresa`, que NO lo descuenta.
  */
 export function repartoDeOrden(gestiones: readonly GestionDeDinero[]): RepartoDeOrden {
   let recaudado = new Prisma.Decimal(0);
@@ -266,7 +266,7 @@ export function repartoDeOrden(gestiones: readonly GestionDeDinero[]): RepartoDe
     tienda: hayLiquidado
       ? // R20 POR CONSTRUCCION: `tienda` es la RESTA, no un segundo conteo. Es la misma
         // funcion que produce el pago a la tienda en el cierre.
-        pagoTiendaOrdenex(
+        pagoTiendaEmpresa(
           liquidadoRecaudado.toFixed(2),
           fleteConIva.toFixed(2),
           comisionConIva.toFixed(2),

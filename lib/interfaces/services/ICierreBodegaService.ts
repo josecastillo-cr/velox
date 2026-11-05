@@ -6,13 +6,13 @@ import type { ListarCompletoServiceResult } from "@/lib/types/descarga-listado";
 import type {
   CierreGrupos,
   CierreTotales,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 // Ficha 396 — la parte de UNA tienda se DECLARA junto a la funcion que la produce
 // (`partesPorTienda`), donde viven las identidades que particiona, y se importa aqui como TIPO.
 // Mismo camino por el que ya viaja hasta `ICierresAdminService`: un `import type` se borra al
 // compilar, asi que esto no arrastra ni un byte de `lib/utils/` al bundle.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 
 // Feature 40 — contrato del servicio del "Cierre de bodega" (lado adminSatelite:
 // consolidar + solicitar). Espejo de ICierreDiaService (feature 37), un nivel arriba.
@@ -117,7 +117,7 @@ export interface CierreBodegaDetalleCierre {
   totalIngresoBodegaRechazos: string; // feature 56/R19: snapshot del ingreso de bodega por rechazos del cierre_dia (STRING)
   grupos: CierreGrupos; // por resultado (reuso CierreDetalleGestion de la 37, R11)
   // Totales por concepto del ingreso de Ordenex de ESTE cierre_dia (derivados del snapshot).
-  totalesIngreso: TotalesIngresoOrdenex;
+  totalesIngreso: TotalesIngresoEmpresa;
   // DERIVADO: `totalesIngreso.total` - `totalPagoMensajero` de ESTE cierre_dia (STRING).
   // Lo que le queda a Ordenex del dia de ese mensajero. Puede ser NEGATIVO.
   ganancia: string;
@@ -136,7 +136,7 @@ export interface CierreBodegaDetalleCierre {
    * `totalIngresoBodegaRechazos` de ESTE cierre_dia. NO es `ganancia`: aquella no resta la
    * bodega, y por eso los dos numeros solo coinciden cuando la bodega es 0. Puede ser NEGATIVO.
    */
-  netoOrdenex: string;
+  netoEmpresa: string;
   /**
    * Ficha 396 (D1) — DERIVADO: `totales.general` − `totalesIngreso.total` de ESTE cierre_dia.
    * LO QUE LA TIENDA GANA EN TOTAL con el dia de ESE mensajero.
@@ -149,7 +149,7 @@ export interface CierreBodegaDetalleCierre {
    * FALTABA, y por eso lo trae esta ficha: la 395 puso `ganaLaTienda` SOLO en el detalle del
    * cierre del mensajero, asi que el desglose por tienda de bodega sumaria hacia un total que no
    * estaba en ninguna parte (`design.md §5.2`). Se deriva con la MISMA funcion
-   * (`ganaLaTienda`, `lib/utils/ingreso-ordenex.ts`), no con una resta escrita aqui.
+   * (`ganaLaTienda`, `lib/utils/ingreso-empresa.ts`), no con una resta escrita aqui.
    *
    * Sale de SUS PROPIOS snapshot y desglose, nunca de los del agregado (R21). Puede ser NEGATIVO
    * y se emite CON SU SIGNO, nunca recortado a "0.00".

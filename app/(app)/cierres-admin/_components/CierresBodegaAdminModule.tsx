@@ -37,11 +37,11 @@ import type {
   CierreBodegaDetalleCierre,
   CierreBodegaResumen,
 } from "@/lib/interfaces/services/ICierreBodegaService";
-import type { TotalesIngresoOrdenex } from "@/lib/interfaces/services/ICierreDiaService";
+import type { TotalesIngresoEmpresa } from "@/lib/interfaces/services/ICierreDiaService";
 // Ficha 396 (D2) — el tipo del desglose se pide DONDE VIVE la identidad que particiona
-// (`lib/utils/ingreso-ordenex.ts`), igual que hace el contrato del servicio. Es un `import type`:
+// (`lib/utils/ingreso-empresa.ts`), igual que hace el contrato del servicio. Es un `import type`:
 // se borra al compilar y no arrastra ni `Prisma` ni una linea de servidor al navegador.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 import {
   TotalesIngresoPanel,
   TotalesPanel,
@@ -54,9 +54,9 @@ import {
   CASCADA_DUENO_TITULO,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_TIENDA_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   COBRADO_SOBRE_RECAUDADO_LABEL,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
   PAGO_MENSAJERO_LABEL,
   FLETE_CON_IVA_LABEL,
@@ -203,18 +203,18 @@ interface DetalleAbierto {
   cierre: CierreBodegaResumen;
   cierres: CierreBodegaDetalleCierre[];
   /** Ingreso de Ordenex agregado de toda la bodega, por concepto (derivado del snapshot). */
-  totalesIngreso: TotalesIngresoOrdenex;
+  totalesIngreso: TotalesIngresoEmpresa;
   /** Total general agregado menos flete + IVA y comisión + IVA (puede ser negativo). */
   pagoTienda: string;
   /**
    * Feature 393 — los cuatro derivados AGREGADOS de las dos cascadas, tal como los emite el
-   * servidor. `ganancia` ya no se guarda: en esta superficie la absorbió `netoOrdenex`, que
+   * servidor. `ganancia` ya no se guarda: en esta superficie la absorbió `netoEmpresa`, que
    * resta ADEMÁS lo que gana la bodega satélite (las dos sólo coinciden cuando esa cifra es 0).
    * El servicio la sigue devolviendo —la lee el detalle del cierre de MENSAJERO (R30)—, aquí
    * simplemente no se pinta.
    */
   cobradoSobreRecaudado: string;
-  netoOrdenex: string;
+  netoEmpresa: string;
   paraLaCentral: string;
   efectivoCubreDescuentos: boolean;
   /**
@@ -301,12 +301,12 @@ function lineasCascadaCentral(nivel: {
 function lineasCascadaDueno(
   nivel: {
     general: string;
-    totalesIngreso: TotalesIngresoOrdenex;
+    totalesIngreso: TotalesIngresoEmpresa;
     totalPagoMensajero: string;
     totalIngresoBodegaRechazos: string;
     pagoTienda: string;
     cobradoSobreRecaudado: string;
-    netoOrdenex: string;
+    netoEmpresa: string;
   },
   // Ficha 396 (R1) — LA MARCA de este nivel, o `null` si sus gestiones son de una sola tienda.
   // Sale de `marcaDeVariasTiendas`, la MISMA funcion que decide si se pinta el desglose: las dos
@@ -345,7 +345,7 @@ function lineasCascadaDueno(
       signo: "suma",
       notas: [FLETE_RECHAZO_NO_DEDUCIBLE_NOTA],
     },
-    { label: FACTURADO_ORDENEX_LABEL, monto: nivel.totalesIngreso.total, signo: "neutro" },
+    { label: FACTURADO_EMPRESA_LABEL, monto: nivel.totalesIngreso.total, signo: "neutro" },
     { label: PAGO_MENSAJERO_LABEL, monto: nivel.totalPagoMensajero, signo: "resta" },
     {
       label: GANA_BODEGA_SATELITE_LABEL,
@@ -353,7 +353,7 @@ function lineasCascadaDueno(
       signo: "resta",
       notas: [GANA_BODEGA_SATELITE_NOTA],
     },
-    { label: NETO_ORDENEX_LABEL, monto: nivel.netoOrdenex, signo: "neutro", destacado: true },
+    { label: NETO_EMPRESA_LABEL, monto: nivel.netoEmpresa, signo: "neutro", destacado: true },
   ];
 }
 
@@ -467,7 +467,7 @@ export function CierresBodegaAdminModule({
         // Feature 393 (R12/R20): los cuatro llegan derivados del servidor con aritmética
         // decimal exacta. La pantalla no resta nada.
         cobradoSobreRecaudado: result.cobradoSobreRecaudado,
-        netoOrdenex: result.netoOrdenex,
+        netoEmpresa: result.netoEmpresa,
         paraLaCentral: result.paraLaCentral,
         efectivoCubreDescuentos: result.efectivoCubreDescuentos,
         // Ficha 396 (R20/R8): se guarda TAL CUAL llega. La pantalla no lo filtra, no lo suma y
@@ -731,7 +731,7 @@ export function CierresBodegaAdminModule({
                   totalIngresoBodegaRechazos: detalle.cierre.totalIngresoBodegaRechazos,
                   pagoTienda: detalle.pagoTienda,
                   cobradoSobreRecaudado: detalle.cobradoSobreRecaudado,
-                  netoOrdenex: detalle.netoOrdenex,
+                  netoEmpresa: detalle.netoEmpresa,
                 },
                 marcaAgregada,
               )}
@@ -813,7 +813,7 @@ export function CierresBodegaAdminModule({
                       totalIngresoBodegaRechazos: cierreDia.totalIngresoBodegaRechazos,
                       pagoTienda: cierreDia.pagoTienda,
                       cobradoSobreRecaudado: cierreDia.cobradoSobreRecaudado,
-                      netoOrdenex: cierreDia.netoOrdenex,
+                      netoEmpresa: cierreDia.netoEmpresa,
                     },
                     marcaDelMensajero,
                   )}

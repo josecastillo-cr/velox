@@ -18,7 +18,7 @@ import type {
   CierreOrdenSinGestion,
   CierreResultado,
   CierreTotales,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
 // Feature 238 (T4.1-T4.7 — R16/R27-R37) — la VENTANA DE CONFIRMACIÓN FÍSICA: antes de aprobar,
@@ -166,7 +166,7 @@ function emptyGrupos(): CierreGrupos {
   return { entregado: [], reprogramado: [], novedad: [], devolucion_a_origen_por_rechazo: [], incidente: [] };
 }
 
-function zeroIngreso(): TotalesIngresoOrdenex {
+function zeroIngreso(): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     fleteConIva: "0.00",
@@ -245,7 +245,7 @@ function conGrupos(
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     fleteRechazoYaCobradoATienda: false,
     // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola

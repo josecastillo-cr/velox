@@ -646,7 +646,7 @@ const INVENTARIO: Par[] = [
     fondo: { clase: "opaco", token: CARD },
     umbral: "ajeno",
     motivo:
-      "PREEXISTENTE Y AJENO A ESTA FICHA (R17). Lo pinta `DesgloseIngresoOrdenex` en " +
+      "PREEXISTENTE Y AJENO A ESTA FICHA (R17). Lo pinta `DesgloseIngresoEmpresa` en " +
       "`cierre-detalle-shared.tsx:651`, un componente COMPARTIDO con las tablas del detalle: " +
       "`--destructive` no tiene variante `-strong` y mide 3.76 sobre el papel claro. Arreglarlo " +
       "con una clase local de la factura dejaría el mismo aviso roto en las otras vistas que " +

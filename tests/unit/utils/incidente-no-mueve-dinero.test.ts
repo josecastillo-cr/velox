@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { pagoPorResultado } from "@/lib/utils/pago-mensajero";
 import { ingresoBodegaPorResultado } from "@/lib/utils/ingreso-bodega";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { WALLET_INGRESO_CONCEPTO_SEED } from "@/lib/types/wallet";
 import type { PagoTarifa } from "@/lib/interfaces/repositories/ITarifaZonaMensajeroRepository";
 

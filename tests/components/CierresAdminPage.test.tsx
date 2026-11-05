@@ -23,7 +23,7 @@ import { paginaInicial } from "@/tests/fixtures/pagina-inicial";
 import type { CierreAdminResumen } from "@/lib/interfaces/services/ICierresAdminService";
 import type {
   CierreGrupos,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CatalogoFiltrosCierresDTO } from "@/lib/types/filtros-cierres";
 
@@ -382,7 +382,7 @@ describe("CierresAdminPage — Feature 172 [P3]/R6: quién recibe la oferta de p
     incidente: [],
   };
 
-  const INGRESO_CERO: TotalesIngresoOrdenex = {
+  const INGRESO_CERO: TotalesIngresoEmpresa = {
     montoCobrar: "0.00",
     fleteConIva: "0.00",
     fleteDevolucionConIva: "0.00",
@@ -418,7 +418,7 @@ describe("CierresAdminPage — Feature 172 [P3]/R6: quién recibe la oferta de p
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola

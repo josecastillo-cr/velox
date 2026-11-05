@@ -22,15 +22,15 @@
 //      —que es justo lo que hacía antes— la suma dejaría de cuadrar.
 //
 // ⚠️ NO SE MUEVE UNA MONEDA AQUÍ NI EN EL COMPONENTE. Los importes los deriva
-// `derivarIngresoOrden` en el servidor y el total es `ingresoOrdenex.total` del DTO (sumado con
-// `Prisma.Decimal` en `CierresAdminRepository.toIngresoOrdenex`). El `Prisma.Decimal` de este
+// `derivarIngresoOrden` en el servidor y el total es `ingresoEmpresa.total` del DTO (sumado con
+// `Prisma.Decimal` en `CierresAdminRepository.toIngresoEmpresa`). El `Prisma.Decimal` de este
 // archivo es del TEST: sirve para comprobar que lo que se pinta cuadra, no para pintarlo.
 import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, within } from "@testing-library/react";
 import { Prisma } from "@prisma/client";
 
 import {
-  DesgloseIngresoOrdenex,
+  DesgloseIngresoEmpresa,
   COBROS_TITULO,
   COBROS_NOTA,
   COBROS_TOTAL_LABEL,
@@ -49,7 +49,7 @@ import {
 import { money, monedaConfig } from "@/lib/config/moneda";
 import type {
   CierreDetalleGestion,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
   TarifaSnapshotDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
@@ -73,7 +73,7 @@ function tarifa(over: Partial<TarifaSnapshotDTO> = {}): TarifaSnapshotDTO {
 }
 
 /** Base NEUTRA: ningún concepto derivado, total en cero. Es una REPROGRAMADA. */
-function ingreso(over: Partial<IngresoOrdenexDTO> = {}): IngresoOrdenexDTO {
+function ingreso(over: Partial<IngresoEmpresaDTO> = {}): IngresoEmpresaDTO {
   return {
     montoCobrar: "10000.00",
     cobraComision: true,
@@ -106,7 +106,7 @@ const ENTREGADA_GAM = {
   fleteConIva: "904.00",
   comisionConIva: "565.00",
   total: "1469.00",
-} satisfies Partial<IngresoOrdenexDTO>;
+} satisfies Partial<IngresoEmpresaDTO>;
 
 /** Lo que produce un RECHAZO en GAM: flete por devolución a origen + su IVA, y NADA más (400+52). */
 const RECHAZADA_GAM = {
@@ -115,10 +115,10 @@ const RECHAZADA_GAM = {
   ivaFleteDevolucion: "52.00",
   fleteDevolucionConIva: "452.00",
   total: "452.00",
-} satisfies Partial<IngresoOrdenexDTO>;
+} satisfies Partial<IngresoEmpresaDTO>;
 
 function gestion(
-  ing: IngresoOrdenexDTO,
+  ing: IngresoEmpresaDTO,
   resultado: CierreDetalleGestion["resultado"],
 ): CierreDetalleGestion {
   return {
@@ -149,7 +149,7 @@ function gestion(
     desdeAyudaTienda: false,
     causaIncidente: null,
     indemnizacion: null,
-    ingresoOrdenex: ing,
+    ingresoEmpresa: ing,
   } satisfies CierreDetalleGestion;
 }
 
@@ -201,7 +201,7 @@ afterEach(cleanup);
 
 describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total que cuadra", () => {
   it("el panel se titula «Cobros de esta gestión» y ya NO «Tarifa aplicada»", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
 
     expect(screen.getByRole("heading", { name: COBROS_TITULO })).toBeInTheDocument();
     // El título viejo NO puede sobrevivir en ningún rincón: con las filas en importe sería una
@@ -210,7 +210,7 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
   });
 
   it("la nota explica qué significa un cero, en vez de dejar que se deduzca de una ausencia", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(), "reprogramado")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(), "reprogramado")} />);
     // La frase menciona el cero con el MISMO formateador que pinta las celdas.
     expect(within(panelCobros()).getByText(COBROS_NOTA)).toBeInTheDocument();
     expect(COBROS_NOTA).toContain(CERO);
@@ -218,7 +218,7 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
 
   // ⭑ EL CASO DEL REPORTE. Antes: nueve precios y ninguna marca; había que deducir el cero.
   it("una REPROGRAMADA pinta TODAS las filas en cero, incluido el total", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(), "reprogramado")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(), "reprogramado")} />);
 
     const filas = filasDeCobros();
     // El conjunto exacto, no «contiene»: una fila con importe de más es el defecto que la ficha
@@ -228,12 +228,12 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
   });
 
   it("una DEVUELTA (301: ya no cobra retorno) también pinta todo en cero", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(), "novedad")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(), "novedad")} />);
     expect(filasDeCobros().map((f) => f.valor)).toEqual(filasDeCobros().map(() => CERO));
   });
 
   it("una ENTREGA en GAM cobra en «Valor flete GAM» y deja en cero las tres de rechazo", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
 
     expect(cobroDe(VALOR_FLETE_GAM_LABEL)).toBe(money("800.00"));
     expect(cobroDe(VALOR_FLETE_LABEL)).toBe(CERO); // la columna que NO le tocaba
@@ -248,7 +248,7 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
   });
 
   it("un RECHAZO en GAM cobra en «Flete por devolución a origen GAM» y deja en cero las de entrega", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(RECHAZADA_GAM), "devolucion_a_origen_por_rechazo")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(RECHAZADA_GAM), "devolucion_a_origen_por_rechazo")} />);
 
     expect(cobroDe(FLETE_RECHAZO_GAM_LABEL)).toBe(money("400.00"));
     expect(cobroDe(FLETE_RECHAZO_LABEL)).toBe(CERO);
@@ -264,7 +264,7 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
 
   it("con pacto especial, el importe va a la fila del pacto y las columnas normales quedan en cero", () => {
     render(
-      <DesgloseIngresoOrdenex
+      <DesgloseIngresoEmpresa
         g={gestion(
           ingreso({
             ...ENTREGADA_GAM,
@@ -289,7 +289,7 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
   });
 
   it("sin pacto congelado esas dos filas no se pintan (y no se pierde ni un colón)", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
     const labels = filasDeCobros().map((f) => f.label);
     expect(labels).not.toContain(TARIFA_ESPECIAL_LABEL);
     expect(labels).not.toContain(TARIFA_ESPECIAL_DEV_LABEL);
@@ -343,7 +343,7 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
 
     for (const caso of CASOS) {
       it(caso.nombre, () => {
-        render(<DesgloseIngresoOrdenex g={gestion(caso.ing, caso.r)} />);
+        render(<DesgloseIngresoEmpresa g={gestion(caso.ing, caso.r)} />);
 
         const filas = filasDeCobros();
         const total = filas[filas.length - 1];
@@ -361,7 +361,7 @@ describe("💰 338 — «Cobros de esta gestión»: importes, ceros y un total q
   });
 
   it("en la columna de cobros no queda ni un porcentaje ni ningún «se aplicó»", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso(ENTREGADA_GAM), "entregado")} />);
 
     // «Comisión COD 5,00 %» e «IVA flete 13,00 %» eran dos filas NO sumables en medio de una
     // columna de dinero: la misma ambigüedad, entrando por otra puerta.

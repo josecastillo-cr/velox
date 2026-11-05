@@ -48,7 +48,7 @@ import {
   type CotizacionFilaCotizada,
   type CotizacionFilaError,
 } from "@/lib/types/cotizacion";
-import { derivarIngresoOrden, montoFulfillmentDeTarifa } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden, montoFulfillmentDeTarifa } from "@/lib/utils/ingreso-empresa";
 import { serializarMontoCotizacion } from "@/lib/utils/monto-cotizacion";
 
 /**
@@ -73,7 +73,7 @@ type CotizacionTarifaRepository = Pick<ITarifaVigenteRepository, "resolveTarifas
  * FULFILLMENT (2026-08-25) — la cotizacion resuelve por el batch, y el batch devuelve
  * `TarifaVigenteResuelta`, que ademas de los campos de la formula trae el monto FIJO de
  * fulfillment. Ese monto NO entra en `derivarIngresoOrden` (sigue fuera de la liquidacion,
- * ver `lib/utils/ingreso-ordenex.ts`): se suma APARTE, como sexto concepto del precio que se
+ * ver `lib/utils/ingreso-empresa.ts`): se suma APARTE, como sexto concepto del precio que se
  * publica, y es tambien el predicado de "esta tienda hace fulfillment".
  */
 type TarifaCotizada = TarifaVigenteResuelta;

@@ -87,7 +87,7 @@ export interface FilaProductoDTO {
  *
  * ⚠ INVARIANTE EXACTA, SIN MARGEN DE REDONDEO (R20): cuando `ordenex` no es `null`,
  * `ordenex + tienda === recaudado`. Es cierta POR CONSTRUCCION —`tienda` se calcula como esa
- * resta con `pagoTiendaOrdenex`— y no por coincidencia aritmetica.
+ * resta con `pagoTiendaEmpresa`— y no por coincidencia aritmetica.
  */
 export interface DineroLiquidadoDTO {
   /** Lo recaudado que ya esta liquidado. STRING escala 2. */
@@ -143,7 +143,7 @@ export interface DineroProductoDTO {
    * como cifra APARTE y FUERA del reparto de lo recaudado. `null` si no hay nada liquidado.
    *
    * ⚠ POR QUE FUERA: un rechazo NO recauda cobro contra entrega, asi que no hay plata recogida
-   * que repartir; y `pagoTiendaOrdenex` NO descuenta ese flete, por decision ya escrita. Meterlo
+   * que repartir; y `pagoTiendaEmpresa` NO descuenta ese flete, por decision ya escrita. Meterlo
    * dentro romperia R20 —`ordenex + tienda` daria `recaudado + retorno`— y, peor, afirmaria que
    * de la plata que el mensajero trajo salio un cobro que nadie recaudo.
    */

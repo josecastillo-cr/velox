@@ -71,7 +71,7 @@ function makeGestion(
     desdeAyudaTienda: false,
     causaIncidente: null,
     indemnizacion: null,
-    ingresoOrdenex: null,
+    ingresoEmpresa: null,
     ...over,
   };
 }

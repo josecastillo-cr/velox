@@ -555,9 +555,9 @@ import {
   CASCADA_CENTRAL_TITULO,
   CASCADA_DUENO_TITULO,
   COBRADO_SOBRE_RECAUDADO_LABEL,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_TIENDA_LABEL,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
@@ -905,7 +905,7 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
       // de lo recaudado, y por eso existe la línea puente).
       pagoTienda: "98954.34",
       cobradoSobreRecaudado: "27134.83",
-      netoOrdenex: "13384.78",
+      netoEmpresa: "13384.78",
       // Ficha 396 (D1) — el agregado que le faltaba a este contrato: 126.089,17 - 27.635,58.
       // Este bloque es de la 393 y NO lo pinta; los dos campos van porque el DTO los declara
       // REQUERIDOS. Ni una aserción de este archivo cambia.
@@ -961,14 +961,14 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
         importeTrasEn(dueno, COBRADO_SOBRE_RECAUDADO_LABEL),
         importeTrasEn(dueno, FLETE_DEV_CON_IVA_LABEL),
       ],
-      importeTrasEn(dueno, FACTURADO_ORDENEX_LABEL),
+      importeTrasEn(dueno, FACTURADO_EMPRESA_LABEL),
       "detalle de bodega: línea puente",
     );
 
     // LA RAZÓN DE SER DE LA LÍNEA PUENTE, medida: sin ella, la resta que quedaría a
     // la vista NO da. El hueco es exactamente el flete por devolución a origen.
     const recaudado = centimosPintados(importeTrasEn(dueno, TOTAL_GENERAL_LABEL));
-    const facturado = centimosPintados(importeTrasEn(dueno, FACTURADO_ORDENEX_LABEL));
+    const facturado = centimosPintados(importeTrasEn(dueno, FACTURADO_EMPRESA_LABEL));
     const tienda = centimosPintados(importeTrasEn(dueno, PARA_LA_TIENDA_LABEL));
     expect(recaudado - facturado).not.toBe(tienda);
     expect(tienda - (recaudado - facturado)).toBe(centimosDelServidor("500.75"));
@@ -978,11 +978,11 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
     const { dueno } = await abrir();
     laCuentaCierra(
       [
-        importeTrasEn(dueno, FACTURADO_ORDENEX_LABEL),
+        importeTrasEn(dueno, FACTURADO_EMPRESA_LABEL),
         importeTrasEn(dueno, PAGO_MENSAJERO_LABEL),
         importeTrasEn(dueno, GANA_BODEGA_SATELITE_LABEL),
       ],
-      importeTrasEn(dueno, NETO_ORDENEX_LABEL),
+      importeTrasEn(dueno, NETO_EMPRESA_LABEL),
       `detalle de bodega: neto de ${NOMBRE_ESPERADO}`,
     );
   });

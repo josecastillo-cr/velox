@@ -417,7 +417,7 @@ export type OrdenListItemDTO = OrdenDTO & {
   /**
    * Feature 204 — los dos importes DERIVADOS de las columnas "Flete + IVA" y "Comisión +
    * IVA", ya calculados en el servidor con `Prisma.Decimal` y serializados como STRING
-   * escala 2 (`costosListadoOrden`, lib/utils/ingreso-ordenex.ts).
+   * escala 2 (`costosListadoOrden`, lib/utils/ingreso-empresa.ts).
    *
    * Son STRING y no `number` por la misma razon que el resto del dinero de esta app: el
    * navegador solo tiene que PINTARLOS. Cuando los derivaba el (los multiplicaba sobre los

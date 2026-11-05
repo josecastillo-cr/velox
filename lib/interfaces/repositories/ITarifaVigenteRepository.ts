@@ -19,7 +19,7 @@ import type { ParTarifa } from "@/lib/utils/cascada-tarifa";
 // (R14/R15). Un par que llega sin zona solo puede alcanzar el nivel 2 (R6).
 //
 // La zona sigue eligiendo ademas la COLUMNA de la tarifa (`valor_flete_gam` vs `valor_flete`)
-// via `esCentral`, dentro del util puro `lib/utils/ingreso-ordenex.ts`: eso no cambia (R24).
+// via `esCentral`, dentro del util puro `lib/utils/ingreso-empresa.ts`: eso no cambia (R24).
 //
 // UN SOLO RESOLVER (R37). Antes habia dos —`resolveTarifaPorTienda` para liquidar y
 // `resolveTarifaCotizablePorTienda` para cotizar— y lo unico que los separaba era el filtro
@@ -52,7 +52,7 @@ export type TarifaTxClient = Pick<PrismaClient, "tarifa">;
 //
 // Las dos columnas nuevas son `string | null` y ese `null` es informacion, no un 0: significa
 // "no hay pacto para este concepto" y hace caer el flete a la columna normal. Ver
-// `resolverFlete` en `lib/utils/ingreso-ordenex.ts`, que es donde se decide.
+// `resolverFlete` en `lib/utils/ingreso-empresa.ts`, que es donde se decide.
 export interface TarifaVigente {
   valorFlete: string; // MONTO -> STRING 2 dec
   valorFleteGam: string; // MONTO (variante central/GAM)

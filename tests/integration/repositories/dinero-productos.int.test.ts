@@ -313,7 +313,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
 
   /**
    * LA FORMULA, ESCRITA A MANO EN SQL. No llama a `derivarIngresoOrden`, ni a
-   * `pagoTiendaOrdenex`, ni a `repartoDeOrden`: reconstruye el reparto desde las columnas
+   * `pagoTiendaEmpresa`, ni a `repartoDeOrden`: reconstruye el reparto desde las columnas
    * CONGELADAS de `cierre_detail`, que es lo unico que las dos mitades comparten.
    *
    * `soloEntregas = false` es la VARIANTE que demuestra que la comparacion no es tautologica:

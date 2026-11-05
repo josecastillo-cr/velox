@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { Prisma } from "@prisma/client";
 import type { GestionResultado } from "@prisma/client";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import {
   CRITERIO_COD_RECAUDADO,
   CRITERIO_DE_APORTE,

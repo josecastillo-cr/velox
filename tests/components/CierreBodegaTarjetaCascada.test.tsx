@@ -16,7 +16,7 @@ import {
   CASCADA_CENTRAL_TITULO,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_TIENDA_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
   PARA_LA_CENTRAL_NOTA,
   PARA_LA_CENTRAL_NEGATIVO_NOTA,
@@ -317,7 +317,7 @@ describe("393 · F4 — la tarjeta del cierre de bodega cuenta la cascada B", ()
 
     const texto = document.body.textContent ?? "";
     expect(texto).not.toContain(PARA_LA_TIENDA_LABEL);
-    expect(texto).not.toContain(NETO_ORDENEX_LABEL);
+    expect(texto).not.toContain(NETO_EMPRESA_LABEL);
     expect(texto).not.toContain("Ingreso bruto");
     expect(texto).not.toContain("Ganancia");
   });

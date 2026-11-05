@@ -6,7 +6,7 @@ import type {
   CierrePasadoDTO,
   CierreRechazoDeTienda,
   CierreTotales,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { PaginaRepositorio, RangoPagina } from "@/lib/utils/rango-pagina";
 import type { PagoTarifa } from "@/lib/interfaces/repositories/ITarifaZonaMensajeroRepository";
@@ -183,7 +183,7 @@ export interface CierreGestionPendienteRow {
   indemnizacion: string | null;
   // Desglose del ingreso de Ordenex + tarifa congelada, DERIVADO del snapshot. Solo lo
   // pueblan los repos de ADMIN (38/40): la vista en vivo del mensajero (37) no lo expone.
-  ingresoOrdenex?: IngresoOrdenexDTO | null;
+  ingresoEmpresa?: IngresoEmpresaDTO | null;
 }
 
 // Feature 109 (T1.2, R6/R8): input OPCIONAL del corte diario. Cuando esta presente,

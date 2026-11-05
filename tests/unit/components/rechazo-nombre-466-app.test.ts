@@ -16,7 +16,7 @@ import {
   FLETE_RECHAZO_NO_DEDUCIBLE_NOTA,
   GANA_BODEGA_SATELITE_NOTA,
   MOTIVO_RECHAZO_AUTOMATICO_COLA,
-  NETO_ORDENEX_NOTA,
+  NETO_EMPRESA_NOTA,
   ESTADO_LABEL,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
 import {
@@ -144,7 +144,7 @@ describe("466 · R4, R5 — cierres y tarifas (C29-C35, E8-E10)", () => {
     expect(FLETE_RECHAZO_NO_DEDUCIBLE_NOTA).toBe(
       "Se le factura a la tienda, pero no sale de lo recaudado: una devolución a origen no cobra contra entrega.",
     );
-    expect(NETO_ORDENEX_NOTA).toBe(
+    expect(NETO_EMPRESA_NOTA).toBe(
       `Lo que ${NOMBRE_ESPERADO} facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.`,
     );
   });

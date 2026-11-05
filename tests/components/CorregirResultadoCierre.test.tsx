@@ -22,7 +22,7 @@ import type {
   CierreDetalleGestion,
   CierreGrupos,
   CierreResultado,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreEstado } from "@/lib/types/cierre";
 
@@ -288,7 +288,7 @@ function makeResumen(over: Partial<CierreAdminResumen> & { cierreId: string }): 
   };
 }
 
-function zeroIngreso(): TotalesIngresoOrdenex {
+function zeroIngreso(): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     fleteConIva: "0.00",
@@ -332,7 +332,7 @@ async function abrirDetalleDelModulo(opciones: {
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     fleteRechazoYaCobradoATienda: false,
     // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola
@@ -435,7 +435,7 @@ describe("R16 — la corrección se ofrece únicamente desde el detalle de un ci
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],

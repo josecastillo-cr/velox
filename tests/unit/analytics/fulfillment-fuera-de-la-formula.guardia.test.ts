@@ -36,7 +36,7 @@ import { describe, it, expect } from "vitest";
 import { Prisma } from "@prisma/client";
 
 import { tarifaDe } from "@/lib/utils/cierre-detalle";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { cifrasDelGrupo, ordenesQueAportan } from "@/lib/services/ConteoProductosService";
 import { codigoSinComentarios } from "../../fixtures/sin-comentarios";
 import { filaDinero } from "./_dinero-falso";

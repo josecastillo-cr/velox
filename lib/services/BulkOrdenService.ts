@@ -56,7 +56,7 @@ import {
   type GeoResult,
 } from "@/lib/services/geo-resolucion";
 import { parseCantonDistrito } from "@/lib/utils/canton-distrito";
-import { desgloseCargaApi, tieneFulfillment } from "@/lib/utils/ingreso-ordenex";
+import { desgloseCargaApi, tieneFulfillment } from "@/lib/utils/ingreso-empresa";
 import { nombreDeEstado } from "@/lib/types/order-status";
 
 // FEATURE 155/R19/R22: la constante `ESTATUS_INICIAL_API` (= `en_ruta_bodega_central`) se

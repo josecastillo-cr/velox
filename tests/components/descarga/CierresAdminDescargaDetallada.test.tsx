@@ -167,7 +167,7 @@ function gestion(resultado: CierreResultado, numRemision: string): CierreGestion
     indemnizacion: null,
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: null,
-    ingresoOrdenex: null,
+    ingresoEmpresa: null,
   };
 }
 

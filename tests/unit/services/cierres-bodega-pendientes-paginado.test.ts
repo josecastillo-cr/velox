@@ -5,7 +5,7 @@ import type { CierreBodegaResumenRow } from "@/lib/interfaces/repositories/ICier
 import type { ICierresBodegaAdminRepository } from "@/lib/interfaces/repositories/ICierresBodegaAdminRepository";
 import type { ISignedUrlProvider } from "@/lib/interfaces/external/ISignedUrlProvider";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
-import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-ordenex";
+import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-empresa";
 import type { CierreBodegaResumen } from "@/lib/interfaces/services/ICierreBodegaService";
 import type { RangoPagina } from "@/lib/utils/rango-pagina";
 import { ESTADOS_COLA_SOLICITADO } from "@/lib/utils/colas-cierre";

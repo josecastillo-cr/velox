@@ -20,7 +20,7 @@ import type {
   CierreGrupos,
   CierreResultado,
   CierreTotales,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
 // Feature 158 (T2.4 — R34/R19/R20/R36) — el sub-modal de CAPTURA del monto de indemnización
@@ -158,7 +158,7 @@ function emptyGrupos(): CierreGrupos {
   return { entregado: [], reprogramado: [], novedad: [], devolucion_a_origen_por_rechazo: [], incidente: [] };
 }
 
-function zeroIngreso(): TotalesIngresoOrdenex {
+function zeroIngreso(): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     fleteConIva: "0.00",
@@ -188,7 +188,7 @@ function conIncidentes(incidente: CierreDetalleGestion[]) {
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     fleteRechazoYaCobradoATienda: false,
     // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola

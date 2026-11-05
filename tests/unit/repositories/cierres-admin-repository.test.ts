@@ -440,7 +440,7 @@ describe("CierresAdminRepository.findCierreByIdEnAlcance (R6/R13)", () => {
 
     const r = await repo.findCierreByIdEnAlcance("c1", ALCANCE_MAESTRO);
 
-    expect(r?.gestiones[0].ingresoOrdenex).toMatchObject({
+    expect(r?.gestiones[0].ingresoEmpresa).toMatchObject({
       montoCobrar: "25000.00",
       cobraComision: true,
       esCentral: true,
@@ -458,7 +458,7 @@ describe("CierresAdminRepository.findCierreByIdEnAlcance (R6/R13)", () => {
       total: "3672.50",
     });
     // La tarifa viaja COMPLETA, incluida la variante que no se aplicó (auditoría).
-    expect(r?.gestiones[0].ingresoOrdenex?.tarifa).toMatchObject({
+    expect(r?.gestiones[0].ingresoEmpresa?.tarifa).toMatchObject({
       tarifaId: "tar_88",
       valorFlete: "2000.00",
       valorFleteGam: "2500.00",
@@ -490,7 +490,7 @@ describe("CierresAdminRepository.findCierreByIdEnAlcance (R6/R13)", () => {
 
     const r = await repo.findCierreByIdEnAlcance("c1", ALCANCE_MAESTRO);
 
-    expect(r?.gestiones[0].ingresoOrdenex).toMatchObject({
+    expect(r?.gestiones[0].ingresoEmpresa).toMatchObject({
       flete: null,
       comisionCod: null,
       ivaComisionCod: null,
@@ -514,7 +514,7 @@ describe("CierresAdminRepository.findCierreByIdEnAlcance (R6/R13)", () => {
 
     const r = await repo.findCierreByIdEnAlcance("c1", ALCANCE_MAESTRO);
 
-    expect(r?.gestiones[0].ingresoOrdenex).toMatchObject({
+    expect(r?.gestiones[0].ingresoEmpresa).toMatchObject({
       tarifa: null,
       flete: null,
       comisionCod: null,
