@@ -100,7 +100,7 @@ function textoRegistroConInstante(registro: RegistroDTO, registradoEl: Registrad
 }
 
 function textoAQuien(a: AQuienDTO): string {
-  if (a.esOrdenex) return PANEL_TEXTO.esOrdenex;
+  if (a.esEmpresa) return PANEL_TEXTO.esEmpresa;
   if (a.nombre === null) return PANEL_TEXTO.sinDato;
   return a.beneficiario === null ? a.nombre : `${a.nombre} · ${PANEL_TEXTO.aTercero(a.beneficiario)}`;
 }

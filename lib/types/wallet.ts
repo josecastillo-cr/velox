@@ -447,7 +447,7 @@ export type CajaResumenDTO = {
   capital: string;
   signoCapital: WalletBalanceSigno;
   /** R11 — ganancia + capital: el bolsillo de Ordenex de la barra. */
-  deOrdenex: string;
+  deEmpresa: string;
   signoDeTerceros: WalletBalanceSigno;
   /** |deTerceros|, para «Las tiendas le deben ₡X» sin aritmetica en el navegador (R23, R28). */
   deTercerosAbsoluto: string;
@@ -492,7 +492,7 @@ export type EstadoCaja = "flujo" | "saldo";
 export const MODO_COMPOSICION_CAJA_SEED = [
   "dos_bolsillos", // R19: hay algo de los dos lados y la barra se parte
   "solo_tiendas", // R15: Ordenex esta en perdida y el dinero de las tiendas cubre el saldo
-  "solo_ordenex", // R17: el espejo — `deTerceros` negativo (D4, firmada)
+  "solo_empresa", // R17: el espejo — `deTerceros` negativo (D4, firmada)
   "sin_reparto", // R18: no hay nada que repartir
 ] as const;
 

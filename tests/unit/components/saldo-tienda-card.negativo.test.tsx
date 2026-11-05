@@ -76,7 +76,7 @@ describe("/mi-wallet — el saldo NEGATIVO se ve entero (381/R29 → 458-D)", ()
 describe("/mi-wallet — los TRES signos se distinguen con palabras (381/R30 → 458 R18)", () => {
   it.each([
     ["negativo", "cuenta_debe", "-15000.00", `Le debés ₡15.000 a ${NOMBRE_ESPERADO}`, "-₡15.000"],
-    ["positivo", "ordenex_debe", "9000.00", `${NOMBRE_ESPERADO} te debe ₡9.000`, "₡9.000"],
+    ["positivo", "empresa_debe", "9000.00", `${NOMBRE_ESPERADO} te debe ₡9.000`, "₡9.000"],
     ["cero", "en_cero", "0.00", `${NOMBRE_ESPERADO} y vos no se deben nada`, "₡0"],
   ] as const)("signo `%s` → «%s»", (signo, sentido, importe, frase, pintado) => {
     render(<TarjetasEstadoCuenta estado={estado({ saldoActual: importe, signo, sentido })} vista="tienda" />);
@@ -88,7 +88,7 @@ describe("/mi-wallet — los TRES signos se distinguen con palabras (381/R30 →
     const vistas = new Set<string>();
     for (const [signo, sentido, importe] of [
       ["negativo", "cuenta_debe", "-15000.00"],
-      ["positivo", "ordenex_debe", "9000.00"],
+      ["positivo", "empresa_debe", "9000.00"],
       ["cero", "en_cero", "0.00"],
     ] as const) {
       cleanup();

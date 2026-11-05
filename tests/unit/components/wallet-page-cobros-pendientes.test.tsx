@@ -133,7 +133,7 @@ const RESUMEN_OK = {
     // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
     capital: "0.00",
     signoCapital: "cero" as const,
-    deOrdenex: "0.00",
+    deEmpresa: "0.00",
     signoDeTerceros: "cero" as const,
     deTercerosAbsoluto: "0.00",
     estado: "flujo" as const,

@@ -126,7 +126,7 @@ function textoDeGasto(fila: FilaConOrigenTecnico): string | null {
     case "egreso_sueldo":
       return ORIGEN_ENTIDAD_LABEL.sueldo;
     case "egreso_gasto_variable":
-      return ORIGEN_ENTIDAD_LABEL.gastoDeOrdenex;
+      return ORIGEN_ENTIDAD_LABEL.gastoDeEmpresa;
     case "egreso_gasto_fijo":
       return unir(ORIGEN_ENTIDAD_LABEL.gastoFijo, fila.descripcion);
     // FICHA 488 (revision m3): el Pago de IVA y su contra-asiento de anulacion tienen su propio

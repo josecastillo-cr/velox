@@ -87,7 +87,7 @@ vi.mock("@/lib/actions/libro-caja-autoria", () => ({
     status: "ok",
     filas: movimientoIds.map((id) => ({
       movimientoId: id,
-      aQuien: { nombre: "Mario Mensajero", beneficiario: null, cuenta: null, esOrdenex: false },
+      aQuien: { nombre: "Mario Mensajero", beneficiario: null, cuenta: null, esEmpresa: false },
       registro: { nombre: null, automatico: { accion: "aprobacion_cierre", por: "Ana Maestra" } },
     })),
   })),
@@ -223,7 +223,7 @@ const RESUMEN_OK = {
     // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
     capital: "0.00",
     signoCapital: "cero" as const,
-    deOrdenex: "1500.00",
+    deEmpresa: "1500.00",
     signoDeTerceros: "positivo" as const,
     deTercerosAbsoluto: "10000.00",
     estado: "flujo" as const,

@@ -91,7 +91,7 @@ function estado(tipo: "tienda" | "bodega", filas: FilaEstadoCuentaDTO[], saldoIn
     cuenta: { tipo, id: "c", nombre: "Cuenta" },
     saldoActual: saldoFinal,
     signo: "positivo",
-    sentido: "ordenex_debe",
+    sentido: "empresa_debe",
     saldoInicial,
     abonos: "0.00",
     cargos: "0.00",

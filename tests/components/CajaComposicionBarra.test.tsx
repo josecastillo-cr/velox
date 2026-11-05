@@ -59,7 +59,7 @@ const RESUMEN: CajaResumenDTO = {
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0.
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "2000.00",
+  deEmpresa: "2000.00",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "10000.00",
   // Ficha 459 (T A.8, R22): la barra SOLO se pinta con un saldo inicial vigente, así que el
@@ -102,7 +102,7 @@ function segmentos(container: HTMLElement): HTMLElement[] {
   return [...container.querySelectorAll<HTMLElement>("[data-segmento]")];
 }
 
-function bolsillo(container: HTMLElement, cual: "tiendas" | "ordenex"): HTMLElement {
+function bolsillo(container: HTMLElement, cual: "tiendas" | "empresa"): HTMLElement {
   const nodo = container.querySelector<HTMLElement>(`[data-bolsillo="${cual}"]`);
   expect(nodo, `falta el bolsillo de ${cual}`).not.toBeNull();
   return nodo as HTMLElement;
@@ -118,7 +118,7 @@ describe("BarraComposicionCaja — el reparto normal (R2/R11/R13)", () => {
 
     const pintados = segmentos(container);
     expect(pintados).toHaveLength(2);
-    expect(pintados.map((s) => s.dataset.segmento)).toEqual(["tiendas", "ordenex"]);
+    expect(pintados.map((s) => s.dataset.segmento)).toEqual(["tiendas", "empresa"]);
     // Y son la MISMA barra, no dos barras pegadas: los dos cuelgan del elemento con nombre.
     const barra = screen.getByRole("img");
     for (const segmento of pintados) expect(barra.contains(segmento)).toBe(true);
@@ -133,7 +133,7 @@ describe("BarraComposicionCaja — el reparto normal (R2/R11/R13)", () => {
     // valor y se come el cero final: `41.50%` se lee `41.5%`. Eso es del motor de estilos, no
     // del componente, y una aserción sobre el cero final estaría midiendo jsdom.)
     const { container } = pintarBarra({ porcentajeTiendas: "41.55" });
-    const [tiendas, ordenex] = segmentos(container);
+    const [tiendas, empresa] = segmentos(container);
 
     // El STRING del servidor entra tal cual dentro de la unidad `%`: sin `Number(`, sin
     // redondeo y sin recomponerlo.
@@ -141,8 +141,8 @@ describe("BarraComposicionCaja — el reparto normal (R2/R11/R13)", () => {
     // El segundo NO lleva porcentaje propio (design §6.5): ocupa lo que quede. Con dos
     // porcentajes redondeados por separado, `99.99` abriría un hilo blanco al final de la
     // barra y `100.01` la desbordaría.
-    expect(ordenex.style.width).toBe("");
-    expect(ordenex.className).toContain("flex-1");
+    expect(empresa.style.width).toBe("");
+    expect(empresa.className).toContain("flex-1");
   });
 
   it("R13: la barra tiene nombre accesible con las dos porciones", () => {
@@ -153,7 +153,7 @@ describe("BarraComposicionCaja — el reparto normal (R2/R11/R13)", () => {
     // Las DOS porciones, cada una con su rótulo y su importe: quien no ve la barra oye lo
     // mismo que enseña.
     expect(nombre).toContain(`${CAJA_COMPOSICION_LABEL.tiendas}: ₡10.000`);
-    expect(nombre).toContain(`${CAJA_COMPOSICION_LABEL.ordenex}: ₡2.000`);
+    expect(nombre).toContain(`${CAJA_COMPOSICION_LABEL.empresa}: ₡2.000`);
     // Se compone con las etiquetas de la pantalla, no con un texto paralelo.
     expect(nombre).toContain(CAJA_COMPOSICION_LABEL.barra);
     // Y el nombre SIGUE a los importes: otro DTO, otro nombre.
@@ -178,21 +178,21 @@ describe("BarraComposicionCaja — los dos bolsillos (R3/R5)", () => {
     );
     expect(within(tiendas).getByRole("link")).toHaveAttribute("href", "/wallet/tiendas");
 
-    const ordenex = bolsillo(container, "ordenex");
-    expect(within(ordenex).getByText("₡2.000")).toBeInTheDocument();
-    expect(within(ordenex).getByText(CAJA_COMPOSICION_LABEL.ordenex)).toBeInTheDocument();
+    const empresa = bolsillo(container, "empresa");
+    expect(within(empresa).getByText("₡2.000")).toBeInTheDocument();
+    expect(within(empresa).getByText(CAJA_COMPOSICION_LABEL.empresa)).toBeInTheDocument();
     expect(
-      within(ordenex).getByText(CAJA_RESUMEN_LABEL.gananciaPista),
+      within(empresa).getByText(CAJA_RESUMEN_LABEL.gananciaPista),
     ).toBeInTheDocument();
 
     // Y ninguno lleva dentro el importe del otro: son hermanos, no uno dentro de otro.
     expect(within(tiendas).queryByText("₡2.000")).toBeNull();
-    expect(within(ordenex).queryByText("₡10.000")).toBeNull();
+    expect(within(empresa).queryByText("₡10.000")).toBeNull();
   });
 
   it(`R5: el bloque de ${NOMBRE_ESPERADO} es neutro salvo en el caso límite`, () => {
     const { container } = pintarTarjeta();
-    const normal = bolsillo(container, "ordenex");
+    const normal = bolsillo(container, "empresa");
     expect(normal.dataset.superficie).toBe("neutra");
     // DESIGN.md reserva el acento para acción y estado: una ganancia normal no es ninguna de
     // las dos, y pintarla de color la convertiría en una alarma permanente.
@@ -206,7 +206,7 @@ describe("BarraComposicionCaja — los dos bolsillos (R3/R5)", () => {
       modoComposicion: "solo_tiendas",
       porcentajeTiendas: "100.00",
     });
-    const peligro = bolsillo(limite.container, "ordenex");
+    const peligro = bolsillo(limite.container, "empresa");
     expect(peligro.dataset.superficie).toBe("peligro");
     // El color sale de los TOKENS de `danger`, con sus tres roles (R39).
     expect(peligro.className).toContain("bg-danger-soft");
@@ -232,8 +232,8 @@ describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R
     expect(pintados[0].style.width).toBe("");
 
     // Y lo dice con todas sus letras, dentro del bloque de Ordenex.
-    const ordenex = bolsillo(container, "ordenex");
-    const nota = within(ordenex).getByRole("note");
+    const empresa = bolsillo(container, "empresa");
+    const nota = within(empresa).getByRole("note");
     const mensaje = nota.textContent ?? "";
     expect(mensaje).toMatch(/dinero de las tiendas/i);
     expect(mensaje).toMatch(/cubriendo/i);
@@ -257,7 +257,7 @@ describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R
     expect(segmentos(container)).toHaveLength(0);
     expect(screen.getByRole("img").className).toContain("bg-muted");
 
-    const nota = within(bolsillo(container, "ordenex")).getByRole("note");
+    const nota = within(bolsillo(container, "empresa")).getByRole("note");
     expect(nota.textContent).toBe(CAJA_COMPOSICION_MENSAJE.sin_reparto);
     // INFORMATIVO, no alarma: `DESIGN.md` reserva el semántico para acción y estado, y un rojo
     // permanente en un estado normal deja de leerse como aviso el día que el aviso existe.
@@ -265,17 +265,17 @@ describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R
     expect(nota.className).not.toContain("danger");
   });
 
-  it(`R17 (D4): \`solo_ordenex\` pinta la barra entera de ${NOMBRE_ESPERADO} y el bolsillo de las tiendas en negativo`, () => {
+  it(`R17 (D4): \`solo_empresa\` pinta la barra entera de ${NOMBRE_ESPERADO} y el bolsillo de las tiendas en negativo`, () => {
     // El espejo: se entregó a las tiendas más contra-entrega del que se cobró.
     const { container } = pintarTarjeta({
       deTerceros: "-800.00",
-      modoComposicion: "solo_ordenex",
+      modoComposicion: "solo_empresa",
       porcentajeTiendas: "0.00",
     });
 
     const pintados = segmentos(container);
     expect(pintados).toHaveLength(1);
-    expect(pintados[0].dataset.segmento).toBe("ordenex");
+    expect(pintados[0].dataset.segmento).toBe("empresa");
     expect(pintados[0].className).toContain("w-full");
 
     // El bolsillo de las tiendas sigue enseñando SU importe, con su signo y su explicación.
@@ -284,8 +284,8 @@ describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R
     expect(within(tiendas).getByRole("note").textContent ?? "").toMatch(
       /suma de los saldos de todas las tiendas/i, // ficha 459 (R23/R24): el aviso nuevo
     );
-    const nota = within(bolsillo(container, "ordenex")).getByRole("note");
-    expect(nota.textContent).toBe(CAJA_COMPOSICION_MENSAJE.solo_ordenex);
+    const nota = within(bolsillo(container, "empresa")).getByRole("note");
+    expect(nota.textContent).toBe(CAJA_COMPOSICION_MENSAJE.solo_empresa);
     // También informativo: explica por qué la barra no se parte, no avisa de nada malo.
     expect(nota.className).toContain("text-muted-foreground");
     expect(nota.className).not.toContain("danger");
@@ -329,7 +329,7 @@ describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R
     expect(cuantos).toEqual({
       dos_bolsillos: 2,
       solo_tiendas: 1,
-      solo_ordenex: 1,
+      solo_empresa: 1,
       sin_reparto: 0,
     });
   });
@@ -350,12 +350,12 @@ describe("BarraComposicionCaja — el modo lo decide el SERVIDOR (R21)", () => {
 
     const partida = pintarTarjeta({ ...importes, modoComposicion: "dos_bolsillos" });
     expect(segmentos(partida.container)).toHaveLength(2);
-    expect(bolsillo(partida.container, "ordenex").dataset.superficie).toBe("neutra");
+    expect(bolsillo(partida.container, "empresa").dataset.superficie).toBe("neutra");
     cleanup();
 
     const entera = pintarTarjeta({ ...importes, modoComposicion: "solo_tiendas" });
     expect(segmentos(entera.container)).toHaveLength(1);
-    expect(bolsillo(entera.container, "ordenex").dataset.superficie).toBe("peligro");
+    expect(bolsillo(entera.container, "empresa").dataset.superficie).toBe("peligro");
 
     // Y la fuente no tiene por dónde deducirlo: ni deriva las cifras ni compara importes.
     for (const ruta of [
@@ -424,7 +424,7 @@ describe(`Ficha 459 — la barra reparte «De las tiendas» y «De ${NOMBRE_CORT
   it(`el nombre accesible usa «De ${NOMBRE_CORTO_ESPERADO}» (ganancia y aportes), no la ganancia a secas`, () => {
     // Capital distinto de cero: con 0 «De Ordenex» y la ganancia valdrían lo mismo y el caso
     // no distinguiría nada.
-    pintarBarra({ ganancia: "2000.00", capital: "500.25", deOrdenex: "2500.25" });
+    pintarBarra({ ganancia: "2000.00", capital: "500.25", deEmpresa: "2500.25" });
     // Ficha 488 (R15): + « IVA por pagar: ₡0.» al final (antes terminaba en «(ganancia y aportes).»).
     expect(screen.getByRole("img").getAttribute("aria-label")).toBe(
       `Reparto del dinero en caja. De las tiendas: ₡10.000. De ${NOMBRE_CORTO_ESPERADO}: ₡2.500,25 (ganancia y aportes). IVA por pagar: ₡0.`,
@@ -438,7 +438,7 @@ describe(`Ficha 459 — la barra reparte «De las tiendas» y «De ${NOMBRE_CORT
         `Lo de ${NOMBRE_ESPERADO} (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.`,
       // Ficha 488 (R17): antes «Las tiendas le deben a Ordenex, así que todo lo que hay en la caja es
       // de Ordenex y además hay dinero por cobrarles.» — falso con IVA por pagar positivo.
-      solo_ordenex:
+      solo_empresa:
         `Las tiendas le deben a ${NOMBRE_ESPERADO}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
       sin_reparto:
         `No hay nada que repartir: ni ${NOMBRE_ESPERADO} ni las tiendas tienen dinero a favor en la caja.`,

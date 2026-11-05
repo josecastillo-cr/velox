@@ -52,7 +52,7 @@ const RESUMEN: CajaResumenDTO = {
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0.
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "2000.00",
+  deEmpresa: "2000.00",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "10000.00",
   // Ficha 459 (T A.8) — las suites de la 173/231 de este archivo hablan de «Dinero en caja», y
@@ -480,7 +480,7 @@ describe("Ficha 459 — estado «flujo»: sin saldo inicial (R15/R16/R17/R22)", 
       deTerceros: "-4780583.97",
       signoDeTerceros: "negativo",
       deTercerosAbsoluto: "4780583.97",
-      modoComposicion: "solo_ordenex",
+      modoComposicion: "solo_empresa",
     });
     expect(textoYNombresAccesibles(container)).not.toContain("dinero en caja");
   });
@@ -502,15 +502,15 @@ describe("Ficha 459 — estado «flujo»: sin saldo inicial (R15/R16/R17/R22)", 
   });
 
   it("R22: en «flujo» no se pinta la barra ni ninguno de sus mensajes", () => {
-    for (const modo of ["dos_bolsillos", "solo_tiendas", "solo_ordenex", "sin_reparto"] as const) {
+    for (const modo of ["dos_bolsillos", "solo_tiendas", "solo_empresa", "sin_reparto"] as const) {
       const { container } = pintar({ ...FLUJO, modoComposicion: modo });
       expect(screen.queryByRole("img"), `${modo}: barra pintada en flujo`).toBeNull();
       for (const mensaje of Object.values(CAJA_COMPOSICION_MENSAJE)) {
         if (mensaje !== null) expect(container.textContent ?? "").not.toContain(mensaje);
       }
       // Y el bloque de Ordenex no se tiñe por un modo que no se enseña.
-      const ordenex = container.querySelector<HTMLElement>("[data-bolsillo='ordenex']");
-      expect(ordenex?.dataset.superficie).toBe("neutra");
+      const empresa = container.querySelector<HTMLElement>("[data-bolsillo='empresa']");
+      expect(empresa?.dataset.superficie).toBe("neutra");
       cleanup();
     }
   });
@@ -592,7 +592,7 @@ describe(`Ficha 459 — el capital de ${NOMBRE_ESPERADO} junto a la ganancia (R2
     expect(within(ganancia).getByText("₡2.000")).toBeInTheDocument();
     expect(within(ganancia).queryByText("₡250.000,33")).toBeNull();
     // El capital va DENTRO del bolsillo de Ordenex.
-    expect(capital.closest("[data-bolsillo='ordenex']")).not.toBeNull();
+    expect(capital.closest("[data-bolsillo='empresa']")).not.toBeNull();
   });
 });
 

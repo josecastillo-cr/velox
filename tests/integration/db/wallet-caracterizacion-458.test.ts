@@ -226,7 +226,7 @@ describeSiHayBase("⭑ 458-B/FASE 0 — la fotografia de las cuentas (Postgres r
       cargos: "4800.00",
       saldoFinal: "5200.00",
       saldoActual: "5200.00",
-      sentido: "ordenex_debe",
+      sentido: "empresa_debe",
       total: 7,
     });
     // R22: el final del estado de cuenta es el saldo del listado de `/wallet/tiendas`.
@@ -304,7 +304,7 @@ describeSiHayBase("⭑ 458-B/FASE 0 — la fotografia de las cuentas (Postgres r
       "2700.00",
       "3300.00",
       "3300.00",
-      "ordenex_debe",
+      "empresa_debe",
     ]);
     expect(e.saldoActual).toBe(foto().mensajeroM.cuentaPorPagar);
   });

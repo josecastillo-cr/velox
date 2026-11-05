@@ -59,7 +59,7 @@ const autoriaMock = vi.fn(async (input: { movimientoIds: string[] }) => ({
       nombre: nombreDeCuenta(id),
       beneficiario: null,
       cuenta: null,
-      esOrdenex: false,
+      esEmpresa: false,
     },
     registro: { nombre: null, automatico: { accion: "aprobacion_cierre" as const, por: "Ana Maestra" } },
   })),
@@ -227,7 +227,7 @@ const RESUMEN = {
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
   capital: "0.00",
   signoCapital: "cero" as const,
-  deOrdenex: "1.00",
+  deEmpresa: "1.00",
   signoDeTerceros: "cero" as const,
   deTercerosAbsoluto: "0.00",
   estado: "flujo" as const,

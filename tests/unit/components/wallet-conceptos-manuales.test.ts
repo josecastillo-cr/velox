@@ -556,8 +556,8 @@ describe(`⭑ FICHA 458-C — los dos pagos de ${NOMBRE_ESPERADO}, la cuenta, «
     expect(new Set(claves).size).toBe(11); // ficha 488: antes 10
     expect([...claves].sort()).toEqual([...CONCEPTO_REGISTRO_SEED].sort());
     // Literales de la correspondencia que importa (el nombre del servidor no es el de la pantalla).
-    expect(CONCEPTO_REGISTRO_DE.gasto_variable).toBe("gasto_ordenex");
-    expect(CONCEPTO_REGISTRO_DE.abono_tienda).toBe("tienda_paga_a_ordenex");
+    expect(CONCEPTO_REGISTRO_DE.gasto_variable).toBe("gasto_empresa");
+    expect(CONCEPTO_REGISTRO_DE.abono_tienda).toBe("tienda_paga_a_empresa");
     expect(CONCEPTO_REGISTRO_DE.cobro_tienda).toBe("cobro_a_tienda");
     expect(CONCEPTO_REGISTRO_DE.pago_por_cuenta_tienda).toBe("pago_gasto_tienda");
     expect(CONCEPTO_REGISTRO_DE.pago_iva).toBe("pago_iva"); // ficha 488 (R24)

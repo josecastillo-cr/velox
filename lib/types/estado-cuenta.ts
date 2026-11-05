@@ -147,7 +147,7 @@ export type OrdenesDeFilaInput = z.infer<typeof ordenesDeFilaSchema>;
 
 /** Quien le debe a quien (R18). La pantalla compone la frase con sus textos. */
 export type SentidoDelSaldo =
-  | "ordenex_debe" // saldo a favor del titular (tienda / mensajero)
+  | "empresa_debe" // saldo a favor del titular (tienda / mensajero)
   | "cuenta_debe" // la tienda le debe a Ordenex (saldo en contra)
   | "por_entregar" // la bodega tiene efectivo por entregar
   | "en_cero";

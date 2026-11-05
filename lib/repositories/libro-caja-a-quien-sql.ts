@@ -111,7 +111,7 @@ const ABONO: RamaDeCuenta = {
  * `Record` TOTAL sobre los origenes: el dia que la caja gane un origen, esto deja de compilar hasta
  * que alguien decida a quien se le paga ese dinero (y lo mismo tendra que decidir «A quién»).
  */
-const A_QUIEN_POR_ORIGEN: Record<WalletOrigenTipo, readonly RamaDeCuenta[] | "anotacion" | "ordenex"> = {
+const A_QUIEN_POR_ORIGEN: Record<WalletOrigenTipo, readonly RamaDeCuenta[] | "anotacion" | "empresa"> = {
   cierre_dia: [CIERRE],
   gestion_orden: [RECHAZO],
   manual: "anotacion",
@@ -121,7 +121,7 @@ const A_QUIEN_POR_ORIGEN: Record<WalletOrigenTipo, readonly RamaDeCuenta[] | "an
   orden_incidente: [INCIDENTE],
   ranking_snapshot_fila: [PODIO],
   pago_por_cuenta_tienda: [PAGO_POR_CUENTA],
-  aporte_capital: "ordenex",
+  aporte_capital: "empresa",
   cobro_manual_reclasificado: [DEBITO_DE_TIENDA],
   cobro_tienda: [DEBITO_DE_TIENDA],
   cobro_tienda_completado: [DEBITO_DE_TIENDA],

@@ -505,7 +505,7 @@ export function cabeceraDelConcepto(concepto: ConceptoManual): {
  * un concepto nuevo no compila sin decir cuál es su efecto.
  */
 export const CONCEPTO_REGISTRO_DE: Record<ConceptoManualId, ConceptoRegistro> = {
-  gasto_variable: "gasto_ordenex",
+  gasto_variable: "gasto_empresa",
   sueldo: "sueldo",
   // Ficha 488 (design §4.3): el «Así queda» del Pago de IVA lo deriva el servidor.
   pago_iva: "pago_iva",
@@ -514,7 +514,7 @@ export const CONCEPTO_REGISTRO_DE: Record<ConceptoManualId, ConceptoRegistro> = 
   pago_a_tienda: "pago_a_tienda",
   pago_a_mensajero: "pago_a_mensajero",
   aporte_capital: "aporte",
-  abono_tienda: "tienda_paga_a_ordenex",
+  abono_tienda: "tienda_paga_a_empresa",
   ajuste_ingreso: "correccion_suma",
   cobro_tienda: "cobro_a_tienda",
 };

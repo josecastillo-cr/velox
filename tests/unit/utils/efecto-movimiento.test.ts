@@ -42,7 +42,7 @@ function efecto(concepto: ConceptoRegistro, monto: string, cuenta: EstadoActualP
 
 describe("458-B/TB.12 — un caso por concepto (R44, R45 «no cambia»)", () => {
   it(`gasto de ${NOMBRE_ESPERADO} y sueldo: baja la cifra y la ganancia; las tiendas y el capital no cambian`, () => {
-    for (const c of ["gasto_ordenex", "sueldo"] as const) {
+    for (const c of ["gasto_empresa", "sueldo"] as const) {
       expect(efecto(c, "100").lineas).toEqual({
         cuenta: null,
         cifraPrincipal: { ...SI("7500.00", "7400.00"), rotulo: "flujo" },
@@ -118,7 +118,7 @@ describe("458-B/TB.12 — un caso por concepto (R44, R45 «no cambia»)", () => 
   });
 
   it(`una tienda le paga a ${NOMBRE_ESPERADO}: sube la cifra y «De las tiendas», y la deuda de la tienda baja`, () => {
-    const l = efecto("tienda_paga_a_ordenex", "100", TIENDA_EN_CONTRA).lineas;
+    const l = efecto("tienda_paga_a_empresa", "100", TIENDA_EN_CONTRA).lineas;
     expect(l.cuenta).toEqual({ tipo: "tienda", ...SI("-300.00", "-200.00") });
     expect(l.cifraPrincipal).toMatchObject(SI("7500.00", "7600.00"));
     expect(l.deTiendas).toEqual(SI("6000.00", "6100.00"));
@@ -167,9 +167,9 @@ describe("458-B/TB.12 — avisos (R47, tope del servidor)", () => {
   });
 
   it(`una tienda le paga a ${NOMBRE_ESPERADO}: supera si pasa de la deuda o si no debe nada`, () => {
-    expect(efecto("tienda_paga_a_ordenex", "300", TIENDA_EN_CONTRA).superaDisponible).toBe(false); // salda exacto
-    expect(efecto("tienda_paga_a_ordenex", "300.01", TIENDA_EN_CONTRA).superaDisponible).toBe(true);
-    expect(efecto("tienda_paga_a_ordenex", "1", TIENDA_A_FAVOR).superaDisponible).toBe(true);
+    expect(efecto("tienda_paga_a_empresa", "300", TIENDA_EN_CONTRA).superaDisponible).toBe(false); // salda exacto
+    expect(efecto("tienda_paga_a_empresa", "300.01", TIENDA_EN_CONTRA).superaDisponible).toBe(true);
+    expect(efecto("tienda_paga_a_empresa", "1", TIENDA_A_FAVOR).superaDisponible).toBe(true);
   });
 
   it("los demas conceptos no traen `superaDisponible`", () => {

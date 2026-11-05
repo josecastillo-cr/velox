@@ -11,3 +11,9 @@ export const MARCAS_RETIRADAS = ["Ordenex"] as const;
 
 /** La marca inmediatamente anterior (para `not.toContain(MARCA_RETIRADA)`). */
 export const MARCA_RETIRADA = MARCAS_RETIRADAS[0];
+
+/**
+ * FEATURE 494 (R7, design §3.5) — los conceptos de «Así queda» con el nombre anterior. Una pestaña abierta
+ * durante el despliegue los sigue enviando: el servidor tiene que rechazarlos, sin alias (design §3.2).
+ */
+export const CONCEPTOS_RETIRADOS_494 = ["gasto_ordenex", "tienda_paga_a_ordenex"] as const;

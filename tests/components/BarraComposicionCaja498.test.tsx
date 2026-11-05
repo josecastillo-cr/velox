@@ -47,7 +47,7 @@ const BASE: CajaResumenDTO = {
   modoComposicion: "dos_bolsillos",
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "1500.00",
+  deEmpresa: "1500.00",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "9000.00",
   estado: "saldo",
@@ -77,15 +77,15 @@ describe("498 — «Por cobrar a satélites» positivo, sin IVA (R38)", () => {
   const CASOS: Record<ModoComposicionCaja, { overrides: Partial<CajaResumenDTO>; forma: string[] }> = {
     dos_bolsillos: {
       overrides: { porcentajeTiendas: "60.25", porcentajePorCobrar: "13.35" },
-      forma: ["tiendas:60.25%", "por_cobrar:13.35%", "ordenex:resto"],
+      forma: ["tiendas:60.25%", "por_cobrar:13.35%", "empresa:resto"],
     },
     solo_tiendas: {
       overrides: { porcentajeTiendas: "80.15", porcentajePorCobrar: "19.85" },
       forma: ["por_cobrar:19.85%", "tiendas:resto"],
     },
-    solo_ordenex: {
+    solo_empresa: {
       overrides: { porcentajeTiendas: "0.00", porcentajePorCobrar: "25.45" },
-      forma: ["por_cobrar:25.45%", "ordenex:resto"],
+      forma: ["por_cobrar:25.45%", "empresa:resto"],
     },
     sin_reparto: {
       overrides: { porcentajeTiendas: "0.00", porcentajePorCobrar: "100.00" },
@@ -108,15 +108,15 @@ describe("498 — «Por cobrar a satélites» Y el IVA positivos (R38)", () => {
   const CASOS: Record<ModoComposicionCaja, { overrides: Partial<CajaResumenDTO>; forma: string[] }> = {
     dos_bolsillos: {
       overrides: { porcentajeTiendas: "60.25", porcentajeIva: "10.05", porcentajePorCobrar: "13.35" },
-      forma: ["tiendas:60.25%", "iva:10.05%", "por_cobrar:13.35%", "ordenex:resto"],
+      forma: ["tiendas:60.25%", "iva:10.05%", "por_cobrar:13.35%", "empresa:resto"],
     },
     solo_tiendas: {
       overrides: { porcentajeTiendas: "70.15", porcentajeIva: "9.95", porcentajePorCobrar: "19.85" },
       forma: ["tiendas:70.15%", "por_cobrar:19.85%", "iva:resto"],
     },
-    solo_ordenex: {
+    solo_empresa: {
       overrides: { porcentajeTiendas: "0.00", porcentajeIva: "33.35", porcentajePorCobrar: "25.45" },
-      forma: ["iva:33.35%", "por_cobrar:25.45%", "ordenex:resto"],
+      forma: ["iva:33.35%", "por_cobrar:25.45%", "empresa:resto"],
     },
     sin_reparto: {
       overrides: { porcentajeTiendas: "0.00", porcentajeIva: "40.35", porcentajePorCobrar: "59.65" },
@@ -165,15 +165,15 @@ describe("498 — el tramo es el STRING del servidor y lo decide su SIGNO", () =
 describe("498 — en cero o negativo, la barra de antes (R39)", () => {
   // La barra de la 231/459/488, escrita a mano: lo que pintaba antes de esta ficha.
   const ANTES_SIN_IVA: Record<ModoComposicionCaja, string[]> = {
-    dos_bolsillos: ["tiendas:60.25%", "ordenex:resto"],
+    dos_bolsillos: ["tiendas:60.25%", "empresa:resto"],
     solo_tiendas: ["tiendas:todo"],
-    solo_ordenex: ["ordenex:todo"],
+    solo_empresa: ["empresa:todo"],
     sin_reparto: [],
   };
   const ANTES_CON_IVA: Record<ModoComposicionCaja, string[]> = {
-    dos_bolsillos: ["tiendas:60.25%", "iva:12.55%", "ordenex:resto"],
+    dos_bolsillos: ["tiendas:60.25%", "iva:12.55%", "empresa:resto"],
     solo_tiendas: ["tiendas:60.25%", "iva:resto"],
-    solo_ordenex: ["iva:12.55%", "ordenex:resto"],
+    solo_empresa: ["iva:12.55%", "empresa:resto"],
     sin_reparto: ["iva:12.55%"],
   };
 
@@ -200,7 +200,7 @@ describe("498 — en cero o negativo, la barra de antes (R39)", () => {
 
 describe("498 — el nombre accesible", () => {
   it("con el bolsillo positivo, lo enuncia con su importe al final", () => {
-    pintar({ deTerceros: "9000.00", deOrdenex: "1500.75", ivaPorPagar: "0.00", porCobrarSatelites: "2000.50" });
+    pintar({ deTerceros: "9000.00", deEmpresa: "1500.75", ivaPorPagar: "0.00", porCobrarSatelites: "2000.50" });
     expect(screen.getByRole("img").getAttribute("aria-label")).toBe(
       `Reparto del dinero en caja. De las tiendas: ₡9.000. De ${NOMBRE_CORTO_ESPERADO}: ₡1.500,75 (ganancia y aportes). IVA por pagar: ₡0. Por cobrar a satélites: ₡2.000,50.`,
     );

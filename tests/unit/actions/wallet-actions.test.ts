@@ -68,7 +68,7 @@ const RESUMEN: CajaResumenDTO = {
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "700.00",
+  deEmpresa: "700.00",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "5000.00",
   estado: "flujo",

@@ -16,7 +16,7 @@ import { montoPositivoSchema, type EstadoCaja } from "@/lib/types/wallet";
  */
 export const CONCEPTO_REGISTRO_SEED = [
   // Sale
-  "gasto_ordenex",
+  "gasto_empresa",
   "sueldo",
   "pago_iva",
   "pago_gasto_tienda",
@@ -26,7 +26,7 @@ export const CONCEPTO_REGISTRO_SEED = [
   // Llega
   "aporte",
   "correccion_suma",
-  "tienda_paga_a_ordenex",
+  "tienda_paga_a_empresa",
   // Se descuenta
   "cobro_a_tienda",
 ] as const;

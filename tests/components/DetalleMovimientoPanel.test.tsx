@@ -59,7 +59,7 @@ function movimiento(over: Partial<DetalleMovimiento> = {}): DetalleMovimiento {
 }
 
 const AUTORIA = {
-  aQuien: { nombre: "María Solano", beneficiario: null, cuenta: null, esOrdenex: false },
+  aQuien: { nombre: "María Solano", beneficiario: null, cuenta: null, esEmpresa: false },
   registro: { nombre: "Ana Maestra", automatico: null },
 };
 
@@ -146,7 +146,7 @@ describe("458-C R58 — lo que dice el panel", () => {
 
   it("R57: lo automático dice «Automático» y la acción; el beneficiario del pago de un gasto va con «a …»", async () => {
     pintar(movimiento(), {
-      aQuien: { nombre: "Tania Tienda", beneficiario: "Facebook", cuenta: null, esOrdenex: false },
+      aQuien: { nombre: "Tania Tienda", beneficiario: "Facebook", cuenta: null, esEmpresa: false },
       registro: { nombre: null, automatico: { accion: "cobro_por_rechazo", por: "Ana" } },
     });
     const p = await panel();

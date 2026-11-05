@@ -48,7 +48,7 @@ export const PANEL_TEXTO = {
       : referencia === null
         ? metodo
         : `${metodo} · referencia ${referencia}`,
-  esOrdenex: `${MARCA.nombreCorto}`,
+  esEmpresa: `${MARCA.nombreCorto}`,
   aTercero: (beneficiario: string) => `a ${beneficiario}`,
   cargando: "Cargando…",
   errorAutoria: "No se pudo leer quién lo registró.",

@@ -411,8 +411,8 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
   // T A.3 (ficha 459): REESCRITO con la formula nueva. Las cifras de ANTES (fase 0, sobre
   // `6280fdbb`) eran: entradas 100 487,93 · enCaja −61 357,84 · deTerceros 28 517,00.
   //
-  // T A.1 (ficha 461): de este bloque se reescriben SOLO dos cifras, `deTerceros` y `deOrdenex`, con
-  // el mismo criterio (a mano). Las de la 459 eran: deTerceros 15 546,32 · deOrdenex −89 874,84.
+  // T A.1 (ficha 461): de este bloque se reescriben SOLO dos cifras, `deTerceros` y `deEmpresa`, con
+  // el mismo criterio (a mano). Las de la 459 eran: deTerceros 15 546,32 · deEmpresa −89 874,84.
   describe("lo que esta ficha cambia a proposito (cifras con la formula de la 459)", () => {
     it(`«Entro», la cifra principal, «De las tiendas», capital y «De ${NOMBRE_CORTO_ESPERADO}»`, () => {
       // Cargos a tiendas del escenario (los seis conceptos del feed y del cobro por devolución a origen):
@@ -435,13 +435,13 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
         enCaja: delta(foto(), (l) => l.resumen.enCaja),
         deTerceros: delta(foto(), (l) => l.resumen.deTerceros),
         capital: delta(foto(), (l) => l.resumen.capital),
-        deOrdenex: delta(foto(), (l) => l.resumen.deOrdenex),
+        deEmpresa: delta(foto(), (l) => l.resumen.deEmpresa),
       }).toEqual({
         entradas: "87517.25",
         enCaja: "-74328.52",
         deTerceros: "13045.82",
         capital: "0.00",
-        deOrdenex: "-88866.55", // 488 (461: −87 374,34)
+        deEmpresa: "-88866.55", // 488 (461: −87 374,34)
       });
     });
   });
@@ -601,7 +601,7 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
       expect(
         menos(
           delta(foto(), (l) => l.resumen.enCaja),
-          mas(mas(delta(foto(), (l) => l.resumen.deOrdenex), delta(foto(), (l) => l.resumen.deTerceros)), delta(foto(), (l) => l.resumen.ivaPorPagar)),
+          mas(mas(delta(foto(), (l) => l.resumen.deEmpresa), delta(foto(), (l) => l.resumen.deTerceros)), delta(foto(), (l) => l.resumen.ivaPorPagar)),
         ),
       ).toBe("0.00");
     });

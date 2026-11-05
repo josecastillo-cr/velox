@@ -26,7 +26,7 @@ export const ORIGEN_ENTIDAD_LABEL = {
   aBeneficiario: (beneficiario: string) => `a ${beneficiario}`,
   /** El egreso de caja registrado a mano, por su concepto (design §3.3, fila `gasto`). */
   sueldo: "Sueldo",
-  gastoDeOrdenex: `Gasto de ${MARCA.nombreCorto}`,
+  gastoDeEmpresa: `Gasto de ${MARCA.nombreCorto}`,
   gastoFijo: `Gasto fijo de ${MARCA.nombreCorto}`,
   /** FICHA 488 (revision m3): el Pago de IVA y su anulacion no son ni gasto ni sueldo. */
   pagoDeIva: "Pago de IVA registrado a mano",

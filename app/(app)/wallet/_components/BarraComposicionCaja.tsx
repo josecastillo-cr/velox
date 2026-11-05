@@ -9,7 +9,7 @@ import { composicionCajaNombreAccesible } from "./wallet-labels";
 //
 // Que es: la cifra grande de «Dinero en caja» partida en las DOS porciones que la componen,
 // la de las TIENDAS y la de ORDENEX. No hay una tercera porcion ni un residuo escondido: la
-// identidad `enCaja = deTerceros + deOrdenex` (ficha 459: «De Ordenex» = ganancia + capital) la
+// identidad `enCaja = deTerceros + deEmpresa` (ficha 459: «De Ordenex» = ganancia + capital) la
 // deriva el servidor y esta comprobada en `lib/utils/caja-tesoreria.ts`.
 //
 // Ficha 459 (R22): la tarjeta SOLO la monta en estado «saldo». Sin un saldo inicial vigente la
@@ -72,7 +72,7 @@ const PISTA = "flex h-2 w-full overflow-hidden rounded-full bg-muted";
 type Medida = "porcentaje" | "resto" | "todo";
 
 interface Segmento {
-  clave: "tiendas" | "ordenex" | "iva" | "por_cobrar";
+  clave: "tiendas" | "empresa" | "iva" | "por_cobrar";
   /** Color por TOKEN (R39). Ni un hex, ni una utilidad de paleta ad-hoc. */
   color: string;
   medida: Medida;
@@ -95,16 +95,16 @@ const ANCHO: Record<Medida, string> = {
  *    para accion y estado, y la ganancia normal no es ninguna de las dos cosas (R5).
  *  - `solo_tiendas` — la barra ENTERA en `warning` (R16): Ordenex esta en perdida y lo que
  *    queda en la caja es dinero de las tiendas.
- *  - `solo_ordenex` — el espejo (R17, D4): no queda nada de las tiendas.
+ *  - `solo_empresa` — el espejo (R17, D4): no queda nada de las tiendas.
  *  - `sin_reparto` — CERO segmentos (R18/R20): la pista neutra vacia, sin porcentaje alguno.
  */
 const SEGMENTOS_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[]> = {
   dos_bolsillos: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   solo_tiendas: [{ clave: "tiendas", color: "bg-warning", medida: "todo" }],
-  solo_ordenex: [{ clave: "ordenex", color: "bg-muted-foreground", medida: "todo" }],
+  solo_empresa: [{ clave: "empresa", color: "bg-muted-foreground", medida: "todo" }],
   sin_reparto: [],
 };
 
@@ -117,15 +117,15 @@ const SEGMENTOS_CON_IVA_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[
   dos_bolsillos: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   solo_tiendas: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "resto" },
   ],
-  solo_ordenex: [
+  solo_empresa: [
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   sin_reparto: [
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
@@ -151,10 +151,10 @@ const SEGMENTOS_CON_POR_COBRAR_POR_MODO: Record<ModoComposicionCaja, readonly Se
   dos_bolsillos: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
     POR_COBRAR,
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   solo_tiendas: [POR_COBRAR, { clave: "tiendas", color: "bg-warning", medida: "resto" }],
-  solo_ordenex: [POR_COBRAR, { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" }],
+  solo_empresa: [POR_COBRAR, { clave: "empresa", color: "bg-muted-foreground", medida: "resto" }],
   sin_reparto: [{ clave: "por_cobrar", color: COLOR_POR_COBRAR_SATELITES, medida: "todo" }],
 };
 
@@ -167,17 +167,17 @@ const SEGMENTOS_CON_IVA_Y_POR_COBRAR_POR_MODO: Record<ModoComposicionCaja, reado
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
     POR_COBRAR,
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   solo_tiendas: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
     POR_COBRAR,
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "resto" },
   ],
-  solo_ordenex: [
+  solo_empresa: [
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
     POR_COBRAR,
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   sin_reparto: [POR_COBRAR, { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "resto" }],
 };
