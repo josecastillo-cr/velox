@@ -1,8 +1,10 @@
-# ESTADO 2026-11-04 — 501 y 502 MERGEADAS (#885, #886), SIN DESPLEGAR; 494 `in_progress`
+# ESTADO 2026-11-05 — 494 TERMINADA EN RAMAS; FALTA MERGEAR #891, #892 Y #893, EN ESE ORDEN
 
-- En `dev` sin desplegar: 498, 500, 501, 502. Gate post-merge verde (`progress/gate_dev_tras_886.log`, no versionado).
-- 494: spec aprobado, por tandas, un PR por tanda. Worktree `R:/w494`. Sin migración (`progress/impl_494.md`). Plantillas en Meta: al final, no bloquean el merge.
-- Después: release a prod con todo (gate completo; T8.4 de la 498 el mismo día; no conciliar durante el deploy).
+- En `dev` sin desplegar: 498, 500, 501, 502 y las tandas 0-3 de la 494.
+- 494: #891 (tanda 4), #892 (tandas 5 y 6) y #893 (tanda 7) van apilados y apuntan a `dev`. Tras cada merge, comprobar el SHA en `origin/dev` y `gh pr checks`. Worktree `R:/w494`. Sin migración. Revisión final OK con menores (`progress/review_494_t7.md`).
+- Antes de la release, decide el humano: Skew Protection (fila A12 de `docs/release.md`; `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` no existe en Vercel, medido el 2026-11-04), «sin alias» (`design.md` §3.2), m7 (`seed-usuarios-qa` sin guard de entorno) y la tarjeta `AvisoVersionNueva` descompuesta.
+- Tras mergear: `seed-usuarios-qa` en preview con el `QA_PASSWORD` vigente. En la base local las cuentas QA ya son `<rol>.qa@empresa.test`.
+- Después: release a prod con todo (gate completo hasta `INIT_EXIT=0` y 26 skipped sobre el SHA final; T8.4 de la 498 el mismo día; no conciliar durante el deploy).
 - Fichas 503 y 504 registradas, `pending`, no bloquean la release: la frase de las saldadas en la ayuda de Wallet · Satélites, y «no se deben nada» por descarte en la frase del saldo.
 - Repo público a propósito: nada identificable de prod ni credenciales en archivos versionados. Logs del dev server fuera del repo.
 - Antes de lanzar subagentes en auto mode: el primer intento lo rechaza el hook de context-mode; repetir con el input que devuelve.
