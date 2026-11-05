@@ -449,7 +449,7 @@ describe("R76 · el tope: o van todas las ordenes, o no va ninguna", () => {
 // ============================================================================================
 // FICHA 449 — EL FULFILLMENT LLEGA AL DTO, AGREGADO POR LA MISMA UNIDAD QUE LAS OTRAS TRES.
 //
-// La tabla de productos ensena tres columnas de dinero —Recaudado, Cobro Ordenex y Para la
+// La tabla de productos ensena tres columnas de dinero —Recaudado, Cobró Velox y Para la
 // tienda— agregadas por `(tienda, producto)`. La cifra de bodega tiene que llegar por esa MISMA
 // unidad, y como cifra PROPIA: `ITarifaVigenteRepository` prohibe que entre en la formula.
 //

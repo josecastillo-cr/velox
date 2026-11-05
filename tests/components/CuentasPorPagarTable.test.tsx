@@ -124,7 +124,7 @@ describe("CuentasPorPagarTable — columnas y datos (R18/R21)", () => {
     expect(within(filaAna).getByText("₡5.000")).toBeInTheDocument();
     expect(within(filaAna).getByText("₡3.000")).toBeInTheDocument();
     expect(within(filaAna).getByText("₡2.000")).toBeInTheDocument();
-    // Positivo (Ordenex debe) → badge "Pendiente".
+    // Positivo (la empresa debe) → badge "Pendiente".
     expect(within(filaAna).getByText("Pendiente")).toBeInTheDocument();
 
     const filaBeto = within(tabla())

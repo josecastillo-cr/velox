@@ -50,7 +50,7 @@ export type ListarMovimientosCompletoServiceResult =
  * Feature 173 (T D.2, design §5.2) — las DOS cifras de la caja, ya derivadas en el SERVIDOR.
  *
  * SUSTITUYE a `VerBalanceServiceResult`, que llevaba una sola cifra (`WalletBalanceDTO`) y por
- * eso no podia distinguir el dinero de Ordenex del que solo pasa por la caja. `forbidden` no
+ * eso no podia distinguir el dinero de la empresa del que solo pasa por la caja. `forbidden` no
  * viaja con cifra alguna (R65).
  *
  * Feature 231 (design §2.4, R24/R30): la rama `ok` gana `composicion` —la ganancia abierta
@@ -116,7 +116,7 @@ export interface LectoresDocumentosCaja {
   pagosPorCuenta: { estadoDeDocumentos(ids: readonly string[]): Promise<EstadoDocumentoCaja[]> };
   aportes: { estadoDeDocumentos(ids: readonly string[]): Promise<EstadoDocumentoCaja[]> };
   /**
-   * Ficha 461 (design §5.4, R20/R37) — el estado de los cobros de Ordenex a una tienda cuya linea de
+   * Ficha 461 (design §5.4, R20/R37) — el estado de los cobros de la empresa a una tienda cuya linea de
    * caja esta en la pagina (propia o completada). Lo implementa `CobroTiendaAnulacionRepository`.
    * Tambien SIN valor por defecto: sin el, ninguna linea de cobro ofreceria «Anular…».
    */
@@ -128,14 +128,14 @@ export interface LectoresDocumentosCaja {
    */
   ajustes: { estadoDeDocumentos(ids: readonly string[]): Promise<EstadoDocumentoCaja[]> };
   /**
-   * Ficha 457 (design §8.5, R41) — el estado de los PAGOS DE UNA TIENDA A ORDENEX cuya entrada esta en
+   * Ficha 457 (design §8.5, R41) — el estado de los PAGOS DE UNA TIENDA A LA EMPRESA cuya entrada esta en
    * la pagina. Lo implementa `AbonoTiendaRepository`. Sin valor por defecto: sin el, ninguna fila
    * ofreceria «Anular…» ni «Ver comprobante».
    */
   abonos: { estadoDeDocumentos(ids: readonly string[]): Promise<EstadoDocumentoCaja[]> };
   /**
    * Ficha 458-B (design §3.6, R71/R72) — el estado de los EGRESOS sin documento propio (sueldo,
-   * gasto de Ordenex, gasto fijo cobrado; origen `gasto`). El id es el de la PROPIA fila. «Anulado»
+   * gasto de la empresa, gasto fijo cobrado; origen `gasto`). El id es el de la PROPIA fila. «Anulado»
    * lo decide el contra-asiento en la base, no la pagina. Lo implementa
    * `EgresoCajaDocumentosRepository`. Sin valor por defecto.
    */
@@ -145,7 +145,7 @@ export interface LectoresDocumentosCaja {
   /** Ficha 458-B (D7, R71) — los cobros por rechazo aprobados: id = la GESTION (sus dos lineas). */
   rechazos: { estadoDeDocumentos(ids: readonly string[]): Promise<EstadoDocumentoCaja[]> };
   /**
-   * Ficha 458-C (revision B3, R71) — los pagos de Ordenex a una tienda (172): id = el
+   * Ficha 458-C (revision B3, R71) — los pagos de la empresa a una tienda (172): id = el
    * `liquidacion_pago`. Lo implementa `PagoTiendaCajaDocumentosRepository`. Sin valor por defecto.
    */
   pagosATienda: { estadoDeDocumentos(ids: readonly string[]): Promise<EstadoDocumentoCaja[]> };
@@ -173,7 +173,7 @@ export interface IWalletService {
   ): Promise<ListarMovimientosCompletoServiceResult>;
   /**
    * Feature 173 (T D.2 — R8/R64/R65): las DOS cifras de la caja («dinero en caja» y «ganancia
-   * de Ordenex») derivadas del conjunto filtrado, nunca de un saldo almacenado.
+   * de la empresa») derivadas del conjunto filtrado, nunca de un saldo almacenado.
    *
    * Mismo guardia de rol que el listado (`esAccesoTotal`), evaluado ANTES de tocar la base
    * (R65), y los MISMOS filtros que el listado, resueltos por el mismo metodo privado (R8).

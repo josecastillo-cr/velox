@@ -320,7 +320,7 @@ const CONSOLIDABLES = [consolidable(1), consolidable(2)];
 const BODEGA_SOLICITADOS = [cierreBodega({ cierreBodegaId: "b3", estado: "aprobado" })];
 
 /**
- * Ingreso de Ordenex por orden. Solo el detalle de ADMIN lo trae, y es lo que hace que la
+ * Ingreso de la empresa por orden. Solo el detalle de ADMIN lo trae, y es lo que hace que la
  * fila tenga desglose desplegable — el estado que el test de R37 usa como testigo.
  */
 function ingreso(): IngresoEmpresaDTO {

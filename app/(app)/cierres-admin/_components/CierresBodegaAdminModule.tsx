@@ -202,7 +202,7 @@ const CONCILIACION_SECCION_LABEL = "Conciliación del cierre de bodega";
 interface DetalleAbierto {
   cierre: CierreBodegaResumen;
   cierres: CierreBodegaDetalleCierre[];
-  /** Ingreso de Ordenex agregado de toda la bodega, por concepto (derivado del snapshot). */
+  /** Ingreso de la empresa agregado de toda la bodega, por concepto (derivado del snapshot). */
   totalesIngreso: TotalesIngresoEmpresa;
   /** Total general agregado menos flete + IVA y comisión + IVA (puede ser negativo). */
   pagoTienda: string;
@@ -333,7 +333,7 @@ function lineasCascadaDueno(
       destacado: true,
       notas: notasDelPago,
     },
-    // La línea puente: lo mismo que se acaba de restar, ahora leído como lo que Ordenex cobró.
+    // La línea puente: lo mismo que se acaba de restar, ahora leído como lo que la empresa cobró.
     {
       label: COBRADO_SOBRE_RECAUDADO_LABEL,
       monto: nivel.cobradoSobreRecaudado,
@@ -597,7 +597,7 @@ export function CierresBodegaAdminModule({
                 : descargaBodegaResueltos(filtros)
             }
             catalogo={catalogoFiltros}
-            accion={(f) => descargarDatos("listarGestionesCierresBodegaCompleto", f)}
+            accion={(f) => descargarDatos("listarGestionesCierresBodegaCompletoV2", f)}
             disabled={pendientesCargando}
             audiencia={audiencia}
           />
@@ -746,7 +746,7 @@ export function CierresBodegaAdminModule({
               <DesglosePorTienda partes={detalle.partesPorTienda} de="cierre de bodega" />
             ) : null}
 
-            {/* El desglose por concepto de la línea «Lo que Ordenex facturó»: sin cambios. */}
+            {/* El desglose por concepto de la línea «Lo que la empresa facturó»: sin cambios. */}
             <TotalesIngresoPanel
               totales={detalle.totalesIngreso}
               ariaLabel={`Ingreso de ${MARCA.nombreCorto} del cierre de bodega`}

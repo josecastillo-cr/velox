@@ -116,19 +116,19 @@ export interface CierreBodegaDetalleCierre {
   totalPagoMensajero: string; // feature 39/R20: snapshot del pago al mensajero del cierre_dia (STRING)
   totalIngresoBodegaRechazos: string; // feature 56/R19: snapshot del ingreso de bodega por rechazos del cierre_dia (STRING)
   grupos: CierreGrupos; // por resultado (reuso CierreDetalleGestion de la 37, R11)
-  // Totales por concepto del ingreso de Ordenex de ESTE cierre_dia (derivados del snapshot).
+  // Totales por concepto del ingreso de la empresa de ESTE cierre_dia (derivados del snapshot).
   totalesIngreso: TotalesIngresoEmpresa;
   // DERIVADO: `totalesIngreso.total` - `totalPagoMensajero` de ESTE cierre_dia (STRING).
-  // Lo que le queda a Ordenex del dia de ese mensajero. Puede ser NEGATIVO.
+  // Lo que le queda a la empresa del dia de ese mensajero. Puede ser NEGATIVO.
   ganancia: string;
   // DERIVADO: `totales.general` - `fleteConIva` - `comisionConIva` de ESTE cierre_dia
   // (STRING money-safe). Lo que se le paga a la tienda. Puede ser NEGATIVO.
   pagoTienda: string;
   /**
    * Feature 393 (R7/R10) — LA LINEA PUENTE: `fleteConIva` + `comisionConIva` de ESTE
-   * cierre_dia, o sea lo que Ordenex cobra SOBRE LO RECAUDADO. Se emite SIEMPRE, tambien
+   * cierre_dia, o sea lo que la empresa cobra SOBRE LO RECAUDADO. Se emite SIEMPRE, tambien
    * cuando el flete por rechazo vale "0.00": es lo que enlaza «para la tienda» con «lo que
-   * Ordenex facturo» y sin ella la resta de la cascada no da en cuanto hay un rechazo.
+   * la empresa facturo» y sin ella la resta de la cascada no da en cuanto hay un rechazo.
    */
   cobradoSobreRecaudado: string;
   /**

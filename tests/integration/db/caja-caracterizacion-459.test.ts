@@ -418,7 +418,7 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
       // Cargos a tiendas del escenario (los seis conceptos del feed y del cobro por devolución a origen):
       //   flete 8 000 + IVA flete 1 040 + comision 978,47 + IVA comision 127,21
       //   + devolucion 2 500 + IVA devolucion 325 = 12 970,68
-      //   + (461) el cobro de Ordenex a la tienda B 2 500,50 → cargos 15 471,18
+      //   + (461) el cobro de la empresa a la tienda B 2 500,50 → cargos 15 471,18
       // Entro = efectivo: contra-entrega 31 517,00 + reverso del pago a tienda 5 000,00
       //       + ajustes 51 000,25 (reverso del sueldo 45 000 + manual 1 000,25 + reverso del
       //         premio 5 000) = 87 517,25        (= 100 487,93 de antes − 12 970,68; el cobro NO entra)
@@ -426,9 +426,9 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
       // De las tiendas  = 31 517,00 + 5 000,00 − 8 000,00 − 15 471,18 = 13 045,82
       //                 = Σ saldos (7 530,70 + 5 515,12), SIN excepcion  → R8 (461/HD2)
       //                 (la 459 daba 15 546,32 = Σ saldos + el cobro 2 500,50 sin linea de caja)
-      // Capital 0,00 ; De Ordenex = ganancia −87 374,34 + 0 = −87 374,34
+      // Capital 0,00 ; De la empresa = ganancia −87 374,34 + 0 = −87 374,34
       // R7: −87 374,34 + 13 045,82 + 0 = −74 328,52 ✓
-      // FICHA 488: «De Ordenex» pierde el IVA del escenario (1 040 + 325 + 127,21 = 1 492,21):
+      // FICHA 488: «De la empresa» pierde el IVA del escenario (1 040 + 325 + 127,21 = 1 492,21):
       // −87 374,34 − 1 492,21 = −88 866,55 ; R7: −88 866,55 + 13 045,82 + 0 + 1 492,21 = −74 328,52 ✓
       expect({
         entradas: delta(foto(), (l) => l.resumen.entradas),
@@ -447,7 +447,7 @@ describeSiHayBase("⭑ 459/FASE 0 — la fotografia de lo que no puede cambiar (
   });
 
   // ───────────────────────────────────────────────────────────────────────────────────────────
-  // ⭑ LO QUE LA FICHA 461 CAMBIA A PROPOSITO (HD1, R4, R59) — el cobro de Ordenex a una tienda es un
+  // ⭑ LO QUE LA FICHA 461 CAMBIA A PROPOSITO (HD1, R4, R59) — el cobro de la empresa a una tienda es un
   // CARGO: escribe su linea en la caja, sube la ganancia y baja «De las tiendas» en su monto; la cifra
   // principal y «Entro» no se mueven. Literales calculados A MANO en el comentario (nunca con la
   // funcion probada). Las cifras de la 459 (fase 0 de la 461, sobre `f415f4bb`) eran: ganancia

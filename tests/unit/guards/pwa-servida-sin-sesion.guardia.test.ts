@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 //
 // ## El defecto que esta guardia existe para que no vuelva
 //
-// Medido contra **producción real** (`ordenex.vercel.app`), no en local:
+// Medido contra **producción real** (su dominio de Vercel de entonces), no en local:
 //
 //     /manifest.json       307 -> /login?redirect=%2Fmanifest.json
 //     /sw.js               307 -> /login?redirect=%2Fsw.js

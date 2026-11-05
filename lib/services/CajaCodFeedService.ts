@@ -7,7 +7,7 @@ import type {
 
 /**
  * Feature 173 (design §3.1, R11/R12/R13/R17) — construye el INGRESO de contra-entrega de un
- * cierre aprobado: el dinero de las tiendas que entra en la caja principal de Ordenex.
+ * cierre aprobado: el dinero de las tiendas que entra en la caja principal de la empresa.
  *
  * Corre DENTRO de la transaccion de aprobacion (misma `tx` que los feeds 42/43/44/158) y
  * DESPUES de que el ledger por tienda (43) haya escrito sus creditos. NO persiste: devuelve
@@ -33,7 +33,7 @@ export class CajaCodFeedService implements ICajaCodFeedService {
     //  - `origenTipo`/`origenId`: el cierre, y no otro (sin ellas se sumaria el COD de todos).
     //  - `categoria`: `cod_recaudado` y ninguna de las otras nueve del ledger.
     //  - `tipo`: `credito`; los debitos del mismo cierre (flete, comision, IVA) son lo que
-    //    Ordenex SE QUEDA, no lo que recaudo a nombre de la tienda.
+    //    la empresa SE QUEDA, no lo que recaudo a nombre de la tienda.
     const creditos = await tx.walletTiendaMovimiento.findMany({
       where: {
         origenTipo: "cierre_dia",

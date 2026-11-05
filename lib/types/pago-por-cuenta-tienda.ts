@@ -11,7 +11,7 @@ import type { SaldoTiendaDTO } from "@/lib/types/wallet-tienda";
 import { fechaMovimientoSchema } from "@/lib/types/wallet";
 import { problemaDeComprobante } from "@/lib/utils/comprobante";
 
-// FICHA 459 (design §6.1/§7.1) — el PAGO POR CUENTA de una tienda: dinero que Ordenex SACA de la
+// FICHA 459 (design §6.1/§7.1) — el PAGO POR CUENTA de una tienda: dinero que la empresa SACA de la
 // caja para pagarle a un tercero (su proveedor, su publicidad, su personal) en nombre de la tienda.
 // Baja la caja y el saldo de la tienda; no toca la ganancia. Montos SIEMPRE STRING.
 

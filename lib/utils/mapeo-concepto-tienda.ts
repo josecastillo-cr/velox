@@ -5,7 +5,7 @@ import type { WalletTiendaDebitoCategoria } from "@/lib/types/wallet-tienda";
  * Feature 43 (design §2.1, R8) — FUENTE UNICA del mapeo 1:1 entre los 6 conceptos de ingreso
  * de la 42 (`WalletIngresoConcepto`) y las 6 categorias de DEBITO del ledger de la tienda
  * (`WalletTiendaDebitoCategoria`). El saldo de la tienda es el COMPLEMENTO del ingreso de
- * Ordenex: cada `ingreso_X` que Ordenex percibe es un debito `X` que se resta a la tienda.
+ * la empresa: cada `ingreso_X` que la empresa percibe es un debito `X` que se resta a la tienda.
  * NO se define una formula nueva: solo se renombra el concepto (misma cifra derivada por
  * `derivarIngresoOrden`). El `satisfies` fija que las llaves cubran EXACTAMENTE los 6
  * conceptos (Record total): si el enum de ingreso cambia, el build rompe aqui.

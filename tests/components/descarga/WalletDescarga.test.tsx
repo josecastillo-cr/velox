@@ -176,7 +176,7 @@ function movimientoCaja(i: number): WalletMovimientoDTO {
     descripcion: `Movimiento ${i}`,
     registradoPor: null,
     fechaMovimiento: `2026-07-${String(10 + i).padStart(2, "0")}T14:00:00.000Z`,
-    dueno: "propio", // feature 231 (R31): el flete es dinero de Ordenex
+    dueno: "propio", // feature 231 (R31): el flete es dinero de la empresa
     documento: null, // ficha 459 (design §7.3): fila sin documento
   };
 }
@@ -793,7 +793,7 @@ describe("458-E · el libro de la caja con las columnas de la maqueta", () => {
 
   it("R34 (231) / 458-E R56/R57: el archivo dice lo mismo que la tabla en «Dueño», «A quién» y «Registró»", async () => {
     const user = userEvent.setup();
-    const propio = movimientoCaja(1); // flete → dinero de Ordenex
+    const propio = movimientoCaja(1); // flete → dinero de la empresa
     const terceros = movimientoNuevo("ingreso_cod_recaudado", 1); // contra-entrega → tienda
     listarMovimientosMock.mockResolvedValue({
       status: "ok",
@@ -833,7 +833,7 @@ describe("458-E · el libro de la caja con las columnas de la maqueta", () => {
       };
     });
     expect(enPantalla.map((f) => f.dueno)).toEqual([DUENO_LABEL.propio, DUENO_LABEL.terceros]);
-    // Las dos palabras son DISTINTAS: si «Ordenex» y «Tienda» fueran la misma, la columna
+    // Las dos palabras son DISTINTAS: si «la empresa» y «Tienda» fueran la misma, la columna
     // entera no diría nada y este caso pasaría igual.
     expect(DUENO_LABEL.propio).not.toBe(DUENO_LABEL.terceros);
 

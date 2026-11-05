@@ -31,7 +31,7 @@ import { escaparComodinesLike } from "@/lib/utils/escapar-like";
 //   cobro_manual_reclasificado
 //   abono_tienda                                 la tienda que pago             abono_tienda
 //   gasto / manual                               el nombre libre anotado        wallet_anotacion
-//   aporte_capital                               «Ordenex»: no es una cuenta ni un nombre (no se filtra)
+//   aporte_capital                               «la empresa»: no es una cuenta ni un nombre (no se filtra)
 //
 // POR QUE SQL Y NO UN `IN` DE IDS. `origen_id` es polimorfico (no hay relacion de Prisma que cruzar),
 // y resolver antes los ids de la cuenta para mandarlos en un `IN` crece con la historia de esa cuenta

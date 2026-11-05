@@ -104,7 +104,7 @@ function filtroDeChip(pares: ParDeChip[] | null, conPremio: boolean): Prisma.Sql
  * FICHA 463 (design §3.2, R24/R26/R27/R28) — el termino del buscador, en el `WHERE` EXTERIOR (despues de
  * la ventana, como el chip). `ILIKE` sin distinguir mayusculas; `%` y `_` escapados son texto (R28).
  * El nombre de quien registro (`NOMBRE_SQL`, del `LEFT JOIN usuario u`) solo entra en la oficina: en
- * `/mi-wallet` buscar a una persona de Ordenex no reduce ni amplia el resultado (R27). Mutacion «sin la
+ * `/mi-wallet` buscar a una persona de la empresa no reduce ni amplia el resultado (R27). Mutacion «sin la
  * rama del nombre» → roja en `estado-cuenta-busqueda-orden-463` (R26).
  */
 function terminoSql(v: Pick<VentanaDeLibro, "termino" | "conNombreRegistrador">): Prisma.Sql {

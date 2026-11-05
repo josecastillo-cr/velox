@@ -19,7 +19,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
  * R60, R61 (parte tarjeta) y R64 (parte cliente).
  *
  * Lo que esta suite existe para impedir es UN error concreto y ya cometido: leer el número
- * grande de la caja como si fuera lo que Ordenex gana. Por eso casi todas las aserciones son
+ * grande de la caja como si fuera lo que la empresa gana. Por eso casi todas las aserciones son
  * sobre lo que se ve A LA VEZ y sobre las palabras exactas, no sobre la estructura del DOM.
  *
  * El conjunto de prueba tiene dinero de las DOS naturalezas a propósito: `enCaja` (12 000) y
@@ -144,7 +144,7 @@ describe("CajaResumenCard — las dos cifras (R1/R58)", () => {
       within(columnaGanancia).getByText(CAJA_RESUMEN_LABEL.egresosPropios),
     ).toBeInTheDocument();
 
-    // «Entró» (15 000) NO es «Ingresos de Ordenex» (5 000): el contra-entrega entra en la
+    // «Entró» (15 000) NO es «Ingresos de la empresa» (5 000): el contra-entrega entra en la
     // caja y no en la ganancia. Si la tarjeta pintara el mismo par de importes en los dos
     // desgloses, esta línea lo caza.
     expect(within(columnaGanancia).queryByText("₡15.000")).toBeNull();
@@ -274,7 +274,7 @@ describe("CajaResumenCard — la nota de la diferencia (R60)", () => {
 });
 
 // Ficha 459 (T A.8, R23/R24) — los tres casos de R34 de la 173 se REESCRIBEN: desde esta ficha
-// «De las tiendas» YA ES lo que Ordenex les debe (la derivación descuenta flete, comisión e
+// «De las tiendas» YA ES lo que la empresa les debe (la derivación descuenta flete, comisión e
 // impuesto), así que la advertencia «no es lo que se les debe: es más» pasó a ser FALSA y R24
 // prohíbe decirla. Lo que se afirma ahora es su sustituto.
 describe("CajaResumenCard — «De las tiendas» (R34 de la 173 → R23/R24 de la 459)", () => {
@@ -321,7 +321,7 @@ describe("CajaResumenCard — «De las tiendas» (R34 de la 173 → R23/R24 de l
 
     // Con la cifra positiva la frase no existe.
     pintar();
-    expect(screen.queryByText(/Las tiendas le deben a Ordenex/)).toBeNull();
+    expect(screen.queryByText(new RegExp(`Las tiendas le deben a ${NOMBRE_ESPERADO}`))).toBeNull();
   });
 
   it("la única mención a la deuda del bloque es el enlace a la otra pantalla", () => {
@@ -508,7 +508,7 @@ describe("Ficha 459 — estado «flujo»: sin saldo inicial (R15/R16/R17/R22)", 
       for (const mensaje of Object.values(CAJA_COMPOSICION_MENSAJE)) {
         if (mensaje !== null) expect(container.textContent ?? "").not.toContain(mensaje);
       }
-      // Y el bloque de Ordenex no se tiñe por un modo que no se enseña.
+      // Y el bloque de la empresa no se tiñe por un modo que no se enseña.
       const empresa = container.querySelector<HTMLElement>("[data-bolsillo='empresa']");
       expect(empresa?.dataset.superficie).toBe("neutra");
       cleanup();
@@ -591,7 +591,7 @@ describe(`Ficha 459 — el capital de ${NOMBRE_ESPERADO} junto a la ganancia (R2
     const ganancia = screen.getByRole("region", { name: `Ganancia de ${NOMBRE_CORTO_ESPERADO}` });
     expect(within(ganancia).getByText("₡2.000")).toBeInTheDocument();
     expect(within(ganancia).queryByText("₡250.000,33")).toBeNull();
-    // El capital va DENTRO del bolsillo de Ordenex.
+    // El capital va DENTRO del bolsillo de la empresa.
     expect(capital.closest("[data-bolsillo='empresa']")).not.toBeNull();
   });
 });

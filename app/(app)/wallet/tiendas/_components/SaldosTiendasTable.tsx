@@ -30,7 +30,7 @@ import { descargarDatos } from "@/components/shared/descarga-datos";
 // maestro liquide. Datos por props desde el Server Component padre (que ya valido rol
 // maestro y pre-fetch, R21): el cliente NUNCA recibe Prisma.Decimal ni recalcula montos.
 // Money-safe: la columna saldo renderiza el STRING tal cual con `money`. El saldo por
-// tienda puede ser NEGATIVO (la tienda debe a Ordenex): el badge de signo lo distingue.
+// tienda puede ser NEGATIVO (la tienda debe a la empresa): el badge de signo lo distingue.
 
 // Feature 170 (T D.1): la ETIQUETA sale de `saldo-tienda-signo-label` (módulo puro, sin
 // React) para que el archivo de la descarga y esta tabla no puedan divergir (R8). Aquí solo

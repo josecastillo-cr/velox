@@ -2063,7 +2063,7 @@ describe("Feature 158 · listarCierreDia — la causa sí, el monto NO (R17, des
 
   it("R17: el monto de la indemnizacion NO llega a la vista del mensajero (no es plata suya)", async () => {
     // Aunque el repo lo trajera (no lo hace: `WITH_DETALLE` ni lo selecciona), el DTO que ve
-    // el mensajero lo lleva en `null`. La indemnizacion la paga Ordenex por el paquete; un
+    // el mensajero lo lleva en `null`. La indemnizacion la paga la empresa por el paquete; un
     // numero grande junto a su gestion se leeria como una deuda suya.
     const repo = fakeRepo({
       findGestionesPendientes: vi.fn(async () => [

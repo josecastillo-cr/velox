@@ -9,7 +9,7 @@
 //
 // Es deliberado hasta el detalle de las CUATRO primeras cifras: `verResumenCajaAction`
 // devuelve el mismo `CajaResumenDTO` que pinta `CajaResumenCard` en el wallet, asi que la cifra
-// principal de la caja y «Ganancia de Ordenex» valen aqui LO MISMO que alla, numero por numero.
+// principal de la caja y «Ganancia de la empresa» valen aqui LO MISMO que alla, numero por numero.
 //
 // Ficha 459 (T A.9): y se LLAMAN igual. El rotulo y la pista de la cifra principal salen de la
 // MISMA funcion que usa la tarjeta (`rotuloCifraPrincipal` / `pistaCifraPrincipal`), con el

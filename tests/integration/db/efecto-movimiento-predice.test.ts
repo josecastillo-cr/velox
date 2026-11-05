@@ -135,7 +135,7 @@ describeSiHayBase("458-B/TB.12 — «Así queda» predice lo que queda (Postgres
         await paso("pago_a_mensajero", "1.00", { tipo: "mensajero", id: esc.mensajeroId }, () =>
           s.liquidacion.registrarRepartoMensajero({ claveIdempotencia: k(), mensajeroId: esc.mensajeroId, monto: "1.00", metodo: "efectivo", fechaPago: hoy }, m),
         );
-        // El cobro deja a la tienda B en contra (R47) y asi la tienda B puede pagarle a Ordenex (457).
+        // El cobro deja a la tienda B en contra (R47) y asi la tienda B puede pagarle a la empresa (457).
         const cobro = new Prisma.Decimal(await saldoTienda(esc.tiendaB)).abs().add("50.00").toFixed(2);
         await paso("cobro_a_tienda", cobro, B, () =>
           s.cobroTienda.registrarCobro({ claveIdempotencia: k(), tiendaId: esc.tiendaB, monto: cobro, descripcion: "Bolsas" }, m),

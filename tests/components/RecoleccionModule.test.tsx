@@ -59,7 +59,7 @@ vi.mock("@/hooks/useToast", () => ({
 // El escáner monta la cámara vía html5-qrcode, que jsdom no puede abrir. Se sustituye por un
 // disparador manual del MISMO callback (`onDecoded`) para poder ejercer la vía cámara (R10):
 // lo que se prueba es el camino del componente, no la librería (que tiene su propio test).
-const TEXTO_QR = (numGuia: number) => `https://ordenex.test/paquete/${numGuia}`;
+const TEXTO_QR = (numGuia: number) => `https://ejemplo.test/paquete/${numGuia}`;
 let textoEscaneado = TEXTO_QR(1001);
 vi.mock("@/components/shared/QrScanner", () => ({
   QrScanner: ({

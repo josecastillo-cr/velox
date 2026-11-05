@@ -23,7 +23,7 @@ function esChoqueDeAnulacion(error: unknown): boolean {
 }
 
 /**
- * FICHA 461 (design §5.3) — la ANULACION de un cobro de Ordenex a una tienda. SOLO queries Prisma.
+ * FICHA 461 (design §5.3) — la ANULACION de un cobro de la empresa a una tienda. SOLO queries Prisma.
  * Molde: `PagoPorCuentaTiendaRepository.anular`. La constancia y su fila de historial van en la
  * MISMA transaccion que recibe; los dos contra-asientos (credito a la tienda y reverso en la caja)
  * los escribe `CobroTiendaService` en esa misma transaccion, un instante despues.

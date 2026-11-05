@@ -44,9 +44,9 @@ describe("209 — quitarComentarios: comentarios de LINEA", () => {
 
   it("NO se come el `//` de una URL, ni lo que va detras en la misma linea", () => {
     // Es lo que rompe `//.*$` (10 copias): parte la cadena y con ella el resto de la linea.
-    const fuente = 'const u = "https://ordenex.app/x"; const roto = Number(saldo);';
+    const fuente = 'const u = "https://ejemplo.test/x"; const roto = Number(saldo);';
     const limpio = quitarComentarios(fuente);
-    expect(limpio).toContain("https://ordenex.app/x");
+    expect(limpio).toContain("https://ejemplo.test/x");
     expect(limpio).toMatch(/Number\(saldo\)/);
   });
 
@@ -202,13 +202,13 @@ describe("223 — quitarComentariosCss: en CSS, la pasada de `//` solo puede hac
   /** Una hoja con una URL protocolo-relativa y, detras, una declaracion que tiene que vivir. */
   const HOJA = [
     "/* prosa que menciona --color-inventado */",
-    "@font-face { src: url(//cdn.ordenex.app/f.woff2); font-weight: 700; }",
+    "@font-face { src: url(//cdn.ejemplo.test/f.woff2); font-weight: 700; }",
     ".x { color: #123456; }",
   ].join("\n");
 
   it("EL CASO: la declaracion que sigue a `url(//…)` SOBREVIVE", () => {
     const limpio = quitarComentariosCss(HOJA);
-    expect(limpio, "se perdio la URL protocolo-relativa").toContain("url(//cdn.ordenex.app/f.woff2)");
+    expect(limpio, "se perdio la URL protocolo-relativa").toContain("url(//cdn.ejemplo.test/f.woff2)");
     expect(
       limpio,
       "se perdio `font-weight: 700`, que iba DETRAS de la URL en la misma linea. Un censo que " +
@@ -220,7 +220,7 @@ describe("223 — quitarComentariosCss: en CSS, la pasada de `//` solo puede hac
   it("CONTRAPRUEBA: el quitador de TypeScript SI se la lleva (por eso van aparte)", () => {
     const conElDeTs = quitarComentarios(HOJA);
     expect(conElDeTs, "la URL sobrevive al quitador de TS: entonces este caso no prueba nada")
-      .not.toContain("cdn.ordenex.app");
+      .not.toContain("cdn.ejemplo.test");
     expect(
       conElDeTs,
       "si `font-weight: 700` sobreviviera al quitador de TypeScript, las dos pasadas serian " +
@@ -398,12 +398,12 @@ describe("283 — el defecto: un `/*` mal colocado abria bloque y se comia el ar
   it("R10 NO-REGRESION: una URL en una cadena sigue entera, y con ella el codigo que la sigue", () => {
     // Esta fila es deliberadamente distinta de las tres de arriba: aqui el quitador viejo YA
     // acertaba —para eso estaba el `[^:]`— y el escaner nuevo tiene que seguir dandole la razon.
-    const fuente = 'const u = "https://ordenex.app/x"; const b = Number(saldo);';
+    const fuente = 'const u = "https://ejemplo.test/x"; const b = Number(saldo);';
 
     expect(quitadorViejo(fuente), "el viejo tambien acierta aqui: es una no-regresion").toMatch(
       /Number\(saldo\)/,
     );
-    expect(quitarComentarios(fuente)).toContain("https://ordenex.app/x");
+    expect(quitarComentarios(fuente)).toContain("https://ejemplo.test/x");
     expect(quitarComentarios(fuente)).toMatch(/Number\(saldo\)/);
 
     const conHttp = 'fetch("http://localhost:3000/api/x"); const c = Number(otro);';
@@ -412,9 +412,9 @@ describe("283 — el defecto: un `/*` mal colocado abria bloque y se comia el ar
     expect(quitarComentarios(conHttp)).toMatch(/Number\(otro\)/);
 
     // Y una URL SIN comillas dentro de un docstring: tampoco se lleva el cierre del bloque.
-    const enBloque = "/** ver https://ordenex.app/docs */\nconst vive = 1;";
+    const enBloque = "/** ver https://ejemplo.test/docs */\nconst vive = 1;";
     expect(quitarComentarios(enBloque)).toMatch(/const vive = 1;/);
-    expect(quitarComentarios(enBloque)).not.toMatch(/ordenex\.app\/docs/);
+    expect(quitarComentarios(enBloque)).not.toMatch(/ejemplo\.test\/docs/);
   });
 });
 
@@ -474,7 +474,7 @@ describe("283 — cadenas, plantillas y la comilla sin pareja", () => {
   it("R12 una plantilla MULTILINEA sale entera, con su `//` de texto dentro", () => {
     const fuente = [
       "const t = `",
-      "  http://ordenex.app/x",
+      "  http://ejemplo.test/x",
       "  // esto NO es un comentario: es texto de la plantilla",
       "`;",
       "const vivo = 1; // esto SI lo es, y menciona parseFloat(",
@@ -482,7 +482,7 @@ describe("283 — cadenas, plantillas y la comilla sin pareja", () => {
     const lineas = lineasSinComentarios(fuente);
 
     expect(lineas).toHaveLength(5);
-    expect(lineas[1]).toContain("http://ordenex.app/x");
+    expect(lineas[1]).toContain("http://ejemplo.test/x");
     expect(lineas[2]).toContain("// esto NO es un comentario");
     expect(lineas[4]).toMatch(/const vivo = 1;/);
     expect(lineas[4], "el comentario de verdad sobrevivio").not.toMatch(/parseFloat/);

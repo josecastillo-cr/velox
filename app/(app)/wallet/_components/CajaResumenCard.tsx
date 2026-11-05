@@ -36,7 +36,7 @@ import {
 //
 // Lo que cambia respecto de la 42 no es como se pinta un numero: son DOS numeros donde habia uno,
 // y se ven A LA VEZ (R58). Nada de pestanas ni de desplegables — el punto entero de la feature es
-// que nadie confunda el dinero que pasa por la caja con lo que Ordenex gana.
+// que nadie confunda el dinero que pasa por la caja con lo que la empresa gana.
 //
 // Money-safe (R64 de la 173 / R12 de la 231 / R28 de la 459): los importes llegan ya derivados y
 // serializados por el SERVIDOR y se pintan TAL CUAL con `money`. Aqui no se suma, no se resta y no
@@ -51,7 +51,7 @@ import {
 // Tres detalles del arbol que NO son esteticos y que sostienen las aserciones vivas de la 173:
 //
 //  - las regiones son DISJUNTAS: la de la cifra principal no envuelve a la de «Ganancia de
-//    Ordenex», asi que ningun importe puede leerse bajo el rotulo del vecino;
+//    la empresa», asi que ningun importe puede leerse bajo el rotulo del vecino;
 //  - cada region tiene un PADRE ACOTADO que contiene su propio desglose y no el del otro;
 //  - CERO elementos interactivos (R8): ni un `<button>`, ni `details/summary`, ni tooltip. La
 //    barra es `role="img"`, no un `Progress` de Radix.
@@ -65,19 +65,19 @@ import {
 //  - Si la cifra es negativa y no hay filtros, una linea lo explica (R17/R19).
 //  - La barra y sus mensajes solo se pintan en «saldo» (R22): repartir «el dinero en caja» entre
 //    dos bolsillos no tiene sentido cuando la app no sabe cuanto dinero hay.
-//  - «De las tiendas» ES lo que Ordenex les debe (R23); si es negativo se dice en palabras quien
+//  - «De las tiendas» ES lo que la empresa les debe (R23); si es negativo se dice en palabras quien
 //    le debe a quien y cuanto, con el ABSOLUTO que manda el servidor.
-//  - El bolsillo de Ordenex gana una region propia, «Saldo inicial y aportes» (R25). La ganancia
+//  - El bolsillo de la empresa gana una region propia, «Saldo inicial y aportes» (R25). La ganancia
 //    no cambia ni de rotulo ni de valor.
 //  - La tarjeta NUNCA propone ni calcula un saldo inicial (R27): no hay control para eso aqui.
 //
 // ── Ficha 488 (T F.2, design §6.1) — LA GANANCIA, SIN IVA ──
 //
-//  - La cifra del bloque «Ganancia de Ordenex» ya llega sin IVA (R11). Debajo, dentro de la MISMA
+//  - La cifra del bloque «Ganancia de la empresa» ya llega sin IVA (R11). Debajo, dentro de la MISMA
 //    region y en tipografia menor, el IVA cobrado a las tiendas (R12).
 //  - Un TERCER bolsillo, «IVA por pagar», hermano de los otros dos, siempre visible —en «flujo» y en
 //    «saldo», con o sin filtros— con su importe, su insignia de signo y una pista que dice que no es
-//    ganancia de Ordenex (R13). Superficie neutra: es dinero que se debe, no una alarma.
+//    ganancia de la empresa (R13). Superficie neutra: es dinero que se debe, no una alarma.
 //
 // ── Ficha 498 (T7.1, design §8.3) — EL CUARTO BOLSILLO, «POR COBRAR A SATÉLITES» ──
 //
@@ -111,7 +111,7 @@ const SIGNO_COLOR: Record<WalletBalanceSigno, string> = {
 const BOLSILLO = "flex flex-col gap-2 rounded-xl border p-4";
 
 /**
- * R5/R16 de la 231 — de que color va el bloque de ORDENEX en cada modo. `Record` TOTAL sobre los
+ * R5/R16 de la 231 — de que color va el bloque de LA EMPRESA en cada modo. `Record` TOTAL sobre los
  * cuatro: un modo nuevo rompe el build en vez de heredar en silencio el color de otro caso.
  *
  * Neutro salvo en el caso limite (`solo_tiendas`), que SI es un estado que avisar. Ficha 459: el
@@ -294,7 +294,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             <span className="text-sm font-medium text-warning-strong">
               {CAJA_RESUMEN_LABEL.deTerceros}
             </span>
-            {/* R23: negativo = las tiendas le deben a Ordenex, y cuanto. El ABSOLUTO lo manda
+            {/* R23: negativo = las tiendas le deben a la empresa, y cuanto. El ABSOLUTO lo manda
                 el servidor: el navegador no le quita el signo a nada (R28). */}
             {resumen.signoDeTerceros === "negativo" ? (
               <p data-frase="tiendas-deben" className="text-sm font-medium text-foreground">
@@ -312,7 +312,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             </Link>
           </section>
 
-          {/* El bolsillo de Ordenex: la ganancia (sin cambios) y, HERMANA suya dentro del mismo
+          {/* El bolsillo de la empresa: la ganancia (sin cambios) y, HERMANA suya dentro del mismo
               padre acotado, la region del capital (R25). */}
           <div
             data-bolsillo="empresa"
@@ -354,7 +354,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
               />
             </div>
 
-            {/* R25 (ficha 459): el capital de Ordenex, cifra PROPIA junto a la ganancia. */}
+            {/* R25 (ficha 459): el capital de la empresa, cifra PROPIA junto a la ganancia. */}
             <section
               aria-label={CAJA_RESUMEN_LABEL.capital}
               className="flex flex-col gap-1 border-t pt-3"

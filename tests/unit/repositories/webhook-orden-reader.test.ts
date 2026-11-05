@@ -464,7 +464,7 @@ function usuarioMensajero(over: Partial<FilaUsuario> = {}): FilaUsuario {
     primerApellido: "Jimenez",
     segundoApellido: "Mora",
     telefono: "0991234567",
-    email: "carlos@ordenex.co",
+    email: "carlos@ejemplo.test",
     cedula: "0102030405",
     rol: "mensajero",
     ...over,
@@ -519,7 +519,7 @@ describe("404/R2-R6+R12 — el mensajero asignado, dentro de la lectura que ya s
     expect(Object.keys(datos!.mensajero!).sort()).toEqual(["id", "nombre"]);
     const serializado = JSON.stringify(datos);
     expect(serializado).not.toContain("0991234567");
-    expect(serializado).not.toContain("carlos@ordenex.co");
+    expect(serializado).not.toContain("carlos@ejemplo.test");
     expect(serializado).not.toContain("0102030405");
     expect(serializado).not.toContain("telefono");
   });

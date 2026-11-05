@@ -89,7 +89,7 @@ function usuario(i: number): UsuarioListItemDTO {
   return {
     id: `u-${i}`,
     nombre: `Usuario ${i}`,
-    email: `usuario${i}@ordenex.test`,
+    email: `usuario${i}@ejemplo.test`,
     rolValue: "mensajero",
     estado: i % 2 === 0 ? "inactivo" : "activo",
     createdAt: new Date("2026-07-01T10:00:00Z"),
@@ -114,7 +114,7 @@ function apiKey(i: number): ApiKeyListItemDTO {
     identificador: `tienda-${i}`,
     keyPrefix: `ok_live_${i}`,
     usuarioId: `u-${i}`,
-    usuarioEmail: `api${i}@ordenex.test`,
+    usuarioEmail: `api${i}@ejemplo.test`,
     estado: "activa",
     createdAt: new Date("2026-07-01T10:00:00Z"),
   } as unknown as ApiKeyListItemDTO;

@@ -92,7 +92,7 @@ export type RespuestaAsistente =
 /**
  * ⚠️ UN SOLO MÉTODO, Y NINGUNO QUE EJECUTE NADA (D3). No hay `herramientas()`, no hay
  * `ejecutar()`, no hay forma de que este contrato haga algo en la aplicación. El asistente
- * responde preguntas sobre cómo se usa Ordenex; no asigna, no gestiona, no cierra.
+ * responde preguntas sobre cómo se usa la empresa; no asigna, no gestiona, no cierra.
  */
 export interface IAsistenteProvider {
   responder(consulta: ConsultaAsistente): Promise<RespuestaAsistente>;

@@ -360,7 +360,7 @@ describe("Ficha 339 — el nombre de cada control y sus estados (R24/R25/R26)", 
 
     const controles = screen.getAllByRole("button", { name: /^Ver los movimientos de / });
     // Las dieciséis filas del catálogo: 8 de ingreso + 7 de egreso + «Otros», que aquí se pinta.
-    // (Ficha 461, R27: + «Ordenex le cobra a una tienda» y + «Cobros a una tienda anulados».)
+    // (Ficha 461, R27: + «la empresa le cobra a una tienda» y + «Cobros a una tienda anulados».)
     // (Ficha 458-B: + las dos filas de la anulacion de un cobro por devolución a origen: 18.)
     // (Ficha 488, R19: − las tres filas de IVA de ingreso y − la anulación del IVA del flete por
     // devolución a origen: 18 → 14.)

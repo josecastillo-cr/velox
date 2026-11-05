@@ -9,7 +9,7 @@
 //
 // Aqui NO se calcula dinero: se LLAMA a las dos funciones que ya lo producen en el cierre.
 //
-//  - `derivarIngresoOrden(input, tarifa)` — lo que Ordenex factura por UNA gestion, sobre las
+//  - `derivarIngresoOrden(input, tarifa)` — lo que la empresa factura por UNA gestion, sobre las
 //    ENTRADAS CONGELADAS de esa orden en ese cierre (`cierre_detail`), nunca sobre la tarifa
 //    vigente hoy (R17).
 //  - `pagoTiendaEmpresa(totalGeneral, fleteConIva, comisionConIva)` — lo que le queda a la
@@ -170,7 +170,7 @@ export interface RepartoDeOrden {
   readonly pendienteRecaudado: string;
   /** Flete + IVA + comision COD + IVA. `null` = no hay ni una gestion liquidada (R30). */
   readonly empresa: string | null;
-  /** Lo recaudado liquidado menos lo que Ordenex le factura. `null` por el mismo motivo. */
+  /** Lo recaudado liquidado menos lo que la empresa le factura. `null` por el mismo motivo. */
   readonly tienda: string | null;
   /** Flete de devolucion + su IVA de las RECHAZADAS liquidadas. FUERA del reparto (R19). */
   readonly retorno: string | null;

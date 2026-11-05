@@ -489,7 +489,7 @@ export const SIDEBAR_ITEMS: readonly MenuItem[] = [
     ],
   },
   {
-    // Feature 42: caja principal de Ordenex (balance + libro de movimientos).
+    // Feature 42: caja principal de la empresa (balance + libro de movimientos).
     // Visible para `maestro`/`admin` (feature 94, paridad adm↔maestro). La defensa
     // real es el `notFound` de la página `/wallet`, que resuelve el rol server-side;
     // este item solo decide que se MUESTRA. Los subitems apuntan a las vistas por
@@ -502,7 +502,7 @@ export const SIDEBAR_ITEMS: readonly MenuItem[] = [
       { label: "Caja principal", href: "/wallet" },
       { label: "Tiendas", href: "/wallet/tiendas" },
       { label: "Mensajeros", href: "/wallet/mensajeros" },
-      // ⭑ FICHA 431 (T23, R23): CUARTO hijo. Las tres de arriba cuentan lo que Ordenex DEBE
+      // ⭑ FICHA 431 (T23, R23): CUARTO hijo. Las tres de arriba cuentan lo que la empresa DEBE
       // —a su caja, a una tienda, a un mensajero—; esta cuenta lo que le DEBEN: el efectivo que
       // una bodega satelite ya consolido y todavia no ha llegado fisicamente a la central.
       //

@@ -195,7 +195,7 @@ function seccion(): HTMLElement {
 
 /**
  * La rejilla de KPI de la cabecera. Se ancla en «Gestiones», que sólo existe ahí: los otros tres
- * rótulos («Total general», «Total Ordenex», «Pago al mensajero») se repiten más abajo en los
+ * rótulos («Total general», «Total Velox», «Pago al mensajero») se repiten más abajo en los
  * renglones y en la caja de pago, así que buscarlos en toda la hoja devuelve varios.
  */
 function rejillaKpi(hoja: HTMLElement): HTMLElement {
@@ -535,7 +535,7 @@ describe("feature 264 — el dinero del comprobante no se mueve por la sección 
     expect(texto(`Ingreso de ${NOMBRE_CORTO_ESPERADO}`)).toContain("Flete por devolución a origen + IVA₡0");
     expect(texto(`Ingreso de ${NOMBRE_CORTO_ESPERADO}`)).toContain(`Total ${NOMBRE_CORTO_ESPERADO}₡3.060`);
 
-    // La ganancia NEGATIVA (la deuda de Ordenex con el mensajero).
+    // La ganancia NEGATIVA (la deuda de la empresa con el mensajero).
     expect(texto("Liquidación")).toContain("-₡400");
   });
 

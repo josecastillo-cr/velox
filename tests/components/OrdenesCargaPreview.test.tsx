@@ -456,7 +456,7 @@ describe("OrdenesCargaPreview — monto redondeado (feature 304)", () => {
  * ⭑ FICHA 383 (T7.2) — LA REPARACIÓN DEL TEXTO SE VE ANTES DE CONFIRMAR.
  *
  * El backend repara `𝕠rfirio` → `orfirio` para que la etiqueta pueda imprimirlo, y con eso
- * Ordenex guarda un nombre que la tienda NO escribió. La regla de la ficha es «si se normaliza,
+ * la empresa guarda un nombre que la tienda NO escribió. La regla de la ficha es «si se normaliza,
  * tiene que verse», y este paso —el dry-run, donde todavía no se ha escrito una sola fila— es el
  * único momento en el que alguien tiene la orden delante.
  *

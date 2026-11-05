@@ -159,7 +159,7 @@ describe("FICHA 459 — el cobro reclasificado en el libro y en su descarga (T C
 
 // ── Revisión B1 (R45/R77, design §5) ─────────────────────────────────────────────────────────
 //
-// El revisor cambió el dueño «Ordenex (capital)», el origen «Saldo inicial o aporte» y el origen
+// El revisor cambió el dueño «la empresa (capital)», el origen «Saldo inicial o aporte» y el origen
 // «Pago por cuenta de tienda» en `wallet-labels.ts` y la suite siguió verde (M-R5, M-R6). Aquí se
 // afirman LITERALES —escritos a mano, nunca leídos de `DUENO_LABEL`/`ORIGEN_LABEL`, que sería
 // comparar un texto contra su propia fuente—, en la TABLA y en la DESCARGA.

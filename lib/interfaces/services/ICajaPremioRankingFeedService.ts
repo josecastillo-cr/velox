@@ -48,7 +48,7 @@ export interface ICajaPremioRankingFeedService {
    * con origen `(ranking_snapshot_fila, filaId)`.
    *
    * Se reusa `egreso_pago_mensajero` —y no se crea una categoria de caja nueva— porque
-   * `NATURALEZA_POR_CATEGORIA` ya la declara `propio` y el premio ES dinero propio de Ordenex que
+   * `NATURALEZA_POR_CATEGORIA` ya la declara `propio` y el premio ES dinero propio de la empresa que
    * se entrega a un mensajero: la clasificacion de la caja no cambia ni una linea, y
    * `lib/utils/finanzas-diarias.ts` lo suma en «pago a mensajeros del dia» sin tocarla.
    *
@@ -73,7 +73,7 @@ export interface ICajaPremioRankingFeedService {
    * **`ingreso_ajuste` y NO un `ingreso_reverso_*` nuevo**, y la diferencia con la 173 esta
    * medida: alli el reverso necesitaba categoria propia porque el egreso original era de TERCEROS
    * y devolverlo con `ingreso_ajuste` —de naturaleza `propio`— habria inflado la ganancia de
-   * Ordenex con dinero ajeno. Aqui el egreso original (`egreso_pago_mensajero`) YA era propio, asi
+   * la empresa con dinero ajeno. Aqui el egreso original (`egreso_pago_mensajero`) YA era propio, asi
    * que revertirlo con `ingreso_ajuste` deja la ganancia exactamente como estaba y no hace falta
    * ningun valor de enum nuevo.
    */

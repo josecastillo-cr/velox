@@ -76,7 +76,7 @@ type FilaCaja = {
 
 /**
  * EL LIBRO DE LA CAJA tal y como estaria un dia cualquiera despues de la Tanda B: contra-entrega
- * recaudado (de las TIENDAS), flete e IVA (de ORDENEX) y dos salidas propias.
+ * recaudado (de las TIENDAS), flete e IVA (de LA EMPRESA) y dos salidas propias.
  *
  *   enCaja   = 20 000 − 500 − 1 200 = 18 300,00  (ficha 459: flete e IVA son CARGOS, no efectivo)
  *   ganancia =           3 000 + 390 − 500 − 1 200 =  1 690,00  (hasta la ficha 488)
@@ -313,7 +313,7 @@ describe("R30 — pagar y anular deja el dinero en caja donde estaba y la gananc
     const trasPagar = d.cifras();
     // R18: el «dinero en caja» baja EXACTAMENTE el importe del pago…
     expect(trasPagar.enCaja).toBe("3300.00");
-    // …y la ganancia NO se mueve ni un centimo: ese dinero nunca fue de Ordenex.
+    // …y la ganancia NO se mueve ni un centimo: ese dinero nunca fue de la empresa.
     expect(trasPagar.ganancia).toBe("1300.00");
 
     // ── momento 3: el dinero VUELVE ──────────────────────────────────────────────────────────

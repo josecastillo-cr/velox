@@ -39,7 +39,7 @@ import {
  * Feature 393 (F6) — EL DETALLE DEL CIERRE DE BODEGA: las dos cascadas, separadas y rotuladas.
  *
  * ── LAS DOS PREGUNTAS, Y POR QUÉ SON DOS
- * Una cascada dice **de quién es el dinero** (lo recaudado se reparte entre la tienda y Ordenex);
+ * Una cascada dice **de quién es el dinero** (lo recaudado se reparte entre la tienda y la empresa);
  * la otra dice **qué efectivo sale** (de lo recaudado, cuánto le entrega la satélite a la
  * central). Las dos terminan en cifras distintas y las dos son verdad. Mezcladas —que es como
  * estaban— no se lee ninguna.
@@ -141,7 +141,7 @@ function laCuentaCierra(sumandos: readonly string[], total: string, quien: strin
 // ---------------------------------------------------------------------------
 
 /**
- * Los totales del ingreso de Ordenex, completos. Sólo cuatro de los once campos se pintan (los
+ * Los totales del ingreso de la empresa, completos. Sólo cuatro de los once campos se pintan (los
  * AGRUPADOS con su IVA); los otros siete existen para poder auditar cuánto de cada agrupado es
  * IVA sin volver a recorrer las órdenes. Se rellenan coherentes con el agrupado —el IVA de este
  * país es el 13 %— para que un lector no encuentre un fixture que se contradice a sí mismo, pero
@@ -417,7 +417,7 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
       "cascada A · para la tienda",
     );
 
-    // R8 — lo facturado − mensajeros − bodega = neto de Ordenex.
+    // R8 — lo facturado − mensajeros − bodega = neto de la empresa.
     laCuentaCierra(
       [
         importeTras(dueno(), FACTURADO_EMPRESA_LABEL),

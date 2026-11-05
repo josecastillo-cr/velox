@@ -45,7 +45,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // uno de ellos se le mete una PAUSA dentro de su transaccion, justo despues de escribir y antes de
 // commitear. Mientras dura, la otra operacion arranca:
 //
-//   · R42 — pago por cuenta PAUSADO con 8 000 escritos ∥ pago de Ordenex a la misma tienda por
+//   · R42 — pago por cuenta PAUSADO con 8 000 escritos ∥ pago de la empresa a la misma tienda por
 //     8 000 sobre un saldo de 10 000. Con el candado compartido, el pago a tienda ESPERA, y al
 //     entrar ve el saldo ya rebajado (2 000) → `excede`. Sin el candado, lee 10 000 → `ok`, y la
 //     tienda queda en −6 000: las dos se evaluaron sobre el mismo saldo.

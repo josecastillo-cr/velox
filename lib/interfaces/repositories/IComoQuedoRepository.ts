@@ -6,7 +6,7 @@ import type { AgregadoCajaRow } from "@/lib/types/wallet";
  * de referencia (nunca contra un instante pasado como parametro: la precision no se pierde).
  *
  * La CONTRAPARTIDA de una fila en el otro libro es la del MISMO origen (`origen_tipo`, `origen_id`; el
- * debito de un cobro de Ordenex, por las lineas de caja que lo nombran) escrita MAS CERCA en el tiempo
+ * debito de un cobro de la empresa, por las lineas de caja que lo nombran) escrita MAS CERCA en el tiempo
  * (`created_at`): los dos asientos de un registro se escriben en la misma transaccion, y su
  * contra-asiento, en otra posterior. Asi el pago y su anulacion, que comparten origen, no se confunden.
  */

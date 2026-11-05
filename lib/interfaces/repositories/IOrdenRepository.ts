@@ -77,7 +77,7 @@ export interface CreateOrdenData {
  *
  * `estatusId` es el mas caro de los siete: `update` (abajo) SI puede escribirlo y por eso arrastra
  * el append a `orden_historial_estado`. Este camino es estructuralmente incapaz de dispararlo. Y
- * `montoCobrar` es el segundo: corregir una ubicacion mueve el FLETE que Ordenex factura, pero no
+ * `montoCobrar` es el segundo: corregir una ubicacion mueve el FLETE que la empresa factura, pero no
  * puede tocar el dinero que la tienda declara que hay que cobrarle al cliente.
  *
  * ⚠️ `direccion` ENTRO EN LA 327, Y LO QUE ARRASTRA ESTA ATENDIDO. Escribirla obliga a encolar la

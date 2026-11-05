@@ -1047,7 +1047,7 @@ export function CierreDiaModule({
             {detallePasado ? (
               <>
                 {/* MISMO comprobante que usa el admin (`CierreFacturaDetalle`), en su
-                    variante `mensajero`: sin el ingreso de Ordenex ni la liquidación (no es
+                    variante `mensajero`: sin el ingreso de la empresa ni la liquidación (no es
                     plata suya, design §7.2) y con lo recibido + su pago en los renglones. */}
                 <CierreFacturaDetalle
                   audiencia="mensajero"

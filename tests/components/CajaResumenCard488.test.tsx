@@ -9,7 +9,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 /**
  * Ficha 488 (T F.2, design §6.1) — la tarjeta de la caja con la ganancia SIN IVA (R11–R13).
  *
- *  - R11: la cifra grande del bloque «Ganancia de Ordenex» es `ganancia` (ya sin IVA).
+ *  - R11: la cifra grande del bloque «Ganancia de la empresa» es `ganancia` (ya sin IVA).
  *  - R12: debajo, DENTRO de la misma región y en tipografía menor, «IVA cobrado a las tiendas: ₡X».
  *  - R13: un tercer bolsillo, «IVA por pagar», con importe, insignia de signo y pista, en «flujo» y en
  *    «saldo», con y sin filtros.

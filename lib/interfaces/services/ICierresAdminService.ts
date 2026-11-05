@@ -226,7 +226,7 @@ export interface CierreGestionDescargaDTO {
   diaReparto: string | null;
   /**
    * FICHA 385 (2026-09-07) — dia calendario de COSTA RICA (`YYYY-MM-DD`) de `orden.created_at`:
-   * CUANDO NACIO LA ORDEN en Ordenex. Es la CUARTA fecha de la fila y la mas antigua de las
+   * CUANDO NACIO LA ORDEN en la empresa. Es la CUARTA fecha de la fila y la mas antigua de las
    * cuatro: creacion -> reparto -> gestion -> cierre.
    *
    * Mismo tratamiento que `fechaGestion` y por el mismo motivo: `orden.created_at` es un
@@ -359,7 +359,7 @@ export type CierreDetalleAdminServiceResult =
       status: "ok";
       cierre: CierreAdminResumen;
       grupos: CierreGrupos; // por resultado (reuso 37)
-      // Totales por concepto del ingreso de Ordenex del cierre, derivados del snapshot.
+      // Totales por concepto del ingreso de la empresa del cierre, derivados del snapshot.
       totalesIngreso: TotalesIngresoEmpresa;
       // Feature 102/R4-R8/R10: desglose money-safe (STRING escala 2) del ingreso de bodega por
       // rechazos, particionado por origen. `sla` = escalados del cron SLA (99); `manual` =
@@ -368,7 +368,7 @@ export type CierreDetalleAdminServiceResult =
       // (Q4); llega igual al alcance satelite por el mismo camino (R10).
       desgloseIngresoBodegaRechazos: { sla: string; manual: string; total: string };
       // DERIVADO: `totalesIngreso.total` - `cierre.totalPagoMensajero` (STRING money-safe).
-      // Lo que le queda a Ordenex del cierre. Puede ser NEGATIVO.
+      // Lo que le queda a la empresa del cierre. Puede ser NEGATIVO.
       ganancia: string;
       // DERIVADO: `cierre.totales.general` - `fleteConIva` - `comisionConIva` (STRING
       // money-safe). Lo que se le paga a la tienda. Puede ser NEGATIVO.

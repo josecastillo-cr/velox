@@ -11,18 +11,18 @@ import { ESTADO_CUENTA_TEXTO, textoAnulado } from "./estado-cuenta-labels";
 // estado: «anulado», el saldo corrido y el chip los decidió el servidor (R21, R71).
 
 /**
- * Los rótulos de UNA superficie: el diccionario de conceptos y de orígenes de su libro (desde Ordenex
+ * Los rótulos de UNA superficie: el diccionario de conceptos y de orígenes de su libro (desde la empresa
  * en la oficina). Los pone la página —`lib/` no importa textos de `app/`—, así que este módulo sirve a
  * los tres libros sin conocer ninguno.
  */
 export interface RotulosEstadoCuenta {
-  /** El nombre del concepto de la fila (desde Ordenex). */
+  /** El nombre del concepto de la fila (desde la empresa). */
   concepto: (fila: FilaEstadoCuentaDTO) => string;
   /** El origen legible de la fila, o `null` si no aplica. Nunca un identificador. */
   origen: (fila: FilaEstadoCuentaDTO) => string | null;
   /**
    * R25 — la leyenda de una fila ANULADA en esta superficie. Sin él, la de la oficina (`textoAnulado`:
-   * el día, quién y el motivo). `/mi-wallet` pone la suya: «Anulado por Ordenex», día y hora, motivo.
+   * el día, quién y el motivo). `/mi-wallet` pone la suya: «Anulado por la empresa», día y hora, motivo.
    */
   anulado?: (a: AnulacionDeFilaDTO) => string;
 }

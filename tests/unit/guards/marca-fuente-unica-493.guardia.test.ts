@@ -23,10 +23,9 @@ import {
   hallazgosMarcaAMano,
   hallazgosRetiradaEnCodigo,
   hallazgosRetiradaEnTextoPlano,
+  hallazgosRetiradaExigibles,
   importaIdentidad,
   leer,
-  lineaPermitidaEnDocs,
-  quitarIdentificadores,
   type Hallazgo,
 } from "@/tests/fixtures/marca-retirada-493";
 
@@ -52,30 +51,46 @@ const lista = (h: Hallazgo[]) => h.map(formatear);
 // ---------------------------------------------------------------------------------------------
 
 describe("493 — el detector de marca no esta roto", () => {
-  it("R15: ve la marca retirada en cadena, JSX y plantilla; ignora comentarios e identificadores", () => {
+  it("R15: ve la marca retirada en cualquier nodo de texto, tambien clave, valor o id; no lo que no es texto", () => {
     const infractor = [
       `const a = "Cobró Ordenex";`,
       `const b = <p>Ordenex · Guía</p>;`,
       "const c = `Total ${x} Ordenex`;",
+      // 494: lo que la excepcion R11 admitia ya no se admite.
+      `const k = "ordenex:descarga-columnas:cierres";`,
+      "const t = `ordenex:${evento}`;",
+      `const col = "ordenex";`,
+      `const z = "solo_ordenex";`,
+      `const g = "ganancia_ordenex";`,
     ].join("\n");
-    expect(hallazgosRetiradaEnCodigo(infractor).map((h) => h.linea)).toEqual([1, 2, 3]);
+    expect(hallazgosRetiradaEnCodigo(infractor).map((h) => h.linea)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
 
-    const sano = [
+    // Esto no es texto: lo vigila la guardia de la 494, que busca en texto plano.
+    const sinTexto = [
       `// Ordenex en un comentario`,
       `/* Ordenex */ const ingresoOrdenex = 1;`,
       `import { x } from "@/lib/utils/ingreso-ordenex";`,
       `vi.mock("@/lib/utils/ingreso-ordenex");`,
-      `const k = "ordenex:descarga-columnas:cierres";`,
-      "const t = `ordenex:${evento}`;",
-      `const col = { clave: "ordenex", z: "solo_ordenex", c: "ordenex_tema", g: "ganancia_ordenex" };`,
       `const e = <div>{/* Ordenex */}</div>;`,
+      // «orden» + «ex…» no es la marca.
+      `const o = "OrdenExistente ordenExigido";`,
     ].join("\n");
-    expect(hallazgosRetiradaEnCodigo(sano)).toEqual([]);
+    expect(hallazgosRetiradaEnCodigo(sinTexto)).toEqual([]);
   });
 
-  it("R15: en texto plano cada linea con la marca retirada es hallazgo salvo la permitida", () => {
+  it("R15: una sola lista de excepciones, la de la 494, con su alcance", () => {
+    const clave = `const k = "ordenex:sonido";`;
+    expect(hallazgosRetiradaExigibles(clave, "lib/audio/x.ts")).toHaveLength(1);
+    expect(hallazgosRetiradaExigibles(clave, "lib/navegador/claves-legadas.ts")).toEqual([]);
+    expect(hallazgosRetiradaExigibles(`const t = "Cobró Ordenex";`, "lib/navegador/claves-legadas.ts")).toHaveLength(1);
+    // E5.1 va por linea: en `public/sw.js` el alias se admite y otra clave no.
+    expect(hallazgosRetiradaExigibles(`const A = "ordenex:relevo-ahora";`, "public/sw.js")).toEqual([]);
+    expect(hallazgosRetiradaExigibles(clave, "public/sw.js")).toHaveLength(1);
+  });
+
+  it("R15: en texto plano cada linea con la marca retirada es hallazgo", () => {
     const md = "# Ayuda\nOrdenex te cobra.\nNada aqui.\nver ordenex-api-key.postman_collection.json\n";
-    expect(hallazgosRetiradaEnTextoPlano(md, "x.md", lineaPermitidaEnDocs).map((h) => h.linea)).toEqual([2]);
+    expect(hallazgosRetiradaEnTextoPlano(md, "x.md").map((h) => h.linea)).toEqual([2, 4]);
   });
 
   it("R1: ve la marca vigente escrita a mano; no lo que la interpola", () => {
@@ -97,27 +112,20 @@ describe("493 — el detector de marca no esta roto", () => {
     expect(importaIdentidad(`import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";`)).toBe(false);
   });
 
-  it("R16: en un test ve la marca dicha; admite identificadores, rutas y datos de prueba", () => {
-    const filtro = (t: string) => !/ordenex/i.test(quitarIdentificadores(t, { enTest: true }));
+  it("R16: en un test ve la marca en cualquier texto: dicha, identificador, ruta, dato de prueba o cabecera", () => {
     const malo = [
       `expect(label).toBe("Cobró Ordenex");`,
       `it("ORDENEX paga", () => {});`,
       `const r = "ganancia de ordenex";`,
       `const h = { "X-Ordenex-Signature": "sha256=x" };`,
-    ].join("\n");
-    expect(hallazgosRetiradaEnCodigo(malo, "t.test.ts", filtro).map((h) => h.linea)).toEqual([1, 2, 3, 4]);
-
-    const bueno = [
       `it("deOrdenex y NETO_ORDENEX_LABEL", () => {});`,
       `const p = "lib/utils/ingreso-ordenex.ts";`,
       `const s = "[data-bolsillo='ordenex']";`,
-      `const m = "no-reply@ordenex.co"; const u = "https://ordenex.app/paquete/1";`,
-      "it(\"`ordenex + tienda` cuadra\", () => {});",
+      `const m = "no-reply@ordenex.co";`,
+      `const u = "https://ordenex.app/paquete/1";`,
+      `not.toHaveProperty("X-Ordenex-Signature");`,
     ].join("\n");
-    expect(hallazgosRetiradaEnCodigo(bueno, "t.test.ts", filtro)).toEqual([]);
-    // La cabecera vieja solo se admite en las negativas de contrato (L5b).
-    expect(quitarIdentificadores(`not.toHaveProperty("X-Ordenex-Signature")`, { enTest: true, cabeceraPermitida: true })).not.toMatch(/ordenex/i);
-    expect(quitarIdentificadores(`not.toHaveProperty("X-Ordenex-Signature")`, { enTest: true })).toMatch(/ordenex/i);
+    expect(hallazgosRetiradaEnCodigo(malo, "t.test.ts").map((h) => h.linea)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   });
 
   it("contrato: ve la cabecera y el dominio viejos en texto; no en comentarios", () => {

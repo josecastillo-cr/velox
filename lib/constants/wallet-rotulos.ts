@@ -16,8 +16,8 @@ import type { WalletMovimientoCategoria, WalletOrigenTipo } from "@/lib/types/wa
 /**
  * Etiqueta legible de cada categoría (concepto) del libro.
  *
- * Ficha 461 (HD3, design §7.2, R42) — TODOS los conceptos se dicen DESDE ORDENEX y diciendo QUIÉN
- * LE PAGA A QUIÉN: «Ordenex le paga a una tienda», «Flete cobrado a la tienda», «Ordenex le cobra
+ * Ficha 461 (HD3, design §7.2, R42) — TODOS los conceptos se dicen DESDE LA EMPRESA y diciendo QUIÉN
+ * LE PAGA A QUIÉN: «la empresa le paga a una tienda», «Flete cobrado a la tienda», «la empresa le cobra
  * a una tienda». Sin siglas («contra-entrega», no «COD»; P9) y sin jerga («corrección», no
  * «ajuste»). Los nombres que estos sustituyen quedan RETIRADOS (design §7.9) y una guardia
  * (`tests/unit/guards/nombres-wallet-461.guardia.test.ts`) impide que vuelvan. `Record` total:
@@ -34,7 +34,7 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   ingreso_iva_flete: "IVA del flete cobrado a la tienda",
   ingreso_iva_flete_devolucion: "IVA del flete por devolución a origen cobrado a la tienda",
   ingreso_iva_comision_cod: "IVA de la comisión cobrado a la tienda",
-  // El cobro de Ordenex a una tienda (cargo, liquidez «cargo») y su reverso.
+  // El cobro de la empresa a una tienda (cargo, liquidez «cargo») y su reverso.
   ingreso_cobro_tienda: `${MARCA.nombre} le cobra a una tienda`,
   egreso_reverso_cobro_tienda: "Cobro a una tienda anulado",
   // Ficha 458-B (design §2.3, D7): la anulación de un cobro por rechazo, flete e IVA por separado.
@@ -46,11 +46,11 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   ingreso_reverso_pago_tienda: "Pago a una tienda anulado",
   egreso_pago_por_cuenta_tienda: `${MARCA.nombre} paga un gasto de una tienda`,
   ingreso_reverso_pago_por_cuenta_tienda: "Pago de un gasto de una tienda anulado",
-  // Ficha 457 (design §2, DH7): el pago de una tienda a Ordenex (nombre reservado por la 461 §7.8,
+  // Ficha 457 (design §2, DH7): el pago de una tienda a la empresa (nombre reservado por la 461 §7.8,
   // tomado aqui) y su anulacion.
   ingreso_abono_tienda: `Una tienda le paga a ${MARCA.nombre}`,
   egreso_reverso_abono_tienda: `Pago de una tienda a ${MARCA.nombre} anulado`,
-  // Lo que Ordenex gasta.
+  // Lo que la empresa gasta.
   egreso_pago_mensajero: `${MARCA.nombre} le paga a un mensajero`,
   egreso_sueldo: "Sueldo",
   egreso_gasto_variable: `Gasto de ${MARCA.nombreCorto}`,
@@ -58,7 +58,7 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
   // Categoría RESERVADA, sin escritor en el árbol: si aparece, alguien empezó a escribirla.
   egreso_gasto: `Otro gasto de ${MARCA.nombreCorto}`,
   egreso_indemnizacion: `Indemnización que ${MARCA.nombre} paga por un incidente`,
-  // Las correcciones de caja (antes «ajustes») y el capital de Ordenex.
+  // Las correcciones de caja (antes «ajustes») y el capital de la empresa.
   ingreso_ajuste: "Corrección de caja (suma)",
   egreso_ajuste: "Corrección de caja (resta)",
   ingreso_aporte_capital: "Aporte de dinero a la caja",
@@ -77,8 +77,8 @@ export const CATEGORIA_LABEL: Record<WalletMovimientoCategoria, string> = {
 /**
  * Etiqueta legible del origen de un movimiento.
  *
- * Ficha 461 (design §7.3, R42): los origenes tambien se dicen desde Ordenex y diciendo quien le paga a
- * quien («Pago de Ordenex a una tienda»); los rotulos de una sola palabra de antes quedan retirados
+ * Ficha 461 (design §7.3, R42): los origenes tambien se dicen desde la empresa y diciendo quien le paga a
+ * quien («Pago de la empresa a una tienda»); los rotulos de una sola palabra de antes quedan retirados
  * porque no decian que fue una PERSONA quien lo registro. `ORIGEN_TIENDA_LABEL` (el libro de la tienda) usa los MISMOS
  * textos para los origenes que comparte. `Record` total: un origen nuevo no compila sin su nombre.
  */
@@ -102,7 +102,7 @@ export const ORIGEN_LABEL: Record<WalletOrigenTipo, string> = {
   // El cargo del cobro y su reverso (servicio) y la linea completada por la migracion de datos (R37).
   cobro_tienda: `Cobro de ${MARCA.nombre} a una tienda`,
   cobro_tienda_completado: `Cobro de ${MARCA.nombre} a una tienda (línea de caja completada al corregir)`,
-  // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
+  // Ficha 457 (design §2): el documento del pago de una tienda a la empresa.
   abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
   // Ficha 498 (design §8.3): la fila de ajuste de la conciliacion de una satelite.
   conciliacion_bodega_ajuste: "Conciliación de satélite",
@@ -118,7 +118,7 @@ export const ORIGEN_LABEL: Record<WalletOrigenTipo, string> = {
  * escriben en este libro llevan igualmente su nombre (el de la caja, 461 §7.3).
  *
  * Ficha 461 (design §7.3): los MISMOS textos que `ORIGEN_LABEL` en el libro de la caja para los
- * origenes que comparten («Registrado a mano», «Pago de Ordenex a una tienda», «Pago de un gasto de
+ * origenes que comparten («Registrado a mano», «Pago de la empresa a una tienda», «Pago de un gasto de
  * una tienda»); y + `cobro_tienda`, el credito de la anulacion de un cobro. Los lee tambien la
  * oficina en `/wallet/tiendas` (que reexporta este objeto).
  */

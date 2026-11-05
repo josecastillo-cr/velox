@@ -18,7 +18,7 @@ const MOV: WalletMovimientoDTO = {
   descripcion: "Alquiler de bodega",
   registradoPor: "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e",
   fechaMovimiento: "2026-07-12T10:00:00.000Z",
-  dueno: "propio", // feature 231 (R31): un gasto fijo es dinero de Ordenex
+  dueno: "propio", // feature 231 (R31): un gasto fijo es dinero de la empresa
   documento: null, // ficha 459 (design §7.3): fila sin documento
 };
 

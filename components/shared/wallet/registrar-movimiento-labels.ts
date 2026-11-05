@@ -9,7 +9,7 @@ import { MARCA } from "@/lib/marca/identidad";
 //
 // Los textos que heredan de los diálogos anteriores (381, 459, 457) se conservan byte a byte: son lo
 // que la oficina ya lee, y cambiarlos aquí sería cambiar la wallet por la puerta de atrás. Los
-// nuevos siguen la regla de la 461 §7: desde Ordenex, quién le paga a quién, sin siglas.
+// nuevos siguen la regla de la 461 §7: desde la empresa, quién le paga a quién, sin siglas.
 //
 // Money-safe (R90): ningún texto calcula un importe. Los que llevan dinero reciben el STRING que
 // devolvió el SERVIDOR y lo formatean con `money`.
@@ -150,7 +150,7 @@ export const RESPUESTA_TEXTO = {
     `Este pago ya estaba registrado, por ${money(monto)}. ${fraseSaldoTienda(tienda, saldo, `La tienda todavía le debe ese dinero a ${MARCA.nombre}.`)}`,
   sinDeuda: "Esta tienda no tiene saldo en contra: no hay nada que pagar.",
   excedeDeuda: (deuda: string) => `La tienda debe ${money(deuda)}: el pago no puede superar ese importe.`,
-  /** 458-C — el pago de Ordenex a una tienda: lo que le queda a favor, del SERVIDOR. */
+  /** 458-C — el pago de la empresa a una tienda: lo que le queda a favor, del SERVIDOR. */
   pagoTienda: (tienda: string, monto: string, restante: string) =>
     `Pago de ${money(monto)} a ${tienda} registrado. ${MARCA.nombre} le sigue debiendo ${money(restante)}.`,
   sinSaldoTienda: "Esta tienda no tiene saldo a favor: no hay nada que pagar.",

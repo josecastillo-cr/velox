@@ -381,7 +381,7 @@ describe("458-C R39/R42/R43/R51 — cada concepto pide sus campos y manda SOLO s
     const fd = entradas(registrarCobroMock.mock.calls[0][0]);
     expect(Object.keys(fd).sort()).toEqual(["claveIdempotencia", "descripcion", "monto", "tiendaId"].sort());
     expect(fd.tiendaId).toBe(NORTE);
-    // R48: el aviso lleva el saldo del SERVIDOR, en negativo, y dice que la tienda le debe a Ordenex.
+    // R48: el aviso lleva el saldo del SERVIDOR, en negativo, y dice que la tienda le debe a la empresa.
     expect(successMock).toHaveBeenCalledWith(
       `Cobro registrado. El saldo de Tienda Norte queda en -₡15.000 · En contra. La tienda le debe ese dinero a ${NOMBRE_ESPERADO}.`,
     );

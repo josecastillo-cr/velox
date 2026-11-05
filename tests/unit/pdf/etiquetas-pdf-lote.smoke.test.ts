@@ -52,7 +52,7 @@ function contarPaginas(pdf: string): number {
 describe("buildEtiquetasLotePdf — smoke server-side sin mocks (R7)", () => {
   it("las dependencias de rasterizado corren en Node y devuelven PNG (R5/R6/R7)", async () => {
     // `qrcode` fuera del navegador: data URL PNG, sin canvas del DOM.
-    const qr = await QRCode.toDataURL("https://ordenex.test/paquete/1042", {
+    const qr = await QRCode.toDataURL("https://ejemplo.test/paquete/1042", {
       margin: 0,
       width: 256,
     });

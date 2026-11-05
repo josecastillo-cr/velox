@@ -17,13 +17,13 @@ export const MI_ESTADO_CUENTA_TEXTO = {
   cierresNoDisponibles: "No pudimos cargar tus cierres. Probá recargando la página.",
   sinCierres: "Todavía no hay cierres en tu wallet.",
   cierresRecientes: "Mostramos los cierres más recientes.",
-  /** R78 — la columna de la única acción por fila: ver el comprobante que subió Ordenex. */
+  /** R78 — la columna de la única acción por fila: ver el comprobante que subió la empresa. */
   comprobante: "Comprobante",
 } as const;
 
 /**
  * FICHA 458-D (revisión m3, R25 en `/mi-wallet`; decisión del leader, 2026-09-26) — la leyenda de un
- * movimiento anulado, dicha a la tienda: QUIÉN es Ordenex (nunca el nombre de la persona, que el
+ * movimiento anulado, dicha a la tienda: QUIÉN es la empresa (nunca el nombre de la persona, que el
  * servidor tampoco manda), el día y la hora de Costa Rica, y el motivo (o «motivo no registrado»).
  */
 export function textoAnuladoMiWallet(a: { motivo: string | null; fecha: string | null; hora: string | null }): string {

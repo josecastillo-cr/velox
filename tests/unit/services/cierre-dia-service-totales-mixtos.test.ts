@@ -23,7 +23,7 @@ import { SIN_BLOQUEO } from "@/lib/utils/bloqueo-cierre";
  *
  * `cierre_dia.total_efectivo` no es un número de pantalla: es la `E` con la que la feature 44
  * decide cuánto del pago debido `P` se le entrega YA al mensajero (porque ya lo tiene en la
- * mano, en efectivo) y cuánto le queda a deber Ordenex. Antes de esta ficha, una entrega de
+ * mano, en efectivo) y cuánto le queda a deber la empresa. Antes de esta ficha, una entrega de
  * ₡8.000 cobrada 5.000 en efectivo + 3.000 por transferencia metía los 8.000 ENTEROS en `E`:
  * el sistema creía que el mensajero llevaba encima 3.000 que en realidad estaban en una cuenta
  * bancaria, y le liquidaba de más contra un efectivo inexistente.
@@ -187,7 +187,7 @@ describe("R29 — el `min(P, E)` del pago al mensajero se calcula con ESA `E`", 
     expect(calcularSplitPago(P, E)).toEqual({
       devengado: "6000.00",
       pagado: "5000.00", // min(P, E) = el efectivo que de verdad lleva encima
-      pendiente: "1000.00", // lo que Ordenex le queda debiendo
+      pendiente: "1000.00", // lo que la empresa le queda debiendo
     });
   });
 

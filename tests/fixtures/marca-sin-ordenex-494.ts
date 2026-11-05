@@ -1,19 +1,17 @@
 // FEATURE 494 (T1.1, design §7) — EL DETECTOR DE LA GUARDIA «SIN ORDENEX».
 //
 // Vive aparte de la guardia (`tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts`) para que el
-// censo (`progress/censo_marca_494.md`) y el trinquete (`tests/fixtures/marca-pendientes-494.ts`)
-// salgan del MISMO codigo que juzga. A diferencia de la 493 no usa AST: ya no hay identificadores
-// admitidos, asi que basta con buscar texto plano en contenido y en rutas.
+// censo (`progress/censo_marca_494.md`) salga del MISMO codigo que juzga. A diferencia de la 493 no
+// usa AST: ya no hay identificadores admitidos, asi que basta con buscar texto plano en contenido y
+// en rutas.
 //
 // Lee el arbol con `fs`: el grafo no la relaciona con los diffs y `--rapido` puede no correrla.
 //
-// Regenerar, tras bajar apariciones en una tanda:
-//   pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes
+// Regenerar el censo:
 //   pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts censo
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 
 export const RAIZ = path.resolve(__dirname, "../..");
 
@@ -79,8 +77,10 @@ export const ARBOL_DIRS = [
   "docs/ayuda",
   "docs/api",
   ".claude/commands",
+  // Revision final (m5): corre en el navegador o describe el repo, y el glosario no los nombraba.
+  "providers",
 ] as const;
-export const ARBOL_ARCHIVOS = ["db/schema.prisma", "package.json", ".env.example", "DESIGN.md"] as const;
+export const ARBOL_ARCHIVOS = ["db/schema.prisma", "package.json", ".env.example", "DESIGN.md", "instrumentation.ts", "AGENTS.md", "README.md"] as const;
 const DENTRO_DE_ARBOL_PERO_FUERA = new Set(["docs/api/CHANGELOG.md"]);
 
 function recorrer(dir: string): string[] {
@@ -123,11 +123,6 @@ export interface Excepcion {
   rutas: readonly string[];
   /** Si existe, solo se exceptuan las lineas que lo cumplen. */
   linea?: RegExp;
-  /**
-   * Tarea que la enciende. Hasta entonces NO exceptua nada (lo suyo sigue contando en el trinquete)
-   * ni se le exige coincidencia: sus archivos aun no existen o aun no tienen la forma definitiva.
-   */
-  activaEn?: string;
 }
 
 export const EXCEPCIONES: readonly Excepcion[] = [
@@ -156,11 +151,18 @@ export const EXCEPCIONES: readonly Excepcion[] = [
   {
     id: "E5",
     motivo: "La clave vieja del navegador hay que poder leerla. Se retira con design §5.6.",
-    rutas: ["lib/navegador/claves-legadas.ts", "tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
+    rutas: ["tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"],
   },
   {
-    // Por linea y no por archivo, para que estos archivos sigan contando: `public/sw.js` no puede tener
-    // la marca en ningun otro sitio, y los tests aun llevan datos de prueba que limpia T8.1.
+    // Por linea (m4): el modulo solo puede nombrarla como clave entre comillas. Un texto visible con la marca sale rojo.
+    id: "E5.2",
+    motivo: "El modulo unico de las claves viejas del navegador (R20). Se retira con design §5.6.",
+    rutas: ["lib/navegador/claves-legadas.ts"],
+    linea: /"ordenex(?::[a-z-]+:?|_tema)?"/,
+  },
+  {
+    // Por linea y no por archivo, para que estos archivos sigan contando: ni `public/sw.js` ni sus tests
+    // pueden tener la marca en ningun otro sitio.
     id: "E5.1",
     motivo: "Alias de relevo del service worker (R21, R22) y los tests que los afirman. Se retiran con design §5.6.",
     rutas: ["public/sw.js", "tests/unit/guards/pwa-relevo-y-purga.guardia.test.ts", "tests/unit/hooks/usePushEnVentana.test.tsx"],
@@ -189,12 +191,6 @@ export const EXCEPCIONES: readonly Excepcion[] = [
     motivo: "Negativas: afirman que lo viejo no esta.",
     rutas: ["tests/unit/analytics/cache-clave-conteo-productos-494.test.ts", "tests/unit/api/contrato-sin-cambios-494.test.ts"],
   },
-  {
-    id: "E9",
-    motivo:
-      "Andamiaje de la ficha: el trinquete lista rutas que contienen la marca y el script lleva la tabla viejo→nuevo. No se pueden contar a si mismos. T8.2 borra los dos archivos y esta entrada.",
-    rutas: ["tests/fixtures/marca-pendientes-494.ts", "scripts/marca-494-renombrar.mjs"],
-  },
 ];
 
 const cubre = (ruta: string, rel: string) => (ruta.endsWith("/") ? rel.startsWith(ruta) : rel === ruta);
@@ -203,7 +199,6 @@ const cubre = (ruta: string, rel: string) => (ruta.endsWith("/") ? rel.startsWit
 export function estaExceptuado(rel: string, textoLinea: string | null, lista: readonly Excepcion[] = EXCEPCIONES): boolean {
   return lista.some(
     (e) =>
-      e.activaEn === undefined &&
       e.rutas.some((r) => cubre(r, rel)) &&
       (e.linea === undefined || (textoLinea !== null && e.linea.test(textoLinea))),
   );
@@ -226,12 +221,11 @@ function rutaTieneAparicion(ruta: string, linea: RegExp | undefined): boolean {
   });
 }
 
-/** R3: lo que ya no coincide con nada real, o no declara motivo. Las aun no activas no cuentan. */
+/** R3: lo que ya no coincide con nada real, o no declara motivo. */
 export function excepcionesMuertas(lista: readonly Excepcion[] = EXCEPCIONES): string[] {
   const acc: string[] = [];
   for (const e of lista) {
     if (e.motivo.trim() === "") acc.push(`${e.id}: sin motivo`);
-    if (e.activaEn !== undefined) continue;
     for (const r of e.rutas) {
       if (!rutaTieneAparicion(r, e.linea)) acc.push(`${e.id}: ${r} ya no coincide con ninguna aparicion`);
     }
@@ -240,7 +234,7 @@ export function excepcionesMuertas(lista: readonly Excepcion[] = EXCEPCIONES): s
 }
 
 // ---------------------------------------------------------------------------------------------
-// El censo del arbol y el trinquete
+// El censo del arbol
 // ---------------------------------------------------------------------------------------------
 
 export function hallazgosDeArchivo(rel: string): Hallazgo[] {
@@ -253,35 +247,6 @@ export function hallazgosDeArchivo(rel: string): Hallazgo[] {
 
 export function censoArbol(): Hallazgo[] {
   return archivosDelArbol().flatMap(hallazgosDeArchivo);
-}
-
-export function recuentoPorArchivo(hallazgos: readonly Hallazgo[]): Record<string, number> {
-  const acc: Record<string, number> = {};
-  for (const h of hallazgos) acc[h.archivo] = (acc[h.archivo] ?? 0) + 1;
-  return acc;
-}
-
-/**
- * Como el de la 493: `nuevos` = archivo fuera de la lista o por encima de su numero; `desfasados` =
- * por debajo de su numero. Los dos ponen rojo: subir es una regresion, y bajar sin actualizar la
- * cifra dejaria hueco para volver a subir sin que nadie se entere.
- */
-export function trinquete(
-  recuento: Readonly<Record<string, number>>,
-  pendientes: Readonly<Record<string, number>>,
-): { nuevos: string[]; desfasados: string[] } {
-  const nuevos: string[] = [];
-  const desfasados: string[] = [];
-  for (const [f, n] of Object.entries(recuento)) {
-    const tope = pendientes[f];
-    if (tope === undefined) nuevos.push(`${f}: ${n} (no esta en lo pendiente)`);
-    else if (n > tope) nuevos.push(`${f}: ${n} (su tope es ${tope})`);
-  }
-  for (const [f, tope] of Object.entries(pendientes)) {
-    const n = recuento[f] ?? 0;
-    if (n < tope) desfasados.push(`${f}: ${n} (anotado ${tope})`);
-  }
-  return { nuevos: nuevos.sort(), desfasados: desfasados.sort() };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -451,7 +416,7 @@ export function archivosDeHosts(): string[] {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Bloque proyecto (R31, R32). Activo desde T7.3/T7.4/T7.6; aqui solo el detector y su contraprueba.
+// Bloque proyecto (R31, R32)
 // ---------------------------------------------------------------------------------------------
 
 export const COLECCION_VIEJA = "docs/api/ordenex-api-key.postman_collection.json";
@@ -484,239 +449,65 @@ export function hallazgosReleaseB2B4(md: string): string[] {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Emision: trinquete y censo (mismo codigo que juzga)
+// Emision del censo (mismo codigo que juzga). El repo es publico: se cuenta, sin escribir valores.
 // ---------------------------------------------------------------------------------------------
 
-const RUTA_PENDIENTES = "tests/fixtures/marca-pendientes-494.ts";
 const RUTA_CENSO = "progress/censo_marca_494.md";
-const RUTA_SCRIPT = "scripts/marca-494-renombrar.mjs";
 
-export function emitirPendientes(hallazgos: readonly Hallazgo[]): string {
-  const r = recuentoPorArchivo(hallazgos);
-  const filas = Object.keys(r)
-    .sort()
-    .map((f) => `  ${JSON.stringify(f)}: ${r[f]},`);
-  return [
-    "// FEATURE 494 (T1.2, design §7) — LO QUE AUN FALTA, POR ARCHIVO Y CON SU NUMERO EXACTO (trinquete).",
-    "//",
-    "// GENERADO: no se edita a mano. `pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes`.",
-    "// Solo puede bajar con cada tanda. En un conflicto de merge se descarta y se regenera. T8.2 lo borra.",
-    "",
-    `/** ${hallazgos.length} apariciones en ${filas.length} archivos. */`,
-    "export const PENDIENTES_494: Readonly<Record<string, number>> = {",
-    ...filas,
-    "};",
-    "",
-  ].join("\n");
-}
-
-const TIPOS: readonly { tipo: string; dondeSeResuelve: string; re: RegExp }[] = [
-  {
-    tipo: "Dominio, URL o correo (valor no se versiona: repo publico)",
-    dondeSeResuelve: "Tanda 6 y 7 (§6, §3.5)",
-    re: /@ordenex|ordenex\.(co|app|test|cr|vercel)\b/i,
-  },
-  {
-    tipo: "Cabecera de firma vieja (negativa de contrato)",
-    dondeSeResuelve: "Tanda 7 (§3.5, fixture de ids retirados)",
-    re: /X-Ordenex-/i,
-  },
-  {
-    tipo: "Clave de navegador y protocolo del service worker",
-    dondeSeResuelve: "Tanda 1 (§5)",
-    re: /ordenex:[\w$<-]|ordenex_tema/,
-  },
-  {
-    tipo: "Nombre de la base local",
-    dondeSeResuelve: "E4, T7.1",
-    re: /:\d+\/ordenex|\/ordenex\b|ordenex_(prod|\d+|<|\[|\()|ordenex-f81/,
-  },
-  {
-    tipo: "Ruta de modulo o de archivo",
-    dondeSeResuelve: "Tanda 2 y T7.3 (§3.1, §9)",
-    re: /[\w/]-ordenex|ordenex-[\w]/i,
-  },
-  {
-    tipo: "Negativa con expresion regular o lista de marca",
-    dondeSeResuelve: "Tanda 7 (§3.5)",
-    re: /\/ordenex|ordenex\/[gi]/i,
-  },
-  {
-    tipo: "Identificador compuesto (`netoOrdenex`, `NETO_ORDENEX_LABEL`, `solo_ordenex`)",
-    dondeSeResuelve: "Tandas 2-4 (§3.1), y lo que no tape la tabla: abajo",
-    re: /\w(Ordenex|ORDENEX|_ordenex)|(ordenex[A-Z_]|Ordenex[A-Z_]|ORDENEX_)/,
-  },
-  {
-    tipo: "Palabra minuscula (clave, valor o variable: `.ordenex`, `\"ordenex\"`)",
-    dondeSeResuelve: "Tandas 3-4 por lista de rutas (§3.1)",
-    re: /\bordenex\b/,
-  },
-  {
-    tipo: "Palabra suelta en mayuscula (`Ordenex`, `ORDENEX`: comentario o dato de prueba)",
-    dondeSeResuelve: "Tanda 7 (§3.4)",
-    re: /\b(Ordenex|ORDENEX)\b/,
-  },
-];
-
-const SUPERFICIES = ["app", "components", "hooks", "lib", "public", "scripts", "e2e", "tests", "docs", ".claude", "db", "raiz"] as const;
-const superficie = (f: string) => {
-  const s = f.split("/")[0];
-  return (SUPERFICIES as readonly string[]).includes(s) ? s : "raiz";
-};
-
-const tipoDeAparicion = (lineaCompleta: string, enRuta: boolean) =>
-  enRuta ? { tipo: "Nombre de archivo o carpeta", dondeSeResuelve: "Tanda 2 y T7.3" } : (TIPOS.find((t) => t.re.test(lineaCompleta)) ?? { tipo: "Sin clasificar", dondeSeResuelve: "?" });
-
-// Formas en las que `empresa` seria un identificador con el que el nuevo nombre chocaria.
-const EMPRESA_DE_CODIGO = /\.empresa\b|^\s*empresa\??:|[{,]\s*empresa\??:|["'`]empresa["'`]|\b(?:const|let|var)\s+empresa\b/;
-const LITERAL_DESTINO_NAVEGADOR = /["'`]app:[\w-]|\bapp_tema\b/;
-
-interface Fila {
-  viejo: string;
-  nuevo: string;
-}
-interface Familia {
-  palabras: readonly Fila[];
-}
-
-async function tablaDelScript(): Promise<Readonly<Record<string, Familia>>> {
-  if (!existsSync(path.join(RAIZ, RUTA_SCRIPT))) return {};
-  const m = (await import(pathToFileURL(path.join(RAIZ, RUTA_SCRIPT)).href)) as { FAMILIAS: Record<string, Familia> };
-  return m.FAMILIAS;
-}
-
-const escaparRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-export async function emitirCenso(hallazgos: readonly Hallazgo[], sha: string): Promise<string> {
-  const familias = await tablaDelScript();
-  const filas = Object.values(familias).flatMap((f) => f.palabras);
-  const viejos = new Set(filas.map((f) => f.viejo));
-  const nuevos = [...new Set(filas.map((f) => f.nuevo))].filter((n) => /^\w+$/.test(n));
-
-  const cache = new Map<string, string[]>();
-  const lineaDe = (h: Hallazgo) => {
-    if (h.linea === 0) return "";
-    if (!cache.has(h.archivo)) cache.set(h.archivo, (leerTexto(h.archivo) ?? "").split("\n"));
-    return cache.get(h.archivo)?.[h.linea - 1] ?? "";
-  };
-
-  const porSuperficie = new Map<string, { archivos: Set<string>; n: number }>();
-  const porTipo = new Map<string, { dondeSeResuelve: string; archivos: Set<string>; n: number }>();
-  for (const h of hallazgos) {
-    const s = porSuperficie.get(superficie(h.archivo)) ?? { archivos: new Set<string>(), n: 0 };
-    s.n++;
-    s.archivos.add(h.archivo);
-    porSuperficie.set(superficie(h.archivo), s);
-    const t = tipoDeAparicion(lineaDe(h), h.linea === 0);
-    const e = porTipo.get(t.tipo) ?? { dondeSeResuelve: t.dondeSeResuelve, archivos: new Set<string>(), n: 0 };
-    e.n++;
-    e.archivos.add(h.archivo);
-    porTipo.set(t.tipo, e);
-  }
-
-  // Identificadores (corrida de caracteres de palabra con la marca) que la tabla no tapa.
-  const huecos = new Map<string, { n: number; archivos: Set<string> }>();
-  const archivosConMarca = [...new Set(hallazgos.filter((h) => h.linea > 0).map((h) => h.archivo))];
-  for (const f of archivosConMarca) {
-    const texto = leerTexto(f) ?? "";
-    for (const m of texto.matchAll(/(?<![@.\w-])\w*ordenex\w*/gi)) {
-      const t = m[0];
-      if (viejos.has(t) || /^(ordenex|Ordenex|ORDENEX)$/.test(t) || NO_ES_LA_MARCA.test(t)) continue;
-      if (/^[Oo]rdenEx[a-z]/.test(t.slice(t.search(/ordenex/i)))) continue;
-      const e = huecos.get(t) ?? { n: 0, archivos: new Set<string>() };
-      e.n++;
-      e.archivos.add(f);
-      huecos.set(t, e);
+export function censoPorExcepcion(lista: readonly Excepcion[] = EXCEPCIONES): { id: string; motivo: string; archivos: number; apariciones: number }[] {
+  // Solo lo versionado: `progress/` guarda logs locales ignorados que no son el repo.
+  const versionados = new Set(execFileSync("git", ["ls-files", "-z"], { cwd: RAIZ, maxBuffer: 1e9 }).toString("utf8").split("\0"));
+  return lista.map((e) => {
+    const archivos = new Set<string>();
+    let apariciones = 0;
+    for (const f of [...new Set(e.rutas.flatMap(archivosDeRuta))].filter((r) => versionados.has(r))) {
+      const texto = leerTexto(f);
+      const enNombre = e.linea === undefined ? hallazgosEnRuta(f).length : 0;
+      const lineas = texto?.split("\n") ?? [];
+      const enTexto = texto === null ? 0 : hallazgosEnTexto(texto, f).filter((h) => e.linea === undefined || e.linea.test(lineas[h.linea - 1] ?? "")).length;
+      if (enNombre + enTexto > 0) archivos.add(f);
+      apariciones += enNombre + enTexto;
     }
-  }
+    return { id: e.id, motivo: e.motivo, archivos: archivos.size, apariciones };
+  });
+}
 
-  // Lo que ya existe con el nombre de destino.
-  const prosaEmpresa = new Map<string, number>();
-  const codigoEmpresa: string[] = [];
-  const destinosCompuestos: string[] = [];
-  const destinosNavegador: string[] = [];
-  const reNuevos = nuevos.length ? new RegExp(`\\b(?:${nuevos.filter((n) => n !== "empresa").map(escaparRe).join("|")})\\b`) : null;
-  for (const f of archivosDelArbol()) {
-    const texto = leerTexto(f);
-    if (texto === null || estaExceptuado(f, null)) continue;
-    texto.split("\n").forEach((l, i) => {
-      if (reNuevos?.test(l)) destinosCompuestos.push(`${f}:${i + 1}`);
-      if (LITERAL_DESTINO_NAVEGADOR.test(l)) destinosNavegador.push(`${f}:${i + 1}`);
-      if (/\bempresa\b|\bEMPRESA\b/.test(l)) {
-        if (EMPRESA_DE_CODIGO.test(l)) codigoEmpresa.push(`${f}:${i + 1}`);
-        else prosaEmpresa.set(f, (prosaEmpresa.get(f) ?? 0) + 1);
-      }
-    });
-  }
-
-  const tabla = (cabecera: string[], cuerpo: (string | number)[][]) =>
-    [`| ${cabecera.join(" | ")} |`, `| ${cabecera.map(() => "---").join(" | ")} |`, ...cuerpo.map((c) => `| ${c.join(" | ")} |`)].join("\n");
-  const ordenN = <T extends { n: number }>(a: [string, T], b: [string, T]) => b[1].n - a[1].n || a[0].localeCompare(b[0]);
-
+export function emitirCenso(hallazgos: readonly Hallazgo[], sha: string): string {
   return [
-    "# 494 — Censo de la marca retirada",
+    "# 494 — Censo final de la marca retirada",
     "",
-    `> Emitido por \`tests/fixtures/marca-sin-ordenex-494.ts\` (\`pnpm exec tsx … censo\`) sobre \`${sha}\`. El trinquete, por archivo, está en \`${RUTA_PENDIENTES}\`.`,
-    "> El repo es público: dominios, URLs y correos solo se cuentan, sin escribir su valor. El clasificador de tipos es por línea y aproximado; el total no.",
+    `> Emitido por \`tests/fixtures/marca-sin-ordenex-494.ts\` (\`pnpm exec tsx … censo\`) sobre \`${sha}\`, con el mismo código que juzga la guardia. Sin valores: el repo es público.`,
+    "> El censo de partida y los de cada tanda están en el historial de este archivo.",
     "",
-    `**Total: ${hallazgos.length} apariciones en ${new Set(hallazgos.map((h) => h.archivo)).size} archivos**, fuera de excepciones activas.`,
+    `**Fuera de excepciones: ${hallazgos.length} apariciones.**`,
     "",
-    "## Por superficie",
+    ...hallazgos.map((h) => `- ${formatear(h)}`),
+    ...(hallazgos.length > 0 ? [""] : []),
+    "## Lo que se queda, por excepción",
     "",
-    tabla(
-      ["Superficie", "Archivos", "Apariciones"],
-      [...porSuperficie.entries()].sort(ordenN).map(([k, v]) => [k, v.archivos.size, v.n]),
-    ),
+    "Se cuenta la cadena en lo versionado, sin distinguir mayúsculas. E2 sube sola: incluye este archivo y la bitácora.",
     "",
-    "## Por tipo",
+    "| Id | Motivo | Archivos | Apariciones |",
+    "| --- | --- | --- | --- |",
+    ...censoPorExcepcion().map((c) => `| ${c.id} | ${c.motivo} | ${c.archivos} | ${c.apariciones} |`),
     "",
-    tabla(
-      ["Tipo", "Archivos", "Apariciones", "Dónde se resuelve"],
-      [...porTipo.entries()].sort(ordenN).map(([k, v]) => [k, v.archivos.size, v.n, v.dondeSeResuelve]),
-    ),
-    "",
-    "## Lo que ya existe con el nombre de destino (T1.3, design §3.1)",
-    "",
-    `- Identificadores de destino de la tabla (\`netoEmpresa\`, \`solo_empresa\`, …): **${destinosCompuestos.length}**${destinosCompuestos.length ? `: ${destinosCompuestos.join(", ")}` : ""}.`,
-    `- \`empresa\` con forma de código (\`.empresa\`, \`empresa:\`, \`"empresa"\`): **${codigoEmpresa.length}**${codigoEmpresa.length ? `: ${codigoEmpresa.join(", ")}` : ""}.`,
-    `- Destino de navegador (\`app:…\`, \`app_tema\`): **${destinosNavegador.length}**${destinosNavegador.length ? `: ${destinosNavegador.join(", ")}` : ""}.`,
-    `- \`empresa\`/\`EMPRESA\` en prosa (comentario, texto visible o nombre de un test), sin colisión: **${[...prosaEmpresa.values()].reduce((a, b) => a + b, 0)} líneas en ${prosaEmpresa.size} archivos**:`,
-    "",
-    tabla(
-      ["Archivo", "Líneas"],
-      [...prosaEmpresa.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([k, v]) => [`\`${k}\``, v]),
-    ),
-    "",
-    "## Identificadores que la tabla no tapa",
-    "",
-    "Ni en §3.1 ni en las filas añadidas al script. No son colisión: los resuelve la tarea que toque (T7.1 para los nombres de la base local, T8.1 para datos de prueba), o `tsc` y la guardia los señalan.",
-    "",
-    tabla(
-      ["Identificador", "Archivos", "Apariciones"],
-      [...huecos.entries()].sort(ordenN).map(([k, v]) => [`\`${k}\``, v.archivos.size, v.n]),
-    ),
+    "Fuera del árbol por motivo propio (`design.md §7`): `.design-work/**` y `design-*/`, borradores que no se ejecutan.",
     "",
   ].join("\n");
 }
 
 // ---------------------------------------------------------------------------------------------
-// CLI: `pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes|censo`
+// CLI: `pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts censo`
 // ---------------------------------------------------------------------------------------------
 
-async function principal(orden: string | undefined): Promise<void> {
+function principal(orden: string | undefined): void {
+  if (orden !== "censo") throw new Error("Uso: tsx tests/fixtures/marca-sin-ordenex-494.ts censo");
   const hallazgos = censoArbol();
-  if (orden === "pendientes") {
-    writeFileSync(path.join(RAIZ, RUTA_PENDIENTES), emitirPendientes(hallazgos));
-    console.log(`${RUTA_PENDIENTES}: ${hallazgos.length} apariciones en ${Object.keys(recuentoPorArchivo(hallazgos)).length} archivos`);
-  } else if (orden === "censo") {
-    const sha = execFileSync("git", ["rev-parse", "--short=8", "origin/dev"], { cwd: RAIZ }).toString().trim();
-    writeFileSync(path.join(RAIZ, RUTA_CENSO), await emitirCenso(hallazgos, sha));
-    console.log(`${RUTA_CENSO}: ${hallazgos.length} apariciones`);
-  } else {
-    throw new Error("Uso: tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes|censo");
-  }
+  const sha = execFileSync("git", ["rev-parse", "--short=8", "HEAD"], { cwd: RAIZ }).toString().trim();
+  writeFileSync(path.join(RAIZ, RUTA_CENSO), emitirCenso(hallazgos, sha));
+  console.log(`${RUTA_CENSO}: ${hallazgos.length} apariciones`);
 }
 
 if (process.argv[1] !== undefined && path.resolve(process.argv[1]) === path.resolve(__filename)) {
-  void principal(process.argv[2]);
+  principal(process.argv[2]);
 }

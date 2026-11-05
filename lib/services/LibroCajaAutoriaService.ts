@@ -43,7 +43,7 @@ function aCuenta(c: CuentaNombrada | undefined): AQuienDTO {
  *   pago_por_cuenta_tienda                la tienda y el beneficiario del documento
  *   cobro_tienda(_completado), cobro_manual_reclasificado   la tienda del cobro (el debito)
  *   abono_tienda                          la tienda que pago
- *   aporte_capital                        «Ordenex»
+ *   aporte_capital                        «la empresa»
  *   gasto / manual                        la anotacion (nombre libre); sin anotacion, «—». El
  *                                         contra-asiento, la de su original (revision M2, 458-E)
  *

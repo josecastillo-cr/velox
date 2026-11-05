@@ -25,7 +25,7 @@ import type { PagoTarifa } from "@/lib/interfaces/repositories/ITarifaZonaMensaj
  * cierre, leida de `cierre_sin_gestion`.
  *
  * NO es un resultado de gestion: es la AUSENCIA de uno. Por eso NO lleva —ni puede llevar— monto
- * cobrado, monto recibido, metodo de pago, pago al mensajero, ingreso de Ordenex, ingreso de
+ * cobrado, monto recibido, metodo de pago, pago al mensajero, ingreso de la empresa, ingreso de
  * bodega, indemnizacion, evidencia ni resultado (R10). Si algun dia aparece uno de esos campos
  * aqui, es un bug de diseño y no una mejora: la garantia de que esta lista no mueve un total
  * (R19/R20/R22) es que no hay nada que sumar.
@@ -181,7 +181,7 @@ export interface CierreGestionPendienteRow {
   // vista EN VIVO del mensajero (37) NO lo selecciona — la indemnizacion no es plata suya
   // (design §7.2), y no exponerlo en la consulta es mas fuerte que ocultarlo en la pantalla.
   indemnizacion: string | null;
-  // Desglose del ingreso de Ordenex + tarifa congelada, DERIVADO del snapshot. Solo lo
+  // Desglose del ingreso de la empresa + tarifa congelada, DERIVADO del snapshot. Solo lo
   // pueblan los repos de ADMIN (38/40): la vista en vivo del mensajero (37) no lo expone.
   ingresoEmpresa?: IngresoEmpresaDTO | null;
 }

@@ -157,17 +157,13 @@ const WHITELIST_FILES = new Set([
   // vez de declararlo deuda ajena y seguir. Alta por archivo, no por carpeta.
   "specs/122-analitica-alcance-por-rol/tasks.md",
   // Feature 86 (enmienda 2026-08-08): la landing publica replica el home de
-  // ordenex.co, y sus politicas de dano usan `embalaje` en su sentido ordinario
+  // sitio anterior, y sus politicas de dano usan `embalaje` en su sentido ordinario
   // del castellano —el material con que se protege un paquete—, copy tomado del
   // sitio publicado. Nada que ver con el value de `order_status` que este guard
   // persigue: no es un estado, no toca la base, no vuelve por la puerta de
   // atras. Alta por archivo (no por carpeta) para que si `app/_landing/` crece
   // con codigo que SI toque estados, el guard lo siga viendo.
   "app/_landing/LandingPoliticas.tsx",
-  // Feature 494: MISMO caso que los specs de arriba. El trinquete es generado y lista cada ruta con
-  // su recuento, entre ellas la de este guard; no contiene el value 'embalaje'. Alta por archivo.
-  // Sale con T8.2, que borra el trinquete.
-  "tests/fixtures/marca-pendientes-494.ts",
 ]);
 
 function toRelPosix(absPath: string): string {

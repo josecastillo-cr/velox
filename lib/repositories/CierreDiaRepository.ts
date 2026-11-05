@@ -447,7 +447,7 @@ export const WITH_DETALLE = {
     // determinista sin columna que mantener.
     pagos: { select: { metodo: true, monto: true }, orderBy: { metodo: "asc" } },
     // ⚠️ `indemnizacion` NO se selecciona A PROPOSITO. Esta es la proyeccion de la vista EN
-    // VIVO del MENSAJERO, y la indemnizacion es plata que Ordenex paga por el paquete, no del
+    // VIVO del MENSAJERO, y la indemnizacion es plata que la empresa paga por el paquete, no del
     // mensajero (R17/design §7.2). Dejarla fuera de la CONSULTA —y no solo de la pantalla— es
     // lo que impide que un cambio de UI la exponga sin que nadie lo decida.
     orden: {

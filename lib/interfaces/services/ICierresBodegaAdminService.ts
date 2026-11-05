@@ -74,10 +74,10 @@ export type CierreBodegaDetalleServiceResult =
       status: "ok";
       cierre: CierreBodegaResumen; // cabecera + totales agregados snapshot (R13)
       cierres: CierreBodegaDetalleCierre[]; // un elemento por cierre_dia incluido (R11)
-      // Ingreso de Ordenex AGREGADO de todo el cierre de bodega (suma de los cierre_dia).
+      // Ingreso de la empresa AGREGADO de todo el cierre de bodega (suma de los cierre_dia).
       totalesIngreso: TotalesIngresoEmpresa;
       // DERIVADO: `totalesIngreso.total` - `cierre.totalPagoMensajero` (STRING money-safe).
-      // Lo que le queda a Ordenex de toda la bodega. Puede ser NEGATIVO.
+      // Lo que le queda a la empresa de toda la bodega. Puede ser NEGATIVO.
       ganancia: string;
       // DERIVADO: `cierre.totales.general` - `fleteConIva` - `comisionConIva` (STRING
       // money-safe). Lo que se le paga a las tiendas. Puede ser NEGATIVO.

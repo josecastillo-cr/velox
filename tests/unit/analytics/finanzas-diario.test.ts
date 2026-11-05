@@ -22,7 +22,7 @@ function fila(
 describe("La derivación del dinero por día", () => {
   // `ingresos`/`egresos` son TODO lo que entró y salió (contra-entrega incluido) y `ganancia`
   // solo el dinero PROPIO. Es la partición de la feature 173, y por eso las tres no cuadran
-  // entre sí: es la diferencia entre «lo que pasó por la caja» y «lo que ganó Ordenex».
+  // entre sí: es la diferencia entre «lo que pasó por la caja» y «lo que ganó la empresa».
   it("separa el dinero propio del de terceros, como el resumen del wallet", () => {
     const dias = derivarFinanzasDiarias([
       fila("2026-08-15", "ingreso_flete", "ingreso", "100.00"),
@@ -46,7 +46,7 @@ describe("La derivación del dinero por día", () => {
     ]);
   });
 
-  // Ficha 457 (R19/R39, design §10): el pago de una tienda a Ordenex es EFECTIVO de terceros: cuenta
+  // Ficha 457 (R19/R39, design §10): el pago de una tienda a la empresa es EFECTIVO de terceros: cuenta
   // en los `ingresos` de su dia y su anulacion en los `egresos` del dia en que se anula; la ganancia
   // del dia no se mueve con ninguno de los dos (los fletes que la tienda debia ya se contaron al
   // aprobar el cierre). El cobro que la dejo en contra es un CARGO: sube la ganancia y no los ingresos.

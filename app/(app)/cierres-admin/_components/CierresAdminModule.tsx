@@ -74,8 +74,8 @@ import {
 // `moneyTope` lo usan los mensajes de la indemnizacion (feature 230 de `dev`); los tres
 // simbolos de tabla que `dev` importaba aqui se fueron con la tira de comprobantes.
 import { money, moneyTope } from "./cierre-detalle-shared";
-// FICHA 395: las tres cascadas del detalle («de quién es el dinero», lo que Ordenex le factura a
-// la tienda y lo que le queda a Ordenex). Viven en su propio archivo para que la pantalla de
+// FICHA 395: las tres cascadas del detalle («de quién es el dinero», lo que la empresa le factura a
+// la tienda y lo que le queda a la empresa). Viven en su propio archivo para que la pantalla de
 // dinero tenga nombre en el censo de identidades (`DineroIdentidadesEnPantalla`).
 import { CascadasCierreMensajero } from "./CascadasCierreMensajero";
 import {
@@ -345,7 +345,7 @@ const INDEMNIZACION_FALTAN =
 interface DetalleAbierto {
   cierre: CierreAdminResumen;
   grupos: CierreGrupos;
-  /** Ingreso de Ordenex del cierre por concepto (derivado del snapshot, money-safe). */
+  /** Ingreso de la empresa del cierre por concepto (derivado del snapshot, money-safe). */
   totalesIngreso: TotalesIngresoEmpresa;
   /**
    * Feature 102/R8/R10: desglose del ingreso de bodega por rechazos particionado por origen
@@ -1146,7 +1146,7 @@ export function CierresAdminModule({
                 : descargaHistoricoCierres(filtros)
             }
             catalogo={catalogoFiltros}
-            accion={(f) => descargarDatos("listarGestionesCierresAdminCompleto", f)}
+            accion={(f) => descargarDatos("listarGestionesCierresAdminCompletoV2", f)}
             disabled={pendientesCargando || historicoCargando}
             audiencia={audiencia}
           />
@@ -1255,7 +1255,7 @@ export function CierresAdminModule({
           <div className="flex max-h-[70vh] flex-col gap-6 overflow-y-auto pr-1">
             {/* FICHA 395 — DE QUIÉN ES EL DINERO, ANTES QUE NADA.
                 Va ARRIBA DEL TODO, y el sitio es la mitad del arreglo: lo primero que se leía al
-                abrir este detalle era «Pago a tienda» junto a «Total Ordenex», dos cifras sueltas
+                abrir este detalle era «Pago a tienda» junto a «Total Velox», dos cifras sueltas
                 que invitan a una resta que NO da. Ahora lo primero es la partición —recaudado
                 menos lo facturado igual a lo que gana la tienda—, que cierra siempre, y sólo
                 después el desglose de lo facturado y el pago de hoy. El comprobante entero sigue
@@ -1280,7 +1280,7 @@ export function CierresAdminModule({
 
             {/* El detalle es UNA sola lectura: el comprobante. Reemplazó a los paneles
                 sueltos + las 4 tablas por resultado (R6-R8) sin perder ningún dato: los
-                totales snapshot, el ingreso de Ordenex, la liquidación y las gestiones
+                totales snapshot, el ingreso de la empresa, la liquidación y las gestiones
                 (ahora en pestañas, con su desglose por fila) viven todos ahí dentro. */}
             <CierreFacturaDetalle
               cierre={detalle.cierre}

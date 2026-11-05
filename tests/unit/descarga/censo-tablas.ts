@@ -63,7 +63,7 @@
 // censada `con_descarga`). Tercera vez que este censo baja, y por el mismo motivo que las dos
 // anteriores: el registro no puede citar un archivo borrado. A diferencia de `OrdenesApartado`
 // y `ZonasModule`, aquí SÍ se pierde la capacidad: el mensajero no tiene otra pantalla donde
-// ver lo que Ordenex le debe, y así lo decidió el humano con el dato delante. Los totales
+// ver lo que la empresa le debe, y así lo decidió el humano con el dato delante. Los totales
 // VIGENTES los declara `cobertura-tablas.guardia.test.ts`, que los MIDE contra el árbol; aquí
 // no se copian para que no puedan divergir.
 

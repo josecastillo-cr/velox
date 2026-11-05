@@ -115,7 +115,7 @@ export const DETALLE_DINERO_TEXTOS = {
      * leen como dos cifras. Lo fija un caso de `ProductosTablaDinero.test.tsx` que compara este
      * texto contra esa constante, que es OTRA fuente y no ésta.
      *
-     * ⚠ NO SE SUMA A «Cobró Ordenex» y la pista lo dice de la única forma que sirve: diciendo
+     * ⚠ NO SE SUMA A «Cobró Velox» y la pista lo dice de la única forma que sirve: diciendo
      * lo que la cifra ES. `empresa` es exactamente flete + IVA y comisión + IVA, y «Para la
      * tienda» se calcula como la resta de eso contra lo recaudado; el fulfillment vive fuera de
      * esa igualdad, igual que el flete por rechazo de al lado.
@@ -180,7 +180,7 @@ function Importe({ valor }: { readonly valor: string | null }) {
  *
  * ⚠ PARA QUE SIRVE, Y POR QUE NO ES LO MISMO QUE `!== null`. Las otras cifras de este panel se
  * pintan SIEMPRE, con «—» cuando no las hay, porque su ausencia es en si misma una respuesta a
- * la pregunta que el usuario vino a hacer («¿cuanto cobro Ordenex?» → «todavia no se sabe»). El
+ * la pregunta que el usuario vino a hacer («¿cuanto cobro la empresa?» → «todavia no se sabe»). El
  * fulfillment no: la mayoria de las tiendas NO lo tiene contratado, y para ellas la cifra es un
  * `"0.00"` perfectamente cierto que se leeria como un concepto que les aplica y les salio en
  * cero. Una fila de ceros entre cinco importes con dato no informa: estorba. Por eso esta cifra
@@ -417,7 +417,7 @@ export function DineroProductoDetalle({
         {/* FICHA 449 — el servicio de bodega, la sexta y la ULTIMA, pegada al flete por rechazo
             porque las dos estan FUERA del reparto y por el mismo tipo de motivo: ninguna sale
             de la plata que el mensajero recogio. Va detras y no en medio del reparto a
-            proposito: entre «Cobró Ordenex» y «Para la tienda» se leeria como un tercer trozo
+            proposito: entre «Cobró Velox» y «Para la tienda» se leeria como un tercer trozo
             de lo recaudado, que es exactamente lo que NO es.
 
             ⚠ SOLO CUANDO HAY MONTO (ver `hayMonto`). Aparece y desaparece la SEXTA celda, no un

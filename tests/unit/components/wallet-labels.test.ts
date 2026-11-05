@@ -31,16 +31,16 @@ import {
 import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // =================================================================================================
-// FICHA 461 (T C.1, design §7.2/§7.3, HD3) — LOS NOMBRES DEL LIBRO DE LA CAJA, DESDE ORDENEX
+// FICHA 461 (T C.1, design §7.2/§7.3, HD3) — LOS NOMBRES DEL LIBRO DE LA CAJA, DESDE LA EMPRESA
 // =================================================================================================
 //
 // R42: la tabla, el filtro por concepto y la descarga del libro rotulan cada concepto con el nombre
-// desde Ordenex y cada origen con el suyo, y NUNCA con el valor tecnico. R50: la explicacion de «De
-// las tiendas» nombra lo que Ordenex les cobro y no dice que los cobros no pasan por la caja.
+// desde la empresa y cada origen con el suyo, y NUNCA con el valor tecnico. R50: la explicacion de «De
+// las tiendas» nombra lo que la empresa les cobro y no dice que los cobros no pasan por la caja.
 //
 // Los textos esperados van ESCRITOS A MANO, uno por uno, y no se leen de la fuente que los define:
 // comparar un diccionario contra si mismo esta siempre verde (leccion «asercion contra su propia
-// fuente»). Son el contrato aprobado por el humano (HD3): «siempre desde Ordenex y diciendo quien le
+// fuente»). Son el contrato aprobado por el humano (HD3): «siempre desde la empresa y diciendo quien le
 // paga a quien».
 
 /** design §7.2 — los 23 conceptos del libro de la caja, tal como se leen. */
@@ -68,7 +68,7 @@ const CONCEPTOS_ESPERADOS: Record<WalletMovimientoCategoria, string> = {
   egreso_ajuste: "Corrección de caja (resta)",
   ingreso_aporte_capital: "Aporte de dinero a la caja",
   egreso_reverso_aporte_capital: "Aporte de dinero a la caja anulado",
-  // Ficha 457 (design §2, DH7): el pago de una tienda a Ordenex toma el nombre que la 461 reservo.
+  // Ficha 457 (design §2, DH7): el pago de una tienda a la empresa toma el nombre que la 461 reservo.
   ingreso_abono_tienda: `Una tienda le paga a ${NOMBRE_ESPERADO}`,
   egreso_reverso_abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO} anulado`,
   // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, flete e IVA por separado.
@@ -97,7 +97,7 @@ const ORIGENES_ESPERADOS: Record<WalletOrigenTipo, string> = {
   cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
   cobro_tienda: `Cobro de ${NOMBRE_ESPERADO} a una tienda`,
   cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
-  // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
+  // Ficha 457 (design §2): el documento del pago de una tienda a la empresa.
   abono_tienda: `Pago de una tienda a ${NOMBRE_ESPERADO}`,
   // Ficha 498 (design §8.3).
   conciliacion_bodega_ajuste: "Conciliación de satélite",
@@ -119,7 +119,7 @@ describe(`461 — CATEGORIA_LABEL: cada concepto de la caja, desde ${NOMBRE_ESPE
   it(`⭑ 457 (R45/R53): el pago de una tienda a ${NOMBRE_ESPERADO} y su anulacion, con los nombres reservados por la 461`, () => {
     expect(CATEGORIA_LABEL.ingreso_abono_tienda).toBe(`Una tienda le paga a ${NOMBRE_ESPERADO}`);
     expect(CATEGORIA_LABEL.egreso_reverso_abono_tienda).toBe(`Pago de una tienda a ${NOMBRE_ESPERADO} anulado`);
-    // Distintos del cobro (Ordenex le cobra) y del pago de Ordenex a la tienda: la direccion del dinero
+    // Distintos del cobro (la empresa le cobra) y del pago de la empresa a la tienda: la direccion del dinero
     // es la contraria y el nombre lo dice.
     expect(CATEGORIA_LABEL.ingreso_abono_tienda).not.toBe(CATEGORIA_LABEL.ingreso_cobro_tienda);
     expect(CATEGORIA_LABEL.ingreso_abono_tienda).not.toBe(CATEGORIA_LABEL.egreso_pago_tienda);
@@ -283,7 +283,7 @@ describe("488 — los textos de la tarjeta de la caja (R11–R13, R17, R18)", ()
       `Las tiendas le deben a ${NOMBRE_ESPERADO}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
     );
     // Contraprueba escrita a mano: la frase retirada.
-    expect(CAJA_COMPOSICION_MENSAJE.solo_empresa).not.toMatch(/todo lo que hay en la caja es de Ordenex/);
+    expect(CAJA_COMPOSICION_MENSAJE.solo_empresa).not.toMatch(new RegExp(`todo lo que hay en la caja es de ${NOMBRE_ESPERADO}`));
   });
 
   it("R18: la nota de la diferencia dice que la ganancia no incluye el IVA", () => {

@@ -16,7 +16,7 @@ import type { HistorialAccionEntidad } from "@/lib/types/historial-accion";
 // ⚠️ Y LA REGLA QUE SOSTIENE R5: NINGUNA de estas fuentes es un dato del DESTINATARIO de una
 // orden, ni texto libre tecleado por una persona. Ni `destinatario`, ni `telefono_dest`, ni
 // `direccion`, ni `notas`, ni `motivo`, ni `descripcion`, ni `concepto`. `num_guia` es un
-// identificador de envio de Ordenex, no un dato personal; los nombres que si entran son los de
+// identificador de envio de la empresa, no un dato personal; los nombres que si entran son los de
 // OPERADORES (mensajero, tienda, actor), que es justo lo que la fila viene a registrar. Lo vigila
 // `tests/unit/guards/historial-accion-sin-datos-cliente.guardia.test.ts`.
 //
@@ -113,7 +113,7 @@ export interface FuentesEtiqueta {
   /** FICHA 459 (R78) — el saldo inicial o aporte se etiqueta por su CLASE. Nunca el motivo. */
   aporte_capital: { clase: "saldo_inicial" | "aporte" };
   /**
-   * FICHA 457 (R61–R63) — el pago de una tienda a Ordenex se etiqueta por el NOMBRE de la tienda y
+   * FICHA 457 (R61–R63) — el pago de una tienda a la empresa se etiqueta por el NOMBRE de la tienda y
    * nada mas: ni el motivo, ni la referencia, ni la ruta del comprobante (texto libre o ubicacion).
    */
   abono_tienda: { tiendaNombre: string | null };

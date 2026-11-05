@@ -153,7 +153,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* Paleta completa del sitio ordenex.co (fase 2 rebrand), como tokens de
+  /* Paleta completa del sitio anterior (fase 2 rebrand), como tokens de
      utilidad Tailwind v4 (bg-, text-, border- generados por color).
      Complementa a los tokens shadcn de arriba; no los reemplaza. */
   --color-brand: #f26419;
@@ -171,7 +171,7 @@
   --color-asfalto-9: #0d2444;
   --color-info: #1a56db;
   --color-ink-blue: #1d5fd4;
-  /* Hover del azul de acción, tomado del `--ink-blue-l` de ordenex.co. */
+  /* Hover del azul de acción, tomado del `--ink-blue-l` del sitio anterior. */
   --color-ink-blue-dark: #0b3880;
   --color-success: #10b981;
   --color-success-soft: #d1fae5;

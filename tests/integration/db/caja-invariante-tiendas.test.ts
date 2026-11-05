@@ -28,7 +28,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 // Sobre el escenario de la fase 0 (todos los caminos que escriben en la caja o en el libro de las
-// tiendas, sembrados por los SERVICIOS REALES; desde la 461 el cobro de Ordenex a la tienda B ya
+// tiendas, sembrados por los SERVICIOS REALES; desde la 461 el cobro de la empresa a la tienda B ya
 // escribe su CARGO en la caja) se ejecutan, uno a uno, los caminos nuevos de la 459 y de la 461.
 // Tras CADA paso se comprueba:
 //
@@ -73,7 +73,7 @@ const LEGADOS = new Prisma.Decimal(LEGADO_RECLASIFICADO).add(LEGADO_COMPLETADO).
 const COBRO_DEL_ESCENARIO = "2500.50";
 /**
  * FICHA 457 (T5.4, R23): un cobro GRANDE a la tienda B la deja EN CONTRA (7 015,62 − 20 000,00 = −12 984,38);
- * sobre esa deuda la tienda le paga 4 000,00 a Ordenex y luego ese pago se anula.
+ * sobre esa deuda la tienda le paga 4 000,00 a la empresa y luego ese pago se anula.
  */
 const COBRO_GRANDE_B = "20000.00";
 const PAGO_DE_B = "4000.00";
@@ -116,7 +116,7 @@ interface Medida {
   } | null;
   /** Los dos contra-asientos de la anulacion del cobro del escenario. */
   anulacion: { creditos: number; reversos: number; montoCredito: string; montoReverso: string } | null;
-  /** Ficha 457: las cuatro filas del pago de la tienda B a Ordenex y de su anulacion, por origen. */
+  /** Ficha 457: las cuatro filas del pago de la tienda B a la empresa y de su anulacion, por origen. */
   abono: {
     creditos: number;
     debitos: number;
@@ -280,7 +280,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
     await foto("anulacion del cobro");
 
     // ── FICHA 457 (T5.4, R23) ─────────────────────────────────────────────────────────────────
-    // 10 — un cobro GRANDE de Ordenex a la tienda B la deja EN CONTRA (la precondicion del pago, R14).
+    // 10 — un cobro GRANDE de la empresa a la tienda B la deja EN CONTRA (la precondicion del pago, R14).
     respuestas.cobroGrande = (
       await s.cobroTienda.registrarCobro(
         { claveIdempotencia: randomUUID(), tiendaId: esc.tiendaB, monto: COBRO_GRANDE_B, descripcion: "Cobro grande 457" },
@@ -289,7 +289,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
     ).status;
     await foto("cobro grande a la tienda B");
 
-    // 11 — la tienda B le PAGA a Ordenex (efectivo de terceros: sube «Entro», la cifra y «De las tiendas»).
+    // 11 — la tienda B le PAGA a la empresa (efectivo de terceros: sube «Entro», la cifra y «De las tiendas»).
     const pagoDeB = await s.abonoTienda.registrar(
       {
         claveIdempotencia: randomUUID(),
@@ -360,7 +360,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
     return { antes, pasos, estados, respuestas, reclasificada, completada, anulacion, abono };
   }
 
-  /** Ficha 457: las cuatro filas del pago de la tienda a Ordenex y de su anulacion, por su origen. */
+  /** Ficha 457: las cuatro filas del pago de la tienda a la empresa y de su anulacion, por su origen. */
   async function asientosDelAbono(tx: TxDeTest, abonoId: string): Promise<NonNullable<Medida["abono"]>> {
     const tienda = await tx.walletTiendaMovimiento.findMany({ where: { origenTipo: "abono_tienda", origenId: abonoId } });
     const caja = await tx.walletMovimiento.findMany({ where: { origenTipo: "abono_tienda", origenId: abonoId } });
@@ -624,7 +624,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
     // ganancia sube 20 000,00; la tienda B queda EN CONTRA.
     expect(cambio(10)).toEqual({ ...nada, deTerceros: `-${COBRO_GRANDE_B}`, ganancia: COBRO_GRANDE_B, saldoTiendaB: `-${COBRO_GRANDE_B}` });
     expect(pasos[10].saldoTiendaB).toBe("-12984.38"); // 7 015,62 − 20 000,00
-    // 11 — el pago de la tienda a Ordenex (R19, DH1): «Entro», la cifra principal y «De las tiendas» suben
+    // 11 — el pago de la tienda a la empresa (R19, DH1): «Entro», la cifra principal y «De las tiendas» suben
     // 4 000,00 y el saldo de B sube lo mismo; la ganancia y el capital NO se mueven.
     // Mutaciones 2 y 3 de §13 (propio / cargo) → aqui la ganancia se moveria o la cifra no.
     expect(cambio(11)).toEqual({ ...nada, enCaja: PAGO_DE_B, deTerceros: PAGO_DE_B, saldoTiendaB: PAGO_DE_B });
@@ -651,7 +651,7 @@ describeSiHayBase("⭑ 459/T B.14 → 461/T B.12 — R7 y R8 al centimo tras cad
     });
     expect(menos(pasos[14].lectura.resumen.entradas, pasos[13].lectura.resumen.entradas)).toBe("0.00");
     expect(menos(pasos[14].lectura.resumen.salidas, pasos[13].lectura.resumen.salidas)).toBe("0.00");
-    // 15 — la indemnizacion: sale dinero de Ordenex (cifra y ganancia −700,00).
+    // 15 — la indemnizacion: sale dinero de la empresa (cifra y ganancia −700,00).
     expect(cambio(15)).toEqual({ ...nada, enCaja: `-${INDEMNIZACION_458}`, ganancia: `-${INDEMNIZACION_458}` });
     // 16 — su anulacion: vuelve el dinero (cifra y ganancia +700,00), nada mas.
     expect(cambio(16)).toEqual({ ...nada, enCaja: INDEMNIZACION_458, ganancia: INDEMNIZACION_458 });

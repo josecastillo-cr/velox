@@ -55,15 +55,15 @@ export const WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED = [
   // DISTINGUIR un cobro de una correccion compensatoria, y esa distincion no puede apoyarse en la
   // `descripcion`, que es texto libre tecleado por una persona.
   "cobro_manual",
-  // FICHA 459 (design §4.1/§5): el pago que Ordenex hace POR CUENTA de la tienda (debito) y su
+  // FICHA 459 (design §4.1/§5): el pago que la empresa hace POR CUENTA de la tienda (debito) y su
   // anulacion (credito). Contrapartida en la caja: `egreso_pago_por_cuenta_tienda` / su reverso.
   "pago_por_cuenta",
   "pago_por_cuenta_anulado",
-  // FICHA 461 (design §2.1, HD1): la ANULACION de un cobro de Ordenex a la tienda (credito). Le
+  // FICHA 461 (design §2.1, HD1): la ANULACION de un cobro de la empresa a la tienda (credito). Le
   // devuelve el monto del cobro; su contrapartida en la caja es `egreso_reverso_cobro_tienda`.
   "cobro_tienda_anulado",
-  // FICHA 457 (design §0/§4, DH1): el PAGO DE UNA TIENDA A ORDENEX (credito: la tienda con saldo en
-  // contra le entrega dinero a Ordenex y su saldo sube) y su ANULACION (debito). Contrapartida en la
+  // FICHA 457 (design §0/§4, DH1): el PAGO DE UNA TIENDA A LA EMPRESA (credito: la tienda con saldo en
+  // contra le entrega dinero a la empresa y su saldo sube) y su ANULACION (debito). Contrapartida en la
   // caja: `ingreso_abono_tienda` / `egreso_reverso_abono_tienda` (terceros, efectivo).
   "abono_tienda",
   "abono_tienda_anulado",
@@ -245,7 +245,7 @@ export type ListarMovimientosTiendaCompletoResult =
  * Feature 171 (design §2.1, R7/R8/R10) — cabecera del desglose: TRES cubetas exhaustivas
  * sobre el ledger + el saldo que se deriva de ellas.
  *
- * `pagado` esta separado de `cargos` a proposito: es lo que Ordenex le pago a la tienda o pago
+ * `pagado` esta separado de `cargos` a proposito: es lo que la empresa le pago a la tienda o pago
  * por ella (`pago_tienda` de la 172, `pago_por_cuenta` de la 459), leido de las categorias REALES
  * del ledger. Si «pagado» se plegara dentro de «cargos», nadie podria distinguir *lo que te
  * cobre* de *lo que ya te pague* mirando la pantalla. (Ficha 458-A, T2: el comentario de la 171
@@ -374,7 +374,7 @@ export const registrarCobroTiendaSchema = z
 
 export type RegistrarCobroTiendaInput = z.infer<typeof registrarCobroTiendaSchema>;
 
-// ── FICHA 461 — ANULAR UN COBRO de Ordenex a una tienda (R10–R19) ──
+// ── FICHA 461 — ANULAR UN COBRO de la empresa a una tienda (R10–R19) ──
 
 /**
  * FICHA 461 (R13/R14) — el BORDE de la anulacion: el cobro y un motivo. SIN monto, y `.strict()`

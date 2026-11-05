@@ -146,7 +146,7 @@ function buildDetalleService(): IDetalleMovimientoService {
 }
 
 /**
- * FICHA 381 → 461 (T F.2 / T B.9) — COMPOSITION ROOT del cobro de Ordenex a una tienda.
+ * FICHA 381 → 461 (T F.2 / T B.9) — COMPOSITION ROOT del cobro de la empresa a una tienda.
  *
  * Cablea el servicio con SUS CINCO dependencias:
  *
@@ -493,7 +493,7 @@ export async function registrarCobroTiendaAction(
 }
 
 /**
- * FICHA 461 (T B.9, R10–R18; design §6, P8) — ANULAR UN COBRO de Ordenex a una tienda, con motivo.
+ * FICHA 461 (T B.9, R10–R18; design §6, P8) — ANULAR UN COBRO de la empresa a una tienda, con motivo.
  *
  * Vive aqui, junto a `registrarCobroTiendaAction`, y comparte su composition root: son las dos
  * unicas escrituras del cobro y el mismo servicio las hace. Mismo orden que su hermana y por los

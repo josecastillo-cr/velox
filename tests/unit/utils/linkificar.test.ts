@@ -94,19 +94,19 @@ describe("linkificar (R33/R34)", () => {
 
   it("R33: `www.` sin esquema se enlaza a https, y el texto visible NO gana el esquema", () => {
     // Decision humana: en WhatsApp ese mismo mensaje se ve como enlace, asi que aqui tambien.
-    const segmentos = linkificar("entra a www.ordenex.co por favor");
+    const segmentos = linkificar("entra a www.ejemplo.co por favor");
     const enlace = segmentos.find((s) => s.tipo === "enlace");
 
     expect(enlace).toEqual({
       tipo: "enlace",
-      valor: "www.ordenex.co",
-      href: "https://www.ordenex.co",
+      valor: "www.ejemplo.co",
+      href: "https://www.ejemplo.co",
     });
-    expect(segmentos.map((s) => s.valor).join("")).toBe("entra a www.ordenex.co por favor");
+    expect(segmentos.map((s) => s.valor).join("")).toBe("entra a www.ejemplo.co por favor");
   });
 
   it("R34: el href construido para `www.` pasa por la MISMA barrera de esquema", () => {
-    for (const s of linkificar("www.ordenex.co/guia?x=1")) {
+    for (const s of linkificar("www.ejemplo.co/guia?x=1")) {
       if (s.tipo === "enlace") expect(s.href.startsWith("https://")).toBe(true);
     }
   });
@@ -114,7 +114,7 @@ describe("linkificar (R33/R34)", () => {
   it("un dominio suelto sin esquema ni `www.` NO se enlaza (decision, no olvido)", () => {
     // Enlazar `algo.co` obliga a enlazar tambien `5.30pm`: el humano prefirio el falso
     // NEGATIVO raro al falso POSITIVO constante.
-    expect(linkificar("ordenex.co/guia").some((s) => s.tipo === "enlace")).toBe(false);
+    expect(linkificar("ejemplo.co/guia").some((s) => s.tipo === "enlace")).toBe(false);
   });
 
   it("una hora escrita con punto NO se convierte en enlace", () => {
@@ -155,9 +155,9 @@ describe("hrefSeguro — chequeo de protocolo (R34, segunda barrera)", () => {
   });
 
   it("http y https si, y al `www.` se le antepone https antes del MISMO chequeo", () => {
-    expect(hrefSeguro("https://ordenex.co/guia")).toBe("https://ordenex.co/guia");
-    expect(hrefSeguro("http://ordenex.co")).toBe("http://ordenex.co");
-    expect(hrefSeguro("www.ordenex.co")).toBe("https://www.ordenex.co");
-    expect(hrefSeguro("WWW.ordenex.co")).toBe("https://WWW.ordenex.co");
+    expect(hrefSeguro("https://ejemplo.co/guia")).toBe("https://ejemplo.co/guia");
+    expect(hrefSeguro("http://ejemplo.co")).toBe("http://ejemplo.co");
+    expect(hrefSeguro("www.ejemplo.co")).toBe("https://www.ejemplo.co");
+    expect(hrefSeguro("WWW.ejemplo.co")).toBe("https://WWW.ejemplo.co");
   });
 });

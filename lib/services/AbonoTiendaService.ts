@@ -100,8 +100,8 @@ export function aAbonoTiendaDTO(r: AbonoTiendaRegistro): AbonoTiendaDTO {
 }
 
 /**
- * FICHA 457 (design §5) — el PAGO DE UNA TIENDA A ORDENEX: una tienda con saldo en contra le entrega
- * dinero a Ordenex. En UNA transaccion: el documento y su historial, el CREDITO en el libro de la tienda
+ * FICHA 457 (design §5) — el PAGO DE UNA TIENDA A LA EMPRESA: una tienda con saldo en contra le entrega
+ * dinero a la empresa. En UNA transaccion: el documento y su historial, el CREDITO en el libro de la tienda
  * y la ENTRADA en la caja como dinero de TERCEROS (DH1), con el MISMO monto y el MISMO instante (R17,
  * R20). Sube «Entro», la cifra principal y «De las tiendas»; NO toca la ganancia ni el capital (R19).
  * Solo con saldo en contra (R14) y hasta lo que la tienda debe (R15), leidos BAJO el candado (R16).
@@ -113,7 +113,7 @@ export class AbonoTiendaService implements IAbonoTiendaService {
       IWalletTiendaMovimientoRepository,
       "crearMovimientos" | "agregarSaldoPorTienda"
     >,
-    /** R16/R38 — el MISMO candado de tienda que toman el pago de Ordenex a esa tienda y el pago de un gasto. */
+    /** R16/R38 — el MISMO candado de tienda que toman el pago de la empresa a esa tienda y el pago de un gasto. */
     private readonly candado: Pick<ILiquidacionPagoRepository, "bloquearBeneficiario">,
     private readonly usuarioRepo: Pick<IUserRepository, "obtenerCuentaTienda">,
     /** Obligatorio: sin caja no se construye (R65: un credito a una tienda sin contrapartida es lo que D3 prohibia). */

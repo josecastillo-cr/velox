@@ -260,7 +260,7 @@ function puntosPorcentuales(fraccion: number | null): number | null {
  * fila no tiene ninguna orden que aporte) y, aun teniendolo, `empresa`, `tienda`, `retorno` y
  * —desde la ficha 449— `fulfillment` pueden ser `null` (no hay nada liquidado, R30). Los dos
  * casos salen como `null` y ninguno se rellena con un cero: un `0,00` en la columna «Cobró
- * Ordenex» afirma que Ordenex no cobro nada, cuando lo cierto es que todavia no se sabe.
+ * la empresa» afirma que la empresa no cobro nada, cuando lo cierto es que todavia no se sabe.
  *
  * ⚠ Y AL REVES: un `"0.00"` que SI llego se escribe. Es el caso del `fulfillment` de una tienda
  * que no hace bodega —hay ordenes liquidadas y ninguna cobro— y es un hecho distinto del vacio.

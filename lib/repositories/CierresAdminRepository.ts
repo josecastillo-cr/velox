@@ -348,7 +348,7 @@ function toTarifaSnapshot(d: DetalleAdminRow): TarifaSnapshotDTO | null {
 }
 
 /**
- * Deriva el desglose del ingreso de Ordenex de UNA gestion desde el snapshot, con la MISMA
+ * Deriva el desglose del ingreso de la empresa de UNA gestion desde el snapshot, con la MISMA
  * `derivarIngresoOrden` que alimenta las wallets al aprobar: si el admin viera una formula
  * y la liquidacion usara otra, el descuadre seria invisible. Por eso aca no se re-implementa
  * nada, solo se serializa lo que la funcion devuelve.

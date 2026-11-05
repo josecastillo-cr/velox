@@ -175,7 +175,7 @@ describe("478/R19 — causa, indemnización y fulfillment en la fila desplegada"
  * FICHA 481 — el fulfillment de la fila desplegada es dato de la CENTRAL (pedido humano): lo ve
  * la audiencia `admin` (maestro/admin) y NO lo ven ni el `adminSatelite` (`satelite`) ni el
  * mensajero. Lo demás de la fila no cambia para la satélite: se afirma el pago al mensajero y la
- * cifra «Total Ordenex» de la fila para que un recorte de más también se ponga rojo.
+ * cifra «Total Velox» de la fila para que un recorte de más también se ponga rojo.
  */
 describe("481 — fulfillment solo para la central", () => {
   const BOTON = "Desglose de ingreso de la orden REM-E1 · Carla Entregada";

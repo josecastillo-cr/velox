@@ -18,8 +18,8 @@ import { DETALLE_MI_MOVIMIENTO_NOMBRE } from "./detalle-mi-movimiento-labels";
 import { DETALLE_DESCARGA_MI_WALLET } from "./mi-estado-cuenta-descarga-columnas";
 import { MI_ESTADO_CUENTA_TEXTO, textoAnuladoMiWallet } from "./mi-estado-cuenta-labels";
 import { opcionesDeCierre, type CierresDeLaTienda } from "./mi-wallet-cierres";
-// Ficha 461 (R44, P4): la tienda lee su libro DESDE LA TIENDA («Ordenex te cobró»), no con el nombre
-// desde Ordenex que ve la oficina en `/wallet/tiendas`.
+// Ficha 461 (R44, P4): la tienda lee su libro DESDE LA TIENDA («la empresa te cobró»), no con el nombre
+// desde la empresa que ve la oficina en `/wallet/tiendas`.
 import { CATEGORIA_MI_WALLET_LABEL, ORIGEN_TIENDA_LABEL } from "./mi-wallet-labels";
 import { descargarDatos } from "@/components/shared/descarga-datos";
 
@@ -31,8 +31,8 @@ import { descargarDatos } from "@/components/shared/descarga-datos";
 //
 // Lo propio de esta superficie:
 //  - sin acciones, sin «Ver» con «Anular…» y sin adjuntar (R35): la única acción por fila es ver el
-//    comprobante que subió Ordenex (R78), por el destino de SU fila;
-//  - sin los nombres de la gente de Ordenex: el servidor no los manda (`registro` vacío, `anulacion.por`
+//    comprobante que subió la empresa (R78), por el destino de SU fila;
+//  - sin los nombres de la gente de la empresa: el servidor no los manda (`registro` vacío, `anulacion.por`
 //    nulo) y la pantalla no pinta la línea «Registró» (`vista="tienda"`);
 //  - su selector de cierre de siempre (335: día y número de movimientos, sin el mensajero, R10), con
 //    las opciones leídas en el servidor;
@@ -54,7 +54,7 @@ function categoria(f: FilaEstadoCuentaDTO): WalletTiendaMovimientoCategoria {
 export const ROTULOS_MI_WALLET: RotulosEstadoCuenta = {
   concepto: (f) => CATEGORIA_MI_WALLET_LABEL[categoria(f)] ?? f.categoria,
   origen: (f) => ORIGEN_TIENDA_LABEL[f.origenTipo as WalletOrigenTipo] ?? null,
-  // R25 (decisión del leader, revisión m3): «Anulado por Ordenex», día y hora de Costa Rica y motivo.
+  // R25 (decisión del leader, revisión m3): «Anulado por la empresa», día y hora de Costa Rica y motivo.
   anulado: textoAnuladoMiWallet,
 };
 

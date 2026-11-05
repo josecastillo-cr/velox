@@ -1,3 +1,4 @@
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -17,7 +18,7 @@ describe("Feature 492 — titulo de la documentacion de la API (R20)", () => {
   it("la pagina /api-docs lleva el titulo en su <title>", async () => {
     const html = await GET().text();
     expect(html).toContain(`<title>${TITULO}</title>`);
-    expect(html).not.toMatch(/<title>[^<]*Ordenex/);
+    expect(html).not.toMatch(new RegExp(`<title>[^<]*${MARCA_RETIRADA}`));
   });
 
   it("el spec OpenAPI servido se titula igual", () => {

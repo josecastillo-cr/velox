@@ -317,7 +317,7 @@ export function montarServicios459(tx: TxDeTest) {
       egresos: new EgresoCajaDocumentosRepository(c),
       indemnizaciones: new IndemnizacionDocumentosRepository(c),
       rechazos: new RechazoTiendaCobroAnulacionRepository(c),
-      // Ficha 458-C (revision B3, R71): el pago de Ordenex a una tienda y el premio del ranking.
+      // Ficha 458-C (revision B3, R71): el pago de la empresa a una tienda y el premio del ranking.
       pagosATienda: new PagoTiendaCajaDocumentosRepository(c),
       premios: new PremioCajaDocumentosRepository(c),
     }, undefined, busquedaPorGuiaDe(c)), // FICHA 469: como `buildService()`, con la busqueda por guia
@@ -342,7 +342,7 @@ export function montarServicios459(tx: TxDeTest) {
       ((fn: (t: never) => Promise<unknown>) =>
         c.$transaction((t) => fn(t as never))) as unknown as AporteCapitalTxRunner,
     ),
-    // Ficha 457 (T5.4) — el pago de una tienda a Ordenex, cableado como su `buildService()`: el puerto
+    // Ficha 457 (T5.4) — el pago de una tienda a la empresa, cableado como su `buildService()`: el puerto
     // de caja REAL, el MISMO candado (`LiquidacionPagoRepository`) y el repositorio del documento.
     abonoTienda: new AbonoTiendaService(
       new AbonoTiendaRepository(c),

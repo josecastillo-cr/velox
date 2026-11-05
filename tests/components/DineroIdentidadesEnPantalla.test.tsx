@@ -281,8 +281,8 @@ afterEach(cleanup);
  *   ingresosPropios − egresosPropios = ganancia
  *
  * FICHA 459 (T A.8) — la segunda identidad era «terceros + ganancia = en caja». Desde
- * la 459 la cifra principal tiene TRES sumandos: el capital de Ordenex (saldo inicial y
- * aportes) es dinero de Ordenex que no es ganancia (R6/R7). El conjunto lleva un capital
+ * la 459 la cifra principal tiene TRES sumandos: el capital de la empresa (saldo inicial y
+ * aportes) es dinero de la empresa que no es ganancia (R6/R7). El conjunto lleva un capital
  * DISTINTO de cero y con céntimos: con capital 0 la identidad vieja y la nueva serían la
  * misma y el caso no distinguiría nada. Es el contrato, reescrito a conciencia.
  *
@@ -349,7 +349,7 @@ describe("ficha 359 · B1 — la tarjeta de la caja: las tres identidades (459: 
     const ganancia = leerImporte(
       screen.getByRole("region", { name: CAJA_RESUMEN_LABEL.ganancia }),
     );
-    // Ficha 459 (R25): el capital es su propia región, dentro del bolsillo de Ordenex.
+    // Ficha 459 (R25): el capital es su propia región, dentro del bolsillo de la empresa.
     const capital = leerImporte(
       screen.getByRole("region", { name: CAJA_RESUMEN_LABEL.capital }),
     );
@@ -370,7 +370,7 @@ describe("ficha 359 · B1 — la tarjeta de la caja: las tres identidades (459: 
     laCuentaCierra([enCaja, salidas], entradas, "caja: entradas − salidas");
     // Identidad 2 — ficha 459 (R7): terceros + ganancia + capital = cifra principal.
     laCuentaCierra([terceros, ganancia, capital], enCaja, "caja: terceros + ganancia + capital");
-    // Identidad 3 — el bolsillo de Ordenex, por dentro.
+    // Identidad 3 — el bolsillo de la empresa, por dentro.
     laCuentaCierra([ganancia, egresos], ingresos, "caja: ingresos − egresos");
   });
 
@@ -686,8 +686,8 @@ describe("ficha 359 · B3 — reparto al mensajero: el máximo que se anuncia es
 // archivo mata.
 //
 //   R6  recaudado − flete − comisión            = para la tienda
-//   R7  cobrado + flete por devolución a origen             = lo que Ordenex facturó
-//   R8  facturado − mensajeros − gana la bodega = neto de Ordenex
+//   R7  cobrado + flete por devolución a origen             = lo que la empresa facturó
+//   R8  facturado − mensajeros − gana la bodega = neto de la empresa
 //   R9  recaudado − mensajeros − gana la bodega = para la central
 // ---------------------------------------------------------------------------
 

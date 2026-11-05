@@ -53,7 +53,7 @@ export interface FilaComposicionProps {
   /** Los filtros vigentes de la wallet, que bajan hasta el detalle (R20). */
   filtros: WalletFiltrosValue;
   /**
-   * R10 — aclaracion opcional bajo el importe. Hoy solo la lleva «Otros gastos de Ordenex»,
+   * R10 — aclaracion opcional bajo el importe. Hoy solo la lleva «Otros gastos de la empresa»,
    * cuando el SERVIDOR dice que ahi queda dinero sin clasificar.
    */
   pista?: string;

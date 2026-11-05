@@ -61,7 +61,7 @@ async function escanear(
 
 /** URL del paquete tal como la codifica el QR de la etiqueta: `/paquete/<numGuia>`. */
 function qrDeGuia(numGuia: number): string {
-  return `https://ordenex.app/paquete/${numGuia}`;
+  return `https://ejemplo.test/paquete/${numGuia}`;
 }
 
 /**
@@ -261,7 +261,7 @@ describe("EscanerRecepcion (cámara)", () => {
 
     await escanear(
       user,
-      "https://ordenex.app/paquete/3f1c9a2e-7b41-4d6a-9c15-8e2d0b6f4a77",
+      "https://ejemplo.test/paquete/3f1c9a2e-7b41-4d6a-9c15-8e2d0b6f4a77",
     );
 
     await vi.waitFor(() => expect(errorMock).toHaveBeenCalled());

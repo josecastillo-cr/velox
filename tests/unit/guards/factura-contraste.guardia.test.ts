@@ -108,7 +108,7 @@ function cuantas(texto: string, patron: RegExp): number {
  *
  * EXCEPCIÓN DECLARADA: `brand`. `--color-brand` es fijo y no tiene variante por tema, pero sus
  * tres usos en las hojas no son texto que haya que leer sobre un fondo:
- *   · el wordmark «Ordenex» — texto de una MARCA, exento por WCAG 1.4.3;
+ *   · el wordmark con el nombre de la marca — texto de una MARCA, exento por WCAG 1.4.3;
  *   · la franja de marca del detalle — `aria-hidden`, decorativa, sin texto;
  *   · el borde superior de la hoja compacta — decorativo, sin texto.
  * Va escrita aquí, con su motivo, y no como un agujero silencioso en la expresión regular: los

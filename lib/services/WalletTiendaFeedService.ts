@@ -38,7 +38,7 @@ interface Acumulado {
  * Feature 43 (design §2.2) — construye los movimientos del LEDGER POR TIENDA de un cierre
  * aprobado. Corre DENTRO de la transaccion de aprobacion (misma `tx` que la 42, R7). NO
  * define formula nueva: REUTILIZA `derivarIngresoOrden` (42) para los debitos (los 6
- * conceptos que Ordenex se queda) y `montoRecibido` para el credito COD (Q2/R9). Agrega por
+ * conceptos que la empresa se queda) y `montoRecibido` para el credito COD (Q2/R9). Agrega por
  * (tienda, concepto), OMITE totales 0.00 (R11) y aplica el interruptor Q3 en UN SOLO punto
  * (R28). Money-safe: Prisma.Decimal, salida STRING. NO persiste (lo hace el repo en la tx).
  *

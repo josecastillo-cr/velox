@@ -9,7 +9,7 @@ import { LandingPostular } from "./_landing/LandingPostular";
 import { LandingServicios } from "./_landing/LandingServicios";
 
 /**
- * Landing pública en `/`: réplica del home de ordenex.co.
+ * Landing pública en `/`: réplica del home del sitio anterior.
  *
  * Server Component fuera del grupo `(app)` → no hereda el Sidebar ni
  * `resolveActorFromSession`. El unico dato que lee son los conteos publicos (feature 198), y

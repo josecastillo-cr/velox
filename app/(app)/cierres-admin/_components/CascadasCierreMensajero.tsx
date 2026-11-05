@@ -43,7 +43,7 @@ import {
  * 💰 FICHA 395 (2026-09-08) — LAS TRES CASCADAS DEL DETALLE DEL CIERRE DE **MENSAJERO**.
  *
  * ── EL FALLO QUE ESTO ARREGLA, Y ES DE DINERO
- * El detalle enseñaba «Pago a tienda ₡225.176,33» y «Total Ordenex ₡70.946,67» SUELTOS, uno al
+ * El detalle enseñaba «Pago a tienda ₡225.176,33» y «Total Velox ₡70.946,67» SUELTOS, uno al
  * lado del otro, e invitaba a restarlos. **Esa resta no da**, porque los dos números no salen de
  * la misma bolsa: el pago a la tienda no descuenta el flete por rechazo —ese flete se le factura
  * pero nunca entró en lo recaudado, porque un rechazo no cobra contra entrega—. El humano se
@@ -55,7 +55,7 @@ import {
  * que se la expliquen y la que contesta «qué plata es para quién»:
  *
  *     Total general            285.275,00
- *     − Lo que Ordenex facturó  70.946,67
+ *     − Lo que la empresa facturó  70.946,67
  *     = Gana la tienda         214.328,33
  *
  * La identidad `ganaLaTienda + totalesIngreso.total === totales.general` cierra SIEMPRE.
@@ -101,7 +101,7 @@ import {
  * 1. LA MARCA (R1): junto a los dos agregados que se parten, una frase que dice que son un total
  *    de N tiendas. Sólo cuando hay dos o más.
  * 2. EL DESGLOSE (R4): una `CascadaDinero` por tienda, con SUS TRES cifras, entre la cascada que
- *    termina en «Pago a tienda» y la de lo que le queda a Ordenex. Ahí, y no antes: primero se
+ *    termina en «Pago a tienda» y la de lo que le queda a la empresa. Ahí, y no antes: primero se
  *    lee de quién es el dinero y cuánto se le paga, y sólo después de qué tienda es cada parte.
  *
  * ── EL UMBRAL ES DE PRESENTACIÓN (R2, Q5)
@@ -124,7 +124,7 @@ import {
  *
  * ── POR QUÉ LA CASCADA DE UNA TIENDA NO ES UNA RESTA
  * Las otras tres cascadas cierran una cuenta; la de cada tienda enseña TRES lecturas sin
- * operadores. Para pintarla como resta haría falta una cuarta cifra —lo que Ordenex le factura a
+ * operadores. Para pintarla como resta haría falta una cuarta cifra —lo que la empresa le factura a
  * ESA tienda— y R5 la prohíbe: tres cifras por tienda y ni una más. Inventar una resta que no se
  * puede completar sería justo el defecto que la 395 arregló. El componente y ese razonamiento
  * viven hoy en `DesglosePorTienda.tsx`.
@@ -141,7 +141,7 @@ export interface CascadasCierreMensajeroProps {
   estado: CierreEstado;
   /** Lo recaudado: `cierre.totales.general` (snapshot). */
   general: string;
-  /** El ingreso de Ordenex por concepto (derivado del snapshot). */
+  /** El ingreso de la empresa por concepto (derivado del snapshot). */
   totalesIngreso: TotalesIngresoEmpresa;
   /** Snapshot del pago al mensajero. */
   totalPagoMensajero: string;
@@ -171,7 +171,7 @@ export interface CascadasCierreMensajeroProps {
 }
 
 /**
- * LA PARTICIÓN. Tres líneas y una sola resta: de todo lo que se recaudó, esto se lo lleva Ordenex
+ * LA PARTICIÓN. Tres líneas y una sola resta: de todo lo que se recaudó, esto se lo lleva la empresa
  * y esto le queda a la tienda. Es lo primero que se lee, y es lo único que hace falta leer para
  * entender de quién es el dinero.
  */
@@ -222,14 +222,14 @@ function notaDelCargoAlSaldo(
 }
 
 /**
- * DE QUÉ SE COMPONE LO QUE ORDENEX FACTURA, Y POR QUÉ HOY SE LE PAGA OTRA CIFRA.
+ * DE QUÉ SE COMPONE LO QUE LA EMPRESA FACTURA, Y POR QUÉ HOY SE LE PAGA OTRA CIFRA.
  *
  * Dos cuentas encadenadas, con la misma forma que la cascada «de quién es el dinero» del cierre
  * de bodega (un resultado destacado a media cascada y la cuenta que sigue debajo):
  *
  *     Cobrado sobre lo recaudado   60.098,67
  *     + Flete por rechazo + IVA    10.848,00
- *     = Lo que Ordenex facturó     70.946,67
+ *     = Lo que la empresa facturó     70.946,67
  *
  *     Total general               285.275,00
  *     − Cobrado sobre lo recaudado 60.098,67
@@ -291,7 +291,7 @@ function lineasFacturaTienda(
 }
 
 /**
- * LO QUE LE QUEDA A ORDENEX. `netoEmpresa` NO es la `ganancia` que este mismo detalle ya pinta
+ * LO QUE LE QUEDA A LA EMPRESA. `netoEmpresa` NO es la `ganancia` que este mismo detalle ya pinta
  * cuando es negativa: aquella resta SÓLO el pago al mensajero, y ésta resta ADEMÁS el ingreso de
  * bodega por rechazos. Las dos coinciden exactamente cuando ese ingreso es cero.
  *
@@ -348,7 +348,7 @@ export function CascadasCierreMensajero(props: Readonly<CascadasCierreMensajeroP
         lineas={lineasFacturaTienda(props, marca)}
       />
       {/* FICHA 396 — el desglose va AQUÍ: después de la cascada que termina en «Pago a tienda»,
-          que es la cifra que parte, y antes de la de Ordenex, que ya no habla de tiendas. */}
+          que es la cifra que parte, y antes de la de la empresa, que ya no habla de tiendas. */}
       {marca !== null ? <DesglosePorTienda partes={props.partesPorTienda} de={de} /> : null}
       <CascadaDinero
         titulo={CASCADA_NETO_EMPRESA_TITULO}

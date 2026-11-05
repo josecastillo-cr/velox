@@ -5,7 +5,7 @@
  *
  * Son declaraciones DISTINTAS de las del detalle del admin (`cierre-gestiones-…`) aunque el
  * DTO sea el mismo, y a propósito: esta pantalla enseña MENOS. El mensajero no ve el ingreso
- * de Ordenex (flete, comisión, IVA, total) —eso es dinero de la empresa, no suyo— ni el
+ * de la empresa (flete, comisión, IVA, total) —eso es dinero de la empresa, no suyo— ni el
  * monto de la indemnización de un incidente (se le paga a la tienda, design §7.2 de la 158).
  * Exportar aquí lo que el admin ve sería publicar por el archivo lo que la pantalla oculta,
  * que es exactamente lo que R24 prohíbe.
@@ -46,7 +46,7 @@ export const GANANCIA_COL = "Ganancia";
  *
  * Los cinco de sección van POR RESULTADO —lo que decide qué columnas hay es el resultado— y son
  * distintos de los del detalle del admin (`cierre-gestiones-…`) porque los catálogos son
- * distintos: aquí no salen ni el ingreso de Ordenex ni la indemnización, y una clave compartida
+ * distintos: aquí no salen ni el ingreso de la empresa ni la indemnización, y una clave compartida
  * mezclaría dos juegos de columnas que ni siquiera coinciden.
  *
  * El del histórico no se llama `cierres-solicitados` a secas para no confundirse con

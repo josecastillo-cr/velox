@@ -1,4 +1,4 @@
-// Ficha 461 (design §5.5, R7) — las lineas del libro de la CAJA de un COBRO de Ordenex a una tienda
+// Ficha 461 (design §5.5, R7) — las lineas del libro de la CAJA de un COBRO de la empresa a una tienda
 // y de su anulacion. Funciones PURAS: sin Prisma, sin HTTP.
 //
 // NINGUNA lleva un identificador interno (R7/R52): el enlace al cobro lo dan `origen_tipo`/

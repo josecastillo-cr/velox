@@ -120,7 +120,7 @@ describe("392 — el nombre de la TIENDA, que la etiqueta imprime como `tiendaNo
       status: "validation_error",
       fieldErrors: { nombre: [MSG_DOUBLE_STRUCK] },
     });
-    // A2 de la 383 aplicada aqui: Ordenex NO guarda un nombre que nadie tecleo.
+    // A2 de la 383 aplicada aqui: la empresa NO guarda un nombre que nadie tecleo.
     expect(repo.create).not.toHaveBeenCalled();
   });
 

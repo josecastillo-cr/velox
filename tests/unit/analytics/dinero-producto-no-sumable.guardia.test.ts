@@ -146,7 +146,7 @@ describe("FICHA 347 · (a) la fuente de la tabla no escribe ningún total (R46/R
 /**
  * LOS TRES IMPORTES, elegidos para que sus sumas sean números que NO aparecen en ninguna otra
  * parte de la pantalla: 1.000 + 200 + 30 = 1.230 para lo recaudado, 100 + 20 + 3 = 123 para lo
- * de Ordenex y 900 + 180 + 27 = 1.107 para lo de la tienda.
+ * de la empresa y 900 + 180 + 27 = 1.107 para lo de la tienda.
  *
  * Ninguna de las tres sumas es subcadena de ninguno de los nueve importes pintados, así que si
  * el texto aparece en el DOM sólo puede venir de alguien que los haya sumado.

@@ -162,10 +162,10 @@ export const GESTION_TIENDA_BADGE_LABEL = "La tienda";
 export const GESTION_TIENDA_BADGE_NOTA =
   "Esta gestión la registró la tienda desde «Ayuda solicitada», no vos: el motivo y la foto son suyos. Cuenta en tu cierre igual.";
 
-// --- Desglose del ingreso de Ordenex por orden (texto separado, i18n-ready) ---
+// --- Desglose del ingreso de la empresa por orden (texto separado, i18n-ready) ---
 export const MONTO_COBRAR_COL = "A cobrar";
 // Monto FIJO de fulfillment de la tarifa CONGELADA del cierre (2026-08-19). No es un concepto
-// derivado: no se suma al «Total Ordenex» ni a las wallets. Vacío en los cierres anteriores a
+// derivado: no se suma al «Total Velox» ni a las wallets. Vacío en los cierres anteriores a
 // la columna `cierre_detail.tarifa_fulfillment`.
 export const FULFILLMENT_COL = "Fulfillment";
 // Conceptos AGRUPADOS (cada uno con su IVA incluido): así se leen en tablas y paneles.
@@ -226,7 +226,7 @@ export const PARA_LA_CENTRAL_LABEL = "Para la central";
 export const NETO_EMPRESA_LABEL = `Neto de ${MARCA.nombreCorto}`;
 
 /**
- * La LÍNEA PUENTE (R10): lo que Ordenex cobra sobre lo recaudado. Sin ella la cascada A enseña
+ * La LÍNEA PUENTE (R10): lo que la empresa cobra sobre lo recaudado. Sin ella la cascada A enseña
  * «recaudado − facturado = para la tienda», que NO da en cuanto hay un rechazo.
  */
 export const COBRADO_SOBRE_RECAUDADO_LABEL = "Cobrado sobre lo recaudado";
@@ -280,7 +280,7 @@ export const FLETE_RECHAZO_NO_DEDUCIBLE_NOTA =
 // FICHA 395 (2026-09-08) — LAS TRES CASCADAS DEL CIERRE DE **MENSAJERO**.
 //
 // El detalle del cierre de mensajero —el que se mira todos los días— enseñaba «Pago a tienda»
-// y «Total Ordenex» sueltos e invitaba a restarlos. Esa resta NO da: los dos números no salen
+// y «Total Velox» sueltos e invitaba a restarlos. Esa resta NO da: los dos números no salen
 // de la misma bolsa. El humano se confundió leyendo su propia pantalla y lo dijo así: «si yo
 // me confundo, no quiero imaginar los operarios».
 //
@@ -331,7 +331,7 @@ export const GANA_LA_TIENDA_NEGATIVO_NOTA =
 export const COBRADO_SOBRE_RECAUDADO_NOTA =
   "Flete + IVA y comisión + IVA de lo que sí se entregó: sale del dinero que el mensajero recaudó.";
 
-/** FICHA 395 — de qué resta sale el neto de Ordenex, en el idioma de quien la hace. */
+/** FICHA 395 — de qué resta sale el neto de la empresa, en el idioma de quien la hace. */
 export const NETO_EMPRESA_NOTA =
   `Lo que ${MARCA.nombre} facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.`;
 
@@ -352,7 +352,7 @@ export const NETO_EMPRESA_NEGATIVO_NOTA =
  * ya resuelto del servidor —exige aprobado Y flete por rechazo mayor que cero— y el `estado` sólo
  * distingue «todavía no» de «ya no».
  *
- * Se dice «al saldo de la tienda» y no «a su wallet»: «Saldo a favor» y «Cargos de Ordenex» es lo
+ * Se dice «al saldo de la tienda» y no «a su wallet»: «Saldo a favor» y «Cargos de la empresa» es lo
  * que la tienda lee en su propia pantalla (`mi-wallet-labels`). Elección del `frontend_dev`.
  */
 export const FLETE_RECHAZO_YA_COBRADO_NOTA =
@@ -394,7 +394,7 @@ export const CASCADA_NETO_EMPRESA_TITULO = `Lo que le queda a ${MARCA.nombre}`;
 
 /**
  * FICHA 396 — el título de la sección del desglose. Rima con `CASCADA_DUENO_TITULO` («De quién
- * es el dinero») a propósito: es la MISMA pregunta bajada un nivel, de «Ordenex o la tienda» a
+ * es el dinero») a propósito: es la MISMA pregunta bajada un nivel, de «la empresa o la tienda» a
  * «cuál de las tiendas». Dos preguntas de la misma familia, dos títulos de la misma forma.
  *
  * Elección de redacción del `frontend_dev`; el spec pedía que el texto existiera y saliera de una

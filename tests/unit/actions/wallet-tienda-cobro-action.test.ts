@@ -58,7 +58,7 @@ const usuarioFindUnique = vi.fn(async ({ where }: { where: { id: string } }) =>
     ? { nombre: "Tienda Uno", primerApellido: null, estado: "activo", rol: { value: "adminTienda" } }
     : { nombre: "Ana", primerApellido: "Torres", estado: "activo", rol: { value: "maestro" } },
 );
-/** ⚠️ LA CAJA DE ORDENEX. Desde la 461 SI se escribe: el cargo del cobro y el reverso de su anulacion. */
+/** ⚠️ LA CAJA DE LA EMPRESA. Desde la 461 SI se escribe: el cargo del cobro y el reverso de su anulacion. */
 const cajaCreateMany = vi.fn(async () => ({ count: 1 }));
 const cajaCreate = vi.fn();
 const anulacionCreate = vi.fn(async () => ({ id: "anul-1" }));

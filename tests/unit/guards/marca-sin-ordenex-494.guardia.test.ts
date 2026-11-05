@@ -3,7 +3,6 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { PENDIENTES_494 } from "@/tests/fixtures/marca-pendientes-494";
 import {
   COLECCION_NUEVA,
   COLECCION_VIEJA,
@@ -31,16 +30,14 @@ import {
   hallazgosProyecto,
   hallazgosReleaseB2B4,
   leerTexto,
-  recuentoPorArchivo,
-  trinquete,
   type Hallazgo,
 } from "@/tests/fixtures/marca-sin-ordenex-494";
 
 // FEATURE 494 (T1.1, T1.2, design §7) — LA MARCA RETIRADA NO VIVE EN EL ARBOL.
 //
-// Detector y recorridos en `tests/fixtures/marca-sin-ordenex-494.ts`; lo que aun falta, por archivo,
-// en `tests/fixtures/marca-pendientes-494.ts` (trinquete, solo baja). La tanda 7 borra el trinquete y
-// deja el bloque «arbol» como `it` llano.
+// Detector y recorridos en `tests/fixtures/marca-sin-ordenex-494.ts`. Mientras se migraba, el bloque
+// «arbol» iba con un trinquete por archivo; T8.2 lo borro y lo dejo como `it` llano: cualquier hallazgo
+// fuera de las excepciones lo pone rojo.
 //
 // Lee con `fs`: `--rapido` no la relaciona con un diff. Cada tanda la corre a mano.
 
@@ -100,13 +97,7 @@ describe("494 — excepciones (R3)", () => {
   });
 
   it("contraprueba: sin motivo sale roja", () => {
-    expect(excepcionesMuertas([{ id: "EX", motivo: " ", rutas: ["CLAUDE.md"], activaEn: "T0" }])).toEqual(["EX: sin motivo"]);
-  });
-
-  it("una entrada aun no activa no exceptua nada", () => {
-    const e = { id: "EX", motivo: "m", rutas: ["lib/x.ts"], activaEn: "T9" };
-    expect(estaExceptuado("lib/x.ts", "ordenex", [e])).toBe(false);
-    expect(estaExceptuado("lib/x.ts", "ordenex", [{ ...e, activaEn: undefined }])).toBe(true);
+    expect(excepcionesMuertas([{ id: "EX", motivo: " ", rutas: ["CLAUDE.md"] }])).toEqual(["EX: sin motivo"]);
   });
 
   it("una excepcion por linea no cubre el resto del archivo ni su nombre", () => {
@@ -116,8 +107,52 @@ describe("494 — excepciones (R3)", () => {
     expect(estaExceptuado("lib/x.ts", null, [e])).toBe(false);
   });
 
-  it("la lista es la cerrada de design §7, mas el andamiaje E9; E5 se parte en archivo y linea", () => {
-    expect(EXCEPCIONES.map((e) => e.id)).toEqual(["E1", "E2", "E3", "E4", "E5", "E5.1", "E6", "E7", "E8", "E9"]);
+  // La 493 tambien se abre con esta lista: ensanchar una excepcion apaga las dos guardias. Por eso, en
+  // literal, cada ruta y cada patron (m3). Cambiarlos es una decision, y se escribe aqui.
+  it("la lista es la cerrada de design §7, con sus rutas y sus patrones, en literal", () => {
+    expect(EXCEPCIONES.map((e) => [e.id, e.rutas, e.linea?.source ?? null])).toEqual([
+      ["E1", ["db/migrations/"], null],
+      ["E2", ["specs/", "progress/", "feature_list.json", "docs/api/CHANGELOG.md", "docs/release.md", "docs/marca/velox/README.md"], null],
+      ["E3", ["CLAUDE.md", ".claude/agents/"], "R-job-singularis-projects-ordenex|R-ark-studio-projects-ricardo-ordenex|no `ordenex`"],
+      [
+        "E4",
+        ["scripts/drenar-jobs.ts", "scripts/rollup-analitica-manual.ts", "scripts/contraste-454.ts", "tests/unit/services/analitica-rollup-handler.test.ts"],
+        String.raw`:\d+\/ordenex|ordenex_|BASE_LOCAL|=== "ordenex"`,
+      ],
+      ["E5", ["tests/unit/navegador/", "tests/unit/tema/cookie-legada-494.test.ts"], null],
+      ["E5.2", ["lib/navegador/claves-legadas.ts"], '"ordenex(?::[a-z-]+:?|_tema)?"'],
+      [
+        "E5.1",
+        ["public/sw.js", "tests/unit/guards/pwa-relevo-y-purga.guardia.test.ts", "tests/unit/hooks/usePushEnVentana.test.tsx"],
+        '"ordenex:(relevo-ahora|relevo-ahora-no|pagina-lista|push-recibido|cualquier-otra-cosa)"',
+      ],
+      [
+        "E6",
+        ["scripts/seed-usuarios-qa.ts", "tests/integration/db/seed-usuarios-qa-494.test.ts"],
+        String.raw`\b(?:admin|mensajero|tienda|satelite)\.qa@ordenex\.test\b|\botra\.persona@ordenex\.test\b`,
+      ],
+      [
+        "E7",
+        [
+          "tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts",
+          "tests/fixtures/marca-sin-ordenex-494.ts",
+          "tests/fixtures/marca-retirada-nombre-493.ts",
+          "tests/fixtures/marca-retirada-493.ts",
+          "tests/unit/guards/marca-fuente-unica-493.guardia.test.ts",
+        ],
+        null,
+      ],
+      ["E8", ["tests/unit/analytics/cache-clave-conteo-productos-494.test.ts", "tests/unit/api/contrato-sin-cambios-494.test.ts"], null],
+    ]);
+  });
+
+  it("E5.2 cubre las claves del modulo y solo las claves: un texto visible con la marca sigue contando", () => {
+    expect(estaExceptuado(MODULO_LEGADO, `export const COOKIE_TEMA_VIEJA = "ordenex_tema";`)).toBe(true);
+    expect(estaExceptuado(MODULO_LEGADO, `  ["app:descarga-columnas:", "ordenex:descarga-columnas:"],`)).toBe(true);
+    expect(estaExceptuado(MODULO_LEGADO, `const COLUMNA_DINERO_VIEJA = "ordenex";`)).toBe(true);
+    expect(estaExceptuado(MODULO_LEGADO, `const t = "Cobró Ordenex";`)).toBe(false);
+    expect(estaExceptuado(MODULO_LEGADO, `// ordenex en un comentario`)).toBe(false);
+    expect(estaExceptuado(MODULO_LEGADO, null)).toBe(false);
   });
 
   it("E5.1 cubre los alias y solo los alias: en `public/sw.js` lo demas sigue contando", () => {
@@ -127,34 +162,29 @@ describe("494 — excepciones (R3)", () => {
     expect(estaExceptuado("public/sw.js", null)).toBe(false);
   });
 
-  // T8.2: al cerrar, ninguna entrada puede seguir sin activar, y E9 ya no existe.
-  it.todo("T8.2: ninguna excepcion queda con `activaEn`, y E9 se ha retirado");
+  it("T8.2: el andamiaje de la ficha se ha ido", () => {
+    expect(existsSync(path.join(RAIZ, "tests/fixtures/marca-pendientes-494.ts"))).toBe(false);
+    expect(existsSync(path.join(RAIZ, "scripts/marca-494-renombrar.mjs"))).toBe(false);
+  });
 });
 
-describe("494 — arbol con trinquete (R1, R2)", () => {
+describe("494 — arbol (R1, R2)", () => {
   it("no-vacuidad: el recorrido ve el arbol, y el arbol incluye lo que dice el glosario", () => {
     const arbol = archivosDelArbol();
     expect(arbol.length).toBeGreaterThan(1000);
-    for (const f of ["package.json", "DESIGN.md", ".env.example", "db/schema.prisma", "public/sw.js"]) {
+    for (const f of ["package.json", "DESIGN.md", ".env.example", "db/schema.prisma", "public/sw.js", "providers/TemaProvider.tsx", "instrumentation.ts", "AGENTS.md", "README.md"]) {
       expect(arbol, f).toContain(f);
     }
     expect(arbol).not.toContain("docs/api/CHANGELOG.md");
   });
 
-  it("contraprueba del trinquete: uno nuevo y uno por encima, rojo; uno por debajo, desfasado", () => {
-    const { nuevos, desfasados } = trinquete({ "a.ts": 1, "b.ts": 3, "c.ts": 1 }, { "b.ts": 2, "c.ts": 2 });
-    expect(nuevos).toEqual(["a.ts: 1 (no esta en lo pendiente)", "b.ts: 3 (su tope es 2)"]);
-    expect(desfasados).toEqual(["c.ts: 1 (anotado 2)"]);
+  it("ningun archivo del arbol tiene la marca fuera de las excepciones", () => {
+    expect(lista(censoArbol()), "marca retirada donde no toca: usa `empresa` / `app:` (design §3.1)").toEqual([]);
   });
 
-  const { nuevos, desfasados } = trinquete(recuentoPorArchivo(censoArbol()), PENDIENTES_494);
-
-  it("nada fuera de lo pendiente ni por encima de su numero", () => {
-    expect(nuevos, "marca retirada donde no toca: usa `empresa` / `app:` (design §3.1)").toEqual([]);
-  });
-
-  it("cada pendiente sigue con su numero exacto (al bajar, se regenera)", () => {
-    expect(desfasados, "pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes").toEqual([]);
+  it("contraprueba: el censo ve una aparicion en un archivo cualquiera, y no la de una excepcion", () => {
+    expect(hallazgosEnTexto("// ordenex", "lib/x.ts").filter((h) => !estaExceptuado(h.archivo, h.fragmento))).toHaveLength(1);
+    expect(hallazgosEnTexto("// ordenex", "tests/unit/navegador/x.ts").filter((h) => !estaExceptuado(h.archivo, h.fragmento))).toEqual([]);
   });
 });
 
@@ -335,6 +365,13 @@ describe("494 — proyecto (R31, R32)", () => {
         hayColeccionNueva: existsSync(path.join(RAIZ, COLECCION_NUEVA)),
       }),
     ).toEqual([]);
+  });
+
+  it("m8: la tabla A de docs/release.md trae el cruce, con el comando y donde se mira", () => {
+    const fila = (leerTexto("docs/release.md") ?? "").split("\n").find((l) => l.startsWith("| A12 |")) ?? "";
+    for (const exigido of ["Skew Protection", "panel de Vercel", "vercel env ls production", "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY", "fuera de la operación"]) {
+      expect(fila, exigido).toContain(exigido);
+    }
   });
 
   it("R32: B2 y B4 de docs/release.md nombran el proyecto y el dominio vigentes", () => {

@@ -328,7 +328,7 @@ export const TOTAL_GENERAL_LABEL = "Total general";
 export const CENTRAL_DEBE_LABEL = "Central debe";
 export const CENTRAL_DEBE_NOTA =
   "El efectivo no alcanzó para pagarle a todos los mensajeros (el pago no puede ser parcial).";
-// --- Desglose del ingreso de Ordenex por orden (texto separado, i18n-ready) ---
+// --- Desglose del ingreso de la empresa por orden (texto separado, i18n-ready) ---
 export const MONTO_COBRAR_LABEL = "Monto a cobrar";
 export const INGRESO_TOTAL_LABEL = `Total ${MARCA.nombreCorto}`;
 export const INGRESO_PANEL_LABEL = `Ingreso de ${MARCA.nombreCorto}`;
@@ -340,7 +340,7 @@ export const INGRESO_BRUTO_NOTA =
 export const GANANCIA_LABEL = "Ganancia";
 // Cuando la ganancia es NEGATIVA no es ganancia sino una deuda: se rotula "Debe".
 export const GANANCIA_DEBE_LABEL = "Debe";
-// --- Pago a la tienda: lo recibido menos lo que Ordenex le factura (texto separado, i18n-ready) ---
+// --- Pago a la tienda: lo recibido menos lo que la empresa le factura (texto separado, i18n-ready) ---
 export const PAGO_TIENDA_LABEL = "Pago a tienda";
 /**
  * ⏳ FICHA 338 (2026-08-31) — ESTA NOTA ENSEÑABA MAL, y era la frase que había que arreglar

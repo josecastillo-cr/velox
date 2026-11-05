@@ -50,7 +50,7 @@ interface VentanaFalsa {
   postMessage: ReturnType<typeof vi.fn>;
 }
 
-function ventana(id: string, visibilityState = "hidden", url = "https://ordenex.co/ordenes"): VentanaFalsa {
+function ventana(id: string, visibilityState = "hidden", url = "https://ejemplo.test/ordenes"): VentanaFalsa {
   return {
     id,
     url,
@@ -92,7 +92,7 @@ const cachesFalsas = {
 };
 
 function cargarSw(opciones: { hostname?: string; ventanas?: VentanaFalsa[] } = {}) {
-  const { hostname = "ordenex.co", ventanas = [] } = opciones;
+  const { hostname = "ejemplo.test", ventanas = [] } = opciones;
   const manejadores: Record<string, ((evento: unknown) => void)[]> = {};
   const mostradas: NotificacionMostrada[] = [];
   const abiertas: string[] = [];

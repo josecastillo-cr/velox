@@ -33,11 +33,11 @@ describe("Feature 492 — identidad de la guia de integracion (R21)", () => {
   });
 
   it(`ninguna de esas cinco piezas conserva «${MARCA_RETIRADA}»`, () => {
-    expect(HTML).not.toMatch(/<title>[^<]*Ordenex/);
-    expect(HTML).not.toMatch(/<meta name="author" content="[^"]*Ordenex/);
-    expect(HTML).not.toMatch(/@bottom-left \{ content: "[^"]*Ordenex/);
-    expect(HTML).not.toMatch(/<div class="title">[^<]*(<br>[^<]*)?Ordenex/);
-    expect(HTML).not.toMatch(/<h1>Guía de integración[^<]*Ordenex/);
+    expect(HTML).not.toMatch(new RegExp(`<title>[^<]*${MARCA_RETIRADA}`));
+    expect(HTML).not.toMatch(new RegExp(`<meta name="author" content="[^"]*${MARCA_RETIRADA}`));
+    expect(HTML).not.toMatch(new RegExp(`@bottom-left \\{ content: "[^"]*${MARCA_RETIRADA}`));
+    expect(HTML).not.toMatch(new RegExp(`<div class="title">[^<]*(<br>[^<]*)?${MARCA_RETIRADA}`));
+    expect(HTML).not.toMatch(new RegExp(`<h1>Guía de integración[^<]*${MARCA_RETIRADA}`));
   });
 
   it("la portada muestra el logotipo sobre fondo claro, y la ruta resuelve a un archivo existente", () => {

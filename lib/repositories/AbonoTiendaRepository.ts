@@ -64,7 +64,7 @@ function esChoqueDeAnulacion(error: unknown): boolean {
 }
 
 /**
- * FICHA 457 (design §6.2) — el documento del PAGO DE UNA TIENDA A ORDENEX. SOLO queries Prisma. Las
+ * FICHA 457 (design §6.2) — el documento del PAGO DE UNA TIENDA A LA EMPRESA. SOLO queries Prisma. Las
  * dos escrituras llevan su fila de historial en la MISMA transaccion que reciben (R17/R31).
  */
 export class AbonoTiendaRepository implements IAbonoTiendaRepository {

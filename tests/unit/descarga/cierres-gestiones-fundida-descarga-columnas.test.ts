@@ -49,7 +49,7 @@ import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // --- Fixtures -------------------------------------------------------------
 
-/** Ingreso de Ordenex con los seis conceptos poblados y money-safe (STRING escala 2). */
+/** Ingreso de la empresa con los seis conceptos poblados y money-safe (STRING escala 2). */
 function ingreso(over: Partial<IngresoEmpresaDTO> = {}): IngresoEmpresaDTO {
   return {
     montoCobrar: "1000.10",

@@ -6,7 +6,7 @@ import {
 } from "@/lib/utils/descripcion-cobro-tienda";
 
 /**
- * FICHA 461 / T B.5 (R7) — las descripciones del cobro de Ordenex a una tienda en la caja y de sus
+ * FICHA 461 / T B.5 (R7) — las descripciones del cobro de la empresa a una tienda en la caja y de sus
  * contra-asientos. Literales a mano: son lo que la persona lee en el libro.
  */
 

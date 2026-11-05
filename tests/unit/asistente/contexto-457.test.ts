@@ -13,7 +13,7 @@ const DIR_AYUDA = path.resolve(__dirname, "../../..", "docs", "ayuda");
 
 /**
  * FICHA 457 (T7.1, design §11, R68/R69) — la ayuda y el asistente al día con el pago de una tienda a
- * Ordenex. Molde: `contexto-461.test.ts`.
+ * la empresa. Molde: `contexto-461.test.ts`.
  *
  * El asistente solo sabe lo que está en `docs/ayuda/**` y, de eso, solo lo que el rol puede leer
  * (`contextoPara`). Aquí se afirma que las explicaciones nuevas LLEGAN al contexto del rol que las
@@ -95,7 +95,7 @@ describe(`457 R68/R69 — la oficina puede preguntar por el pago de una tienda a
     expect(tiendas).toContain(
       `**Pago de la tienda a ${NOMBRE_ESPERADO} anulado** | La anulación de ese pago: el saldo vuelve a bajar | Vuelve a salir`,
     );
-    // FICHA 458-D (T D.2/T D.9): el pago de la tienda a Ordenex se registra desde el ESTADO DE CUENTA
+    // FICHA 458-D (T D.2/T D.9): el pago de la tienda a la empresa se registra desde el ESTADO DE CUENTA
     // de la tienda (antes, las acciones del desglose retirado) y se anula desde el panel «Ver» de su
     // fila, en la misma pantalla. El contrato de la 457 —cuándo se ofrece y qué pide— no cambia.
     expect(tiendas).toContain("## Registrar desde el estado de cuenta");
@@ -130,7 +130,7 @@ describe(`457 R68/R69 — la tienda entiende su pago a ${NOMBRE_ESPERADO} en Mi 
       // desde la 458-D la tienda lo VE en su fila («## Ver el comprobante», contexto-458 bloque D).
       `Si tu saldo quedó en contra y le pagaste a ${NOMBRE_ESPERADO}, lo ves como **Le pagaste a ${NOMBRE_ESPERADO}**, con el motivo, el método y la referencia. **Sube tu saldo** en el monto. Si la oficina lo anula por error, aparece **${NOMBRE_ESPERADO} anuló el pago que le hiciste** y tu saldo vuelve a bajar.`,
     );
-    // La tienda NO lee los nombres desde Ordenex (R47).
+    // La tienda NO lee los nombres desde la empresa (R47).
     expect(wallet).not.toContain(`La tienda le paga a ${NOMBRE_ESPERADO}`);
   });
 

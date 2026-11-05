@@ -29,7 +29,7 @@ import { armarServicio, consultaDe, type DatosFinancieros } from "../services/_d
 //
 // ┌─ QUE INCIDENTE PAGA ESTA GUARDIA ──────────────────────────────────────────────────────┐
 // │ 2026-08-06. El tablero financiero estuvo SIETE HORAS en produccion pintando una tabla   │
-// │ de treinta fechas donde el maestro esperaba «Dinero en caja», «Ganancia de Ordenex» y   │
+// │ de treinta fechas donde el maestro esperaba «Dinero en caja», «Ganancia de la empresa» y   │
 // │ las otras cinco. Causa inmediata: la señal de forma «KPI vs tabla» era                  │
 // │ `filas.length === 0`, y la feature 180 la invalido al hacer que el servicio emitiera    │
 // │ una serie DENSA (una fila por cubo del rango) para esas siete metricas. Reparado por    │

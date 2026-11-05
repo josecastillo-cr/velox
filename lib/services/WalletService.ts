@@ -66,7 +66,7 @@ function hayFiltros(filtros: BalanceFiltros): boolean {
  * dos: la salida de un cobro reclasificado comparte categoria con el pago por cuenta pero su
  * origen es el cobro, y los contra-asientos comparten origen pero no categoria.
  *
- * Ficha 461 (design §5.4, R20/R37): la linea de caja de un cobro de Ordenex a una tienda es
+ * Ficha 461 (design §5.4, R20/R37): la linea de caja de un cobro de la empresa a una tienda es
  * original con CUALQUIERA de sus dos origenes —`cobro_tienda` (la escribio el servicio) o
  * `cobro_tienda_completado` (la añadio la migracion de datos)—: las dos se anulan igual. El reverso
  * (`egreso_reverso_cobro_tienda`, mismo origen) NO es original. Mutacion 14 de design §14.2: sin el
@@ -87,7 +87,7 @@ export function tipoDeDocumentoOriginal(
   ) {
     return "cobro_tienda";
   }
-  // Ficha 457 (design §8.5, R41): la ENTRADA del pago de una tienda a Ordenex es la original; su
+  // Ficha 457 (design §8.5, R41): la ENTRADA del pago de una tienda a la empresa es la original; su
   // reverso (`egreso_reverso_abono_tienda`, mismo origen) queda en `null` y no se anula.
   if (m.categoria === "ingreso_abono_tienda" && m.origenTipo === "abono_tienda") {
     return "abono_tienda";
@@ -103,7 +103,7 @@ export function tipoDeDocumentoOriginal(
     return "ajuste_caja";
   }
   // Ficha 458-B (design §3.6, R63/R71): los EGRESOS sin documento propio. Todo egreso con origen
-  // `gasto` es un original (su reverso es un `ingreso_ajuste`): sueldo, gasto de Ordenex y gasto
+  // `gasto` es un original (su reverso es un `ingreso_ajuste`): sueldo, gasto de la empresa y gasto
   // fijo cobrado. La indemnizacion SOLO con origen `orden_incidente` (la del cierre no se anula, R65).
   if (m.tipo === "egreso" && m.origenTipo === "gasto") return "egreso_caja";
   if (m.categoria === "egreso_indemnizacion" && m.origenTipo === "orden_incidente") return "indemnizacion";
@@ -117,7 +117,7 @@ export function tipoDeDocumentoOriginal(
     return "rechazo_tienda_cobro";
   }
   // Ficha 458-C (revision B3, R71): los dos egresos que la caja ya sabia anular
-  // (`WalletAnulacionService.rutaDeCaja`) y que no traian documento: el pago de Ordenex a una tienda
+  // (`WalletAnulacionService.rutaDeCaja`) y que no traian documento: el pago de la empresa a una tienda
   // (172) y el premio del ranking (293). Mismas condiciones que el enrutado; sus reversos
   // (`ingreso_ajuste`, otra categoria) quedan en `null`.
   if (m.categoria === "egreso_pago_tienda" && m.origenTipo === "pago_tienda") return "pago_tienda";
@@ -392,7 +392,7 @@ export class WalletService implements IWalletService {
    * Feature 173 (T D.2, design §5.2 — R8/R64/R65) — las DOS cifras de la caja.
    *
    * Sustituye a `verBalance`, que devolvia una sola cifra rotulada «balance». Mientras la caja
-   * solo contuviera dinero DE ORDENEX ese numero era la ganancia; desde que entra el
+   * solo contuviera dinero DE LA EMPRESA ese numero era la ganancia; desde que entra el
    * contra-entrega —dinero de las tiendas que solo PASA por la caja— deja de significar una
    * sola cosa.
    *

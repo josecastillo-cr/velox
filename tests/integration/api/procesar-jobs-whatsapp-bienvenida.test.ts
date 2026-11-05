@@ -18,14 +18,14 @@ import { datosPlantillaFixture } from "@/tests/fixtures/plantilla-datos";
 
 const PLANTILLA_MARCADA: PlantillaBienvenida = {
   id: "plt-1",
-  nombre: "bienvenida_ordenex",
+  nombre: "bienvenida_empresa",
   templateId: "meta-1",
   estado: "activo",
 };
 
 const ENVIABLE = {
   id: "plt-1",
-  nombre: "bienvenida_ordenex",
+  nombre: "bienvenida_empresa",
   cuerpo: "Hola {{cliente}}, tu paquete va en camino.",
   variables: ["cliente"],
   templateId: "meta-1",
@@ -85,7 +85,7 @@ describe("camino feliz", () => {
       mensajeroId: "men-1",
       telefonoE164: "50688887777",
       plantillaId: "plt-1",
-      nombre: "bienvenida_ordenex",
+      nombre: "bienvenida_empresa",
       idioma: "es_CR",
       componentes: [{ type: "body", parameters: [{ type: "text", text: "Ana" }] }],
       cuerpoRenderizado: "Hola Ana, tu paquete va en camino.",

@@ -22,7 +22,7 @@ const CLAVE = randomBytes(32).toString("base64");
 const SECRETO = "ordx_whsec_secreto-de-firma-de-prueba";
 const SECRET_ENC = cifrarSecreto(CLAVE, SECRETO);
 const URL_HOOK = "https://a.example.com/hook";
-const ORIGIN = "https://app.ordenex.co";
+const ORIGIN = "https://app.ejemplo.test";
 const ORDEN_ID = "orden-1";
 
 /** El mensajero del caso «alguien la lleva». Literales escritos A MANO, no derivados. */
@@ -143,7 +143,7 @@ describe("404/R8+R2 — `data.mensajero`: el objeto cuando lo hay, `null` cuando
     // en un `incidente` viajan LAS DOS cosas: `mensajero: null` y el enlace— no cambia; cambia el
     // valor del enlace, que ahora lleva la GUIA de la orden (`DATOS_BASE.numGuia`, 12345). Literal
     // escrito a mano, no derivado del service.
-    expect(body.data.evidenciasUrl).toBe("https://app.ordenex.co/api/ordenes/api-key/orden/12345");
+    expect(body.data.evidenciasUrl).toBe("https://app.ejemplo.test/api/ordenes/api-key/orden/12345");
   });
 });
 

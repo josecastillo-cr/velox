@@ -283,7 +283,7 @@ export class CorregirDatosClienteService implements ICorregirDatosClienteService
     // escribir (327/R11)—. El motivo esta escrito en el propio codigo de arriba: en la carga NO
     // HAY NADIE DELANTE de 500 filas en el instante en que se decide; aqui SI hay una persona
     // mirando ESTA orden. La version barata y honesta de «preguntar» es no escribir y devolver el
-    // texto bueno para que lo pegue, y asi Ordenex nunca guarda un nombre que nadie tecleo.
+    // texto bueno para que lo pegue, y asi la empresa nunca guarda un nombre que nadie tecleo.
     //
     // Va en 5.b, o sea ANTES de la geografia y de cualquier escritura, y por el canal de
     // `fieldErrors` que el modal ya sabe pintar: si algo se rechaza, NO se guarda NINGUN campo de
@@ -557,7 +557,7 @@ export class CorregirDatosClienteService implements ICorregirDatosClienteService
    * `tarifa === null` NO se pinta como cero (R13): sale como el discriminante `"sin_tarifa"`. Y no
    * bloquea, por coherencia con la regla ya firmada de la feature 274 —un par sin tarifa se
    * muestra como hueco y se sigue— (P1, resuelta por el humano el 2026-08-28). La consecuencia
-   * asumida esta escrita: la orden puede quedar en una zona por la que Ordenex no factura nada
+   * asumida esta escrita: la orden puede quedar en una zona por la que la empresa no factura nada
    * hasta que alguien configure esa tarifa.
    */
   private async ubicacionConCostos(

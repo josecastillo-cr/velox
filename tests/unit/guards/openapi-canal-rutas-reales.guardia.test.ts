@@ -55,7 +55,7 @@
 //     propósito en vez de ampliar el alcance de contrabando: la colección es una comodidad de
 //     pruebas, el contrato es el OpenAPI, y ampliar esto exige decidir antes cuántas peticiones de
 //     ejemplo son «documentar un endpoint».
-//   - `webhooks:` (feature 256/268). Es una petición SALIENTE de Ordenex, no un `route.ts` del
+//   - `webhooks:` (feature 256/268). Es una petición SALIENTE de la empresa, no un `route.ts` del
 //     canal: no tiene ruta en el filesystem contra la que contrastarla.
 //   - Que el verbo exportado HAGA lo que el contrato promete. Esto es existencia, no conducta.
 //

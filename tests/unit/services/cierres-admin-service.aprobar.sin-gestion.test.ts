@@ -300,7 +300,7 @@ describe("264/B8 — aprobar un cierre CON ordenes sin gestionar mueve el mismo 
     const sinLista = await aprobarCon([]);
 
     expect(conLista.resultado).toBe(sinLista.resultado);
-    // Caja principal (ingresos de Ordenex + egreso del pago al mensajero + ingreso COD).
+    // Caja principal (ingresos de la empresa + egreso del pago al mensajero + ingreso COD).
     expect(conLista.caja).toEqual(sinLista.caja);
     // Ledger por tienda (credito COD + debitos por concepto).
     expect(conLista.tienda).toEqual(sinLista.tienda);

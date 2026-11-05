@@ -122,7 +122,7 @@ const ARBOLES_UI = ["app", "components"] as const;
 // 29 esperado» antes de tocarlos—, no una resta de escritorio. Censo total: 29 = 28
 // `<DataTable>` + 1 cruda.
 // FICHA 343 (B6.1): 28 → 29 archivos y 28 → 29 instancias. La de más es el DESPLEGABLE de una
-// fila de la tarjeta «Cómo se compone la ganancia de Ordenex»
+// fila de la tarjeta «Cómo se compone la ganancia de la empresa»
 // (`wallet/_components/DetalleFilaComposicion.tsx`), que enseña los movimientos que componen el
 // importe de esa fila. Nace `fuera` con su motivo escrito en `censo-tablas.ts`: es un recorte
 // del mismo libro que «Libro de movimientos de la caja principal», que sí descarga el conjunto

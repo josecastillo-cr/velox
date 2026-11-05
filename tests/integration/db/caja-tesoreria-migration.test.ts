@@ -92,11 +92,11 @@ const TIPO_LEGITIMO_POR_CATEGORIA: Record<WalletMovimientoCategoria, WalletMovim
   ingreso_reverso_pago_por_cuenta_tienda: "ingreso",
   ingreso_aporte_capital: "ingreso",
   egreso_reverso_aporte_capital: "egreso",
-  // Ficha 461: el cargo del cobro de Ordenex a una tienda y su reverso. El CHECK que los admite es el
+  // Ficha 461: el cargo del cobro de la empresa a una tienda y su reverso. El CHECK que los admite es el
   // de la migracion `20260926120100`; lo prueba `cobro-tienda-461-migration.test.ts`.
   ingreso_cobro_tienda: "ingreso",
   egreso_reverso_cobro_tienda: "egreso",
-  // Ficha 457: la entrada del pago de una tienda a Ordenex y su reverso. El CHECK que los admite es el
+  // Ficha 457: la entrada del pago de una tienda a la empresa y su reverso. El CHECK que los admite es el
   // de la migracion `20260927120100`; lo prueba `abono-tienda-457-migration.test.ts`.
   ingreso_abono_tienda: "ingreso",
   egreso_reverso_abono_tienda: "egreso",
@@ -128,11 +128,11 @@ const AGREGADAS_459: readonly string[] = [
   "ingreso_reverso_pago_por_cuenta_tienda",
   "ingreso_aporte_capital",
   "egreso_reverso_aporte_capital",
-  // Ficha 461 (2026-09-25): los dos valores del cobro de Ordenex a una tienda, tambien POSTERIORES a
+  // Ficha 461 (2026-09-25): los dos valores del cobro de la empresa a una tienda, tambien POSTERIORES a
   // la foto de la 173. Mismo criterio: se restan de lo que lee ESE texto, no de lo que lee el motor.
   "ingreso_cobro_tienda",
   "egreso_reverso_cobro_tienda",
-  // Ficha 457 (2026-09-25): la entrada del pago de una tienda a Ordenex y su reverso, tambien
+  // Ficha 457 (2026-09-25): la entrada del pago de una tienda a la empresa y su reverso, tambien
   // POSTERIORES a la foto de la 173. Mismo criterio.
   "ingreso_abono_tienda",
   "egreso_reverso_abono_tienda",

@@ -836,7 +836,7 @@ export class CierresAdminService implements ICierresAdminService {
     const [resumen] = await this.conPendiente([found.cierre]);
     const ganancia = gananciaEmpresa(totalesIngreso.total, resumen.totalPagoMensajero);
 
-    // Pago a la tienda DERIVADO: lo RECIBIDO (total general) menos lo que Ordenex le factura
+    // Pago a la tienda DERIVADO: lo RECIBIDO (total general) menos lo que la empresa le factura
     // sobre esa plata. Sale de otra resta que la ganancia: parte de lo cobrado, no del bruto.
     const pagoTienda = pagoTiendaEmpresa(
       resumen.totales.general,
@@ -852,7 +852,7 @@ export class CierresAdminService implements ICierresAdminService {
     // resta escrita aqui: si divergieran, la misma plata se leeria distinta segun por que
     // pantalla se entra. Ese motivo esta escrito en los docstrings de las dos funciones.
 
-    // LA LINEA PUENTE: lo que Ordenex cobra SOBRE LO RECAUDADO. Se emite SIEMPRE, tambien con
+    // LA LINEA PUENTE: lo que la empresa cobra SOBRE LO RECAUDADO. Se emite SIEMPRE, tambien con
     // el flete por rechazo en "0.00": no es una linea condicional, es la que hace que
     // «recaudado − esto = para la tienda» de en TODOS los cierres, con rechazos o sin ellos.
     const cobradoSobreLoRecaudado = cobradoSobreRecaudado(
@@ -860,7 +860,7 @@ export class CierresAdminService implements ICierresAdminService {
       totalesIngreso.comisionConIva,
     );
 
-    // EL NETO: lo facturado menos los DOS pagos de Ordenex. NO es `ganancia` y NO se encadena
+    // EL NETO: lo facturado menos los DOS pagos de la empresa. NO es `ganancia` y NO se encadena
     // con ella —`gananciaEmpresa` resta solo el pago al mensajero—: coinciden cuando el ingreso
     // de bodega por rechazos vale "0.00" y divergen en cuanto hay un rechazo. `ganancia` sigue
     // saliendo intacta en este mismo DTO; esta es OTRA resta, no su sustituta.

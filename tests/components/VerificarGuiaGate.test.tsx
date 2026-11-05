@@ -39,7 +39,7 @@ vi.mock("html5-qrcode", () => ({
 
 /** URL del paquete tal como la codifica el QR de la etiqueta: `/paquete/<numGuia>`. */
 function qrDeGuia(numGuia: number): string {
-  return `https://ordenex.app/paquete/${numGuia}`;
+  return `https://ejemplo.test/paquete/${numGuia}`;
 }
 
 /** Abre la cámara y simula que decodifica un QR con el texto dado. */

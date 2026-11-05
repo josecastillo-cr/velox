@@ -47,7 +47,7 @@ import {
  * 💰 FICHA 395 — EL DETALLE DEL CIERRE DE MENSAJERO DICE QUÉ PLATA ES PARA QUIÉN.
  *
  * ── EL DEFECTO QUE MATA ESTE ARCHIVO
- * La pantalla enseñaba «Pago a tienda ₡225.176,33» y «Total Ordenex ₡70.946,67» sueltos e
+ * La pantalla enseñaba «Pago a tienda ₡225.176,33» y «Total Velox ₡70.946,67» sueltos e
  * invitaba a restarlos. **Esa resta no da.** El humano se confundió con su propia pantalla y lo
  * dijo así: «si yo me confundo, no quiero imaginar los operarios».
  *
@@ -185,7 +185,7 @@ const GRUPOS_VACIOS: CierreGrupos = {
 };
 
 /**
- * Los once campos del ingreso de Ordenex. Sólo se pintan los AGRUPADOS (cada concepto con su
+ * Los once campos del ingreso de la empresa. Sólo se pintan los AGRUPADOS (cada concepto con su
  * IVA); los otros se rellenan coherentes para que la fixtura no se contradiga a sí misma, pero
  * ninguna aserción de este archivo los mira.
  */
@@ -235,7 +235,7 @@ function resumen(over: Partial<CierreAdminResumen> = {}): CierreAdminResumen {
 type DetalleOk = Extract<CierreDetalleAdminServiceResult, { status: "ok" }>;
 
 /**
- * EL CIERRE DE LA CAPTURA: recaudó 285.275,00, Ordenex le facturó 70.946,67 (60.098,67 sobre lo
+ * EL CIERRE DE LA CAPTURA: recaudó 285.275,00, la empresa le facturó 70.946,67 (60.098,67 sobre lo
  * recaudado + 10.848,00 de flete por devolución a origen), hoy se le pagan 225.176,33 y en total gana
  * 214.328,33. Estado `vencido`, que es el de la captura: el cargo del flete por devolución a origen TODAVÍA
  * no se ha hecho.
@@ -304,8 +304,8 @@ const SIN_RECHAZO: DetalleOk = {
 };
 
 /**
- * PUROS RECHAZOS: no se recaudó nada y aun así Ordenex facturó el flete por devolución a origen. La tienda
- * GANA un negativo y el neto de Ordenex también lo es. Ninguno de los dos se recorta a cero: un
+ * PUROS RECHAZOS: no se recaudó nada y aun así la empresa facturó el flete por devolución a origen. La tienda
+ * GANA un negativo y el neto de la empresa también lo es. Ninguno de los dos se recorta a cero: un
  * cero diría algo falso.
  */
 const NEGATIVOS: DetalleOk = {

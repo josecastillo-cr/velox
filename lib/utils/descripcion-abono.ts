@@ -1,8 +1,8 @@
 import type { MetodoLiquidacion } from "@/lib/types/liquidacion";
 import { descripcionDePago } from "@/lib/utils/descripcion-pago";
 
-// Ficha 457 (design §5.4, R21) — las lineas del libro de un PAGO DE UNA TIENDA A ORDENEX: el dinero
-// que una tienda con saldo en contra le entrega a Ordenex. Funciones PURAS: sin Prisma, sin HTTP.
+// Ficha 457 (design §5.4, R21) — las lineas del libro de un PAGO DE UNA TIENDA A LA EMPRESA: el dinero
+// que una tienda con saldo en contra le entrega a la empresa. Funciones PURAS: sin Prisma, sin HTTP.
 //
 // NINGUNA lleva un identificador interno (R21/R48): el enlace al documento lo dan
 // `origen_tipo`/`origen_id` del movimiento. El metodo y la referencia se componen con

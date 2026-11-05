@@ -41,14 +41,14 @@ export const CHIP_POR_CATEGORIA_TIENDA: Record<
   iva_comision_cod: () => "cierres",
   flete_devolucion: (origen) => (origen === "gestion_orden" ? "cobros" : "cierres"),
   iva_flete_devolucion: (origen) => (origen === "gestion_orden" ? "cobros" : "cierres"),
-  // Lo que Ordenex le paga a la tienda (y lo que la tienda le paga a Ordenex), con sus anulaciones.
+  // Lo que la empresa le paga a la tienda (y lo que la tienda le paga a la empresa), con sus anulaciones.
   pago_tienda: () => "pagos",
   ajuste_credito: () => "pagos", // la anulacion de un pago a la tienda (172)
   pago_por_cuenta: () => "pagos",
   pago_por_cuenta_anulado: () => "pagos",
   abono_tienda: () => "pagos",
   abono_tienda_anulado: () => "pagos",
-  // Lo que Ordenex le cobra a la tienda, con sus anulaciones.
+  // Lo que la empresa le cobra a la tienda, con sus anulaciones.
   cobro_manual: () => "cobros",
   cobro_tienda_anulado: () => "cobros",
   flete_devolucion_anulado: () => "cobros",

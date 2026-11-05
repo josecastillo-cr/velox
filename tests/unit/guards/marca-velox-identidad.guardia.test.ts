@@ -91,7 +91,7 @@ describe("Feature 492 — offline.html (R2, R11)", () => {
     expect(html).toContain(`<title>${MARCA.nombre} — Sin conexión</title>`);
     expect(html).toContain(`<meta name="theme-color" content="${MARCA.colorTema}" />`);
     const head = /<head>([\s\S]*?)<\/head>/.exec(html)?.[1] ?? "";
-    expect(head).not.toMatch(/<title>[^<]*Ordenex/);
+    expect(head).not.toMatch(new RegExp(`<title>[^<]*${MARCA_RETIRADA}`));
     expect(head).not.toContain("#0d2444");
   });
 });

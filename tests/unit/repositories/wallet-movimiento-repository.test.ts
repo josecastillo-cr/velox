@@ -298,7 +298,7 @@ describe("agregarPorCategoriaYTipo (R8/R47)", () => {
 
     const arg = prisma.walletMovimiento.groupBy.mock.calls[0][0];
     // La CATEGORIA en el `by` es lo que hace derivable la particion por naturaleza: sin ella,
-    // «dinero en caja» y «ganancia de Ordenex» serian el mismo numero para siempre.
+    // «dinero en caja» y «ganancia de la empresa» serian el mismo numero para siempre.
     expect(arg.by).toEqual(["categoria", "tipo"]);
     // El MISMO `where` que construye `listar` (mismo `buildWhere`): la cabecera y su propio
     // listado no pueden dejar de cuadrar.
@@ -445,7 +445,7 @@ describe("dueno en el DTO (R31/R32)", () => {
       new Set(["propio", "terceros", "capital", "iva", "por_cobrar_satelite"]),
     );
     // Nombradas, para que el fallo diga cual: el contra-entrega y el pago a tienda son de las
-    // tiendas; el flete y el sueldo, de Ordenex.
+    // tiendas; el flete y el sueldo, de la empresa.
     const duenoDe = (categoria: string) =>
       movimientos.find((m) => m.categoria === categoria)?.dueno;
     expect(duenoDe("ingreso_cod_recaudado")).toBe("terceros");

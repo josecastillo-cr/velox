@@ -12,7 +12,7 @@
 //   1. QUIÉN LO VE (R6). Sin la concesión no hay columna, ni panel, ni control, ni aviso — y
 //      la tabla queda EXACTAMENTE como estaba.
 //   2. «NO HAY» NO ES «CERO» (R30). Es la mutación M6, y es la diferencia entre «todavía no se
-//      sabe lo que cobró Ordenex» y «Ordenex no cobró nada». Son dos hechos distintos.
+//      sabe lo que cobró la empresa» y «la empresa no cobró nada». Son dos hechos distintos.
 //   3. LO QUE SE LEE CERRADO NO SE CONSULTA (R33). Veinticinco filas cerradas cuestan CERO
 //      lecturas de detalle; abrir una cuesta exactamente una, y de SU fila.
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -176,7 +176,7 @@ function cifra(td: HTMLTableCellElement): string {
 async function valorDeDetalle(rotulo: string): Promise<string> {
   // ⚠ SE BUSCA DENTRO DE `[data-slot="detalle-producto"]` Y NO EN TODO EL DOCUMENTO. El panel de
   // órdenes de la 347 repite los mismos rótulos a propósito —sus totales están ahí «para
-  // cotejar» (R38)—, así que un `screen.getByText("Cobró Ordenex")` encuentra DOS y falla. Lo
+  // cotejar» (R38)—, así que un `screen.getByText("Cobró Velox")` encuentra DOS y falla. Lo
   // que estos casos miden es la cifra de la FILA, que sale del DTO ya en pantalla y no de una
   // segunda consulta: es la que mata la mutación M6.
   const bloque = await waitFor(() => {
@@ -555,8 +555,8 @@ describe("FICHA 347 · R30 — sin nada liquidado se pinta «—», nunca `0,00`
       }),
     );
 
-    // ⚠ ÉSTE ES EL CASO QUE MATA LA MUTACIÓN M6. «Todavía no se sabe lo que cobró Ordenex» y
-    // «Ordenex no cobró nada» son dos hechos distintos, y en una pantalla de dinero la
+    // ⚠ ÉSTE ES EL CASO QUE MATA LA MUTACIÓN M6. «Todavía no se sabe lo que cobró la empresa» y
+    // «la empresa no cobró nada» son dos hechos distintos, y en una pantalla de dinero la
     // diferencia decide si alguien reclama una liquidación o no.
     for (const rotulo of [ROTULO_COBRO, PRODUCTOS_COLUMNAS.paraTienda]) {
       const valor = await valorDeDetalle(rotulo);
@@ -1165,7 +1165,7 @@ describe("FICHA 348 · `textoColumnasNoSumables` deriva la leyenda, no la escrib
  *     vino a hacer. El fulfillment no lo tiene contratado la mayoría de las tiendas, así que
  *     para ellas la cifra es un `"0.00"` CIERTO que se leería como un concepto que les aplica y
  *     les salió en cero. Los dos estados sin monto —`"0.00"` y `null`— se callan.
- *  3. QUE NO ES UN SUMANDO DE «Cobró Ordenex». Es la afirmación cara: dentro de `empresa` vive
+ *  3. QUE NO ES UN SUMANDO DE «Cobró Velox». Es la afirmación cara: dentro de `empresa` vive
  *     la igualdad `empresa + tienda === liquidado.recaudado`, cierta POR CONSTRUCCIÓN, y un
  *     sumando nuevo la rompería en silencio. El caso lo mide por comportamiento —la celda sigue
  *     diciendo lo mismo Y la suma de las dos NO aparece en el DOM—, no leyendo el código.

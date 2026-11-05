@@ -1189,3 +1189,307 @@ $ pnpm exec vitest run guard, después del commit del test    GUARD_EXIT=0
    Test Files  284 passed (284)
         Tests  3945 passed | 1 todo (3946)
 ```
+
+## Tanda 7 (T8.1–T8.4), comentarios, datos de prueba y cierre de la guardia, 2026-11-05
+
+MCP `codebase-memory` sin conexión (*connection timed out*): medido con `git grep`, leyendo los archivos y con `tests/fixtures/marca-sin-ordenex-494.ts`. Rama `feat/494-t7-cierre`, desde `feat/494-t6-config` (`882d5efb`), porque #891 y #892 esperan merge.
+
+### T8.1 — Pasada
+
+`--familia comentarios`: 380 archivos reescritos, 950 líneas. El script dejó **33 apariciones en 20 archivos** y, peor, **dejó sin efecto 17 aserciones**. Las dos cosas se resolvieron a mano, con sustituciones que exigen su número de coincidencias.
+
+**El riesgo de esta tanda era real.** El script convierte `/<title>[^<]*Ordenex/` en `/<title>[^<]*la empresa/` y `not.toContain("ordenex.co")` en `not.toContain("ejemplo.test")`. Esos tests siguen en verde y ya no comprueban nada, porque ningún texto real dice eso. Se vieron al leer las 132 líneas de código que cambiaban, no porque cayera un test.
+
+Las negativas pasan a afirmarse desde `tests/fixtures/marca-retirada-nombre-493.ts` (E7), como pide `design.md §3.5`. La aserción es la misma y el valor comparado también. Solo cambia dónde vive el literal. Constantes nuevas: `MARCA_RETIRADA_RE`, `DOMINIO_RETIRADO`, `ORIGEN_WEBHOOK_RETIRADO`, `PREFIJO_CABECERA_RETIRADA`, `CABECERA_FIRMA_RETIRADA`, `CABECERA_TIMESTAMP_RETIRADA`.
+
+| Tests que necesitaron más que renombrar | Qué |
+| --- | --- |
+| `guia-integracion-marca` (5), `openapi-titulo-marca`, `marca-velox-identidad` | Regex de la marca en `<title>` y compañía, con `MARCA_RETIRADA` |
+| `etiquetas-rotulo-marca-492`, `EtiquetaGuia`, `Logo`, `email-marca`, `informe-transito-pdf`, `manifest`, `picking-pdf` (2), `plantilla-datos`, `paginas-legales` (2), `paginas-legales-estaticas.guardia` | `/ordenex/i` y `"ordenex"`, con `MARCA_RETIRADA_RE` o `MARCA_RETIRADA.toLowerCase()` |
+| `openapi-406-evidencias-url` (4) | 2 negativas de dominio, y **2 que afirman la entrada histórica del CHANGELOG (E2), que se queda como está**, con `ORIGEN_WEBHOOK_RETIRADO` |
+| `plantilla-datos` (2), `informe-aviso-interno` (título y aserción) | Dominio viejo, con `DOMINIO_RETIRADO` |
+| `webhook-sender`, `webhook-firma` (título y 2), `WebhookEventoOrdenService` (2), `webhook-estado-service` (2), `openapi-webhook-estado-actualizado` (2) | Cabeceras viejas, con las constantes de cabecera |
+| `CajaResumenCard`, `wallet-labels` | Frase con la marca vieja, con `MARCA_RETIRADA` |
+| `quitador-comentarios.guardia:417` | El dato ya era `ejemplo.test` y la negativa seguía con el dominio viejo: se renombra el patrón |
+
+**Hallazgo anterior a esta ficha, sin tocar.** `CajaResumenCard.test.tsx:324` afirma que «Las tiendas le deben a <marca retirada>» no sale con la cifra positiva. La frase real lleva la marca vigente desde la 493, así que esa negativa no puede fallar nunca. Razonado leyendo el test, no medido. Se deja igual porque la orden es no cambiar aserciones. El arreglo es una línea: `NOMBRE_ESPERADO` en vez de `MARCA_RETIRADA`.
+
+**Retoques de comentarios a mano**, todos solo comentarios:
+
+- 36 líneas de continuación que el script dejó con «La empresa» a media frase pasan a minúscula.
+- 6 comentarios decían «sitio `ejemplo.test`» hablando del sitio real de entonces (`globals.css`, `page.tsx`, `LandingNav`, `primitivas`, `no-embalaje`): ahora dicen «sitio anterior».
+- «una la empresa abierta» pasa a «una app abierta», y «dos La empresa en el lanzador» a «dos apps».
+- El dominio de Vercel de producción, citado en `pwa-servida-sin-sesion`, pasa a «su dominio de Vercel de entonces».
+- `ordenex-f81-pg` pasa a `f81-pg`, nombre de un contenedor efímero de un comentario histórico.
+
+**Datos de prueba sueltos:** `ordenex-prod-123` pasa a `empresa-prod-123`, y `hooks/ordenex` a `hooks/empresa`.
+
+**Sin cambio de código.** Script en el scratchpad con `quitarComentarios` de `tests/fixtures/sin-comentarios.ts` sobre los dos lados, contra `882d5efb`. Conserva el número de líneas, así que compara línea a línea:
+
+| Zona | Archivos | Líneas de código que cambian |
+| --- | --- | --- |
+| `app`, `lib`, `components`, `hooks`, `public`, `e2e`, `scripts` | 182 | **0**. `app/globals.css` sale con 2 líneas porque el quitador de TS no entiende CSS: con `quitarComentariosCss`, idéntico |
+| `tests` | 217 | 129, todas leídas: datos de prueba y las negativas de la tabla |
+| Dígitos en las líneas cambiadas | | 0 diferencias: ningún importe, id ni cifra |
+
+`db/migrations/**`, `specs/`, `docs/`, `feature_list.json`, `db/schema.prisma` y `tests/fixtures/sin-comentarios.ts`: sin tocar en T8.1. Tests de migración: ninguno cambió de dato.
+
+### T8.2 — Cierre
+
+- Borrados `tests/fixtures/marca-pendientes-494.ts` y `scripts/marca-494-renombrar.mjs`.
+- Fuera de `WHITELIST_FILES` de `no-embalaje`, de `PROPIOS` y E9. Sin `activaEn`, `trinquete`, `recuentoPorArchivo`, `emitirPendientes` ni la tabla del script.
+- Bloque «árbol» como `it` llano, y el `it.todo` de T8.2 pasa a test real.
+- En la 493: fuera `EXCEPCIONES_R11`, `esExcepcionR11`, `quitarIdentificadores`, `POSTMAN` y `lineaPermitidaEnDocs`.
+
+**Decisiones que la tarea no fijaba:**
+
+- `NEGATIVAS_DE_CONTRATO` y `permitidoExtra` también se van: solo servían a `quitarIdentificadores`.
+- **Una sola lista de excepciones.** Sin R11, la 493 vería como hallazgo `lib/navegador/claves-legadas.ts` y los alias del SW. `hallazgosRetiradaExigibles` aplica `estaExceptuado` de la 494, así que la 493 importa el detector de la 494. Sin ciclo: el de la 494 no importa nada de la 493.
+- La 493 hereda el criterio de `OrdenExistente`, «orden» + «ex…», que antes tapaba `quitarIdentificadores`.
+- El censo se reescribe y cuenta por excepción. Es final y ya no hay tabla de migración que clasificar. Solo cuenta lo versionado.
+
+**R28, contra `origin/dev` (`d216c45b`):** `git diff origin/dev HEAD -- next.config.* vercel.json proxy.ts middleware.ts` da **0 líneas**. `proxy.ts` no existe.
+
+**`CLAUDE.md`:** no se toca. P1 no cambió nada y el título ya lo aplicó el leader.
+
+**Censo final**, `progress/censo_marca_494.md`: **0 apariciones fuera de excepciones**, y solo E1–E8. Fuera del árbol no queda más que `.design-work/` y `design-*/` (`design.md §7`) y los falsos positivos `OrdenExistente`.
+
+**Esquema:** `prisma migrate diff --from-config-datasource --to-schema db/schema.prisma --exit-code`: `No difference detected.`, exit 0.
+
+### T8.3 — Lo que no ve la suite
+
+`next dev --webpack`, Chromium, `colorScheme: light`, cuenta `admin.qa@empresa.test`. Capturas en el scratchpad: no se suben porque el repo es público.
+
+**Con cookie y claves viejas sembradas**, tras borrar lo nuevo:
+
+| Qué | Sembrado | Visto tras cargar `/ordenes` y recargar |
+| --- | --- | --- |
+| Tema | `ordenex_tema=oscuro` | `data-tema="oscuro"`, fondo `rgb(10, 21, 36)`, `app_tema=oscuro`, y la vieja desaparece |
+| Sonido | `ordenex:sonido-notificaciones=off` | `app:…=off`, vieja borrada; la campana ofrece «Activar el sonido de las notificaciones» |
+| Columnas | `ocultas: [telefonoDest]`, `orden: [estatus, numGuia]` | Clave movida. «Teléfono del destinatario» desmarcada, y es la única de 22. «Estado» encabeza la lista |
+| Consola | | 0 errores de hidratación ni de bucle de render |
+
+**Relevo de la PWA, con la app real, `useActualizacionPwa` real y el botón real.** En `next dev` el layout desregistra los SW, y `localhost` los autodestruye. Montaje: proxy en `velox.localhost` que sirve solo `/sw.js` (el de antes de la tanda 1, luego el de esta rama), `unregister` neutralizado, y SW viejo activo con el nuevo en espera. Para simular una página de la versión anterior, la sonda reescribe `app:` a `ordenex:` en `postMessage`.
+
+| Escenario | Aviso | Mensaje enviado | Recarga | SW en espera | Relevos |
+| --- | --- | --- | --- | --- | --- |
+| Página nueva, SW nuevo en espera | Sale | `app:relevo-ahora` | Sí | No | 1 |
+| **Página vieja, SW nuevo en espera** | Sale | `ordenex:relevo-ahora` | **Sí** | No | **1** |
+| **Control:** página vieja, SW sin el alias | Sale | `ordenex:relevo-ahora` | **No** | **Sigue** | **0**, y el aviso sigue ahí |
+
+El control prueba que la medición discrimina: sin el alias, el botón no hace nada, que es la trampa de `design.md §5.5`.
+
+**Primera corrida, sin aviso, y no era un fallo:** la cuenta QA abre el modal «Confirmá el SINPE», y un diálogo abierto cuenta como trabajo en curso (G2). Se cierra con «Ahora no» y el aviso aparece a los 3 s.
+
+**Visto de paso, fuera de esta ficha:** la tarjeta del aviso se pinta descompuesta, con el icono en una columna ancha y el texto apretado a la derecha. No lo toca esta tanda. No sé si pasa también en producción.
+
+**Pendiente del despliegue, no medible en local:**
+
+- PWA **instalada** sobre HTTPS, con build de producción. Aquí fue `next dev` y sin instalar.
+- La página vieja es la real con el mensaje reescrito, no el bundle anterior de verdad.
+- R22, SW viejo con página nueva, en un dispositivo real.
+- Siembra de QA en preview (T7.2), que es del leader.
+
+**Limpieza de la base local.** Conteo exacto de 89 tablas antes y después: solo cambiaron `login_attempt` (+4) y `Session` (+4), de los 4 logins de las dos corridas. Borradas esas filas, de la cuenta `admin.qa`: `dif final {}`. Servidor matado, log borrado (estaba fuera del repo), `.next/dev` borrado.
+
+### T8.4 — Mutaciones, ejecutadas de verdad y restauradas
+
+Script en el scratchpad. Por cada una comprueba que el archivo cambió, que `numTotalTests` > 0 y que los bytes quedan restaurados; los archivos creados se borran y se comprueba. Aborta si algo no cuadra. Salvo donde se indica, contra las guardias 494 y 493.
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 60 | 0 | |
+| Tanda 1, clave: `CLAVE_SONIDO` vieja | 60 | 3 | ningun archivo del arbol tiene la marca |
+| Tanda 1, prefijo de columnas de descarga | 60 | 3 | el mismo |
+| Tanda 2, identificador: `netoEmpresa` en un contrato de cierres | 60 | 1 | el mismo |
+| Tanda 2, ruta: archivo con su nombre viejo | 60 | 1 | el mismo |
+| Tanda 3, valor: `gasto_empresa` en el catálogo | 60 | 2 | el mismo |
+| Tanda 3, identificador: `solo_empresa` en la barra | 60 | 1 | el mismo |
+| Tanda 4, valor: id de la métrica | 60 | 2 | el mismo |
+| Tanda 5, sin filas (T6.0): migración 494 que toca evidencia congelada | 60 | 1 | ninguna migracion de la ficha lo hace |
+| Tanda 6, comentario en el esquema | 60 | 1 | ningun archivo del arbol |
+| Tanda 6, `.env.example` | 60 | 1 | el mismo |
+| Tanda 6, título de `DESIGN.md` | 60 | 1 | el mismo |
+| Tanda 6, función de la guarda en un script | 60 | 1 | el mismo |
+| Tanda 7, comentario en un archivo cualquiera | 60 | 1 | el mismo |
+| Tanda 7, dato de prueba en un test | 60 | 2 | el mismo |
+| Tanda 7, archivo nuevo con la marca solo en el nombre | 60 | 1 | el mismo |
+| Tanda 7, `public/sw.js` fuera de los alias | 60 | 1 | el mismo |
+| 493 sin R11: clave vieja como texto en `lib` | 60 | 3 | app/, components/, hooks/, lib/ (nodos de texto) |
+| 493 sin R11: dato de prueba en un test | 60 | 2 | ningun test dice la marca retirada en un texto |
+| 493 sin `POSTMAN`: la guía cita la colección vieja | 60 | 2 | documentacion para integradores |
+| Negativa: marca vieja en el `<title>` de la guía, contra su test | 6 | 2 | ninguna de esas cinco piezas conserva la marca |
+| Negativa: dominio viejo en un ejemplo, contra su test | 74 | 4 | ningun ejemplo ni dato de muestra conserva el dominio viejo |
+| Negativa: cabecera vieja en la firma, contra su test | 8 | 2 | cabecerasFirma emite exactamente… |
+| Negativa del quitador con el dominio viejo | 60 | 1 | ningun archivo del arbol |
+| Histórico: el CHANGELOG sin el origen viejo, contra su test | 9 | 2 | la entrada HISTORICA del 2026-08-22 NO se reescribe |
+| E2 muerta: `docs/marca/velox/README.md` sin la marca | 60 | 1 | todas declaran motivo y coinciden con algo real |
+| E3 muerta: `CLAUDE.md` sin el nombre del proyecto | 60 | 2 | el mismo |
+| E4 muerta: `contraste-454` sin la base local | 60 | 1 | el mismo |
+| E5 muerta: `cookie-legada` sin la clave vieja | 60 | 1 | el mismo |
+| E5.1 muerta: `usePushEnVentana` sin los alias | 60 | 1 | el mismo |
+| E6 muerta: test de la siembra sin los correos | 60 | 1 | el mismo |
+| E7 muerta: un fixture de E7 sin la marca | 60 | 7 | el mismo |
+| E8 muerta: `contrato-sin-cambios` sin la negativa | 60 | 1 | el mismo |
+| E1 muerta: la ruta apunta a una carpeta sin nada (en el fixture: `db/migrations` no se toca) | 60 | 1 | el mismo |
+| Lista cerrada: vuelve E9 | 60 | 1 | la lista es la cerrada de design §7 |
+| Base restaurada | 60 | 0 | |
+
+**Supervivientes: 0 de 34.** La tanda 5 no tiene valor que revertir, porque T6.0 no migró nada: se mutó lo que R11 vigila de ella.
+
+### Rojo intermitente
+
+`tests/integration/wallet-page.test.tsx`: 2 rojos en el lote de integración de T8.1, corriendo a la vez con el lote de unitarios (timeout, y el siguiente test ve la llamada del anterior). Aislado: 13 de 13. El archivo solo cambia en comentarios. Se anota como intermitente por carga.
+
+### Verificación
+
+```
+$ pnpm exec tsc --noEmit --incremental false                 TSC_EXIT=0   (tras T8.1 y tras T8.2)
+$ eslint, por lotes, los 394 archivos de T8.1                errores 0, avisos 25
+$ eslint de los 5 archivos de T8.2                           errores 0, avisos 0
+$ vitest run, por lotes, tests unit y components tocados     159 archivos, 3462 tests, 0 rojos
+$ vitest run, tests de integracion tocados                   47 archivos, 547 tests, 2 rojos (arriba), 0 saltados
+$ vitest run tests/integration/wallet-page.test.tsx          13 passed (13)
+$ vitest run guard, tras el commit de T8.1                   GUARD_EXIT=0, 284 archivos, 3945 tests + 1 todo, 0 rojos
+$ vitest run guard, tras el commit de T8.2                   GUARD_EXIT=0, 284 archivos, 3945 tests, 0 rojos, 0 todo
+$ vitest related --run <fixtures de T8.2> no-embalaje        RELATED_EXIT=0, 3 archivos, 61 tests
+```
+
+**`test-citado-desaparecido`:** ningún test se renombra ni se borra.
+
+### Mapa `R<n>` → test, tanda 7
+
+| R | Test |
+| --- | --- |
+| R1 | `marca-sin-ordenex-494.guardia.test.ts`, «ningun archivo del arbol tiene la marca fuera de las excepciones», ya sin trinquete |
+| R2 | la misma guardia, bloque «detector» y la contraprueba del bloque «árbol» |
+| R3 | la misma guardia, «todas declaran motivo y coinciden con algo real» y sus contrapruebas; mutadas E1 a E8 |
+| R28 | la misma guardia, bloque «hosts», y el diff de 0 líneas contra `origin/dev` |
+
+**Veredicto:** Tanda 7 lista: 0 apariciones fuera de E1–E8 con la guardia sin trinquete, sin cambio de código fuera de comentarios y datos de prueba, y a falta de la revisión (T8.5) y de lo pendiente del despliegue.
+
+## Corrección de la revisión final (`progress/review_494_t7.md`), 2026-11-05
+
+MCP `codebase-memory` sin conexión: medido con `git grep`, leyendo y con scripts.
+
+### B1 — R25 ya tiene test, y la conducta es correcta
+
+`tests/integration/db/plantilla-renombrada-envio-494.test.ts`, contra Postgres y dentro de una transacción revertida. Repositorios reales de plantilla, envío y ejecución; solo el enviador de Meta y la cola son dobles. El cambio de nombre es el `UPDATE` del paso 4 de `design.md §8`, con su `template_id`.
+
+| Test | Lo que afirma | Medido |
+| --- | --- | --- |
+| Envío programado, antes y después del cambio | `UPDATE` toca 1 fila. El enviador recibe `[viejo, nuevo]`. La ejecución anterior conserva `plantilla_nombre` y `plantilla_id`, y la siguiente toma el nuevo. La fila de `whatsapp_envio` y sus destinatarios, por `to_jsonb` y con `updated_at`, no cambian desde antes de la primera ejecución | 0 rojos, 0 saltados |
+| **No lo pedía la revisión:** entrega a medias, de antes del cambio | Tras un transitorio, el reintento manda el nombre **nuevo** y la entrega queda `aceptada`. La foto de esa ejecución sigue con el viejo | 0 rojos, 0 saltados |
+
+**Conclusión para T9.3:** renombrar es seguro también con ejecuciones en curso, siempre que la plantilla nueva esté `APPROVED` en Meta antes del `UPDATE`, como manda `design.md §8`. Un reintento de después ya sale con el nombre nuevo. Por eso el paso 6, no borrar la vieja mientras haya ejecuciones en curso, sigue siendo una cautela y no se quita.
+
+Una primera versión tomaba la foto de `whatsapp_envio` **después** de la primera ejecución. La mutación «al fijar, toca la fila» sobrevivió por eso, y se corrigió la foto. Sin `if (!x) return`: las siembras lanzan si falta algo.
+
+### B2 — la descarga con la clave vieja no genera archivo
+
+**Las cuatro claves pasan a `...V2`, sin alias:** `listarGestionesCierresAdminCompletoV2`, `listarGestionesCierresBodegaCompletoV2`, `libroCajaKardexV2`, `libroCajaKardexConDetalleV2`. Solo cambia la clave del registro; los símbolos de las actions, no.
+
+**Revisadas las 33 descargas del registro.** Script en el scratchpad: desde cada `descargarDatos("<clave>")`, sus proyecciones por imports, con los identificadores `empresa` de código ya sin comentarios. Luego, leído a mano qué es campo de la respuesta y qué es una constante de etiqueta.
+
+| Campo renombrado | Dónde se lee | ¿En un archivo descargado? | Decisión |
+| --- | --- | --- | --- |
+| `ingresoEmpresa` | `cierres-gestiones-fundida-descarga-columnas.ts:471` | **Sí**, las dos claves de gestiones | V2 |
+| `esEmpresa` | `textoAQuien`, vía `wallet-ledger-descarga-columnas.ts:73` | **Sí**, las dos claves del libro: «A quién» de un aporte saldría «—» | V2, como pide la orden para las demás descargas con campos renombrados |
+| `esEmpresa` | `DetalleMovimientoPanel`; `EstadoCuenta.tsx:840` construye el valor en el navegador | No | Se queda |
+| `sentido: "empresa_debe"` | `estado-cuenta-labels.ts:75,85`, frase en pantalla | No: la proyección no lee `sentido` | Se queda |
+| `netoEmpresa`, `deEmpresa`, `empresaCobra`, `empresaPaga` | Detalle en pantalla, resumen de caja o textos de botón | No | Se queda |
+| `liquidado.empresa` | Productos, fuera del registro | Ya cortado con las actions V2 | Se queda |
+
+**Ejecutado con la clave vieja contra el servidor nuevo:**
+
+- **Test:** `tests/components/descarga/ClaveDescargaRetirada494.test.tsx`. Con la action real y el registro real: `validation_error`, sin ejecutar nada; `descargarDatos` lanza; el botón avisa y no sale archivo. Las nuevas se fijan en literal, las viejas también. 13 tests.
+- **En navegador:** `next dev --webpack`, sesión `admin.qa`, botón real. Playwright reescribe el POST de la action con la clave de antes, que es lo que manda una pestaña vieja.
+
+| Pantalla | Clave enviada | Archivo | Aviso |
+| --- | --- | --- | --- |
+| `/wallet`, Libro de movimientos | `libroCajaKardexConDetalle` | **ninguno** | «No se pudo generar el archivo. Vuelve a intentarlo; el listado no cambió.» |
+| Control | `libroCajaKardexConDetalleV2` | `libro-de-movimientos-….xlsx` | ninguno |
+| `/cierres-admin`, detalle por gestión | `listarGestionesCierresAdminCompleto` | **ninguno** | el mismo |
+| Control | `listarGestionesCierresAdminCompletoV2` | `gestiones-de-cierres-….xlsx` | ninguno |
+
+**Bodega y el libro sin detalle:** cubiertos por el test, sin repetirlos en navegador. **Sin medir:** el bundle viejo real; se simuló reescribiendo el POST. Este corte no depende del id de la action ni de Turbopack: la clave se comprueba en el servidor, y si el id no sobrevive, el botón da el mismo aviso.
+
+**Lo que queda, corregido en `design.md §3.2` y en `docs/release.md`:**
+
+- Una descarga afectada en pestaña vieja falla con aviso y sin archivo, hasta recargar. El aviso dice «vuelve a intentarlo», y reintentar falla igual; no se cambia el texto, porque es de todas las descargas.
+- **En pantalla**, hasta recargar: frase de saldo falsa, panel que no abre, y «A quién» de un aporte en «—» en el libro de caja (`libro-caja-labels.ts:70`).
+- En la base no se escribe nada.
+
+### Menores
+
+| Id | Qué | Comprobado |
+| --- | --- | --- |
+| m1 | `CajaResumenCard.test.tsx:325`, con `NOMBRE_ESPERADO` | Con la frase forzada en positivo, ese `it` ahora sale rojo |
+| m2 | `wallet-labels.test.ts:287`, igual | Rojo con la frase de vuelta. En ese `it` también la pilla el `toBe`: la mutación no aísla la negativa |
+| m3 | La guardia fija en literal rutas y patrones de cada excepción | E5 ensanchada a `lib/utils/`, E5.1 y E6 anchas: rojas |
+| m4 | E5 se parte: `claves-legadas.ts` pasa a **E5.2**, por línea (`"ordenex…"` entre comillas) | Texto visible en el módulo: rojo en las dos guardias |
+| m5 | Árbol con `providers/`, `instrumentation.ts`, `AGENTS.md`, `README.md`. Hoy 0 apariciones: la guardia sigue verde | Comentario en cada uno: rojo |
+| m6 | `EmailProvider.ts:17`, `etiquetas-visibles.guardia:76`, `factura-contraste.guardia:111`, y 13 líneas con «Total la empresa» o «Cobró la empresa», que pasan al rótulo real | Solo comentarios, comprobado con el quitador contra el commit anterior |
+| m8 | Fila **A12** en la tabla A de `docs/release.md`: Skew Protection en el panel de Vercel, `vercel env ls production` por nombre | Test y mutación |
+
+m7 y la tarjeta `AvisoVersionNueva` no se tocan, por orden.
+
+### Mutaciones, ejecutadas de verdad y restauradas
+
+Archivo cambiado, `numTotalTests` > 0, bytes restaurados y comparados.
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 77 | 0 | |
+| R25: nombre fijado por plantilla, sin releer | 2 | 2 | el enviador recibe el nombre nuevo… |
+| R25: el reintento manda el nombre de la foto | 2 | 1 | una entrega a medias… |
+| R25: al fijar, reescribe la foto de las anteriores | 2 | 1 | el enviador recibe el nombre nuevo… |
+| R25: al fijar, toca la fila de `whatsapp_envio` | 2 | 2 | el mismo. **En la primera corrida sobrevivió:** corregido arriba |
+| R25: la foto no guarda el nombre vigente | 2 | 2 | el mismo |
+| R25: se envía con otro campo | 2 | 2 | el mismo |
+| B2: alias de la clave vieja de cierres | 13 | 2 | el registro tiene las nuevas… |
+| B2: alias de la clave vieja del libro | 13 | 2 | libroCajaKardex, contra el servidor nuevo |
+| B2: bodega vuelve al nombre viejo | 13 | 2 | el registro tiene las nuevas… |
+| B2: libro con detalle vuelve al nombre viejo | 13 | 2 | el mismo |
+| B2: el botón se calla el error | 13 | 4 | desde el boton: avisa con el error… |
+| B2: `descargarDatos` no lanza | 13 | 8 | lanza, no devuelve filas |
+| m1: la frase también en positivo | 33 | 2 | R23: si es negativo… |
+| m2: la frase retirada vuelve | 21 | 1 | R17: con las tiendas debiendo… |
+| m3: E5 a `lib/utils/` | 62 | 2 | la lista es la cerrada… |
+| m3: patrón de E5.1 ancho | 62 | 3 | el mismo |
+| m3: patrón de E6 ancho | 62 | 1 | el mismo |
+| m4: texto visible en `claves-legadas` | 62 | 2 | ningun archivo del arbol… |
+| m4, solo la 493 | 20 | 1 | app/, components/, hooks/, lib/ |
+| m5: `providers/`, `instrumentation.ts`, `AGENTS.md`, `README.md` | 42 cada una | 1 cada una | ningun archivo del arbol… |
+| m8: A12 sin el comando | 42 | 1 | m8: la tabla A… |
+| Base restaurada | 77 | 0 | |
+
+**Supervivientes: 0**, con esa salvedad de la primera corrida.
+
+### Base local
+
+Conteo exacto de 89 tablas antes y después: solo `login_attempt` +5 y `Session` +5, de los logins de la sonda. Borradas esas filas, de `admin.qa`: diferencia vacía. R25 no deja filas: transacción revertida. Servidor matado, log borrado, `.next/dev` borrado.
+
+### Verificación
+
+```
+$ pnpm exec tsc --noEmit --incremental false                        TSC_EXIT=0
+$ eslint de los 26 archivos de codigo tocados                       errores 0, avisos 6
+$ vitest run, por lotes, los 49 archivos que usan estas descargas   781 tests, 0 rojos, 0 saltados
+$ vitest run <guardia 494> <guardia 493> <R25> <claves retiradas>   77 tests, 0 rojos, 0 saltados
+$ quitador en los dos lados, contra el commit anterior              archivos de m6: 0 lineas de codigo; lo demas, las 4 claves y los tests
+$ vitest run guard, tras el commit c9cd9e86                         GUARD_EXIT=0, 284 archivos, 3947 tests, 0 rojos
+```
+
+### Mapa `R<n>` → test, añadidos de esta corrección
+
+| R | Test |
+| --- | --- |
+| R25 | `tests/integration/db/plantilla-renombrada-envio-494.test.ts` |
+| R26 | la guardia, bloque «plantillas», y el mismo test: mientras no cambia, se envía con el nombre que hay |
+| R1, R3 | la guardia, con árbol ampliado (m5) y lista fijada en literal (m3, m4) |
+| `design.md §3.2`, descargas | `tests/components/descarga/ClaveDescargaRetirada494.test.tsx` |
+
+**Veredicto:** B1, B2, m1 a m6 y m8 cerrados; la conducta de R25 es la esperada y una descarga en pestaña vieja ya no puede guardar un archivo sin cifras.
+
+**Últimos menores de la revisión (n1, n2):** la fila A12 de `docs/release.md` lleva su columna «Detiene» (`sí`), y dos comentarios «Cobro» pasan al rótulo real «Cobró Velox». En `marca-esperada.ts:4` queda «Cobro Velox» sin tilde, porque ahí es el ejemplo de un rótulo mal escrito.

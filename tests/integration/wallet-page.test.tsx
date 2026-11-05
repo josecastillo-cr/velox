@@ -163,7 +163,7 @@ const MOVIMIENTOS_OK = {
         descripcion: null,
         registradoPor: null,
         fechaMovimiento: "2026-07-12T10:00:00.000Z",
-        dueno: "propio" as const, // feature 231 (R31): el flete es dinero de Ordenex
+        dueno: "propio" as const, // feature 231 (R31): el flete es dinero de la empresa
         documento: null, // ficha 459 (design §7.3): fila sin documento
         origen: { texto: "Cierre del día", enlace: null }, // ficha 458-A (TA.2)
       },
@@ -256,7 +256,7 @@ const RESUMEN_OK = {
     otrosEgresos: "0.00",
     totalEgresos: "0.00",
     // Ficha 339 (R9): la UNICA clave no-STRING de la composicion, y no es una cantidad: es la
-    // decision del SERVIDOR sobre si la fila «Otros gastos de Ordenex» se pinta.
+    // decision del SERVIDOR sobre si la fila «Otros gastos de la empresa» se pinta.
     hayOtrosEgresos: false,
   },
 };

@@ -15,9 +15,9 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // Feature 173 / T F.1 — GUARDIA: LAS METRICAS DE INGRESO NO SE INFLAN (R51, R52).
 //
 // El problema que vigila, en una frase: la 173 mete en `wallet_movimiento` dinero que NO es de
-// Ordenex —el contra-entrega cobrado a nombre de las tiendas y su reverso—, y las metricas de
+// la empresa —el contra-entrega cobrado a nombre de las tiendas y su reverso—, y las metricas de
 // ingreso de la 127 salen de ESE mismo libro. Si alguna de ellas ganara una de las categorias
-// nuevas, el "ingreso de Ordenex" pasaria a incluir dinero ajeno y nadie lo notaria: la cifra
+// nuevas, el "ingreso de la empresa" pasaria a incluir dinero ajeno y nadie lo notaria: la cifra
 // seguiria saliendo, solo que mas grande.
 //
 // DE DONDE SE LEE LA VERDAD. De `NATURALEZA_POR_CATEGORIA` (T A.4), que es un `Record` TOTAL
@@ -35,7 +35,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // por escrito tener dos. Por eso aqui se afirma lo que NO cambio, que es justo lo que un
 // guardia sirve para conservar.
 
-/** Las tres metricas de INGRESO de Ordenex que R51 protege. Escritas, porque son el sujeto. */
+/** Las tres metricas de INGRESO de la empresa que R51 protege. Escritas, porque son el sujeto. */
 const METRICAS_DE_INGRESO = ["ingreso_flete", "ingreso_comision_cod", "ingreso_iva"] as const;
 
 /**
@@ -97,7 +97,7 @@ describe(`R51 · las tres metricas de ingreso de ${NOMBRE_ESPERADO} no ven el di
       .map(([c]) => c)
       .sort();
     // Ficha 459: + el pago por cuenta de una tienda y su anulacion (dinero de las tiendas).
-    // Ficha 457 (DH1): + el pago de una tienda a Ordenex y su anulacion (tambien dinero de las tiendas).
+    // Ficha 457 (DH1): + el pago de una tienda a la empresa y su anulacion (tambien dinero de las tiendas).
     expect(terceros).toEqual([
       "egreso_pago_por_cuenta_tienda",
       "egreso_pago_tienda",
@@ -497,7 +497,7 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     expect(declaradas).toContain("egreso_reverso_cobro_tienda");
     // Dicho por el otro lado, que es el que rompe la cifra: el contra-entrega y su reverso no
     // pueden entrar en la ganancia. Si entraran, anular un pago a una tienda subiria la ganancia
-    // de Ordenex — el fallo exacto que `design.md §10-C` descarto.
+    // de la empresa — el fallo exacto que `design.md §10-C` descarto.
     expect(categoriasDeTerceros(declaradas)).toEqual([]);
     expect(declaradas).not.toContain("ingreso_cod_recaudado");
     expect(declaradas).not.toContain("ingreso_reverso_pago_tienda");
@@ -508,7 +508,7 @@ describe("las listas de las dos metricas nuevas se comprueban contra el Record",
     const enCaja = getMetrica("dinero_en_caja")?.definicion.categorias ?? [];
     const ganancia = new Set(getMetrica("ganancia_empresa")?.definicion.categorias ?? []);
     // Ficha 459: + los dos de terceros del pago por cuenta y los dos de CAPITAL, que tampoco son
-    // ganancia. Ficha 457 (R52, D11): + el pago de una tienda a Ordenex y su anulacion, que son de
+    // ganancia. Ficha 457 (R52, D11): + el pago de una tienda a la empresa y su anulacion, que son de
     // TERCEROS (DH1) y por eso `ganancia_empresa` no los ve: 9 categorias. Ficha 488 (R31): + las SEIS
     // de dueño `iva` (los tres IVA, el reverso del IVA, el Pago de IVA y su anulacion): 15. Ficha 498:
     // + las DOS diferencias de la satelite (dueño `por_cobrar_satelite`, no ganancia): 17.

@@ -158,7 +158,7 @@ function makeDesglose(
   return { sla: "0.00", manual: "0.00", total: "0.00", ...over };
 }
 
-/** Ingreso de Ordenex en cero: el default para los tests que no lo están mirando. */
+/** Ingreso de la empresa en cero: el default para los tests que no lo están mirando. */
 function zeroIngreso(over: Partial<TotalesIngresoEmpresa> = {}): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",

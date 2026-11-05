@@ -17,7 +17,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
  *
  * FICHA 488 (design §2.1): el IVA deja de ser ganancia. El IVA de M6 es 568 360,00 + 132 223,43 +
  * 227 916,00 = 928 499,43, y pasa al bolsillo «IVA por pagar». Se reescriben SOLO las cifras que lo
- * llevaban dentro (ganancia, ingresos propios, «De Ordenex», la composicion y la porcion de la barra),
+ * llevaban dentro (ganancia, ingresos propios, «De la empresa», la composicion y la porcion de la barra),
  * con el valor de antes en su comentario. La cifra principal, «Entro», «Salio» y «De las tiendas» NO
  * cambian (R8 de la 488).
  */

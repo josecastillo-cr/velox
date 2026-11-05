@@ -5,13 +5,13 @@ import { render, screen, cleanup, within } from "@testing-library/react";
 import type { WalletMovimientoDTO } from "@/lib/types/wallet";
 
 // =================================================================================================
-// FICHA 457 (T6.5, design §8.5; R41, R45, R48, R60) — EL PAGO DE UNA TIENDA A ORDENEX EN EL LIBRO
+// FICHA 457 (T6.5, design §8.5; R41, R45, R48, R60) — EL PAGO DE UNA TIENDA A LA EMPRESA EN EL LIBRO
 // =================================================================================================
 //
 // R41: «Anular…» (con motivo obligatorio) y, si lo tiene, «Ver comprobante» en la fila ORIGINAL de cada
 // pago vigente; «Anulado» en los ya anulados; NADA en el contra-asiento. R60: tras anular, el módulo
-// relee (tarjeta, libro, composición: `onDocumentoAnulado`). R45: rótulos desde Ordenex, dueño
-// «Tienda», origen «Pago de una tienda a Ordenex», en la tabla, el filtro y la descarga. R48: ningún
+// relee (tarjeta, libro, composición: `onDocumentoAnulado`). R45: rótulos desde la empresa, dueño
+// «Tienda», origen «Pago de una tienda a la empresa», en la tabla, el filtro y la descarga. R48: ningún
 // identificador ni valor técnico.
 //
 // Quién decide qué fila lleva documento es el SERVIDOR (`WalletService.tipoDeDocumentoOriginal`; la

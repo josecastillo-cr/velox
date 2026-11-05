@@ -148,7 +148,7 @@ export const MOTIVO_NO_ANULABLE_TEXTO: Record<MotivoNoAnulable, string> = {
 };
 
 /**
- * R100 — el cobro por rechazo es un CARGO a la tienda (como el cobro de Ordenex de la 461): la ganancia
+ * R100 — el cobro por rechazo es un CARGO a la tienda (como el cobro de la empresa de la 461): la ganancia
  * sube y el saldo de la tienda baja, sin dinero nuevo en la caja. R73: anulado, se dice en palabras.
  */
 export const COBRO_RECHAZO_TEXTO = {

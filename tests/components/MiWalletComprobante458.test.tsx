@@ -9,10 +9,10 @@ import type { WalletTiendaMovimientoDTO } from "@/lib/types/wallet-tienda";
 import { FORMA_UUID, UUID_MOV, UUID_TIENDA } from "@/tests/fixtures/estado-cuenta";
 
 // =================================================================================================
-// FICHA 458-D (T D.5; R35, R77, R78, H3) — `/mi-wallet`: LA TIENDA VE EL COMPROBANTE QUE SUBIÓ ORDENEX.
+// FICHA 458-D (T D.5; R35, R77, R78, H3) — `/mi-wallet`: LA TIENDA VE EL COMPROBANTE QUE SUBIÓ LA EMPRESA.
 //
-//  - R78: «Ver comprobante» en las filas de SU libro que pueden llevarlo (pago de Ordenex a la tienda,
-//    pago de un gasto por ella, cobro de Ordenex, su pago a Ordenex); en las demás, nada.
+//  - R78: «Ver comprobante» en las filas de SU libro que pueden llevarlo (pago de la empresa a la tienda,
+//    pago de un gasto por ella, cobro de la empresa, su pago a la empresa); en las demás, nada.
 //  - R77: lo pide al servidor por el DESTINO de la fila (`verComprobanteAction`, alcance de la tienda);
 //    «no encontrado» se dice igual para lo ajeno y lo inexistente.
 //  - R35: nada de registrar, anular ni adjuntar.

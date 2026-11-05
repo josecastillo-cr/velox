@@ -195,7 +195,7 @@ export class EstadoCuentaService implements IEstadoCuentaService {
 
   /**
    * El extracto de UNA cuenta, sin mirar el rol (lo miro quien llama). `vista` decide lo que se
-   * nombra: la tienda en `/mi-wallet` ve SU extracto sin los nombres de la gente de Ordenex (quien
+   * nombra: la tienda en `/mi-wallet` ve SU extracto sin los nombres de la gente de la empresa (quien
    * registro o anulo; `/mi-wallet` nunca los enseño, 335/D2) y sin «Anular…» (R35).
    */
   private async leerCuenta(
@@ -611,10 +611,10 @@ function ventanaDeArchivo(): { page: number; pageSize: number } {
 
 /**
  * R34/R35 — la fila tal como la ve la tienda en `/mi-wallet`: sin «Anular…», y sin los nombres de la
- * gente de Ordenex (quien la registro, quien aprobo el cierre, quien la anulo). Se conservan el motivo,
+ * gente de la empresa (quien la registro, quien aprobo el cierre, quien la anulo). Se conservan el motivo,
  * el dia y la hora de la anulacion (R25) y el destino (`ref`), que es por donde abre SU comprobante
  * (R78). R25 en la tienda (decision del leader, 2026-09-26, revision m3): la pantalla dice «Anulado
- * por Ordenex» con el dia y la hora de Costa Rica y el motivo; el NOMBRE de la persona no viaja.
+ * por la empresa» con el dia y la hora de Costa Rica y el motivo; el NOMBRE de la persona no viaja.
  */
 function paraLaTienda(f: FilaEstadoCuentaDTO): FilaEstadoCuentaDTO {
   return {

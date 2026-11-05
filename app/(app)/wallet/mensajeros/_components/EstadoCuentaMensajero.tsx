@@ -18,9 +18,9 @@ import { ESTADO_CUENTA_MENSAJERO_PAGINA } from "./estado-cuenta-mensajero-labels
 import { CATEGORIA_PAGO_LABEL, ORIGEN_PAGO_LABEL } from "./wallet-mensajeros-labels";
 
 // FICHA 458-D (T D.3, design §5; R17–R25, R29, R30, R70) — el estado de cuenta de UN mensajero, visto
-// desde Ordenex. Lo propio de la superficie: sus diccionarios y sus acciones.
+// desde la empresa. Lo propio de la superficie: sus diccionarios y sus acciones.
 //
-//  - «Ordenex le paga al mensajero» (R29): el reparto de la 205 con su previsualización de hoy, sin
+//  - «la empresa le paga al mensajero» (R29): el reparto de la 205 con su previsualización de hoy, sin
 //    cambiar una línea (`PagoMensajeroAcciones`); tras registrar se relee ESTA cuenta (R30).
 //  - «Anular…» de un pago (R70, P6): desde el panel «Ver» de su fila. `anularMovimientoAction` enruta el
 //    pago (`liquidacion_pago`) a `anularPagoAction`, la MISMA acción de servidor que usa
@@ -37,7 +37,7 @@ export const ROTULOS_MENSAJERO: RotulosEstadoCuenta = {
 
 export const PANEL_MENSAJERO: PanelDeLaSuperficie = {
   nombreParaAnular: (f) => `«${ROTULOS_MENSAJERO.concepto(f)}»`,
-  // El pago de Ordenex al mensajero lleva su comprobante LATERAL (`liquidacion_pago`, R79).
+  // El pago de la empresa al mensajero lleva su comprobante LATERAL (`liquidacion_pago`, R79).
   admiteAdjuntar: (f) => categoria(f) === "liquidacion",
 };
 

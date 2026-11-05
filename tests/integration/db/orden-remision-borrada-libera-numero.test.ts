@@ -122,7 +122,7 @@ describeSiHayBase("294 — el unico PARCIAL de num_remision, contra Postgres rea
       const tienda = await tx.usuario.create({
         data: {
           nombre: `Tienda 294 ${marca}`,
-          email: `tienda-${marca}@ordenex.test`,
+          email: `tienda-${marca}@ejemplo.test`,
           telefono: "22220000",
           passwordHash: "x",
           cedula: `294${marca}`,

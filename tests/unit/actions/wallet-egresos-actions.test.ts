@@ -31,7 +31,7 @@ function mov(): WalletMovimientoDTO {
     descripcion: "Papeleria",
     registradoPor: "u-maestro",
     fechaMovimiento: "2026-07-13T10:00:00.000Z",
-    dueno: "propio", // feature 231 (R31): un gasto variable es dinero de Ordenex
+    dueno: "propio", // feature 231 (R31): un gasto variable es dinero de la empresa
     documento: null, // ficha 459 (design §7.3): fila sin documento
   };
 }
@@ -281,7 +281,7 @@ describe("registrarEgresoAdministrativoAction — la fecha del egreso (R20/R21)"
 // ── FICHA 458-C (TC.1, D5 heredado de la 458-B, revisión m1) — «a quién» OBLIGATORIO en el borde ──
 //
 // Con `RegistrarMovimientoCajaDialog` retirado, el servidor exige «a quién» en sueldo y gasto de
-// Ordenex. Se mide el BORDE (la action con su schema real) y no el servicio: ausente, en blanco o
+// la empresa. Se mide el BORDE (la action con su schema real) y no el servicio: ausente, en blanco o
 // con solo espacios → `validation_error` en `contraparteNombre` SIN tocar el servicio; presente →
 // llega al servicio recortado. La corrección de caja lo sigue teniendo opcional (lo mide
 // `wallet-registro-comprobante-458.test.ts` contra Postgres).

@@ -22,7 +22,7 @@ import { intentarSql as intentar } from "./_fixtures/sqlstate-461";
 import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
-// ⭑ FICHA 457 / T1.5 — LAS DOS MIGRACIONES DEL PAGO DE UNA TIENDA A ORDENEX, contra Postgres (R75, R76).
+// ⭑ FICHA 457 / T1.5 — LAS DOS MIGRACIONES DEL PAGO DE UNA TIENDA A LA EMPRESA, contra Postgres (R75, R76).
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 //  (a) los CINCO catalogos son EXACTAMENTE los seeds, con los valores de la 457 AL FINAL (valor a valor);

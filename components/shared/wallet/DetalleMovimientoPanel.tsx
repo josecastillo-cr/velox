@@ -46,7 +46,7 @@ import {
 export interface DetalleMovimiento {
   /** La fila de un libro: viaja al servidor, nunca se pinta. */
   destino: { libro: "caja" | "tienda" | "mensajero"; movimientoId: string };
-  /** El nombre del concepto desde Ordenex. */
+  /** El nombre del concepto desde la empresa. */
   concepto: string;
   /** El día CR ya legible. */
   fecha: string;

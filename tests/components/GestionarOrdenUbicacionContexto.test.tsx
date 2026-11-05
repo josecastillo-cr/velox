@@ -12,7 +12,7 @@ import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 //
 // Lo que protege este archivo y no protege el test del modulo puro: que el panel lea el
 // contexto de verdad y pinte el texto que sirve en ESA pantalla. El fallo de campo del
-// 2026-09-08 fue exactamente eso: Ordenex abierta desde su icono (sin barra de direcciones ni
+// 2026-09-08 fue exactamente eso: la empresa abierta desde su icono (sin barra de direcciones ni
 // candado) y el aviso mandando a tocar el candado. La mensajera se quedo parada en la calle.
 //
 // Los textos se afirman contra LITERALES escritos a mano. Compararlos contra la constante que

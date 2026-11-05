@@ -57,9 +57,9 @@ describe("descargarDatos · directo (R6)", () => {
   it("manda a la preparación el nombre y la entrada tal cual, en una sola llamada", async () => {
     prepararMock.mockResolvedValue({ modo: "directo", resultado: RESULTADO });
     const entrada = { filtros: { desde: "2026-09-01" } };
-    await descargarDatos("libroCajaKardexConDetalle", entrada);
+    await descargarDatos("libroCajaKardexConDetalleV2", entrada);
     expect(prepararMock).toHaveBeenCalledTimes(1);
-    expect(prepararMock.mock.calls[0]).toEqual(["libroCajaKardexConDetalle", entrada]);
+    expect(prepararMock.mock.calls[0]).toEqual(["libroCajaKardexConDetalleV2", entrada]);
   });
 
   it("los errores PROPIOS de la acción vuelven como resultado, sin lanzar (R11)", async () => {

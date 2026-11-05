@@ -806,7 +806,7 @@ interface HojaResumenProps {
    *
    * Es el numero que la bodega satelite necesita para OPERAR: lo que le entrega a la central. Y
    * vive aqui, en la tarjeta, porque la satelite SOLO VE LA TARJETA —`ConsolidacionBodegaModule`
-   * monta su listado sin accion de abrir detalle—. La otra cascada, la del margen de Ordenex,
+   * monta su listado sin accion de abrir detalle—. La otra cascada, la del margen de la empresa,
    * NO se pasa nunca por aqui (R39).
    */
   cascadaCentral?: { paraLaCentral: string; efectivoCubreDescuentos: boolean };
@@ -1275,7 +1275,7 @@ export interface CierreFacturaCabecera {
 /**
  * Para quién se pinta el comprobante. `admin` (default) es la vista completa de las features
  * 38/40. `mensajero` es la MISMA hoja recortada a lo que es suyo: se caen el ingreso de
- * Ordenex, la liquidación, el pago a la tienda y el ingreso de bodega por rechazos —plata de
+ * la empresa, la liquidación, el pago a la tienda y el ingreso de bodega por rechazos —plata de
  * la empresa, no del mensajero (design §7.2)—, y los renglones muestran lo recibido y su pago
  * en vez de lo facturado.
  *
@@ -1653,7 +1653,7 @@ function DatoFila({
 
 /**
  * Fila compacta de una gestión: guía, destinatario (con remisión y producto debajo),
- * monto a cobrar y total de Ordenex. Al desplegarla aparece el resto de lo que ya
+ * monto a cobrar y total de la empresa. Al desplegarla aparece el resto de lo que ya
  * mostraba la tabla de esa sección: ubicación, dinero recibido, tienda, los conceptos
  * facturados, el pago al mensajero y —en rechazos— el origen y la evidencia.
  */
@@ -2640,7 +2640,7 @@ export function CierreFacturaDetalle({
         />
       </BloqueRenglones>
 
-      {/* Ingreso de Ordenex y liquidación: facturación de la EMPRESA, fuera de la vista del
+      {/* Ingreso de la empresa y liquidación: facturación de la EMPRESA, fuera de la vista del
           mensajero (design §7.2). */}
       {esMensajero || !totalesIngreso ? null : (
       <BloqueRenglones titulo={INGRESO_PANEL_LABEL} ariaLabel={INGRESO_PANEL_LABEL}>
@@ -2674,7 +2674,7 @@ export function CierreFacturaDetalle({
           nota={INGRESO_BRUTO_NOTA}
           value={money(totalesIngreso.total)}
         />
-        {/* La ganancia solo aparece cuando es NEGATIVA: ahí Ordenex pagó al mensajero
+        {/* La ganancia solo aparece cuando es NEGATIVA: ahí la empresa pagó al mensajero
             más de lo que facturó, así que es una DEUDA ("Debe") y va en rojo. Si es ≥ 0
             no se pinta (misma regla que tenían las cards a las que reemplazó). El pago a
             tienda tampoco se repite acá: ya es la tarjeta principal de la cabecera. */}

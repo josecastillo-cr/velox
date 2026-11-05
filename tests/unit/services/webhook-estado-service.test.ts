@@ -1,3 +1,4 @@
+import { CABECERA_FIRMA_RETIRADA, CABECERA_TIMESTAMP_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect, vi } from "vitest";
 import { randomBytes } from "node:crypto";
 // FICHA 403: el predicado del circuito (para medir que un exito SACA de la pausa) y el quitador de
@@ -40,7 +41,7 @@ const MENSAJERO_ID = "018f2c31-0000-4000-8000-0000000000aa";
 const MENSAJERO_NOMBRE = "Carlos Jimenez Mora";
 
 /** ⏳ 2026-08-22 (268/R24): origin con el que se construye `data.evidenciasUrl`. */
-const ORIGIN = "https://app.ordenex.co";
+const ORIGIN = "https://app.ejemplo.test";
 const ORDEN_ID = "orden-1";
 
 /**
@@ -252,10 +253,10 @@ describe("R17/R19 — entrega y complete", () => {
     // R18: firma valida sobre `${ts}.${cuerpo}` con el secreto descifrado.
     const ts = Number(headers["X-Velox-Timestamp"]);
     expect(headers["X-Velox-Signature"]).toBe(`sha256=${firmarWebhook(SECRETO, ts, cuerpo)}`);
-    // 493/R17 (L5b): SOLO las cabeceras nuevas; las viejas `X-Ordenex-*` no viajan (sin doble cabecera).
+    // 493/R17 (L5b): SOLO las cabeceras nuevas; las viejas no viajan (sin doble cabecera).
     expect(Object.keys(headers).sort()).toEqual(["X-Velox-Signature", "X-Velox-Timestamp"]);
-    expect(Object.keys(headers)).not.toContain("X-Ordenex-Signature");
-    expect(Object.keys(headers)).not.toContain("X-Ordenex-Timestamp");
+    expect(Object.keys(headers)).not.toContain(CABECERA_FIRMA_RETIRADA);
+    expect(Object.keys(headers)).not.toContain(CABECERA_TIMESTAMP_RETIRADA);
   });
 
   it("una respuesta 2xx completa el job (no lanza)", async () => {
@@ -706,7 +707,7 @@ describe("268/R22-R25 — `data.evidenciasUrl`: estable, determinista y sin cred
   // identificador PUBLICO de la orden —la guia de `DATOS_BASE`, `12345`—, y el literal se escribe
   // ENTERO A MANO: derivarlo de `PATH_ORDEN_API_KEY` o de una funcion del service lo dejaria
   // verde contra su propia fuente.
-  const ENLACE = "https://app.ordenex.co/api/ordenes/api-key/orden/12345";
+  const ENLACE = "https://app.ejemplo.test/api/ordenes/api-key/orden/12345";
 
   it("268/R24 (1): en `incidente` viaja el enlace EXACTO; en `entregada` la clave NO existe", async () => {
     const a = buildService({ datos: datosIncidente("danado") });
@@ -863,7 +864,7 @@ describe("268/R22-R25 — `data.evidenciasUrl`: estable, determinista y sin cred
     });
     await s4.ejecutar(jobIncidente());
     expect(JSON.parse(cuerpoDe(e4)).data.evidenciasUrl).toBe(
-      "https://app.ordenex.co/api/ordenes/api-key/orden/777001",
+      "https://app.ejemplo.test/api/ordenes/api-key/orden/777001",
     );
   });
 
@@ -900,7 +901,7 @@ describe("406/R4-R6 — `data.evidenciasUrl` lleva el identificador PUBLICO, nun
     await service.ejecutar(jobIncidente());
     const { data } = JSON.parse(cuerpoDe(entregar));
 
-    expect(data.evidenciasUrl).toBe("https://app.ordenex.co/api/ordenes/api-key/orden/100235");
+    expect(data.evidenciasUrl).toBe("https://app.ejemplo.test/api/ordenes/api-key/orden/100235");
     expect(new URL(data.evidenciasUrl).pathname).toBe("/api/ordenes/api-key/orden/100235");
     // La guia gana a la remision: las DOS estan en el mismo `data` y solo una va en el enlace.
     expect(data.numGuia).toBe(100235);
@@ -915,7 +916,7 @@ describe("406/R4-R6 — `data.evidenciasUrl` lleva el identificador PUBLICO, nun
     await service.ejecutar(jobIncidente());
     const { data } = JSON.parse(cuerpoDe(entregar));
 
-    expect(data.evidenciasUrl).toBe("https://app.ordenex.co/api/ordenes/api-key/orden/REM-0002");
+    expect(data.evidenciasUrl).toBe("https://app.ejemplo.test/api/ordenes/api-key/orden/REM-0002");
     expect(data.numGuia).toBeNull();
   });
 
@@ -926,7 +927,7 @@ describe("406/R4-R6 — `data.evidenciasUrl` lleva el identificador PUBLICO, nun
     await service.ejecutar(jobIncidente());
     const { data } = JSON.parse(cuerpoDe(entregar));
 
-    expect(data.evidenciasUrl).toBe("https://app.ordenex.co/api/ordenes/api-key/orden/A%2FB%20C");
+    expect(data.evidenciasUrl).toBe("https://app.ejemplo.test/api/ordenes/api-key/orden/A%2FB%20C");
     // UN solo segmento tras `/orden/`: el `/` de la remision NO inventa uno nuevo.
     const segmentos = new URL(data.evidenciasUrl).pathname.split("/");
     expect(segmentos).toHaveLength(6);
@@ -996,7 +997,7 @@ describe("406/R7-R8 — sin identificador resoluble, la clave se OMITE y el job 
 
     const { data } = JSON.parse(cuerpoDe(entregar));
     expect("evidenciasUrl" in data).toBe(true);
-    expect(data.evidenciasUrl).toBe(`https://app.ordenex.co/api/ordenes/api-key/orden/${justa}`);
+    expect(data.evidenciasUrl).toBe(`https://app.ejemplo.test/api/ordenes/api-key/orden/${justa}`);
   });
 
   it("406/R8: remision con un sustituto UTF-16 desemparejado -> clave AUSENTE y el job NO falla", async () => {

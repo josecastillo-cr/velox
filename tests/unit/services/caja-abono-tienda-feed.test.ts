@@ -8,7 +8,7 @@ import { rutaDeComprobante } from "@/lib/utils/comprobante";
 import { quitarComentarios } from "@/tests/fixtures/sin-comentarios";
 
 /**
- * FICHA 457 / T3.2 y T2.4 (R17, R22, R27, R31) — el PUERTO DE CAJA del pago de una tienda a Ordenex y
+ * FICHA 457 / T3.2 y T2.4 (R17, R22, R27, R31) — el PUERTO DE CAJA del pago de una tienda a la empresa y
  * la carpeta de su comprobante.
  *
  * El puerto es el UNICO que escribe en la caja por este documento: tipo, categoria y origen son
