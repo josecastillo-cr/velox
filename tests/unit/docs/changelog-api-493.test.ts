@@ -26,9 +26,17 @@ function entrada(): string {
 }
 
 describe("493/R19 — la entrada del CHANGELOG del canal", () => {
-  it("es la PRIMERA entrada (la más reciente arriba), fechada y marcada como ruptura", () => {
-    const primera = changelog.match(/^## .*$/m)?.[0] ?? "";
-    expect(primera).toMatch(/^## 2026-11-\d\d — ⚠️ RUPTURA — /);
+  // Ya no se exige que sea la primera de todas: eso se rompe con cualquier entrada posterior, también
+  // sin ruptura. El contrato es que sea la ruptura más reciente y que el archivo siga con lo último arriba.
+  it("es la RUPTURA más reciente del canal, fechada", () => {
+    const primeraRuptura = changelog.match(/^## .*RUPTURA.*$/m)?.[0] ?? "";
+    expect(primeraRuptura).toMatch(/^## 2026-11-\d\d — ⚠️ RUPTURA — /);
+  });
+
+  it("las entradas van por fecha descendente (la más reciente arriba)", () => {
+    const fechas = [...changelog.matchAll(/^## (\d{4}-\d{2}-\d{2})\b/gm)].map((m) => m[1]);
+    expect(fechas.length, "el recorrido no ve las entradas").toBeGreaterThan(20);
+    expect(fechas).toEqual([...fechas].sort().reverse());
   });
 
   it("R17: nombra las cabeceras nuevas y las que se retiran", () => {
