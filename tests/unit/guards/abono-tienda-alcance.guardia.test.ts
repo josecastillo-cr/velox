@@ -10,7 +10,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 /**
  * FICHA 457 / T8.2 (design §12; R65, R67) — GUARDIA DE ALCANCE: **lo que la D3 de la 381 protegia,
  * conservado.** D3 rechazo un credito manual a una tienda SIN dinero detras. La 457 reabre el credito
- * SOLO para el pago de una tienda a Ordenex, que entra a la caja en la misma transaccion. Esta guardia
+ * SOLO para el pago de una tienda a la empresa, que entra a la caja en la misma transaccion. Esta guardia
  * hace que eso no se pueda aflojar en silencio:
  *
  *   (1) el UNICO productor de `categoria: "abono_tienda"` en `lib/` es `AbonoTiendaService`;
@@ -18,7 +18,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
  *       `?` ni default), y el metodo que escribe el credito llama a `emitirIngresoDeAbono` dentro del
  *       MISMO `runTransaction`;
  *   (3) el catalogo del dialogo «Registrar movimiento» tiene EXACTAMENTE un concepto que acredita a una
- *       tienda, y es el del pago de la tienda a Ordenex (clase `abono_tienda`). [T6.3 del frontend: el
+ *       tienda, y es el del pago de la tienda a la empresa (clase `abono_tienda`). [T6.3 del frontend: el
  *       backend lo dejo en «como mucho uno» mientras el concepto no existia; al añadirlo se aprieta.]
  *
  * Las tres son AUSENCIAS, asi que cada una lleva su CONTROL DE NO-VACUIDAD y su CONTRAPRUEBA (una fuente
@@ -111,7 +111,7 @@ describe("457/R65 — `AbonoTiendaService` exige su puerto de caja y lo llama en
   });
 });
 
-// ── (3) el dialogo: EXACTAMENTE un concepto acredita a una tienda, y es el pago de la tienda a Ordenex ──
+// ── (3) el dialogo: EXACTAMENTE un concepto acredita a una tienda, y es el pago de la tienda a la empresa ──
 
 type Concepto = (typeof CONCEPTOS_MANUALES)[number];
 

@@ -9,7 +9,7 @@ import {
 import { fechaCalendarioCR } from "@/lib/utils/fecha-cr";
 
 /**
- * FICHA 457 / T2.5 — el BORDE (zod `.strict()`) del pago de una tienda a Ordenex (R4–R9, R12, R13)
+ * FICHA 457 / T2.5 — el BORDE (zod `.strict()`) del pago de una tienda a la empresa (R4–R9, R12, R13)
  * y de su anulacion (R34, R35). Cada rechazo se comprueba por el CAMPO que señala: el dialogo lo
  * pinta ahi (R58).
  */

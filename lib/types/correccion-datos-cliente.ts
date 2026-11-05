@@ -35,7 +35,7 @@ import { grupoDeEstatus } from "@/lib/types/novedad-grupo";
  * ⚠️ `zonaId` NO ESTA, Y NO PUEDE ESTAR (327/R5). La zona la DERIVA el servidor a partir del
  * distrito recibido; el `.strict()` de abajo rechaza al cliente que la mande. Tampoco estan
  * `estatusId`, `tiendaId`, `montoCobrar`, `cobraComision`, `numGuia`, `numRemision` ni
- * `mensajeroAsignadoId` (327/D2): corregir una ubicacion mueve el flete que Ordenex factura, pero
+ * `mensajeroAsignadoId` (327/D2): corregir una ubicacion mueve el flete que la empresa factura, pero
  * no el dinero que la tienda declara que hay que cobrar, ni el estado, ni el dueño de la orden.
  */
 export const CAMPOS_CORREGIBLES = [

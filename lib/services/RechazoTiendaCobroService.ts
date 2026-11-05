@@ -100,7 +100,7 @@ class CobroYaAnuladoError extends Error {
  *
  * ⚠️ QUIEN AUTORIZA: `esAccesoTotal` (maestro + admin) en los TRES metodos, y es una decision
  * explicita del humano del 2026-08-31. La 333 estrecho el guard a `maestro` porque aquello
- * autoriza dinero que SALE de la caja de Ordenex; esto es cobrar a una tienda por un servicio ya
+ * autoriza dinero que SALE de la caja de la empresa; esto es cobrar a una tienda por un servicio ya
  * prestado —el retorno del paquete— y es operacion diaria. Estrechar aqui pondria la caja diaria
  * a esperar al maestro.
  *
@@ -137,7 +137,7 @@ export class RechazoTiendaCobroService implements IRechazoTiendaCobroService {
     /**
      * ⚠️ EL INTERRUPTOR Q3 DE LA FEATURE 43, LEIDO EN UN SOLO PUNTO, igual que en
      * `WalletTiendaFeedService`. Si `TIENDA_DEBITA_FLETE_DEVOLUCION` es `false`, el ledger de la
-     * tienda NO recibe los dos debitos de devolucion (los absorbe Ordenex) y la caja SI recibe
+     * tienda NO recibe los dos debitos de devolucion (los absorbe la empresa) y la caja SI recibe
      * sus dos ingresos.
      *
      * Se respeta aqui porque el encargo es que los apuntes sean LOS MISMOS que emite hoy la
@@ -187,7 +187,7 @@ export class RechazoTiendaCobroService implements IRechazoTiendaCobroService {
    *     importes que el cobro copio**. Los importes NO se recalculan desde la tarifa: si alguien
    *     la edito entre el rechazo y la aprobacion, se cobraria algo que nadie autorizo.
    *  5. Los dos libros se alimentan en el MISMO orden que la aprobacion del cierre: primero la
-   *     caja de Ordenex (42), despues el libro de la tienda (43).
+   *     caja de la empresa (42), despues el libro de la tienda (43).
    *
    * ⚠️ NO HAY COLUMNA `movimiento_id` EN ESTA TABLA, y es deliberado (a diferencia de la 333, que
    * si la tiene): alli un cobro salda UN movimiento; aqui son CUATRO —dos por libro—, asi que un
@@ -217,7 +217,7 @@ export class RechazoTiendaCobroService implements IRechazoTiendaCobroService {
       );
       if (decididos === 0) return { status: "ya_decidido" };
 
-      // (1) LA CAJA DE ORDENEX (feature 42). Idempotente por
+      // (1) LA CAJA DE LA EMPRESA (feature 42). Idempotente por
       //     `wallet_movimiento_origen_categoria_uq`: reintentar NO emite un segundo ingreso, y la
       //     barrera es la BASE, no un `if` de aqui.
       const insertadasCaja = await this.movimientoRepo.crearMovimientos(
@@ -382,7 +382,7 @@ export class RechazoTiendaCobroService implements IRechazoTiendaCobroService {
   }
 
   /**
-   * Los INGRESOS de la caja de Ordenex: los mismos dos conceptos, con los mismos importes, que
+   * Los INGRESOS de la caja de la empresa: los mismos dos conceptos, con los mismos importes, que
    * `WalletFeedService` mete hoy al aprobar el cierre de una `rechazada`. Lo unico distinto es el
    * ORIGEN —la gestion en vez del cierre—, que es lo que le da su propia clave de idempotencia.
    *

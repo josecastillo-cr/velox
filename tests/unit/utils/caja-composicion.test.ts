@@ -79,7 +79,7 @@ const DOS_BOLSILLOS: AgregadoCajaRow[] = [
   fila("ingreso_cod_recaudado", "10000.00"),
 ];
 
-/** R15 — G = −900, T = 4 500: Ordenex pierde y el dinero de las tiendas cubre el saldo. */
+/** R15 — G = −900, T = 4 500: la empresa pierde y el dinero de las tiendas cubre el saldo. */
 const SOLO_TIENDAS: AgregadoCajaRow[] = [
   fila("ingreso_ajuste", "400.00"),
   fila("egreso_gasto", "1300.00"),

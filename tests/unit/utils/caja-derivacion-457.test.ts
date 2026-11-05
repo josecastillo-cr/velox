@@ -9,7 +9,7 @@ import {
 } from "@/lib/types/wallet";
 
 /**
- * FICHA 457 / T2.2 — la derivacion con el pago de una tienda a Ordenex y su anulacion (R19, R39; design
+ * FICHA 457 / T2.2 — la derivacion con el pago de una tienda a la empresa y su anulacion (R19, R39; design
  * §4.1). Los literales de partida son los de PRODUCCION medidos el 2026-09-24 (M6 de
  * `progress/medicion_457.md`), los MISMOS de `caja-derivacion-461.test.ts`, escritos A MANO: nunca
  * calculados con `derivarCaja`. El conjunto sin pagos de una tienda tiene que dar EXACTAMENTE lo que daba

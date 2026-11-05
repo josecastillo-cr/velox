@@ -60,7 +60,7 @@ export interface IWalletComprobanteRepository {
    * Egreso de caja: su contra-asiento (cualquiera de `CATEGORIAS_DE_CONTRA_ASIENTO_DE_EGRESO`, con
    * origen `gasto`; ficha 488: incluye el `ingreso_reverso_pago_iva` del Pago de IVA) o su constancia
    * (`ajuste_caja_anulacion`, que cubre la indemnizacion, D8); correccion: su constancia; cobro de
-   * Ordenex: `cobro_tienda_anulacion`; pago de la 172: `liquidacion_anulacion`.
+   * la empresa: `cobro_tienda_anulacion`; pago de la 172: `liquidacion_anulacion`.
    */
   estaAnulado(camino: CaminoConComprobanteLateral, id: string): Promise<boolean>;
 }

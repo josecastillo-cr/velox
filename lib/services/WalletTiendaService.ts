@@ -101,7 +101,7 @@ export class WalletTiendaService implements IWalletTiendaService {
     // Feature 172 (T G.2, R55) — la tercera lectura es el DESGLOSE por concepto, y es la MISMA
     // agregacion que alimenta la cabecera del maestro (`listarMovimientosDeTienda`, mas abajo),
     // con los MISMOS filtros y el `tienda_id` del actor. Sin ella la tienda veria el pago que
-    // recibio sumado dentro de «debitos», indistinguible de un cargo de Ordenex.
+    // recibio sumado dentro de «debitos», indistinguible de un cargo de la empresa.
     const [{ movimientos, total }, saldoAgg, desgloseAgg] = await Promise.all([
       this.repo.listarPorTienda({
         page: input.page,

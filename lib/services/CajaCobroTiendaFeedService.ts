@@ -6,7 +6,7 @@ import type {
 } from "@/lib/interfaces/services/ICajaCobroTiendaFeedService";
 
 /**
- * FICHA 461 (design §5.2) — las DOS escrituras de la caja del cobro de Ordenex a una tienda. Molde
+ * FICHA 461 (design §5.2) — las DOS escrituras de la caja del cobro de la empresa a una tienda. Molde
  * exacto de `CajaPagoPorCuentaFeedService`: tipo, categoria y origen son LITERALES de esta clase.
  *
  * Las dos filas comparten la clave `(cobro_tienda, cobroId)` y se distinguen por la categoria, asi

@@ -47,10 +47,10 @@ const FUERA_DE_OFICINA: RolValue[] = ["mensajero", "adminTienda", "adminSatelite
 const PERSONAS: RolValue[] = [...OFICINA, ...FUERA_DE_OFICINA];
 
 // FICHA 461 (T D.1, design §11) — REESCRITO donde citaba nombres retirados (design §7.9): «Pago por
-// cuenta de una tienda, o cobrar un costo…» → «Ordenex paga un gasto de una tienda, u Ordenex le cobra a
-// una tienda…»; «**Pago por cuenta de la tienda**» → «**Ordenex paga un gasto de la tienda**»;
-// «**Cobro de Ordenex**» → «**Ordenex le cobra a la tienda**»; «**Pago por cuenta anulado**» → «**Ordenex
-// anuló un pago hecho por ti**»; «## Un pago que Ordenex hizo por tu cuenta» → «## Un pago que Ordenex
+// cuenta de una tienda, o cobrar un costo…» → «la empresa paga un gasto de una tienda, u la empresa le cobra a
+// una tienda…»; «**Pago por cuenta de la tienda**» → «**la empresa paga un gasto de la tienda**»;
+// «**Cobro de la empresa**» → «**la empresa le cobra a la tienda**»; «**Pago por cuenta anulado**» → «**la empresa
+// anuló un pago hecho por ti**»; «## Un pago que la empresa hizo por tu cuenta» → «## Un pago que la empresa
 // hizo por ti». Lo que la 459/460 protegía —que la explicación LLEGA al rol que la necesita y no al
 // que no— se afirma igual, con los nombres nuevos. Listado en `progress/impl_461_frontend.md`.
 describe("459 — la oficina puede preguntar por la caja nueva", () => {

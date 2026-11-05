@@ -8,7 +8,7 @@ import type { WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda"
 import type { ConceptoRegistro } from "@/lib/types/efecto-movimiento";
 import type { PagoMensajeroMovimientoCategoria } from "@/lib/types/wallet-mensajero";
 
-// Ficha 461 (R46, P4): el diálogo promete el nombre DESDE ORDENEX del libro de la tienda, que es el
+// Ficha 461 (R46, P4): el diálogo promete el nombre DESDE LA EMPRESA del libro de la tienda, que es el
 // que la oficina lee en `/wallet/tiendas`; la tienda lo lee desde su lado en `/mi-wallet`.
 import { CATEGORIA_TIENDA_LABEL } from "../tiendas/_components/desglose-tienda-labels";
 // Ficha 458-C (R52): el nombre en el libro del MENSAJERO sale del diccionario que pinta ese libro.
@@ -37,20 +37,20 @@ import { MARCA } from "@/lib/marca/identidad";
 // pasa al dinero (R59); cada concepto dice con una frase qué le pasa a la caja, a la tienda y a la
 // ganancia (R60).
 //
-// FICHA 461 (T C.4, design §7.1/§7.6/§8, HD1/HD3) — TODOS los nombres se dicen desde Ordenex y
-// diciendo quién le paga a quién («Ordenex le cobra a una tienda», «Ordenex paga un gasto de una
+// FICHA 461 (T C.4, design §7.1/§7.6/§8, HD1/HD3) — TODOS los nombres se dicen desde la empresa y
+// diciendo quién le paga a quién («la empresa le cobra a una tienda», «la empresa paga un gasto de una
 // tienda», «Corrección de caja (resta)»), y el cobro DEJA de ser el concepto que «no mueve la
 // caja»: desde esta ficha escribe también su línea en la caja (un cargo, como el flete: sube la
 // ganancia y baja «De las tiendas» sin tocar «Entró»), así que cae en los DOS libros como el pago
 // de un gasto, y su grupo se llama por lo que hace («Se descuenta del saldo de una tienda»).
 //
 // FICHA 457 (design §8.1/§8.2, R54/R55/R67) — entra el OCTAVO concepto, «Una tienda le paga a
-// Ordenex», en el grupo «Llega dinero a la caja»: una tienda con saldo en contra le paga a Ordenex
+// la empresa», en el grupo «Llega dinero a la caja»: una tienda con saldo en contra le paga a la empresa
 // lo que debe. Escribe en los DOS libros (el crédito en la tienda y el ingreso de terceros en la
 // caja) y es el ÚNICO concepto que acredita dinero a una tienda (la guardia de alcance lo exige).
 //
-// FICHA 458-C (T C.1, design §4.1, R37–R43, R52) — el registro ÚNICO: entran «Ordenex le paga a una
-// tienda» (172) y «Ordenex le paga a un mensajero» (205), los dos en «Sale dinero de Ordenex». Son
+// FICHA 458-C (T C.1, design §4.1, R37–R43, R52) — el registro ÚNICO: entran «la empresa le paga a una
+// tienda» (172) y «la empresa le paga a un mensajero» (205), los dos en «Sale dinero de la empresa». Son
 // DIEZ. Cada concepto dice además con qué clave del catálogo del servidor (`ConceptoRegistro`, la de
 // `EFECTO_POR_TIPO`) se pide su «Así queda»: `CONCEPTO_REGISTRO_DE` es un `Record` total, así que un
 // concepto nuevo no compila sin decidir su efecto. El pago a un mensajero NO tiene línea de caja
@@ -61,7 +61,7 @@ import { MARCA } from "@/lib/marca/identidad";
 /**
  * Los ONCE conceptos (ficha 458-C: diez; ficha 488: + «Pago de IVA», justo tras el sueldo), en el
  * orden en que se ofrecen: tres tramos CONSECUTIVOS, uno por grupo. `gasto_fijo` NO está: lo emite el cron desde su plantilla (R38). El primero sigue siendo el
- * gasto de Ordenex: quien abre y registra sin tocar el catálogo registra lo mismo que antes.
+ * gasto de la empresa: quien abre y registra sin tocar el catálogo registra lo mismo que antes.
  */
 export const CONCEPTO_MANUAL_IDS = [
   "gasto_variable",
@@ -115,12 +115,12 @@ export type DestinoConcepto =
       readonly categoriaTienda: WalletTiendaMovimientoCategoria;
     }
   | {
-      // FICHA 459 (R68): entrada de capital de Ordenex en la caja.
+      // FICHA 459 (R68): entrada de capital de la empresa en la caja.
       readonly clase: "aporte_capital";
       readonly categoria: WalletMovimientoCategoria;
     }
   | {
-      // FICHA 457 (design §8.1): el pago de una tienda a Ordenex. Escribe en los DOS libros — el
+      // FICHA 457 (design §8.1): el pago de una tienda a la empresa. Escribe en los DOS libros — el
       // ingreso de terceros en la caja y el CRÉDITO en la tienda. Ninguna de las dos viaja: las
       // decide el servicio.
       readonly clase: "abono_tienda";
@@ -128,14 +128,14 @@ export type DestinoConcepto =
       readonly categoriaTienda: "abono_tienda";
     }
   | {
-      // FICHA 458-C (design §4.1): el pago de Ordenex a una tienda (172). Escribe en los DOS libros:
+      // FICHA 458-C (design §4.1): el pago de la empresa a una tienda (172). Escribe en los DOS libros:
       // la salida en la caja y el DÉBITO en la tienda. Ninguna de las dos viaja.
       readonly clase: "pago_tienda";
       readonly categoria: "egreso_pago_tienda";
       readonly categoriaTienda: "pago_tienda";
     }
   | {
-      // FICHA 458-C (design §4.1): el pago de Ordenex a un mensajero (reparto de la 205). NO tiene
+      // FICHA 458-C (design §4.1): el pago de la empresa a un mensajero (reparto de la 205). NO tiene
       // línea de caja ([P2] de la 173): cae SOLO en el libro del mensajero.
       readonly clase: "pago_mensajero";
       readonly categoria: null;
@@ -155,7 +155,7 @@ export type LibroDestino = "caja" | "caja_y_tienda" | "mensajero";
 /**
  * FICHA 459 (R59) — los tres grupos del selector, por lo que le pasa al dinero.
  *
- * FICHA 461 (R40): «Sale dinero de Ordenex», «Llega dinero a la caja» y «Se descuenta del saldo de
+ * FICHA 461 (R40): «Sale dinero de la empresa», «Llega dinero a la caja» y «Se descuenta del saldo de
  * una tienda». El tercero se llamaba `no_mueve` porque el cobro no tocaba la caja; ya la toca, y la
  * clave dice ahora lo que el grupo hace.
  */
@@ -181,7 +181,7 @@ export interface ConceptoManual {
 }
 
 /**
- * Ficha 461 (design §7.1, R39): los nombres, desde Ordenex y diciendo quién le paga a quién.
+ * Ficha 461 (design §7.1, R39): los nombres, desde la empresa y diciendo quién le paga a quién.
  * Ficha 457: ocho.
  */
 export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
@@ -212,7 +212,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     grupo: "sale",
   },
   {
-    // ⭑ FICHA 488 (decision 2a, design §6.3, R21) — Ordenex le paga a Hacienda el IVA cobrado a las
+    // ⭑ FICHA 488 (decision 2a, design §6.3, R21) — la empresa le paga a Hacienda el IVA cobrado a las
     // tiendas. Mismo destino que el gasto y el sueldo (el egreso administrativo de la 45): mismos
     // campos, «A quién» obligatorio (P4) y comprobante opcional. Baja el IVA por pagar, no la ganancia.
     id: "pago_iva",
@@ -227,7 +227,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     grupo: "sale",
   },
   {
-    // ⭑ FICHA 459 (R29/R61) — Ordenex SACA dinero de la caja para pagarle a un tercero en nombre
+    // ⭑ FICHA 459 (R29/R61) — la empresa SACA dinero de la caja para pagarle a un tercero en nombre
     // de la tienda, y se lo descuenta de su saldo. No es un cobro a la tienda (ese NO saca dinero
     // de la caja): la frase del efecto lo dice en voz alta (R60).
     id: "pago_por_cuenta_tienda",
@@ -250,7 +250,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     grupo: "sale",
   },
   {
-    // ⭑ FICHA 458-C (design §4.1, R37) — Ordenex le entrega a una tienda lo que tiene a su favor
+    // ⭑ FICHA 458-C (design §4.1, R37) — la empresa le entrega a una tienda lo que tiene a su favor
     // (172). Sale dinero de la caja y baja «De las tiendas»; el tope (el saldo a favor) lo decide
     // el servidor.
     id: "pago_a_tienda",
@@ -272,7 +272,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     grupo: "sale",
   },
   {
-    // ⭑ FICHA 459 (R68, R27) — dinero de Ordenex que entra a la caja y NO es ganancia. El importe
+    // ⭑ FICHA 459 (R68, R27) — dinero de la empresa que entra a la caja y NO es ganancia. El importe
     // lo teclea una persona: la app nunca propone ni calcula uno. La clase (saldo inicial o
     // aporte) se sigue eligiendo dentro (P6 de la 461).
     id: "aporte_capital",
@@ -283,7 +283,7 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     grupo: "entra",
   },
   {
-    // ⭑ FICHA 457 (design §8.1, R54) — una tienda con saldo en contra le paga a Ordenex lo que debe.
+    // ⭑ FICHA 457 (design §8.1, R54) — una tienda con saldo en contra le paga a la empresa lo que debe.
     // Llega dinero DE LA TIENDA (terceros): su saldo sube y la ganancia no cambia (ya se contó al
     // aprobar cada cierre). Solo con saldo en contra y hasta lo que debe: lo decide el servidor.
     id: "abono_tienda",
@@ -308,9 +308,9 @@ export const CONCEPTOS_MANUALES: readonly ConceptoManual[] = [
     grupo: "entra",
   },
   {
-    // ⭑ FICHA 381 (R1) / FICHA 461 (HD1) — Ordenex le QUITA dinero disponible a una tienda; si no
+    // ⭑ FICHA 381 (R1) / FICHA 461 (HD1) — la empresa le QUITA dinero disponible a una tienda; si no
     // lo tiene, su saldo queda en contra y se cobra más adelante, cuando la gestión vuelva a
-    // generarle dinero a favor. Desde la 461 ese dinero pasa a ser ganancia de Ordenex y deja su
+    // generarle dinero a favor. Desde la 461 ese dinero pasa a ser ganancia de la empresa y deja su
     // línea en la caja: un cargo, como el flete. No llega dinero nuevo.
     //
     // El nombre del selector dice la ACCIÓN y quién le paga a quién, no el nombre del enum.
@@ -339,11 +339,11 @@ export const CONCEPTO_MANUAL_OPTIONS = CONCEPTOS_MANUALES.map((concepto) => ({
 
 /**
  * FICHA 459 (R60) / FICHA 461 (R41, design §7.6) — qué le pasa, con cada concepto, al dinero de
- * Ordenex, al saldo de la tienda (si la afecta) y a la ganancia. UNA línea por concepto. `Record`
+ * la empresa, al saldo de la tienda (si la afecta) y a la ganancia. UNA línea por concepto. `Record`
  * TOTAL: un concepto nuevo no compila sin su frase. Textos LITERALES del diseño.
  *
  * La del cobro es la que esta ficha existe para cambiar: no llega dinero nuevo, se toma del saldo a
- * favor de la tienda y pasa a ser ganancia de Ordenex (HD1). La frase de la 459 («La caja y la
+ * favor de la tienda y pasa a ser ganancia de la empresa (HD1). La frase de la 459 («La caja y la
  * ganancia no cambian») queda retirada y una guardia vigila que no vuelva.
  */
 export const FRASE_DEL_EFECTO: Record<ConceptoManualId, string> = {
@@ -382,7 +382,7 @@ export function libroDelConcepto(concepto: ConceptoManual): LibroDestino {
   if (concepto.destino.clase === "pago_tienda") return "caja_y_tienda";
   if (concepto.destino.clase === "cobro_tienda") return "caja_y_tienda";
   if (concepto.destino.clase === "pago_por_cuenta_tienda") return "caja_y_tienda";
-  // FICHA 457: el pago de una tienda a Ordenex también.
+  // FICHA 457: el pago de una tienda a la empresa también.
   if (concepto.destino.clase === "abono_tienda") return "caja_y_tienda";
   return "caja";
 }
@@ -404,7 +404,7 @@ export function nombreEnElLibro(concepto: ConceptoManual): string {
 }
 
 /**
- * FICHA 459/461 — el nombre con que el concepto sale en el libro de la TIENDA, desde Ordenex
+ * FICHA 459/461 — el nombre con que el concepto sale en el libro de la TIENDA, desde la empresa
  * (`CATEGORIA_TIENDA_LABEL`, el mismo diccionario que pinta `/wallet/tiendas`; R46). Cadena vacía
  * para los conceptos que no escriben en ese libro.
  */
@@ -469,7 +469,7 @@ const DESCRIPCION_CABECERA_DOS_LIBROS: Record<
   // FICHA 457 (design §8.1): literal.
   abono_tienda:
     "Elegí la tienda, el monto, la fecha real y el método. Solo se admite si la tienda tiene saldo en contra y hasta lo que debe. El pago no se edita: si hay un error, se anula desde el libro de la caja con un motivo.",
-  // FICHA 458-C (design §4.1): los dos pagos de Ordenex.
+  // FICHA 458-C (design §4.1): los dos pagos de la empresa.
   pago_tienda:
     `Elegí la tienda, el monto, la fecha real y el método. Solo se admite hasta lo que ${MARCA.nombre} le debe a la tienda. El pago no se edita: si hay un error, se anula con un motivo.`,
   pago_mensajero:
@@ -547,7 +547,7 @@ export function cuentaDelConcepto(concepto: ConceptoManual): CuentaDelConcepto {
 }
 
 /**
- * FICHA 458-C (R42, D5) — «a quién» se le paga: OBLIGATORIO en sueldo y gasto de Ordenex, OPCIONAL
+ * FICHA 458-C (R42, D5) — «a quién» se le paga: OBLIGATORIO en sueldo y gasto de la empresa, OPCIONAL
  * en la corrección de caja, y no se pide en los demás (el pago de un gasto de una tienda conserva su
  * beneficiario de la 459; los pagos y cobros nombran su cuenta).
  */

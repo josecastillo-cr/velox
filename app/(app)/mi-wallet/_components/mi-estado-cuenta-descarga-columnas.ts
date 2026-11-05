@@ -3,7 +3,7 @@
  * por la propia tienda.
  *
  * Módulo PURO (sin React ni DOM). Sin «Tienda» (todas son suyas, R48) y SIN «Mensajero»: a la tienda no
- * se le revela quién de Ordenex movió el cierre (R49; el servidor además manda `null`). El resultado de
+ * se le revela quién de la empresa movió el cierre (R49; el servidor además manda `null`). El resultado de
  * cada gestión, con la MISMA etiqueta del panel de esta pantalla (`resultadosTexto` de `/mi-wallet`).
  */
 import type { DetalleDeLaDescarga } from "@/components/shared/estado-cuenta/EstadoCuenta";

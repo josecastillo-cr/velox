@@ -23,7 +23,7 @@ import { DUENO_LABEL } from "@/app/(app)/wallet/_components/wallet-labels";
 /**
  * Feature 231 (T5.4) — la columna «Dueño» del libro de la caja.
  *
- * El libro de la caja mezcla en el mismo listado dinero de Ordenex y dinero que solo PASA por
+ * El libro de la caja mezcla en el mismo listado dinero de la empresa y dinero que solo PASA por
  * la caja a nombre de las tiendas. Hasta ahora había que saberse de memoria qué categoría era
  * de quién; esta columna lo dice.
  *

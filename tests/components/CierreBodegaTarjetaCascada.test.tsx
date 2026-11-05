@@ -40,7 +40,7 @@ import { PAGO_MENSAJERO_LABEL } from "@/app/(app)/cierres-admin/_components/cier
  * lo MISMO (R38), que las otras tres superficies del mismo comprobante no cambian (R21), que el
  * resultado llega ya derivado y no se calcula aquí (R20), que el negativo se pinta con su signo y
  * su nota (R36), que el aviso del efectivo aparece cuando toca (R37) y que la cascada del margen
- * de Ordenex NO se cuela en la tarjeta (R39).
+ * de la empresa NO se cuela en la tarjeta (R39).
  *
  * Los importes llevan CÉNTIMOS a propósito.
  */

@@ -109,7 +109,7 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
       ],
       MAESTRO,
     );
-    // FICHA 458 (O1 del recorrido final): el gasto fijo decía «Gasto fijo de Ordenex · Alquiler —
+    // FICHA 458 (O1 del recorrido final): el gasto fijo decía «Gasto fijo de la empresa · Alquiler —
     // sep 2026» y la pantalla le pegaba DESPUÉS la misma descripción («… · Alquiler — sep 2026 ·
     // Alquiler — sep 2026»). La plantilla y su periodo siguen a la vista: los trae la descripción,
     // que toda superficie pinta junto al origen.

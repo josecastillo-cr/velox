@@ -58,7 +58,7 @@ export type ConceptosConMovimientosInput = z.infer<typeof conceptosConMovimiento
 /**
  * Un concepto del filtro con su numero de movimientos. `categoria` es un valor del catalogo del
  * libro pedido (`WalletMovimientoCategoria` en la caja, `WalletTiendaMovimientoCategoria` en la
- * tienda); el rotulo lo pone la superficie con SU diccionario (desde Ordenex o desde la tienda).
+ * tienda); el rotulo lo pone la superficie con SU diccionario (desde la empresa o desde la tienda).
  * `movimientos` es un CARDINAL (cuantas filas), nunca un importe.
  */
 export type ConceptoConMovimientosDTO = { categoria: string; movimientos: number };

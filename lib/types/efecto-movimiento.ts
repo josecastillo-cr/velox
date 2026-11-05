@@ -55,7 +55,7 @@ export interface LineaEfectoDTO {
  * R44–R47 — el efecto, calculado en el SERVIDOR con `derivarCaja` y la derivacion del saldo de la
  * cuenta. `cifraPrincipal.rotulo` es el ESTADO de la caja (la pantalla elige el texto, como en la
  * 459). `cuenta` es `null` si el concepto no afecta a una cuenta. `superaDisponible` solo existe en
- * el pago a una tienda y en el pago de una tienda a Ordenex (el tope lo decide el servidor).
+ * el pago a una tienda y en el pago de una tienda a la empresa (el tope lo decide el servidor).
  */
 export interface EfectoMovimientoDTO {
   lineas: {

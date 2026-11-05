@@ -117,11 +117,11 @@ function MontoCelda({ movimiento }: { movimiento: WalletMovimientoDTO }) {
  * distintas. El punto es DECORACION (`aria-hidden`): quien no ve color lee la palabra.
  */
 const DUENO_PUNTO: Record<NaturalezaMovimiento, string> = {
-  // Ordenex en neutro y las tiendas en `warning`, los MISMOS dos colores con los que la barra
+  // La empresa en neutro y las tiendas en `warning`, los MISMOS dos colores con los que la barra
   // de composicion de la tarjeta reparte la caja: es el mismo reparto, fila a fila.
   propio: "bg-muted-foreground",
   terceros: "bg-warning",
-  // Ficha 459 (design §5): capital de Ordenex (saldo inicial y aportes), token semantico existente.
+  // Ficha 459 (design §5): capital de la empresa (saldo inicial y aportes), token semantico existente.
   capital: "bg-info",
   // Ficha 488 (design §6.3, R29): el IVA por pagar, con el MISMO token que su porcion de la barra.
   iva: COLOR_IVA_POR_PAGAR,
@@ -192,7 +192,7 @@ function RegistroCelda({ autoria }: { autoria: AutoriaDeFilaDTO | string }) {
 }
 
 /**
- * R55 — «Movimiento y motivo»: el nombre del concepto (desde Ordenex) y, debajo, el origen con su
+ * R55 — «Movimiento y motivo»: el nombre del concepto (desde la empresa) y, debajo, el origen con su
  * entidad y la descripción/motivo (la MISMA composición que la descarga, `textoDeOrigen`).
  */
 function MovimientoCelda({ movimiento }: { movimiento: WalletMovimientoDTO }) {

@@ -3,7 +3,7 @@ import type { SaldoTiendaDTO } from "@/lib/types/wallet-tienda";
 
 /**
  * Feature 43 (design §1.4, R16/R17) — DERIVA el saldo a favor de una tienda a partir de los
- * totales de creditos (COD recaudado) y debitos (descuentos de Ordenex + pagos). Funcion
+ * totales de creditos (COD recaudado) y debitos (descuentos de la empresa + pagos). Funcion
  * PURA, money-safe: resta con `Prisma.Decimal`, salida STRING escala 2. El saldo PUEDE ser
  * negativo (p.ej. una tienda con solo devoluciones DEBE el flete de devolucion -> "-123.45").
  * Espejo estructural de `lib/utils/wallet-balance.ts`. Nunca lee un saldo mutable almacenado.

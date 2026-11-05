@@ -59,7 +59,7 @@ export function paresDeChipBodega(chip: ChipBodega): ParDeChip[] {
  * es el contra-asiento. `null` = la fila no forma pares (lo que produce un cierre, una correccion).
  *
  *   pago a la tienda (172)        pago_tienda ↔ ajuste_credito               (origen pago_tienda, el pago)
- *   cobro de Ordenex (461)        cobro_manual (la fila) ↔ cobro_tienda_anulado (origen cobro_tienda)
+ *   cobro de la empresa (461)        cobro_manual (la fila) ↔ cobro_tienda_anulado (origen cobro_tienda)
  *   pago de un gasto (459)        pago_por_cuenta ↔ pago_por_cuenta_anulado  (el documento)
  *   pago de la tienda (457)       abono_tienda ↔ abono_tienda_anulado        (el documento)
  *   cobro por rechazo (458-B)     flete_devolucion ↔ flete_devolucion_anulado; IVA ↔ IVA (la gestion)

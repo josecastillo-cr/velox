@@ -13,7 +13,7 @@ import { resolveActorFromSession } from "@/lib/auth/resolve-actor";
 // lo único que se interpone es el `notFound()` del servidor. La revisión de la ficha midió que
 // quitar `!documentoVisiblePara(...)` de esa línea dejaba la suite ENTERA en verde —las 230
 // guardias incluidas—: un mensajero, una tienda o una bodega satélite (gente ajena a la empresa)
-// podían leer cómo funciona la caja de Ordenex sin romper ni un test.
+// podían leer cómo funciona la caja de la empresa sin romper ni un test.
 //
 // Lo que se afirma aquí son las DOS mitades, porque una sola no vale nada:
 //   · la NEGATIVA — rol ajeno, sin sesión, cuenta de máquina y slug inexistente dan 404;

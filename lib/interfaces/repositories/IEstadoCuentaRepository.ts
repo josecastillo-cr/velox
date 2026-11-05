@@ -58,7 +58,7 @@ export interface VentanaDeLibro {
   sortDir: DireccionOrden;
   /**
    * FICHA 463 (R27) — ¿el termino casa tambien con el nombre de quien registro? `false` en
-   * `/mi-wallet`: la tienda no ve los nombres de la gente de Ordenex, y buscarlos no debe ni reducir
+   * `/mi-wallet`: la tienda no ve los nombres de la gente de la empresa, y buscarlos no debe ni reducir
    * ni ampliar su resultado.
    */
   conNombreRegistrador: boolean;

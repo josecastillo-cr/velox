@@ -72,7 +72,7 @@ export function aAporteCapitalDTO(r: AporteCapitalRegistro): AporteCapitalDTO {
 }
 
 /**
- * FICHA 459 (design §6.2) — el SALDO INICIAL o APORTE DE CAPITAL: dinero de Ordenex que entra a la
+ * FICHA 459 (design §6.2) — el SALDO INICIAL o APORTE DE CAPITAL: dinero de la empresa que entra a la
  * caja y NO es ganancia. Mismo molde que el pago por cuenta, sin tienda y con el candado de «un
  * solo saldo inicial vigente» (R70). Sube la cifra principal y el capital; no toca la ganancia,
  * «De las tiendas» ni ningun saldo de tienda (R72). R27: NUNCA propone ni calcula un importe.

@@ -4,6 +4,7 @@
 // catalogo en el test— sino las tres propiedades que lo hacen fiable: las claves son unicas y
 // bien formadas, el formato de cada TIPO de dato es el del repo (dinero, fecha, booleano), y
 // una clave desconocida no revienta un envio.
+import { DOMINIO_RETIRADO, MARCA_RETIRADA_RE } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -38,14 +39,14 @@ describe("493/R18 — ejemplos del catalogo con el dominio nuevo", () => {
     expect(CAMPOS_PLANTILLA_POR_CLAVE.get("zona")?.descripcion).toBe(
       `Zona de reparto de ${NOMBRE_ESPERADO} a la que pertenece la dirección.`,
     );
-    expect(CAMPOS_PLANTILLA.map((c) => c.descripcion).join(" | ")).not.toMatch(/ordenex/i);
+    expect(CAMPOS_PLANTILLA.map((c) => c.descripcion).join(" | ")).not.toMatch(MARCA_RETIRADA_RE);
   });
 
   it("ningun ejemplo ni dato de muestra conserva el dominio viejo", () => {
     const ejemplos = CAMPOS_PLANTILLA.map((c) => c.ejemplo).join(" | ");
     expect(ejemplos.length).toBeGreaterThan(0);
-    expect(ejemplos).not.toContain("ordenex.co");
-    expect(JSON.stringify(DATOS_PLANTILLA_EJEMPLO)).not.toContain("ordenex.co");
+    expect(ejemplos).not.toContain(DOMINIO_RETIRADO);
+    expect(JSON.stringify(DATOS_PLANTILLA_EJEMPLO)).not.toContain(DOMINIO_RETIRADO);
   });
 });
 

@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from "vitest";
 import { loadEmailConfig, nombreMarcaCorreo } from "@/lib/config/email";
 import { plantillaCodigoPorProposito } from "@/lib/services/email/plantillas";
 
-import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
+import { MARCA_RETIRADA, MARCA_RETIRADA_RE } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 489 — R2/R3: la marca de los correos sale de SMTP_FROM_NAME y, si no
 // esta o esta vacia, es el nombre de marca: «Velox Courier» desde la feature 492 (R19). No exige
 // credenciales SMTP. Literal de contrato, no `MARCA.nombre`.
@@ -67,7 +67,7 @@ describe("feature 492 (R19) — correo compuesto sin SMTP_FROM_NAME", () => {
       expect(correo.html).toContain("Este correo lo envió Velox Courier de forma automática");
       expect(correo.text.split(/\n\n/)[0]).toBe("Velox Courier");
       expect(correo.text).toContain("Este correo lo envió Velox Courier de forma automática");
-      expect(`${correo.subject} ${correo.html} ${correo.text}`).not.toMatch(/ordenex/i);
+      expect(`${correo.subject} ${correo.html} ${correo.text}`).not.toMatch(MARCA_RETIRADA_RE);
     },
   );
 });

@@ -59,7 +59,7 @@ function guiaLibre(): number {
   return 1_500_000_000 + Math.floor(Math.random() * 100_000_000);
 }
 
-const ORIGIN = "https://app.ordenex.co";
+const ORIGIN = "https://app.ejemplo.test";
 const CLAVE = randomBytes(32).toString("base64");
 const SECRET_ENC = cifrarSecreto(CLAVE, "ordx_whsec_secreto-de-firma-de-prueba");
 
@@ -134,7 +134,7 @@ describeSiHayBase("406/R3 — el identificador del enlace resuelve contra el SQL
         const tienda = await tx.usuario.create({
           data: {
             nombre: `Tienda 406 ${marca}`,
-            email: `tienda-${marca}@ordenex.test`,
+            email: `tienda-${marca}@ejemplo.test`,
             telefono: "22220000",
             passwordHash: "x",
             cedula: `406${marca}`,

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 /**
- * E2E tests for "/wallet" — the PRINCIPAL cash box of Ordenex (Feature 42, T11–T13 /
+ * E2E tests for "/wallet" — the PRINCIPAL cash box of la empresa (Feature 42, T11–T13 /
  * R18–R21). The wallet is an append-only LEDGER of immutable movements; the general
  * BALANCE is DERIVED (Σingreso − Σegreso) and never stored. The page is a role-aware
  * Server Component: only the `maestro` (owner of the central cash box) may see it; any

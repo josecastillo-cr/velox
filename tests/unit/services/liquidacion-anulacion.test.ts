@@ -1225,7 +1225,7 @@ describe("R24-R27 [173] — la caja al anular: la TIENDA recupera su dinero, el 
     const fila = filaDeCaja(d.tx);
     expect(fila.tipo).toBe("ingreso");
     // R26 — la categoria es la CLAVE de la feature: `ingreso_ajuste` es de naturaleza PROPIA y
-    // haria que anular un pago SUBIERA la ganancia de Ordenex (design §10-C). Por eso el enum
+    // haria que anular un pago SUBIERA la ganancia de la empresa (design §10-C). Por eso el enum
     // gano DOS valores y no uno. `caja-cadena-pago-anulacion.test.ts` mide el efecto en ₡.
     expect(fila.categoria).toBe("ingreso_reverso_pago_tienda");
     expect(fila.categoria).not.toBe("ingreso_ajuste");

@@ -35,7 +35,7 @@ export interface TarjetasEstadoCuentaProps {
   estado: EstadoCuentaDTO;
   /**
    * FICHA 458-D (R34) — cómo se dice la frase del saldo. «oficina» (por defecto): en tercera persona,
-   * desde Ordenex; «tienda»: la propia tienda en `/mi-wallet`, en segunda persona.
+   * desde la empresa; «tienda»: la propia tienda en `/mi-wallet`, en segunda persona.
    */
   vista?: "oficina" | "tienda";
 }

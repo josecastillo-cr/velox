@@ -3,7 +3,7 @@
 // `/wallet/tiendas` y `/mi-wallet`), cada uno con el diccionario de SU superficie.
 //
 // Hasta la 458 los tres se poblaban del catalogo COMPLETO (el SEED del enum): ofrecian conceptos que
-// no tenian ni un movimiento —«Otro gasto de Ordenex» (`egreso_gasto`), que nadie produce— y no
+// no tenian ni un movimiento —«Otro gasto de la empresa» (`egreso_gasto`), que nadie produce— y no
 // decian cuantos habia de cada uno. Ahora la lista es la que devuelve el servidor
 // (`conceptosConMovimientosAction`): solo los conceptos con movimientos en el periodo y la cuenta que
 // se miran, cada uno con su numero (R13/R14). El elegido se CONSERVA aunque se quede en 0 (R15).

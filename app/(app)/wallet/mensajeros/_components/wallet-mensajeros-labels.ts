@@ -31,7 +31,7 @@ export const COLUMNAS_MAESTRO = {
   estado: "Estado",
 } as const;
 
-/** Badge de estado por signo de la cuenta por pagar (positivo = Ordenex debe / cero = al dia). */
+/** Badge de estado por signo de la cuenta por pagar (positivo = la empresa debe / cero = al dia). */
 export const SIGNO_BADGE: Record<
   CuentaPorPagarSigno,
   { variant: "default" | "secondary" | "destructive" | "outline"; label: string }
@@ -41,7 +41,7 @@ export const SIGNO_BADGE: Record<
 };
 
 /**
- * Color del monto de la cuenta por pagar segun su signo. Positivo (Ordenex le debe al
+ * Color del monto de la cuenta por pagar segun su signo. Positivo (la empresa le debe al
  * mensajero) se resalta en ambar; cero es neutro. Nunca negativo en flujo normal (R16).
  */
 export const CUENTA_COLOR: Record<CuentaPorPagarSigno, string> = {
@@ -185,7 +185,7 @@ export const PAGO_MENSAJERO_WALLET = {
     "La suma de los cierres aprobados que un solo pago puede saldar. Sale del servidor.",
   /**
    * Abre el formulario. FICHA 458-D (T D.3, R29): la acción del estado de cuenta se nombra como todas
-   * las de la wallet desde la 461, desde Ordenex y diciendo quién le paga a quién (antes «Registrar
+   * las de la wallet desde la 461, desde la empresa y diciendo quién le paga a quién (antes «Registrar
    * pago»; el botón que CONFIRMA dentro del formulario sigue siendo «Registrar pago»).
    */
   abrir: `${MARCA.nombre} le paga al mensajero`,

@@ -3,7 +3,7 @@ import { MARCA } from "@/lib/marca/identidad";
 
 /**
  * Ficha 339 (T5.1, design §5.2/§5.5/§5.7) — textos del DETALLE de una fila de la tarjeta
- * «Como se compone la ganancia de Ordenex» y de las dos filas de egreso que la ficha saca del
+ * «Como se compone la ganancia de la empresa» y de las dos filas de egreso que la ficha saca del
  * cubo anonimo.
  *
  * Modulo PURO (sin React): `docs/conventions` manda los textos de UI fuera del componente, e
@@ -50,7 +50,7 @@ export const COMPOSICION_DETALLE_ERROR =
 
 /**
  * R1/R2/R5 — el rotulo de las dos filas de egreso que la ficha 343 saca de «Otros gastos de
- * Ordenex», con la MISMA voz plural que sus vecinas de la columna («Gastos fijos», «Sueldos»,
+ * la empresa», con la MISMA voz plural que sus vecinas de la columna («Gastos fijos», «Sueldos»,
  * «Indemnizaciones»).
  *
  * `Record` TOTAL sobre `WalletEgresoNombrado`: el dia que un concepto mas gane fila, el build
@@ -64,14 +64,14 @@ export const COMPOSICION_DETALLE_ERROR =
  * proposito: derivarlo dejaria el test de R3 comparando el rotulo contra su propia fuente, es
  * decir, siempre verde.
  *
- * Ficha 461 (HD3, design §7): los tres en la voz plural de la columna y desde Ordenex («Pagos de
- * Ordenex a mensajeros»); «Ajustes (egreso)» y «Pagos a mensajeros» quedan retirados con sus
+ * Ficha 461 (HD3, design §7): los tres en la voz plural de la columna y desde la empresa («Pagos de
+ * la empresa a mensajeros»); «Ajustes (egreso)» y «Pagos a mensajeros» quedan retirados con sus
  * singulares. El singular del libro de cada uno vive en `CATEGORIA_LABEL`.
  */
 export const EGRESO_NOMBRADO_LABEL: Record<WalletEgresoNombrado, string> = {
   egreso_pago_mensajero: `Pagos de ${MARCA.nombre} a mensajeros`,
   egreso_ajuste: "Correcciones de caja (resta)",
-  // La fila de la anulacion de un cobro de Ordenex a una tienda (R27); en el libro, cada fila se
+  // La fila de la anulacion de un cobro de la empresa a una tienda (R27); en el libro, cada fila se
   // rotula «Cobro a una tienda anulado».
   egreso_reverso_cobro_tienda: "Cobros a una tienda anulados",
   // Ficha 458-B (design §2.3): las filas de la anulación de un cobro por rechazo; en el libro, cada
@@ -82,7 +82,7 @@ export const EGRESO_NOMBRADO_LABEL: Record<WalletEgresoNombrado, string> = {
 };
 
 /**
- * R10 — la PISTA de la fila «Otros gastos de Ordenex», que solo se pinta cuando el servidor dice
+ * R10 — la PISTA de la fila «Otros gastos de la empresa», que solo se pinta cuando el servidor dice
  * que ahi queda dinero (`hayOtrosEgresos`).
  *
  * Avisa sin gritar (Q3 de `requirements.md`, decision cerrada): no es un error ni una alarma, es

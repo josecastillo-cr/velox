@@ -287,7 +287,7 @@ async function abrirVentana(
 
 /** URL del paquete tal como la codifica el QR de la etiqueta. */
 function qrDeGuia(numGuia: number): string {
-  return `https://ordenex.app/paquete/${numGuia}`;
+  return `https://ejemplo.test/paquete/${numGuia}`;
 }
 
 /** Abre la cámara dentro de la ventana y simula que decodifica el texto dado. */

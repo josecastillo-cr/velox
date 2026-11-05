@@ -131,7 +131,7 @@ describeSiHayBase("458-B/TB.13 — «Cómo quedó» (Postgres real)", () => {
         r.pago = await ver("caja", pago.id);
         esperado.pago = { caja: cajaHasta(pago.id), cuenta: { tipo: "tienda", id: tiendaDelPago, saldo: tiendaHasta(libroDePago, debito.id) } };
 
-        // 4. El debito de un cobro de Ordenex a la tienda B (su libro) → la caja tras SU cargo.
+        // 4. El debito de un cobro de la empresa a la tienda B (su libro) → la caja tras SU cargo.
         const libroB = await tiendaEntera(esc.tiendaB);
         const cobro = libroB.find((f) => f.origen_tipo === "manual" && f.tipo === "debito");
         if (cobro === undefined) throw new Error("sin cobro de la tienda B");

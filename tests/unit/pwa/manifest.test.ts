@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 
-import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
+import { MARCA_RETIRADA, MARCA_RETIRADA_RE } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 64 (PWA) + feature 164 (screenshots) — guardia del manifest.
 //
 // Un manifest que declara un archivo inexistente, o unas dimensiones que no son las del PNG
@@ -115,7 +115,7 @@ describe("manifest — screenshots del diálogo de instalación", () => {
       ["/screenshots/ingreso-narrow.png", "Inicio de sesión en Velox Courier"],
       ["/screenshots/inicio-wide.png", "Velox Courier en escritorio"],
     ]);
-    for (const s of screenshots) expect(s.label ?? "").not.toMatch(/ordenex/i);
+    for (const s of screenshots) expect(s.label ?? "").not.toMatch(MARCA_RETIRADA_RE);
   });
 
   it("ninguna excede el límite de 3840px del navegador", () => {

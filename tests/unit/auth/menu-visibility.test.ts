@@ -110,7 +110,7 @@ describe("puedeVer", () => {
     expect(puedeVer(inicio, actor("mensajero"))).toBe(false);
     expect(puedeVer(inicio, actor("adminSatelite"))).toBe(false);
     // Feature 158 (R48): "Incidentes" NO lo ven el mensajero ni el adminTienda. Es dinero
-    // de Ordenex saliendo de la caja: el service les responde `forbidden` y el menú no les
+    // de la empresa saliendo de la caja: el service les responde `forbidden` y el menú no les
     // ofrece la puerta.
     expect(puedeVer(incidentes, actor("mensajero"))).toBe(false);
     expect(puedeVer(incidentes, actor("adminTienda"))).toBe(false);

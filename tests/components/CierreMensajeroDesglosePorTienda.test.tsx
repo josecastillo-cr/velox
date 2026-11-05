@@ -294,7 +294,7 @@ const UNA_TIENDA: DetalleOk = {
 };
 
 /**
- * LA TIENDA QUE SÓLO TRAJO RECHAZOS (R9): no recaudó nada y aun así Ordenex le facturó el flete
+ * LA TIENDA QUE SÓLO TRAJO RECHAZOS (R9): no recaudó nada y aun así la empresa le facturó el flete
  * por rechazo, así que GANA un negativo. Entra en el desglose y CUENTA para el umbral — es justo
  * el caso donde el desglose informa de algo que el agregado tapaba.
  *

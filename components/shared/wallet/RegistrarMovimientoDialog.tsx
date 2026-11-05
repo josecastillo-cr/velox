@@ -68,7 +68,7 @@ import {
 //
 // Reglas que este archivo hace cumplir y que son requisito:
 //  - R51: la clave de idempotencia se genera AL ABRIR y viaja en TODOS los conceptos.
-//  - R42 (D5): «a quién» es obligatorio en sueldo y gasto de Ordenex, opcional en la corrección.
+//  - R42 (D5): «a quién» es obligatorio en sueldo y gasto de la empresa, opcional en la corrección.
 //  - R27 (459): el monto arranca VACÍO y solo cambia por lo que teclea la persona.
 //  - R49: un rechazo de validación conserva lo escrito y pinta el motivo bajo SU campo.
 //  - R48: el aviso de éxito lleva el saldo o la cifra que devolvió el SERVIDOR, tal cual.

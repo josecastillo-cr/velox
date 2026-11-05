@@ -168,7 +168,7 @@ export const ESTADO_CUENTA_TEXTO = {
   /**
    * FICHA 463 (R23/R26/R27) — el placeholder del buscador del extracto. En la oficina alcanza la
    * descripción y quién registró; en `/mi-wallet` SOLO la descripción (la tienda no ve los nombres de
-   * la gente de Ordenex, R27), así que no la nombra.
+   * la gente de la empresa, R27), así que no la nombra.
    *
    * FICHA 469 (R24, R36) — la oficina (tienda y mensajero) y `/mi-wallet` nombran además la guía y la
    * remisión (búsqueda por guía). La bodega satélite NO: su buscador sigue siendo solo de texto, y por eso

@@ -664,7 +664,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
     if (r.status !== "ok") throw new Error("esperaba ok");
 
     expect(r.totalesIngreso.total).toBe("0.00");
-    // Un "0.00" aqui diria «Ordenex no perdio nada en este cierre», que es falso.
+    // Un "0.00" aqui diria «la empresa no perdio nada en este cierre», que es falso.
     expect(r.netoEmpresa).toBe("-1950.60"); // 0 − 1500.35 − 450.25
     expect(r.ganancia).toBe("-1500.35"); // la ganancia tampoco se recorta, y no es el neto
     // La puente de un cierre sin entregas es cero DE VERDAD (no hay nada facturado sobre lo
@@ -713,7 +713,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
     ).toBe(r.ganaLaTienda);
 
     // LA IDENTIDAD que hace evidente la pantalla: lo que gana la tienda + lo que factura
-    // Ordenex = lo recaudado. Es la particion, y va ANTES del desglose en la cascada.
+    // la empresa = lo recaudado. Es la particion, y va ANTES del desglose en la cascada.
     expect(
       new Prisma.Decimal(r.ganaLaTienda).plus(r.totalesIngreso.total).toFixed(2),
     ).toBe(r.cierre.totales.general);

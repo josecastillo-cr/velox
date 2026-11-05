@@ -16,7 +16,7 @@ const { WebPushSender } = await import("@/lib/push/web-push-sender");
 const CONFIG = {
   publicKey: "BPUBLICA-de-mentira",
   privateKey: "PRIVADA-de-mentira",
-  subject: "mailto:soporte@ordenex.co",
+  subject: "mailto:soporte@ejemplo.test",
 };
 
 const SUSCRIPCION = {

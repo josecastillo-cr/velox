@@ -1,5 +1,5 @@
 // Ficha 339 (T3.1, design §4.6, R29/R30) — configuracion del DETALLE de una fila de la tarjeta
-// «Como se compone la ganancia de Ordenex»: cuantos movimientos trae una pagina del desplegable
+// «Como se compone la ganancia de la empresa»: cuantos movimientos trae una pagina del desplegable
 // y cual es el tope que el borde admite.
 //
 // Molde exacto de `lib/config/gasto-fijo.ts` (`readPositiveInt` + `load…Config()` + instancia).

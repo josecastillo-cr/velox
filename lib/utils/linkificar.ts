@@ -21,10 +21,10 @@ export type SegmentoTexto =
  *
  * 1. Con esquema `http`/`https` explicito.
  * 2. Con prefijo `www.` y sin esquema, porque WhatsApp SI lo pinta como enlace y el cliente
- *    escribe `www.ordenex.co` esperando poder pincharlo. Se le antepone `https://` en el
+ *    escribe `www.ejemplo.co` esperando poder pincharlo. Se le antepone `https://` en el
  *    `href`; el texto VISIBLE sigue siendo el que escribio el cliente.
  *
- * Un dominio suelto SIN esquema ni `www.` (`ordenex.co/guia`) NO es candidato A PROPOSITO: la
+ * Un dominio suelto SIN esquema ni `www.` (`ejemplo.co/guia`) NO es candidato A PROPOSITO: la
  * regla que lo enlazaria tambien convierte "llego a las 5.30pm" en un enlace a `5.30pm`. El
  * humano rechazo esa opcion explicitamente; los falsos positivos pesan mas que el caso raro.
  *

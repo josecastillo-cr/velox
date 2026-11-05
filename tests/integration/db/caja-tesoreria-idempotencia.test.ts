@@ -60,7 +60,7 @@ describeSiHayBase("173/T B.4 — idempotencia del contra-entrega contra Postgres
       const repo = new WalletMovimientoRepository(tx as unknown as PrismaClient);
 
       // El LEDGER de ese cierre, como lo dejaria la 43: dos tiendas con contra-entrega, un
-      // DEBITO (flete: lo que Ordenex se queda, y que ya entro en la caja por su concepto de
+      // DEBITO (flete: lo que la empresa se queda, y que ya entro en la caja por su concepto de
       // la 42) y un CREDITO de otra categoria (un ajuste manual a favor de la tienda). Los
       // cuatro comparten tabla y origen a proposito: si al WHERE del feed le faltara
       // `categoria` o `tipo`, alguno se colaria en la caja y el contra-entrega diria de mas.

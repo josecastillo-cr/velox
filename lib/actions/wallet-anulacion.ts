@@ -82,7 +82,7 @@ export interface WalletAnulacionDeps {
 }
 
 /**
- * FICHA 458-B (D13, R63–R67) — ANULA con motivo un sueldo, un gasto de Ordenex, un gasto fijo
+ * FICHA 458-B (D13, R63–R67) — ANULA con motivo un sueldo, un gasto de la empresa, un gasto fijo
  * cobrado o una indemnizacion por incidente. Contra-asiento por el monto del original, constancia
  * y historial en UNA transaccion; el segundo intento responde `ya_anulado`.
  *

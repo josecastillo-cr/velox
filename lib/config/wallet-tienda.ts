@@ -36,7 +36,7 @@ export interface WalletTiendaConfig {
   /**
    * R28/F1.4-Q3: si `true` (default), el ledger de la tienda registra los debitos
    * `flete_devolucion` e `iva_flete_devolucion` en gestiones `rechazada` (saldo negativo).
-   * Si `false`, esos dos debitos NO se generan en la tienda (los absorbe Ordenex).
+   * Si `false`, esos dos debitos NO se generan en la tienda (los absorbe la empresa).
    *
    * Ficha 301 (2026-08-28): antes decia «devuelta/rechazada». Una `devuelta` ya no genera
    * ninguno de los dos conceptos, asi que no hay nada que este flag pueda descartar en ella.

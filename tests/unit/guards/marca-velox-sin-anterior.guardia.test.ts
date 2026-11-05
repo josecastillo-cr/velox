@@ -8,7 +8,7 @@ import { MARCA } from "@/lib/marca/identidad";
 
 // FICHA 492 (T3, T13a) — GUARDIA «YA NO ES LA MARCA ANTERIOR» (R7, R8, R9, R22).
 //
-// Los SHA-256 de abajo son los de cada archivo de identidad de Ordenex tal como estaba en
+// Los SHA-256 de abajo son los de cada archivo de identidad de la empresa tal como estaba en
 // `origin/dev` 8e150533 ANTES de reemplazarlo (T0, anotados en `progress/impl_492.md`). Son la
 // huella de la marca anterior: si un archivo servido vuelve a coincidir con uno de ellos (un
 // revert, un merge que se lo trae de vuelta), esto se pone rojo.

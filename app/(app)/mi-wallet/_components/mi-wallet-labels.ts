@@ -36,24 +36,24 @@ export { money } from "@/lib/config/moneda";
  * concepto lo decide `CUBETA_POR_CATEGORIA` en el servidor, una sola vez, para las dos
  * pantallas.
  *
- * «Ya pagado» esta separado de «Cargos de Ordenex» a proposito: los dos son debitos del libro,
+ * «Ya pagado» esta separado de «Cargos de la empresa» a proposito: los dos son debitos del libro,
  * pero uno es lo que te cobraron y el otro lo que ya te entregaron. Plegados en un solo
  * importe, la tienda veria el dinero que recibio contado como un cargo mas.
  */
 //
-// Ficha 461 (HD3, design §7.5, R45) — las tres pistas se leen DESDE LA TIENDA («lo que Ordenex te
-// cobró», «lo que Ordenex te devolvió al anular») y nombran el cobro y su anulación con la MISMA
-// palabra con la que se rotula su fila en esta pantalla (`CATEGORIA_MI_WALLET_LABEL`): «Ordenex te
-// cobró» / «Ordenex anuló un cobro y te lo devolvió». Sin la sigla «COD» (P9).
+// Ficha 461 (HD3, design §7.5, R45) — las tres pistas se leen DESDE LA TIENDA («lo que la empresa te
+// cobró», «lo que la empresa te devolvió al anular») y nombran el cobro y su anulación con la MISMA
+// palabra con la que se rotula su fila en esta pantalla (`CATEGORIA_MI_WALLET_LABEL`): «la empresa te
+// cobró» / «la empresa anuló un cobro y te lo devolvió». Sin la sigla «COD» (P9).
 export const DESGLOSE_MI_WALLET_LABEL = {
   aFavor: "A tu favor",
-  // Ficha 457 (design §2, R50): nombra lo que le pagaste a Ordenex y su anulación.
+  // Ficha 457 (design §2, R50): nombra lo que le pagaste a la empresa y su anulación.
   aFavorHint:
     `Lo cobrado a tus clientes, las correcciones a tu favor, lo que le pagaste a ${MARCA.nombre} y lo que ${MARCA.nombre} te devolvió al anular`,
   cargos: `Cargos de ${MARCA.nombreCorto}`,
   // FICHA 381 (R37) — la enumeración no es solo de conceptos AUTOMÁTICOS: dentro de este importe
   // puede haber un cobro decidido por una persona, y la tienda tiene que poder relacionarlo con la
-  // fila que va a leer en su libro («Ordenex te cobró»).
+  // fila que va a leer en su libro («la empresa te cobró»).
   cargosHint: `Fletes, comisión, IVA, lo que ${MARCA.nombre} te cobró y los pagos a ${MARCA.nombre} que se anularon`,
   pagado: "Ya pagado",
   // Ficha 459 (T B.17, design §5): el pago de un gasto de la tienda cae en `pagado` (dinero
@@ -90,7 +90,7 @@ export const TIPO_TIENDA_LABEL: Record<WalletTiendaMovimientoTipo, string> = {
  * Ficha 461 (HD3, design §7.5, R44; P4) — LA LECTURA DESDE LA TIENDA de cada concepto de su libro.
  *
  * Es el MISMO libro que ve la oficina en `/wallet/tiendas`, pero leido desde el otro lado: la
- * tienda lee «Ordenex te cobró» donde la oficina lee «Ordenex le cobra a la tienda». Por eso son
+ * tienda lee «la empresa te cobró» donde la oficina lee «la empresa le cobra a la tienda». Por eso son
  * DOS diccionarios y no uno (design §9, alternativa A8 descartada): un solo texto neutro no puede
  * decir las dos cosas a la vez. Los dos son `Record` totales sobre el mismo enum, y un test exige
  * que difieran en todo concepto en el que una de las dos partes actua sobre la otra (R44).
@@ -117,8 +117,8 @@ export const CATEGORIA_MI_WALLET_LABEL: Record<WalletTiendaMovimientoCategoria, 
   // P5: el beneficiario («A Facebook…») vive en la descripcion, que la columna de origen añade.
   pago_por_cuenta: `${MARCA.nombre} pagó un gasto por ti`,
   pago_por_cuenta_anulado: `${MARCA.nombre} anuló un pago hecho por ti`,
-  // Ficha 457 (design §2, D10, R47): la lectura DESDE LA TIENDA, distinta de la de Ordenex
-  // (`CATEGORIA_TIENDA_LABEL`). «Le pagaste a Ordenex» es el nombre reservado por la 461 §7.8.
+  // Ficha 457 (design §2, D10, R47): la lectura DESDE LA TIENDA, distinta de la de la empresa
+  // (`CATEGORIA_TIENDA_LABEL`). «Le pagaste a la empresa» es el nombre reservado por la 461 §7.8.
   abono_tienda: `Le pagaste a ${MARCA.nombre}`,
   abono_tienda_anulado: `${MARCA.nombre} anuló el pago que le hiciste`,
   // Ficha 458-B (design §2.3, D7): la anulación de un cobro por rechazo, desde la tienda.

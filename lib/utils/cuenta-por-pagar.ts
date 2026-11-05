@@ -40,7 +40,7 @@ export function calcularSplitPago(
  * Feature 44 (design §1.4, R14/R16) — DERIVA la cuenta por pagar de un mensajero a partir de los
  * totales devengado (Σ tipo=devengo) y pagado (Σ tipo=pago). Funcion PURA, money-safe: resta con
  * `Prisma.Decimal`, salida STRING escala 2. En el flujo normal la cuenta por pagar es positiva
- * (Ordenex debe) o cero, NUNCA negativa (R16). Nunca lee un saldo mutable almacenado (R14).
+ * (la empresa debe) o cero, NUNCA negativa (R16). Nunca lee un saldo mutable almacenado (R14).
  */
 export function derivarCuentaPorPagar(
   devengado: string | Prisma.Decimal,
@@ -50,7 +50,7 @@ export function derivarCuentaPorPagar(
   const pag = new Prisma.Decimal(pagado);
   const cuentaPorPagar = dev.sub(pag);
 
-  // R16: en el flujo normal nunca es negativa; positivo (Ordenex debe) o cero.
+  // R16: en el flujo normal nunca es negativa; positivo (la empresa debe) o cero.
   const signo: CuentaPorPagarDTO["signo"] = cuentaPorPagar.gt(0) ? "positivo" : "cero";
 
   return {

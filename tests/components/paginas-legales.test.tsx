@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { ReactElement } from "react";
@@ -432,7 +433,7 @@ describe("armazon comun — la marca de la cabecera sale de los datos legales (R
       const pie = doc(<Cuerpo datos={DATOS_FICTICIOS} />).querySelector("footer");
       expect(pie).not.toBeNull();
       expect(pie!.querySelector("span.font-heading")?.textContent).toBe("MARCA-PRUEBA");
-      expect(pie!.textContent?.toLowerCase()).not.toContain("ordenex");
+      expect(pie!.textContent?.toLowerCase()).not.toContain(MARCA_RETIRADA.toLowerCase());
     },
   );
 });
@@ -517,7 +518,7 @@ describe("T8 — datos legales reales: ningun marcador de pendiente", () => {
     const d = new DOMParser().parseFromString(renderToStaticMarkup(pagina.default()), "text/html");
     // Contrato de la ficha 490 / T8 como literal: la marca publicada es Velox Courier.
     expect(d.querySelector("footer span.font-heading")?.textContent).toBe("Velox Courier");
-    expect(d.body.textContent?.toLowerCase()).not.toContain("ordenex");
+    expect(d.body.textContent?.toLowerCase()).not.toContain(MARCA_RETIRADA.toLowerCase());
   });
 
   it("no publica datos personales del gerente (decision del humano)", async () => {

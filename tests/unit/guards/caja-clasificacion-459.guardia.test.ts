@@ -35,7 +35,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
  * que eso falle en el gate, no en produccion.
  *
  * FICHA 461 / T A.3 (R26; design §14.3) — EL CONTRATO CAMBIA, a proposito y con estos literales:
- *   (1) el conjunto sin contrapartida es EXACTAMENTE `["ajuste_debito"]`: el cobro de Ordenex a una
+ *   (1) el conjunto sin contrapartida es EXACTAMENTE `["ajuste_debito"]`: el cobro de la empresa a una
  *       tienda (`cobro_manual`) gana su cargo (`ingreso_cobro_tienda`) y la excepcion HF6 de la 459
  *       desaparece (HD2);
  *   (4) los cargos son los seis del feed MAS `ingreso_cobro_tienda` y `egreso_reverso_cobro_tienda`,
@@ -74,7 +74,7 @@ const REALES: Tablas = {
  * Cuanto mueve un concepto de la caja «De las tiendas», por unidad de importe (+1, −1 o 0),
  * derivado SOLO de las dos clasificaciones y del prefijo del concepto — la misma informacion con
  * la que `derivarCaja` lo va a sumar:
- *   · un cargo a una tienda (`ingreso_` con liquidez «cargo») la BAJA: es la parte de Ordenex que
+ *   · un cargo a una tienda (`ingreso_` con liquidez «cargo») la BAJA: es la parte de la empresa que
  *     se descuenta de su saldo;
  *   · un REVERSO de cargo (`egreso_` con liquidez «cargo», ficha 461) la SUBE: le devuelve el saldo;
  *   · un concepto de terceros la sube si es ingreso y la baja si es egreso;
@@ -136,7 +136,7 @@ function problemasDeClasificacion(t: Tablas): string[] {
     }
   }
 
-  // (4) `cargo_a_tienda` ⇔ los seis del feed MAS el cobro de Ordenex a una tienda y su reverso
+  // (4) `cargo_a_tienda` ⇔ los seis del feed MAS el cobro de la empresa a una tienda y su reverso
   // (ficha 461), y todos son propios. Un cargo `egreso_` es un REVERSO de cargo: se admite, y su
   // signo lo da el prefijo (ver `efectoEnDeLasTiendas`).
   const cargos = WALLET_MOVIMIENTO_CATEGORIA_SEED.filter(
@@ -172,7 +172,7 @@ describe("459 — guardia de la clasificacion de la caja y del libro de las tien
 
   it("(1) literal del contrato: los conceptos de la tienda SIN asiento en la caja", () => {
     // Es el CONTRATO, escrito a mano a proposito: cada concepto que entre aqui es una excepcion
-    // nueva a R8 y hay que decidirla. Ficha 461 (HD2, R25/R26): el cobro de Ordenex a una tienda
+    // nueva a R8 y hay que decidirla. Ficha 461 (HD2, R25/R26): el cobro de la empresa a una tienda
     // SALE de esta lista —tiene su cargo `ingreso_cobro_tienda`— y R8 vale sin excepcion.
     expect(
       WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED.filter(
@@ -355,7 +355,7 @@ describe("459 — guardia de la clasificacion de la caja y del libro de las tien
 
     it("⭑ 488 (design §13): un cargo clasificado como TERCEROS sigue en rojo («cargo = propio o iva»)", () => {
       // Relajar (4) a «propio o iva» no puede abrir la puerta a un cargo de terceros: el IVA del flete
-      // como terceros es un cargo que no es de Ordenex ni de Hacienda.
+      // como terceros es un cargo que no es de la empresa ni de Hacienda.
       const cargoDeTerceros: Tablas = {
         ...REALES,
         naturaleza: { ...NATURALEZA_POR_CATEGORIA, ingreso_iva_flete: "terceros" },

@@ -94,7 +94,7 @@ export interface DineroLiquidadoDTO {
   readonly recaudado: string;
   /** Flete + IVA + comision COD + IVA. `null` = no hay ninguna orden liquidada. */
   readonly empresa: string | null;
-  /** Lo recaudado liquidado MENOS lo que Ordenex le factura. `null`, mismo motivo. */
+  /** Lo recaudado liquidado MENOS lo que la empresa le factura. `null`, mismo motivo. */
   readonly tienda: string | null;
   /** Cuantas ORDENES distintas lo componen. Una orden en dos cierres cuenta UNA vez (R18). */
   readonly ordenes: number;

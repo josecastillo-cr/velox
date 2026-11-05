@@ -70,7 +70,7 @@ function ordenListRow(overrides: Record<string, unknown> = {}) {
     tienda: {
       id: "t1",
       nombre: "Tienda Uno",
-      email: "tienda1@ordenex.co",
+      email: "tienda1@ejemplo.test",
       telefono: "0990000001",
     },
     // Feature 30/R14: el listado incluye la zona (nombre + flag GAM).
@@ -272,7 +272,7 @@ describe("OrdenRepository.list (R30/R31/R34)", () => {
         tienda: {
           id: "t2",
           nombre: "Tienda Dos",
-          email: "tienda2@ordenex.co",
+          email: "tienda2@ejemplo.test",
           telefono: "0990000002",
         },
       }),
@@ -383,7 +383,7 @@ describe("OrdenRepository.list (R30/R31/R34)", () => {
     expect(rel.tienda).toMatchObject({
       id: "t1",
       nombre: "Tienda Uno",
-      email: "tienda1@ordenex.co",
+      email: "tienda1@ejemplo.test",
       telefono: "0990000001",
     });
     expect(rel.tienda!.tarifa).toMatchObject({ id: "tar-1", valorFlete: 3.5, comisionCod: 5 });

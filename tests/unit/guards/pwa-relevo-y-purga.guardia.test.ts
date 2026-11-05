@@ -125,7 +125,7 @@ interface Ventana {
 }
 
 function ventana(id: string): Ventana {
-  return { id, url: `https://ordenex.app/${id}`, navigate: vi.fn() };
+  return { id, url: `https://ejemplo.test/${id}`, navigate: vi.fn() };
 }
 
 interface OpcionesArnes {
@@ -138,7 +138,7 @@ interface OpcionesArnes {
 
 function cargarSw(opciones: OpcionesArnes = {}) {
   const {
-    hostname = "ordenex.app",
+    hostname = "ejemplo.test",
     fuente = FUENTE,
     cachesIniciales = {},
     ventanas = [],
@@ -225,7 +225,7 @@ function cargarSw(opciones: OpcionesArnes = {}) {
   };
 }
 
-const CHUNK = (n: number) => ({ url: `https://ordenex.app/_next/static/chunks/${n}.js` });
+const CHUNK = (n: number) => ({ url: `https://ejemplo.test/_next/static/chunks/${n}.js` });
 
 /* -------------------------------------------------------------------------- */
 /* 0 · Autocomprobacion del arnes                                              */
@@ -361,7 +361,7 @@ describe("pwa · el relevo espera al usuario", () => {
     const sw = cargarSw({ ventanas });
     await sw.instalar();
     await sw.activar();
-    await sw.pedir({ url: "https://ordenex.app/ordenes", mode: "navigate" });
+    await sw.pedir({ url: "https://ejemplo.test/ordenes", mode: "navigate" });
     for (const v of ventanas) expect(v.navigate).not.toHaveBeenCalled();
 
     // R5 es una PROHIBICION universal ("en ninguna circunstancia") y una prohibicion no se
@@ -527,14 +527,14 @@ describe("pwa · el tope de la cache de estaticos", () => {
 
   it("las paginas que no son 2xx tampoco se graban", async () => {
     const sw = cargarSw({ red: () => respuesta("500", 500) });
-    await sw.pedir({ url: "https://ordenex.app/ordenes", mode: "navigate" });
+    await sw.pedir({ url: "https://ejemplo.test/ordenes", mode: "navigate" });
     const cache = await sw.caches.open("pages-cache-v2");
     expect((await cache.keys()).length).toBe(0);
   });
 
   it("ni /api/ ni supabase pasan por el service worker", async () => {
     const sw = cargarSw();
-    const api = await sw.pedir({ url: "https://ordenex.app/api/ordenes" });
+    const api = await sw.pedir({ url: "https://ejemplo.test/api/ordenes" });
     const supabase = await sw.pedir({ url: "https://abc.supabase.co/rest/v1/orden" });
     expect(api.respondio).toBe(false);
     expect(supabase.respondio).toBe(false);
@@ -602,7 +602,7 @@ describe("pwa · los dos kill-switch", () => {
     const ventanas = [ventana("telefono-atascado")];
     const sw = cargarSw({
       fuente,
-      hostname: "ordenex.app",
+      hostname: "ejemplo.test",
       ventanas,
       cachesIniciales: {
         "next-static-v1": ["viejo.js"],

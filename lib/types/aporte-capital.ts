@@ -4,7 +4,7 @@ import { montoLiquidacionSchema } from "@/lib/types/liquidacion";
 import { comprobanteSchema, PAGO_POR_CUENTA_MOTIVO_MAX } from "@/lib/types/pago-por-cuenta-tienda";
 import { esFechaCalendarioValida, fechaCalendarioCR } from "@/lib/utils/fecha-cr";
 
-// FICHA 459 (design §6.2/§7.2, P1/P7/P8) — el SALDO INICIAL o APORTE DE CAPITAL: dinero de Ordenex
+// FICHA 459 (design §6.2/§7.2, P1/P7/P8) — el SALDO INICIAL o APORTE DE CAPITAL: dinero de la empresa
 // que entra a la caja y NO es ganancia. Lo teclea una persona; la app NUNCA propone, precalcula
 // ni sugiere un importe (R27, HF4). Montos SIEMPRE STRING.
 

@@ -26,7 +26,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
  *     manda el servidor con aritmética decimal exacta; en cuanto el navegador compare dos
  *     importes o convierta uno a número, el reparto puede discrepar de las cifras que está
  *     pintando al lado (R12/R21).
- *  2. que el caso límite —Ordenex en pérdida, con dinero de las tiendas cubriendo el saldo—
+ *  2. que el caso límite —la empresa en pérdida, con dinero de las tiendas cubriendo el saldo—
  *     se pinte como si fuera un reparto normal. Ahí no hay dos porciones que enseñar, y una
  *     barra partida sería una mentira sobre dinero ajeno (R16/R20).
  *
@@ -231,7 +231,7 @@ describe("BarraComposicionCaja — cuando la barra no se puede partir (R16/R18/R
     expect(pintados[0].className).toContain("w-full");
     expect(pintados[0].style.width).toBe("");
 
-    // Y lo dice con todas sus letras, dentro del bloque de Ordenex.
+    // Y lo dice con todas sus letras, dentro del bloque de la empresa.
     const empresa = bolsillo(container, "empresa");
     const nota = within(empresa).getByRole("note");
     const mensaje = nota.textContent ?? "";
@@ -419,10 +419,10 @@ describe("BarraComposicionCaja — money-safe y color por token (R12/R39)", () =
   });
 });
 
-// ─── Ficha 459 (design §3.4, R11/R26) — «De Ordenex» es ganancia MÁS aportes ───
+// ─── Ficha 459 (design §3.4, R11/R26) — «De la empresa» es ganancia MÁS aportes ───
 describe(`Ficha 459 — la barra reparte «De las tiendas» y «De ${NOMBRE_CORTO_ESPERADO}» (R11/R26)`, () => {
   it(`el nombre accesible usa «De ${NOMBRE_CORTO_ESPERADO}» (ganancia y aportes), no la ganancia a secas`, () => {
-    // Capital distinto de cero: con 0 «De Ordenex» y la ganancia valdrían lo mismo y el caso
+    // Capital distinto de cero: con 0 «De la empresa» y la ganancia valdrían lo mismo y el caso
     // no distinguiría nada.
     pintarBarra({ ganancia: "2000.00", capital: "500.25", deEmpresa: "2500.25" });
     // Ficha 488 (R15): + « IVA por pagar: ₡0.» al final (antes terminaba en «(ganancia y aportes).»).
@@ -436,8 +436,8 @@ describe(`Ficha 459 — la barra reparte «De las tiendas» y «De ${NOMBRE_CORT
       dos_bolsillos: null,
       solo_tiendas:
         `Lo de ${NOMBRE_ESPERADO} (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.`,
-      // Ficha 488 (R17): antes «Las tiendas le deben a Ordenex, así que todo lo que hay en la caja es
-      // de Ordenex y además hay dinero por cobrarles.» — falso con IVA por pagar positivo.
+      // Ficha 488 (R17): antes «Las tiendas le deben a la empresa, así que todo lo que hay en la caja es
+      // de la empresa y además hay dinero por cobrarles.» — falso con IVA por pagar positivo.
       solo_empresa:
         `Las tiendas le deben a ${NOMBRE_ESPERADO}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
       sin_reparto:

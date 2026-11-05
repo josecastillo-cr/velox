@@ -3,7 +3,7 @@ import type { PrismaClient } from "@prisma/client";
 import type { MetodoLiquidacion } from "@/lib/types/liquidacion";
 
 /**
- * FICHA 457 (design §6.2) — el contrato del DOCUMENTO del pago de una tienda a Ordenex. SOLO queries:
+ * FICHA 457 (design §6.2) — el contrato del DOCUMENTO del pago de una tienda a la empresa. SOLO queries:
  * ni rol, ni saldo, ni validacion de la tienda. Un tipo de historial por metodo (la guardia del censo
  * mide POR METODO): `crear` escribe `abono_tienda_registrado` y `anular`, `abono_tienda_anulado`, cada
  * uno en la MISMA transaccion que su fila (R61/R62).

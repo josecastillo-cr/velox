@@ -317,7 +317,7 @@ describe("R1 · la metrica homogenea de prefijo no publica neto ⟨D12⟩", () =
 
 describe("458-B B2 · `ingreso_flete` e `ingreso_iva` descuentan el reverso de la anulacion", () => {
   // Cobro por devolución a origen aprobado: flete 1 000,00 + IVA 130,00; anulado: sus dos reversos por el
-  // mismo monto. Literales escritos a mano: el neto es lo que Ordenex de verdad cobro (0,00).
+  // mismo monto. Literales escritos a mano: el neto es lo que la empresa de verdad cobro (0,00).
   const CAJA = [
     { categoria: "ingreso_flete_devolucion" as const, tipo: "ingreso" as const, suma: "1000.00" },
     { categoria: "egreso_reverso_flete_devolucion" as const, tipo: "egreso" as const, suma: "1000.00" },

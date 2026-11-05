@@ -9,7 +9,7 @@ import {
 } from "@/lib/types/wallet";
 
 /**
- * FICHA 461 / T A.2 — la derivacion con el cobro de Ordenex a una tienda y su reverso
+ * FICHA 461 / T A.2 — la derivacion con el cobro de la empresa a una tienda y su reverso
  * (R22, R23, R24, R28; design §2.2).
  *
  * Los literales son los de PRODUCCION medidos el 2026-09-24 (M6 de `progress/medicion_457.md`) y

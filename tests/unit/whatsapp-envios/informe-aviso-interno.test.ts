@@ -1,3 +1,4 @@
+import { DOMINIO_RETIRADO } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect } from "vitest";
 import { crearInformeAvisoInterno } from "@/lib/whatsapp-envios/informes/aviso-interno";
 import type { DatosAviso } from "@/lib/whatsapp-envios/informes/tipos";
@@ -6,7 +7,7 @@ import { accionDeAviso } from "@/lib/notificaciones/catalogo-avisos";
 
 // Ficha 474 (T3.3, R51/R52) — «Aviso de la app».
 
-const BASE = "https://ordenex.co";
+const BASE = "https://ejemplo.test";
 const informe = crearInformeAvisoInterno({ baseUrl: () => BASE });
 const AHORA = new Date("2026-10-05T18:00:00.000Z");
 
@@ -17,10 +18,10 @@ function datos(texto: string, creadoAt = "2026-10-05T11:00:00.000Z"): DatosAviso
 // FEATURE 493 (T4, R18) — el ejemplo PUBLICADO de la variable `enlace` usa el dominio nuevo.
 // Literal a mano (L5b), con su negativa: el dominio viejo no sale en ningun ejemplo.
 describe("493/R18 — el ejemplo del enlace es https://velox-courier.company", () => {
-  it("`enlace` publica https://velox-courier.company/cierres y ningun ejemplo dice ordenex.co", () => {
+  it(`\`enlace\` publica https://velox-courier.company/cierres y ningun ejemplo dice ${DOMINIO_RETIRADO}`, () => {
     const variables = crearInformeAvisoInterno().variables;
     expect(variables.find((v) => v.clave === "enlace")?.ejemplo).toBe("https://velox-courier.company/cierres");
-    expect(variables.map((v) => v.ejemplo).join(" | ")).not.toContain("ordenex.co");
+    expect(variables.map((v) => v.ejemplo).join(" | ")).not.toContain(DOMINIO_RETIRADO);
   });
 });
 

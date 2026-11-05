@@ -423,7 +423,7 @@ const LIBRO_MIXTO = [
   { categoria: "ingreso_reverso_pago_tienda", tipo: "ingreso", suma: "200.00" },
 ] as const;
 
-/** Lo mismo SIN las tres filas de terceros: el mismo dinero de Ordenex, nada mas. */
+/** Lo mismo SIN las tres filas de terceros: el mismo dinero de la empresa, nada mas. */
 const LIBRO_SOLO_PROPIO = LIBRO_MIXTO.filter(
   (f) =>
     f.categoria !== "ingreso_cod_recaudado" &&
@@ -494,7 +494,7 @@ describe("R54 · dinero_en_caja y ganancia_empresa son DOS cifras, no la misma d
 
     expect(enCaja.total.neto).not.toBe(ganancia.total.neto);
     // Ficha 459 (reescrito): 1800 − 730 = 1070 = lo que se les debe a las tiendas
-    // (5000 − 3000 + 200 − 1130 de flete e IVA que Ordenex se queda del contra-entrega).
+    // (5000 − 3000 + 200 − 1130 de flete e IVA que la empresa se queda del contra-entrega).
     // Ficha 488 (R31): 1800 − 600 = 1200 = las tiendas (1070) + el IVA por pagar (130).
     expect(
       Number(enCaja.total.neto) - Number(ganancia.total.neto),

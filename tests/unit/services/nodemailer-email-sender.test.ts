@@ -23,9 +23,9 @@ const config: EmailConfig = {
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
-  user: "bot@ordenex.co",
+  user: "bot@ejemplo.test",
   password: PASSWORD,
-  from: "no-reply@ordenex.co",
+  from: "no-reply@ejemplo.test",
   fromName: NOMBRE_ESPERADO,
   timeoutMs: 10_000,
   rejectUnauthorized: true,
@@ -36,16 +36,16 @@ const mensaje = { to: "ana@example.com", subject: "asunto", text: "cuerpo" };
 beforeEach(() => {
   sendMail.mockReset();
   createTransport.mockClear();
-  sendMail.mockResolvedValue({ messageId: "<abc@ordenex.co>" });
+  sendMail.mockResolvedValue({ messageId: "<abc@ejemplo.test>" });
 });
 
 describe("NodemailerEmailSender", () => {
   it("envia con el remitente configurado y devuelve el messageId del servidor", async () => {
     const resultado = await new NodemailerEmailSender(config).enviar(mensaje);
-    expect(resultado.messageId).toBe("<abc@ordenex.co>");
+    expect(resultado.messageId).toBe("<abc@ejemplo.test>");
     expect(sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: { name: NOMBRE_ESPERADO, address: "no-reply@ordenex.co" },
+        from: { name: NOMBRE_ESPERADO, address: "no-reply@ejemplo.test" },
         to: "ana@example.com",
         subject: "asunto",
         text: "cuerpo",
@@ -68,7 +68,7 @@ describe("NodemailerEmailSender", () => {
         host: "smtp.gmail.com",
         port: 587,
         secure: false,
-        auth: { user: "bot@ordenex.co", pass: PASSWORD },
+        auth: { user: "bot@ejemplo.test", pass: PASSWORD },
       }),
     );
   });

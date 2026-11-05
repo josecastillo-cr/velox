@@ -1,3 +1,4 @@
+import { DOMINIO_RETIRADO, ORIGEN_WEBHOOK_RETIRADO } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
@@ -62,7 +63,7 @@ describe("406/R14 — el ejemplo publicado enlaza a SU PROPIO identificador, no 
     // Literal a mano, no derivado del spec ni del service.
     expect(data.evidenciasUrl).toBe("https://velox-courier.company/api/ordenes/api-key/orden/100235");
     // 493/R18 (L5b): el ejemplo ya no usa el dominio viejo.
-    expect(data.evidenciasUrl).not.toContain("ordenex.co");
+    expect(data.evidenciasUrl).not.toContain(DOMINIO_RETIRADO);
     expect(new URL(data.evidenciasUrl as string).search).toBe("");
   });
 
@@ -84,7 +85,7 @@ describe("406/R14 — el ejemplo publicado enlaza a SU PROPIO identificador, no 
     expect(ultimoSegmento(enlace)).toBe(guiaDelEjemplo);
     // 493/R18 (L5b): el espejo publica el origen nuevo, literal, y no el viejo.
     expect(new URL(enlace).origin).toBe("https://velox-courier.company");
-    expect(enlace).not.toContain("ordenex.co");
+    expect(enlace).not.toContain(DOMINIO_RETIRADO);
     expect(ultimoSegmento(enlace)).not.toMatch(UUID);
     // Ni un solo uuid quedo colgando de un `evidenciasUrl` en todo el archivo.
     expect(yamlTexto).not.toContain(
@@ -146,7 +147,7 @@ describe("406/R16 — el CHANGELOG deja la entrada fechada, sin reescribir la hi
 
   it("el enlace que muestra esa entrada NO termina en un segmento con forma de uuid", () => {
     const entrada = entradaPorTitulo(new RegExp(`^## ${FECHA} —.*evidenciasUrl`));
-    const enlaces = [...entrada.matchAll(/https:\/\/app\.ordenex\.co\/api\/ordenes\/api-key\/orden\/[^"\s]+/g)]
+    const enlaces = [...entrada.matchAll(new RegExp(`${ORIGEN_WEBHOOK_RETIRADO.replaceAll(".", "\\.")}/api/ordenes/api-key/orden/[^"\\s]+`, "g"))]
       .map((m) => m[0]);
     expect(enlaces.length).toBeGreaterThan(0); // contraprueba: el recolector no esta ciego
     for (const enlace of enlaces) expect(ultimoSegmento(enlace)).not.toMatch(UUID);
@@ -158,7 +159,7 @@ describe("406/R16 — el CHANGELOG deja la entrada fechada, sin reescribir la hi
     // NUEVA, no borrando la vieja.
     const historica = entradaPorTitulo(/^## 2026-08-22 — el webhook avisa del ciclo de AYUDA/);
     expect(historica).toContain(
-      "https://app.ordenex.co/api/ordenes/api-key/orden/018f2c31-0000-4000-8000-000000000002",
+      `${ORIGEN_WEBHOOK_RETIRADO}/api/ordenes/api-key/orden/018f2c31-0000-4000-8000-000000000002`,
     );
   });
 });

@@ -7,7 +7,7 @@ import type { ReactElement } from "react";
 import type { HistorialAccionDTO, ListarHistorialAccionesResult } from "@/lib/types/historial-accion";
 
 // =================================================================================================
-// FICHA 457 (T6.7, design §9; R61–R64) — EL HISTORIAL MUESTRA Y FILTRA EL PAGO DE UNA TIENDA A ORDENEX
+// FICHA 457 (T6.7, design §9; R61–R64) — EL HISTORIAL MUESTRA Y FILTRA EL PAGO DE UNA TIENDA A LA EMPRESA
 // =================================================================================================
 //
 // R64: la pantalla del historial permite filtrar por los dos tipos nuevos y los muestra con un texto

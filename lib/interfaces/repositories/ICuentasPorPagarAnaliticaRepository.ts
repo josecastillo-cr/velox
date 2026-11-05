@@ -3,7 +3,7 @@ import type { ConsultaAnalitica } from "@/lib/analytics/consulta";
 import type { CuboTemporal } from "@/lib/analytics/cubo-temporal";
 
 // Feature 127 (T A.2) — contrato del repositorio de las DOS CUENTAS POR PAGAR:
-// `cuenta_por_pagar_tienda` (lo que Ordenex le debe entregar a cada tienda) y
+// `cuenta_por_pagar_tienda` (lo que la empresa le debe entregar a cada tienda) y
 // `cuenta_por_pagar_mensajero` (lo devengado y no pagado a los mensajeros).
 //
 // ⟨D3(a)⟩ / R21 — ESTO ES UN SALDO AL CORTE, NO UN FLUJO DEL PERIODO. Los dos metodos agregan

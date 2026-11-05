@@ -531,7 +531,7 @@ export function CrearZonaForm({
       {/* Las dos secciones van lado a lado (6-6 del grid de 12) desde `lg`; por
           debajo se apilan, que es lo único legible en un móvil. */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Sección 1: lo que Ordenex PAGA por cada gestión de la zona —al mensajero la entrega,
+        {/* Sección 1: lo que la empresa PAGA por cada gestión de la zona —al mensajero la entrega,
             a la bodega el rechazo del cliente—.
             La celda es `relative` y la sección se posiciona ABSOLUTA dentro (sólo
             desde `lg`): así no aporta altura, la fila la fija "Tarifas de zona" y

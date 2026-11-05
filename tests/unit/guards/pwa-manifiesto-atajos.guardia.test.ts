@@ -14,7 +14,7 @@ import type { RolValue } from "@prisma/client";
 // Feature 284 — GUARDIA DEL MANIFIESTO, DE LOS ATAJOS Y DE LOS ICONOS.
 //
 // Nada de lo que vigila este archivo rompe ruidosamente: un manifiesto con un `id` distinto
-// deja DOS Ordenex instaladas en el mismo telefono, un atajo a una ruta por rol lleva a un
+// deja DOS la empresa instaladas en el mismo telefono, un atajo a una ruta por rol lleva a un
 // `notFound()` desde el menu del icono, y un icono `maskable` con las esquinas ya redondeadas
 // se ve con doble redondeo. Todo eso compila, despliega y no pone rojo nada.
 //
@@ -71,8 +71,8 @@ describe("pwa · el manifiesto", () => {
   it("el id preserva la identidad instalada", () => {
     // Exactamente "/" y no otra cosa: el `id` por defecto de una app instalada es su
     // `start_url`, asi que "/" preserva la identidad de quien YA la tenga instalada.
-    // Cualquier otro valor ("ordenex", "/?source=pwa") la CAMBIA, y el telefono acaba con dos
-    // Ordenex en el lanzador: la vieja, huerfana, y la nueva.
+    // Cualquier otro valor ("empresa", "/?source=pwa") la CAMBIA, y el telefono acaba con dos
+    // apps en el lanzador: la vieja, huerfana, y la nueva.
     expect(MANIFIESTO.id).toBe("/");
     expect(MANIFIESTO.id).toBe(MANIFIESTO.start_url);
   });

@@ -131,9 +131,9 @@ function buildService(): IWalletService {
   // Ficha 459 (R14/R21): el lector REAL del saldo inicial vigente (`aporte_capital`).
   const aportes = new AporteCapitalRepository(prisma);
   // Ficha 459 (design §7.3, R66/R67): los lectores REALES del estado de los documentos del libro.
-  // Ficha 461 (design §5.4, R20/R37): + el de los cobros de Ordenex a una tienda.
+  // Ficha 461 (design §5.4, R20/R37): + el de los cobros de la empresa a una tienda.
   // Ficha 461 (R71, auditoria D3): + el de las correcciones de caja.
-  // Ficha 457 (design §8.5, R41): + el de los pagos de una tienda a Ordenex.
+  // Ficha 457 (design §8.5, R41): + el de los pagos de una tienda a la empresa.
   return new WalletService(repo, prisma, aportes, {
     pagosPorCuenta: new PagoPorCuentaTiendaRepository(prisma),
     aportes,
@@ -144,7 +144,7 @@ function buildService(): IWalletService {
     egresos: new EgresoCajaDocumentosRepository(prisma),
     indemnizaciones: new IndemnizacionDocumentosRepository(prisma),
     rechazos: new RechazoTiendaCobroAnulacionRepository(prisma),
-    // Ficha 458-C (revision B3, R71): el pago de Ordenex a una tienda y el premio del ranking.
+    // Ficha 458-C (revision B3, R71): el pago de la empresa a una tienda y el premio del ranking.
     pagosATienda: new PagoTiendaCajaDocumentosRepository(prisma),
     premios: new PremioCajaDocumentosRepository(prisma),
   },
@@ -373,7 +373,7 @@ export async function libroCajaKardexConDetalleAction(
  * servicio, con la misma definicion que produjo el importe de la fila.
  *
  * SU SUPERFICIE (bloque B5 de la 343): `DetalleFilaComposicion`, el panel que se despliega al
- * abrir una fila de la tarjeta «Como se compone la ganancia de Ordenex». Mientras esa pantalla
+ * abrir una fila de la tarjeta «Como se compone la ganancia de la empresa». Mientras esa pantalla
  * no existio, este docstring llevo la anotacion de excepcion de
  * `superficie-de-uso.guardia.test.ts`; al cablear el desplegable se borro, que es exactamente lo
  * que esa guardia obliga a hacer.

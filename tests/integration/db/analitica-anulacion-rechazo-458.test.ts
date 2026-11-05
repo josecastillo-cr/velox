@@ -30,7 +30,7 @@ import {
 //   · «Ingreso por flete» e «Ingreso por IVA» vuelven, en NETO, a su valor ANTES del cobro: tras la
 //     anulacion valen lo mismo que antes menos 1 000,00 y 130,00 (literales escritos a mano).
 //   · El BRUTO sube (volumen movido: el cobro y su reverso son dos movimientos), como en `egresos`.
-//   · «Ganancia de Ordenex» baja 1 130,00 = lo que bajan flete + IVA: la ganancia cuadra.
+//   · «Ganancia de la empresa» baja 1 130,00 = lo que bajan flete + IVA: la ganancia cuadra.
 //
 // Sin la B2 (el reverso fuera de la definicion) el neto de flete e IVA no se movia y la ganancia
 // si: la mutacion de la bitacora quita el reverso del catalogo y este test cae.

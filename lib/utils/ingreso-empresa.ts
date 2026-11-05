@@ -14,7 +14,7 @@ import type { OrigenFlete } from "@/lib/types/tarifa";
 import { computeTotales, type GestionConPagos } from "@/lib/utils/cierre-totales";
 
 /**
- * Feature 42 (design §4, R8/R9/R26) — derivacion del INGRESO de Ordenex por gestion.
+ * Feature 42 (design §4, R8/R9/R26) — derivacion del INGRESO de la empresa por gestion.
  * Funcion PURA, money-safe: toda la aritmetica con `Prisma.Decimal`, salida STRING escala 2.
  * Espejo estructural de `lib/utils/pago-mensajero.ts`/`ingreso-bodega.ts`. La gestion aporta
  * su `resultado`; la orden aporta `esCentral` (zona), `montoCobrar` (COD) y `cobraComision`.
@@ -325,7 +325,7 @@ export function totalesIngresoEmpresa(
 }
 
 /**
- * Ganancia de Ordenex: el ingreso BRUTO facturado menos lo que se le debe al mensajero.
+ * Ganancia de la empresa: el ingreso BRUTO facturado menos lo que se le debe al mensajero.
  * Incluye los conceptos de devolucion (un rechazo tambien factura flete), asi que siempre
  * cuadra con el `total` del desglose. Puede ser NEGATIVA: un cierre de puras
  * reprogramaciones no factura nada y aun asi paga.
@@ -342,7 +342,7 @@ export function gananciaEmpresa(ingresoTotal: string, pagoMensajero: string): st
 
 /**
  * Pago a la tienda: la plata RECIBIDA (total general del cierre) menos los dos conceptos que
- * Ordenex le factura sobre esa plata — flete + IVA y comision + IVA.
+ * la empresa le factura sobre esa plata — flete + IVA y comision + IVA.
  *
  * NO descuenta el flete de devolucion + IVA (el de los RECHAZOS desde la ficha 301): un
  * rechazo no cobra COD, asi que no aporta al total general y no se le resta a lo recibido. Si
@@ -364,7 +364,7 @@ export function pagoTiendaEmpresa(
 
 /**
  * Feature 395 — LO QUE LA TIENDA GANA EN TOTAL con un cierre: lo recaudado menos TODO lo que
- * Ordenex le factura (`totalesIngresoEmpresa().total`), incluido el flete por rechazo + IVA.
+ * la empresa le factura (`totalesIngresoEmpresa().total`), incluido el flete por rechazo + IVA.
  *
  * **NO ES `pagoTiendaEmpresa`, y confundirlas es exactamente el fallo que esta ficha arregla.**
  * Son dos preguntas distintas sobre el mismo cierre:
@@ -381,7 +381,7 @@ export function pagoTiendaEmpresa(
  * EXISTE POR LA IDENTIDAD QUE HACE EVIDENTE LA PANTALLA, y que hasta hoy no se podia leer en
  * ningun sitio —el humano la estaba calculando a mano cada vez que miraba el cierre—:
  *
- *   lo que gana la tienda  +  lo que factura Ordenex  =  lo recaudado
+ *   lo que gana la tienda  +  lo que factura la empresa  =  lo recaudado
  *        214.328,33        +        70.946,67         =    285.275,00
  *
  * Se deriva aca, y no restando dos celdas en el navegador, por el mismo motivo que sus
@@ -427,7 +427,7 @@ export interface ParteDeTienda {
    */
   pagoTienda: string;
   /**
-   * Lo que ESTA TIENDA gana en total: lo recaudado menos TODO lo que Ordenex le factura,
+   * Lo que ESTA TIENDA gana en total: lo recaudado menos TODO lo que la empresa le factura,
    * incluido el flete por rechazo + IVA. `ganaLaTienda` sobre SU subconjunto.
    *
    * **NO ES `pagoTienda`**, y confundirlas es el fallo que la ficha 395 arreglo un nivel mas
@@ -612,7 +612,7 @@ export function partesPorTienda(gestiones: ReadonlyArray<GestionDeTienda>): Part
 
 /**
  * Feature 393 (R7/R10, design §3) — LA LINEA PUENTE de la cascada «de quien es el dinero»:
- * lo que Ordenex cobra SOBRE LO RECAUDADO, o sea el subconjunto DEDUCIBLE de lo facturado
+ * lo que la empresa cobra SOBRE LO RECAUDADO, o sea el subconjunto DEDUCIBLE de lo facturado
  * (flete + IVA y comision COD + IVA, los dos de las entregadas).
  *
  * Existe porque `total` de `totalesIngresoEmpresa` NO es deducible entero: incluye el flete
@@ -630,7 +630,7 @@ export function cobradoSobreRecaudado(fleteConIva: string, comisionConIva: strin
 }
 
 /**
- * Feature 393 (R8, design §2.2) — NETO de Ordenex: lo FACTURADO menos lo que Ordenex paga,
+ * Feature 393 (R8, design §2.2) — NETO de la empresa: lo FACTURADO menos lo que la empresa paga,
  * que son DOS pagos y no uno: a los mensajeros y a la bodega satelite por los rechazos.
  *
  * **NO es `gananciaEmpresa`, y por eso no se implementa encadenandola.** `gananciaEmpresa`

@@ -1,3 +1,4 @@
+import { CABECERA_FIRMA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect, vi } from "vitest";
 import { WebhookSender, parseRetryAfterMs } from "@/lib/clients/webhook-sender";
 
@@ -5,7 +6,7 @@ import { WebhookSender, parseRetryAfterMs } from "@/lib/clients/webhook-sender";
 // red (fetch inyectable): 2xx -> ok; no-2xx | timeout | red -> transitorio. Ningun detalle de
 // error contiene la URL ni el cuerpo.
 
-const URL_CALLBACK = "https://integrador.example.com/hooks/ordenex?token=SECRETO-EN-URL";
+const URL_CALLBACK = "https://integrador.example.com/hooks/empresa?token=SECRETO-EN-URL";
 const CUERPO = JSON.stringify({ eventoId: "webhook_estado:o1:s1:2026", orden: { numGuia: 999 } });
 const HEADERS = { "X-Velox-Signature": "sha256=abc", "X-Velox-Timestamp": "1700000000" };
 
@@ -26,7 +27,7 @@ describe("R17/R19 — 2xx completa", () => {
     expect(init.body).toBe(CUERPO);
     expect((init.headers as Record<string, string>)["X-Velox-Signature"]).toBe("sha256=abc");
     // 493/R17 (L5b): la cabecera vieja no viaja.
-    expect(Object.keys(init.headers as Record<string, string>)).not.toContain("X-Ordenex-Signature");
+    expect(Object.keys(init.headers as Record<string, string>)).not.toContain(CABECERA_FIRMA_RETIRADA);
   });
 
   it("un 204 tambien es ok", async () => {

@@ -913,7 +913,7 @@ describe("Feature 132 (R24, Q2) — el cubo de tienda se pinta crudo y la limita
 // servicio devolviera las siete vistas de grano `fecha` agregadas y sin cubo. La 180 la
 // invalido: `serieDensa` emite una fila por cubo del rango —incluidos los cubos sin
 // movimiento—, asi que las siete cayeron en `PanelTabla` y el maestro perdio la cifra de
-// titular («Dinero en caja», «Ganancia de Ordenex», …) a cambio de una tabla de treinta
+// titular («Dinero en caja», «Ganancia de la empresa», …) a cambio de una tabla de treinta
 // fechas.
 //
 // POR QUE NINGUNA SUITE LO VIO: la fixture de este mismo archivo declaraba `filas: []` para

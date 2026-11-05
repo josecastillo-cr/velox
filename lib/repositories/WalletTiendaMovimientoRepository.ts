@@ -419,7 +419,7 @@ export class WalletTiendaMovimientoRepository
   }
 
   /**
-   * FICHA 461 (design §5.3, R13/R16) — un cobro de Ordenex a una tienda por su id. El `WHERE` lleva
+   * FICHA 461 (design §5.3, R13/R16) — un cobro de la empresa a una tienda por su id. El `WHERE` lleva
    * las TRES claves: el id, el tipo `debito` y la categoria `cobro_manual`. Un flete, un pago o una
    * anulacion con ese id no salen de la base: para quien llama, no existe un cobro con ese id.
    */

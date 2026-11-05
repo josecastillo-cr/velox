@@ -35,7 +35,7 @@ export const CUBETA_POR_CATEGORIA: Record<WalletTiendaMovimientoCategoria, Cubet
   // A favor de la tienda (creditos): el dinero que se recaudo a su nombre.
   cod_recaudado: "aFavor",
   ajuste_credito: "aFavor",
-  // Cargos de Ordenex (debitos != pago_tienda): lo que se le cobra por el servicio.
+  // Cargos de la empresa (debitos != pago_tienda): lo que se le cobra por el servicio.
   flete: "cargos",
   flete_devolucion: "cargos",
   comision_cod: "cargos",
@@ -56,10 +56,10 @@ export const CUBETA_POR_CATEGORIA: Record<WalletTiendaMovimientoCategoria, Cubet
   // (como `ajuste_credito`).
   pago_por_cuenta: "pagado",
   pago_por_cuenta_anulado: "aFavor",
-  // FICHA 461 (design §4): la anulacion de un cobro de Ordenex le DEVUELVE el monto a la tienda ->
+  // FICHA 461 (design §4): la anulacion de un cobro de la empresa le DEVUELVE el monto a la tienda ->
   // `aFavor`, como `ajuste_credito` y `pago_por_cuenta_anulado`. El cobro sigue en `cargos`.
   cobro_tienda_anulado: "aFavor",
-  // FICHA 457 (design §4, R49): el pago de la tienda a Ordenex es dinero que la tienda entrego y que
+  // FICHA 457 (design §4, R49): el pago de la tienda a la empresa es dinero que la tienda entrego y que
   // sube su saldo -> `aFavor` (como `cod_recaudado`); su anulacion se lo vuelve a cargar -> `cargos`.
   // Mutacion 4 de design §13 (`abono_tienda: "cargos"`) → la cabecera dejaria de cuadrar con el saldo.
   abono_tienda: "aFavor",

@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { anularCobroTiendaSchema } from "@/lib/types/wallet-tienda";
 
 /**
- * FICHA 461 / T B.9 (R13, R14) — el BORDE de la anulacion de un cobro de Ordenex a una tienda.
+ * FICHA 461 / T B.9 (R13, R14) — el BORDE de la anulacion de un cobro de la empresa a una tienda.
  *
  * Lo que este archivo prueba es la BARRERA: el monto de los contra-asientos se lee del cobro en el
  * servidor, asi que una peticion que traiga `monto` —o cualquier otra clave— muere aqui, y un motivo

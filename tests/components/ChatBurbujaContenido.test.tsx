@@ -166,9 +166,9 @@ describe("Contenido de la burbuja por tipo (R14/R27)", () => {
   });
 
   it("R27/R33: el texto normal sigue pintandose y sus URL quedan enlazadas", async () => {
-    await montar([burbuja({ id: "m-texto", cuerpo: "rastrea en https://ordenex.co/x" })]);
+    await montar([burbuja({ id: "m-texto", cuerpo: "rastrea en https://ejemplo.test/x" })]);
 
-    expect(screen.getByRole("link", { name: "https://ordenex.co/x" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "https://ejemplo.test/x" })).toHaveAttribute(
       "rel",
       "noopener noreferrer",
     );

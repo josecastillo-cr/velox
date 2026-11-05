@@ -482,7 +482,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     // Liquidado = 10.000 + 10.000 + 4.000 + 4.000 = 28.000.
     expect(c.liquidado.recaudado).toBe("28000.00");
     expect(c.pendiente.recaudado).toBe("7000.00");
-    // Ordenex = 3.955 (liquidada) + 3.955 + 3.616 (dos cierres) + 3.616 (acompanada) = 15.142.
+    // La empresa = 3.955 (liquidada) + 3.955 + 3.616 (dos cierres) + 3.616 (acompanada) = 15.142.
     // La rechazada NO aporta a `empresa`: su cobro va en `retorno` (R19).
     expect(c.liquidado.empresa).toBe("15142.00");
     expect(c.liquidado.tienda).toBe("12858.00"); // 28.000 - 15.142

@@ -10,9 +10,9 @@ import { estado } from "@/tests/fixtures/estado-cuenta";
 // =================================================================================================
 // FICHA 458-D (T D.2; R26–R28, R40) — LAS ACCIONES DEL ESTADO DE CUENTA DE UNA TIENDA.
 //
-//  - R26: «La tienda le paga a Ordenex» SOLO con saldo en contra.
-//  - R27: «Ordenex le cobra a la tienda» siempre.
-//  - R28: «Ordenex le paga a la tienda» deshabilitado CON el motivo en texto visible sin saldo a favor;
+//  - R26: «La tienda le paga a la empresa» SOLO con saldo en contra.
+//  - R27: «la empresa le cobra a la tienda» siempre.
+//  - R28: «la empresa le paga a la tienda» deshabilitado CON el motivo en texto visible sin saldo a favor;
 //    con saldo a favor, abre el registro.
 //  - R40: cada acción abre el diálogo ÚNICO de la 458-C con el concepto y la tienda YA elegidos (y fijos),
 //    sin pedir el catálogo de tiendas.

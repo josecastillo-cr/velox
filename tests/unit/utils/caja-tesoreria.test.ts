@@ -69,7 +69,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
       (c) => NATURALEZA_POR_CATEGORIA[c] === "terceros",
     );
     // Ficha 459 (design §5): + el pago por cuenta de una tienda y su anulacion.
-    // Ficha 457 (design §4, DH1): + el pago de una tienda a Ordenex y su anulacion.
+    // Ficha 457 (design §4, DH1): + el pago de una tienda a la empresa y su anulacion.
     expect([...terceros].sort()).toEqual([
       "egreso_pago_por_cuenta_tienda",
       "egreso_pago_tienda",
@@ -92,7 +92,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
     expect(NATURALEZA_POR_CATEGORIA.ingreso_ajuste).toBe("propio");
     expect(NATURALEZA_POR_CATEGORIA.ingreso_reverso_pago_tienda).toBe("terceros");
     // La trampa que la feature evita: si el reverso se emitiera como `ingreso_ajuste`, anular
-    // un pago a una tienda SUBIRIA la ganancia de Ordenex por el monto anulado.
+    // un pago a una tienda SUBIRIA la ganancia de la empresa por el monto anulado.
     const conReversoCorrecto = derivarCaja([fila("ingreso_reverso_pago_tienda", "4000.00")]);
     const conAjuste = derivarCaja([fila("ingreso_ajuste", "4000.00")]);
     expect(conReversoCorrecto.ganancia).toBe("0.00");
@@ -143,7 +143,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
     expect(r.enCaja).toBe("3500.00");
     expect(r.ganancia).toBe("500.00");
     // Y la diferencia entre ambas es, exactamente, lo que se les debe a las tiendas.
-    // Ficha 459 (R5, reescrito): 10000 cobrado − 6000 ya entregado − 1000 de flete que Ordenex se
+    // Ficha 459 (R5, reescrito): 10000 cobrado − 6000 ya entregado − 1000 de flete que la empresa se
     // queda de ese contra-entrega = 3000.
     expect(r.deTerceros).toBe("3000.00");
     expect(new Prisma.Decimal(r.ganancia).add(r.deTerceros).toFixed(2)).toBe(r.enCaja);
@@ -225,7 +225,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
       // enuncia porcentaje alguno. El caso vacio cae en la tercera fila de la tabla.
       porcentajeTiendas: "0.00",
       modoComposicion: "sin_reparto",
-      // Ficha 459 (§2.6): capital en cero, «De Ordenex» en cero, estado «flujo» y, con el libro
+      // Ficha 459 (§2.6): capital en cero, «De la empresa» en cero, estado «flujo» y, con el libro
       // vacio, sin dia de arranque.
       capital: "0.00",
       signoCapital: "cero",
@@ -262,7 +262,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
     // 488: ingresosPropios 489,00 y ganancia 239,00.
     expect(r.entradas).toBe("5000.00"); // solo el contra-entrega es efectivo
     expect(r.salidas).toBe("1250.00"); // 200 + 50 + 1000
-    expect(r.ingresosPropios).toBe("450.00"); // 300 + 150 (el IVA de 39 no es de Ordenex)
+    expect(r.ingresosPropios).toBe("450.00"); // 300 + 150 (el IVA de 39 no es de la empresa)
     expect(r.egresosPropios).toBe("250.00"); // 200 + 50 (el pago a tienda es de terceros)
     expect(r.enCaja).toBe("3750.00"); // 5000 − 1250
     expect(r.ganancia).toBe("200.00");
@@ -630,7 +630,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
       const r = derivarCaja(conjunto);
       // Ficha 498 (R35): el catalogo trae las diferencias de la satelite → − «Por cobrar a satelites».
       expect(suma(r.deEmpresa, r.deTerceros, r.ivaPorPagar, `${new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2)}`)).toBe(r.enCaja);
-      // y «De Ordenex» sigue siendo ganancia + capital.
+      // y «De la empresa» sigue siendo ganancia + capital.
       expect(suma(r.ganancia, r.capital)).toBe(r.deEmpresa);
     }
   });
@@ -651,7 +651,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
 
 describe("ficha 488 — la barra con tres bolsillos (R14/R16, design §2.3)", () => {
   // Cada caso: (filas, modo, porcentajeTiendas, porcentajeIva). A mano: S = suma de los bolsillos
-  // POSITIVOS entre O («De Ordenex»), T («De las tiendas») e I (IVA por pagar).
+  // POSITIVOS entre O («De la empresa»), T («De las tiendas») e I (IVA por pagar).
   const IVA_100 = fila("ingreso_reverso_pago_iva", "100.00"); // I = +100, efectivo
   const IVA_MENOS_50 = fila("egreso_pago_iva", "50.00"); // I = −50
   const O600_T300 = [fila("ingreso_ajuste", "600.00"), fila("ingreso_cod_recaudado", "300.00")];
@@ -720,7 +720,7 @@ describe("ficha 488 (T B.5) — la composicion de la ganancia sin IVA (R19)", ()
     }
     expect(c.totalIngresos).toBe(r.ingresosPropios);
     expect(c.totalEgresos).toBe(r.egresosPropios);
-    // Y el Pago de IVA no cae en «Otros gastos de Ordenex»: no es un egreso de Ordenex.
+    // Y el Pago de IVA no cae en «Otros gastos de la empresa»: no es un egreso de la empresa.
     const soloPago = derivarComposicionGanancia([fila("egreso_pago_iva", "500.00")]);
     expect(soloPago.otrosEgresos).toBe("0.00");
     expect(soloPago.totalEgresos).toBe("0.00");

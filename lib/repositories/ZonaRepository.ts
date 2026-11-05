@@ -656,7 +656,7 @@ export class ZonaRepository implements IZonaRepository {
 
               // 362/R9 + 366/R10: una fila POR ORDEN ALCANZADA (no por orden candidata) y en la
               // MISMA transaccion. La etiqueta es la guia —o la remision si no hay guia—, que es
-              // un identificador de envio de Ordenex; `valorAnterior`/`valorNuevo`/`monto` van
+              // un identificador de envio de la empresa; `valorAnterior`/`valorNuevo`/`monto` van
               // NULL a proposito: ahi irian la zona vieja y la nueva, que R10 deja fuera.
               await appendAccion(
                 tx,

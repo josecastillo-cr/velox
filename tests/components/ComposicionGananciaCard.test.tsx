@@ -34,7 +34,7 @@ import {
 import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 /**
- * Feature 231 (T6.2/T6.4) — «Cómo se compone la ganancia de Ordenex».
+ * Feature 231 (T6.2/T6.4) — «Cómo se compone la ganancia de la empresa».
  *
  * Esta tarjeta ABSORBE la tarjeta «Egresos» de las features 45 y 158 (D2, firmada por el humano
  * el 2026-08-18): su lista es ahora la columna derecha de aquí, con una fila más para que el
@@ -67,7 +67,7 @@ const DESGLOSE: DesgloseEgresosDTO = {
  *
  * Suman `totalIngresos` (5 709,75) exactamente; los egresos, 1 250,75 + 940 = 2 190,75.
  *
- * FICHA 488 (R19): los tres IVA salen de la composición (son IVA por pagar, no ingreso de Ordenex).
+ * FICHA 488 (R19): los tres IVA salen de la composición (son IVA por pagar, no ingreso de la empresa).
  * El conjunto pierde sus tres importes (19,50 + 520,00 + 30,25 = 569,75) y los totales se reescriben a
  * mano: `totalIngresos` 5 709,75 → 5 140,00 y la ganancia 3 519,00 → 2 949,25. El ORDEN sigue sin ser
  * el de magnitud: el mayor (4 000) sigue siendo el SEGUNDO.
@@ -262,7 +262,7 @@ describe("Feature 158/R32 — la indemnización es una fila propia y suma al tot
     // midiendo es lo de siempre: el origen del número.
     //
     // Feature 231: el total de esta columna ya no es `DesgloseEgresosDTO.total` sino
-    // `ComposicionGananciaDTO.totalEgresos` —que incluye «Otros gastos de Ordenex»—, pero la
+    // `ComposicionGananciaDTO.totalEgresos` —que incluye «Otros gastos de la empresa»—, pero la
     // afirmación es la MISMA: el número lo manda el servidor y la pantalla no lo recalcula.
     pintarComoLa158({ totalEgresos: "999.99" });
     expect(within(listaEgresos()).getByText("₡999,99")).toBeInTheDocument();
@@ -337,7 +337,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
 
     const filas = rotulos(listaIngresos());
     // Control de no-vacuidad: el catálogo tiene siete conceptos, no cero.
-    // Ficha 461 (R27): + el cobro de Ordenex a una tienda (8). Ficha 488 (R19): sin los tres IVA,
+    // Ficha 461 (R27): + el cobro de la empresa a una tienda (8). Ficha 488 (R19): sin los tres IVA,
     // 5 (antes `toBe(8)`).
     expect(WALLET_INGRESO_PROPIO_SEED.length).toBe(5);
     // Las siete filas más la del total: ninguna categoría propia se queda sin enseñar.
@@ -368,7 +368,7 @@ describe("ComposicionGananciaCard — las dos columnas y el pie (R22/R23)", () =
       // «IVA del flete por devolución a origen cobrado a la tienda» ₡520 e «IVA de la comisión
       // cobrado a la tienda» ₡30,25).
       { rotulo: "Corrección de caja (suma)", importe: "₡90" },
-      // Ficha 461 (R27): la fila del cobro de Ordenex a una tienda; en este fixture vale 0,00.
+      // Ficha 461 (R27): la fila del cobro de la empresa a una tienda; en este fixture vale 0,00.
       { rotulo: `${NOMBRE_ESPERADO} le cobra a una tienda`, importe: "₡0" },
       { rotulo: "Total de ingresos", importe: "₡5.140" }, // ficha 488: antes "₡5.709,75"
     ]);
@@ -592,11 +592,11 @@ describe("ComposicionGananciaCard — qué NO entra (R29)", () => {
     const descripcion = container.querySelector('[data-slot="card-description"]');
     const texto = descripcion?.textContent ?? "";
 
-    // El dinero de las tiendas no es de Ordenex y por eso no está en la ganancia.
+    // El dinero de las tiendas no es de la empresa y por eso no está en la ganancia.
     expect(texto).toMatch(/no incluye el dinero de las tiendas/i);
     expect(texto).toMatch(/ganancia/i);
     // Y el copy heredado de la 158 deja de decir lo que ya no es cierto aquí: el pago a los
-    // mensajeros SÍ entra, dentro de «Otros gastos de Ordenex» (D2).
+    // mensajeros SÍ entra, dentro de «Otros gastos de la empresa» (D2).
     expect(texto).not.toMatch(/ni a mensajeros/i);
   });
 
@@ -604,7 +604,7 @@ describe("ComposicionGananciaCard — qué NO entra (R29)", () => {
     // Menor 7 de `progress/review_231.md`: la descripción enumeraba lo que entra —«fletes,
     // comisiones, impuestos, gastos, sueldos e indemnizaciones»— y se callaba justamente el
     // concepto más grande de los que D2 metió dentro. Una lista parcial de lo que entra induce
-    // a error sobre dinero, y la fila que lo contiene se llama «Otros gastos de Ordenex», que
+    // a error sobre dinero, y la fila que lo contiene se llama «Otros gastos de la empresa», que
     // tampoco lo nombra.
     const { container } = pintar();
     const texto = container.querySelector('[data-slot="card-description"]')?.textContent ?? "";

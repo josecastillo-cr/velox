@@ -8,8 +8,8 @@ import { composicionCajaNombreAccesible } from "./wallet-labels";
 // Feature 231 (T4.2, design §4.2) — la barra de composicion de la caja.
 //
 // Que es: la cifra grande de «Dinero en caja» partida en las DOS porciones que la componen,
-// la de las TIENDAS y la de ORDENEX. No hay una tercera porcion ni un residuo escondido: la
-// identidad `enCaja = deTerceros + deEmpresa` (ficha 459: «De Ordenex» = ganancia + capital) la
+// la de las TIENDAS y la de LA EMPRESA. No hay una tercera porcion ni un residuo escondido: la
+// identidad `enCaja = deTerceros + deEmpresa` (ficha 459: «De la empresa» = ganancia + capital) la
 // deriva el servidor y esta comprobada en `lib/utils/caja-tesoreria.ts`.
 //
 // Ficha 459 (R22): la tarjeta SOLO la monta en estado «saldo». Sin un saldo inicial vigente la
@@ -31,7 +31,7 @@ import { composicionCajaNombreAccesible } from "./wallet-labels";
 // desbordarla (design §6.5).
 //
 // Ficha 488 (decision 1a, design §2.3/§6.2, R14–R16) — un TERCER bolsillo, «IVA por pagar». El IVA
-// cobrado a las tiendas sale de «De Ordenex» y se pinta aparte. El navegador sigue sin comparar
+// cobrado a las tiendas sale de «De la empresa» y se pinta aparte. El navegador sigue sin comparar
 // importes: si hay porcion de IVA lo dice el SERVIDOR (`signoIvaPorPagar`), y su ancho es otro
 // STRING del DTO (`porcentajeIva`). Con el IVA en cero o negativo la barra es EXACTAMENTE la de antes
 // de la ficha (R16): mismos segmentos, mismas medidas, mismo orden.
@@ -40,7 +40,7 @@ import { composicionCajaNombreAccesible } from "./wallet-labels";
  * Ficha 488 — color del IVA por pagar. `bg-chart-13` y no `bg-info`: los semanticos base son hexes
  * FIJOS y `bg-info` se funde con la pista `bg-muted` en tema oscuro (2.34:1, medido en
  * `TableroDiaComposicion.test.tsx`); `chart-13` gira con el tema y supera el 3:1 en los dos. Distinto
- * tambien de `bg-warning` (tiendas), de `bg-muted-foreground` (Ordenex) y del `bg-info` del capital
+ * tambien de `bg-warning` (tiendas), de `bg-muted-foreground` (la empresa) y del `bg-info` del capital
  * en el libro. El libro lo reutiliza para su punto de dueño `iva`: es el mismo bolsillo.
  */
 export const COLOR_IVA_POR_PAGAR = "bg-chart-13";
@@ -48,7 +48,7 @@ export const COLOR_IVA_POR_PAGAR = "bg-chart-13";
 /**
  * Ficha 498 (design §8.2, R38) — color de «Por cobrar a satélites», el CUARTO bolsillo. Token
  * propio de `chart-*` que GIRA con el tema (molde `COLOR_IVA_POR_PAGAR`), distinto de los que ya
- * pinta la barra (`bg-warning` tiendas, `bg-muted-foreground` Ordenex, `bg-chart-13` IVA) y del
+ * pinta la barra (`bg-warning` tiendas, `bg-muted-foreground` la empresa, `bg-chart-13` IVA) y del
  * `bg-info` del capital en el libro. Violeta: no se lee como alarma (rojo/ámbar) ni como ganancia.
  *
  * MEDIDO con `tests/fixtures/contraste` contra la pista `--muted` (WCAG 1.4.11 pide 3:1):
@@ -91,9 +91,9 @@ const ANCHO: Record<Medida, string> = {
  * build de esta pantalla en vez de caer en un `default` que pintaria cualquier cosa.
  *
  *  - `dos_bolsillos` — los dos segmentos. Tiendas en `warning` (es dinero que hay que
- *    entregar, no una alarma) y Ordenex en superficie NEUTRA: `DESIGN.md` reserva el acento
+ *    entregar, no una alarma) y la empresa en superficie NEUTRA: `DESIGN.md` reserva el acento
  *    para accion y estado, y la ganancia normal no es ninguna de las dos cosas (R5).
- *  - `solo_tiendas` — la barra ENTERA en `warning` (R16): Ordenex esta en perdida y lo que
+ *  - `solo_tiendas` — la barra ENTERA en `warning` (R16): la empresa esta en perdida y lo que
  *    queda en la caja es dinero de las tiendas.
  *  - `solo_empresa` — el espejo (R17, D4): no queda nada de las tiendas.
  *  - `sin_reparto` — CERO segmentos (R18/R20): la pista neutra vacia, sin porcentaje alguno.
@@ -110,7 +110,7 @@ const SEGMENTOS_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[]> = {
 
 /**
  * Ficha 488 (design §2.3) — los segmentos cuando el IVA por pagar es POSITIVO. Mismo `Record` total
- * sobre los cuatro modos (el modo se sigue derivando de «De Ordenex» y «De las tiendas»). El ultimo
+ * sobre los cuatro modos (el modo se sigue derivando de «De la empresa» y «De las tiendas»). El ultimo
  * segmento de cada lista ocupa el resto, asi que un redondeo no abre hueco.
  */
 const SEGMENTOS_CON_IVA_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[]> = {

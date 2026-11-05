@@ -56,7 +56,7 @@ async function escanear(user: ReturnType<typeof userEvent.setup>, texto: string)
 
 /** URL del paquete tal como la codifica el QR de la etiqueta. */
 function qrDeGuia(numGuia: number): string {
-  return `https://ordenex.app/paquete/${numGuia}`;
+  return `https://ejemplo.test/paquete/${numGuia}`;
 }
 
 beforeEach(() => {
@@ -157,7 +157,7 @@ describe("EscanerRecepcionOrigen", () => {
     const user = userEvent.setup();
     render(<EscanerRecepcionOrigen onRecibida={vi.fn()} />);
 
-    await escanear(user, "https://ordenex.app/paquete/54f84b2a-391b-4726-b8a4");
+    await escanear(user, "https://ejemplo.test/paquete/54f84b2a-391b-4726-b8a4");
 
     await vi.waitFor(() => expect(errorMock).toHaveBeenCalled());
     expect(errorMock.mock.calls[0][0]).toMatch(/inválido/i);

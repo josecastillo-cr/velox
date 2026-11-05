@@ -210,7 +210,7 @@ export interface EstadoCuentaProps {
   lector?: LectorEstadoCuenta;
   /**
    * «oficina» (por defecto) o «tienda» (`/mi-wallet`, R34/R35): la frase del saldo en segunda persona,
-   * sin la línea «Registró» (el servidor no manda a la tienda los nombres de la gente de Ordenex) y la
+   * sin la línea «Registró» (el servidor no manda a la tienda los nombres de la gente de la empresa) y la
    * descarga sin esa columna.
    */
   vista?: "oficina" | "tienda";
@@ -878,7 +878,7 @@ export interface TablaEstadoCuentaProps {
   isLoading: boolean;
   error: boolean;
   onVer?: (fila: FilaEstadoCuentaDTO) => void;
-  /** R34/R35 — `false` en `/mi-wallet`: la tienda no ve quién de Ordenex registró la fila. */
+  /** R34/R35 — `false` en `/mi-wallet`: la tienda no ve quién de la empresa registró la fila. */
   conRegistro?: boolean;
   /** R19 — el despliegue de órdenes de las filas que nacen de un cierre. */
   detalleDeFila?: DetalleDeFila;

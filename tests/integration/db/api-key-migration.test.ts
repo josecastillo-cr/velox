@@ -7,7 +7,7 @@ import path from "path";
 // La suite de vitest no levanta Postgres.
 //
 // El round-trip REAL (up -> down -> up) se ejecuto contra un Postgres 16 real
-// (contenedor docker efimero `ordenex-f81-pg`, base desechable `f81_rt`, NUNCA la DB
+// (contenedor docker efimero `f81-pg`, base desechable `f81_rt`, NUNCA la DB
 // compartida): `prisma migrate deploy` -> down.sql de ambas migraciones (orden inverso)
 // -> `prisma migrate deploy` de nuevo. Verificado con psql: `relrowsecurity=true` y 0
 // policies (R23), los 3 indices, el enum de vuelta a sus 5 valores originales tras el

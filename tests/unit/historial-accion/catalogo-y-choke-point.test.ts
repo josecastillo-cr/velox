@@ -71,7 +71,7 @@ function filas(tx: ReturnType<typeof txDoble>, n = 0): Record<string, unknown>[]
 
 describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhaustivos", () => {
   it("son 61 tipos, 23 entidades y 3 categorias, sin repetidos", () => {
-    // 60 desde la ficha 461: `cobro_tienda_anulado` (la anulacion de un cobro de Ordenex a una
+    // 60 desde la ficha 461: `cobro_tienda_anulado` (la anulacion de un cobro de la empresa a una
     // tienda; entidad `wallet_tienda_movimiento`, sin entidad nueva).
     // 59 desde la ficha 459: los CUATRO del pago por cuenta de una tienda y del saldo inicial o
     // aporte (registrado y anulado de cada uno; uno por metodo, la guardia del censo mide POR
@@ -364,7 +364,7 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     expect(CATEGORIA_POR_ACCION.cobro_tienda_registrado).toBe("mueve_dinero");
     // Literal a proposito: el texto ES el contrato de la pantalla `/historial-de-acciones`.
     // FICHA 461 (R51, design §7.7): «Cobró un costo a una tienda» → «Le cobró a una tienda», desde
-    // Ordenex y diciendo quien le cobra a quien (HD3). Reescrito a conciencia, no relajado.
+    // la empresa y diciendo quien le cobra a quien (HD3). Reescrito a conciencia, no relajado.
     expect(ACCION_LABELS.cobro_tienda_registrado).toBe("Le cobró a una tienda");
     // ⚠️ TIPO PROPIO Y NO `wallet_movimiento_manual_registrado` (design §9-G): la etiqueta de aquel
     // dice «un movimiento manual de CAJA» y un cobro no es un movimiento manual de caja: es un cargo
@@ -393,7 +393,7 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     expect(ENTIDAD_LABELS.wallet_tienda_movimiento).not.toBe(ENTIDAD_LABELS.wallet_movimiento);
     // ⭑ D3, FIRMADA POR EL HUMANO EL 2026-09-07, y REABIERTA POR EL HUMANO EL 2026-09-24 (ficha 457):
     // el credito manual SIN dinero detras sigue prohibido; lo que entra es el PAGO DE UNA TIENDA A
-    // ORDENEX, dinero REAL con documento, tope en la deuda y su entrada en la caja en la misma
+    // LA EMPRESA, dinero REAL con documento, tope en la deuda y su entrada en la caja en la misma
     // transaccion. Lo que D3 protegia lo vigila `abono-tienda-alcance.guardia.test.ts` (R65/R67).
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_registrado");
   });

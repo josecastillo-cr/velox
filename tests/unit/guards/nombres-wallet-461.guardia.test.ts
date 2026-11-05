@@ -34,8 +34,8 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 // Y LOS RESERVADOS NO SE TOMAN
 // =================================================================================================
 //
-// HD3: todos los conceptos de la wallet se dicen desde Ordenex y diciendo quién le paga a quién. Los
-// nombres que esa decisión sustituye quedan RETIRADOS (§7.9) y los del pago de la tienda a Ordenex
+// HD3: todos los conceptos de la wallet se dicen desde la empresa y diciendo quién le paga a quién. Los
+// nombres que esa decisión sustituye quedan RETIRADOS (§7.9) y los del pago de la tienda a la empresa
 // quedan RESERVADOS para la 457 (§7.8). Esta guardia mira tres cosas:
 //
 //  1. Los DICCIONARIOS de la wallet y del historial: ningún valor es un nombre retirado ni uno
@@ -91,8 +91,8 @@ export const NOMBRES_RETIRADOS_461: readonly string[] = [
 
 /**
  * design §7.8 de la 461 → TOMADOS por la 457 (design §2, R53): cada nombre reservado es el valor de
- * EXACTAMENTE la clave de este mapa y de ninguna otra. El quinto reservado («Pago a Ordenex anulado»)
- * quedó sin uso (D10 de la 457: `/mi-wallet` dice «Ordenex anuló el pago que le hiciste», que dice
+ * EXACTAMENTE la clave de este mapa y de ninguna otra. El quinto reservado («Pago a la empresa anulado»)
+ * quedó sin uso (D10 de la 457: `/mi-wallet` dice «la empresa anuló el pago que le hiciste», que dice
  * QUIÉN anuló) y sale de la lista.
  */
 export const NOMBRES_TOMADOS_457: ReadonlyArray<{
@@ -101,8 +101,8 @@ export const NOMBRES_TOMADOS_457: ReadonlyArray<{
   clave: string;
   /**
    * Frontend 457 (T6.3): las OTRAS posiciones que `design.md` §2 le asigna al mismo nombre, y solo
-   * esas. «Una tienda le paga a Ordenex» es también el nombre del concepto en el diálogo (fila
-   * «Diálogo: concepto», `CONCEPTOS_MANUALES[].label`, clave `abono_tienda`), igual que «Ordenex le
+   * esas. «Una tienda le paga a la empresa» es también el nombre del concepto en el diálogo (fila
+   * «Diálogo: concepto», `CONCEPTOS_MANUALES[].label`, clave `abono_tienda`), igual que «la empresa le
    * cobra a una tienda» es a la vez categoría de caja y concepto.
    */
   tambien?: readonly string[];

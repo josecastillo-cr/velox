@@ -28,7 +28,7 @@ export type PodioDeOrigen = { id: string; fecha: string };
 /** El pago de un gasto de una tienda (459): la tienda y a quien se le pago. */
 export type PagoPorCuentaDeOrigen = { id: string; tienda: string; beneficiario: string };
 
-/** El pago de una tienda a Ordenex (457): la tienda, el dia (`YYYY-MM-DD`) y el metodo. */
+/** El pago de una tienda a la empresa (457): la tienda, el dia (`YYYY-MM-DD`) y el metodo. */
 export type AbonoDeOrigen = { id: string; tienda: string; fechaPago: string; metodo: MetodoPagoValue };
 
 /** Una fila del libro de la tienda (el debito del cobro, 461): de que tienda es. */

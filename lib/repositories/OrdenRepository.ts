@@ -2394,7 +2394,7 @@ export class OrdenRepository implements IOrdenRepository {
             accion: "orden_ubicacion_corregida",
             entidadTipo: "orden",
             entidadId: ordenId,
-            // La GUIA, que es un identificador de envio de Ordenex y no un dato personal. Ni la
+            // La GUIA, que es un identificador de envio de la empresa y no un dato personal. Ni la
             // direccion, ni el distrito, ni la zona entran en la etiqueta.
             entidadEtiqueta: etiquetaDeEntidad("orden", {
               numGuia: envio?.numGuia ?? null,

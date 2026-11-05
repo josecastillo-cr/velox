@@ -70,12 +70,12 @@ export const WALLET_MOVIMIENTO_CATEGORIA_SEED = [
   "ingreso_reverso_pago_por_cuenta_tienda",
   "ingreso_aporte_capital",
   "egreso_reverso_aporte_capital",
-  // Ficha 461 (design §2.1, HD1): el cobro de Ordenex a una tienda es un CARGO como los fletes
+  // Ficha 461 (design §2.1, HD1): el cobro de la empresa a una tienda es un CARGO como los fletes
   // (propio, liquidez «cargo»: sube la ganancia, baja «De las tiendas», no toca «Entro») y su
   // anulacion es el REVERSO de ese cargo (egreso propio «cargo», que no suma a «Salio»).
   "ingreso_cobro_tienda",
   "egreso_reverso_cobro_tienda",
-  // Ficha 457 (design §3.3/§4, DH1): el PAGO DE UNA TIENDA A ORDENEX es dinero de TERCEROS que
+  // Ficha 457 (design §3.3/§4, DH1): el PAGO DE UNA TIENDA A LA EMPRESA es dinero de TERCEROS que
   // entra de verdad (efectivo): sube «Entro», la cifra principal y «De las tiendas», y NO toca la
   // ganancia. Su anulacion es el egreso de terceros que lo devuelve.
   "ingreso_abono_tienda",
@@ -138,7 +138,7 @@ export const WALLET_ORIGEN_TIPO_SEED = [
   // migracion borre EXACTAMENTE lo suyo.
   "cobro_tienda",
   "cobro_tienda_completado",
-  // Ficha 457 (design §0): el documento del PAGO DE UNA TIENDA A ORDENEX. Las cuatro filas de los dos
+  // Ficha 457 (design §0): el documento del PAGO DE UNA TIENDA A LA EMPRESA. Las cuatro filas de los dos
   // libros llevan este origen con `origen_id` = id del documento.
   "abono_tienda",
   // Ficha 498 (design §3.1): la fila de `conciliacion_bodega_ajuste` que origina una diferencia de la
@@ -154,7 +154,7 @@ type _EnsureOrigenExhaustive = Exclude<PrismaWalletOrigenTipo, WalletOrigenTipo>
 const _origenExhaustive: _EnsureOrigenExhaustive = true;
 void _origenExhaustive;
 
-// Las 6 categorias de ingreso de Ordenex (design §4) que emite el feed del cierre. El
+// Las 6 categorias de ingreso de la empresa (design §4) que emite el feed del cierre. El
 // resto (ingreso_ajuste, egreso_*) NO viene del feed automatico.
 export const WALLET_INGRESO_CONCEPTO_SEED = [
   "ingreso_flete",
@@ -211,7 +211,7 @@ export type WalletEgresoDesglosado = (typeof WALLET_EGRESO_DESGLOSADO_SEED)[numb
 
 /**
  * Ficha 339 (T1.1, design §2.1, R1/R2) — los egresos propios que ganan FILA PROPIA en la
- * tarjeta de la ganancia y que hasta hoy caian dentro de «Otros gastos de Ordenex».
+ * tarjeta de la ganancia y que hasta hoy caian dentro de «Otros gastos de la empresa».
  *
  * `egreso_pago_mensajero` es el motivo de la ficha: en produccion era el 100 % de «Otros»
  * (227.300,00 en 9 movimientos), un concepto con nombre propio escondido en un cubo anonimo.
@@ -256,7 +256,7 @@ export const WALLET_EGRESO_CON_FILA_SEED = [
 export type WalletEgresoConFila = (typeof WALLET_EGRESO_CON_FILA_SEED)[number];
 
 /**
- * Ficha 339 (T1.2, design §2.2) — el token de la fila «Otros gastos de Ordenex».
+ * Ficha 339 (T1.2, design §2.2) — el token de la fila «Otros gastos de la empresa».
  *
  * NO es un valor del enum de categorias A PROPOSITO: el complemento no es una categoria, es una
  * operacion de conjuntos («todo egreso propio que no tiene fila»). Darle un valor de enum lo
@@ -282,7 +282,7 @@ export const COMPOSICION_FILA_SEED = [
 export type ComposicionFilaId = (typeof COMPOSICION_FILA_SEED)[number];
 
 /**
- * Feature 231 — de quien es el dinero de una categoria: de Ordenex, o de un tercero que lo
+ * Feature 231 — de quien es el dinero de una categoria: de la empresa, o de un tercero que lo
  * tiene aparcado en la caja.
  *
  * Lo DECLARO la 173 dentro de `lib/utils/caja-tesoreria.ts`, junto a la tabla que lo usa. Se
@@ -293,12 +293,12 @@ export type ComposicionFilaId = (typeof COMPOSICION_FILA_SEED)[number];
  */
 //
 // Ficha 459 (design §2.2, P1): tercer dueño, `capital` — el saldo inicial y los aportes de capital.
-// Es dinero de Ordenex que NO es ganancia: suma a la cifra principal y a «De Ordenex», nunca a la
+// Es dinero de la empresa que NO es ganancia: suma a la cifra principal y a «De la empresa», nunca a la
 // ganancia ni a «De las tiendas».
 //
 // Ficha 488 (design §2.1, R1): cuarto dueño, `iva` — el IVA cobrado a las tiendas, sus reversos, el Pago
 // de IVA a Hacienda y su anulacion. Es dinero que esta en la caja pero se le debe a Hacienda: suma a la
-// cifra principal y a «IVA por pagar», nunca a la ganancia, a «De Ordenex» ni a «De las tiendas».
+// cifra principal y a «IVA por pagar», nunca a la ganancia, a «De la empresa» ni a «De las tiendas».
 // Ficha 498 (design §8.1, R33/R34): + `por_cobrar_satelite`, el bolsillo «Por cobrar a satelites» —lo
 // que las satelites entregaron de menos al conciliar y aun no han pagado—. Cada rama que reparte por
 // dueño lo trata con un `switch` exhaustivo: un dueño nuevo no compila sin decidir su sitio.
@@ -337,7 +337,7 @@ export type WalletMovimientoDTO = {
 /**
  * Ficha 459 (design §7.3) — el estado del documento de una fila original del libro de la caja.
  *
- * Ficha 461 (design §5.4, R20/R37): + `cobro_tienda`, la linea de caja de un cobro de Ordenex a una
+ * Ficha 461 (design §5.4, R20/R37): + `cobro_tienda`, la linea de caja de un cobro de la empresa a una
  * tienda, sea propia (origen `cobro_tienda`) o completada por la migracion de datos
  * (`cobro_tienda_completado`). Su `tieneComprobante` es siempre `false` (un cobro no lleva
  * comprobante). El reverso del cobro y las salidas reclasificadas siguen con `documento: null`.
@@ -345,11 +345,11 @@ export type WalletMovimientoDTO = {
 export type DocumentoCajaDTO = {
   /**
    * Ficha 461 (R71): + `ajuste_caja`, la correccion de caja original (su contra-asiento lleva `null`).
-   * Ficha 457 (design §8.5, R41): + `abono_tienda`, la entrada del pago de una tienda a Ordenex
+   * Ficha 457 (design §8.5, R41): + `abono_tienda`, la entrada del pago de una tienda a la empresa
    * (`ingreso_abono_tienda` con origen `abono_tienda`); su reverso lleva `null`.
    */
   /**
-   * Ficha 458-B (design §3.6, R71): + `egreso_caja` (sueldo, gasto de Ordenex, gasto fijo cobrado),
+   * Ficha 458-B (design §3.6, R71): + `egreso_caja` (sueldo, gasto de la empresa, gasto fijo cobrado),
    * `indemnizacion` (la del incidente, no la del cierre) y `rechazo_tienda_cobro` (las DOS lineas del
    * cobro por rechazo apuntan al mismo documento). Sus contra-asientos llevan `null`.
    */
@@ -363,7 +363,7 @@ export type DocumentoCajaDTO = {
     | "indemnizacion"
     | "rechazo_tienda_cobro"
     /**
-     * Ficha 458-C (revision B3, R71): el egreso de un pago de Ordenex A UNA TIENDA (172;
+     * Ficha 458-C (revision B3, R71): el egreso de un pago de la empresa A UNA TIENDA (172;
      * `egreso_pago_tienda` con origen `pago_tienda`, documento = el `liquidacion_pago`) y el egreso del
      * PREMIO del ranking (293; `egreso_pago_mensajero` con origen `ranking_snapshot_fila`, documento = la
      * fila del podio). El servidor ya los anulaba desde la caja (`WalletAnulacionService.rutaDeCaja`);
@@ -411,7 +411,7 @@ export interface AgregadoCajaRow {
 //  - `ganancia` = ingresos propios - egresos propios (R5). Es, numero por numero, lo que hoy
 //                 se rotula «Balance general»: no cambia de valor, cambia de nombre.
 //  - `deTerceros` [P6] = «De las tiendas». Ficha 459 (R5/R8): desde esta ficha SI es lo que
-//                 Ordenex les debe a las tiendas — ya descontados flete, comision e IVA (los
+//                 la empresa les debe a las tiendas — ya descontados flete, comision e IVA (los
 //                 cargos a la tienda) —, salvo los cobros de un costo que no pasan por la caja.
 //  - `entradas` (ficha 459, R2): solo el EFECTIVO; los cargos a la tienda no entran aparte.
 export type CajaResumenDTO = {
@@ -446,7 +446,7 @@ export type CajaResumenDTO = {
   /** R6 — saldos iniciales y aportes vigentes, menos sus anulaciones. */
   capital: string;
   signoCapital: WalletBalanceSigno;
-  /** R11 — ganancia + capital: el bolsillo de Ordenex de la barra. */
+  /** R11 — ganancia + capital: el bolsillo de la empresa de la barra. */
   deEmpresa: string;
   signoDeTerceros: WalletBalanceSigno;
   /** |deTerceros|, para «Las tiendas le deben ₡X» sin aritmetica en el navegador (R23, R28). */
@@ -491,7 +491,7 @@ export type EstadoCaja = "flujo" | "saldo";
 // modo nuevo rompe el build en vez de caer en un `default` silencioso.
 export const MODO_COMPOSICION_CAJA_SEED = [
   "dos_bolsillos", // R19: hay algo de los dos lados y la barra se parte
-  "solo_tiendas", // R15: Ordenex esta en perdida y el dinero de las tiendas cubre el saldo
+  "solo_tiendas", // R15: la empresa esta en perdida y el dinero de las tiendas cubre el saldo
   "solo_empresa", // R17: el espejo — `deTerceros` negativo (D4, firmada)
   "sin_reparto", // R18: no hay nada que repartir
 ] as const;
@@ -499,7 +499,7 @@ export const MODO_COMPOSICION_CAJA_SEED = [
 export type ModoComposicionCaja = (typeof MODO_COMPOSICION_CAJA_SEED)[number];
 
 /**
- * Feature 231 (design §2.2, R22-R28) — la ganancia de Ordenex abierta concepto por concepto.
+ * Feature 231 (design §2.2, R22-R28) — la ganancia de la empresa abierta concepto por concepto.
  *
  * Viaja HERMANO de `CajaResumenDTO` y no anidado dentro (D3): el barrido de STRING de la 173
  * sobre el resumen sigue afirmando exactamente lo que afirma hoy, sin ampliar excepciones.
@@ -531,7 +531,7 @@ export type ComposicionGananciaDTO = {
   /** Σ de egresos propios. Identico a `CajaResumenDTO.egresosPropios` (R26). */
   totalEgresos: string;
   /**
-   * Ficha 339 (T1.3, R9) — si la fila «Otros gastos de Ordenex» tiene algo que ensenar.
+   * Ficha 339 (T1.3, R9) — si la fila «Otros gastos de la empresa» tiene algo que ensenar.
    *
    * Lo decide el SERVIDOR y no el navegador: comparar `otrosEgresos !== "0.00"` en el cliente
    * abriria una segunda definicion de «esto esta en cero» en el lado que tiene PROHIBIDO juzgar
@@ -579,7 +579,7 @@ export const montoPositivoSchema = z
 
 /**
  * FICHA 461 (R66, auditoria de la wallet D2) — la CLAVE DE IDEMPOTENCIA de los tres registros
- * manuales de dinero (correccion de caja, sueldo o gasto de Ordenex, cobro de Ordenex a una tienda).
+ * manuales de dinero (correccion de caja, sueldo o gasto de la empresa, cobro de la empresa a una tienda).
  * La genera el dialogo al abrirse (`crypto.randomUUID()`, como en el pago de un gasto de una tienda y
  * el aporte) y se guarda en la propia fila del libro bajo un indice UNIQUE (R67): un doble clic o un
  * reintento tras un error tardio con la misma clave NO crea una segunda fila (R68). Medido por la

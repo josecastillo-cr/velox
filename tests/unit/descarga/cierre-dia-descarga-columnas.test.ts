@@ -29,8 +29,8 @@ import type { CierreDetalleGestion } from "@/lib/interfaces/services/ICierreDiaS
 //     _DIA_ENTREGADAS  (mensajero, aquí)  ≠  _GESTIONES_ENTREGADAS  (admin, allí)
 //
 // …y lo mismo con reprogramadas, devueltas, rechazadas e incidentes. Esta pantalla enseña
-// MENOS a propósito: el mensajero no ve el ingreso de Ordenex (flete, comisión, IVA, «Total
-// Ordenex») ni la indemnización de un incidente, porque ese dinero no es suyo (R24). Copiar
+// MENOS a propósito: el mensajero no ve el ingreso de la empresa (flete, comisión, IVA, «Total
+// la empresa») ni la indemnización de un incidente, porque ese dinero no es suyo (R24). Copiar
 // un esperado del archivo del admin da un listado plausible y falso.
 // (FICHA 482, 2026-10-15: la gemela del admin se borró con `DetalleSecciones`; el aviso queda
 // para quien la busque en el historial o copie de la hoja fundida, que tampoco es esta.)
@@ -65,7 +65,7 @@ describe("orden de las columnas de descarga del cierre del día (mensajero)", ()
 
   it("la sección ENTREGADAS declara sus columnas en el orden de la pantalla (R5)", () => {
     // «Monto» (no «Recibido», que es la palabra del admin) y «Ganancia» cerrando: las tres
-    // columnas de ingreso de Ordenex que el admin sí ve no existen en esta pantalla.
+    // columnas de ingreso de la empresa que el admin sí ve no existen en esta pantalla.
     expect(COLUMNAS_DESCARGA_DIA_ENTREGADAS.map((c) => c.clave)).toEqual([
       "numGuia",
       "numRemision",
@@ -125,7 +125,7 @@ describe("orden de las columnas de descarga del cierre del día (mensajero)", ()
 
   it("la sección DEVUELTAS declara sus columnas en el orden de la pantalla (R5)", () => {
     // La más corta de las cinco: nueve columnas, sin flete de devolución ni su IVA —eso es
-    // ingreso de Ordenex y esta pantalla no lo enseña (R24)—.
+    // ingreso de la empresa y esta pantalla no lo enseña (R24)—.
     expect(COLUMNAS_DESCARGA_DIA_DEVUELTAS.map((c) => c.clave)).toEqual([
       "numGuia",
       "numRemision",

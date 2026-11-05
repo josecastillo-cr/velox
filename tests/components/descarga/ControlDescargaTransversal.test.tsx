@@ -136,7 +136,7 @@ function usuario(i: number): UsuarioListItemDTO {
   return {
     id: `u-${i}`,
     nombre: `Usuario ${i}`,
-    email: `usuario${i}@ordenex.test`,
+    email: `usuario${i}@ejemplo.test`,
     rolValue: "mensajero",
     estado: "activo",
     createdAt: new Date("2026-07-01T10:00:00Z"),

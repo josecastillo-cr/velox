@@ -85,10 +85,10 @@ export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
   ingreso_reverso_pago_por_cuenta_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   ingreso_aporte_capital: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   egreso_reverso_aporte_capital: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 461 (design §4): el cobro de Ordenex a una tienda y su anulacion los decide una persona.
+  // FICHA 461 (design §4): el cobro de la empresa a una tienda y su anulacion los decide una persona.
   ingreso_cobro_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   egreso_reverso_cobro_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 457 (design §4, R51): el pago de una tienda a Ordenex y su anulacion los decide una persona.
+  // FICHA 457 (design §4, R51): el pago de una tienda a la empresa y su anulacion los decide una persona.
   ingreso_abono_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   egreso_reverso_abono_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   // FICHA 458-B (design §2.3): la anulacion de un cobro por rechazo la decide una persona.
@@ -135,9 +135,9 @@ export const FUENTE_TIENDA: Record<WalletTiendaMovimientoCategoria, FuenteDeApor
   // FICHA 459 (design §5): el pago por cuenta y su anulacion los decide una persona.
   pago_por_cuenta: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   pago_por_cuenta_anulado: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 461 (design §4): la anulacion de un cobro de Ordenex la decide una persona.
+  // FICHA 461 (design §4): la anulacion de un cobro de la empresa la decide una persona.
   cobro_tienda_anulado: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 457 (design §4, R51): el pago de la tienda a Ordenex y su anulacion no nacen de un cierre.
+  // FICHA 457 (design §4, R51): el pago de la tienda a la empresa y su anulacion no nacen de un cierre.
   abono_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   abono_tienda_anulado: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   // FICHA 458-B (design §2.3): los creditos espejo de la anulacion de un cobro por rechazo.

@@ -122,7 +122,7 @@ export interface CierreDetalleGestion {
    *
    * ⚠️ SOLO lo pueblan los detalles de ADMIN (38/40). En la vista EN VIVO del mensajero (37)
    * es SIEMPRE `null`, y a proposito — no por casualidad de que ahi las gestiones tengan
-   * `cierre_id IS NULL`. La indemnizacion es plata que Ordenex paga por el paquete, NO del
+   * `cierre_id IS NULL`. La indemnizacion es plata que la empresa paga por el paquete, NO del
    * mensajero (R17: un incidente no le paga nada), y un numero grande junto a su gestion se
    * leeria como una deuda suya. La decision es de `design.md` §7.2 («el mensajero no ve la
    * indemnizacion: no es plata suya») y se implementa en el REPO, no en la UI: la columna ni
@@ -131,7 +131,7 @@ export interface CierreDetalleGestion {
    */
   indemnizacion: string | null;
   /**
-   * Desglose del ingreso de Ordenex (flete, IVA, comision) + la tarifa congelada de esa
+   * Desglose del ingreso de la empresa (flete, IVA, comision) + la tarifa congelada de esa
    * orden. Solo lo pueblan los detalles de ADMIN (38/40), que leen del snapshot; en la vista
    * EN VIVO del mensajero es `undefined` (no ve el ingreso de la empresa, y ademas no hay
    * snapshot todavia). `null` en cierres pre-snapshot.
@@ -167,7 +167,7 @@ export interface TarifaSnapshotDTO {
 }
 
 /**
- * Desglose del ingreso de Ordenex por orden, DERIVADO server-side del snapshot congelado
+ * Desglose del ingreso de la empresa por orden, DERIVADO server-side del snapshot congelado
  * con la MISMA funcion que alimenta las wallets al aprobar (`derivarIngresoOrden`): la
  * pantalla del admin y el dinero que se liquida no pueden salir de dos formulas distintas.
  *
@@ -332,7 +332,7 @@ export interface CorreccionCierreDTO {
  *
  * NO es un resultado de gestion: no tiene gestion, y por eso NO tiene NI UN campo de dinero. Ni
  * monto cobrado, ni monto recibido, ni metodo de pago, ni pago al mensajero, ni ingreso de
- * Ordenex, ni ingreso de bodega, ni indemnizacion, ni evidencia, ni resultado (R10). Si algun dia
+ * la empresa, ni ingreso de bodega, ni indemnizacion, ni evidencia, ni resultado (R10). Si algun dia
  * aparece uno aqui, es un bug de diseño y no una mejora: R19/R20/R22 dicen que estas ordenes no
  * mueven un solo total, y la unica forma de que eso sea IMPOSIBLE en vez de VIGILADO es que no
  * haya campo donde meter un importe. Lo vigila

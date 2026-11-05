@@ -12,7 +12,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 const DIR_AYUDA = path.resolve(__dirname, "../../..", "docs", "ayuda");
 
 /**
- * FICHA 461 (T D.1, design §11, R56/R57/R58) — la ayuda y el asistente al día con el cobro de Ordenex a
+ * FICHA 461 (T D.1, design §11, R56/R57/R58) — la ayuda y el asistente al día con el cobro de la empresa a
  * una tienda y con los nombres nuevos.
  *
  * El asistente solo sabe lo que está en `docs/ayuda/**` y, de eso, solo lo que el rol puede leer
@@ -74,11 +74,11 @@ describe(`461 R56/R57 — la oficina puede preguntar por el cobro de ${NOMBRE_ES
   });
 
   // FICHA 457 (T7.1) — REESCRITO (listado en `progress/impl_457.md`): el grupo «Llega dinero a la caja»
-  // gana «Una tienda le paga a Ordenex» y el diálogo pasa a tener ocho conceptos (R68). Lo que la 461
+  // gana «Una tienda le paga a la empresa» y el diálogo pasa a tener ocho conceptos (R68). Lo que la 461
   // fijaba aquí —los nombres y los tres grupos— se conserva literal.
   it.each(OFICINA)("%s: los ocho conceptos del diálogo con sus nombres y sus tres grupos", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
-    // FICHA 458-C (TC.6, R37) — REESCRITO: «Sale dinero de Ordenex» gana los dos pagos de Ordenex (impl_458-C.md).
+    // FICHA 458-C (TC.6, R37) — REESCRITO: «Sale dinero de la empresa» gana los dos pagos de la empresa (impl_458-C.md).
     // FICHA 488 (R21) — + «Pago de IVA» tras el sueldo (antes: la misma lista sin él).
     expect(caja).toContain(`**Sale dinero de ${NOMBRE_ESPERADO}** | Gasto de ${NOMBRE_CORTO_ESPERADO} · Sueldo · Pago de IVA · ${NOMBRE_ESPERADO} paga un gasto de una tienda · Corrección de caja (resta) · ${NOMBRE_ESPERADO} le paga a una tienda · ${NOMBRE_ESPERADO} le paga a un mensajero`);
     expect(caja).toContain(`**Llega dinero a la caja** | Aporte de dinero a la caja · Una tienda le paga a ${NOMBRE_ESPERADO} · Corrección de caja (suma)`);

@@ -100,7 +100,7 @@ import { useSeccionColapsable } from "@/hooks/useSeccionColapsable";
 // bloqueo con salida y una llamada a soporte: el mensajero está en la calle, la denegación la
 // revierte él mismo, y nadie recuerda dónde vive ese ajuste sin que se lo digan.
 //
-// Feature 399 — pero «dónde» NO ES EL MISMO SITIO en todas las pantallas: con Ordenex abierta
+// Feature 399 — pero «dónde» NO ES EL MISMO SITIO en todas las pantallas: con la empresa abierta
 // desde su ícono (el manifest declara `display: standalone`) no hay barra de direcciones ni
 // candado, y el texto único mandaba a tocar algo que no existía. El texto lo elige ahora
 // `avisoUbicacionDenegada` a partir de dos señales estándar, y vive en `lib/utils` con su

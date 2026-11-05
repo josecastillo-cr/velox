@@ -7,7 +7,7 @@ import {
 } from "@/lib/utils/descripcion-abono";
 import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
-/** FICHA 457 / T3.3 — R21: las lineas del pago de una tienda a Ordenex, sin ningun identificador interno. */
+/** FICHA 457 / T3.3 — R21: las lineas del pago de una tienda a la empresa, sin ningun identificador interno. */
 
 const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 

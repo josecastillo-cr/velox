@@ -18,8 +18,8 @@ import { PagosTiendaEstadoCuenta } from "./PagosTiendaEstadoCuenta";
 import { CATEGORIA_TIENDA_LABEL, ORIGEN_TIENDA_LABEL } from "./desglose-tienda-labels";
 import { DETALLE_DESCARGA_WALLET_TIENDA } from "./estado-cuenta-tienda-descarga-columnas";
 
-// FICHA 458-D (T D.2, design §5; R17–R28, R30) — el estado de cuenta de UNA tienda, visto DESDE ORDENEX.
-// Aquí vive lo propio de la superficie: los diccionarios de la 461 (concepto desde Ordenex y origen) y
+// FICHA 458-D (T D.2, design §5; R17–R28, R30) — el estado de cuenta de UNA tienda, visto DESDE LA EMPRESA.
+// Aquí vive lo propio de la superficie: los diccionarios de la 461 (concepto desde la empresa y origen) y
 // las acciones de la cuenta. El resto —tarjetas, chips, periodo, extracto, «Ver», descarga— es el
 // módulo compartido (`components/shared/estado-cuenta/`).
 

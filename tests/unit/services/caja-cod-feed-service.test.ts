@@ -38,7 +38,7 @@ function fila(
  * El ledger de la prueba. Solo el credito `cod_recaudado` de `c1` es contra-entrega de ESE
  * cierre; todo lo demas esta puesto para que una mutacion del WHERE se note:
  *
- *  - los DEBITOS de `c1` son lo que Ordenex SE QUEDA (flete, IVA): si se colaran, la caja
+ *  - los DEBITOS de `c1` son lo que la empresa SE QUEDA (flete, IVA): si se colaran, la caja
  *    contaria dos veces el mismo dinero;
  *  - `ajuste_credito` es un credito de OTRA categoria;
  *  - `c2` es otro cierre;

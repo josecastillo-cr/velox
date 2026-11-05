@@ -41,7 +41,7 @@ import { MARCA } from "@/lib/marca/identidad";
 // Money-safe (R12): todos los importes llegan como STRING del servidor y se pintan TAL CUAL con
 // `money`. Aqui no se suma nada — ni siquiera el total, que lo manda el servidor.
 //
-// ── FICHA 343 — «Otros gastos de Ordenex» deja de esconder el gasto mas grande ──
+// ── FICHA 343 — «Otros gastos de la empresa» deja de esconder el gasto mas grande ──
 //
 // La 231 dejo esta lista con CUATRO conceptos y un cubo. En produccion ese cubo pinto
 // 227.300,00 —el 100 % de los egresos del periodo— y dentro habia NUEVE pagos a mensajeros: un
@@ -53,7 +53,7 @@ import { MARCA } from "@/lib/marca/identidad";
 //  - `egreso_pago_mensajero` y `egreso_ajuste` ganan FILA PROPIA (R1/R2), recorriendo
 //    `WALLET_EGRESO_NOMBRADO_SEED` igual que la columna de ingresos recorre el suyo: un
 //    concepto que gane fila mañana entra por UN solo sitio;
-//  - «Otros gastos de Ordenex» solo se pinta si el SERVIDOR dice que ahi queda dinero
+//  - «Otros gastos de la empresa» solo se pinta si el SERVIDOR dice que ahi queda dinero
 //    (`hayOtrosEgresos`, R7/R8/R9). La pantalla NO compara importes: eso abriria una segunda
 //    definicion de «esto esta en cero» en el lado que tiene prohibido juzgar dinero;
 //  - cada fila se ABRE y enseña los movimientos que componen su importe (R15).
@@ -95,7 +95,7 @@ const OTROS_EGRESOS_LABEL = `Otros gastos de ${MARCA.nombreCorto}`;
  */
 //
 // Ficha 461 (HD3, design §7): los rotulos en la voz plural de la columna y con los nombres desde
-// Ordenex del libro («Gasto de Ordenex» → «Gastos de Ordenex»); «Gastos variables» queda retirado
+// la empresa del libro («Gasto de la empresa» → «Gastos de la empresa»); «Gastos variables» queda retirado
 // con su singular. «Sueldos» e «Indemnizaciones» no cambian: ya decian lo que son.
 const FILAS: {
   key: keyof Omit<DesgloseEgresosDTO, "total">;
@@ -134,13 +134,13 @@ const FILAS: {
 const NOMBRADO_ICONO: Record<WalletEgresoNombrado, LucideIcon> = {
   egreso_pago_mensajero: Bike,
   egreso_ajuste: Scale,
-  // Ficha 461 (design §4, R27): la anulacion de un cobro de Ordenex a una tienda, tercer egreso
+  // Ficha 461 (design §4, R27): la anulacion de un cobro de la empresa a una tienda, tercer egreso
   // nombrado. `Undo2` —una flecha que vuelve— porque es eso: el cobro que se DESHACE y vuelve al
   // saldo de la tienda. Es decoracion (`aria-hidden`); el rotulo ya lo dice.
   egreso_reverso_cobro_tienda: Undo2,
   // Ficha 458-B (design §2.3): los dos reversos del cobro por rechazo, el mismo gesto que el anterior.
   egreso_reverso_flete_devolucion: Undo2,
-  // Ficha 488 (R19): la anulación del IVA del flete por devolución ya no es egreso de Ordenex
+  // Ficha 488 (R19): la anulación del IVA del flete por devolución ya no es egreso de la empresa
   // (netea contra el IVA por pagar), así que deja de tener fila aquí.
 };
 

@@ -28,7 +28,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // FICHA 458-B — ARREGLO HEREDADO DE LA 457 (`progress/impl_457.md` §12.4), contra Postgres.
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
-// `LiquidacionService.registrarPagoTienda` (el pago de Ordenex a una tienda) toma el candado de la
+// `LiquidacionService.registrarPagoTienda` (el pago de la empresa a una tienda) toma el candado de la
 // tienda y DESPUES lee el saldo que decide si el pago cabe. Esa lectura iba por el cliente global —otra
 // conexion del pool— y no por el `tx` que tiene el candado. Produccion abre 3 conexiones por instancia
 // (`lib/db/prisma-client.ts`): tres operaciones de la misma tienda a la vez (una con el candado, dos

@@ -39,7 +39,7 @@ export interface IdsDeDocumentos {
   pagosPorCuenta: readonly string[];
   aportes: readonly string[];
   abonos: readonly string[];
-  /** Debitos de la tienda de los cobros de Ordenex (461/381). */
+  /** Debitos de la tienda de los cobros de la empresa (461/381). */
   cobros: readonly string[];
   /** Gestiones de los cobros por rechazo (el cobro se busca por su gestion). */
   rechazos: readonly string[];
@@ -68,7 +68,7 @@ export interface ILibroCajaAutoriaRepository {
   pagosPorCuenta(ids: readonly string[]): Promise<Map<string, { tienda: CuentaNombrada; beneficiario: string }>>;
   /** Debito de la tienda de un cobro (461/381) → la tienda. */
   debitosDeTienda(ids: readonly string[]): Promise<Map<string, CuentaNombrada>>;
-  /** Pago de una tienda a Ordenex (457) → la tienda. */
+  /** Pago de una tienda a la empresa (457) → la tienda. */
   abonos(ids: readonly string[]): Promise<Map<string, CuentaNombrada>>;
   /** R42/R56 — la anotacion «a quien» de un movimiento registrado a mano (sueldo, gasto, correccion). */
   anotaciones(movimientoIds: readonly string[]): Promise<Map<string, string | null>>;

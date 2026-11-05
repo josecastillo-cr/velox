@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Logo } from "@/components/shared/Logo";
 
-import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
+import { MARCA_RETIRADA, MARCA_RETIRADA_RE } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 492 (R12) — el logo compartido pasa de wordmark de texto («Orden» + «ex») a imagen del
 // logotipo de Velox Courier. Los casos de la 86 se conservan transformados: el nombre de marca
 // (antes `textContent`) es ahora el nombre accesible, y el `className` sigue llegando a la raiz.
@@ -62,7 +62,7 @@ describe("components/shared/Logo — logotipo de Velox Courier (feature 86 R6, f
   it(`no queda ningun texto «${MARCA_RETIRADA}» (ni el wordmark partido)`, () => {
     const { container } = render(<Logo fondo="tema" />);
     expect(container.textContent).toBe("");
-    expect(container.innerHTML).not.toMatch(/ordenex/i);
+    expect(container.innerHTML).not.toMatch(MARCA_RETIRADA_RE);
   });
 
   it("el `className` de tamano y posicion llega a la raiz (feature 86)", () => {

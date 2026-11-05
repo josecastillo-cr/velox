@@ -434,7 +434,7 @@ describe("R38 — el reverso de toda anulacion de pago a tienda ya registrada", 
     expect(reverso?.movimiento.monto).toBe("15000.50");
     expect(reverso?.movimiento.descripcion).toBe("Anulación de pago · SINPE · 1234567");
     expect(reverso?.movimiento.registradoPor).toBe("u-maestro"); // quien ANULO, no quien pago
-    // `ingreso_ajuste` es de naturaleza PROPIA: usarlo subiria la ganancia de Ordenex por
+    // `ingreso_ajuste` es de naturaleza PROPIA: usarlo subiria la ganancia de la empresa por
     // anular un error administrativo (design §10-C). Nunca puede aparecer aqui.
     expect(informe.pendientes.map((p) => p.movimiento.categoria as string)).not.toContain(
       "ingreso_ajuste",

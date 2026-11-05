@@ -11,7 +11,7 @@ import type { AnularPagoResult, PagoRegistradoDTO } from "@/lib/types/liquidacio
 
 import { PAGOS_TIENDA_TEXTO } from "./estado-cuenta-tienda-labels";
 
-// FICHA 458-D (T D.2/T D.8; 172 R50, R70-R76; 458 R30) — los PAGOS DE ORDENEX A LA TIENDA, con su
+// FICHA 458-D (T D.2/T D.8; 172 R50, R70-R76; 458 R30) — los PAGOS DE LA EMPRESA A LA TIENDA, con su
 // comprobante, su método y su referencia, dentro del ESTADO DE CUENTA de esa tienda.
 //
 // Vivían en el desglose desplegable (`PagoTiendaAcciones`, retirado con él). Se conservan aquí porque

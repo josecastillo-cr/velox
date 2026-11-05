@@ -39,7 +39,7 @@ import { evaluarTextoDeEtiqueta } from "@/lib/utils/texto-imprimible-etiqueta";
 // carga masiva no hay nadie delante de 500 filas mientras que aqui SI lo hay. Un maestro dando de
 // alta una tienda o renombrando un distrito esta exactamente en ese caso, y ademas estos nombres
 // no son un dato de un tercero que haya que respetar: son catalogo propio, que quien lo escribe
-// puede corregir en el acto. Asi Ordenex nunca guarda un nombre que nadie tecleo.
+// puede corregir en el acto. Asi la empresa nunca guarda un nombre que nadie tecleo.
 //
 // ⚠️ QUEDA COMO PREGUNTA ABIERTA, no como cosa juzgada: si el humano firma A2 al reves —que la
 // superficie manual REPARE y avise—, la vuelta atras es cambiar este modulo para devolver el

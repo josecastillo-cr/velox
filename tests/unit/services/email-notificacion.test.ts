@@ -212,7 +212,7 @@ describe("crearEmailSender", () => {
   });
 
   it("con credencial de Google devuelve el emisor de nodemailer", () => {
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.test";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
     expect(crearEmailSender()).toBeInstanceOf(NodemailerEmailSender);
   });

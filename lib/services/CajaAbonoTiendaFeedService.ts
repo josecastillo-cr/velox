@@ -6,7 +6,7 @@ import type {
 } from "@/lib/interfaces/services/ICajaAbonoTiendaFeedService";
 
 /**
- * FICHA 457 (design §6.1) — las DOS escrituras de la caja del pago de una tienda a Ordenex. Molde
+ * FICHA 457 (design §6.1) — las DOS escrituras de la caja del pago de una tienda a la empresa. Molde
  * exacto de `CajaPagoPorCuentaFeedService`: tipo, categoria y origen son LITERALES de esta clase.
  *
  * Las dos filas comparten la clave `(abono_tienda, abonoId)` y se distinguen por la categoria, asi que

@@ -58,7 +58,7 @@ export interface ICajaPagoTiendaFeedService {
    * origen `(pago_tienda, pagoId)` y fechado el dia real del pago.
    *
    * De naturaleza TERCEROS (`lib/utils/caja-tesoreria.ts`): baja el «dinero en caja» y **no
-   * roza la ganancia de Ordenex**, porque ese dinero nunca fue suyo — entro en la caja como
+   * roza la ganancia de la empresa**, porque ese dinero nunca fue suyo — entro en la caja como
    * contra-entrega recaudado a nombre de la tienda y ahora se le entrega.
    *
    * Escribe en la `tx` que se le pasa (R19: la misma transaccion que crea el documento y el
@@ -77,7 +77,7 @@ export interface ICajaPagoTiendaFeedService {
    *
    * **La categoria es `ingreso_reverso_pago_tienda` y NO `ingreso_ajuste`** (design §10-C):
    * `ingreso_ajuste` es de naturaleza PROPIA, asi que reusarlo haria que anular un pago a una
-   * tienda **subiera la ganancia de Ordenex**. Es el motivo entero de que el enum ganara dos
+   * tienda **subiera la ganancia de la empresa**. Es el motivo entero de que el enum ganara dos
    * valores y no uno.
    *
    * Comparte `(origen_tipo, origen_id)` con el egreso del pago y se distingue por `categoria`:

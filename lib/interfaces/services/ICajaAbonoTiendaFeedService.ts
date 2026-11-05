@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 /**
- * FICHA 457 (design §6.1) — el PUERTO de la caja del pago de una tienda a Ordenex. Molde exacto de
+ * FICHA 457 (design §6.1) — el PUERTO de la caja del pago de una tienda a la empresa. Molde exacto de
  * `ICajaPagoPorCuentaFeedService`: el servicio que lo recibe no puede EXPRESAR una escritura en la
  * caja que no sea la entrada del pago o su reverso. El tipo, la categoria y el origen los fija la
  * implementacion, no quien la llama (R22: ninguna categoria propia ni de capital es alcanzable).

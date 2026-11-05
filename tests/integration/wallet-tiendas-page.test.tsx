@@ -170,7 +170,7 @@ describe("WalletTiendasPage — pre-fetch del acceso total (R6/R30)", () => {
     expect(typeof props.initialData.items[0].saldo).toBe("string");
     expect(props.initialData.items[0].saldo).toBe("9000.00");
     expect(props.initialData.items[0].tiendaNombre).toBe("Tienda Norte");
-    // Un saldo NEGATIVO (la tienda le debe a Ordenex) viaja con su signo y sin parsear.
+    // Un saldo NEGATIVO (la tienda le debe a la empresa) viaja con su signo y sin parsear.
     expect(props.initialData.items[1].saldo).toBe("-452.00");
     expect(props.initialData.items[1].signo).toBe("negativo");
   });

@@ -19,8 +19,8 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // (`TarjetasEstadoCuenta`, vista «tienda»). Los mismos casos sobre ella: el negativo entero y con sus
 // céntimos, sin alerta; los TRES signos se distinguen con PALABRAS (la frase de quién le debe a quién,
 // R18, en lugar de la insignia «A favor / En contra / En cero» de la tarjeta retirada); money-safe.
-// La pista «Cargos de Ordenex» (381/R37) se fue con la tarjeta: el cobro se nombra en SU fila
-// («Ordenex te cobró», `desglose-tienda-ledger.test.tsx`) y se filtra con el chip «Cobros».
+// La pista «Cargos de la empresa» (381/R37) se fue con la tarjeta: el cobro se nombra en SU fila
+// («la empresa te cobró», `desglose-tienda-ledger.test.tsx`) y se filtra con el chip «Cobros».
 
 const FUENTE = "components/shared/estado-cuenta/TarjetasEstadoCuenta.tsx";
 

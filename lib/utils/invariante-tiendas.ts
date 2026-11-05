@@ -12,7 +12,7 @@ import type { WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda"
  *
  *     T − S = Σ conceptos de la tienda SIN contrapartida
  *
- * Ficha 461 (design §2.3, HD2, R23/R25/R26): la excepcion del cobro DESAPARECE. El cobro de Ordenex a
+ * Ficha 461 (design §2.3, HD2, R23/R25/R26): la excepcion del cobro DESAPARECE. El cobro de la empresa a
  * una tienda (`cobro_manual`) tiene desde esta ficha su contrapartida —el CARGO `ingreso_cobro_tienda`,
  * que baja «De las tiendas» igual que un flete— y su anulacion (`cobro_tienda_anulado`) tiene el
  * REVERSO de ese cargo (`egreso_reverso_cobro_tienda`, que la sube). Queda SOLO `ajuste_debito` sin
@@ -46,7 +46,7 @@ export const TIPO_POR_CATEGORIA_TIENDA: Record<
   pago_por_cuenta: "debito",
   pago_por_cuenta_anulado: "credito",
   cobro_tienda_anulado: "credito", // ficha 461: la anulacion devuelve el monto a la tienda
-  abono_tienda: "credito", // ficha 457: la tienda le paga a Ordenex y su saldo sube
+  abono_tienda: "credito", // ficha 457: la tienda le paga a la empresa y su saldo sube
   abono_tienda_anulado: "debito", // ficha 457: la anulacion del pago: vuelve a deber
   flete_devolucion_anulado: "credito", // ficha 458-B: la anulacion del cobro por rechazo devuelve el flete
   iva_flete_devolucion_anulado: "credito", // ficha 458-B: ... y su IVA
@@ -71,9 +71,9 @@ export const CONTRAPARTIDA_EN_CAJA: Record<
   iva_flete: "ingreso_iva_flete",
   iva_flete_devolucion: "ingreso_iva_flete_devolucion",
   iva_comision_cod: "ingreso_iva_comision_cod",
-  // El pago de Ordenex a la tienda sale de la caja.
+  // El pago de la empresa a la tienda sale de la caja.
   pago_tienda: "egreso_pago_tienda",
-  // Ficha 461 (HD1/HD2, R1/R23): el cobro de Ordenex a una tienda escribe su CARGO en la caja en la
+  // Ficha 461 (HD1/HD2, R1/R23): el cobro de la empresa a una tienda escribe su CARGO en la caja en la
   // MISMA transaccion (`CobroTiendaService` → `CajaCobroTiendaFeedService`); los cobros previos sin
   // linea la reciben por la migracion `20260926120200_cobro_tienda_461_completar_caja`. La excepcion
   // HF6 de la 459 queda cerrada.
@@ -87,7 +87,7 @@ export const CONTRAPARTIDA_EN_CAJA: Record<
   // Ficha 461 (R10/R12): la anulacion del cobro acredita a la tienda y escribe el REVERSO del cargo
   // en la caja, en la misma transaccion; las dos mueven «De las tiendas» y el saldo hacia arriba.
   cobro_tienda_anulado: "egreso_reverso_cobro_tienda",
-  // Ficha 457 (R17/R24/R31): el pago de una tienda a Ordenex entra a la caja como efectivo de
+  // Ficha 457 (R17/R24/R31): el pago de una tienda a la empresa entra a la caja como efectivo de
   // terceros en la MISMA transaccion en que se acredita a la tienda (`AbonoTiendaService` →
   // `CajaAbonoTiendaFeedService`); su anulacion debita a la tienda y saca el reverso de la caja.
   // La misma pareja «efectivo de terceros» que `cod_recaudado ↔ ingreso_cod_recaudado`.

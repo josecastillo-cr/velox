@@ -52,13 +52,13 @@ export type AnularMovimientoInput = z.infer<typeof anularMovimientoSchema>;
  * para que la pantalla refresque lo que toca; nunca se pinta.
  */
 export type CaminoAnulacion =
-  | "egreso_caja" // sueldo, gasto de Ordenex, gasto fijo cobrado, indemnizacion (458-B)
+  | "egreso_caja" // sueldo, gasto de la empresa, gasto fijo cobrado, indemnizacion (458-B)
   | "ajuste_caja" // correccion de caja (461)
-  | "cobro_tienda" // cobro de Ordenex a una tienda (461)
+  | "cobro_tienda" // cobro de la empresa a una tienda (461)
   | "pago_por_cuenta_tienda" // pago de un gasto de una tienda (459)
   | "aporte_capital" // saldo inicial o aporte (459)
-  | "abono_tienda" // pago de una tienda a Ordenex (457)
-  | "liquidacion_pago" // pago de Ordenex a una tienda o a un mensajero (172)
+  | "abono_tienda" // pago de una tienda a la empresa (457)
+  | "liquidacion_pago" // pago de la empresa a una tienda o a un mensajero (172)
   | "rechazo_tienda_cobro" // cobro por rechazo aprobado (458-B)
   | "premio_del_ranking"; // premio del ranking (293); no se llama `premio_ranking` para no confundirse con la categoria (guardia premio-ranking-alcance)
 

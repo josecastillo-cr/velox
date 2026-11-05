@@ -45,13 +45,13 @@ describe("emailSmtpConfigurado", () => {
 
   it("sigue siendo false con usuario pero sin contrasena de aplicacion", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     expect(emailSmtpConfigurado()).toBe(false);
   });
 
   it("es true con usuario y contrasena, sin necesidad de declarar el host", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcd efgh ijkl mnop";
     expect(emailSmtpConfigurado()).toBe(true);
   });
@@ -67,14 +67,14 @@ describe("emailSmtpConfigurado", () => {
 describe("loadEmailConfig", () => {
   it("lanza citando el nombre de la variable ausente, no su valor", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     try {
       loadEmailConfig();
       expect.unreachable("deberia haber lanzado");
     } catch (error) {
       expect(error).toBeInstanceOf(EmailNoConfiguradoError);
       expect((error as Error).message).toContain("SMTP_PASSWORD");
-      expect((error as Error).message).not.toContain("no-reply@ordenex.co");
+      expect((error as Error).message).not.toContain("no-reply@ejemplo.co");
     }
   });
 
@@ -92,7 +92,7 @@ describe("loadEmailConfig", () => {
 
   it("asume Google: host, puerto y TLS salen del proveedor sin declararlos", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
     const config = loadEmailConfig();
     expect(config.host).toBe("smtp.gmail.com");
@@ -104,29 +104,29 @@ describe("loadEmailConfig", () => {
 
   it("usa la cuenta autenticada como remitente cuando no se declara SMTP_FROM", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
-    expect(loadEmailConfig().from).toBe("no-reply@ordenex.co");
+    expect(loadEmailConfig().from).toBe("no-reply@ejemplo.co");
   });
 
   it("respeta SMTP_FROM explicito para el caso del alias verificado", () => {
     limpiar();
-    process.env.SMTP_USER = "bot@ordenex.co";
+    process.env.SMTP_USER = "bot@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
-    process.env.SMTP_FROM = "hola@ordenex.co";
-    expect(loadEmailConfig().from).toBe("hola@ordenex.co");
+    process.env.SMTP_FROM = "hola@ejemplo.co";
+    expect(loadEmailConfig().from).toBe("hola@ejemplo.co");
   });
 
   it("quita los espacios con que Google muestra la contrasena de aplicacion", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcd efgh ijkl mnop";
     expect(loadEmailConfig().password).toBe("abcdefghijklmnop");
   });
 
   it("permite mudarse de proveedor sobreescribiendo el host", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
     process.env.SMTP_HOST = "smtp-relay.gmail.com";
     expect(loadEmailConfig().host).toBe("smtp-relay.gmail.com");
@@ -134,7 +134,7 @@ describe("loadEmailConfig", () => {
 
   it("deriva secure=true del puerto 465 sin necesidad de SMTP_SECURE", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
     process.env.SMTP_PORT = "465";
     expect(loadEmailConfig().secure).toBe(true);
@@ -142,7 +142,7 @@ describe("loadEmailConfig", () => {
 
   it("respeta SMTP_SECURE explicito por encima del puerto", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
     process.env.SMTP_PORT = "465";
     process.env.SMTP_SECURE = "false";
@@ -151,7 +151,7 @@ describe("loadEmailConfig", () => {
 
   it("solo desactiva la validacion del certificado con un 0 explicito", () => {
     limpiar();
-    process.env.SMTP_USER = "no-reply@ordenex.co";
+    process.env.SMTP_USER = "no-reply@ejemplo.co";
     process.env.SMTP_PASSWORD = "abcdefghijklmnop";
     process.env.SMTP_TLS_REJECT_UNAUTHORIZED = "0";
     expect(loadEmailConfig().rejectUnauthorized).toBe(false);

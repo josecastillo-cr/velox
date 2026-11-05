@@ -11,8 +11,8 @@ import { comprobanteSchema, type ObtenerComprobanteResult } from "@/lib/types/pa
 import { claveIdempotenciaSchema } from "@/lib/types/wallet";
 import type { SaldoTiendaDTO } from "@/lib/types/wallet-tienda";
 
-// FICHA 457 (design §7) — el PAGO DE UNA TIENDA A ORDENEX (tecnico: `abono_tienda`): el dinero que una
-// tienda con saldo en contra le entrega a Ordenex. Documento propio; credito en su libro; ingreso de
+// FICHA 457 (design §7) — el PAGO DE UNA TIENDA A LA EMPRESA (tecnico: `abono_tienda`): el dinero que una
+// tienda con saldo en contra le entrega a la empresa. Documento propio; credito en su libro; ingreso de
 // TERCEROS en la caja (DH1). Montos SIEMPRE STRING (R5).
 
 /** R6 — tope del motivo, medido tras recortar. */

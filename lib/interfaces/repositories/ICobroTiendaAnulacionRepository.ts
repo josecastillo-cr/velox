@@ -3,7 +3,7 @@ import type { PrismaClient } from "@prisma/client";
 import type { EstadoDocumentoCaja } from "@/lib/interfaces/services/IWalletService";
 
 /**
- * FICHA 461 (design §5.3) — el contrato de la ANULACION de un cobro de Ordenex a una tienda. SOLO
+ * FICHA 461 (design §5.3) — el contrato de la ANULACION de un cobro de la empresa a una tienda. SOLO
  * queries: ni rol, ni saldo, ni contra-asientos (esos los escribe `CobroTiendaService` en la misma
  * transaccion). UN tipo de historial por metodo (la guardia del censo mide POR METODO): `anular`
  * escribe `cobro_tienda_anulado` en la MISMA transaccion que su fila.

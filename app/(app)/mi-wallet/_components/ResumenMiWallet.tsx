@@ -5,7 +5,7 @@ import type { DesgloseTiendaDTO } from "@/lib/types/wallet-tienda";
 import { DESGLOSE_MI_WALLET_AVISO, DESGLOSE_MI_WALLET_LABEL, money } from "./mi-wallet-labels";
 
 // FICHA 458-D (cierre; 172 R55 `[P5]` y N1) — VUELVE el resumen de tres cifras de la 172 encima del
-// estado de cuenta de `/mi-wallet`: «A tu favor», «Cargos de Ordenex» y «Ya pagado», en el orden de la
+// estado de cuenta de `/mi-wallet`: «A tu favor», «Cargos de la empresa» y «Ya pagado», en el orden de la
 // fórmula, con el saldo que resulta y la salvedad N1 junto a las cifras que afecta. Los textos son los
 // de la 172 (`DESGLOSE_MI_WALLET_LABEL` / `_AVISO`), sin tocar un carácter; la maqueta es la de la
 // tarjeta retirada (`SaldoTiendaCard`, 172 T G.2), sin la cifra grande: esa la da ya la tarjeta

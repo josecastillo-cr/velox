@@ -15,7 +15,7 @@ import { SATELITES_PAGINA } from "./_components/satelites-labels";
  * ⭑ FICHA 431 (T21, R23/R25/R27) — `/wallet/satelites`: DÓNDE ESTÁ EL EFECTIVO QUE YA ES NUESTRO.
  *
  * Cuarta hoja del módulo Wallet, junto a «Caja principal», «Tiendas» y «Mensajeros». Las otras dos
- * cuentan lo que Ordenex DEBE; ésta cuenta lo que le deben: el efectivo que una bodega satélite
+ * cuentan lo que la empresa DEBE; ésta cuenta lo que le deben: el efectivo que una bodega satélite
  * consolidó y todavía no ha llegado físicamente a la central.
  *
  * ── LAS DOS MITADES DEL CONTROL (R27), y ninguna sirve sola

@@ -137,7 +137,7 @@ export async function limpiar459(prisma: PrismaClient, p: Personas459 | null): P
     where: { registradoPor: { in: usuarios } },
     select: { id: true },
   });
-  // Ficha 457: los pagos de una tienda a Ordenex de estas personas (documento propio).
+  // Ficha 457: los pagos de una tienda a la empresa de estas personas (documento propio).
   const abonos = await prisma.abonoTienda.findMany({
     where: { OR: [{ tiendaId: { in: usuarios } }, { registradoPor: { in: usuarios } }] },
     select: { id: true },
@@ -162,7 +162,7 @@ export async function limpiar459(prisma: PrismaClient, p: Personas459 | null): P
   await prisma.walletTiendaMovimiento.deleteMany({
     where: { OR: [{ tiendaId: { in: usuarios } }, { registradoPor: { in: usuarios } }] },
   });
-  // Los pagos de Ordenex a una tienda que siembran los tests de concurrencia (T B.13).
+  // Los pagos de la empresa a una tienda que siembran los tests de concurrencia (T B.13).
   await prisma.liquidacionPago.deleteMany({ where: { tiendaId: { in: usuarios } } });
   await prisma.abonoTienda.deleteMany({ where: { id: { in: abonos.map((x) => x.id) } } });
   await prisma.pagoPorCuentaTienda.deleteMany({ where: { id: { in: pagos.map((x) => x.id) } } });
@@ -172,7 +172,7 @@ export async function limpiar459(prisma: PrismaClient, p: Personas459 | null): P
 
 /**
  * Ficha 457 — deja a una tienda EN CONTRA: un debito `cobro_manual` como los de la 381 (origen manual,
- * sin linea de caja). Commiteado. Es la precondicion del pago de una tienda a Ordenex (R14).
+ * sin linea de caja). Commiteado. Es la precondicion del pago de una tienda a la empresa (R14).
  */
 export async function endeudar457(prisma: PrismaClient, tiendaId: string, monto: string): Promise<void> {
   await prisma.walletTiendaMovimiento.create({

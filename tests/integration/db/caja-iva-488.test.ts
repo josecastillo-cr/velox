@@ -385,7 +385,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
   //   egresos propios  = 153 845,77 + 1 000,00 (reverso del FLETE del cobro anulado) = 154 845,77
   //   ganancia = 64 979,22 − 154 845,77 = −89 866,55
   //   IVA cobrado = IVA por pagar = 1 492,21 − 130,00 (reverso del IVA del cobro) = 1 362,21
-  //   De Ordenex = −89 866,55 + 20 000,00 = −69 866,55
+  //   De la empresa = −89 866,55 + 20 000,00 = −69 866,55
   //   R7: −69 866,55 + 14 175,82 + 1 362,21 = −54 328,52 = la cifra principal de B.0
   // ───────────────────────────────────────────────────────────────────────────────────────────
   it(`§1 R2/R3/R4/R5/R6: ganancia, ingresos y gastos de ${NOMBRE_ESPERADO} SIN IVA; IVA cobrado; IVA por pagar; «De ${NOMBRE_CORTO_ESPERADO}»`, () => {

@@ -150,7 +150,7 @@ function normalizarParte(parte: string): string {
  * sus paneles; la columna «Motivo» al lado de «Origen» en el estado de cuenta y en las descargas).
  * Desde la 461 la descripcion de un cobro a una tienda empieza por su nombre, y la de un gasto fijo
  * ES la plantilla con su periodo, asi que se leia «… · Tania Tienda · Tania Tienda · Cobro …» y
- * «Gasto fijo de Ordenex · Alquiler — 2026-09 · Alquiler — 2026-09». Aqui se quita del origen toda
+ * «Gasto fijo de la empresa · Alquiler — 2026-09 · Alquiler — 2026-09». Aqui se quita del origen toda
  * parte que la descripcion ya trae como segmento propio (sin distinguir mayusculas: «a Facebook» y
  * «A Facebook»). El ROTULO (la primera parte) no se quita nunca: el origen siempre dice de donde sale.
  */

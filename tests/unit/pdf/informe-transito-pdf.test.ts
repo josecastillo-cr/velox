@@ -6,7 +6,7 @@ import { pdfInformeTransito } from "@/lib/whatsapp-envios/informes/transito/pdf"
 import { PARAMETROS_POR_DEFECTO, type ZonaInforme } from "@/lib/whatsapp-envios/informes/transito/parametros";
 import type { FilaTransito } from "@/lib/whatsapp-envios/informes/transito/tipos";
 
-import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
+import { MARCA_RETIRADA, MARCA_RETIRADA_RE } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Ficha 475 (T4.2) — R19, R23-R32 sobre el PDF REAL, leyendo el texto con el /ToUnicode que el
 // propio documento declara (la fuente embebida escribe en Identity-H: un grep no lo veria).
 
@@ -197,7 +197,7 @@ describe("475/R29 — resumen de parametros y pie", () => {
 
   it(`feature 492 (R18): el encabezado lleva el nombre de marca y el PDF no contiene «${MARCA_RETIRADA}»`, () => {
     expect(pags[0][0]).toBe("Velox Courier");
-    expect(plano).not.toMatch(/ordenex/i);
+    expect(plano).not.toMatch(MARCA_RETIRADA_RE);
   });
 });
 

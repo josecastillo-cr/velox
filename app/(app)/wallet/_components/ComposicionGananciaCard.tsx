@@ -36,7 +36,7 @@ import type { WalletFiltrosValue } from "./wallet-filtros-input";
 import { CATEGORIA_LABEL, money } from "./wallet-labels";
 import { MARCA } from "@/lib/marca/identidad";
 
-// Feature 231 (T6.2, design §4.3) — «Cómo se compone la ganancia de Ordenex».
+// Feature 231 (T6.2, design §4.3) — «Cómo se compone la ganancia de la empresa».
 //
 // La tarjeta que abre la cifra de la ganancia CONCEPTO POR CONCEPTO: los ingresos propios a un
 // lado, los egresos propios al otro y la ganancia resultante en el pie. Es la respuesta a la
@@ -64,7 +64,7 @@ const TITULO = `Cómo se compone la ganancia de ${MARCA.nombre}`;
 /**
  * R29 (copy heredado de la 158) — qué entra y, sobre todo, qué NO entra. La 158 escribió «no
  * incluye los pagos a tiendas ni a mensajeros» sobre la tarjeta de egresos; en ÉSTA el pago a
- * los mensajeros SÍ entra, por «Otros gastos de Ordenex» (consecuencia firmada en D2). Lo que de
+ * los mensajeros SÍ entra, por «Otros gastos de la empresa» (consecuencia firmada en D2). Lo que de
  * verdad queda fuera de la ganancia es el dinero de las tiendas, y eso es lo que dice ahora.
  *
  * Y por eso la enumeración NOMBRA el pago a mensajeros. La primera versión de este texto listaba
@@ -94,7 +94,7 @@ const GANANCIA_LABEL = `Ganancia de ${MARCA.nombreCorto}`;
  * Icono de cada concepto de ingreso. `Record` TOTAL sobre las categorías de ingreso propio: una
  * categoría nueva rompe el build hasta que alguien decida cómo se dibuja.
  *
- * Ficha 488 (design §6.3, R19): los tres IVA salen de aquí. Ya no son ingreso de Ordenex (se le
+ * Ficha 488 (design §6.3, R19): los tres IVA salen de aquí. Ya no son ingreso de la empresa (se le
  * deben a Hacienda: bolsillo «IVA por pagar»), así que la composición de la ganancia no los pinta.
  */
 const INGRESO_ICONO: Record<WalletIngresoPropio, LucideIcon> = {
@@ -102,10 +102,10 @@ const INGRESO_ICONO: Record<WalletIngresoPropio, LucideIcon> = {
   ingreso_flete_devolucion: ArrowRightLeft,
   ingreso_comision_cod: HandCoins,
   ingreso_ajuste: Scale,
-  // Ficha 461 (design §4, R27): el cobro de Ordenex a una tienda, octavo ingreso propio. `Store`
+  // Ficha 461 (design §4, R27): el cobro de la empresa a una tienda, octavo ingreso propio. `Store`
   // —la tienda— porque es lo que lo distingue de los seis cargos del cierre: no nace de una
-  // entrega ni de una tarifa, sino de algo que Ordenex le cobra a esa tienda a mano. Decoracion
-  // (`aria-hidden`); el rotulo «Ordenex le cobra a una tienda» ya lo dice.
+  // entrega ni de una tarifa, sino de algo que la empresa le cobra a esa tienda a mano. Decoracion
+  // (`aria-hidden`); el rotulo «la empresa le cobra a una tienda» ya lo dice.
   ingreso_cobro_tienda: Store,
 };
 
@@ -212,7 +212,7 @@ export function ComposicionGananciaCard({
               total de esta columna sea exactamente `egresosPropios`.
 
               Ficha 339 (R1/R2/R7/R8): los pagos a mensajeros y los ajustes dejan de ser «lo que
-              no tiene fila» y pasan a tener la suya; «Otros gastos de Ordenex» se pinta SOLO si
+              no tiene fila» y pasan a tener la suya; «Otros gastos de la empresa» se pinta SOLO si
               el servidor dice que ahí queda dinero. El total no se mueve ni un céntimo: lo que
               cambia es de qué cubeta sale cada importe, no la suma. */}
           <DesgloseEgresosLista

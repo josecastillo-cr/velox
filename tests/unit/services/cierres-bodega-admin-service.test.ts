@@ -736,7 +736,7 @@ describe("CierresBodegaAdminService — R11: aprobar bodega NO genera ingresos d
   it("R11: aprobar un CierreBodega solo transiciona su estado; NO invoca ningun feed de wallet", async () => {
     // El CierresBodegaAdminService NO tiene NINGUNA dependencia de wallet (constructor =
     // repo + signedUrls). Aprobar solo llama resolverCierreBodega (transicion de estado del
-    // agregado, feature 40). La fuente unica de ingresos de Ordenex es CierreDia (feature
+    // agregado, feature 40). La fuente unica de ingresos de la empresa es CierreDia (feature
     // 42/T8): la bodega agrega cierre_dia ya contados, por eso NO re-cuenta (F1.4-Q3).
     const resolver = vi.fn(async () => "updated" as const);
     const repo = fakeRepo({ resolverCierreBodega: resolver });
@@ -1050,13 +1050,13 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
       r.cierre.totales.general,
     );
 
-    // R7 — la linea puente mas el flete por devolución a origen = lo que Ordenex facturo.
+    // R7 — la linea puente mas el flete por devolución a origen = lo que la empresa facturo.
     expect(r.cobradoSobreRecaudado).toBe("7233.51");
     expect(suma(r.cobradoSobreRecaudado, r.totalesIngreso.fleteDevolucionConIva)).toBe(
       r.totalesIngreso.total,
     );
 
-    // R8 — lo facturado menos los dos pagos de Ordenex = neto. Sale NEGATIVO en este cierre, y
+    // R8 — lo facturado menos los dos pagos de la empresa = neto. Sale NEGATIVO en este cierre, y
     // se emite con su signo. NO es `ganancia`: la diferencia entre las dos es, al centimo, el
     // ingreso de bodega.
     expect(r.netoEmpresa).toBe("-6661.43");

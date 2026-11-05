@@ -10,7 +10,7 @@ import type { RegistrarCobroTiendaInput } from "@/lib/types/wallet-tienda";
 import { fechaCalendarioCR } from "@/lib/utils/fecha-cr";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
-// ⭑ FICHA 381 → 461 / T B.7 + T B.8 — el servicio con el que ORDENEX LE COBRA A UNA TIENDA, y anula.
+// ⭑ FICHA 381 → 461 / T B.7 + T B.8 — el servicio con el que LA EMPRESA LE COBRA A UNA TIENDA, y anula.
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 // ⚠️ LO QUE ESTE ARCHIVO **NO** PUEDE PROBAR, Y ESTA DICHO PARA QUE NADIE LO SUPONGA: los dobles no

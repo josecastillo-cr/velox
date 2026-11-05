@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
  * Primitivas compartidas por las secciones de la landing (`app/page.tsx`).
  *
  * Traducen a utilidades Tailwind + tokens de `globals.css` los estilos que en
- * ordenex.co viven en clases `lp-*`. Los pseudo-elementos del sitio
+ * sitio anterior viven en clases `lp-*`. Los pseudo-elementos del sitio
  * (`.lp-section-mark:before`, `.lp-hero-eyebrow:before`) se materializan aquí
  * como un `<span>` real, para no introducir CSS suelto.
  */

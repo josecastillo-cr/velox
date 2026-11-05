@@ -43,7 +43,7 @@ export class CajaPremioRankingFeedService implements ICajaPremioRankingFeedServi
     return this.cajaRepo.crearMovimientos(tx, [
       {
         tipo: "egreso",
-        categoria: "egreso_pago_mensajero", // naturaleza PROPIA: es dinero de Ordenex
+        categoria: "egreso_pago_mensajero", // naturaleza PROPIA: es dinero de la empresa
         monto: movimiento.monto,
         origenTipo: "ranking_snapshot_fila", // R20: la FILA DEL PODIO, nunca el cierre
         origenId: movimiento.filaId,

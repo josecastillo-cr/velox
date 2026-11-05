@@ -1,3 +1,4 @@
+import { CABECERA_FIRMA_RETIRADA, CABECERA_TIMESTAMP_RETIRADA, PREFIJO_CABECERA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect } from "vitest";
 import { createHmac } from "node:crypto";
 import {
@@ -17,11 +18,11 @@ const TS = 1_700_000_000;
 // FEATURE 493 (R17, L5b): los NOMBRES de las cabeceras son contrato. Literales a mano, no la
 // constante de produccion (que los demas tests si usan para leer el valor).
 describe("493/R17 — las cabeceras de firma se llaman X-Velox-*", () => {
-  it("cabecerasFirma emite exactamente X-Velox-Signature y X-Velox-Timestamp, y no las X-Ordenex-*", () => {
+  it(`cabecerasFirma emite exactamente X-Velox-Signature y X-Velox-Timestamp, y no las ${PREFIJO_CABECERA_RETIRADA}*`, () => {
     const nombres = Object.keys(cabecerasFirma(SECRET, TS, CUERPO)).sort();
     expect(nombres).toEqual(["X-Velox-Signature", "X-Velox-Timestamp"]);
-    expect(nombres).not.toContain("X-Ordenex-Signature");
-    expect(nombres).not.toContain("X-Ordenex-Timestamp");
+    expect(nombres).not.toContain(CABECERA_FIRMA_RETIRADA);
+    expect(nombres).not.toContain(CABECERA_TIMESTAMP_RETIRADA);
   });
 
   it("mismo formato de valor que antes: `sha256=<hex>` y segundos unix", () => {

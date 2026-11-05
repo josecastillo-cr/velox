@@ -13,9 +13,9 @@ import type {
 } from "@/lib/types/abono-tienda";
 
 /**
- * FICHA 457 (design §5) — el cliente de la transaccion del pago de una tienda a Ordenex: el documento
+ * FICHA 457 (design §5) — el cliente de la transaccion del pago de una tienda a la empresa: el documento
  * y su historial, el libro de la tienda, la caja y el candado de la tienda (el MISMO que toma el pago
- * de Ordenex a esa tienda y el pago de un gasto, R16).
+ * de la empresa a esa tienda y el pago de un gasto, R16).
  */
 export type AbonoTiendaTx = AbonoTiendaTxClient &
   WalletTiendaTxClient &

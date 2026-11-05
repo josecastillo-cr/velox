@@ -53,7 +53,7 @@ import {
  *
  * ── POR QUÉ LA CASCADA DE UNA TIENDA NO LLEVA OPERADORES
  * Las otras cascadas del detalle cierran una cuenta; ésta enseña TRES lecturas de la misma
- * tienda. Para pintarla como resta haría falta una cuarta cifra —lo que Ordenex le factura a ESA
+ * tienda. Para pintarla como resta haría falta una cuarta cifra —lo que la empresa le factura a ESA
  * tienda— y R5 la prohíbe: tres cifras por tienda y ni una más. Inventar una resta que no se
  * puede completar sería justo el defecto que la ficha 395 arregló un nivel más arriba.
  */

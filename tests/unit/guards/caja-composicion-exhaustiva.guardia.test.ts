@@ -79,7 +79,7 @@ const OTROS_EGRESOS_DE_EMPRESA = ["egreso_gasto"];
  *
  *  - un INGRESO propio esta cubierto si es una fila del desglose (`WALLET_INGRESO_PROPIO_SEED`);
  *  - un EGRESO propio esta cubierto si es uno de los cuatro conceptos de `DesgloseEgresosDTO`
- *    (`WALLET_EGRESO_DESGLOSADO_SEED`) o si cae en «otros gastos de Ordenex», que es el
+ *    (`WALLET_EGRESO_DESGLOSADO_SEED`) o si cae en «otros gastos de la empresa», que es el
  *    COMPLEMENTO — y por eso los egresos no pueden quedarse fuera por construccion.
  *
  * El dinero de TERCEROS no entra en la ganancia y no tiene que estar cubierto por nadie: es
@@ -213,7 +213,7 @@ describe("R23/R26 — la particion de la ganancia cubre TODAS las categorias pro
       (c) => NATURALEZA_POR_CATEGORIA[c] === "propio" && tipoDe(c) === "ingreso",
     );
     expect([...WALLET_INGRESO_PROPIO_SEED].sort()).toEqual([...derivados].sort());
-    // D5: los seis del feed MAS el ajuste; ficha 461 (R27): MAS el cobro de Ordenex a una tienda.
+    // D5: los seis del feed MAS el ajuste; ficha 461 (R27): MAS el cobro de la empresa a una tienda.
     // Ficha 488 (design §2.4, R19): MENOS los tres IVA del feed (dueño `iva`): de 8 a CINCO. El
     // literal de abajo es el contrato; la igualdad de arriba con la clasificacion sigue intacta.
     expect(derivados.length).toBe(5);
@@ -293,7 +293,7 @@ describe("R23/R26 — MEDIDO sobre el catalogo entero: las dos columnas cuadran"
     }
 
     // Y la consecuencia FIRMADA en D2, medida: los cuatro conceptos SOLOS no llegan. Si esta
-    // asercion cayera, «Otros gastos de Ordenex» habria dejado de hacer falta… o de sumar.
+    // asercion cayera, «Otros gastos de la empresa» habria dejado de hacer falta… o de sumar.
     const soloLosCuatro = [
       desglose.gastoFijo,
       desglose.gastoVariable,

@@ -13,7 +13,7 @@ import { crearLayout } from "@/lib/pdf/etiquetas-layout";
 import { CASO_EVIDENCIA } from "../../fixtures/etiquetas-282";
 import { leerEtiqueta } from "./etiquetas-verificacion";
 
-import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
+import { MARCA_RETIRADA, MARCA_RETIRADA_RE } from "@/tests/fixtures/marca-retirada-nombre-493";
 // Feature 492 (R16, P2) — el rotulo de marca de la cabecera de la etiqueta es «VELOX · GUÍA».
 // LITERAL DE CONTRATO a proposito: compararlo contra `ROTULO_GUIA` seria compararlo consigo mismo.
 // La capacidad por hoja (R17) la fijan, SIN editar, `etiquetas-capacidad`, `etiquetas-diseno-353`,
@@ -55,7 +55,7 @@ describe("Feature 492 — rotulo de marca de la etiqueta (R16)", () => {
       expect(rotulo!.embebida).toBe(false);
       expect(rotulo!.baseFont).toMatch(/Helvetica-Bold/);
       expect(rotulo!.xMm + rotulo!.anchoMm).toBeLessThanOrEqual(hoja.anchoMm);
-      expect(leida.textos.map((t) => t.texto).join(" ")).not.toMatch(/ORDENEX/i);
+      expect(leida.textos.map((t) => t.texto).join(" ")).not.toMatch(MARCA_RETIRADA_RE);
     },
   );
 });

@@ -9,7 +9,7 @@ import type { AgregadoCajaRow, WalletMovimientoCategoria, WalletMovimientoTipo }
 
 type Cliente = Pick<PrismaClient, "$queryRaw" | "walletMovimiento" | "walletTiendaMovimiento" | "pagoMensajeroMovimiento">;
 
-/** Los origenes de la caja que nombran al DEBITO de un cobro de Ordenex (461: `origen_id` = el debito). */
+/** Los origenes de la caja que nombran al DEBITO de un cobro de la empresa (461: `origen_id` = el debito). */
 const ORIGENES_DEL_COBRO = Prisma.join(["cobro_tienda", "cobro_tienda_completado"]);
 
 const SELECT_FILA = { id: true, origenTipo: true, origenId: true } as const;

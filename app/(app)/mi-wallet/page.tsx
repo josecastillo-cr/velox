@@ -12,7 +12,7 @@ import { MI_ESTADO_CUENTA_PAGINA } from "./_components/mi-estado-cuenta-labels";
 import type { CierresDeLaTienda } from "./_components/mi-wallet-cierres";
 
 /**
- * Feature 43 (T14, R18/R19/R21) — pagina `/mi-wallet`: el dinero de la TIENDA con Ordenex. Server
+ * Feature 43 (T14, R18/R19/R21) — pagina `/mi-wallet`: el dinero de la TIENDA con la empresa. Server
  * Component role-aware. El rol se resuelve SOLO server-side via `resolveActorFromSession` (patron
  * `/wallet`): cualquier rol distinto de `adminTienda` (o sin sesion) NO ve la wallet (`notFound`,
  * R19 — forbidden sin exponer datos). El backend acota SIEMPRE a la tienda del actor en el WHERE: la

@@ -2,10 +2,10 @@ import { test, expect, type Page } from "@playwright/test";
 
 /**
  * E2E tests for "/mi-wallet" — the SALDO A FAVOR of a store (Feature 43, T14–T15 /
- * R18–R22). Each store (`adminTienda`) has its own wallet: how much Ordenex owes it
- * (COD collected minus flete + comisión + IVAs, the EXACT complement of Ordenex's income
+ * R18–R22). Each store (`adminTienda`) has its own wallet: how much la empresa owes it
+ * (COD collected minus flete + comisión + IVAs, the EXACT complement of la empresa's income
  * in feature 42). The saldo is DERIVED from an append-only LEDGER (never stored) and may be
- * NEGATIVE (the store owes Ordenex, e.g. for return fees). The page is a role-aware Server
+ * NEGATIVE (the store owes la empresa, e.g. for return fees). The page is a role-aware Server
  * Component: only the `adminTienda` OWNER may see it, ALWAYS scoped to its own tienda_id in
  * the WHERE (R19); any other role (or no session) is denied and NO saldo or breakdown is
  * exposed (R19).

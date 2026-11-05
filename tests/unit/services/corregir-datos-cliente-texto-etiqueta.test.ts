@@ -179,7 +179,7 @@ describe("383/R18 (T6.2) — lo reparable se rechaza CON la sugerencia, no se ap
         ],
       },
     });
-    // La mutacion que este caso mata: aplicar la reparacion y devolver `ok`. Ordenex NUNCA guarda
+    // La mutacion que este caso mata: aplicar la reparacion y devolver `ok`. La empresa NUNCA guarda
     // un nombre que el humano no haya tecleado.
     expect(corregirDatosCliente).not.toHaveBeenCalled();
   });

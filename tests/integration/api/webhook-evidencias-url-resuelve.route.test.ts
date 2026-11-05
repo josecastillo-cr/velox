@@ -44,7 +44,7 @@ const OWNER = "store-1";
 const ACTOR: Actor = { usuarioId: OWNER, rol: "apiKey" };
 const OK_AUTH: ApiKeyAuthResult = { status: "ok", actor: ACTOR, apiKeyId: "k1" };
 const SECRETO_KEY = "ordx_secretovivo1234567890";
-const ORIGIN = "https://app.ordenex.co";
+const ORIGIN = "https://app.ejemplo.test";
 
 const CLAVE = randomBytes(32).toString("base64");
 const SECRET_ENC = cifrarSecreto(CLAVE, "ordx_whsec_secreto-de-firma-de-prueba");

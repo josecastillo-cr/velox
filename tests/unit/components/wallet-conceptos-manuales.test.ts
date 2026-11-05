@@ -34,23 +34,23 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 //
 // ⭑ FICHA 381 (T H.1) — entró el quinto concepto, el cobro a una tienda. ⭑ FICHA 459 (T B.15) —
 // siete conceptos en tres grupos. ⭑ FICHA 461 (T C.4, design §7.1/§7.6, HD1/HD3) — REESCRITO
-// (listado en `progress/impl_461_frontend.md`): los siete nombres se dicen desde Ordenex y
+// (listado en `progress/impl_461_frontend.md`): los siete nombres se dicen desde la empresa y
 // diciendo quién le paga a quién (R39), los tres grupos se llaman por lo que le pasa al dinero
 // (R40), cada concepto lleva su frase de efecto de UNA línea (R41), y el cobro DEJA de ser el que
 // «no mueve la caja»: escribe su cargo en la caja y cae en los DOS libros, como el pago de un gasto
 // (R46). Los literales van escritos a mano: derivarlos de la fuente estaría siempre verde.
 //
 // ⭑ FICHA 457 (T6.3, design §8.1/§8.2) — REESCRITO (listado en `progress/impl_457.md`): OCHO
-// conceptos; «Una tienda le paga a Ordenex» entra en «Llega dinero a la caja» (que pasa a tener
+// conceptos; «Una tienda le paga a la empresa» entra en «Llega dinero a la caja» (que pasa a tener
 // tres), cae en los DOS libros, trae su frase de efecto y su cabecera literales (R54, R55, R67).
 //
 // ⭑ FICHA 458-C (T C.1, design §4.1; R37–R42, R52) — AMPLIADO y la lista de «ocho» REESCRITA como
 // contrato nuevo (461-R39 superado por 458-R37, listado en `progress/impl_458-C.md`): DIEZ conceptos;
-// «Ordenex le paga a una tienda» y «Ordenex le paga a un mensajero» entran en «Sale dinero de
-// Ordenex». Las siete frases de la 461 y la de la 457 siguen byte a byte; las dos nuevas, literales.
+// «la empresa le paga a una tienda» y «la empresa le paga a un mensajero» entran en «Sale dinero de
+// la empresa». Las siete frases de la 461 y la de la 457 siguen byte a byte; las dos nuevas, literales.
 //
 // ⭑ FICHA 488 (T F.5, design §6.3; R21) — ONCE conceptos: «Pago de IVA» entra en «Sale dinero de
-// Ordenex» justo tras el sueldo, como quinto egreso administrativo (mismo destino que el gasto y el
+// la empresa» justo tras el sueldo, como quinto egreso administrativo (mismo destino que el gasto y el
 // sueldo, «A quién» obligatorio). Cada literal cambiado deja su valor anterior en un comentario.
 
 const CATEGORIAS_CAJA_ESPERADAS = [
@@ -274,7 +274,7 @@ describe(`⭑ FICHA 457 — «Una tienda le paga a ${NOMBRE_ESPERADO}» (design 
     expect(fraseDelLibro(abono)).toBe(
       `Se registra en la caja como «Una tienda le paga a ${NOMBRE_ESPERADO}» y en el libro de la tienda como «La tienda le paga a ${NOMBRE_ESPERADO}».`,
     );
-    // Desde ORDENEX (/wallet/tiendas), no la lectura de la tienda (/mi-wallet).
+    // Desde LA EMPRESA (/wallet/tiendas), no la lectura de la tienda (/mi-wallet).
     expect(nombreEnElLibroDeLaTienda(abono)).toBe(CATEGORIA_TIENDA_LABEL.abono_tienda);
     expect(nombreEnElLibroDeLaTienda(abono)).not.toBe(CATEGORIA_MI_WALLET_LABEL.abono_tienda);
   });
@@ -338,9 +338,9 @@ describe("catálogo de conceptos manuales — el nombre del libro se DERIVA (R4 
     for (const id of ["gasto_variable", "sueldo", "pago_iva", "ajuste_egreso", "aporte_capital", "ajuste_ingreso", "pago_a_mensajero"]) {
       expect(nombreEnElLibroDeLaTienda(conceptoPorId(id)!), id).toBe("");
     }
-    // ⭑ 458-C: el pago de Ordenex a una tienda, con el nombre desde Ordenex del libro de la tienda.
+    // ⭑ 458-C: el pago de la empresa a una tienda, con el nombre desde la empresa del libro de la tienda.
     expect(nombreEnElLibroDeLaTienda(conceptoPorId("pago_a_tienda")!)).toBe(`${NOMBRE_ESPERADO} le paga a la tienda`);
-    // ⭑ 457: el pago de la tienda también promete su nombre en la tienda, desde Ordenex.
+    // ⭑ 457: el pago de la tienda también promete su nombre en la tienda, desde la empresa.
     expect(nombreEnElLibroDeLaTienda(conceptoPorId("abono_tienda")!)).toBe(`La tienda le paga a ${NOMBRE_ESPERADO}`);
   });
 

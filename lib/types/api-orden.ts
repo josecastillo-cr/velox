@@ -98,7 +98,7 @@ export interface ApiZonaDTO {
 
 /**
  * ⏳ 2026-09-10 (feature 415, R10/R11/R12/R13/R15) — lo que UNA orden le cuesta a su tienda,
- * desglosado en los CINCO conceptos que factura Ordenex.
+ * desglosado en los CINCO conceptos que factura la empresa.
  *
  * ESCENARIO **ENTREGADA** (R15), y hay que leerlo asi: los cinco importes responden «¿cuanto
  * cuesta este paquete SI SE ENTREGA?». NO son «la linea que entro en tu wallet»: una orden

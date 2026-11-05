@@ -6,7 +6,7 @@ import { registrarEgresoAdministrativoSchema, registrarMovimientoManualSchema } 
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-B (design §4.1, R42/R43/R74, D5) — los campos LATERALES de los registros de caja a mano
-// (sueldo, gasto de Ordenex, correccion): «a quien», referencia y comprobante. Archivo HOJA a
+// (sueldo, gasto de la empresa, correccion): «a quien», referencia y comprobante. Archivo HOJA a
 // proposito: importa de `wallet.ts`, `liquidacion.ts` y `pago-por-cuenta-tienda.ts` sin crear un ciclo.
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
@@ -17,7 +17,7 @@ import { registrarEgresoAdministrativoSchema, registrarMovimientoManualSchema } 
 // el dialogo de entonces (`RegistrarMovimientoCajaDialog`) no lo mandaba. FICHA 458-C (TC.1, heredado
 // de la 458-B, revision m1): ese dialogo se RETIRA y el unico que registra sueldos y gastos
 // (`RegistrarMovimientoDialog`) lo exige; desde aqui el SERVIDOR tambien: un sueldo o un gasto de
-// Ordenex sin «a quien» (ausente o en blanco) es `validation_error` en `contraparteNombre`. La
+// la empresa sin «a quien» (ausente o en blanco) es `validation_error` en `contraparteNombre`. La
 // correccion de caja lo sigue teniendo opcional (D5).
 
 /** D5 — el texto del rechazo, el MISMO que el dialogo pinta bajo el campo. */
@@ -45,7 +45,7 @@ export const camposLateralesCaja = z.object({
 export type CamposLateralesCaja = z.infer<typeof camposLateralesCaja>;
 
 /**
- * Sueldo / gasto de Ordenex CON sus laterales. Intersección: cada lado conserva sus reglas. FICHA
+ * Sueldo / gasto de la empresa CON sus laterales. Intersección: cada lado conserva sus reglas. FICHA
  * 458-C (D5): «a quién» es OBLIGATORIO en los dos (los únicos `tipoEgreso` que admite el borde).
  */
 export const registrarEgresoConLateralesSchema = z

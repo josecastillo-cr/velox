@@ -25,7 +25,7 @@ import { cargarCatalogo459, enTransaccionRevertida459, montarServicios459, sembr
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 // Escenario: la fase 0 de la 459 (todos los caminos que escriben en la caja, por sus servicios reales)
-// + un pago de un gasto de una tienda, un aporte, un pago de la tienda B a Ordenex, la anotacion
+// + un pago de un gasto de una tienda, un aporte, un pago de la tienda B a la empresa, la anotacion
 // «Cartonera del Valle» sobre el gasto variable de hoy, otra correccion anotada «  cartonera DEL valle »
 // FUERA del periodo de hoy y una anotada «Transportes Solano» hoy. Todo en una transaccion revertida.
 //
@@ -143,7 +143,7 @@ describeSiHayBase("458-E/TE.2 — filtro «A quién» del libro de la caja (Post
           actor,
         );
         if (aporte.status !== "ok") throw new Error(`aporte: ${JSON.stringify(aporte)}`);
-        // El pago de una tienda a Ordenex exige que la tienda DEBA (457/R14): antes, un cobro grande.
+        // El pago de una tienda a la empresa exige que la tienda DEBA (457/R14): antes, un cobro grande.
         const cobroGrande = await s.cobroTienda.registrarCobro(
           { claveIdempotencia: randomUUID(), tiendaId: esc.tiendaB, monto: "20000.00", descripcion: "Cobro grande 458-E" },
           actor,

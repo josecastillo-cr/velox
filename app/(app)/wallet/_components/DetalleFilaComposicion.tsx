@@ -22,7 +22,7 @@ import { CATEGORIA_LABEL, ORIGEN_LABEL, money } from "./wallet-labels";
 import { fechaDiaMovimientoCR } from "@/lib/utils/fecha-dia-iso";
 
 // Ficha 339 (T5.2, design 5.3/5.5) — LOS MOVIMIENTOS QUE COMPONEN UNA FILA de la tarjeta
-// «Como se compone la ganancia de Ordenex».
+// «Como se compone la ganancia de la empresa».
 //
 // Se MONTA solo cuando su fila esta abierta (`FilaComposicion` no lo renderiza cerrada), y es
 // aqui —dentro— donde vive el `useSWR`. De ahi salen tres requisitos de golpe: la tarjeta con
@@ -32,7 +32,7 @@ import { fechaDiaMovimientoCR } from "@/lib/utils/fecha-dia-iso";
 // que se despliega igual desde una fila de `SaldosTiendasTable`.
 //
 // EL CLIENTE MANDA UN TOKEN DE FILA, NUNCA UNA LISTA DE CATEGORIAS (design 10-A1). El
-// complemento de «Otros gastos de Ordenex» lo resuelve el SERVIDOR con la MISMA definicion que
+// complemento de «Otros gastos de la empresa» lo resuelve el SERVIDOR con la MISMA definicion que
 // produce el importe de la fila: si el navegador pudiera declarar que categorias componen esa
 // fila, existirian DOS definiciones del mismo conjunto —una para el importe y otra para la
 // lista— y podrian divergir sin que nada fallara. Ese es, un piso mas abajo, el mismo fallo de
@@ -119,7 +119,7 @@ function ImporteCelda({ monto }: { monto: string }) {
 /**
  * R16 — las CUATRO columnas del detalle, en orden: fecha, concepto, detalle e importe.
  *
- * «Concepto» existe porque la fila «Otros gastos de Ordenex» es un CONJUNTO: sin el, la unica
+ * «Concepto» existe porque la fila «Otros gastos de la empresa» es un CONJUNTO: sin el, la unica
  * fila que de verdad hace falta abrir seria ilegible. En las demas filas es redundante y se
  * mantiene por uniformidad — cuatro tablas con columnas distintas segun la fila serian cuatro
  * tablas que hay que volver a leer cada vez.

@@ -132,7 +132,7 @@ describe("458-C (bloque C) — la oficina puede preguntar cómo registrar, ver y
   it.each(OFICINA)("%s: el diálogo único, sus diez conceptos y lo que pide cada uno", (rol) => {
     const caja = cuerpoEnContexto(rol, "oficina/wallet-caja");
     // FICHA 488 (R21) — once conceptos, con «Pago de IVA» tras el sueldo (antes «…con **diez conceptos en
-    // tres grupos**» y la lista de «Sale dinero de Ordenex» sin el Pago de IVA).
+    // tres grupos**» y la lista de «Sale dinero de la empresa» sin el Pago de IVA).
     expect(caja).toContain("**Registrar un movimiento** abre un diálogo con **once conceptos en tres grupos**");
     expect(caja).toContain(
       `**Sale dinero de ${NOMBRE_ESPERADO}** | Gasto de ${NOMBRE_CORTO_ESPERADO} · Sueldo · Pago de IVA · ${NOMBRE_ESPERADO} paga un gasto de una tienda · Corrección de caja (resta) · ${NOMBRE_ESPERADO} le paga a una tienda · ${NOMBRE_ESPERADO} le paga a un mensajero`,
@@ -192,7 +192,7 @@ describe("458-C (bloque C) — la oficina puede preguntar cómo registrar, ver y
 // La oficina puede preguntar cómo se lee el estado de cuenta de una tienda, un mensajero y una bodega
 // (frase, saldo inicial, saldo corrido, chips, anulados), qué acciones tiene cada uno y cómo se anula un
 // pago a un mensajero desde la wallet. La tienda puede preguntar cómo ve el comprobante que subió
-// Ordenex. Nada de la oficina llega a la tienda, al mensajero ni a la bodega (R103).
+// la empresa. Nada de la oficina llega a la tienda, al mensajero ni a la bodega (R103).
 
 describe("458-D (bloque D) — la oficina puede preguntar por los estados de cuenta", () => {
   it.each(OFICINA)("%s: el estado de cuenta de una tienda, sus cifras, su extracto y sus chips", (rol) => {
@@ -358,9 +358,9 @@ describe("458-D (bloque D) — la tienda puede preguntar cómo ve el comprobante
     expect(wallet).toContain("sigue contando** en «Ya pagado»");
     // El filtro por concepto se fue con el libro y no vuelve.
     expect(wallet).not.toContain("**Por concepto**");
-    // Tampoco se nombra a la gente de Ordenex: la tienda no ve quién registró ni quién anuló.
+    // Tampoco se nombra a la gente de la empresa: la tienda no ve quién registró ni quién anuló.
     expect(wallet).not.toContain("Registró:");
-    // Revisión m3/m4 (R25 en /mi-wallet, decisión del leader): «Anulado por Ordenex» con día y hora; y
+    // Revisión m3/m4 (R25 en /mi-wallet, decisión del leader): «Anulado por la empresa» con día y hora; y
     // la ayuda dice solo lo que hay (las filas no nombran «de qué orden» vienen).
     expect(wallet).toContain(`${NOMBRE_ESPERADO}**, el día y la hora (de Costa Rica) en que se anuló y el motivo.`);
     expect(wallet).toContain("se ven desplegando su fila; los pagos, cobros y correcciones no vienen de una orden.");

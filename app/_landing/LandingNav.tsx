@@ -8,7 +8,7 @@ const CLASE_ENLACE =
   "text-[13px] font-semibold tracking-[0.01em] text-white/80 transition-colors hover:text-white";
 
 /**
- * Barra superior pegajosa de la landing (`.lp-nav` de ordenex.co): navy
+ * Barra superior pegajosa de la landing (`.lp-nav` del sitio anterior): navy
  * translúcida con blur, enlaces de sección a la izquierda y las dos acciones a
  * la derecha.
  *

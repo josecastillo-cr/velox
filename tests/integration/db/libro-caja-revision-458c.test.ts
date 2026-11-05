@@ -25,7 +25,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // FICHA 458-C — REVISIÓN (B3 y M1), contra Postgres, sobre el escenario de la fase 0 de la 459 (todos
 // los caminos que escriben en la caja, por sus servicios REALES).
 //
-// B3 (R71): el servidor ya ANULABA desde la caja el pago de Ordenex a una tienda (172) y el premio del
+// B3 (R71): el servidor ya ANULABA desde la caja el pago de la empresa a una tienda (172) y el premio del
 // ranking (293) (`WalletAnulacionService.rutaDeCaja`), pero sus filas llegaban al libro con
 // `documento: null` y la pantalla decía «Vigente» aunque estuvieran anuladas. Ahora el libro
 // (`WalletService.listarMovimientos`, la lectura REAL de /wallet) les da documento con el estado

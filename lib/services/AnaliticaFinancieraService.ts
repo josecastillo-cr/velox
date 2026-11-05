@@ -633,7 +633,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
    * es el COD que el mensajero entrego, y su contrapartida en el libro es el CREDITO que
    * `wallet_tienda_movimiento` registra con origen en ese cierre. Los debitos del mismo origen
    * (flete, comision, IVA) miden otra cosa, y los otros dos libros tambien —la caja recibe el
-   * ingreso de Ordenex; el de mensajeros, el devengo—. Por eso se compara un lado concreto y no
+   * ingreso de la empresa; el de mensajeros, el devengo—. Por eso se compara un lado concreto y no
    * la Σ de los tres: comparar todo contra todo declararia un descuadre permanente, y un aviso
    * que suena siempre es un aviso que se apaga.
    */

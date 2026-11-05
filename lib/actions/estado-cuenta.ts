@@ -330,7 +330,7 @@ export async function miEstadoCuentaKardexAction(
 
 /**
  * Ficha 468 (R26, R32, R48, R49) — las dos hojas de `/mi-wallet`: solo guias de la tienda de la sesion y
- * ningun nombre de Ordenex ni de un mensajero.
+ * ningun nombre de la empresa ni de un mensajero.
  *
  * Superficie (ficha 468, bloque B): la descarga con detalle de `/mi-wallet` (`LECTOR_MI_TIENDA`,
  * `MiEstadoCuenta.tsx`). Su `@sin-superficie` se borro al cablearla.

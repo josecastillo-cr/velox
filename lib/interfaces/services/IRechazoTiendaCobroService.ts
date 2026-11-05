@@ -20,14 +20,14 @@ import type {
 //
 // ⚠️ QUIEN DECIDE: `esAccesoTotal` (maestro + admin), y esto es una DECISION EXPLICITA, no una
 // omision. La ficha 333 introdujo `puedeDecidirCobroGastoFijo` (maestro y nadie mas) porque
-// aquello autoriza dinero que SALE de la caja de Ordenex. Esto es lo contrario: cobrar a una
+// aquello autoriza dinero que SALE de la caja de la empresa. Esto es lo contrario: cobrar a una
 // tienda por un servicio ya prestado —el retorno del paquete—, y es operacion diaria. Estrechar
 // el guard aqui pondria la caja diaria a esperar al maestro. Si el humano lo quiere solo-maestro,
 // es una linea en `lib/auth/acceso-total.ts` y su predicado propio.
 
 /**
  * El cliente que la transaccion de APROBAR necesita: las TRES tablas que esa transaccion toca, y
- * ninguna mas. `rechazo_tienda_cobro` (la decision), `wallet_movimiento` (la caja de Ordenex) y
+ * ninguna mas. `rechazo_tienda_cobro` (la decision), `wallet_movimiento` (la caja de la empresa) y
  * `wallet_tienda_movimiento` (el libro de la tienda). Con este tipo, quien tenga el `tx` no puede
  * tocar gestiones, ordenes ni tarifas aunque quisiera.
  */
@@ -69,7 +69,7 @@ export interface IRechazoTiendaCobroService {
    * ⚠️ EL METODO QUE MUEVE DINERO. Dentro de UNA `$transaction`:
    *
    *   guardia de rol -> obtener -> `marcarDecidido(WHERE estado='pendiente')` -> si 0, ya_decidido
-   *   -> los DOS ingresos en la caja de Ordenex con `origen = (gestion_orden, gestionId)`
+   *   -> los DOS ingresos en la caja de la empresa con `origen = (gestion_orden, gestionId)`
    *   -> los DOS debitos espejo en el libro de la tienda CONGELADA
    *   -> `{ ok, yaEstabaEnElLibro: insertadas === 0 }`.
    *

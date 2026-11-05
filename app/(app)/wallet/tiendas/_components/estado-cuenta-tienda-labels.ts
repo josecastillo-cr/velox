@@ -5,7 +5,7 @@ import { MARCA } from "@/lib/marca/identidad";
  * FICHA 458-D (T D.2, design §5; R17, R26–R28) — textos del ESTADO DE CUENTA de una tienda
  * (`/wallet/tiendas/[tiendaId]`) y del enlace que lleva a él desde el listado. Módulo PURO (sin React).
  *
- * Los nombres de las tres acciones son los de la 461 §7 y la 457, desde Ordenex diciendo quién le paga
+ * Los nombres de las tres acciones son los de la 461 §7 y la 457, desde la empresa diciendo quién le paga
  * a quién: los mismos con los que se rotula su fila en el libro de la tienda (`CATEGORIA_TIENDA_LABEL`).
  */
 
@@ -22,7 +22,7 @@ export const ACCIONES_TIENDA_TEXTO = {
 } as const;
 
 /**
- * Los pagos de Ordenex a la tienda (172), dentro de su estado de cuenta. `anulado` pinta el saldo que
+ * Los pagos de la empresa a la tienda (172), dentro de su estado de cuenta. `anulado` pinta el saldo que
  * devuelve el SERVIDOR tal cual, aunque sea negativo (textos de la 172, que vivían en `PagoTiendaAcciones`).
  */
 export const PAGOS_TIENDA_TEXTO = {

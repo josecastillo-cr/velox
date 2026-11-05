@@ -373,7 +373,7 @@ const CENSO: EntradaCenso[] = [
     mutacion: /tx\.aporteCapitalAnulacion\.create\(/,
   },
   {
-    // ⭑ FICHA 461 (R10/R55) — la ANULACION de un cobro de Ordenex a una tienda. Forma `recibe_tx`
+    // ⭑ FICHA 461 (R10/R55) — la ANULACION de un cobro de la empresa a una tienda. Forma `recibe_tx`
     // (el servicio abre la transaccion; el repositorio escribe la constancia y su historial en
     // ella). Metodo PROPIO: la guardia mide por metodo. La mutacion exigida es la escritura de la
     // CONSTANCIA de la anulacion, que es lo que la fila documenta.
@@ -383,7 +383,7 @@ const CENSO: EntradaCenso[] = [
     forma: "recibe_tx",
     mutacion: /tx\.cobroTiendaAnulacion\.create\(/,
   },
-  // ⭑ FICHA 457 (R61/R62) — el PAGO DE UNA TIENDA A ORDENEX. UN TIPO POR METODO, forma `recibe_tx`
+  // ⭑ FICHA 457 (R61/R62) — el PAGO DE UNA TIENDA A LA EMPRESA. UN TIPO POR METODO, forma `recibe_tx`
   // (el servicio abre la transaccion y el repositorio escribe el documento y su historial en ella,
   // molde de las de la 459). La mutacion exigida es la escritura DEL DOCUMENTO (y de la CONSTANCIA).
   {

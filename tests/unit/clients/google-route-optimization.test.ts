@@ -13,7 +13,7 @@ import type { OptimizarInput } from "@/lib/interfaces/external/IRouteOptimizatio
 // vistazo.
 
 const TOKEN = "ya29.token-super-secreto";
-const PROJECT = "ordenex-prod-123";
+const PROJECT = "empresa-prod-123";
 
 const PARADAS: OptimizarInput["paradas"] = [
   { ordenId: "orden-A", lat: 9.9281, lng: -84.0907 },

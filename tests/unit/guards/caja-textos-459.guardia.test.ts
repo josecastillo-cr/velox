@@ -45,7 +45,7 @@ const TEXTOS_RETIRADOS: readonly string[] = [
   "Todo lo que entró menos todo lo que salió, incluido el dinero de las tiendas",
   // El rótulo viejo de «De las tiendas»: el contra-entrega BRUTO.
   "Contra-entrega cobrado y aún no entregado a las tiendas",
-  // Ficha 461 (HD1/HD2, R50): el cobro de Ordenex a una tienda SÍ pasa por la caja desde esa ficha
+  // Ficha 461 (HD1/HD2, R50): el cobro de la empresa a una tienda SÍ pasa por la caja desde esa ficha
   // (es un cargo que sube la ganancia y baja «De las tiendas»). La frase de la 459 que decía lo
   // contrario en `CAJA_RESUMEN_AVISO_TERCEROS` queda retirada.
   "bajan su saldo sin pasar por la caja",

@@ -1,3 +1,4 @@
+import { PREFIJO_CABECERA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect } from "vitest";
 import fs from "fs";
 import path from "path";
@@ -154,7 +155,7 @@ function parseNodo(lineas: string[], i: number, ind: number): [unknown, number] 
 /**
  * ⏳ 2026-09-01 — el evento dejo de publicarse como seccion `webhooks:` de NIVEL SUPERIOR. Esa
  * seccion Swagger UI la pinta como un endpoint mas, y este evento no es algo que el integrador
- * LLAME: lo entrega Ordenex a su callback. Se publica ahora solo la FORMA del cuerpo, como el
+ * LLAME: lo entrega la empresa a su callback. Se publica ahora solo la FORMA del cuerpo, como el
  * schema `WebhookOrdenEstadoActualizado` de `components.schemas`. Este lector lo aisla del .yaml
  * y lo parsea con el MISMO subconjunto de YAML de antes.
  */
@@ -240,9 +241,9 @@ describe("256/R24 — el webhook orden.estado_actualizado esta publicado en el c
   // DELIBERADO: el evento se publicaba como seccion `webhooks:` de nivel superior (256/R24) y hoy
   // se publica SOLO como el schema `WebhookOrdenEstadoActualizado`. Motivo: Swagger UI pinta la
   // seccion `webhooks` como un endpoint mas, y este evento no es algo que el integrador LLAME —lo
-  // entrega Ordenex a su callback—. Lo que se conserva es lo que el integrador necesita tipar: la
+  // entrega la empresa a su callback—. Lo que se conserva es lo que el integrador necesita tipar: la
   // FORMA del cuerpo. Lo que se pierde, y conviene que conste, son las dos cabeceras de firma
-  // (`X-Ordenex-Signature`, `X-Ordenex-Timestamp`), que ya no estan declaradas en ninguna parte
+  // (firma y marca de tiempo, con el nombre anterior), que ya no estan declaradas en ninguna parte
   // del contrato.
   it("2026-09-01: el evento se publica como SCHEMA, y no como operacion ni como ruta", () => {
     // TS: existe el schema, y NO existe la seccion `webhooks`.
@@ -425,8 +426,8 @@ describe("256/R24 — el webhook orden.estado_actualizado esta publicado en el c
     expect(dataTs.description).toContain("UNA clave OPCIONAL, `evidenciasUrl`");
   });
 
-  // ⏳ 2026-09-01 — AQUI VIVIA «se documentan las cabeceras de firma X-Ordenex-Signature y
-  // X-Ordenex-Timestamp», y antes que eso, dentro del mismo test, la comprobacion de que la prosa
+  // ⏳ 2026-09-01 — AQUI VIVIA «se documentan las cabeceras de firma» con su nombre
+  // anterior, y antes que eso, dentro del mismo test, la comprobacion de que la prosa
   // decia sobre QUE se calcula el HMAC. Las dos cosas se fueron, en dos pasos del mismo dia: la
   // prosa con las descripciones de nivel operacion, y las cabeceras al dejar de publicarse el
   // evento como operacion (solo una operacion puede declarar `parameters`).
@@ -455,11 +456,11 @@ describe("493/R17 — el schema del webhook declara las cabeceras X-Velox-* y no
     expect(descripcionTs).toContain("`X-Velox-Timestamp`");
     expect(descripcionTs).toContain("`sha256=<hex>`");
     expect(descripcionTs).toContain("`${timestamp}.${cuerpo}`");
-    expect(descripcionTs).not.toContain("X-Ordenex-");
+    expect(descripcionTs).not.toContain(PREFIJO_CABECERA_RETIRADA);
   });
 
   it("YAML: el espejo dice exactamente lo mismo", () => {
     expect(descripcionYaml).toBe(descripcionTs);
-    expect(yamlTexto).not.toContain("X-Ordenex-");
+    expect(yamlTexto).not.toContain(PREFIJO_CABECERA_RETIRADA);
   });
 });

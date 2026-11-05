@@ -95,7 +95,7 @@ describeSiHayBase("461/T B.8 — cobrar y anular por las actions (Postgres real)
     });
   }, 120_000);
 
-  // FICHA 458 — O1 del recorrido final: el libro leía «Cobro de Ordenex a una tienda · Tania Tienda ·
+  // FICHA 458 — O1 del recorrido final: el libro leía «Cobro de la empresa a una tienda · Tania Tienda ·
   // Tania Tienda · Cobro …» porque el origen añadía la tienda y la descripción que escribe ESTA action
   // ya empieza por ella. Se escribe por la action real y se lee por la del libro, con el
   // `OrigenLegibleService` real sobre la base: el literal es el contrato, escrito a mano.

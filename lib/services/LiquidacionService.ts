@@ -784,7 +784,7 @@ export class LiquidacionService implements ILiquidacionService {
    * nada que revertir». Ahora al pagar a una TIENDA si se emite egreso, asi que al anular si hay
    * que devolverlo: el contraasiento del ledger va acompañado de un `ingreso` de la caja por el
    * mismo monto, fechado el DIA DE LA ANULACION (R25) y de naturaleza TERCEROS, de modo que
-   * anular no sube la ganancia de Ordenex ni un centimo (R26). La rama del MENSAJERO sigue sin
+   * anular no sube la ganancia de la empresa ni un centimo (R26). La rama del MENSAJERO sigue sin
    * tocar la caja, exactamente igual que antes (R27, [P2]).
    */
   async anularPago(input: AnularPagoInput, actor: Actor): Promise<AnularPagoServiceResult> {
