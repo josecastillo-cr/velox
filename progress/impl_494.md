@@ -1150,7 +1150,9 @@ $ pnpm exec vitest related --run <22 archivos de scripts/ y tests/>     RELATED_
    Test Files  15 passed (15)
         Tests  314 passed | 1 todo (315)
 $ pnpm exec vitest run tests/integration/db/seed-usuarios-qa-494.test.ts tests/integration/db/schema-drift-saneamiento.test.ts <guardia>     63 tests, 0 rojos
-GUARDIAS_POST_COMMIT
+$ pnpm exec vitest run guard, con todo ya commiteado, y otra vez tras el commit final   GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3945 passed | 1 todo (3946)
 ```
 
 **`test-citado-desaparecido`:** esta tanda no renombra ni borra ningún archivo de test.
