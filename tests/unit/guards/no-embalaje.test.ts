@@ -164,10 +164,6 @@ const WHITELIST_FILES = new Set([
   // atras. Alta por archivo (no por carpeta) para que si `app/_landing/` crece
   // con codigo que SI toque estados, el guard lo siga viendo.
   "app/_landing/LandingPoliticas.tsx",
-  // Feature 494: MISMO caso que los specs de arriba. El trinquete es generado y lista cada ruta con
-  // su recuento, entre ellas la de este guard; no contiene el value 'embalaje'. Alta por archivo.
-  // Sale con T8.2, que borra el trinquete.
-  "tests/fixtures/marca-pendientes-494.ts",
 ]);
 
 function toRelPosix(absPath: string): string {
