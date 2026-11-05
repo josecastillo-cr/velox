@@ -1367,3 +1367,127 @@ $ vitest related --run <fixtures de T8.2> no-embalaje        RELATED_EXIT=0, 3 a
 | R28 | la misma guardia, bloque «hosts», y el diff de 0 líneas contra `origin/dev` |
 
 **Veredicto:** Tanda 7 lista: 0 apariciones fuera de E1–E8 con la guardia sin trinquete, sin cambio de código fuera de comentarios y datos de prueba, y a falta de la revisión (T8.5) y de lo pendiente del despliegue.
+
+## Corrección de la revisión final (`progress/review_494_t7.md`), 2026-11-05
+
+MCP `codebase-memory` sin conexión: medido con `git grep`, leyendo y con scripts.
+
+### B1 — R25 ya tiene test, y la conducta es correcta
+
+`tests/integration/db/plantilla-renombrada-envio-494.test.ts`, contra Postgres y dentro de una transacción revertida. Repositorios reales de plantilla, envío y ejecución; solo el enviador de Meta y la cola son dobles. El cambio de nombre es el `UPDATE` del paso 4 de `design.md §8`, con su `template_id`.
+
+| Test | Lo que afirma | Medido |
+| --- | --- | --- |
+| Envío programado, antes y después del cambio | `UPDATE` toca 1 fila. El enviador recibe `[viejo, nuevo]`. La ejecución anterior conserva `plantilla_nombre` y `plantilla_id`, y la siguiente toma el nuevo. La fila de `whatsapp_envio` y sus destinatarios, por `to_jsonb` y con `updated_at`, no cambian desde antes de la primera ejecución | 0 rojos, 0 saltados |
+| **No lo pedía la revisión:** entrega a medias, de antes del cambio | Tras un transitorio, el reintento manda el nombre **nuevo** y la entrega queda `aceptada`. La foto de esa ejecución sigue con el viejo | 0 rojos, 0 saltados |
+
+**Conclusión para T9.3:** renombrar es seguro también con ejecuciones en curso, siempre que la plantilla nueva esté `APPROVED` en Meta antes del `UPDATE`, como manda `design.md §8`. Un reintento de después ya sale con el nombre nuevo. Por eso el paso 6, no borrar la vieja mientras haya ejecuciones en curso, sigue siendo una cautela y no se quita.
+
+Una primera versión tomaba la foto de `whatsapp_envio` **después** de la primera ejecución. La mutación «al fijar, toca la fila» sobrevivió por eso, y se corrigió la foto. Sin `if (!x) return`: las siembras lanzan si falta algo.
+
+### B2 — la descarga con la clave vieja no genera archivo
+
+**Las cuatro claves pasan a `...V2`, sin alias:** `listarGestionesCierresAdminCompletoV2`, `listarGestionesCierresBodegaCompletoV2`, `libroCajaKardexV2`, `libroCajaKardexConDetalleV2`. Solo cambia la clave del registro; los símbolos de las actions, no.
+
+**Revisadas las 33 descargas del registro.** Script en el scratchpad: desde cada `descargarDatos("<clave>")`, sus proyecciones por imports, con los identificadores `empresa` de código ya sin comentarios. Luego, leído a mano qué es campo de la respuesta y qué es una constante de etiqueta.
+
+| Campo renombrado | Dónde se lee | ¿En un archivo descargado? | Decisión |
+| --- | --- | --- | --- |
+| `ingresoEmpresa` | `cierres-gestiones-fundida-descarga-columnas.ts:471` | **Sí**, las dos claves de gestiones | V2 |
+| `esEmpresa` | `textoAQuien`, vía `wallet-ledger-descarga-columnas.ts:73` | **Sí**, las dos claves del libro: «A quién» de un aporte saldría «—» | V2, como pide la orden para las demás descargas con campos renombrados |
+| `esEmpresa` | `DetalleMovimientoPanel`; `EstadoCuenta.tsx:840` construye el valor en el navegador | No | Se queda |
+| `sentido: "empresa_debe"` | `estado-cuenta-labels.ts:75,85`, frase en pantalla | No: la proyección no lee `sentido` | Se queda |
+| `netoEmpresa`, `deEmpresa`, `empresaCobra`, `empresaPaga` | Detalle en pantalla, resumen de caja o textos de botón | No | Se queda |
+| `liquidado.empresa` | Productos, fuera del registro | Ya cortado con las actions V2 | Se queda |
+
+**Ejecutado con la clave vieja contra el servidor nuevo:**
+
+- **Test:** `tests/components/descarga/ClaveDescargaRetirada494.test.tsx`. Con la action real y el registro real: `validation_error`, sin ejecutar nada; `descargarDatos` lanza; el botón avisa y no sale archivo. Las nuevas se fijan en literal, las viejas también. 13 tests.
+- **En navegador:** `next dev --webpack`, sesión `admin.qa`, botón real. Playwright reescribe el POST de la action con la clave de antes, que es lo que manda una pestaña vieja.
+
+| Pantalla | Clave enviada | Archivo | Aviso |
+| --- | --- | --- | --- |
+| `/wallet`, Libro de movimientos | `libroCajaKardexConDetalle` | **ninguno** | «No se pudo generar el archivo. Vuelve a intentarlo; el listado no cambió.» |
+| Control | `libroCajaKardexConDetalleV2` | `libro-de-movimientos-….xlsx` | ninguno |
+| `/cierres-admin`, detalle por gestión | `listarGestionesCierresAdminCompleto` | **ninguno** | el mismo |
+| Control | `listarGestionesCierresAdminCompletoV2` | `gestiones-de-cierres-….xlsx` | ninguno |
+
+**Bodega y el libro sin detalle:** cubiertos por el test, sin repetirlos en navegador. **Sin medir:** el bundle viejo real; se simuló reescribiendo el POST. Este corte no depende del id de la action ni de Turbopack: la clave se comprueba en el servidor, y si el id no sobrevive, el botón da el mismo aviso.
+
+**Lo que queda, corregido en `design.md §3.2` y en `docs/release.md`:**
+
+- Una descarga afectada en pestaña vieja falla con aviso y sin archivo, hasta recargar. El aviso dice «vuelve a intentarlo», y reintentar falla igual; no se cambia el texto, porque es de todas las descargas.
+- **En pantalla**, hasta recargar: frase de saldo falsa, panel que no abre, y «A quién» de un aporte en «—» en el libro de caja (`libro-caja-labels.ts:70`).
+- En la base no se escribe nada.
+
+### Menores
+
+| Id | Qué | Comprobado |
+| --- | --- | --- |
+| m1 | `CajaResumenCard.test.tsx:325`, con `NOMBRE_ESPERADO` | Con la frase forzada en positivo, ese `it` ahora sale rojo |
+| m2 | `wallet-labels.test.ts:287`, igual | Rojo con la frase de vuelta. En ese `it` también la pilla el `toBe`: la mutación no aísla la negativa |
+| m3 | La guardia fija en literal rutas y patrones de cada excepción | E5 ensanchada a `lib/utils/`, E5.1 y E6 anchas: rojas |
+| m4 | E5 se parte: `claves-legadas.ts` pasa a **E5.2**, por línea (`"ordenex…"` entre comillas) | Texto visible en el módulo: rojo en las dos guardias |
+| m5 | Árbol con `providers/`, `instrumentation.ts`, `AGENTS.md`, `README.md`. Hoy 0 apariciones: la guardia sigue verde | Comentario en cada uno: rojo |
+| m6 | `EmailProvider.ts:17`, `etiquetas-visibles.guardia:76`, `factura-contraste.guardia:111`, y 13 líneas con «Total la empresa» o «Cobró la empresa», que pasan al rótulo real | Solo comentarios, comprobado con el quitador contra el commit anterior |
+| m8 | Fila **A12** en la tabla A de `docs/release.md`: Skew Protection en el panel de Vercel, `vercel env ls production` por nombre | Test y mutación |
+
+m7 y la tarjeta `AvisoVersionNueva` no se tocan, por orden.
+
+### Mutaciones, ejecutadas de verdad y restauradas
+
+Archivo cambiado, `numTotalTests` > 0, bytes restaurados y comparados.
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 77 | 0 | |
+| R25: nombre fijado por plantilla, sin releer | 2 | 2 | el enviador recibe el nombre nuevo… |
+| R25: el reintento manda el nombre de la foto | 2 | 1 | una entrega a medias… |
+| R25: al fijar, reescribe la foto de las anteriores | 2 | 1 | el enviador recibe el nombre nuevo… |
+| R25: al fijar, toca la fila de `whatsapp_envio` | 2 | 2 | el mismo. **En la primera corrida sobrevivió:** corregido arriba |
+| R25: la foto no guarda el nombre vigente | 2 | 2 | el mismo |
+| R25: se envía con otro campo | 2 | 2 | el mismo |
+| B2: alias de la clave vieja de cierres | 13 | 2 | el registro tiene las nuevas… |
+| B2: alias de la clave vieja del libro | 13 | 2 | libroCajaKardex, contra el servidor nuevo |
+| B2: bodega vuelve al nombre viejo | 13 | 2 | el registro tiene las nuevas… |
+| B2: libro con detalle vuelve al nombre viejo | 13 | 2 | el mismo |
+| B2: el botón se calla el error | 13 | 4 | desde el boton: avisa con el error… |
+| B2: `descargarDatos` no lanza | 13 | 8 | lanza, no devuelve filas |
+| m1: la frase también en positivo | 33 | 2 | R23: si es negativo… |
+| m2: la frase retirada vuelve | 21 | 1 | R17: con las tiendas debiendo… |
+| m3: E5 a `lib/utils/` | 62 | 2 | la lista es la cerrada… |
+| m3: patrón de E5.1 ancho | 62 | 3 | el mismo |
+| m3: patrón de E6 ancho | 62 | 1 | el mismo |
+| m4: texto visible en `claves-legadas` | 62 | 2 | ningun archivo del arbol… |
+| m4, solo la 493 | 20 | 1 | app/, components/, hooks/, lib/ |
+| m5: `providers/`, `instrumentation.ts`, `AGENTS.md`, `README.md` | 42 cada una | 1 cada una | ningun archivo del arbol… |
+| m8: A12 sin el comando | 42 | 1 | m8: la tabla A… |
+| Base restaurada | 77 | 0 | |
+
+**Supervivientes: 0**, con esa salvedad de la primera corrida.
+
+### Base local
+
+Conteo exacto de 89 tablas antes y después: solo `login_attempt` +5 y `Session` +5, de los logins de la sonda. Borradas esas filas, de `admin.qa`: diferencia vacía. R25 no deja filas: transacción revertida. Servidor matado, log borrado, `.next/dev` borrado.
+
+### Verificación
+
+```
+$ pnpm exec tsc --noEmit --incremental false                        TSC_EXIT=0
+$ eslint de los 26 archivos de codigo tocados                       errores 0, avisos 6
+$ vitest run, por lotes, los 49 archivos que usan estas descargas   781 tests, 0 rojos, 0 saltados
+$ vitest run <guardia 494> <guardia 493> <R25> <claves retiradas>   77 tests, 0 rojos, 0 saltados
+$ quitador en los dos lados, contra el commit anterior              archivos de m6: 0 lineas de codigo; lo demas, las 4 claves y los tests
+$ vitest run guard, tras el commit c9cd9e86                         GUARD_EXIT=0, 284 archivos, 3947 tests, 0 rojos
+```
+
+### Mapa `R<n>` → test, añadidos de esta corrección
+
+| R | Test |
+| --- | --- |
+| R25 | `tests/integration/db/plantilla-renombrada-envio-494.test.ts` |
+| R26 | la guardia, bloque «plantillas», y el mismo test: mientras no cambia, se envía con el nombre que hay |
+| R1, R3 | la guardia, con árbol ampliado (m5) y lista fijada en literal (m3, m4) |
+| `design.md §3.2`, descargas | `tests/components/descarga/ClaveDescargaRetirada494.test.tsx` |
+
+**Veredicto:** B1, B2, m1 a m6 y m8 cerrados; la conducta de R25 es la esperada y una descarga en pestaña vieja ya no puede guardar un archivo sin cifras.
