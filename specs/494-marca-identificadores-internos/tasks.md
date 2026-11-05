@@ -41,10 +41,10 @@
 
 ## Tanda 2 — Familia cierres
 
-- [ ] **T3.1 — Script.** Depende de tanda 1 mergeada. `--familia cierres` + `git mv` de `lib/utils/ingreso-ordenex.ts` y su test. **Hecho:** `tsc` limpio. Sin ediciones a mano salvo las listadas en `progress/impl_494.md`.
-- [ ] **T3.2 — Sin polizones.** Lo que `tsc` no vea: `vi.mock("…ingreso-ordenex")`, cadenas de guardias que leen rutas, fuentes que un test parsea. **Hecho:** cero rutas viejas (`grep ingreso-ordenex` vacío fuera de lo pendiente en comentarios).
-- [ ] **T3.3 — Guardias estructurales de cierres.** Correr a mano las que lean `lib/` con `fs` y citen estos nombres. **Hecho:** verdes y anotadas.
-- [ ] **T3.4 — Importes intactos.** `git diff origin/dev...HEAD -U0` filtrado por líneas con un número: ninguna cambia de valor. **Hecho:** comprobación anotada; R4 verde con `ingreso-empresa.test.ts` y `aporte-por-orden.test.ts`.
+- [x] **T3.1 — Script.** Depende de tanda 1 mergeada. `--familia cierres` + `git mv` de `lib/utils/ingreso-ordenex.ts` y su test. **Hecho:** `tsc` limpio. Sin ediciones a mano salvo las listadas en `progress/impl_494.md`.
+- [x] **T3.2 — Sin polizones.** Lo que `tsc` no vea: `vi.mock("…ingreso-ordenex")`, cadenas de guardias que leen rutas, fuentes que un test parsea. **Hecho:** cero rutas viejas (`grep ingreso-ordenex` vacío fuera de lo pendiente en comentarios).
+- [x] **T3.3 — Guardias estructurales de cierres.** Correr a mano las que lean `lib/` con `fs` y citen estos nombres. **Hecho:** verdes y anotadas.
+- [x] **T3.4 — Importes intactos.** `git diff origin/dev...HEAD -U0` filtrado por líneas con un número: ninguna cambia de valor. **Hecho:** comprobación anotada; R4 verde con `ingreso-empresa.test.ts` y `aporte-por-orden.test.ts`.
 
 ## Tanda 3 — Familia caja
 

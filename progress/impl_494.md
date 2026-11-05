@@ -404,3 +404,125 @@ $ pnpm exec vitest run guard                     GUARD_EXIT=0
    Test Files  284 passed (284)
         Tests  3940 passed | 3 todo (3943)
 ```
+
+## Tanda 2 (T3.1–T3.4), familia cierres, 2026-11-04
+
+MCP `codebase-memory` sin conexión (*connection timed out*): medido con `git grep` y leyendo los archivos.
+
+### T3.1 — Script
+
+```
+$ node scripts/marca-494-renombrar.mjs --familia cierres   cierres: 2 archivos movidos, 110 reescritos. SCRIPT_EXIT=0
+$ pnpm exec tsc --noEmit --incremental false               TSC_EXIT=0, 0 errores
+$ pnpm lint                                                LINT_EXIT=0, 235 problems (0 errors, 235 warnings), el mismo número
+$ <segunda pasada, y --comprobar>                          0 movidos, 0 reescritos; COMPROBAR_EXIT=0
+```
+
+`git mv` registró `R097` (`lib/utils/ingreso-empresa.ts`) y `R099` (su test). 577 líneas cambiadas en 110 archivos, más el trinquete.
+
+**Ediciones a mano: ninguna.** Es la primera vez que el script ve tests (la T1.4 solo pasó `tsc`) y no hizo falta tocar ninguno.
+
+### T3.2 — Sin polizones
+
+Nada que arreglar. `vi.mock`, `importOriginal<typeof import(…)>` y las rutas que citan las guardias las cambió el script. `ingreso-ordenex` solo queda en:
+
+| Dónde | Por qué se queda | Quién lo quita |
+| --- | --- | --- |
+| `db/migrations/20260831120000_…`, `20260907130000_…` (comentarios) | E1, fotos históricas | Nadie |
+| `db/schema.prisma:2595` (comentario) | El script no toca el esquema | T7.5 |
+| `scripts/marca-494-renombrar.mjs` | La tabla, E9 | T8.2 |
+| `tests/fixtures/marca-retirada-493.ts`, `tests/unit/guards/marca-fuente-unica-493.guardia.test.ts`, `tests/unit/guards/marca-sin-ordenex-494.guardia.test.ts` | E7, contrapruebas | T8.2 |
+
+Los nombres completos de la familia (`netoOrdenex`, `NETO_ORDENEX_LABEL`…) quedan solo en esos mismos archivos de E7/E9 y en `tests/fixtures/marca-sin-ordenex-494.ts`.
+
+**No se renombró ningún valor guardado ni contrato:**
+
+- `db/schema.prisma` no tiene campos con estos nombres.
+- `docs/api/**`, `app/api/**`, `lib/api/**` y `lib/types/api-*` no los citan.
+- En código de producción no aparecen como literal de cadena, ni en SQL (`AS "…"`), ni como clave de columna. La única cadena que los cita está dentro de un comentario.
+- `ingresoEmpresa` se deriva al leer (`toIngresoEmpresa(g, d)` en `CierresAdminRepository`), no sale de una columna JSON.
+- Ningún archivo con estos nombres en código usa `envolver`, `unstable_cache`, `localStorage` ni `JSON.stringify`. `ConteoProductosDTO` (§3.3) solo los cita en comentarios.
+- Ningún archivo tocado ordena claves con `Object.keys(…).sort()`: el orden de columnas no depende de estos nombres. No hay `.snap`.
+
+### T3.3 — Guardias estructurales
+
+Las que leen fuentes con `fs` y citan estos nombres, corridas dentro de `vitest run guard`:
+
+| Guardia | Pasan |
+| --- | --- |
+| `caja-173-alcance` | 37 |
+| `cierre-bodega-vocabulario` | 33 |
+| `factura-contraste` | 50 |
+| `flete-por-rechazo-censo` | 4 |
+| `marca-fuente-unica-493` | 19 |
+| `marca-sin-ordenex-494` | 36, y 3 todo |
+
+```
+$ pnpm exec vitest run guard     GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3940 passed | 3 todo (3943)
+```
+
+También leen fuentes con `fs`, y van en el bloque de tests tocados de abajo: `CierreBodegaDesglosePorTienda`, `CierreMensajeroDesglosePorTienda`, `CierreMensajeroDetalleCascadas`, `CierresAdminConfirmacionFisica`, `DineroIdentidadesEnPantalla`, `cierres-gestiones-fundida-descarga-columnas`, `cierres-gestiones-paridad`, `cierres-bodega-admin-service`, `tarifa-especial-por-distrito`.
+
+### T3.4 — Importes intactos
+
+Comprobación en el scratchpad, sobre `git diff <merge-base>...HEAD -U0 -M`, sin `specs/`, `progress/` ni el trinquete. Por cada par (quitada, puesta) mira dos cosas: **A**, los números son los mismos y en el mismo orden, sin depender de la tabla; **B**, la línea vieja más la tabla da exactamente la nueva. La B es más fuerte que lo que pide la tarea, porque el filtro por número no ve un `.minus` cambiado por `.plus`.
+
+```
+archivos 110 | pares 577 | con numero 106 | de dinero 48
+A numero cambiado: 0 | B no es la tabla: 0 | hunks desiguales: 0
+```
+
+En código de producción, ninguna línea renombrada fuera de comentarios lleva un dígito: los 106 pares con número son comentarios o tests.
+
+R4, con los tests de dinero que nombra el spec:
+
+| Test | Pasan |
+| --- | --- |
+| `tests/unit/utils/ingreso-empresa.test.ts` | 61 |
+| `tests/unit/utils/aporte-por-orden.test.ts` | 17 |
+| `tests/integration/db/cierre-desglose-por-tienda-sql-real.test.ts` | 4 |
+| `tests/integration/db/caja-iva-488.test.ts` | 21 |
+| `tests/unit/descarga/analitica-productos-descarga-columnas.test.ts` | 27 |
+| `tests/unit/guards/marca-fuente-unica-493.guardia.test.ts` | 19 |
+
+```
+$ pnpm exec vitest run <tests tocados, los R4 y LandingPage, sin repetir: 66 archivos>     VITEST_EXIT=0
+   Test Files  66 passed (66)
+        Tests  1497 passed (1497), 0 skipped
+```
+
+Incluye 6 de integración: `dinero-productos.int` 22, `498-deuda-satelite-sql-real` 13, `caja-iva-488` 21, `cierre-bodega-desglose-por-tienda-sql-real` 4, `cierre-desglose-por-tienda-sql-real` 4, `resolver-novedad-reprograma-dinero` 8. No corrí `vitest related` ni toda `integration/db`: eso es del `--rapido` del leader, que aquí se amplía solo.
+
+### Mutaciones, ejecutadas de verdad y restauradas
+
+Script en el scratchpad; salida en `progress/494_t2_mutaciones.log` (ignorado por git). Comprueba que el archivo cambió, aborta si `numTotalTests` es 0 y restaura los bytes exactos, comparándolos. Los tests son `ingreso-empresa`, `aporte-por-orden` y `CierreBodegaDesglosePorTienda`.
+
+| Mutación | T3.4 | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- | --- |
+| Base sin mutar | exit=0 | 111 | 0 | exit=0 |
+| `lib/utils/ingreso-empresa.ts`: `.div(100)` → `.div(101)` en el porcentaje | **exit=1**, A y B | 111 | 32 | `flete = valorFlete + IVA flete (13% del flete)` |
+| `pagoTiendaEmpresa` suma la comisión, sin tocar ningún número | **exit=1**, solo B | 111 | 3 | `resta al total general el flete + IVA y la comision + IVA` |
+| Importe de un test en una línea renombrada: `₡8.750,55` → `₡8.750,56` | **exit=1**, A y B | 111 | 1 | `ni un importe ya visible cambia de valor` |
+| Base restaurada | exit=0 | 111 | 0 | exit=0; `git status` limpio |
+
+Supervivientes: 0 de 3. La segunda confirma que el filtro por número de la tarea no bastaba por sí solo: A no la ve, y la caza B.
+
+### Trinquete
+
+```
+$ pnpm exec tsx tests/fixtures/marca-sin-ordenex-494.ts pendientes
+antes  2.311 en 531 archivos
+ahora  1.682 en 468 archivos
+```
+
+### Mapa `R<n>` → test, tanda 2
+
+| R | Test |
+| --- | --- |
+| R4 | Los de la tabla de T3.4, y la comprobación del diff |
+
+**Otras notas.** `origin/dev` avanzó durante la tanda con `c76c76489` (solo `feature_list.json` y `progress/current.md`, de la 503). No se mergeó: no comparte archivos con esta rama. `./init.sh --rapido`: no corrido aquí, lo corre el leader.
+
+**Veredicto:** Tanda 2 lista; 110 archivos renombrados por script, sin ediciones a mano, y ninguna línea cambia de valor.
