@@ -1170,3 +1170,22 @@ $ pnpm exec vitest run guard, con todo ya commiteado, y otra vez tras el commit 
 | R3 | la misma guardia: E4 y E6 ya activas |
 
 **Veredicto:** Tandas 5 y 6 listas, sin migración y sin cambio de esquema, con la marca fuera de configuración, scripts y docs vivos, y a falta de la siembra en preview y del título de `CLAUDE.md`, que son del leader.
+
+### Rojo del gate completo: `changelog-api-493`
+
+Único rojo del gate completo que corrió el leader. La entrada del 2026-11-05 de T7.3 es correcta y va arriba, pero `tests/unit/docs/changelog-api-493.test.ts` exigía que la ruptura de la 493 fuera la primera de todas, y eso se rompe con cualquier entrada posterior. La entrada no se mueve.
+
+El `it` pasa a afirmar el contrato real: el primer encabezado con `RUPTURA` casa con `/^## 2026-11-\d\d — ⚠️ RUPTURA — /`. Otro nuevo afirma que los encabezados `## YYYY-MM-DD` van por fecha descendente. Las 25 entradas actuales ya lo cumplen: no hizo falta tocar el histórico.
+
+| Mutación | Tests | Rojos | Rojo que importa |
+| --- | --- | --- | --- |
+| Base sin mutar | 8 | 0 | |
+| Quitar `RUPTURA` del encabezado de la 493 | 8 | 5 | `es la RUPTURA más reciente del canal, fechada`; las otras 4 dependen de localizar esa entrada |
+| Entrada del 2026-11-05 debajo de la de la 493 | 8 | 1 | `las entradas van por fecha descendente` |
+| Base restaurada | 8 | 0 | |
+
+```
+$ pnpm exec vitest run guard, después del commit del test    GUARD_EXIT=0
+   Test Files  284 passed (284)
+        Tests  3945 passed | 1 todo (3946)
+```
