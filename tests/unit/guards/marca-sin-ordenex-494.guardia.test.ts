@@ -325,7 +325,17 @@ describe("494 — proyecto (R31, R32)", () => {
     expect(coleccion.info.name).toBe("Velox Courier — API key");
   });
 
-  it.todo("T7.6: R31 contra `package.json`");
+  it("R31: package.json se llama velox, contra el archivo y contra el detector", () => {
+    const paquete = JSON.parse(leerTexto("package.json") ?? "") as { name: string };
+    expect(paquete.name).toBe("velox");
+    expect(
+      hallazgosProyecto({
+        nombrePaquete: paquete.name,
+        hayColeccionVieja: existsSync(path.join(RAIZ, COLECCION_VIEJA)),
+        hayColeccionNueva: existsSync(path.join(RAIZ, COLECCION_NUEVA)),
+      }),
+    ).toEqual([]);
+  });
 
   it("R32: B2 y B4 de docs/release.md nombran el proyecto y el dominio vigentes", () => {
     expect(hallazgosReleaseB2B4(leerTexto("docs/release.md") ?? "")).toEqual([]);
