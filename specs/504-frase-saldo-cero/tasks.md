@@ -5,21 +5,21 @@ porque todas tocan los mismos dos archivos y las mutaciones no pueden convivir c
 
 **Requisito previo:** P1 y P2 cerradas en la aprobación del spec.
 
-- [ ] **T1 — Test primero.** Crear `tests/unit/components/frase-del-saldo-504.test.tsx` con la tabla de
+- [x] **T1 — Test primero.** Crear `tests/unit/components/frase-del-saldo-504.test.tsx` con la tabla de
   `design.md §3`, con literales escritos a mano, marca desde `NOMBRE_ESPERADO`, y sin importar
   `ESTADO_CUENTA_TEXTO`.
   - **Depende de:** P1 y P2.
   - **Hecho:** corrido contra el código sin cambiar, R3, R4, R5 y R7 salen rojos, y R1, R2 y R6 salen
     verdes (caracterización). Si R1, R2 o R6 sale rojo, se para: el literal no describe lo que hay.
 
-- [ ] **T2 — El arreglo.** En `estado-cuenta-labels.ts`: añadir `ESTADO_CUENTA_TEXTO.sentidoNoReconocido`,
+- [x] **T2 — El arreglo.** En `estado-cuenta-labels.ts`: añadir `ESTADO_CUENTA_TEXTO.sentidoNoReconocido`,
   exigir `en_cero` en las dos frases de «no se deben nada» y, según P2, exigir `empresa_debe` en la de la
   bodega. Actualizar el comentario de las dos funciones. Sin cambios de firma ni en `TarjetasEstadoCuenta.tsx`.
   - **Depende de:** T1.
   - **Hecho:** todo `frase-del-saldo-504.test.tsx` verde, y `git diff --stat` muestra en producción solo
     `estado-cuenta-labels.ts`.
 
-- [ ] **T3 — Mutaciones.** Aplicar M1 a M8 de `design.md §3` una por una, a mano, corriendo solo
+- [x] **T3 — Mutaciones.** Aplicar M1 a M8 de `design.md §3` una por una, a mano, corriendo solo
   `frase-del-saldo-504.test.tsx`, y restaurar tras cada una. Sin M5 si P2 queda fuera.
   - **Depende de:** T2.
   - **Hecho:** cada mutación tumba el R previsto, y se anota el test que falló y su mensaje. Un resultado
