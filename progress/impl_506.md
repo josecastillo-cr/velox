@@ -104,3 +104,7 @@ Sin respuestas 5xx. Una primera pasada se descartó por la sonda, no por la app:
 ## Sin ejecutar
 
 - **`./init.sh --rapido` (T4.3):** lo corre el leader.
+
+## Gate del leader
+
+`./init.sh --rapido` sobre a316021c4: `INIT_EXIT=0`, ampliado con Postgres (3501 + 3947 + 4436 passed), sin intermitentes.

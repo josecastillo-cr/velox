@@ -35,7 +35,7 @@ Implementa `frontend_dev`. `[P]` = paralelizable con las otras `[P]` de su bloqu
       refuerza el test, no se quita la mutación.
 - [x] **T4.2** (tras T4.1, sin mutaciones en el árbol) Correr a mano las guardias que leen archivos, que el `--rapido` puede no relacionar:
       `aporte-satelite-fuente-unica-498.guardia`, `textos-satelite-definitivos-500.guardia`, `cierre-bodega-vocabulario.guardia`. **Hecho:** verdes.
-- [ ] **T4.3** (tras T4.2) `./init.sh --rapido`, sin el completo. **Hecho:** `INIT_EXIT=0` escrito en el log y `skipped` revisados.
+- [x] **T4.3** (tras T4.2) `./init.sh --rapido`, sin el completo. **Hecho:** `INIT_EXIT=0` escrito en el log y `skipped` revisados.
 - [x] **T4.4** (tras T4.3) Ver la app en local, con una saldada insertada y borrada en un `finally` si la base no tiene: en `/cierres-admin`,
       su detalle sin la región y con la región en una fila con botones; en `/wallet/satelites`, la nota nueva; en `/ayuda/oficina/wallet-satelites`,
       la sección nueva. **Hecho:** anotado en `progress/impl_506.md` con lo leído en pantalla, base limpia al terminar y sin datos identificables de producción.
