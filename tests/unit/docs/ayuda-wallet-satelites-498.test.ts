@@ -78,3 +78,79 @@ describe("498/R44 — AUTOCOMPROBACION", () => {
     expect(texto("caja", SATELITES, cajaSin)).not.toMatch(/### Por cobrar a satélites/);
   });
 });
+
+// Ficha 503 — la sección de las saldadas dice lo que hace la fila: no ofrece ningún botón. Este bloque solo fija el
+// texto, con literales a mano; que sea VERDAD lo mide el DOM en `Conciliacion498.test.tsx` («503/R4»).
+
+/** Del título de la sección al título siguiente, para que un «Corregir» de otra sección no cuente. Tolera CRLF. */
+function seccionSaldada(md: string): string {
+  const limpio = md.replace(/\r\n/g, "\n");
+  const titulo = "## Saldada con la regla anterior\n";
+  const inicio = limpio.indexOf(titulo);
+  if (inicio === -1) return "";
+  const cuerpo = limpio.slice(inicio + titulo.length);
+  const fin = cuerpo.search(/^## /m);
+  return fin === -1 ? cuerpo : cuerpo.slice(0, fin);
+}
+
+const FRASE_R1 =
+  /Esa\s+fila\s+no\s+ofrece\s+ningún\s+botón,\s+ni\s+\*\*Corregir\*\*\s+ni\s+\*\*Desmarcar\*\*:\s+su\s+monto\s+no\s+se\s+puede\s+cambiar\s+desde\s+la\s+pantalla/;
+const PROHIBIDOS_R2: RegExp[] = [/se\s+arregla/i, /(usa|con)\s+[«*]*Corregir/];
+const PUNTOS_R3: RegExp[] = [
+  /rótulo\s+\*\*Saldada\s+con\s+la\s+regla\s+anterior\*\*/,
+  /su\s+\*\*Debe\*\*\s+es\s+lo\s+que\s+se\s+marcó\s+entonces/,
+  /no\s+deben\s+nada/,
+];
+const FRASE_VIEJA = "Si alguna se marcó por un monto equivocado, se\narregla con **Corregir**.";
+const CON_FRASE_NUEVA =
+  "## Saldada con la regla anterior\n\nEsa fila no ofrece ningún botón, ni **Corregir** ni **Desmarcar**: su monto no\nse puede cambiar desde la pantalla.\n\n## Otra\n";
+
+describe("503 — la sección «Saldada con la regla anterior» de la ayuda", () => {
+  const seccion = seccionSaldada(SATELITES);
+
+  it("R1 — dice que la fila no ofrece ningún botón y que el monto no se cambia desde la pantalla", () => {
+    expect(seccion).toMatch(FRASE_R1);
+  });
+
+  it.each(PROHIBIDOS_R2.map((re) => [String(re), re] as const))("R2 — no promete arreglarla con «Corregir»: %s", (_n, re) => {
+    expect(seccion).not.toMatch(re);
+  });
+
+  it.each(PUNTOS_R3.map((re) => [String(re), re] as const))("R3 — sigue diciendo: %s", (_n, re) => {
+    expect(seccion).toMatch(re);
+  });
+});
+
+describe("503 — AUTOCOMPROBACION", () => {
+  const seccion = seccionSaldada(SATELITES);
+
+  it("la sección recortada existe, es la de las saldadas y acaba antes del título siguiente", () => {
+    expect(seccion).toMatch(/\*\*saldadas\s+tal\s+como\s+se\s+marcaron\*\*/);
+    expect(seccion).not.toMatch(/Qué ve la bodega/);
+    expect(seccionSaldada("# Sin la sección\n")).toBe("");
+  });
+
+  it("sembrar la frase vieja en la sección pone rojo R2, con los dos patrones", () => {
+    const sembrada = seccionSaldada(`## Saldada con la regla anterior\n\n${FRASE_VIEJA}\n\n## Otra\n`);
+    for (const re of PROHIBIDOS_R2) expect(sembrada, String(re)).toMatch(re);
+  });
+
+  it("un «usa Corregir» de OTRA sección no cuenta contra R2", () => {
+    const conOtra = `${CON_FRASE_NUEVA}\nSe arregla: usa «Corregir».\n`;
+    for (const re of PROHIBIDOS_R2) expect(conOtra, String(re)).toMatch(re);
+    for (const re of PROHIBIDOS_R2) expect(seccionSaldada(conOtra), String(re)).not.toMatch(re);
+  });
+
+  it("quitar la frase nueva pone rojo R1", () => {
+    expect(seccionSaldada(CON_FRASE_NUEVA)).toMatch(FRASE_R1);
+    const sinFrase = CON_FRASE_NUEVA.replace("Esa fila no ofrece", "(quitado)");
+    expect(sinFrase).not.toBe(CON_FRASE_NUEVA); // la mutación se aplicó de verdad
+    expect(seccionSaldada(sinFrase)).not.toMatch(FRASE_R1);
+  });
+
+  it("con CRLF, el recorte y los patrones dan lo mismo", () => {
+    const crlf = SATELITES.replace(/\r?\n/g, "\r\n");
+    expect(seccionSaldada(crlf)).toBe(seccionSaldada(SATELITES));
+    expect(seccionSaldada(CON_FRASE_NUEVA.replace(/\n/g, "\r\n"))).toMatch(FRASE_R1);
+  });
+});
