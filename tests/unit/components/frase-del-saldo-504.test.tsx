@@ -7,6 +7,7 @@ import { fraseDelSaldo, fraseDelSaldoParaLaTienda } from "@/components/shared/es
 import type { SentidoDelSaldo, TipoDeCuenta } from "@/lib/types/estado-cuenta";
 import { estado } from "@/tests/fixtures/estado-cuenta";
 import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
+import { MARCA_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 
 // FICHA 504 (design §3) — «no se deben nada» solo con el saldo en cero. Cada frase exige su sentido, y
 // lo que la pantalla no reconoce dice la frase neutra en vez de afirmar algo sobre el dinero.
@@ -19,7 +20,10 @@ const FRASE_NEUTRA = "No se pudo leer quién le debe a quién. Recargá la pági
 /** El sentido llega del servidor en tiempo de ejecución: el tipo no lo protege. */
 const sentido = (valor: unknown) => valor as unknown as SentidoDelSaldo;
 
-const NO_RECONOCIDOS = ["ordenex_debe", "EN_CERO", "", undefined, null] as const;
+/** El nombre que tenía `empresa_debe` antes de la 494; la guardia de marca exige construirlo desde el fixture. */
+const SENTIDO_ANTIGUO = `${MARCA_RETIRADA.toLowerCase()}_debe`;
+
+const NO_RECONOCIDOS = [SENTIDO_ANTIGUO, "EN_CERO", "", undefined, null] as const;
 const TIENDA = "Tania Tienda";
 const MENSAJERO = "Mario Mensajero";
 const BODEGA = "Bodega Norte";
@@ -93,7 +97,7 @@ describe("504 — frases conocidas, carácter por carácter (R6)", () => {
 
 describe("504 — la tarjeta con sentido no reconocido (R7)", () => {
   it.each(["oficina", "tienda"] as const)("vista %s: frase neutra junto a la cifra con su signo", (vista) => {
-    const dto = estado({ saldoActual: "-15000.00", signo: "negativo", sentido: sentido("ordenex_debe") });
+    const dto = estado({ saldoActual: "-15000.00", signo: "negativo", sentido: sentido(SENTIDO_ANTIGUO) });
 
     render(<TarjetasEstadoCuenta estado={dto} vista={vista} />);
 
