@@ -60,3 +60,8 @@ Cada una se aplicó sola y corrió `frase-del-saldo-504.test.tsx` de verdad, ley
 Las 9 mutaciones murieron. M1 y M2 tumban además R7, lo esperable porque el `render` pasa por esas funciones.
 
 Tras la última: 38 de 38 verdes y hashes iguales en los dos archivos de producción.
+
+## Gate del leader
+
+- 1.ª corrida: `INIT_EXIT=1`. El test nuevo escribía la marca retirada; arreglado en 894565429 con `MARCA_RETIRADA`.
+- 2.ª corrida, sobre c94ffbc1c: `INIT_EXIT=0`, Postgres incluido (445 passed). Intermitentes, verdes aislados: `asistente-sin-datos.guardia.test.ts` y `marca-fuente-unica-493.guardia.test.ts` (otro `it` que el de la 1.ª corrida).
