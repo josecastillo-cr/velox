@@ -1,12 +1,16 @@
 # ESTADO 2026-11-06 — RELEASE DESPLEGADA (PR #899, 997055b1, dpl_7QtvpTm7coFYVdZ95xb9NvVnf6tC); in_progress = 0
 
+- Auditoría del backlog hecha: 11 cerradas, 32 siguen `pending`. Tabla en `progress/auditoria_backlog_2026-11-06.md`; decisión del humano pendiente en la 220.
+- T10.2 de la 494: reindexado por CLI (`codebase-memory-mcp cli index_repository`). La ruta del servidor MCP pasó a `.local/bin`; en esta sesión sigue sin conectar, hace falta reabrir.
+- 497: primer caso real tras desplegar, 1 barrida con su confirmación física. 495: sin ver en pantalla.
+- Meta, medido: número conectado, calidad verde, TIER_250, 3 plantillas aprobadas; verificación del negocio `pending`, depende de José.
+- Las 5 copias conservadas se purgaron; lo no commiteado está en `C:\Users\ArqDev\archivo-worktrees-ordenex-2026-11-06`, fuera del repo.
 - En prod: 503, 504 y 506. Detalle y verificación en `docs/release.md`.
 - 247 cancelada: la 301 la dejó sin objeto; medición en su ficha.
 - 507 registrada, `pending`: retirar la compatibilidad con los nombres anteriores, no antes del 2027-02-03. Salda T10.1 de la 494.
 - Tras la conciliación del cliente del 2026-11-06: b1 = 0 y b2 = 0 de `progress/impl_498.md`, con asiento en caja en todos los cierres conciliados.
 - Lo del cliente no es pendiente del humano, que construye y no opera: se mide en producción en solo lectura. La prueba de la PWA en dispositivo real queda sin verificar.
-- Worktrees: purgados 39. Se conservan 5 con cambios sin guardar: 455-backend, 451 (spec suelto), 366 (2) y 488 (capturas). `node_modules` reinstalado y comprobado. `R:/w494` queda vacía, por borrar a mano.
-- T10.2 de la 494: reindexar bloqueado, `codebase-memory-mcp` no conecta.
+- Worktrees: 45 purgados, solo queda el principal. `node_modules` reinstalado y comprobado. `R:/w494` queda vacía, por borrar a mano.
 - `design-*/` y `progress/correccion_montos_2026-10-06.md` no se suben, por decisión del humano.
 
 # ESTADO 2026-11-05 (noche) — RELEASE DESPLEGADA (PR #895, 0e010ae0, dpl_2xwfru4RLbfgHmoKqUa9rp31Nwdo); in_progress = 0
