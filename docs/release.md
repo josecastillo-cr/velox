@@ -244,7 +244,7 @@ Resultado del encendido (E.2), HECHO el 2026-10-31:
 - **PR #895** (`dev` → `prod`, merge commit de 2 padres), `prod` = `0e010ae0`, build `dpl_2xwfru4RLbfgHmoKqUa9rp31Nwdo` READY en 2 min 16 s (alias `velox-courier.company`, `aliasError` null). `prod` devuelta a `dev` por fast-forward.
 - Gate completo sobre `75131355`: `INIT_EXIT=0`, 35.173 verdes, 26 skipped.
 - Medido en prod antes del merge y repetido el mismo día (T8.4 de la 498, solo lectura; cifras dichas en el chat): puerta (c)=(d)=(e)=0.
-- Después: 242 migraciones aplicadas, 0 sin resolver; d1 con las dos sumas iguales y el conteo de T8.4; d2 sin filas; d3 y d4 en 0, sin conciliaciones desde la medición; b3 igual a lo medido; 0 runtime errors en la ventana del despliegue.
+- Después: 242 migraciones aplicadas, 0 sin resolver; d1 con las dos sumas iguales y el conteo de T8.4; d2 sin filas; d3 y d4 en 0, sin conciliaciones desde la medición; b3 igual a lo medido; `/login` y `/` en 200, sin la marca anterior en el HTML. Runtime: 0 errores al quedar READY; 4 min después, 1 `P2028` en `prisma.distrito.count()` (`conteos-publicos`, ruta `/cierre-dia`), un grupo visto ya el 2026-10-30, sin relación con lo desplegado.
 - A12: Skew Protection activa, según el humano en el panel de Vercel; no se comprobó por herramienta. `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` no existe (medido el 2026-11-04).
 - Pendiente: b1 y b2 de la 498 con la primera conciliación y la primera aprobación satélite reales; PWA instalada y R22 de la 494 en dispositivo real; `/wallet/tiendas` de la 501 con un pago real; T10.1 y T10.2 de la 494. T9 no se hace.
 - Bloque 8 de la 500: sigue con su puerta (498 verificada en prod + medición + autorización escrita).
