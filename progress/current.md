@@ -1,11 +1,11 @@
-# ESTADO 2026-11-06 — 503, 504 Y 506 MERGEADAS EN `dev`, SIN DESPLEGAR; in_progress = 0
+# ESTADO 2026-11-06 — RELEASE DESPLEGADA (PR #899, 997055b1, dpl_7QtvpTm7coFYVdZ95xb9NvVnf6tC); in_progress = 0
 
-- 503 (#897), 504 (#896) y 506 (#898) en `dev`. Gate post-merge verde (`progress/gate_dev_tras_898.log`). Build de Vercel en verde.
+- En prod: 503, 504 y 506. Detalle y verificación en `docs/release.md`.
 - 247 cancelada: la 301 la dejó sin objeto; medición en su ficha.
 - 507 registrada, `pending`: retirar la compatibilidad con los nombres anteriores, no antes del 2027-02-03. Salda T10.1 de la 494.
 - Tras la conciliación del cliente del 2026-11-06: b1 = 0 y b2 = 0 de `progress/impl_498.md`, con asiento en caja en todos los cierres conciliados.
 - Lo del cliente no es pendiente del humano, que construye y no opera: se mide en producción en solo lectura. La prueba de la PWA en dispositivo real queda sin verificar.
-- Worktrees: purgados 39. Se conservan 5 con cambios sin guardar: 455-backend, 451 (spec suelto), 366 (2) y 488 (capturas). `node_modules` reinstalado y comprobado. `R:/w506`, mergeada, sigue por borrar: purgar obliga a reinstalar.
+- Worktrees: purgados 39. Se conservan 5 con cambios sin guardar: 455-backend, 451 (spec suelto), 366 (2) y 488 (capturas). `node_modules` reinstalado y comprobado. `R:/w494` queda vacía, por borrar a mano.
 - T10.2 de la 494: reindexar bloqueado, `codebase-memory-mcp` no conecta.
 - `design-*/` y `progress/correccion_montos_2026-10-06.md` no se suben, por decisión del humano.
 

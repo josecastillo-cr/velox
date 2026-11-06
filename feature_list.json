@@ -6038,7 +6038,7 @@
       "complexity": "small",
       "depends_on": 502,
       "branch": "fix/503-ayuda-satelites-saldadas",
-      "status_note": "EN DEV, sin desplegar (PR #897, c0734f9c). Gate post-merge INIT_EXIT=0; revisión OK; vista en navegador con una saldada temporal. Deuda: el patrón de R2 no detecta «usá **Corregir**»; los demás textos van en la 506."
+      "status_note": "EN PROD el 2026-11-06 (PR #897, release #899). Gate post-merge INIT_EXIT=0; revisión OK; vista en navegador con una saldada temporal. Deuda: el patrón de R2 no detecta «usá **Corregir**»; los demás textos van en la 506."
     },
     {
       "id": 504,
@@ -6051,7 +6051,7 @@
       "complexity": "small",
       "depends_on": 494,
       "branch": "fix/504-frase-saldo-cero",
-      "status_note": "EN DEV, sin desplegar (PR #896, e150207d). Gate post-merge INIT_EXIT=0; revisión OK. Sin ver en navegador. Deuda: R7 no prueba `undefined` ni `null` en la tarjeta, sí en las funciones."
+      "status_note": "EN PROD el 2026-11-06 (PR #896, release #899). Gate post-merge INIT_EXIT=0; revisión OK. Sin ver en navegador. Deuda: R7 no prueba `undefined` ni `null` en la tarjeta, sí en las funciones."
     },
     {
       "id": 505,
@@ -6076,7 +6076,7 @@
       "complexity": "small",
       "depends_on": 503,
       "branch": "fix/506-saldadas-textos-corregir",
-      "status_note": "EN DEV, sin desplegar (PR #898, 45c3c03a). Gate post-merge INIT_EXIT=0; revisión OK con 5 menores. Sin ver en navegador: «Desmarcar», los dos avisos y la exacta con dinero no saldada. Deuda: una mutación de la ayuda sobrevive a R6; comentario desfasado en IConciliacionSatelitesService.ts:74."
+      "status_note": "EN PROD el 2026-11-06 (PR #898, release #899). Gate post-merge INIT_EXIT=0; revisión OK con 5 menores. Sin ver en navegador: «Desmarcar», los dos avisos y la exacta con dinero no saldada. Deuda: una mutación de la ayuda sobrevive a R6; comentario desfasado en IConciliacionSatelitesService.ts:74."
     },
     {
       "id": 507,

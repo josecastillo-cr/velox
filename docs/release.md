@@ -239,6 +239,15 @@ Resultado del encendido (E.2), HECHO el 2026-10-31:
 
 ---
 
+## Release del 2026-11-06 — textos de conciliación y saldo (503, 504, 506)
+
+- **PR #899** (`dev` → `prod`, merge commit), `prod` = `997055b1`, build `dpl_7QtvpTm7coFYVdZ95xb9NvVnf6tC` READY en 1 min 42 s (alias `velox-courier.company`, `aliasError` null). `prod` devuelta a `dev` por fast-forward.
+- Gate completo sobre `be777a2c`: `INIT_EXIT=0`, 35.247 verdes, 26 skipped. Sin migraciones ni variables de entorno.
+- Después: runtime sin errores en los 15 min que cubren el despliegue; `/login` y `/` en 200; `liberar_reprogramadas` y `analitica_rollup_diario` con su fila `pending`.
+- b1 y b2 de la 498, medidos en prod el mismo día con las primeras conciliaciones reales: 0 y 0, con asiento en caja en todos los cierres conciliados. Sin confirmar que la consolidación del 2026-11-05 esté entre ellas.
+- Sin verificar: la PWA y R22 de la 494 en dispositivo real (nadie tiene cómo probarlo); `/wallet/tiendas` de la 501 con un pago real.
+- Bloque 8 de la 500: sigue con su puerta.
+
 ## Release del 2026-11-05 — dinero de satélites al conciliar (498, 500, 502), fechas (501) y marca interna (494, 505)
 
 - **PR #895** (`dev` → `prod`, merge commit de 2 padres), `prod` = `0e010ae0`, build `dpl_2xwfru4RLbfgHmoKqUa9rp31Nwdo` READY en 2 min 16 s (alias `velox-courier.company`, `aliasError` null). `prod` devuelta a `dev` por fast-forward.
