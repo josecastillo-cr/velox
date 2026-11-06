@@ -681,6 +681,35 @@ export function estadoConciliacionDe(marca: {
   return hayFaltantePorRecibir(marca.faltaPorRecibir) ? "incompleto" : "recibido";
 }
 
+/**
+ * FICHA 506 — QUÉ ACCIONES DE CONCILIACIÓN OFRECE UNA CONSOLIDACIÓN. Vive aquí porque la leen las dos
+ * mitades: `ConciliacionAcciones`, que pinta los botones, y `CierresBodegaAdminModule`, que decide si
+ * monta la región que los envuelve. Una sola regla, para que no haya una región sin nada dentro.
+ *
+ * `corregir` exige `recibido` para el caso de más porque una SIN marcar que debe un negativo también
+ * trae la falta negativa (502/R8). `puedeDesmarcar` lo calcula el servidor (500/R3).
+ */
+export function accionesConciliacionDe(
+  marca: { conciliado: boolean; faltaPorRecibir: string },
+  puedeDesmarcar: boolean,
+): { marcar: boolean; corregir: boolean; desmarcar: boolean } {
+  const estado = estadoConciliacionDe(marca);
+  return {
+    marcar: estado === "pendiente",
+    corregir: estado === "incompleto" || (estado === "recibido" && llegoDeMas(marca.faltaPorRecibir)),
+    desmarcar: estado !== "pendiente" && puedeDesmarcar,
+  };
+}
+
+/** FICHA 506 (R9/R10) — ¿Ofrece alguna? Una recibida exacta que no se puede desmarcar no ofrece ninguna. */
+export function hayAccionConciliacion(
+  marca: { conciliado: boolean; faltaPorRecibir: string },
+  puedeDesmarcar: boolean,
+): boolean {
+  const acciones = accionesConciliacionDe(marca, puedeDesmarcar);
+  return acciones.marcar || acciones.corregir || acciones.desmarcar;
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════════════════
 // ⭑ FICHA 462 (T3.1, S3, R27) — LA MARCA «RETIENE N PAQUETES REPROGRAMADOS PARA HOY».
 // ═══════════════════════════════════════════════════════════════════════════════════════════

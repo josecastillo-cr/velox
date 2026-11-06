@@ -43,9 +43,9 @@ import { SaldosSatelitesTable } from "@/app/(app)/wallet/satelites/_components/S
 const TEXTO_R16A =
   "Escribe todo lo que recibió la central por esta consolidación: lo que entregó la satélite más el SINPE o la transferencia que llegó directo a la cuenta de la central.";
 const TEXTO_R15A = "Esta consolidación tiene dinero por entregar: el monto recibido no puede ser 0.";
-const TEXTO_R21 = "Ya entró a la caja: corrige el monto en vez de revertir";
+const TEXTO_R21 = "Ya entró a la caja: no se puede revertir.";
 const NOTA_R43 =
-  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»";
+  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar, y «Corregir» solo aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón para cambiar el monto.";
 
 const RECAUDADO = { efectivo: "70000.00", simpe: "25500.50", transferencia: "4300.00" };
 
@@ -300,7 +300,7 @@ describe("R21 — revertir una consolidación que ya entró a la caja", () => {
 
     const aviso = await within(dialogo).findByRole("alert");
     expect(aviso.textContent).toBe(
-      "Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el correcto, corrígelo.",
+      "Esta consolidación está saldada con la regla anterior: no se puede revertir.",
     );
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(onCambio).not.toHaveBeenCalled();

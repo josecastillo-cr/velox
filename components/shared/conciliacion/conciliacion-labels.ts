@@ -100,9 +100,9 @@ export const CONCILIACION_RESPUESTA = {
   /** FICHA 498 (Q5, design §4.4 bis, R15a) — recibido 0 con dinero por entregar: no cambió nada. */
   reciboCeroConAporte: "Esta consolidación tiene dinero por entregar: el monto recibido no puede ser 0.",
   /** FICHA 498 (R21) — revertir una consolidación que ya entró a la caja: no cambió nada. */
-  conAsientos: "Ya entró a la caja: corrige el monto en vez de revertir",
+  conAsientos: "Ya entró a la caja: no se puede revertir.",
   /** FICHA 498 (revisión m2) — revertir una consolidación saldada con la regla anterior: no cambió nada. */
-  saldadaReglaAnterior: "Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el correcto, corrígelo.",
+  saldadaReglaAnterior: "Esta consolidación está saldada con la regla anterior: no se puede revertir.",
 } as const;
 
 /** Tope de la nota, el MISMO que el `.max(500)` del schema del borde. */
@@ -112,9 +112,10 @@ export const CONCILIACION_NOTA_MAX = 500;
  * FICHA 498 (R43) — LA NOTA DE LA CONCILIACIÓN, texto LITERAL del requisito.
  *
  * Sustituye a la de la 431, que decía lo contrario: desde esta ficha marcar recibido ASIENTA el
- * dinero de los cierres de la consolidación en la caja, y por eso la marca ya no se deshace —se
- * corrige el monto—. Va al pie de la conciliación.
+ * dinero de los cierres de la consolidación en la caja, y por eso la marca ya no se deshace. FICHA 506:
+ * nombra «Corregir» con su condición, porque una recibida exacta no lo ofrece. Va al pie de la conciliación.
  */
 export const NOTA_CONCILIACION_ASIENTA =
-  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es " +
-  "el correcto, usa «Corregir»";
+  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar, y «Corregir» solo " +
+  "aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón " +
+  "para cambiar el monto.";

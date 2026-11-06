@@ -110,10 +110,10 @@ describe("500/R5 — una incompleta sigue ofreciendo «Corregir», tenga o no di
 
 describe("500/R7 — con datos viejos, el servidor sigue siendo la última palabra", () => {
   it.each([
-    ["con_asientos", "Ya entró a la caja: corrige el monto en vez de revertir"],
+    ["con_asientos", "Ya entró a la caja: no se puede revertir."],
     [
       "saldada_regla_anterior",
-      "Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el correcto, corrígelo.",
+      "Esta consolidación está saldada con la regla anterior: no se puede revertir.",
     ],
   ])("`%s` → el aviso de la 498 dentro del diálogo, que sigue abierto, y no se relee nada", async (status, aviso) => {
     const user = userEvent.setup();

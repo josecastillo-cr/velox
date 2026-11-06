@@ -15,11 +15,7 @@ import type {
   RevertirConciliacionActionResult,
 } from "@/lib/actions/conciliacion-satelites";
 import { money } from "@/lib/config/moneda";
-import {
-  estadoConciliacionDe,
-  llegoDeMas,
-  type EstadoConciliacion,
-} from "@/app/(app)/cierres-admin/_components/cierre-labels";
+import { accionesConciliacionDe } from "@/app/(app)/cierres-admin/_components/cierre-labels";
 
 import {
   CONCILIACION_ACCION,
@@ -47,15 +43,17 @@ import {
 //   recibido incompleto  → «Corregir»        (no se re-marca: se cambia el monto que se dijo)
 //   recibido de más      → «Corregir»        (FICHA 502: el badge sigue diciendo «Recibido»)
 //   recibido sin dinero  → «Desmarcar»       (discreto: es una corrección, no una operación)
+//   recibido exacto con dinero → ninguno     (FICHA 506: `/cierres-admin` ni monta la región)
 //
 // FICHA 500 (R3/R5/R6): «Desmarcar» sale SOLO si quien monta pasa `puedeDesmarcar` — conciliada, sin
 // dinero en la caja y no saldada con la regla anterior, decidido en el SERVIDOR con los mismos dos
 // cortes con los que `revertirConciliacion` responde. Una «Recibido incompleto» sigue ofreciendo
 // «Corregir» se pueda desmarcar o no, y una recibida de más también (502/R7).
 //
-// Los tres estados salen de `estadoConciliacionDe`, la MISMA función que pinta el badge, así que
-// el rótulo del botón y el del estado no pueden contradecirse. «De más» no es un estado: lo añade
-// `llegoDeMas` sobre el `faltaPorRecibir` que el servidor ya manda.
+// FICHA 506: qué botón sale lo decide `accionesConciliacionDe`, la misma regla con la que
+// `/cierres-admin` decide si monta la región. Los tres estados salen de `estadoConciliacionDe`, la
+// MISMA función que pinta el badge, así que el rótulo del botón y el del estado no pueden contradecirse.
+// «De más» no es un estado: lo añade `llegoDeMas` sobre el `faltaPorRecibir` que el servidor ya manda.
 //
 // ── POR QUÉ «DESMARCAR» PIDE CONFIRMACIÓN Y «MARCAR» NO
 // Marcar abre un diálogo donde se ve lo que debe y se teclea el monto, así que ya hay un paso donde
@@ -67,10 +65,11 @@ import {
 // ── FICHA 498 (R20/R21) — MARCAR ASIENTA EL DINERO, Y YA NO SE DESMARCA
 // Desde la 498, marcar recibido asienta en la caja el dinero de los cierres de la consolidación.
 // Con asientos, el servidor responde a «Desmarcar» con `con_asientos` sin cambiar nada, y la
-// pantalla lo dice DENTRO del diálogo (R21), que queda abierto: la marca sigue tal cual y lo que hay
-// que hacer es «Corregir». Desde la 500 el botón ni aparece en una con dinero; el aviso SE CONSERVA
-// para la pantalla abierta desde antes de que otra persona marcara (datos viejos): el servidor sigue
-// siendo la última palabra (500/R7).
+// pantalla lo dice DENTRO del diálogo (R21), que queda abierto: la marca sigue tal cual. FICHA 506: el
+// aviso dice solo el hecho, sin mandar a «Corregir», que la fila ofrece únicamente si el monto no
+// coincide. Desde la 500 el botón ni aparece en una con dinero; el aviso SE CONSERVA para la pantalla
+// abierta desde antes de que otra persona marcara (datos viejos): el servidor sigue siendo la última
+// palabra (500/R7).
 //
 // ── QUIÉN DECIDE EL PERMISO: EL SERVIDOR
 // `puedeConciliar` baja por props desde un Server Component que lo resolvió con `esAccesoTotal`,
@@ -134,16 +133,14 @@ export function ConciliacionAcciones({
 
   if (!puedeConciliar) return null;
 
-  const estado: EstadoConciliacion = estadoConciliacionDe(marca);
+  const acciones = accionesConciliacionDe(marca, puedeDesmarcar);
 
   // 473 (R14) — UN ENVÍO POR MODO. «Corregir» sólo existe sobre una «Recibido incompleto» o, desde la
   // 502 (R7/R9), una recibida de más, y las dos YA están conciliadas: mandarlas a la action de marcar
   // —cuyo `WHERE` exige una SIN marcar— era un `conflict` garantizado sin escribir nada. Corregir
   // sustituye el monto y la deja conciliada. Esta misma condición decide el botón y el envío, para que
-  // no puedan separarse; y exige `recibido` porque una SIN marcar que debe un negativo también trae la
-  // falta negativa (R8).
-  const esCorreccion =
-    estado === "incompleto" || (estado === "recibido" && llegoDeMas(marca.faltaPorRecibir));
+  // no puedan separarse.
+  const esCorreccion = acciones.corregir;
 
   async function enviar(campos: MarcarRecibidoCampos): Promise<MarcaConciliacionActionResult> {
     const input = { ...campos, cierreBodegaId };
@@ -211,7 +208,7 @@ export function ConciliacionAcciones({
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      {estado === "pendiente" ? (
+      {acciones.marcar ? (
         <Button
           type="button"
           size={TAMANO}
@@ -234,7 +231,7 @@ export function ConciliacionAcciones({
         </Button>
       ) : null}
 
-      {estado !== "pendiente" && puedeDesmarcar ? (
+      {acciones.desmarcar ? (
         <Button
           type="button"
           size={TAMANO}
@@ -256,7 +253,7 @@ export function ConciliacionAcciones({
         fecha={fecha}
         recaudado={recaudado}
         debe={debe}
-        montoActual={estado === "pendiente" ? null : marca.montoRecibido}
+        montoActual={acciones.marcar ? null : marca.montoRecibido}
         notaActual={nota}
         onMarcar={enviar}
         onMarcado={trasEnviar}

@@ -80,7 +80,7 @@ const AYUDA_CONCILIACION = ["docs/ayuda/oficina/wallet-satelites.md", "docs/ayud
 
 /** R43 — la nota de la conciliacion, LITERAL del requisito (escrita a mano, no leida de su constante). */
 const NOTA_R43 =
-  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»";
+  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar, y «Corregir» solo aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón para cambiar el monto.";
 
 /** Los archivos de la conciliacion en `lib/` (R43). */
 const CONCILIACION_LIB = [
