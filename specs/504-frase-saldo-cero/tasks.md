@@ -25,7 +25,7 @@ porque todas tocan los mismos dos archivos y las mutaciones no pueden convivir c
   - **Hecho:** cada mutación tumba el R previsto, y se anota el test que falló y su mensaje. Un resultado
     sin test ejecutado no cuenta como superviviente ni como muerta. `git diff` final igual al de T2.
 
-- [ ] **T4 — Gate y trazabilidad.** Correr los tests que ya afirman estas frases
+- [x] **T4 — Gate y trazabilidad.** Correr los tests que ya afirman estas frases
   (`saldo-tienda-card.negativo.test.tsx`, `EstadoCuenta.test.tsx`, `mi-wallet-page.test.tsx`,
   `WalletRefrescoDirigido.test.tsx`) y `./init.sh --rapido`. Documentar en `progress/impl_504.md` el mapa
   R → test y el resultado de T3.
