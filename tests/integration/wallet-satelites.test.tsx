@@ -458,7 +458,7 @@ describe("R22/R24 — la conciliación de una bodega (458-D: en su estado de cue
     const region = await montarConciliacion();
     const nota = within(region).getByRole("note");
     expect(nota.textContent).toBe(
-      "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»",
+      "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar, y «Corregir» solo aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón para cambiar el monto.",
     );
     expect(nota).not.toHaveTextContent(/informativa|no mueve dinero/);
   });

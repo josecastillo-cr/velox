@@ -43,9 +43,9 @@ import { SaldosSatelitesTable } from "@/app/(app)/wallet/satelites/_components/S
 const TEXTO_R16A =
   "Escribe todo lo que recibió la central por esta consolidación: lo que entregó la satélite más el SINPE o la transferencia que llegó directo a la cuenta de la central.";
 const TEXTO_R15A = "Esta consolidación tiene dinero por entregar: el monto recibido no puede ser 0.";
-const TEXTO_R21 = "Ya entró a la caja: corrige el monto en vez de revertir";
+const TEXTO_R21 = "Ya entró a la caja: no se puede revertir.";
 const NOTA_R43 =
-  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»";
+  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar, y «Corregir» solo aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón para cambiar el monto.";
 
 const RECAUDADO = { efectivo: "70000.00", simpe: "25500.50", transferencia: "4300.00" };
 
@@ -300,7 +300,7 @@ describe("R21 — revertir una consolidación que ya entró a la caja", () => {
 
     const aviso = await within(dialogo).findByRole("alert");
     expect(aviso.textContent).toBe(
-      "Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el correcto, corrígelo.",
+      "Esta consolidación está saldada con la regla anterior: no se puede revertir.",
     );
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(onCambio).not.toHaveBeenCalled();
@@ -459,6 +459,50 @@ describe("R41/R41a/R43 — la conciliación de una bodega", () => {
     const dialogo = await screen.findByRole("dialog");
     await user.click(within(dialogo).getByRole("button", { name: "Desmarcar" }));
     await waitFor(() => expect(revertirMock).toHaveBeenCalledWith({ cierreBodegaId: "cb-sin-dinero" }));
+  });
+
+  // Ficha 503: la ayuda dice que esta fila no ofrece ningún botón. Si un día gana uno, este caso se pone rojo y
+  // obliga a revisar la frase. `puedeDesmarcar: false` lo afirma este doble; el valor real del servidor para una
+  // saldada lo mide `500-con-dinero-sql-real.test.ts` contra Postgres.
+  it("503/R4 — una saldada sin corregir lleva su rótulo y su fila no ofrece ningún botón, aunque el actor pueda conciliar", async () => {
+    const region = await montar([
+      consolidacion({
+        cierreBodegaId: "cb-saldada",
+        saldadaReglaAnterior: true,
+        puedeDesmarcar: false,
+        debe: "64000.00",
+        paraLaCentral: "91350.25",
+        montoRecibido: "64000.00",
+        faltaPorRecibir: "0.00",
+        conciliado: true,
+        conciliadoAt: "2026-10-21T15:00:00.000Z",
+        conciliadoPorNombre: "Ana Rojas",
+      }),
+      consolidacion({
+        cierreBodegaId: "cb-control",
+        solicitadoAt: "2026-10-22T14:00:00.000Z",
+        montoRecibido: "90000.00",
+        faltaPorRecibir: "1350.25",
+        conciliado: true,
+        conciliadoAt: "2026-10-23T15:00:00.000Z",
+        conciliadoPorNombre: "Ana Rojas",
+      }),
+    ]);
+
+    const rotulo = await within(region).findByText("Saldada con la regla anterior");
+    const filaSaldada = rotulo.closest("tr") as HTMLElement;
+    expect(filaSaldada).not.toBeNull();
+    expect(within(filaSaldada).queryAllByRole("button")).toHaveLength(0);
+
+    // Control: la otra fila, en la misma pantalla y con el mismo actor, sí ofrece «Corregir». Sin esto, los 0
+    // botones de arriba pasarían también con `puedeConciliar` caído.
+    const corregir = await within(region).findByRole("button", {
+      name: /Corregir el monto recibido de FGAM Limón del 22 oct/,
+    });
+    const filaControl = corregir.closest("tr") as HTMLElement;
+    expect(filaControl).not.toBeNull();
+    expect(filaControl).not.toBe(filaSaldada);
+    expect(within(filaControl).getByText("Recibido incompleto")).toBeInTheDocument();
   });
 });
 

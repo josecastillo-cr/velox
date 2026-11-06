@@ -69,6 +69,7 @@ import {
   FLETE_RECHAZO_NO_DEDUCIBLE_NOTA,
   esMontoNegativo,
 } from "./cierre-detalle-shared";
+import { hayAccionConciliacion } from "./cierre-labels";
 import { CascadaDinero, type LineaCascada } from "./CascadaDinero";
 // Ficha 396 (D2) — EL MISMO componente y EL MISMO umbral que el detalle del cierre de MENSAJERO
 // (R22). No es una copia ni un gemelo: es el archivo que la tanda de bodega sacó de aquella
@@ -524,8 +525,8 @@ export function CierresBodegaAdminModule({
   //
   // «RECHAZAR» NO TIENE SUSTITUTO, Y ES EL PUNTO (R16): no se rechaza una consolidacion, se
   // marca si llego o no. FICHA 498 (R20/R43): marcar ASIENTA el dinero de los cierres en la caja,
-  // asi que una marca con asientos ya no se desmarca: el monto se corrige con «Corregir».
-  // FICHA 500 (R3): «Desmarcar» solo APARECE sobre una conciliada sin dinero y no saldada con la
+  // asi que una marca con asientos ya no se desmarca. FICHA 506: «Corregir» sale solo si lo recibido
+  // no coincide con lo que debe. FICHA 500 (R3): «Desmarcar» solo APARECE sobre una conciliada sin dinero y no saldada con la
   // regla anterior (`puedeDesmarcar` del detalle, calculado en el servidor). Las `rechazado` historicas se
   // quedan en la base (cero en produccion) y dejan de tener rotulo en pantalla.
   //
@@ -858,10 +859,11 @@ export function CierresBodegaAdminModule({
 
               Ahora hay UNO: «Marcar recibido». No es el mismo boton con otro nombre —es otra
               cosa—: no autoriza nada, dice que el dinero LLEGO a la central y cuanto. FICHA 498
-              (R43): marcar asienta ese dinero en la caja; por eso, una vez marcada, el monto se
-              corrige con «Corregir» y ya no se desmarca: desde la ficha 500 «Desmarcar» ni
-              aparece si la consolidacion movio dinero (`puedeDesmarcar` del servidor), y si la
-              pantalla esta desactualizada el servidor responde `con_asientos`.
+              (R43): marcar asienta ese dinero en la caja; por eso, una vez marcada, ya no se
+              desmarca: desde la ficha 500 «Desmarcar» ni aparece si la consolidacion movio dinero
+              (`puedeDesmarcar` del servidor), y si la pantalla esta desactualizada el servidor
+              responde `con_asientos`. FICHA 506: «Corregir» sale solo si lo recibido no coincide
+              con lo que debe.
 
               «RECHAZAR» SE RETIRA SIN SUSTITUTO (R16). Rechazar una consolidacion era mandar a
               la satelite a corregir un bulto que ya habia salido; hoy la respuesta a «llego
@@ -875,10 +877,11 @@ export function CierresBodegaAdminModule({
               `ConciliacionAcciones` a partir de la marca, con la MISMA funcion que pinta el
               badge — asi el rotulo del boton y el del estado no pueden contradecirse.
             */}
-            {/* Sin permiso NO se monta ni la sección: `ConciliacionAcciones` devuelve `null` y
-                quedaría una región con nombre accesible y nada dentro, que un lector de pantalla
-                anuncia como si hubiera algo que hacer. */}
-            {puedeConciliar ? (
+            {/* Sin permiso NO se monta la sección, y FICHA 506 (R9) tampoco si la consolidación no
+                ofrece ninguna acción: quedaría una región con nombre accesible y nada dentro, que un
+                lector de pantalla anuncia como si hubiera algo que hacer. La regla es la misma que
+                pinta los botones (`accionesConciliacionDe`), así que no pueden separarse. */}
+            {puedeConciliar && hayAccionConciliacion(detalle.cierre, detalle.puedeDesmarcar) ? (
             <section
               aria-label={CONCILIACION_SECCION_LABEL}
               className="flex flex-wrap justify-end gap-3 border-t pt-4"

@@ -88,6 +88,8 @@ Va la última y se abre con todo lo anterior mergeado. Conflicto: descartar y re
 
 ## Tanda 8 — Plantillas en Meta (no bloquea el merge)
 
+> **NO SE HACE (decisión del humano, 2026-11-05).** Las plantillas conservan su nombre: quien recibe el mensaje no lo ve, el cuerpo no lleva la marca y los dos informes se entregan a diario. Se retoma solo si el humano lo pide.
+
 - [ ] **T9.1 — Crear (humano).** Tras la release. Pasos 1–2 de `design.md §8`, con el token de la cuenta de José. **Hecho:** ids anotados; templates en `PENDING`.
 - [ ] **T9.2 — Esperar `APPROVED`.** Plazo de Meta, desconocido. **Hecho:** `GET` con `APPROVED` anotado. Mientras, nada cambia en la app (R26).
 - [ ] **T9.3 — Cambiar el nombre en prod (autorización del humano).** Paso 4. **Hecho:** Q3 sin filas con la marca en `nombre`; hora anotada, y un informe de cada tipo entregado (paso 5).
@@ -97,7 +99,7 @@ Va la última y se abre con todo lo anterior mergeado. Conflicto: descartar y re
 
 - [ ] **T10.1 — Ficha de retirada.** El leader registra la de `design.md §5.6` (mínimo 90 días en prod), previo borrador al humano.
 - [ ] **T10.2 — Índice y memoria.** Reindexar `R-job-singularis-projects-ordenex` y actualizar la receta de acceso QA y la memoria de cuentas.
-- [ ] **T10.3 — Portar.** Preguntar si se porta a `servi_logistic`.
+- [x] **T10.3 — Portar.** No se porta: `servi_logistic` trabaja aparte (humano, 2026-11-05).
 
 ## Dependencias
 

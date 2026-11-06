@@ -23,13 +23,13 @@ const PUNTOS_R44: { punto: string; archivo: "satelites" | "caja"; patron: RegExp
   { punto: "el 0 solo cuando no hay nada que entregar", archivo: "satelites", patron: /\*\*El 0 solo cuando no hay nada que entregar\.\*\*/ },
   { punto: "la columna «Sin consolidar»", archivo: "satelites", patron: /\*\*Sin consolidar\*\* \(lo aprobado que todavía no entró/ },
   { punto: "las saldadas con la regla anterior", archivo: "satelites", patron: /## Saldada con la regla anterior/ },
-  { punto: "revertir con asientos no deshace nada", archivo: "satelites", patron: /la app no deshace nada y te dice «Ya entró a la caja: corrige el\s+monto en vez de revertir»/ },
+  { punto: "revertir con asientos no deshace nada", archivo: "satelites", patron: /la\s+app\s+no\s+deshace\s+nada\s+y\s+te\s+dice\s+«Ya\s+entró\s+a\s+la\s+caja:\s+no\s+se\s+puede\s+revertir\.»/ },
   // Ficha 500 (R8): «Desmarcar» solo se ofrece sin dinero en la caja.
   { punto: "«Desmarcar» solo aparece sin dinero en la caja (500/R8)", archivo: "satelites", patron: /\*\*Desmarcar\*\* solo aparece en una consolidación que todavía no movió dinero en la caja\./ },
   // Ficha 502 (R13): «Corregir» también en una recibida de más.
   { punto: "«Corregir» aparece en una recibida incompleta o de más (502/R13)", archivo: "satelites", patron: /\*\*Corregir\*\* aparece en una consolidación recibida incompleta o recibida de más\./ },
   { punto: "«Recibido» incluye lo que llegó de más (502/R13)", archivo: "satelites", patron: /\| \*\*Recibido\*\* \| Llegó completo o de más \|/ },
-  { punto: "la nota literal de R43", archivo: "satelites", patron: /Marcar recibido asienta el dinero en la caja\. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»/ },
+  { punto: "la nota literal de R43", archivo: "satelites", patron: /Marcar recibido asienta el dinero en la caja\. Después no se puede desmarcar, y «Corregir» solo aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón para cambiar el monto\./ },
   { punto: "el bolsillo «Por cobrar a satélites» en la caja", archivo: "caja", patron: /### Por cobrar a satélites/ },
   { punto: "las dos pistas del bolsillo", archivo: "caja", patron: /«Lo que las satélites entregaron de menos al conciliar y aún no han pagado\.»[\s\S]*«La central les debe a las satélites\.»/ },
   { punto: "el dueño «Satélite» en el libro", archivo: "caja", patron: /\*\*IVA por pagar\*\* o \*\*Satélite\*\*/ },
@@ -76,5 +76,163 @@ describe("498/R44 — AUTOCOMPROBACION", () => {
     // Y en la caja: sin el bolsillo, su caso tambien cae.
     const cajaSin = CAJA.replace(/### Por cobrar a satélites/, "### (quitado)");
     expect(texto("caja", SATELITES, cajaSin)).not.toMatch(/### Por cobrar a satélites/);
+  });
+});
+
+// Ficha 503 — la sección de las saldadas dice lo que hace la fila: no ofrece ningún botón. Este bloque solo fija el
+// texto, con literales a mano; que sea VERDAD lo mide el DOM en `Conciliacion498.test.tsx` («503/R4»).
+
+/** Del título de la sección al título siguiente, para que un «Corregir» de otra sección no cuente. Tolera CRLF. */
+function seccionDe(md: string, encabezado: string): string {
+  const limpio = md.replace(/\r\n/g, "\n");
+  const titulo = `## ${encabezado}\n`;
+  const inicio = limpio.indexOf(titulo);
+  if (inicio === -1) return "";
+  const cuerpo = limpio.slice(inicio + titulo.length);
+  const fin = cuerpo.search(/^## /m);
+  return fin === -1 ? cuerpo : cuerpo.slice(0, fin);
+}
+
+const seccionSaldada = (md: string) => seccionDe(md, "Saldada con la regla anterior");
+
+const FRASE_R1 =
+  /Esa\s+fila\s+no\s+ofrece\s+ningún\s+botón,\s+ni\s+\*\*Corregir\*\*\s+ni\s+\*\*Desmarcar\*\*:\s+su\s+monto\s+no\s+se\s+puede\s+cambiar\s+desde\s+la\s+pantalla/;
+const PROHIBIDOS_R2: RegExp[] = [/se\s+arregla/i, /(usa|con)\s+[«*]*Corregir/];
+const PUNTOS_R3: RegExp[] = [
+  /rótulo\s+\*\*Saldada\s+con\s+la\s+regla\s+anterior\*\*/,
+  /su\s+\*\*Debe\*\*\s+es\s+lo\s+que\s+se\s+marcó\s+entonces/,
+  /no\s+deben\s+nada/,
+];
+const FRASE_VIEJA = "Si alguna se marcó por un monto equivocado, se\narregla con **Corregir**.";
+const CON_FRASE_NUEVA =
+  "## Saldada con la regla anterior\n\nEsa fila no ofrece ningún botón, ni **Corregir** ni **Desmarcar**: su monto no\nse puede cambiar desde la pantalla.\n\n## Otra\n";
+
+describe("503 — la sección «Saldada con la regla anterior» de la ayuda", () => {
+  const seccion = seccionSaldada(SATELITES);
+
+  it("R1 — dice que la fila no ofrece ningún botón y que el monto no se cambia desde la pantalla", () => {
+    expect(seccion).toMatch(FRASE_R1);
+  });
+
+  it.each(PROHIBIDOS_R2.map((re) => [String(re), re] as const))("R2 — no promete arreglarla con «Corregir»: %s", (_n, re) => {
+    expect(seccion).not.toMatch(re);
+  });
+
+  it.each(PUNTOS_R3.map((re) => [String(re), re] as const))("R3 — sigue diciendo: %s", (_n, re) => {
+    expect(seccion).toMatch(re);
+  });
+});
+
+describe("503 — AUTOCOMPROBACION", () => {
+  const seccion = seccionSaldada(SATELITES);
+
+  it("la sección recortada existe, es la de las saldadas y acaba antes del título siguiente", () => {
+    expect(seccion).toMatch(/\*\*saldadas\s+tal\s+como\s+se\s+marcaron\*\*/);
+    expect(seccion).not.toMatch(/Qué ve la bodega/);
+    expect(seccionSaldada("# Sin la sección\n")).toBe("");
+  });
+
+  it("sembrar la frase vieja en la sección pone rojo R2, con los dos patrones", () => {
+    const sembrada = seccionSaldada(`## Saldada con la regla anterior\n\n${FRASE_VIEJA}\n\n## Otra\n`);
+    for (const re of PROHIBIDOS_R2) expect(sembrada, String(re)).toMatch(re);
+  });
+
+  it("un «usa Corregir» de OTRA sección no cuenta contra R2", () => {
+    const conOtra = `${CON_FRASE_NUEVA}\nSe arregla: usa «Corregir».\n`;
+    for (const re of PROHIBIDOS_R2) expect(conOtra, String(re)).toMatch(re);
+    for (const re of PROHIBIDOS_R2) expect(seccionSaldada(conOtra), String(re)).not.toMatch(re);
+  });
+
+  it("quitar la frase nueva pone rojo R1", () => {
+    expect(seccionSaldada(CON_FRASE_NUEVA)).toMatch(FRASE_R1);
+    const sinFrase = CON_FRASE_NUEVA.replace("Esa fila no ofrece", "(quitado)");
+    expect(sinFrase).not.toBe(CON_FRASE_NUEVA); // la mutación se aplicó de verdad
+    expect(seccionSaldada(sinFrase)).not.toMatch(FRASE_R1);
+  });
+
+  it("con CRLF, el recorte y los patrones dan lo mismo", () => {
+    const crlf = SATELITES.replace(/\r?\n/g, "\r\n");
+    expect(seccionSaldada(crlf)).toBe(seccionSaldada(SATELITES));
+    expect(seccionSaldada(CON_FRASE_NUEVA.replace(/\n/g, "\r\n"))).toMatch(FRASE_R1);
+  });
+});
+
+// Ficha 506 — la sección «Una vez marcada» ya no promete «Corregir» sin condición. Este bloque fija el texto, con literales
+// a mano; que la fila no ofrezca ningún botón lo mide el DOM en `ConciliacionAcciones502.test.tsx` (502/R6).
+
+const seccionUnaVezMarcada = (md: string) => seccionDe(md, "Una vez marcada");
+
+const NOTA_506 =
+  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar, y «Corregir» solo aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón para cambiar el monto.";
+const AVISO_506 = /«Ya\s+entró\s+a\s+la\s+caja:\s+no\s+se\s+puede\s+revertir\.»/;
+const FRASE_R5 =
+  /Una\s+consolidación\s+recibida\s+por\s+el\s+monto\s+exacto\s+que\s+ya\s+movió\s+dinero\s+en\s+la\s+caja\s+no\s+ofrece\s+ningún\s+botón,\s+ni\s+\*\*Corregir\*\*\s+ni\s+\*\*Desmarcar\*\*:\s+su\s+monto\s+no\s+se\s+puede\s+cambiar\s+desde\s+la\s+pantalla/;
+const TITULO_VIEJO_R6 = "Una vez marcada, se corrige";
+const PROHIBIDOS_R6: RegExp[] = [
+  /(usa|usá|con)\s+[«*]*Corregir/,
+  /si\s+el\s+monto\s+(que\s+marcaste\s+)?no\s+(es|era)\s+el\s+correcto/i,
+  /corrige\s+el\s+monto/,
+];
+const PUNTOS_R7: RegExp[] = [
+  /\*\*Corregir\*\*\s+aparece\s+en\s+una\s+consolidación\s+recibida\s+incompleta\s+o\s+recibida\s+de\s+más\./,
+  /la\s+caja\s+recibe\s+solo\s+la\s+diferencia/,
+  /\*\*quién\s+corrigió\s+y\s+cuándo\*\*/,
+];
+/** La sección tal como estaba antes de la 506, sembrada a mano: la autocomprobación no depende de la página real. */
+const SECCION_VIEJA =
+  "> Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»\n\nSi el monto que marcaste no era el correcto, **Corregir** lo cambia: la caja recibe solo la diferencia\nentre lo de antes y lo nuevo, y queda registrado **quién corrigió y cuándo**. Si intentás **Desmarcar**\nuna consolidación que ya entró a la caja, la app no deshace nada y te dice «Ya entró a la caja: corrige el\nmonto en vez de revertir».\n";
+
+describe("506 — la sección «Una vez marcada» de la ayuda", () => {
+  const seccion = seccionUnaVezMarcada(SATELITES);
+
+  it("R4 — cita literalmente la nota y el aviso", () => {
+    expect(seccion).toContain(NOTA_506);
+    expect(seccion).toMatch(AVISO_506);
+  });
+
+  it("R5 — la recibida exacta que movió dinero no ofrece ningún botón y su monto no se cambia desde la pantalla", () => {
+    expect(seccion).toMatch(FRASE_R5);
+  });
+
+  it("R6 — el título viejo ya no está en la página", () => {
+    expect(SATELITES).not.toContain(TITULO_VIEJO_R6);
+  });
+
+  it.each(PROHIBIDOS_R6.map((re) => [String(re), re] as const))("R6 — no promete arreglar el monto con «Corregir»: %s", (_n, re) => {
+    expect(seccion).not.toMatch(re);
+  });
+
+  it.each(PUNTOS_R7.map((re) => [String(re), re] as const))("R7 — sigue diciendo: %s", (_n, re) => {
+    expect(seccion).toMatch(re);
+  });
+});
+
+describe("506 — AUTOCOMPROBACION", () => {
+  const seccion = seccionUnaVezMarcada(SATELITES);
+
+  it("la sección recortada existe y acaba antes del título siguiente", () => {
+    expect(seccion).toMatch(/Cuando\s+la\s+fila\s+ofrece\s+\*\*Corregir\*\*/);
+    expect(seccion).not.toMatch(/\*\*saldadas\s+tal\s+como\s+se\s+marcaron\*\*/);
+    expect(seccionUnaVezMarcada("# Sin la sección\n")).toBe("");
+  });
+
+  it.each(PROHIBIDOS_R6.map((re) => [String(re), re] as const))("la sección vieja enciende el patrón de R6: %s", (_n, re) => {
+    expect(SECCION_VIEJA).toMatch(re);
+  });
+
+  it("el voseo de la 503 («usá **Corregir**») enciende R6", () => {
+    expect("Si hay un error, usá **Corregir**.").toMatch(PROHIBIDOS_R6[0]);
+  });
+
+  it("la sección nueva sin la frase de R5 apaga su patrón", () => {
+    expect(seccion).toMatch(FRASE_R5);
+    const sinFrase = seccion.replace("Una consolidación recibida por el monto exacto", "(quitado)");
+    expect(sinFrase).not.toBe(seccion); // la mutación se aplicó de verdad
+    expect(sinFrase).not.toMatch(FRASE_R5);
+  });
+
+  it("con CRLF, el recorte y los patrones dan lo mismo", () => {
+    const crlf = SATELITES.replace(/\r?\n/g, "\r\n");
+    expect(seccionUnaVezMarcada(crlf)).toBe(seccionUnaVezMarcada(SATELITES));
   });
 });

@@ -1,3 +1,23 @@
+# ESTADO 2026-11-06 — 503, 504 Y 506 MERGEADAS EN `dev`, SIN DESPLEGAR; in_progress = 0
+
+- 503 (#897), 504 (#896) y 506 (#898) en `dev`. Gate post-merge verde (`progress/gate_dev_tras_898.log`). Build de Vercel en verde.
+- 247 cancelada: la 301 la dejó sin objeto; medición en su ficha.
+- 507 registrada, `pending`: retirar la compatibilidad con los nombres anteriores, no antes del 2027-02-03. Salda T10.1 de la 494.
+- Tras la conciliación del cliente del 2026-11-06: b1 = 0 y b2 = 0 de `progress/impl_498.md`, con asiento en caja en todos los cierres conciliados.
+- Lo del cliente no es pendiente del humano, que construye y no opera: se mide en producción en solo lectura. La prueba de la PWA en dispositivo real queda sin verificar.
+- Worktrees: purgados 39. Se conservan 5 con cambios sin guardar: 455-backend, 451 (spec suelto), 366 (2) y 488 (capturas). `node_modules` reinstalado y comprobado. `R:/w506`, mergeada, sigue por borrar: purgar obliga a reinstalar.
+- T10.2 de la 494: reindexar bloqueado, `codebase-memory-mcp` no conecta.
+- `design-*/` y `progress/correccion_montos_2026-10-06.md` no se suben, por decisión del humano.
+
+# ESTADO 2026-11-05 (noche) — RELEASE DESPLEGADA (PR #895, 0e010ae0, dpl_2xwfru4RLbfgHmoKqUa9rp31Nwdo); in_progress = 0
+
+- En prod: 498, 500, 501, 502, 494 y 505. dev = prod. Detalle y verificación en `docs/release.md`.
+- Primer caso real: la consolidación satélite en `solicitado` del 2026-11-05 tiene sus asientos retirados (M3) hasta conciliarla. Tras esa conciliación, correr b1 y b2 de `progress/impl_498.md`.
+- Humano: PWA instalada y R22 de la 494 en dispositivo real. Bloque 8 de la 500 solo con autorización escrita.
+- Leader: T10.1 de la 494 (ficha de retirada, con borrador al humano) y T10.2 (reindexar, `codebase-memory-mcp` no conectaba). Fichas 503 y 504 sin spec.
+- Decidido: Skew Protection activa, según el humano; sin guard en `seed-usuarios-qa`; T9 de la 494 no se hace; T10.3 no se porta a `servi_logistic`.
+- Cuentas QA de preview ya en `<rol>.qa@empresa.test`, por `UPDATE`; `maestro.qa` sigue con el correo anterior.
+
 # ESTADO 2026-11-05 — 494 TERMINADA EN RAMAS; FALTA MERGEAR #891, #892 Y #893, EN ESE ORDEN
 
 - En `dev` sin desplegar: 498, 500, 501, 502 y las tandas 0-3 de la 494.

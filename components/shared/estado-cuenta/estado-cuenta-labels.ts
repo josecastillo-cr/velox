@@ -65,26 +65,34 @@ export function sinSigno(monto: string): string {
 /**
  * R18 — la frase de la tarjeta del saldo: quién le debe a quién y cuánto, en palabras. `monto` llega
  * YA pintado (`money(sinSigno(saldo))`).
+ *
+ * FICHA 504 (R1, R3, R5) — cada frase exige su sentido. El valor llega del servidor en tiempo de ejecución
+ * y el tipo no lo protege: lo no reconocido dice la frase neutra, nunca una afirmación sobre el dinero.
  */
 export function fraseDelSaldo(tipo: TipoDeCuenta, sentido: SentidoDelSaldo, nombre: string, monto: string): string {
   if (tipo === "bodega") {
     if (sentido === "por_entregar") return `${nombre} tiene ${monto} por entregar`;
     if (sentido === "en_cero") return `${nombre} no tiene nada por entregar`;
-    return `${nombre} entregó ${monto} de más`;
+    if (sentido === "empresa_debe") return `${nombre} entregó ${monto} de más`;
+    return ESTADO_CUENTA_TEXTO.sentidoNoReconocido;
   }
   if (sentido === "empresa_debe") return `${MARCA.nombre} le debe ${monto} a ${nombre}`;
   if (sentido === "cuenta_debe") return `${nombre} le debe ${monto} a ${MARCA.nombre}`;
-  return `${MARCA.nombre} y ${nombre} no se deben nada`;
+  if (sentido === "en_cero") return `${MARCA.nombre} y ${nombre} no se deben nada`;
+  return ESTADO_CUENTA_TEXTO.sentidoNoReconocido;
 }
 
 /**
  * FICHA 458-D (R34) — la MISMA frase leída por la propia tienda en `/mi-wallet`, en segunda persona
  * (como el resto de esa pantalla). `monto` llega ya pintado y sin signo, igual que arriba.
+ *
+ * FICHA 504 (R2, R4) — igual que `fraseDelSaldo`: lo no reconocido dice la frase neutra.
  */
 export function fraseDelSaldoParaLaTienda(sentido: SentidoDelSaldo, monto: string): string {
   if (sentido === "empresa_debe") return `${MARCA.nombre} te debe ${monto}`;
   if (sentido === "cuenta_debe") return `Le debés ${monto} a ${MARCA.nombre}`;
-  return `${MARCA.nombre} y vos no se deben nada`;
+  if (sentido === "en_cero") return `${MARCA.nombre} y vos no se deben nada`;
+  return ESTADO_CUENTA_TEXTO.sentidoNoReconocido;
 }
 
 /** R18 — las tarjetas. En la bodega el cargo es lo DECLARADO y el abono lo RECIBIDO. */
@@ -158,6 +166,8 @@ export const ESTADO_CUENTA_TEXTO = {
    */
   errorConservado: "Se sigue mostrando lo último que se cargó, con sus filtros.",
   errorDescarga: "No se pudo leer el estado de cuenta para descargarlo.",
+  /** FICHA 504 (R3–R5, P1) — el sentido del saldo no se reconoce: no afirma nada y dice lo que lo cura. */
+  sentidoNoReconocido: "No se pudo leer quién le debe a quién. Recargá la página.",
   tabla: (nombre: string) => `Estado de cuenta de ${nombre}`,
   chips: (nombre: string) => `Filtrar el estado de cuenta de ${nombre}`,
   paginacion: (nombre: string) => `Paginación del estado de cuenta de ${nombre}`,

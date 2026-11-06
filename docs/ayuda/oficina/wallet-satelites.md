@@ -3,7 +3,7 @@ titulo: Wallet · Satélites
 modulo: wallet
 pantalla: /wallet/satelites, /wallet/satelites/[zonaId]
 roles: [maestro, admin]
-actualizado: 2026-11-03
+actualizado: 2026-11-06
 fuentes:
   - app/(app)/wallet/satelites/page.tsx
   - app/(app)/wallet/satelites/_components/SaldosSatelitesTable.tsx
@@ -107,16 +107,18 @@ comió todo lo recaudado), el campo viene en 0 y podés marcarla así. Si debe a
 recibido de 0 y te dice «Esta consolidación tiene dinero por entregar: el monto recibido no puede ser
 0.»; no cambia nada.
 
-## Una vez marcada, se corrige
+## Una vez marcada
 
-> Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»
+> Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar, y «Corregir» solo aparece si lo recibido quedó por debajo o por encima de lo que debe: si coincide, no hay botón para cambiar el monto.
 
-Si el monto que marcaste no era el correcto, **Corregir** lo cambia: la caja recibe solo la diferencia
-entre lo de antes y lo nuevo, y queda registrado **quién corrigió y cuándo**. Si intentás **Desmarcar**
-una consolidación que ya entró a la caja, la app no deshace nada y te dice «Ya entró a la caja: corrige el
-monto en vez de revertir».
+Cuando la fila ofrece **Corregir**, cambia el monto: la caja recibe solo la diferencia entre lo de antes y lo
+nuevo, y queda registrado **quién corrigió y cuándo**. Si intentás **Desmarcar** una consolidación que ya entró a
+la caja, la app no deshace nada y te dice «Ya entró a la caja: no se puede revertir.».
 
 **Corregir** aparece en una consolidación recibida incompleta o recibida de más.
+
+Una consolidación recibida por el monto exacto que ya movió dinero en la caja no ofrece ningún botón, ni
+**Corregir** ni **Desmarcar**: su monto no se puede cambiar desde la pantalla.
 
 **Desmarcar** solo aparece en una consolidación que todavía no movió dinero en la caja. Si lo ves en una
 que sí lo movió es porque la pantalla se cargó antes de que alguien corrigiera el monto: la app te avisa y
@@ -126,8 +128,8 @@ no cambia nada.
 
 Las consolidaciones que se marcaron **antes de este cambio** se dan por **saldadas tal como se marcaron**,
 sin tocar lo que se anotó como recibido. Llevan el rótulo **Saldada con la regla anterior** y su **Debe**
-es lo que se marcó entonces, así que no deben nada. Si alguna se marcó por un monto equivocado, se
-arregla con **Corregir**.
+es lo que se marcó entonces, así que no deben nada. Esa fila no ofrece ningún botón, ni **Corregir** ni
+**Desmarcar**: su monto no se puede cambiar desde la pantalla.
 
 ## Qué ve la bodega
 

@@ -3035,7 +3035,7 @@
       "name": "el flete de devolucion se cobra dos veces cuando una devuelta acaba rechazada",
       "spec_path": "specs/247-doble-flete-devolucion/",
       "description": "Backend. `derivarIngresoOrden` factura `ingreso_flete_devolucion` para `devuelta` Y para `rechazada`, asi que una orden que pasa por los dos estados se lo cobra dos veces a la tienda. Existe desde la feature 99 y lo dispara el cron; la 240 le abre una segunda puerta manual.",
-      "status": "pending",
+      "status": "cancelled",
       "sdd": true,
       "complexity": "medium",
       "zone": "backend",
@@ -3043,7 +3043,7 @@
       "depends_on": null,
       "spec_ready_at": null,
       "spec_approved_at": null,
-      "status_note": "DADA DE ALTA el 2026-08-20 durante el spec de la 240, que se comprometio a abrirla si la medicion no era cero. NO ES CERO. || MEDIDO EN PRODUCCION, con nombre: la orden 63050 de la tienda NUFORM pago el flete de devolucion DOS VECES -- 2.200 + 13 % el 2026-07-22 como `devuelta`, y otra vez el 2026-07-28 como `rechazada`, los dos cierres APROBADOS. Sobrecoste 2.486. Denominador: 1 de 16 ordenes con gestion devuelta/rechazada en cierre aprobado. || NO LO INTRODUCE LA 240 ni la 239: viene de la 99 y lo dispara el cron. Lo que hace la 240 es abrirle una segunda puerta (el rechazo manual), asi que puede volverlo frecuente. || SIN DEVOLUCION DE DINERO: el humano confirmo el 2026-08-20 que produccion se usa hoy como entorno de pruebas, asi que los importes cobrados no corresponden a operacion real. Si eso cambia, hay que re-medir ANTES de arreglar y decidir que se hace con lo ya cobrado. || Detalle y consultas en progress/medicion_240.md."
+      "status_note": "CANCELADA el 2026-11-06, sin objeto: la ficha 301 (dec78dcdd) quito el flete de `devuelta`; solo lo cobra el rechazo. Medido en produccion el 2026-11-06, solo lectura: 3.007 ordenes con rechazo, 0 con dos o mas rechazos, 0 con dos o mas cobros manuales vivos, 0 con rechazo en cierre aprobado y cobro manual vivo. El doble cobro original esta en progress/medicion_240.md."
     },
     {
       "id": 248,
@@ -5919,7 +5919,7 @@
       "depends_on": 493,
       "spec_path": "specs/494-marca-identificadores-internos",
       "branch": "feat/494-marca-velox-identificadores",
-      "status_note": "MERGEADA en dev el 2026-11-05 (PR #887-#893, merge 16f4deed); aún no en prod. Sin migración. Pendiente tras la release: PWA instalada y R22 en dispositivo real; T9 plantillas de Meta (humano); T10 ficha de retirada, índice y portar. Detalle en progress/impl_494.md."
+      "status_note": "EN PROD el 2026-11-05 (PR #887-#893, release #895). Sin migración. Pendiente: PWA instalada y R22 en dispositivo real; T10.1 ficha de retirada; T10.2 índice. T9 (plantillas de Meta) no se hace y T10.3 no se porta, por decisión del humano. Detalle en progress/impl_494.md."
     },
     {
       "id": 495,
@@ -6032,24 +6032,26 @@
       "title": "Ayuda de Wallet · Satélites: la frase de las saldadas",
       "description": "La ayuda dice que una consolidación saldada con la regla anterior se arregla con «Corregir», pero esa fila no ofrece el botón. Alinear la ayuda con lo que hace la pantalla.",
       "zone": "frontend",
-      "status": "pending",
+      "status": "done",
+      "spec_path": "specs/503-ayuda-satelites-saldadas/",
       "sdd": true,
       "complexity": "small",
       "depends_on": 502,
-      "branch": null,
-      "status_note": "Deuda de la 502 (Q2 = no ampliar). Frase en docs/ayuda/oficina/wallet-satelites.md:129-130. El servidor sí admite la corrección (498-conciliar-asienta-sql-real.test.ts:549). Registrada el 2026-11-04 con OK del humano. No bloquea la release."
+      "branch": "fix/503-ayuda-satelites-saldadas",
+      "status_note": "EN DEV, sin desplegar (PR #897, c0734f9c). Gate post-merge INIT_EXIT=0; revisión OK; vista en navegador con una saldada temporal. Deuda: el patrón de R2 no detecta «usá **Corregir**»; los demás textos van en la 506."
     },
     {
       "id": 504,
       "title": "Frase del saldo: «no se deben nada» solo con saldo en cero",
       "description": "Las frases del saldo de estado de cuenta afirman «no se deben nada» por descarte: cualquier sentido desconocido cae ahí. Decirla solo con el saldo en cero comprobado.",
       "zone": "frontend",
-      "status": "pending",
+      "status": "done",
+      "spec_path": "specs/504-frase-saldo-cero/",
       "sdd": true,
       "complexity": "small",
       "depends_on": 494,
-      "branch": null,
-      "status_note": "Hallazgo m6 de progress/review_494_t3.md. fraseDelSaldo y fraseDelSaldoParaLaTienda en components/shared/estado-cuenta/estado-cuenta-labels.ts. Se vio con el cruce de versiones de la 494, pero el defecto es anterior. Se empieza con la tanda 3 de la 494 mergeada: renombra esos valores. Registrada el 2026-11-04 con OK del humano. No bloquea la release."
+      "branch": "fix/504-frase-saldo-cero",
+      "status_note": "EN DEV, sin desplegar (PR #896, e150207d). Gate post-merge INIT_EXIT=0; revisión OK. Sin ver en navegador. Deuda: R7 no prueba `undefined` ni `null` en la tarjeta, sí en las funciones."
     },
     {
       "id": 505,
@@ -6061,7 +6063,32 @@
       "complexity": "small",
       "depends_on": null,
       "branch": "fix/505-aviso-version-tarjeta",
-      "status_note": "MERGEADA en dev el 2026-11-05 (PR #894, merge d99faa18); aún no en prod. Vista en navegador en ruta temporal; sin ver dentro del portal ni con service worker real."
+      "status_note": "EN PROD el 2026-11-05 (PR #894, release #895). Vista en navegador en ruta temporal; sin ver dentro del portal ni con service worker real."
+    },
+    {
+      "id": 506,
+      "title": "Saldadas: los textos que aún prometen «Corregir»",
+      "description": "Quitar la promesa de «Corregir» donde la fila no ofrece el botón: el aviso de la saldada y la nota de la recibida exacta con dinero.",
+      "zone": "frontend",
+      "status": "done",
+      "spec_path": "specs/506-saldadas-textos-corregir/",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 503,
+      "branch": "fix/506-saldadas-textos-corregir",
+      "status_note": "EN DEV, sin desplegar (PR #898, 45c3c03a). Gate post-merge INIT_EXIT=0; revisión OK con 5 menores. Sin ver en navegador: «Desmarcar», los dos avisos y la exacta con dinero no saldada. Deuda: una mutación de la ayuda sobrevive a R6; comentario desfasado en IConciliacionSatelitesService.ts:74."
+    },
+    {
+      "id": 507,
+      "title": "Retirar la compatibilidad con los nombres internos anteriores",
+      "description": "Borrar claves-legadas.ts y los alias de sw.js. No antes del 2027-02-03: 90 días en prod.",
+      "zone": "frontend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 494,
+      "branch": null,
+      "status_note": "Origen: design §5.6 de la 494, desplegada el 2026-11-05. Al retirar, quitar también la excepción E5 de la guardia de marca y sus tests. La cookie dura 1 año: medir antes qué pierde quien aún la tenga."
     }
   ]
 }
