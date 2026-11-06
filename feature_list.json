@@ -6032,26 +6032,26 @@
       "title": "Ayuda de Wallet · Satélites: la frase de las saldadas",
       "description": "La ayuda dice que una consolidación saldada con la regla anterior se arregla con «Corregir», pero esa fila no ofrece el botón. Alinear la ayuda con lo que hace la pantalla.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "spec_path": "specs/503-ayuda-satelites-saldadas/",
       "sdd": true,
       "complexity": "small",
       "depends_on": 502,
       "branch": "fix/503-ayuda-satelites-saldadas",
-      "status_note": "Deuda de la 502 (Q2 = no ampliar). Frase en docs/ayuda/oficina/wallet-satelites.md:129-130. El servidor sí admite la corrección (498-conciliar-asienta-sql-real.test.ts:549). Registrada el 2026-11-04 con OK del humano. No bloquea la release."
+      "status_note": "EN DEV, sin desplegar (PR #897, c0734f9c). Gate post-merge INIT_EXIT=0; revisión OK; vista en navegador con una saldada temporal. Deuda: el patrón de R2 no detecta «usá **Corregir**»; los demás textos van en la 506."
     },
     {
       "id": 504,
       "title": "Frase del saldo: «no se deben nada» solo con saldo en cero",
       "description": "Las frases del saldo de estado de cuenta afirman «no se deben nada» por descarte: cualquier sentido desconocido cae ahí. Decirla solo con el saldo en cero comprobado.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "spec_path": "specs/504-frase-saldo-cero/",
       "sdd": true,
       "complexity": "small",
       "depends_on": 494,
       "branch": "fix/504-frase-saldo-cero",
-      "status_note": "Hallazgo m6 de progress/review_494_t3.md. fraseDelSaldo y fraseDelSaldoParaLaTienda en components/shared/estado-cuenta/estado-cuenta-labels.ts. Se vio con el cruce de versiones de la 494, pero el defecto es anterior. Se empieza con la tanda 3 de la 494 mergeada: renombra esos valores. Registrada el 2026-11-04 con OK del humano. No bloquea la release."
+      "status_note": "EN DEV, sin desplegar (PR #896, e150207d). Gate post-merge INIT_EXIT=0; revisión OK. Sin ver en navegador. Deuda: R7 no prueba `undefined` ni `null` en la tarjeta, sí en las funciones."
     },
     {
       "id": 505,

@@ -5809,3 +5809,9 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - Los botones ocupan las dos columnas de la tarjeta (`col-span-2`) y el texto vuelve junto al icono. PR #894.
 - Medido en navegador a 375 y 1280 px, en ruta temporal; test que falla sin la clase.
 - Deuda: sin ver dentro del portal ni con service worker real.
+
+## 2026-11-06 — 503 y 504, frases que afirmaban de más; 247 cancelada
+- 503: la ayuda de Wallet · Satélites deja de prometer «Corregir» en una saldada, porque esa fila no ofrece botones. PR #897.
+- 504: «no se deben nada» solo con `en_cero`; un sentido no reconocido muestra una frase neutra, también en la bodega. PR #896.
+- 247 cancelada: la 301 ya quitó el flete de `devuelta`; medido en producción, sin ningún doble cobro por las tres vías comprobadas.
+- 506 registrada para los demás textos que prometen «Corregir».

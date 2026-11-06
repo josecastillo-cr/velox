@@ -1,8 +1,9 @@
-# ESTADO 2026-11-06 — 503 Y 504 EN CURSO; 247 CANCELADA
+# ESTADO 2026-11-06 — 503 Y 504 MERGEADAS EN `dev`, SIN DESPLEGAR; in_progress = 0
 
-- 503 y 504: specs aprobados por el humano el 2026-11-06. Worktrees `R:/w503` y `R:/w504`, ramas `fix/503-ayuda-satelites-saldadas` y `fix/504-frase-saldo-cero`. Sin archivos en común.
+- 503 (#897) y 504 (#896) en `dev`. Gate post-merge verde (`progress/gate_dev_tras_897.log`). Build de Vercel en verde.
 - 247 cancelada: la 301 la dejó sin objeto; medición en su ficha.
-- Aprobada ficha aparte para los otros textos que prometen «Corregir» a una saldada; falta registrarla con el borrador del humano.
+- 506 registrada, `pending`, sin spec: otros textos que prometen «Corregir» a una saldada. Sin decidir: si incluye la sección de conciliación vacía de `/cierres-admin` con una saldada (`CierresBodegaAdminModule.tsx:878-880`).
+- Worktrees `R:/w503` y `R:/w504` sin borrar: purgar rompe el `node_modules` compartido; hacerlo al final, con `pnpm install --frozen-lockfile --force`.
 
 # ESTADO 2026-11-05 (noche) — RELEASE DESPLEGADA (PR #895, 0e010ae0, dpl_2xwfru4RLbfgHmoKqUa9rp31Nwdo); in_progress = 0
 
