@@ -91,12 +91,10 @@ Sin respuestas 5xx. Una primera pasada se descartó por la sonda, no por la app:
 
 **Lo que no se vio en el navegador:** una recibida exacta con dinero no saldada, el botón «Desmarcar» y los dos avisos del diálogo. Exigen asientos de caja o llamar al servidor; los cubren los tests de la tabla R → test.
 
-**La base quedó restaurada.** Comprobado con una consulta aparte al terminar:
+**La base quedó restaurada.**
 
-- `cierre_bodega`: 0, igual que al empezar.
-- Conteo de todas las tablas de `public`, antes y después de la pasada final: sin diferencias.
-- `Session` y `login_attempt`: 1073 y 1154. Los del login propio se borraron por id.
-- `zona.sinpe_*`: sin cambios. `usuario.updated_at` de la cuenta sigue en 2026-11-05.
+- Con una consulta aparte al terminar: `cierre_bodega` en 0, igual que al empezar; `Session` y `login_attempt` en 1073 y 1154; `usuario.updated_at` de la cuenta en 2026-11-05.
+- En el `finally` de la sonda: conteo de todas las tablas de `public`, antes y después de cada pasada, sin diferencias; `zona.sinpe_*` sin cambios; las sesiones e intentos del login propio, borrados por id.
 - Lo que NO se comparó: el resto de columnas de filas ya existentes. Se comprobaron conteos, no contenido.
 
 **Capturas**, fuera del repo, en el scratchpad de la sesión, carpeta `v506/capturas/`.
