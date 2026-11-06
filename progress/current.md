@@ -1,3 +1,9 @@
+# ESTADO 2026-11-06 — 503 Y 504 EN CURSO; 247 CANCELADA
+
+- 503 y 504: specs aprobados por el humano el 2026-11-06. Worktrees `R:/w503` y `R:/w504`, ramas `fix/503-ayuda-satelites-saldadas` y `fix/504-frase-saldo-cero`. Sin archivos en común.
+- 247 cancelada: la 301 la dejó sin objeto; medición en su ficha.
+- Aprobada ficha aparte para los otros textos que prometen «Corregir» a una saldada; falta registrarla con el borrador del humano.
+
 # ESTADO 2026-11-05 (noche) — RELEASE DESPLEGADA (PR #895, 0e010ae0, dpl_2xwfru4RLbfgHmoKqUa9rp31Nwdo); in_progress = 0
 
 - En prod: 498, 500, 501, 502, 494 y 505. dev = prod. Detalle y verificación en `docs/release.md`.

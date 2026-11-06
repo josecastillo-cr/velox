@@ -3035,7 +3035,7 @@
       "name": "el flete de devolucion se cobra dos veces cuando una devuelta acaba rechazada",
       "spec_path": "specs/247-doble-flete-devolucion/",
       "description": "Backend. `derivarIngresoOrden` factura `ingreso_flete_devolucion` para `devuelta` Y para `rechazada`, asi que una orden que pasa por los dos estados se lo cobra dos veces a la tienda. Existe desde la feature 99 y lo dispara el cron; la 240 le abre una segunda puerta manual.",
-      "status": "pending",
+      "status": "cancelled",
       "sdd": true,
       "complexity": "medium",
       "zone": "backend",
@@ -3043,7 +3043,7 @@
       "depends_on": null,
       "spec_ready_at": null,
       "spec_approved_at": null,
-      "status_note": "DADA DE ALTA el 2026-08-20 durante el spec de la 240, que se comprometio a abrirla si la medicion no era cero. NO ES CERO. || MEDIDO EN PRODUCCION, con nombre: la orden 63050 de la tienda NUFORM pago el flete de devolucion DOS VECES -- 2.200 + 13 % el 2026-07-22 como `devuelta`, y otra vez el 2026-07-28 como `rechazada`, los dos cierres APROBADOS. Sobrecoste 2.486. Denominador: 1 de 16 ordenes con gestion devuelta/rechazada en cierre aprobado. || NO LO INTRODUCE LA 240 ni la 239: viene de la 99 y lo dispara el cron. Lo que hace la 240 es abrirle una segunda puerta (el rechazo manual), asi que puede volverlo frecuente. || SIN DEVOLUCION DE DINERO: el humano confirmo el 2026-08-20 que produccion se usa hoy como entorno de pruebas, asi que los importes cobrados no corresponden a operacion real. Si eso cambia, hay que re-medir ANTES de arreglar y decidir que se hace con lo ya cobrado. || Detalle y consultas en progress/medicion_240.md."
+      "status_note": "CANCELADA el 2026-11-06, sin objeto: la ficha 301 (dec78dcdd) quito el flete de `devuelta`; solo lo cobra el rechazo. Medido en produccion el 2026-11-06, solo lectura: 3.007 ordenes con rechazo, 0 con dos o mas rechazos, 0 con dos o mas cobros manuales vivos, 0 con rechazo en cierre aprobado y cobro manual vivo. El doble cobro original esta en progress/medicion_240.md."
     },
     {
       "id": 248,
@@ -6032,11 +6032,12 @@
       "title": "Ayuda de Wallet · Satélites: la frase de las saldadas",
       "description": "La ayuda dice que una consolidación saldada con la regla anterior se arregla con «Corregir», pero esa fila no ofrece el botón. Alinear la ayuda con lo que hace la pantalla.",
       "zone": "frontend",
-      "status": "pending",
+      "status": "in_progress",
+      "spec_path": "specs/503-ayuda-satelites-saldadas/",
       "sdd": true,
       "complexity": "small",
       "depends_on": 502,
-      "branch": null,
+      "branch": "fix/503-ayuda-satelites-saldadas",
       "status_note": "Deuda de la 502 (Q2 = no ampliar). Frase en docs/ayuda/oficina/wallet-satelites.md:129-130. El servidor sí admite la corrección (498-conciliar-asienta-sql-real.test.ts:549). Registrada el 2026-11-04 con OK del humano. No bloquea la release."
     },
     {
@@ -6044,11 +6045,12 @@
       "title": "Frase del saldo: «no se deben nada» solo con saldo en cero",
       "description": "Las frases del saldo de estado de cuenta afirman «no se deben nada» por descarte: cualquier sentido desconocido cae ahí. Decirla solo con el saldo en cero comprobado.",
       "zone": "frontend",
-      "status": "pending",
+      "status": "in_progress",
+      "spec_path": "specs/504-frase-saldo-cero/",
       "sdd": true,
       "complexity": "small",
       "depends_on": 494,
-      "branch": null,
+      "branch": "fix/504-frase-saldo-cero",
       "status_note": "Hallazgo m6 de progress/review_494_t3.md. fraseDelSaldo y fraseDelSaldoParaLaTienda en components/shared/estado-cuenta/estado-cuenta-labels.ts. Se vio con el cruce de versiones de la 494, pero el defecto es anterior. Se empieza con la tanda 3 de la 494 mergeada: renombra esos valores. Registrada el 2026-11-04 con OK del humano. No bloquea la release."
     },
     {
