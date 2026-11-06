@@ -20,10 +20,10 @@ Implementa `frontend_dev`. Gate: `./init.sh --rapido`, nunca el completo. Las mu
   - `esCorreccion = estado !== "pendiente"` en `ConciliacionAcciones.tsx:145`: rojo «503/R4» y `ConciliacionAcciones500.test.tsx:71-76`.
   - `puedeDesmarcar` a `true` en `ConciliacionSatelite.tsx:345`: rojo «503/R4».
 
-- [ ] **T5** (R5) Correr aislado `tests/integration/db/500-con-dinero-sql-real.test.ts` y `tests/components/ConciliacionAcciones500.test.tsx`, sin
+- [x] **T5** (R5) Correr aislado `tests/integration/db/500-con-dinero-sql-real.test.ts` y `tests/components/ConciliacionAcciones500.test.tsx`, sin
   cambiarlos. **Hecho:** verdes y con el de Postgres ejecutado, no `skipped`. Depende de T2.
 
-- [ ] **T6** (R1, R4) Ver la app con Playwright sobre la base local, con un solo dev server. **Hecho:** en `progress/impl_503.md` constan
+- [x] **T6** (R1, R4) Ver la app con Playwright sobre la base local, con un solo dev server. **Hecho:** en `progress/impl_503.md` constan
   la captura de la ayuda con la frase nueva y la de una fila saldada en `/wallet/satelites` con su rótulo y sin botones, más el
   detalle en `/cierres-admin`. Si la base local no tiene saldadas, se prepara una con `esperado_regla_anterior = monto_recibido` y se
   restaura; una consulta lo comprueba. Depende de T3.

@@ -8,20 +8,53 @@ Q1 = A: la frase dice solo el hecho, sin responsable.
 - `docs/ayuda/oficina/wallet-satelites.md`: la frase de la sección «Saldada con la regla anterior» y `actualizado: 2026-11-06`.
 - `tests/unit/docs/ayuda-wallet-satelites-498.test.ts`: bloques «503» y «503 — AUTOCOMPROBACION».
 - `tests/components/Conciliacion498.test.tsx`: caso «503/R4», con fila de control.
-- `specs/503-ayuda-satelites-saldadas/tasks.md`: T0 a T4 marcadas.
+- `specs/503-ayuda-satelites-saldadas/tasks.md`: T0 a T6 marcadas.
 
 La pantalla no cambia. `git status` no muestra restos en `components/` ni `app/`.
 
-## Lo que queda sin hacer
+## Estado de las tareas
 
-| Tarea | Estado | Motivo |
+| Tarea | Estado | Detalle |
 | --- | --- | --- |
-| T5, parte Postgres | **No ejecutada** | `500-con-dinero-sql-real.test.ts` da `9 skipped`: el worktree no tiene `.env` ni `DATABASE_URL`. `init.sh` dice que no se copie el `.env`, y no se intentó sacar el valor del `.env` del checkout principal, fuera del alcance dado. El archivo no cambia. |
-| T5, parte componente | Verde | `ConciliacionAcciones500.test.tsx`, dentro de la corrida de abajo. |
-| T6 | **No ejecutada** | Ver la app pide dev server y base local, y este worktree no tiene base. No se ha visto la frase ni la fila en un navegador. |
+| T0-T4 | Hechas | Ver abajo. |
+| T5 | Hecha, por el leader | Tras integrar `origin/dev` (`3aa551e9f`), el leader corrió `500-con-dinero-sql-real` y `ConciliacionAcciones500` con Postgres: 18 passed, 0 skipped. La cifra es la que él informó; aquí, sin `DATABASE_URL`, ese archivo daba `9 skipped`. |
+| T6 | Hecha | Sección «Ver la app». |
 | T7 | Parcial | El mapa está abajo. El gate lo corre el leader. |
 
-Para cerrar T5, con `DATABASE_URL` en la sesión: `pnpm exec vitest run tests/integration/db/500-con-dinero-sql-real.test.ts`, y debe dar 9 passed, no `skipped`. El respaldo real de `puedeDesmarcar: false` en una saldada (R4 y R5) depende de esa corrida.
+## Ver la app (T6)
+
+Playwright contra un solo dev server en el puerto 3503 y `localhost:5432/ordenex`, con `admin.qa@empresa.test`. El entorno se heredó de un wrapper con `process.loadEnvFile`, sin copiar el `.env` ni imprimir valores. No se corrió ningún seed y la contraseña coincidió.
+
+**La saldada.** `cierre_bodega` estaba vacía, así que no había fila que modificar: se insertó una sola, de una bodega satélite, con `monto_recibido = esperado_regla_anterior = 64000`, y se borró por id en un `finally`.
+
+| Pantalla | Lo que dio el DOM |
+| --- | --- |
+| Ayuda, `/ayuda/oficina/wallet-satelites` | La sección termina en «Esa fila no ofrece ningún botón, ni Corregir ni Desmarcar: su monto no se puede cambiar desde la pantalla.». No queda la frase vieja. |
+| `/wallet/satelites/[zonaId]`, con «Todas» | La fila lleva el rótulo «Saldada con la regla anterior», Debe ₡64.000, Monto recibido ₡64.000, Falta por recibir ₡0 y estado «Recibido». Botones y enlaces en la fila: `[]`. |
+| `/cierres-admin`, Bodega → Resueltos → detalle | La sección «Conciliación del cierre de bodega» está montada, y eso solo pasa con `puedeConciliar`, pero sale vacía: `innerText` `""`, botones `[]`. En todo el diálogo solo está «Cerrar». |
+
+Sin respuestas 5xx en la pasada final.
+
+**Límite de esta prueba.** No hubo fila de control con botón en el navegador: la consigna era una sola fila. La fila de control está en «503/R4». En `/cierres-admin`, el indicio de que el actor puede conciliar es que la sección se monta.
+
+**Capturas**, fuera del repo, en el scratchpad de la sesión, carpeta `t6/`: `ayuda.png`, `region-conciliacion.png` (contiene la fila; la captura suelta de la fila salió recortada y se descartó), `cierres-admin-detalle.png` y `cierres-admin-seccion.png`.
+
+**La base quedó restaurada.** Hubo 5 pasadas con fila insertada o login (las fallidas, por selectores de la sonda, no por la app); cada fila insertada se borró.
+
+- `cierre_bodega`: 0 filas al terminar, igual que al empezar.
+- Conteo de todas las tablas de `public`, antes y después de la pasada final: sin diferencias.
+- `Session` y `login_attempt`: 1073 y 1154, las cifras previas. Los del login propio se borraron por id; los de la primera pasada, por ser los más recientes de la cuenta.
+- `zona.sinpe_*`: sin cambios. El aviso «Confirmá el SINPE» se cerró con «Ahora no».
+- `usuario.updated_at` de la cuenta sigue en 2026-11-05: el login no la tocó.
+- Lo que NO se comparó: el resto de columnas de filas ya existentes. Se comprobaron conteos, no contenido.
+
+**Dev server.** Parado, sin nada escuchando en el 3503, y `.next/dev` borrado.
+
+## Hallazgos de T6, fuera de alcance
+
+- **Turbopack no arranca en un worktree con junction:** `Symlink [project]/node_modules is invalid, it points out of the filesystem root`. Se usó `next dev --webpack`, sin cambiar configuración.
+- **Región vacía en `/cierres-admin`:** con una saldada, la sección con nombre accesible queda sin contenido. Es lo que el comentario de `CierresBodegaAdminModule.tsx:878-880` quiere evitar para el caso sin permiso. La ficha no cambia la pantalla, así que no se tocó.
+- **La nota de 498/R43 sigue al pie de esa tabla**, «usa «Corregir»», justo debajo de una fila sin ese botón. Ya está fuera de alcance por el spec.
 
 ## Mapa R -> test
 
@@ -32,7 +65,7 @@ Para cerrar T5, con `DATABASE_URL` en la sesión: `pnpm exec vitest run tests/in
 | R3 | `ayuda-wallet-satelites-498.test.ts:119`, «R3 — sigue diciendo» (3 patrones) | Verde; sin mutación propia |
 | R4 | `Conciliacion498.test.tsx:467`, «503/R4 — una saldada sin corregir…» | Verde; rojo con M2 y M3 |
 | R5 | `ConciliacionAcciones500.test.tsx:71-76` | Verde; rojo con M2 |
-| R5 (valor del servidor) | `500-con-dinero-sql-real.test.ts:257` y `:275-276` | **Saltado en este worktree** |
+| R5 (valor del servidor) | `500-con-dinero-sql-real.test.ts:257` y `:275-276` | Verde en la corrida del leader con Postgres; saltado en la mía |
 
 ## Salida de los tests
 
@@ -54,7 +87,7 @@ Test Files  9 passed | 1 skipped (10)
      Tests  196 passed | 9 skipped (205)
 ```
 
-Los 9 saltados son los del archivo de Postgres:
+Los 9 saltados son los del archivo de Postgres en mi corrida, antes de T5:
 
 ```
 Test Files  1 skipped (1)
@@ -83,4 +116,4 @@ M1 solo se corrió contra `ayuda-wallet-satelites-498.test.ts`, el archivo de es
 ## Notas
 
 - La frase es la de `design.md` §1 tal cual; el salto de línea cae entre «ni» y «**Desmarcar**», y el patrón usa `\s+`.
-- Al commitear, `origin/dev` llevaba 1 commit de ventaja sobre la rama: no se ha integrado.
+- `origin/dev` ya está integrado en la rama: lo hizo el leader en `3aa551e9f`.
