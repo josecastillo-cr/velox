@@ -3,7 +3,7 @@ titulo: Wallet · Satélites
 modulo: wallet
 pantalla: /wallet/satelites, /wallet/satelites/[zonaId]
 roles: [maestro, admin]
-actualizado: 2026-11-03
+actualizado: 2026-11-06
 fuentes:
   - app/(app)/wallet/satelites/page.tsx
   - app/(app)/wallet/satelites/_components/SaldosSatelitesTable.tsx
@@ -126,8 +126,8 @@ no cambia nada.
 
 Las consolidaciones que se marcaron **antes de este cambio** se dan por **saldadas tal como se marcaron**,
 sin tocar lo que se anotó como recibido. Llevan el rótulo **Saldada con la regla anterior** y su **Debe**
-es lo que se marcó entonces, así que no deben nada. Si alguna se marcó por un monto equivocado, se
-arregla con **Corregir**.
+es lo que se marcó entonces, así que no deben nada. Esa fila no ofrece ningún botón, ni **Corregir** ni
+**Desmarcar**: su monto no se puede cambiar desde la pantalla.
 
 ## Qué ve la bodega
 
