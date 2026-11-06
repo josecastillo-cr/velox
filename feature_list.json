@@ -5919,7 +5919,7 @@
       "depends_on": 493,
       "spec_path": "specs/494-marca-identificadores-internos",
       "branch": "feat/494-marca-velox-identificadores",
-      "status_note": "MERGEADA en dev el 2026-11-05 (PR #887-#893, merge 16f4deed); aún no en prod. Sin migración. Pendiente tras la release: PWA instalada y R22 en dispositivo real; T9 plantillas de Meta (humano); T10 ficha de retirada, índice y portar. Detalle en progress/impl_494.md."
+      "status_note": "EN PROD el 2026-11-05 (PR #887-#893, release #895). Sin migración. Pendiente: PWA instalada y R22 en dispositivo real; T10.1 ficha de retirada; T10.2 índice. T9 (plantillas de Meta) no se hace y T10.3 no se porta, por decisión del humano. Detalle en progress/impl_494.md."
     },
     {
       "id": 495,
@@ -6061,7 +6061,7 @@
       "complexity": "small",
       "depends_on": null,
       "branch": "fix/505-aviso-version-tarjeta",
-      "status_note": "MERGEADA en dev el 2026-11-05 (PR #894, merge d99faa18); aún no en prod. Vista en navegador en ruta temporal; sin ver dentro del portal ni con service worker real."
+      "status_note": "EN PROD el 2026-11-05 (PR #894, release #895). Vista en navegador en ruta temporal; sin ver dentro del portal ni con service worker real."
     }
   ]
 }

@@ -1,3 +1,12 @@
+# ESTADO 2026-11-05 (noche) — RELEASE DESPLEGADA (PR #895, 0e010ae0, dpl_2xwfru4RLbfgHmoKqUa9rp31Nwdo); in_progress = 0
+
+- En prod: 498, 500, 501, 502, 494 y 505. dev = prod. Detalle y verificación en `docs/release.md`.
+- Primer caso real: la consolidación satélite en `solicitado` del 2026-11-05 tiene sus asientos retirados (M3) hasta conciliarla. Tras esa conciliación, correr b1 y b2 de `progress/impl_498.md`.
+- Humano: PWA instalada y R22 de la 494 en dispositivo real. Bloque 8 de la 500 solo con autorización escrita.
+- Leader: T10.1 de la 494 (ficha de retirada, con borrador al humano) y T10.2 (reindexar, `codebase-memory-mcp` no conectaba). Fichas 503 y 504 sin spec.
+- Decidido: Skew Protection activa, según el humano; sin guard en `seed-usuarios-qa`; T9 de la 494 no se hace; T10.3 no se porta a `servi_logistic`.
+- Cuentas QA de preview ya en `<rol>.qa@empresa.test`, por `UPDATE`; `maestro.qa` sigue con el correo anterior.
+
 # ESTADO 2026-11-05 — 494 TERMINADA EN RAMAS; FALTA MERGEAR #891, #892 Y #893, EN ESE ORDEN
 
 - En `dev` sin desplegar: 498, 500, 501, 502 y las tandas 0-3 de la 494.
