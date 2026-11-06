@@ -117,3 +117,7 @@ M1 solo se corrió contra `ayuda-wallet-satelites-498.test.ts`, el archivo de es
 
 - La frase es la de `design.md` §1 tal cual; el salto de línea cae entre «ni» y «**Desmarcar**», y el patrón usa `\s+`.
 - `origin/dev` ya está integrado en la rama: lo hizo el leader en `3aa551e9f`.
+
+## Gate del leader
+
+`./init.sh --rapido` sobre 92b423eea: `INIT_EXIT=0`, 3947 passed en unitarios y guardias, sin intermitentes.

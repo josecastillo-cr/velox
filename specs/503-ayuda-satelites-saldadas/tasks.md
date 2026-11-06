@@ -28,5 +28,5 @@ Implementa `frontend_dev`. Gate: `./init.sh --rapido`, nunca el completo. Las mu
   detalle en `/cierres-admin`. Si la base local no tiene saldadas, se prepara una con `esperado_regla_anterior = monto_recibido` y se
   restaura; una consulta lo comprueba. Depende de T3.
 
-- [ ] **T7** Cierre. Mapa R → test en `progress/impl_503.md`, leído en los archivos reales, y `./init.sh --rapido` con `INIT_EXIT=$?` dentro del
+- [x] **T7** Cierre. Mapa R → test en `progress/impl_503.md`, leído en los archivos reales, y `./init.sh --rapido` con `INIT_EXIT=$?` dentro del
   log, sin `tail`. **Hecho:** ningún R sin test y gate verde mirando los `skipped`. Un rojo se repite aislado. Depende de T4, T5 y T6.
