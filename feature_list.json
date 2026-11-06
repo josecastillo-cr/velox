@@ -6070,13 +6070,25 @@
       "title": "Saldadas: los textos que aún prometen «Corregir»",
       "description": "Quitar la promesa de «Corregir» donde la fila no ofrece el botón: el aviso de la saldada y la nota de la recibida exacta con dinero.",
       "zone": "frontend",
-      "status": "spec_ready",
+      "status": "in_progress",
       "spec_path": "specs/506-saldadas-textos-corregir/",
       "sdd": true,
       "complexity": "small",
       "depends_on": 503,
+      "branch": "fix/506-saldadas-textos-corregir",
+      "status_note": "Spec aprobado por el humano el 2026-11-06. Tres textos, la sección de la ayuda y la región vacía de /cierres-admin, sin añadir botones. Worktree R:/w506."
+    },
+    {
+      "id": 507,
+      "title": "Retirar la compatibilidad con los nombres internos anteriores",
+      "description": "Borrar claves-legadas.ts y los alias de sw.js. No antes del 2027-02-03: 90 días en prod.",
+      "zone": "frontend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 494,
       "branch": null,
-      "status_note": "Deuda anotada en el spec de la 503. CONCILIACION_RESPUESTA.saldadaReglaAnterior dice «corrígelo»; la nota de 498/R43 y wallet-satelites.md:112-117 prometen «Corregir» a una recibida exacta con dinero. Ojo: la 502 (Q2) decidió no ampliar la pantalla."
+      "status_note": "Origen: design §5.6 de la 494, desplegada el 2026-11-05. Al retirar, quitar también la excepción E5 de la guardia de marca y sus tests. La cookie dura 1 año: medir antes qué pierde quien aún la tenga."
     }
   ]
 }

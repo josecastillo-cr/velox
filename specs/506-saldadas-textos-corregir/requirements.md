@@ -89,3 +89,7 @@ Literales escritos a mano en el test, nunca leídos de su constante. Mutaciones 
 ## Preguntas abiertas
 
 Ninguna. Las decisiones técnicas están en `design.md` §2.
+
+## Aprobación
+
+Spec aprobado por el humano el 2026-11-06.
