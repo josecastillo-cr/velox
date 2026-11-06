@@ -5815,3 +5815,8 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 - 504: «no se deben nada» solo con `en_cero`; un sentido no reconocido muestra una frase neutra, también en la bodega. PR #896.
 - 247 cancelada: la 301 ya quitó el flete de `devuelta`; medido en producción, sin ningún doble cobro por las tres vías comprobadas.
 - 506 registrada para los demás textos que prometen «Corregir».
+
+## 2026-11-06 — 506, textos que prometían «Corregir» sin botón
+- Los dos avisos al desmarcar, la nota al pie y la ayuda dejan de prometerlo. `/cierres-admin` no monta la región de conciliación si la fila no ofrece ninguna acción. PR #898.
+- No se añaden botones. Deuda: una mutación de la ayuda sobrevive a R6, y un comentario desfasado en `IConciliacionSatelitesService.ts:74`.
+- 507 registrada: retirar la compatibilidad con los nombres anteriores, no antes del 2027-02-03.
