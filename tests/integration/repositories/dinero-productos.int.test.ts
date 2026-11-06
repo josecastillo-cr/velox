@@ -55,9 +55,9 @@ const CLAVE_MELAXIN = "dr melaxin";
  *   flete 3.000 · iva flete 13 % · comision COD 5 % · iva comision 13 %
  *   flete devuelto 2.000
  *
- *   entrega de 10.000 -> ordenex = 3.000 + 390 + 500 + 65 = 3.955,00
+ *   entrega de 10.000 -> empresa = 3.000 + 390 + 500 + 65 = 3.955,00
  *                        tienda  = 10.000 - 3.390 - 565   = 6.045,00
- *   entrega de  4.000 -> ordenex = 3.000 + 390 + 200 + 26 = 3.616,00
+ *   entrega de  4.000 -> empresa = 3.000 + 390 + 200 + 26 = 3.616,00
  *                        tienda  =  4.000 - 3.390 - 226   =   384,00
  *   rechazo           -> retorno = 2.000 + 260            = 2.260,00
  */
@@ -130,7 +130,7 @@ interface Medicion {
 
 interface CifrasSql {
   readonly recaudado: string;
-  readonly ordenex: string;
+  readonly empresa: string;
   readonly tienda: string;
 }
 
@@ -313,18 +313,18 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
 
   /**
    * LA FORMULA, ESCRITA A MANO EN SQL. No llama a `derivarIngresoOrden`, ni a
-   * `pagoTiendaOrdenex`, ni a `repartoDeOrden`: reconstruye el reparto desde las columnas
+   * `pagoTiendaEmpresa`, ni a `repartoDeOrden`: reconstruye el reparto desde las columnas
    * CONGELADAS de `cierre_detail`, que es lo unico que las dos mitades comparten.
    *
    * `soloEntregas = false` es la VARIANTE que demuestra que la comparacion no es tautologica:
    * afloja el filtro de resultado y deja entrar la RECHAZADA, que suma su flete de ENTREGA a
-   * `ordenex` y da otro numero.
+   * `empresa` y da otro numero.
    */
   async function cifrasEnSql(tx: Tx, tiendaId: string, soloEntregas: boolean): Promise<CifrasSql> {
     const filtroResultado = soloEntregas
       ? Prisma.sql`AND g."resultado" = 'entregado'`
       : Prisma.sql`AND g."resultado" IN ('entregado', 'devolucion_a_origen_por_rechazo')`;
-    const filas = await tx.$queryRaw<{ recaudado: string; cobro_ordenex: string; tienda: string }[]>`
+    const filas = await tx.$queryRaw<{ recaudado: string; cobro_empresa: string; tienda: string }[]>`
       WITH calc AS (
         SELECT COALESCE(g."monto_recibido", 0) AS recaudado,
                ROUND(CASE WHEN d."es_central" THEN d."tarifa_valor_flete_gam"
@@ -351,15 +351,15 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
           ${filtroResultado}
       )
       SELECT TO_CHAR(SUM(CASE WHEN TRUE THEN recaudado END), 'FM999999999990.00') AS recaudado,
-             TO_CHAR(SUM(flete + iva_flete + comision + iva_comision), 'FM999999999990.00') AS cobro_ordenex,
+             TO_CHAR(SUM(flete + iva_flete + comision + iva_comision), 'FM999999999990.00') AS cobro_empresa,
              TO_CHAR(SUM(recaudado) - SUM(flete + iva_flete + comision + iva_comision),
                      'FM999999999990.00') AS tienda
       FROM calc`;
     const f = filas[0];
-    if (f === undefined || f.cobro_ordenex === null) {
+    if (f === undefined || f.cobro_empresa === null) {
       throw new Error("el SQL a mano no devolvio cifras: el test FALLA, no se abstiene");
     }
-    return { recaudado: f.recaudado, ordenex: f.cobro_ordenex, tienda: f.tienda };
+    return { recaudado: f.recaudado, empresa: f.cobro_empresa, tienda: f.tienda };
   }
 
   /** Solo las filas que este test sembro: la base local puede traer otras ordenes. */
@@ -448,7 +448,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     expect(c.pendiente.recaudado).toBe("5000.00");
     expect(c.liquidado.recaudado).toBe("0.00");
     // ⚠ R30 — el reparto NO se emite en cero: se emite AUSENTE.
-    expect(c.liquidado.ordenex).toBeNull();
+    expect(c.liquidado.empresa).toBeNull();
     expect(c.liquidado.tienda).toBeNull();
     expect(c.liquidado.ordenes).toBe(0);
     expect(c.pendiente.ordenes).toBe(1);
@@ -458,14 +458,14 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     const c = cifras(m.soloA, m.tiendaA, "producto sin tarifa");
     expect(c.recaudado).toBe("6000.00");
     expect(c.pendiente.recaudado).toBe("6000.00");
-    expect(c.liquidado.ordenex).toBeNull();
+    expect(c.liquidado.empresa).toBeNull();
   });
 
   it("(g) R12 · el importe COMPLETO de una orden multiproducto cuenta en CADA producto", () => {
     const enMelaxin = cifras(m.soloA, m.tiendaA, CLAVE_MELAXIN);
     // La orden acompanada recaudo 4.000 y es el UNICO aporte de `dr melaxin`.
     expect(enMelaxin.recaudado).toBe("4000.00");
-    expect(enMelaxin.liquidado.ordenex).toBe("3616.00"); // 3000 + 390 + 200 + 26
+    expect(enMelaxin.liquidado.empresa).toBe("3616.00"); // 3000 + 390 + 200 + 26
     expect(enMelaxin.liquidado.tienda).toBe("384.00"); // 4000 - 3390 - 226
 
     // Y esos MISMOS 4.000 estan tambien dentro de `base c`: no se reparten, se repiten.
@@ -482,23 +482,23 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     // Liquidado = 10.000 + 10.000 + 4.000 + 4.000 = 28.000.
     expect(c.liquidado.recaudado).toBe("28000.00");
     expect(c.pendiente.recaudado).toBe("7000.00");
-    // Ordenex = 3.955 (liquidada) + 3.955 + 3.616 (dos cierres) + 3.616 (acompanada) = 15.142.
-    // La rechazada NO aporta a `ordenex`: su cobro va en `retorno` (R19).
-    expect(c.liquidado.ordenex).toBe("15142.00");
+    // La empresa = 3.955 (liquidada) + 3.955 + 3.616 (dos cierres) + 3.616 (acompanada) = 15.142.
+    // La rechazada NO aporta a `empresa`: su cobro va en `retorno` (R19).
+    expect(c.liquidado.empresa).toBe("15142.00");
     expect(c.liquidado.tienda).toBe("12858.00"); // 28.000 - 15.142
     expect(c.retorno).toBe("2260.00"); // 2.000 + 13 %
 
     // R20, EXACTA y sin margen de redondeo.
-    expect(new Prisma.Decimal(c.liquidado.ordenex!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
+    expect(new Prisma.Decimal(c.liquidado.empresa!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
       c.liquidado.recaudado,
     );
     // R21, EXACTA.
     expect(
       new Prisma.Decimal(c.liquidado.recaudado).plus(c.pendiente.recaudado).toFixed(2),
     ).toBe(c.recaudado);
-    // ⚠ Y `retorno` NO esta dentro del reparto: si lo estuviera (mutacion M3), `ordenex` valdria
+    // ⚠ Y `retorno` NO esta dentro del reparto: si lo estuviera (mutacion M3), `empresa` valdria
     // 17.402,00 y la igualdad de arriba se rompe.
-    expect(c.liquidado.ordenex).not.toBe("17402.00");
+    expect(c.liquidado.empresa).not.toBe("17402.00");
   });
 
   it("(i) R18 · en los CARDINALES la orden de dos cierres cuenta UNA sola vez", () => {
@@ -523,7 +523,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     expect(detalle.total).toBeGreaterThan(1);
 
     // 2. NO CERO. Un cuadre entre ceros es cierto y vacio.
-    expect(fila.liquidado.ordenex).not.toBe("0.00");
+    expect(fila.liquidado.empresa).not.toBe("0.00");
     expect(fila.liquidado.tienda).not.toBe("0.00");
     expect(fila.recaudado).not.toBe("0.00");
 
@@ -536,7 +536,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     // La pagina tiene que ser el conjunto ENTERO para que la suma valga: se afirma.
     expect(detalle.ordenes.length).toBe(detalle.total);
     expect(suma((o) => o.recaudado)).toBe(fila.recaudado);
-    expect(suma((o) => o.ordenex)).toBe(fila.liquidado.ordenex);
+    expect(suma((o) => o.empresa)).toBe(fila.liquidado.empresa);
     expect(suma((o) => o.tienda)).toBe(fila.liquidado.tienda);
     expect(suma((o) => o.retorno)).toBe(fila.retorno);
 
@@ -553,28 +553,28 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     expect(porGuia.get(m.guiaLiquidada)).toMatchObject({
       estado: "liquidada",
       recaudado: "10000.00",
-      ordenex: "3955.00",
+      empresa: "3955.00",
       tienda: "6045.00",
       retorno: "0.00",
     });
     expect(porGuia.get(m.guiaPendiente)).toMatchObject({
       estado: "pendiente",
       recaudado: "7000.00",
-      ordenex: null,
+      empresa: null,
       tienda: null,
       retorno: null,
     });
     expect(porGuia.get(m.guiaRechazada)).toMatchObject({
       estado: "liquidada",
       recaudado: "0.00",
-      ordenex: "0.00",
+      empresa: "0.00",
       tienda: "0.00",
       retorno: "2260.00",
     });
     expect(porGuia.get(m.guiaDosCierres)).toMatchObject({
       estado: "liquidada",
       recaudado: "14000.00", // 10.000 + 4.000, sus DOS cierres sumados
-      ordenex: "7571.00", // 3.955 + 3.616
+      empresa: "7571.00", // 3.955 + 3.616
       tienda: "6429.00", // 14.000 - 7.571
     });
     // Y aparece UNA sola vez, con dos resultados (R35).
@@ -583,7 +583,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
 
     // 6 (R39). NINGUNA fila del detalle aporta cero en las CUATRO cifras.
     for (const o of detalle.ordenes) {
-      const todasCero = [o.recaudado, o.ordenex, o.tienda, o.retorno].every(
+      const todasCero = [o.recaudado, o.empresa, o.tienda, o.retorno].every(
         (v) => v === null || new Prisma.Decimal(v).isZero(),
       );
       expect(todasCero, `la orden ${o.guia} aporta cero en las cuatro cifras`).toBe(false);
@@ -607,17 +607,17 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
 
     // Las tres cifras del reparto, calculadas por dos caminos independientes.
     expect(aMano.recaudado).toBe(fila.liquidado.recaudado);
-    expect(aMano.ordenex).toBe(fila.liquidado.ordenex);
+    expect(aMano.empresa).toBe(fila.liquidado.empresa);
     expect(aMano.tienda).toBe(fila.liquidado.tienda);
     // Y no es un cuadre entre ceros.
-    expect(aMano.ordenex).not.toBe("0.00");
+    expect(aMano.empresa).not.toBe("0.00");
     expect(aMano.recaudado).not.toBe("0.00");
 
     // LA DEMOSTRACION DE QUE NO ES TAUTOLOGICO: quitar el filtro de `resultado = 'entregada'`
-    // mete el flete de entrega de la RECHAZADA y sube `ordenex`. Si las dos consultas dieran lo
+    // mete el flete de entrega de la RECHAZADA y sube `empresa`. Si las dos consultas dieran lo
     // mismo, esta comparacion no estaria midiendo nada.
-    expect(variante.ordenex).not.toBe(aMano.ordenex);
-    expect(new Prisma.Decimal(variante.ordenex).gt(aMano.ordenex)).toBe(true);
+    expect(variante.empresa).not.toBe(aMano.empresa);
+    expect(new Prisma.Decimal(variante.empresa).gt(aMano.empresa)).toBe(true);
   });
 
   // ==========================================================================================
@@ -656,12 +656,12 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
   it(`(449-c) ⚠ NO se suma a «Cobró ${NOMBRE_CORTO_ESPERADO}»: R20 sigue siendo EXACTA`, () => {
     const c = cifras(m.soloA, m.tiendaA, CLAVE_BASE_C);
 
-    // `ordenex` sigue valiendo lo mismo que antes de esta ficha: 15.142,00.
-    expect(c.liquidado.ordenex).toBe("15142.00");
+    // `empresa` sigue valiendo lo mismo que antes de esta ficha: 15.142,00.
+    expect(c.liquidado.empresa).toBe("15142.00");
     // ⚠ SI SE SUMARA (la mutacion que esta ficha prohibe), valdria 18.030,00 —15.142 + 2.888— y
     // la igualdad de abajo se romperia sin que ninguna pantalla se enterara.
-    expect(c.liquidado.ordenex).not.toBe("18030.00");
-    expect(new Prisma.Decimal(c.liquidado.ordenex!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
+    expect(c.liquidado.empresa).not.toBe("18030.00");
+    expect(new Prisma.Decimal(c.liquidado.empresa!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
       c.liquidado.recaudado,
     );
     // Y tampoco se colo en `retorno`, que es la otra cifra que vive fuera del reparto.
@@ -694,7 +694,7 @@ describeSiHayBase("347 / B3.3 — DineroProductosRepository contra Postgres real
     // cero. Un cierre solicitado se ha llegado a BORRAR en este repo, y con el su snapshot.
     const c = cifras(m.soloA, m.tiendaA, "producto solicitado");
     expect(c.fulfillment).toBeNull();
-    expect(c.liquidado.ordenex).toBeNull();
+    expect(c.liquidado.empresa).toBeNull();
     // ANTI-VACIO: la fila existe y tiene dinero; lo que no tiene es nada liquidado.
     expect(c.recaudado).toBe("5000.00");
   });

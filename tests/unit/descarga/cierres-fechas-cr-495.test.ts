@@ -18,7 +18,7 @@ import {
 import type { CierreBodegaResumen } from "@/lib/interfaces/services/ICierreBodegaService";
 import type {
   CierrePasadoDTO,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type {
   CierreAdminResumen,
@@ -102,7 +102,7 @@ const PROPIO: CierrePasadoDTO = {
   motivoRechazo: null,
 };
 
-function ingreso(): IngresoOrdenexDTO {
+function ingreso(): IngresoEmpresaDTO {
   return {
     montoCobrar: "1000.10",
     cobraComision: true,
@@ -152,7 +152,7 @@ const GESTION: CierreGestionDescargaDTO = {
   indemnizacion: null,
   pagoMensajero: "100.10",
   ingresoBodegaRechazo: null,
-  ingresoOrdenex: ingreso(),
+  ingresoEmpresa: ingreso(),
 };
 
 function incidente(over: Partial<IncidenteAdminDTO> = {}): IncidenteAdminDTO {

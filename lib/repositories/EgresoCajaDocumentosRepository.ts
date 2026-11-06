@@ -7,7 +7,7 @@ type LecturaPrismaClient = Pick<PrismaClient, "walletMovimiento" | "ajusteCajaAn
 
 /**
  * FICHA 458-B (design §3.6, R71/R72) — el estado de anulacion DERIVADO de los EGRESOS de la caja
- * sin documento propio (sueldo, gasto de Ordenex, gasto fijo cobrado; origen `gasto`), leido EN LOTE.
+ * sin documento propio (sueldo, gasto de la empresa, gasto fijo cobrado; origen `gasto`), leido EN LOTE.
  *
  * «Anulado» lo decide el CONTRA-ASIENTO, que es lo que de verdad movio el dinero: existe un
  * `ingreso_ajuste` con origen `gasto` y `origen_id` = el egreso. Da igual en que pagina, periodo o
@@ -77,7 +77,7 @@ export class IndemnizacionDocumentosRepository {
 }
 
 /**
- * FICHA 458-C (revision B3, R71) — el estado de los PAGOS DE ORDENEX A UNA TIENDA (172) cuyo egreso
+ * FICHA 458-C (revision B3, R71) — el estado de los PAGOS DE LA EMPRESA A UNA TIENDA (172) cuyo egreso
  * (`egreso_pago_tienda`, origen `pago_tienda`) esta en la pagina. id = el `liquidacion_pago`.
  * «Anulado» = existe su `liquidacion_anulacion` (el documento de la 172, UNIQUE por pago); el
  * comprobante, el de la 458-B (`wallet_comprobante.liquidacion_pago_id`). DOS consultas, ninguna si

@@ -12,6 +12,7 @@ import { AsistenteProvider } from "@/providers/AsistenteProvider";
 import { AsistentePanel } from "@/components/shared/AsistentePanel";
 import { leerResumenesAyuda } from "@/lib/ayuda/catalogo";
 import { mapaRutaDocumento } from "@/lib/ayuda/documento";
+import { COOKIE_TEMA_VIEJA } from "@/lib/navegador/claves-legadas";
 import { COOKIE_TEMA, normalizarTema } from "@/lib/tema/tema";
 import { resolveActorFromSession } from "@/lib/auth/resolve-actor";
 import { resolverRevisionSinpePendiente } from "@/lib/auth/revision-sinpe-pendiente";
@@ -42,7 +43,14 @@ export default async function AppLayout({
   // no cuesta nada; hacerlo arriba volvería dinámica la landing pública, que hoy es
   // estática y se cachea. Al llegar el HTML con la clase puesta no hay parpadeo: no se
   // corrige nada después del primer pintado porque no hay nada que corregir.
-  const tema = normalizarTema((await cookies()).get(COOKIE_TEMA)?.value);
+  //
+  // Feature 494 (R17): también se lee la cookie con el nombre anterior. Un RSC no puede escribir
+  // cookies, así que el traslado lo hace `TemaProvider` al montar; sin esta lectura, quien tenga la
+  // vieja vería el tema equivocado en su primera carga tras el despliegue.
+  const almacenCookies = await cookies();
+  const tema =
+    normalizarTema(almacenCookies.get(COOKIE_TEMA)?.value) ??
+    normalizarTema(almacenCookies.get(COOKIE_TEMA_VIEJA)?.value);
 
   // Datos del usuario para el footer del sidebar (nombre completo + rol legible). Se resuelve
   // el nombre por id (el actor solo trae usuarioId + rol). Sin sesión -> null. Se pinta la

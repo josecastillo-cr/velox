@@ -9,7 +9,7 @@ import { test, expect, type Page } from "@playwright/test";
  * both describes are gone. The two describes for "/wallet/mensajeros" survive untouched. When a `CierreDia` is approved, the pay owed to the
  * mensajero (`total_pago_mensajero`, snapshot 39) and the cash he collected
  * (`total_efectivo`, snapshot 37) are frozen into an append-only LEDGER per mensajero:
- * `pago_devengado = P` and `pago_efectivo = min(P,E)`. The CUENTA POR PAGAR (what Ordenex
+ * `pago_devengado = P` and `pago_efectivo = min(P,E)`. The CUENTA POR PAGAR (what la empresa
  * still owes) is DERIVED (Σdevengo − Σpago) and never stored; it is positive or zero, never
  * negative in the normal flow (R16).
  *

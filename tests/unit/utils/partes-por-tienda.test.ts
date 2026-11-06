@@ -4,13 +4,13 @@ import type { GestionResultado, MetodoPagoValue } from "@prisma/client";
 
 import {
   partesPorTienda,
-  pagoTiendaOrdenex,
+  pagoTiendaEmpresa,
   ganaLaTienda,
-  totalesIngresoOrdenex,
+  totalesIngresoEmpresa,
   type GestionDeTienda,
-} from "@/lib/utils/ingreso-ordenex";
+} from "@/lib/utils/ingreso-empresa";
 import { computeTotales } from "@/lib/utils/cierre-totales";
-import type { IngresoOrdenexDTO } from "@/lib/interfaces/services/ICierreDiaService";
+import type { IngresoEmpresaDTO } from "@/lib/interfaces/services/ICierreDiaService";
 
 /**
  * 💰 FICHA 396 (B2) — `partesPorTienda`: de quién es cada parte del «Pago a tienda».
@@ -56,7 +56,7 @@ function resta(a: string, b: string): string {
  * agrupados `fleteConIva`/`comisionConIva`/`fleteDevolucionConIva` y el `total`—.
  *
  * Se escriben y no se calculan a propósito: es exactamente lo que hace el repositorio real
- * (`CierresAdminRepository.toIngresoOrdenex` los compone al leer el snapshot), y así el test
+ * (`CierresAdminRepository.toIngresoEmpresa` los compone al leer el snapshot), y así el test
  * afirma contra el CONTRATO y no contra la aritmética de nadie.
  */
 function ingreso(campos: {
@@ -70,7 +70,7 @@ function ingreso(campos: {
   ivaFleteDevolucion?: string;
   fleteDevolucionConIva?: string;
   total: string;
-}): IngresoOrdenexDTO {
+}): IngresoEmpresaDTO {
   return {
     montoCobrar: null,
     cobraComision: true,
@@ -97,9 +97,9 @@ function gestion(
   tiendaNombre: string,
   resultado: GestionResultado,
   pagos: { metodo: MetodoPagoValue; monto: string }[],
-  ingresoOrdenex: IngresoOrdenexDTO | null,
+  ingresoEmpresa: IngresoEmpresaDTO | null,
 ): GestionDeTienda {
-  return { tiendaId, tiendaNombre, resultado, pagos, ingresoOrdenex };
+  return { tiendaId, tiendaNombre, resultado, pagos, ingresoEmpresa };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -255,8 +255,8 @@ describe("396/R10 — la suma de lo que se paga a cada tienda ES el agregado", (
     // (2) Y el AGREGADO —derivado como lo deriva el servicio, sobre TODAS las gestiones—
     //     contra el MISMO literal. Los dos lados anclados a la misma cifra escrita a mano: si
     //     cualquiera de los dos se mueve, esto se entera.
-    const todas = totalesIngresoOrdenex(CIERRE_DOS_TIENDAS);
-    const agregado = pagoTiendaOrdenex(
+    const todas = totalesIngresoEmpresa(CIERRE_DOS_TIENDAS);
+    const agregado = pagoTiendaEmpresa(
       computeTotales(CIERRE_DOS_TIENDAS).general,
       todas.fleteConIva,
       todas.comisionConIva,
@@ -271,7 +271,7 @@ describe("396/R11 — la suma de lo que gana cada tienda ES el agregado", () => 
 
     expect(suma(partes.map((p) => p.ganaLaTienda))).toBe(AGREGADO_GANA);
 
-    const todas = totalesIngresoOrdenex(CIERRE_DOS_TIENDAS);
+    const todas = totalesIngresoEmpresa(CIERRE_DOS_TIENDAS);
     const agregado = ganaLaTienda(computeTotales(CIERRE_DOS_TIENDAS).general, todas.total);
     expect(agregado).toBe(AGREGADO_GANA);
   });
@@ -381,7 +381,7 @@ describe("396/R9 — la tienda que sólo trajo RECHAZOS entra igual, y cuenta", 
 
 describe("396/R8 — el orden lo fija el servidor: pagoTienda DESCENDENTE", () => {
   /**
-   * Sin desglose congelado (`ingresoOrdenex: null`) el flete y la comisión son cero, así que
+   * Sin desglose congelado (`ingresoEmpresa: null`) el flete y la comisión son cero, así que
    * `pagoTienda` es exactamente lo recaudado. Eso deja el orden a la vista, sin aritmética que
    * distraiga.
    */
@@ -479,7 +479,7 @@ describe("396 — la gestión SIN tarifa congelada (gap conocido de la feature 6
       "Tienda Sin Tarifa",
       "entregado",
       [{ metodo: "transferencia", monto: "7000.00" }],
-      null, // `ingresoOrdenex: null` = no había tarifa vigente al solicitar
+      null, // `ingresoEmpresa: null` = no había tarifa vigente al solicitar
     );
     const partes = partesPorTienda([SUR_ENTREGA, sinTarifa]);
     const hueco = partes.find((p) => p.tiendaId === "t-hueco");

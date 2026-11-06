@@ -26,8 +26,8 @@
 //      mismo predicado SI lo encuentra en `TarifaVigenteResuelta`, que es donde vive legalmente.
 //  (c) EN EL CAMINO. El repositorio de Analitica proyecta la columna (o sea, la ficha esta
 //      hecha) y NO se la pasa a `tarifaDe`.
-//  (d) EN LA CIFRA. `cifrasDelGrupo` emite el fulfillment FUERA de `liquidado.ordenex`, y R20
-//      —`ordenex + tienda === liquidado.recaudado`— sigue siendo exacta con un fulfillment > 0.
+//  (d) EN LA CIFRA. `cifrasDelGrupo` emite el fulfillment FUERA de `liquidado.empresa`, y R20
+//      —`empresa + tienda === liquidado.recaudado`— sigue siendo exacta con un fulfillment > 0.
 //
 //  (e) AUTOCOMPROBACION. Los predicados se aplican ademas a material sintetico que SI infringe,
 //      y tienen que detectarlo. Sin esto una guardia queda verde POR VACIO —encuentra cero
@@ -36,7 +36,7 @@ import { describe, it, expect } from "vitest";
 import { Prisma } from "@prisma/client";
 
 import { tarifaDe } from "@/lib/utils/cierre-detalle";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { cifrasDelGrupo, ordenesQueAportan } from "@/lib/services/ConteoProductosService";
 import { codigoSinComentarios } from "../../fixtures/sin-comentarios";
 import { filaDinero } from "./_dinero-falso";
@@ -212,20 +212,20 @@ describe("(c) EN EL CAMINO · el repositorio la proyecta, pero no se la pasa a `
 });
 
 describe("(d) EN LA CIFRA · el fulfillment va FUERA del reparto, y R20 sigue exacta", () => {
-  it("no esta dentro de `liquidado.ordenex`, y `ordenex + tienda === liquidado.recaudado`", () => {
+  it("no esta dentro de `liquidado.empresa`, y `empresa + tienda === liquidado.recaudado`", () => {
     const cifras = cifrasDelGrupo(
       ordenesQueAportan([filaDinero({ ordenId: "o1", fulfillment: "696.00" })]),
     );
 
     // El fulfillment se emite, y es el que se sembro.
     expect(cifras.fulfillment).toBe("696.00");
-    // Pero NO esta dentro de `ordenex`: ese sigue valiendo 3.955,00, escrito A MANO
+    // Pero NO esta dentro de `empresa`: ese sigue valiendo 3.955,00, escrito A MANO
     // (3000 + 390 + 500 + 65). Si alguien lo sumara, valdria 4.651,00.
-    expect(cifras.liquidado.ordenex).toBe("3955.00");
-    expect(cifras.liquidado.ordenex).not.toBe("4651.00");
+    expect(cifras.liquidado.empresa).toBe("3955.00");
+    expect(cifras.liquidado.empresa).not.toBe("4651.00");
     // Y R20 sigue siendo EXACTA, que es la invariante que su suma romperia en silencio.
     expect(
-      new Prisma.Decimal(cifras.liquidado.ordenex as string)
+      new Prisma.Decimal(cifras.liquidado.empresa as string)
         .plus(cifras.liquidado.tienda as string)
         .toFixed(2),
     ).toBe(cifras.liquidado.recaudado);

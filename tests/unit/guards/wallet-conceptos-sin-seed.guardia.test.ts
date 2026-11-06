@@ -10,7 +10,7 @@ import { archivosDeLaWallet, codigo } from "./_wallet-458-archivos";
 // Hasta la 458-A los tres filtros de concepto (`/wallet`, el desglose de una tienda y `/mi-wallet`)
 // se poblaban del catálogo COMPLETO: `CATEGORIA_OPTIONS`, `CATEGORIA_TIENDA_OPTIONS` y
 // `CATEGORIA_MI_WALLET_OPTIONS` eran `…_CATEGORIA_SEED.map(…)`. Ofrecían conceptos sin un solo
-// movimiento («Otro gasto de Ordenex», que nadie produce) y no decían cuántos había (C3.1). Ahora
+// movimiento («Otro gasto de la empresa», que nadie produce) y no decían cuántos había (C3.1). Ahora
 // los tres leen del servidor los conceptos CON movimientos (`useConceptosConMovimientos` +
 // `opcionesDeConceptos`). El gate falla si en alguna superficie de la wallet (censo POR CARPETA):
 //

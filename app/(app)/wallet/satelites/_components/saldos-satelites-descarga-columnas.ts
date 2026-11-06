@@ -27,6 +27,9 @@ export const AMBITO_DESCARGA_SALDOS_SATELITES = "wallet-satelites-saldos";
 export const COLUMNAS_DESCARGA_SALDOS_SATELITES: DescargaColumna[] = [
   { clave: "bodega", encabezado: "Bodega" },
   { clave: "pendiente", encabezado: "Pendiente" },
+  // FICHA 498 (R42): lo aprobado sin consolidar y cuántos cierres lo forman.
+  { clave: "sinConsolidar", encabezado: "Sin consolidar" },
+  { clave: "cierresSinConsolidar", encabezado: "Cierres sin consolidar" },
   { clave: "efectivoConsolidado", encabezado: "Efectivo consolidado" },
   { clave: "totalConsolidado", encabezado: "Total consolidado" },
   { clave: "recibido", encabezado: "Recibido" },
@@ -48,6 +51,8 @@ export function filaDescargaSaldoSatelite(saldo: SaldoSateliteDTO): DescargaFila
   return {
     bodega: saldo.zonaNombre,
     pendiente: saldo.saldoSinConciliar, // STRING tal cual (money-safe)
+    sinConsolidar: saldo.sinConsolidar,
+    cierresSinConsolidar: saldo.cierresSinConsolidar,
     efectivoConsolidado: saldo.totalEfectivo,
     totalConsolidado: saldo.totalConsolidado,
     recibido: saldo.totalRecibido,

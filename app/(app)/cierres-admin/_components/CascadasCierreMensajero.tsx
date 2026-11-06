@@ -1,11 +1,11 @@
 "use client";
 
-import type { TotalesIngresoOrdenex } from "@/lib/interfaces/services/ICierreDiaService";
+import type { TotalesIngresoEmpresa } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreEstado } from "@/lib/types/cierre";
 // FICHA 396 — el tipo del desglose se pide DONDE VIVE la identidad que particiona
-// (`lib/utils/ingreso-ordenex.ts`), igual que hace `ICierresAdminService`. Es un `import type`:
+// (`lib/utils/ingreso-empresa.ts`), igual que hace `ICierresAdminService`. Es un `import type`:
 // se borra al compilar y no arrastra ni `Prisma` ni una línea de servidor al navegador.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 
 import { CascadaDinero, type LineaCascada } from "./CascadaDinero";
 // FICHA 396 (D2) — el desglose y su umbral viven en un archivo PROPIO desde la tanda de bodega:
@@ -15,10 +15,10 @@ import { DesglosePorTienda, marcaDeVariasTiendas } from "./DesglosePorTienda";
 import {
   CASCADA_DUENO_TITULO,
   CASCADA_FACTURA_TIENDA_TITULO,
-  CASCADA_NETO_ORDENEX_TITULO,
+  CASCADA_NETO_EMPRESA_TITULO,
   COBRADO_SOBRE_RECAUDADO_LABEL,
   COBRADO_SOBRE_RECAUDADO_NOTA,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   FLETE_DEV_CON_IVA_LABEL,
   FLETE_RECHAZO_AUN_NO_COBRADO_NOTA,
   FLETE_RECHAZO_NO_DEDUCIBLE_NOTA,
@@ -28,9 +28,9 @@ import {
   GANA_LA_TIENDA_NEGATIVO_NOTA,
   GANA_LA_TIENDA_NOTA,
   INGRESO_BODEGA_RECHAZOS_LABEL,
-  NETO_ORDENEX_LABEL,
-  NETO_ORDENEX_NEGATIVO_NOTA,
-  NETO_ORDENEX_NOTA,
+  NETO_EMPRESA_LABEL,
+  NETO_EMPRESA_NEGATIVO_NOTA,
+  NETO_EMPRESA_NOTA,
   PAGO_MENSAJERO_LABEL,
   PAGO_TIENDA_HOY_NOTA,
   PAGO_TIENDA_LABEL,
@@ -43,7 +43,7 @@ import {
  * 💰 FICHA 395 (2026-09-08) — LAS TRES CASCADAS DEL DETALLE DEL CIERRE DE **MENSAJERO**.
  *
  * ── EL FALLO QUE ESTO ARREGLA, Y ES DE DINERO
- * El detalle enseñaba «Pago a tienda ₡225.176,33» y «Total Ordenex ₡70.946,67» SUELTOS, uno al
+ * El detalle enseñaba «Pago a tienda ₡225.176,33» y «Total Velox ₡70.946,67» SUELTOS, uno al
  * lado del otro, e invitaba a restarlos. **Esa resta no da**, porque los dos números no salen de
  * la misma bolsa: el pago a la tienda no descuenta el flete por rechazo —ese flete se le factura
  * pero nunca entró en lo recaudado, porque un rechazo no cobra contra entrega—. El humano se
@@ -55,7 +55,7 @@ import {
  * que se la expliquen y la que contesta «qué plata es para quién»:
  *
  *     Total general            285.275,00
- *     − Lo que Ordenex facturó  70.946,67
+ *     − Lo que la empresa facturó  70.946,67
  *     = Gana la tienda         214.328,33
  *
  * La identidad `ganaLaTienda + totalesIngreso.total === totales.general` cierra SIEMPRE.
@@ -77,7 +77,7 @@ import {
  * `CascadaDinero`— y los dos lectores del TEXTO, `esMontoNegativo` y `esMontoCero`.
  *
  * ── LOS NEGATIVOS SE PINTAN CON SU SIGNO
- * `ganaLaTienda` y `netoOrdenex` pueden ser negativos y salen CON SU SIGNO, nunca recortados a
+ * `ganaLaTienda` y `netoEmpresa` pueden ser negativos y salen CON SU SIGNO, nunca recortados a
  * cero ni en valor absoluto. `CascadaDinero` los tiñe con `text-danger-strong` sólo cuando son el
  * RESULTADO destacado, que es el precedente que dejaron los cierres de bodega (393/R11/R36): un
  * negativo no es un fallo de la pantalla, es lo que pasó.
@@ -101,7 +101,7 @@ import {
  * 1. LA MARCA (R1): junto a los dos agregados que se parten, una frase que dice que son un total
  *    de N tiendas. Sólo cuando hay dos o más.
  * 2. EL DESGLOSE (R4): una `CascadaDinero` por tienda, con SUS TRES cifras, entre la cascada que
- *    termina en «Pago a tienda» y la de lo que le queda a Ordenex. Ahí, y no antes: primero se
+ *    termina en «Pago a tienda» y la de lo que le queda a la empresa. Ahí, y no antes: primero se
  *    lee de quién es el dinero y cuánto se le paga, y sólo después de qué tienda es cada parte.
  *
  * ── EL UMBRAL ES DE PRESENTACIÓN (R2, Q5)
@@ -124,7 +124,7 @@ import {
  *
  * ── POR QUÉ LA CASCADA DE UNA TIENDA NO ES UNA RESTA
  * Las otras tres cascadas cierran una cuenta; la de cada tienda enseña TRES lecturas sin
- * operadores. Para pintarla como resta haría falta una cuarta cifra —lo que Ordenex le factura a
+ * operadores. Para pintarla como resta haría falta una cuarta cifra —lo que la empresa le factura a
  * ESA tienda— y R5 la prohíbe: tres cifras por tienda y ni una más. Inventar una resta que no se
  * puede completar sería justo el defecto que la 395 arregló. El componente y ese razonamiento
  * viven hoy en `DesglosePorTienda.tsx`.
@@ -141,8 +141,8 @@ export interface CascadasCierreMensajeroProps {
   estado: CierreEstado;
   /** Lo recaudado: `cierre.totales.general` (snapshot). */
   general: string;
-  /** El ingreso de Ordenex por concepto (derivado del snapshot). */
-  totalesIngreso: TotalesIngresoOrdenex;
+  /** El ingreso de la empresa por concepto (derivado del snapshot). */
+  totalesIngreso: TotalesIngresoEmpresa;
   /** Snapshot del pago al mensajero. */
   totalPagoMensajero: string;
   /** Snapshot del ingreso de bodega por rechazos. */
@@ -152,7 +152,7 @@ export interface CascadasCierreMensajeroProps {
   /** La LÍNEA PUENTE: `fleteConIva + comisionConIva`. Se pinta SIEMPRE (ver abajo). */
   cobradoSobreRecaudado: string;
   /** Facturado − pago al mensajero − ingreso de bodega. NO es `ganancia`. */
-  netoOrdenex: string;
+  netoEmpresa: string;
   /** Recaudado − facturado. NO es `pagoTienda`. */
   ganaLaTienda: string;
   /** ¿El cargo del flete por rechazo YA está en el saldo de la tienda? Resuelto en el servidor. */
@@ -171,7 +171,7 @@ export interface CascadasCierreMensajeroProps {
 }
 
 /**
- * LA PARTICIÓN. Tres líneas y una sola resta: de todo lo que se recaudó, esto se lo lleva Ordenex
+ * LA PARTICIÓN. Tres líneas y una sola resta: de todo lo que se recaudó, esto se lo lleva la empresa
  * y esto le queda a la tienda. Es lo primero que se lee, y es lo único que hace falta leer para
  * entender de quién es el dinero.
  */
@@ -197,7 +197,7 @@ function lineasParticion(
     // renglón del comprobante de abajo). Estrenar un «Lo recaudado» sería dar dos nombres a la
     // misma cifra en la misma superficie, que es el defecto que esta ficha viene a arreglar.
     { label: TOTAL_GENERAL_LABEL, monto: general, signo: "neutro" },
-    { label: FACTURADO_ORDENEX_LABEL, monto: facturado, signo: "resta" },
+    { label: FACTURADO_EMPRESA_LABEL, monto: facturado, signo: "resta" },
     { label: GANA_LA_TIENDA_LABEL, monto: ganaLaTienda, signo: "neutro", destacado: true, notas },
   ];
 }
@@ -222,14 +222,14 @@ function notaDelCargoAlSaldo(
 }
 
 /**
- * DE QUÉ SE COMPONE LO QUE ORDENEX FACTURA, Y POR QUÉ HOY SE LE PAGA OTRA CIFRA.
+ * DE QUÉ SE COMPONE LO QUE LA EMPRESA FACTURA, Y POR QUÉ HOY SE LE PAGA OTRA CIFRA.
  *
  * Dos cuentas encadenadas, con la misma forma que la cascada «de quién es el dinero» del cierre
  * de bodega (un resultado destacado a media cascada y la cuenta que sigue debajo):
  *
  *     Cobrado sobre lo recaudado   60.098,67
  *     + Flete por rechazo + IVA    10.848,00
- *     = Lo que Ordenex facturó     70.946,67
+ *     = Lo que la empresa facturó     70.946,67
  *
  *     Total general               285.275,00
  *     − Cobrado sobre lo recaudado 60.098,67
@@ -273,7 +273,7 @@ function lineasFacturaTienda(
       notas: notasDelFlete,
     },
     {
-      label: FACTURADO_ORDENEX_LABEL,
+      label: FACTURADO_EMPRESA_LABEL,
       monto: totalesIngreso.total,
       signo: "neutro",
       destacado: true,
@@ -291,7 +291,7 @@ function lineasFacturaTienda(
 }
 
 /**
- * LO QUE LE QUEDA A ORDENEX. `netoOrdenex` NO es la `ganancia` que este mismo detalle ya pinta
+ * LO QUE LE QUEDA A LA EMPRESA. `netoEmpresa` NO es la `ganancia` que este mismo detalle ya pinta
  * cuando es negativa: aquella resta SÓLO el pago al mensajero, y ésta resta ADEMÁS el ingreso de
  * bodega por rechazos. Las dos coinciden exactamente cuando ese ingreso es cero.
  *
@@ -299,19 +299,19 @@ function lineasFacturaTienda(
  * cierre de bodega: en un cierre de MENSAJERO la bodega puede ser la CENTRAL, así que ahí aquel
  * rótulo sería falso. Lo dejó escrito la propia 393 en `cierre-labels`.
  */
-function lineasNetoOrdenex(props: CascadasCierreMensajeroProps): LineaCascada[] {
-  const notas = [NETO_ORDENEX_NOTA];
-  if (esMontoNegativo(props.netoOrdenex)) notas.push(NETO_ORDENEX_NEGATIVO_NOTA);
+function lineasNetoEmpresa(props: CascadasCierreMensajeroProps): LineaCascada[] {
+  const notas = [NETO_EMPRESA_NOTA];
+  if (esMontoNegativo(props.netoEmpresa)) notas.push(NETO_EMPRESA_NEGATIVO_NOTA);
 
   return [
-    { label: FACTURADO_ORDENEX_LABEL, monto: props.totalesIngreso.total, signo: "neutro" },
+    { label: FACTURADO_EMPRESA_LABEL, monto: props.totalesIngreso.total, signo: "neutro" },
     { label: PAGO_MENSAJERO_LABEL, monto: props.totalPagoMensajero, signo: "resta" },
     {
       label: INGRESO_BODEGA_RECHAZOS_LABEL,
       monto: props.totalIngresoBodegaRechazos,
       signo: "resta",
     },
-    { label: NETO_ORDENEX_LABEL, monto: props.netoOrdenex, signo: "neutro", destacado: true, notas },
+    { label: NETO_EMPRESA_LABEL, monto: props.netoEmpresa, signo: "neutro", destacado: true, notas },
   ];
 }
 
@@ -348,12 +348,12 @@ export function CascadasCierreMensajero(props: Readonly<CascadasCierreMensajeroP
         lineas={lineasFacturaTienda(props, marca)}
       />
       {/* FICHA 396 — el desglose va AQUÍ: después de la cascada que termina en «Pago a tienda»,
-          que es la cifra que parte, y antes de la de Ordenex, que ya no habla de tiendas. */}
+          que es la cifra que parte, y antes de la de la empresa, que ya no habla de tiendas. */}
       {marca !== null ? <DesglosePorTienda partes={props.partesPorTienda} de={de} /> : null}
       <CascadaDinero
-        titulo={CASCADA_NETO_ORDENEX_TITULO}
-        ariaLabel={`${CASCADA_NETO_ORDENEX_TITULO} · ${de}`}
-        lineas={lineasNetoOrdenex(props)}
+        titulo={CASCADA_NETO_EMPRESA_TITULO}
+        ariaLabel={`${CASCADA_NETO_EMPRESA_TITULO} · ${de}`}
+        lineas={lineasNetoEmpresa(props)}
       />
     </div>
   );

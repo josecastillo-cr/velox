@@ -16,7 +16,7 @@ import { lineaDeFila } from "@/components/shared/estado-cuenta/estado-cuenta-lin
 import { ROTULOS_MI_WALLET } from "@/app/(app)/mi-wallet/_components/MiEstadoCuenta";
 
 // =================================================================================================
-// `/mi-wallet` — la pagina de la TIENDA sobre su dinero con Ordenex.
+// `/mi-wallet` — la pagina de la TIENDA sobre su dinero con la empresa.
 //
 // Feature 43 (T14, R18/R19/R21): el rol se resuelve SOLO server-side; rol != adminTienda (o sin
 // sesion) → `notFound` sin pre-fetch (R19). El backend acota SIEMPRE a la tienda del actor; los
@@ -27,9 +27,9 @@ import { ROTULOS_MI_WALLET } from "@/app/(app)/mi-wallet/_components/MiEstadoCue
 // Se monta la PAGINA REAL con el MODULO REAL: lo que se mide es lo que la tienda lee.
 //
 // Sustituciones (el libro de la 43/172/335 se retiro con la 458-D; cada caso conserva su R):
-//  - 172 R55 (la tienda distingue el pago del cargo): la fila del pago es «Ordenex te pagó» en el chip
-//    «Pagos», la del flete «Ordenex te cobró el flete» en «Cierres»; y VUELVE (cierre de la 458-D,
-//    decisión del leader) el resumen de tres cifras de la 172 —«A tu favor», «Cargos de Ordenex», «Ya
+//  - 172 R55 (la tienda distingue el pago del cargo): la fila del pago es «la empresa te pagó» en el chip
+//    «Pagos», la del flete «la empresa te cobró el flete» en «Cierres»; y VUELVE (cierre de la 458-D,
+//    decisión del leader) el resumen de tres cifras de la 172 —«A tu favor», «Cargos de la empresa», «Ya
 //    pagado»— ENCIMA del estado de cuenta, con sus textos exactos. La cabecera de la 43 («Créditos /
 //    Débitos») no vuelve.
 //  - 172 N1 (la salvedad de los importes brutos): el resumen SÍ es bruto (el pago anulado sigue en «Ya
@@ -97,7 +97,7 @@ const CIERRES_OK = {
   hayMas: false,
 };
 
-/** Una fila del libro de la tienda VISTA DESDE LA TIENDA: sin nombres de Ordenex (R35/D2). */
+/** Una fila del libro de la tienda VISTA DESDE LA TIENDA: sin nombres de la empresa (R35/D2). */
 function filaTienda(parcial: Partial<FilaEstadoCuentaDTO> & { n?: number }): FilaEstadoCuentaDTO {
   return fila({ registro: { nombre: null, automatico: null }, anulable: false, ...parcial });
 }
@@ -110,7 +110,7 @@ const FLETE = filaTienda({
   cargo: "1200.00",
   saldoCorrido: "48800.00",
 });
-/** El pago de Ordenex a la tienda (172): un CARGO de su libro, en el chip «Pagos». */
+/** El pago de la empresa a la tienda (172): un CARGO de su libro, en el chip «Pagos». */
 const PAGO = filaTienda({
   n: 3,
   fecha: "2026-08-01",
@@ -134,7 +134,7 @@ function estadoTienda(filas: FilaEstadoCuentaDTO[], parcial: Partial<EstadoCuent
     saldoActual: ultimo,
     saldoFinal: ultimo,
     signo: ultimo.startsWith("-") ? "negativo" : ultimo === "0.00" ? "cero" : "positivo",
-    sentido: ultimo.startsWith("-") ? "cuenta_debe" : ultimo === "0.00" ? "en_cero" : "ordenex_debe",
+    sentido: ultimo.startsWith("-") ? "cuenta_debe" : ultimo === "0.00" ? "en_cero" : "empresa_debe",
     ...parcial,
   });
 }
@@ -242,7 +242,7 @@ describe("MiWalletPage — pre-fetch del adminTienda (R18/R21, 458-D R34/R36)", 
 describe("458-D R34 + 463 R39 — el estado de cuenta de la tienda: saldo inicial al final y saldo corrido", () => {
   it("la ÚLTIMA fila es el saldo inicial y el corrido de la PRIMERA (la más reciente) es el saldo de la tarjeta", async () => {
     // El saldo de la tarjeta es el corrido de la fila MÁS RECIENTE, que en «Más recientes» es la primera.
-    sembrar(estadoTienda([PAGO, FLETE, COD], { saldoActual: PAGO.saldoCorrido, saldoFinal: PAGO.saldoCorrido, signo: "positivo", sentido: "ordenex_debe" }));
+    sembrar(estadoTienda([PAGO, FLETE, COD], { saldoActual: PAGO.saldoCorrido, saldoFinal: PAGO.saldoCorrido, signo: "positivo", sentido: "empresa_debe" }));
     await verMiWallet();
 
     const filas = within(tabla()).getAllByRole("row").slice(1);
@@ -267,7 +267,7 @@ describe("458-D R34 + 463 R39 — el estado de cuenta de la tienda: saldo inicia
     expect(tabla().textContent ?? "").not.toContain("Registró");
   });
 
-  // R25 en `/mi-wallet` (decisión del leader, 2026-09-26, revisión m3): «Anulado por Ordenex», el día y la
+  // R25 en `/mi-wallet` (decisión del leader, 2026-09-26, revisión m3): «Anulado por la empresa», el día y la
   // hora de Costa Rica y el motivo; NUNCA el nombre de la persona. Literal de contrato.
   const COBRO_ANULADO = (por: string | null) =>
     filaTienda({

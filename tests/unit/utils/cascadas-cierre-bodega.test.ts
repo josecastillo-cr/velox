@@ -1,16 +1,16 @@
 import { describe, it, expect } from "vitest";
-import type { IngresoOrdenexDTO } from "@/lib/interfaces/services/ICierreDiaService";
+import type { IngresoEmpresaDTO } from "@/lib/interfaces/services/ICierreDiaService";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
 import {
   cobradoSobreRecaudado,
   derivarIngresoOrden,
   efectivoCubreDescuentos,
-  gananciaOrdenex,
-  netoOrdenex,
-  pagoTiendaOrdenex,
+  gananciaEmpresa,
+  netoEmpresa,
+  pagoTiendaEmpresa,
   paraLaCentral,
-  totalesIngresoOrdenex,
-} from "@/lib/utils/ingreso-ordenex";
+  totalesIngresoEmpresa,
+} from "@/lib/utils/ingreso-empresa";
 
 /**
  * Feature 393 (B2) — la aritmetica de las DOS CASCADAS del cierre de bodega.
@@ -39,10 +39,10 @@ const TARIFA: TarifaVigente = {
 
 /**
  * Un desglose por gestion. Cada literal es INTERNAMENTE COHERENTE (`total` = suma de los
- * conceptos presentes), que es la unica forma en que `totalesIngresoOrdenex` puede estar
+ * conceptos presentes), que es la unica forma en que `totalesIngresoEmpresa` puede estar
  * sumando bien o mal de manera observable.
  */
-function ingreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+function ingreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
   return {
     montoCobrar: null,
     cobraComision: false,
@@ -76,43 +76,43 @@ const UN_RECHAZO = ingreso({
   total: "456.79",
 });
 const GESTIONES = [
-  { ingresoOrdenex: UNA_ENTREGADA },
-  { ingresoOrdenex: UNA_ENTREGADA },
-  { ingresoOrdenex: UNA_ENTREGADA },
-  { ingresoOrdenex: UN_RECHAZO },
+  { ingresoEmpresa: UNA_ENTREGADA },
+  { ingresoEmpresa: UNA_ENTREGADA },
+  { ingresoEmpresa: UNA_ENTREGADA },
+  { ingresoEmpresa: UN_RECHAZO },
 ];
 
 describe("feature 393 — cascada A: de quien es el dinero", () => {
-  it("1 · `netoOrdenex` resta TAMBIEN la bodega, asi que con bodega > 0 NO es `gananciaOrdenex` (R8)", () => {
+  it("1 · `netoEmpresa` resta TAMBIEN la bodega, asi que con bodega > 0 NO es `gananciaEmpresa` (R8)", () => {
     const facturado = "27134.83";
     const mensajeros = "14000.00";
     const ganaBodega = "1250.45";
 
-    const neto = netoOrdenex(facturado, mensajeros, ganaBodega);
-    const ganancia = gananciaOrdenex(facturado, mensajeros);
+    const neto = netoEmpresa(facturado, mensajeros, ganaBodega);
+    const ganancia = gananciaEmpresa(facturado, mensajeros);
 
     expect(neto).toBe("11884.38");
     expect(ganancia).toBe("13134.83");
     // No es un "son distintos" vago: la diferencia es EXACTAMENTE el pago a la bodega, que es
-    // el sustraendo que `gananciaOrdenex` no conoce.
+    // el sustraendo que `gananciaEmpresa` no conoce.
     expect(neto).not.toBe(ganancia);
-    expect(netoOrdenex(ganancia, ganaBodega, "0.00")).toBe(neto);
+    expect(netoEmpresa(ganancia, ganaBodega, "0.00")).toBe(neto);
   });
 
-  it("2 · con la bodega en cero, `netoOrdenex` coincide al centimo con `gananciaOrdenex` — el cierre que se midio (R8)", () => {
+  it("2 · con la bodega en cero, `netoEmpresa` coincide al centimo con `gananciaEmpresa` — el cierre que se midio (R8)", () => {
     const facturado = "27134.83";
     const mensajeros = "14000.00";
 
     // El cierre `ae93cdcd-…-4e803514934d` que el humano miro: ahi la bodega era 0, y por eso
     // los dos numeros se veian iguales. Coincidir en ese cierre NO los hace la misma cifra.
-    expect(netoOrdenex(facturado, mensajeros, "0.00")).toBe(
-      gananciaOrdenex(facturado, mensajeros),
+    expect(netoEmpresa(facturado, mensajeros, "0.00")).toBe(
+      gananciaEmpresa(facturado, mensajeros),
     );
-    expect(netoOrdenex(facturado, mensajeros, "0.00")).toBe("13134.83");
+    expect(netoEmpresa(facturado, mensajeros, "0.00")).toBe("13134.83");
   });
 
   it("6 · lo facturado es la suma de los TRES conceptos, sin perder un centimo al agregar (R7)", () => {
-    const t = totalesIngresoOrdenex(GESTIONES);
+    const t = totalesIngresoEmpresa(GESTIONES);
 
     expect(t.fleteConIva).toBe("3703.71");
     expect(t.comisionConIva).toBe("267.39");
@@ -146,23 +146,23 @@ describe("feature 393 — cascada A: de quien es el dinero", () => {
     expect(rechazada.ingreso_comision_cod).toBeUndefined();
     expect(rechazada.ingreso_flete_devolucion).toBeDefined();
 
-    const t = totalesIngresoOrdenex(GESTIONES);
+    const t = totalesIngresoEmpresa(GESTIONES);
     const general = "5000.33";
-    const paraLaTienda = pagoTiendaOrdenex(general, t.fleteConIva, t.comisionConIva);
+    const paraLaTienda = pagoTiendaEmpresa(general, t.fleteConIva, t.comisionConIva);
 
     expect(paraLaTienda).toBe("1029.23");
 
     // (a) Empezar la cascada por el BRUTO facturado NO da «para la tienda» (alternativa A6).
-    const restandoElBruto = pagoTiendaOrdenex(general, t.total, "0.00");
+    const restandoElBruto = pagoTiendaEmpresa(general, t.total, "0.00");
     expect(restandoElBruto).toBe("572.44");
     expect(restandoElBruto).not.toBe(paraLaTienda);
 
     // (b) La linea puente es exactamente lo que hay que restar para que SI de.
-    expect(pagoTiendaOrdenex(general, cobradoSobreRecaudado(t.fleteConIva, t.comisionConIva), "0.00")).toBe(
+    expect(pagoTiendaEmpresa(general, cobradoSobreRecaudado(t.fleteConIva, t.comisionConIva), "0.00")).toBe(
       paraLaTienda,
     );
     // (c) Y el hueco entre las dos lecturas es, al centimo, el flete por devolución a origen + IVA.
-    expect(pagoTiendaOrdenex(paraLaTienda, restandoElBruto, "0.00")).toBe(t.fleteDevolucionConIva);
+    expect(pagoTiendaEmpresa(paraLaTienda, restandoElBruto, "0.00")).toBe(t.fleteDevolucionConIva);
   });
 });
 
@@ -214,7 +214,7 @@ describe("feature 393 — cascada B: lo que la satelite le entrega a la central"
 
   it("no emite ningun importe en coma flotante: las salidas son STRING de escala 2 (R12/R14)", () => {
     const salidas = [
-      netoOrdenex("0.10", "0.20", "0.30"),
+      netoEmpresa("0.10", "0.20", "0.30"),
       paraLaCentral("0.10", "0.20", "0.30"),
       cobradoSobreRecaudado("0.10", "0.20"),
     ];
@@ -224,6 +224,6 @@ describe("feature 393 — cascada B: lo que la satelite le entrega a la central"
     }
     // El caso clasico de la coma flotante: 0.1 + 0.2 no es 0.30000000000000004 aqui.
     expect(cobradoSobreRecaudado("0.10", "0.20")).toBe("0.30");
-    expect(netoOrdenex("0.10", "0.20", "0.30")).toBe("-0.40");
+    expect(netoEmpresa("0.10", "0.20", "0.30")).toBe("-0.40");
   });
 });

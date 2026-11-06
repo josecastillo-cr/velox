@@ -37,7 +37,7 @@ vi.mock("@/hooks/useToast", () => ({
 
 import { DetalleMovimientoPanel, type DetalleMovimiento } from "@/components/shared/wallet/DetalleMovimientoPanel";
 import { COBRO_RECHAZO_TEXTO } from "@/components/shared/wallet/detalle-movimiento-panel-labels";
-import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
+import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const ID = "9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f";
 
@@ -59,7 +59,7 @@ function movimiento(over: Partial<DetalleMovimiento> = {}): DetalleMovimiento {
 }
 
 const AUTORIA = {
-  aQuien: { nombre: "María Solano", beneficiario: null, cuenta: null, esOrdenex: false },
+  aQuien: { nombre: "María Solano", beneficiario: null, cuenta: null, esEmpresa: false },
   registro: { nombre: "Ana Maestra", automatico: null },
 };
 
@@ -146,12 +146,19 @@ describe("458-C R58 — lo que dice el panel", () => {
 
   it("R57: lo automático dice «Automático» y la acción; el beneficiario del pago de un gasto va con «a …»", async () => {
     pintar(movimiento(), {
-      aQuien: { nombre: "Tania Tienda", beneficiario: "Facebook", cuenta: null, esOrdenex: false },
+      aQuien: { nombre: "Tania Tienda", beneficiario: "Facebook", cuenta: null, esEmpresa: false },
       registro: { nombre: null, automatico: { accion: "cobro_por_rechazo", por: "Ana" } },
     });
     const p = await panel();
     expect(within(p).getByText("Tania Tienda · a Facebook")).toBeTruthy();
     expect(within(p).getByText("Automático · Cobro por devolución a origen aprobado por Ana")).toBeTruthy();
+  });
+
+  it("494 (R4): un aporte dice a quién con el nombre corto de la marca, no con la raya de «sin dato»", async () => {
+    pintar(movimiento(), { ...AUTORIA, aQuien: { nombre: null, beneficiario: null, cuenta: null, esEmpresa: true } });
+    const p = await panel();
+    expect(within(p).getByText(NOMBRE_CORTO_ESPERADO)).toBeTruthy();
+    expect(within(p).queryByText("—")).toBeNull();
   });
 
   it("458-E B1 (R58): «Registró» dice quién Y cuándo (día y hora de Costa Rica), no la fecha del movimiento", async () => {

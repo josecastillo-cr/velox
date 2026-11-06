@@ -171,7 +171,7 @@ function montar(onRegistrado?: () => void | Promise<void>) {
   );
 }
 
-// FICHA 458-D (T D.3, R29): el botón que ABRE el formulario se llama «Ordenex le paga al mensajero»
+// FICHA 458-D (T D.3, R29): el botón que ABRE el formulario se llama «la empresa le paga al mensajero»
 // (antes «Registrar pago»); el que confirma, dentro del formulario, no cambia.
 const abrir = () => screen.getByRole("button", { name: `${NOMBRE_ESPERADO} le paga al mensajero` });
 const dialogo = () => screen.getByRole("dialog");

@@ -6,6 +6,7 @@ import type { ICorteDiarioRepository } from "@/lib/interfaces/repositories/ICort
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import { CierreDiaRepository } from "@/lib/repositories/CierreDiaRepository";
 import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
+import { asentarCierreDia, dependenciasRealesDeAsiento } from "@/lib/repositories/asentar-cierre-dia";
 import { CorteDiarioRepository } from "@/lib/repositories/CorteDiarioRepository";
 import { GestionOrdenRepository } from "@/lib/repositories/GestionOrdenRepository";
 import { LiquidacionPagoRepository } from "@/lib/repositories/LiquidacionPagoRepository";
@@ -541,7 +542,14 @@ describeSiHayBase("425/B7 — aprobar un cierre con rechazos de tienda, contra P
                 })
               ).map((v) => v.cierreId),
         cierreId,
-        apuntesDelCierre: await apuntesDe(tx, [cierreId]),
+        // FICHA 498 (fixture): el cierre es SATELITE; su dinero entra al conciliar, por el MISMO
+        // procedimiento. Se asienta aqui (solo si se aprobo) para comparar los MISMOS apuntes.
+        apuntesDelCierre: await (async () => {
+          if (aprobacion.status === "ok") {
+            await asentarCierreDia(tx, cierreId, dependenciasRealesDeAsiento(tx as unknown as PrismaClient));
+          }
+          return apuntesDe(tx, [cierreId]);
+        })(),
         apuntesDeLosRechazos: tienda === null ? [] : await apuntesDe(tx, tienda.gestiones),
       };
     });

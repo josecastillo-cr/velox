@@ -10,7 +10,7 @@ import { UUID_MENSAJERO, UUID_MOV, estado, fila } from "@/tests/fixtures/estado-
 // =================================================================================================
 // FICHA 458-D (T D.3; R29, R30, R70) — EL ESTADO DE CUENTA DE UN MENSAJERO.
 //
-//  - R29: «Ordenex le paga al mensajero» es el reparto de la 205 con su previsualización de hoy.
+//  - R29: «la empresa le paga al mensajero» es el reparto de la 205 con su previsualización de hoy.
 //  - R70 (P6): un pago se ANULA desde su estado de cuenta, por el panel «Ver». La acción única manda SOLO
 //    el destino de la fila y el motivo (sin monto); el servidor la enruta a `anularPagoAction`, la MISMA
 //    que usa `/cierres-admin` (`PagoMensajeroSeccion`, sin cambios; su test sigue verde).

@@ -4,16 +4,16 @@ import {
   derivarIngresoOrden,
   agregarIngresosPorConcepto,
   costosListadoOrden,
-  pagoTiendaOrdenex,
+  pagoTiendaEmpresa,
   costoEnvioDeTarifa,
   desgloseCargaApi,
   montoFulfillmentDeTarifa,
   tieneFulfillment,
   type OrdenIngresoInput,
-} from "@/lib/utils/ingreso-ordenex";
+} from "@/lib/utils/ingreso-empresa";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
 
-// Feature 42 — tests del util PURO de ingreso de Ordenex (R8/R9/R26). Money-safe: la
+// Feature 42 — tests del util PURO de ingreso de la empresa (R8/R9/R26). Money-safe: la
 // salida agregada es STRING escala 2; cero number/parseFloat.
 
 const TARIFA: TarifaVigente = {
@@ -117,7 +117,7 @@ describe("derivarIngresoOrden — los CUATRO resultados (ficha 301)", () => {
   });
 
   it("rechazada: SIGUE cobrando el flete de devolucion + su IVA, con los mismos montos", () => {
-    // La mitad que NO cambia. Si esto se pusiera en cero, Ordenex dejaria de facturar los
+    // La mitad que NO cambia. Si esto se pusiera en cero, la empresa dejaria de facturar los
     // retornos que si ocurren.
     const d = derivarIngresoOrden(input({ resultado: "devolucion_a_origen_por_rechazo", esCentral: true }), TARIFA);
     expect(d.ingreso_flete_devolucion?.toFixed(2)).toBe("600.00"); // valorFleteDevueltoGam
@@ -338,19 +338,19 @@ describe("agregarIngresosPorConcepto (R10)", () => {
   });
 });
 
-// Pago a la tienda: lo RECIBIDO en el cierre menos lo que Ordenex le factura sobre esa plata.
-describe("pagoTiendaOrdenex", () => {
+// Pago a la tienda: lo RECIBIDO en el cierre menos lo que la empresa le factura sobre esa plata.
+describe("pagoTiendaEmpresa", () => {
   it("resta al total general el flete + IVA y la comision + IVA", () => {
-    expect(pagoTiendaOrdenex("25000.00", "2825.00", "847.50")).toBe("21327.50");
+    expect(pagoTiendaEmpresa("25000.00", "2825.00", "847.50")).toBe("21327.50");
   });
 
   it("es NEGATIVO si lo facturado supera lo recibido", () => {
-    expect(pagoTiendaOrdenex("100.00", "2825.00", "847.50")).toBe("-3572.50");
+    expect(pagoTiendaEmpresa("100.00", "2825.00", "847.50")).toBe("-3572.50");
   });
 
   it("resta Decimal exacta (sin drift de float) y sale STRING escala 2", () => {
     // 0.30 - 0.10 - 0.20 en float da 5.55e-17; con Decimal es 0.00 exacto.
-    expect(pagoTiendaOrdenex("0.30", "0.10", "0.20")).toBe("0.00");
+    expect(pagoTiendaEmpresa("0.30", "0.10", "0.20")).toBe("0.00");
   });
 });
 

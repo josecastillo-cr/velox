@@ -186,7 +186,7 @@ export const FECHA_GESTION_COL = "Fecha de gestión";
  */
 export const DIA_REPARTO_COL = "Día de reparto";
 /**
- * Ficha 385 — día calendario CR en que la orden se registró en Ordenex (`orden.created_at`).
+ * Ficha 385 — día calendario CR en que la orden se registró en la empresa (`orden.created_at`).
  *
  * Dice «de la orden» porque en esta hoja hay CUATRO fechas y tres de ellas son de otra cosa (del
  * cierre, de la gestión, del reparto): «Fecha de creación» a secas obligaría a adivinar de qué
@@ -468,7 +468,7 @@ function celdasComunes(gestion: CierreGestionDescargaDTO): DescargaFila {
 function celdasEspecificas(
   gestion: CierreGestionDescargaDTO,
 ): Record<ClaveEspecifica, DescargaCelda> {
-  const ingreso = gestion.ingresoOrdenex;
+  const ingreso = gestion.ingresoEmpresa;
   const mediosPago = montoPorMetodo(gestion.pagos);
   return {
     // `null` cuando la orden no tenía tarifa vigente al solicitar (gap conocido de la feature

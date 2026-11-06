@@ -139,7 +139,7 @@ describe("R31 — el concepto es una opción del filtro por categoría", () => {
     const lista = await screen.findByRole("listbox");
 
     // Reescrito en la 458-A (antes: «una opción por entrada del SEED»): los dos que el servidor dice
-    // que tienen movimientos, cada uno con su número. «Otro gasto de Ordenex» (`egreso_gasto`, sin
+    // que tienen movimientos, cada uno con su número. «Otro gasto de la empresa» (`egreso_gasto`, sin
     // productor) NO aparece (R14). FICHA 467: ya sin la opción «Todas las categorías» al frente —en la
     // casilla «Concepto» la ausencia de elección ES «todos» y lo dice el disparador («Concepto: Todos»).
     await within(lista).findByRole("option", { name: "Sueldo (1)" });

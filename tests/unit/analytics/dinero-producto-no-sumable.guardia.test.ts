@@ -35,17 +35,17 @@ import { SWRConfig } from "swr";
 
 import { ProductosTabla } from "@/app/(app)/analitica/_components/entregas/ProductosTabla";
 import { FiltroEntregasProvider } from "@/app/(app)/_components/filtro-entregas";
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
 import { money } from "@/lib/config/moneda";
 import { ToastProvider } from "@/providers/ToastProvider";
 import type { ConteoProductosDTO, FilaProductoDTO } from "@/lib/types/conteo-productos";
 import { codigoSinComentarios, LLAMADAS_PROHIBIDAS_EN_DINERO } from "@/tests/fixtures/money-safe";
 
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(),
+  consultarConteoProductosV2: vi.fn(),
 }));
 
-const consultarMock = vi.mocked(consultarConteoProductos);
+const consultarMock = vi.mocked(consultarConteoProductosV2);
 
 /** Los archivos de la ficha por los que pasa un importe. */
 const FUENTES_CON_DINERO = [
@@ -86,7 +86,7 @@ const FORMAS_DE_TOTAL: readonly RegExp[] = [
   // `(acc, fila)`, asi que una expresion que se parase en el primer `)` no llegaria nunca al
   // nombre del campo y el detector estaria de adorno. `reduce` sobre `filas` para contar
   // ORDENES no cae aqui: la expresion exige que dentro aparezca una clave de IMPORTE.
-  /\breduce\s*\([\s\S]{0,120}?\b(recaudado|ordenex|liquidado|pendiente|retorno)\b/,
+  /\breduce\s*\([\s\S]{0,120}?\b(recaudado|empresa|liquidado|pendiente|retorno)\b/,
 ];
 
 /** Devuelve las infracciones del predicado estatico sobre un codigo YA sin comentarios. */
@@ -146,15 +146,15 @@ describe("FICHA 347 · (a) la fuente de la tabla no escribe ningún total (R46/R
 /**
  * LOS TRES IMPORTES, elegidos para que sus sumas sean números que NO aparecen en ninguna otra
  * parte de la pantalla: 1.000 + 200 + 30 = 1.230 para lo recaudado, 100 + 20 + 3 = 123 para lo
- * de Ordenex y 900 + 180 + 27 = 1.107 para lo de la tienda.
+ * de la empresa y 900 + 180 + 27 = 1.107 para lo de la tienda.
  *
  * Ninguna de las tres sumas es subcadena de ninguno de los nueve importes pintados, así que si
  * el texto aparece en el DOM sólo puede venir de alguien que los haya sumado.
  */
 const IMPORTES = [
-  { recaudado: "1000.00", ordenex: "100.00", tienda: "900.00" },
-  { recaudado: "200.00", ordenex: "20.00", tienda: "180.00" },
-  { recaudado: "30.00", ordenex: "3.00", tienda: "27.00" },
+  { recaudado: "1000.00", empresa: "100.00", tienda: "900.00" },
+  { recaudado: "200.00", empresa: "20.00", tienda: "180.00" },
+  { recaudado: "30.00", empresa: "3.00", tienda: "27.00" },
 ] as const;
 
 /** Las tres sumas prohibidas, YA formateadas como las pintaría la pantalla. */
@@ -174,7 +174,7 @@ function fila(i: number): FilaProductoDTO {
       recaudado: importe.recaudado,
       liquidado: {
         recaudado: importe.recaudado,
-        ordenex: importe.ordenex,
+        empresa: importe.empresa,
         tienda: importe.tienda,
         ordenes: 1,
       },

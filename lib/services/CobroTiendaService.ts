@@ -72,14 +72,14 @@ class ClaveRepetidaError extends Error {
 
 /**
  * ═══════════════════════════════════════════════════════════════════════════════════════════════
- * FICHA 381 → 461 — ORDENEX LE COBRA A UNA TIENDA (y puede anular ese cobro).
+ * FICHA 381 → 461 — LA EMPRESA LE COBRA A UNA TIENDA (y puede anular ese cobro).
  * ═══════════════════════════════════════════════════════════════════════════════════════════════
  *
  * Un cobro es el debito `cobro_manual` en el libro de ESA tienda, MAS —desde la 461, HD1 firmada por
  * el humano el 2026-09-25— su linea en la caja: un ingreso PROPIO de liquidez «cargo»
  * (`ingreso_cobro_tienda`) por el mismo monto y el mismo instante. Con las palabras del humano de la
  * 381 («es quitar del dinero disponible de esa tienda») y de la 461: ese dinero pasa a ser de
- * Ordenex. La ganancia sube, «De las tiendas» baja lo mismo y «Entro» no cambia (R4): es el mismo
+ * la empresa. La ganancia sube, «De las tiendas» baja lo mismo y «Entro» no cambia (R4): es el mismo
  * patron que el flete (debito espejo + ingreso propio «cargo»).
  *
  * ⚠️ SI TOCA LA CAJA, Y ES OBLIGATORIO (R9). Este servicio recibe el puerto de caja por constructor

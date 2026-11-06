@@ -9,7 +9,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 /**
  * Ficha 488 (T F.2, design §6.1) — la tarjeta de la caja con la ganancia SIN IVA (R11–R13).
  *
- *  - R11: la cifra grande del bloque «Ganancia de Ordenex» es `ganancia` (ya sin IVA).
+ *  - R11: la cifra grande del bloque «Ganancia de la empresa» es `ganancia` (ya sin IVA).
  *  - R12: debajo, DENTRO de la misma región y en tipografía menor, «IVA cobrado a las tiendas: ₡X».
  *  - R13: un tercer bolsillo, «IVA por pagar», con importe, insignia de signo y pista, en «flujo» y en
  *    «saldo», con y sin filtros.
@@ -32,10 +32,14 @@ const RESUMEN: CajaResumenDTO = {
   ivaPorPagar: "1235.50",
   signoIvaPorPagar: "positivo",
   porcentajeIva: "10.30",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos",
   capital: "264.50",
   signoCapital: "positivo",
-  deOrdenex: "1764.50",
+  deEmpresa: "1764.50",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "9000.00",
   estado: "saldo",
@@ -118,10 +122,10 @@ describe("488 — el tercer bolsillo «IVA por pagar» (R13)", () => {
     const { container } = pintar();
     const iva = container.querySelector<HTMLElement>('[data-bolsillo="iva"]') as HTMLElement;
     const tiendas = container.querySelector<HTMLElement>('[data-bolsillo="tiendas"]') as HTMLElement;
-    const ordenex = container.querySelector<HTMLElement>('[data-bolsillo="ordenex"]') as HTMLElement;
+    const empresa = container.querySelector<HTMLElement>('[data-bolsillo="empresa"]') as HTMLElement;
     expect(iva.parentElement).toBe(tiendas.parentElement);
-    expect(iva.parentElement).toBe(ordenex.parentElement);
-    expect(ordenex.contains(iva)).toBe(false);
+    expect(iva.parentElement).toBe(empresa.parentElement);
+    expect(empresa.contains(iva)).toBe(false);
   });
 
   it("el signo lo da el servidor: negativo y cero con su insignia", () => {

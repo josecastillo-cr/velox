@@ -33,7 +33,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // 170 —columnas enumeradas en el orden de la pantalla, monto TAL CUAL, etiquetas legibles, valores
 // crudos, ningún identificador— sobre la proyección nueva (`lineaDeFila` + `filaDescargaEstadoCuenta`).
 
-/** La fila del estado de cuenta de la tienda, en la vista de la tienda (sin nombres de Ordenex). */
+/** La fila del estado de cuenta de la tienda, en la vista de la tienda (sin nombres de la empresa). */
 function filaTienda(parcial: Partial<FilaEstadoCuentaDTO>): FilaEstadoCuentaDTO {
   return filaEstado({ registro: { nombre: null, automatico: null }, ...parcial });
 }
@@ -112,7 +112,7 @@ describe("columnas de descarga del estado de cuenta de la tienda", () => {
 // ⭑ FICHA 381 (T I.2, R39) — EL COBRO EN LA DESCARGA DEL LIBRO DE LA TIENDA, con el LITERAL que la
 // tienda lee en la tabla (no contra el diccionario: sería una aserción contra su propia fuente).
 //
-// ⭑ FICHA 461 (R44, P4) — la tienda descarga «Ordenex te cobró» y la oficina «Ordenex le cobra a la
+// ⭑ FICHA 461 (R44, P4) — la tienda descarga «la empresa te cobró» y la oficina «la empresa le cobra a la
 // tienda»; el resto de la fila (fecha, monto, motivo) es el mismo, y se afirma cruzado.
 describe("⭑ FICHA 381/461 (R39/R44) — el cobro sale en el archivo con el nombre de SU pantalla", () => {
   const COBRO = filaTienda({

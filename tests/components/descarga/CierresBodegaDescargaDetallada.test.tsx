@@ -158,7 +158,7 @@ function gestionConsolidada(): CierreGestionDescargaDTO {
     indemnizacion: null,
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: "12.00",
-    ingresoOrdenex: null,
+    ingresoEmpresa: null,
   };
 }
 

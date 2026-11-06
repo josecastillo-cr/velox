@@ -1997,7 +1997,7 @@ describe("Feature 69 — crearCierre puebla cierre_detail (R3-R9/R11)", () => {
   it("R24: el shape del snapshot no cambia — la lista EXACTA de columnas escritas", async () => {
     // Lista congelada tal cual la escribia `dev` antes de la 274 (feature 69 + el
     // `tarifaFulfillment` de 2026-08-19). La 274 cambia QUE FILA se elige, no QUE se escribe:
-    // si alguien anadiera o quitara una columna aqui, la aritmetica de `ingreso-ordenex.ts` y
+    // si alguien anadiera o quitara una columna aqui, la aritmetica de `ingreso-empresa.ts` y
     // los feeds de wallet que leen el snapshot dejarian de cuadrar en silencio.
     const COLUMNAS_DEV = [
       "cierreId",

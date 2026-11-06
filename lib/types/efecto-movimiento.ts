@@ -16,7 +16,7 @@ import { montoPositivoSchema, type EstadoCaja } from "@/lib/types/wallet";
  */
 export const CONCEPTO_REGISTRO_SEED = [
   // Sale
-  "gasto_ordenex",
+  "gasto_empresa",
   "sueldo",
   "pago_iva",
   "pago_gasto_tienda",
@@ -26,7 +26,7 @@ export const CONCEPTO_REGISTRO_SEED = [
   // Llega
   "aporte",
   "correccion_suma",
-  "tienda_paga_a_ordenex",
+  "tienda_paga_a_empresa",
   // Se descuenta
   "cobro_a_tienda",
 ] as const;
@@ -55,7 +55,7 @@ export interface LineaEfectoDTO {
  * R44–R47 — el efecto, calculado en el SERVIDOR con `derivarCaja` y la derivacion del saldo de la
  * cuenta. `cifraPrincipal.rotulo` es el ESTADO de la caja (la pantalla elige el texto, como en la
  * 459). `cuenta` es `null` si el concepto no afecta a una cuenta. `superaDisponible` solo existe en
- * el pago a una tienda y en el pago de una tienda a Ordenex (el tope lo decide el servidor).
+ * el pago a una tienda y en el pago de una tienda a la empresa (el tope lo decide el servidor).
  */
 export interface EfectoMovimientoDTO {
   lineas: {

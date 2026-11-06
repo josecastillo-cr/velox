@@ -506,7 +506,7 @@ describe("ordenesColumns — feature 204 (el dinero derivado llega hecho del ser
       tienda: {
         id: "t1",
         nombre: "Tienda Uno",
-        email: "t@ordenex.co",
+        email: "t@ejemplo.test",
         telefono: "0990000001",
         tarifa: {
           id: "tar-1",

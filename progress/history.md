@@ -5779,3 +5779,33 @@ Campana, push (admin/adminSatelite) a las 07:00 CR, marca en /cierres-admin y fr
 ## 2026-10-16 — 483 + release 477-483 a prod
 - 483: la guardia 69/R10 (`cierre-detail-inmutable.test.ts`) fallaba en el gate de release por el `cierreDetail.deleteMany` intencional de la 477/R18 (cierre rechazado). El --rapido de la 477 no lo vio (test no relacionado por el grafo). Excepcion acotada a 1 ocurrencia en CierreDiaRepository.ts, mutaciones rojas, revision OK. PR #861.
 - Release #862 (merge commit, 2 padres, b784b8f2): 477-483, sin migraciones. Gate completo verde sobre 9222aa54. Despliegue de produccion success, 0 errores runtime. dev = prod.
+
+## 2026-11-03 — 498 dinero de satélite entra a la caja al conciliar
+- Aprobar un cierre satélite ya no escribe en los libros; marcar recibida la consolidación asienta sus cierres y la diferencia en caja (bolsillo «Por cobrar a satélites»). Deuda sobre todos los métodos; conciliación con dinero no se revierte (se corrige). M1-M4, con M4 regularizando las conciliadas con la regla anterior.
+- Requisitos cubiertos: R1-R44 (64 con los bis/a/b), mapa en progress/impl_498.md; mutaciones 16/16.
+- Deuda: m3 (R2 solo indirecto), m4 (test «R34» no prueba R34), m5 (tono voseo/tuteo entre ayuda y conciliación). T8.4 (medición en prod) pendiente para la release.
+
+## 2026-11-03 — 500 deuda de satélites al conciliar y distritos de zonas
+- «Desmarcar» solo sin dinero (fuente única consolidacionesConDinero para servidor y pantallas); tests de la fórmula del esperado y del revertir con solo ajuste; rastro de distritos en el histórico (enum zona_distrito_cambiado); texto PROVISIONAL retirado.
+- Requisitos cubiertos: R1-R23. Bloque 8 (R24-R30) pendiente de su puerta.
+- Deuda: ficha 502 (m1 test tx vs this.prisma, m4 nota contradictoria en Desmarcar, m5 sobrante con dinero sin acciones).
+
+## 2026-11-04 — 501 fechas de Pagos registrados en hora de Costa Rica
+- «Registrado el» y «Anulado el» (tabla y descarga) usan el día de Costa Rica; `fechaPago` no se mueve. PR #885.
+- Requisitos cubiertos: R1-R10. Vista en `/cierres-admin`; `/wallet/tiendas` sin pagos de tienda en local.
+- Deuda: m1 (guardia no ve alias por referencia), m2 (R9 con fechas imposibles, inalcanzable), m3 (`/wallet/tiendas` sin test en la frontera).
+
+## 2026-11-04 — 502 conciliación satélite, menores de la 500
+- Fuera la nota del diálogo de Desmarcar; «Corregir» en recibida de más (solo escribe la variación); test contra Postgres de `tx` frente a `this.prisma` en el rastro de distritos. PR #886.
+- Requisitos cubiertos: R1-R13 (salida A). Medido contra Postgres antes de tocar la pantalla.
+- Deuda: Q2, la ayuda promete «Corregir» en las saldadas (`wallet-satelites.md:129-130`).
+
+## 2026-11-05 — 494 marca Velox Courier, identificadores internos
+- «ordenex» sustituido en identificadores de código, valores de contrato, claves del navegador, dominios y `package.json`, por tandas. PR #887-#893. Sin migración.
+- Requisitos cubiertos: ver `specs/494-marca-identificadores-internos/` y `progress/review_494_t*.md`. Gate completo pendiente en la release.
+- Deuda: PWA instalada y R22 en dispositivo real; T9 plantillas de Meta (humano); T10 ficha de retirada, índice y portar.
+
+## 2026-11-05 — 505 aviso de versión nueva, tarjeta descompuesta
+- Los botones ocupan las dos columnas de la tarjeta (`col-span-2`) y el texto vuelve junto al icono. PR #894.
+- Medido en navegador a 375 y 1280 px, en ruta temporal; test que falla sin la clase.
+- Deuda: sin ver dentro del portal ni con service worker real.

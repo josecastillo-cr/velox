@@ -234,7 +234,7 @@ function gestion(): CierreGestionDescargaDTO {
     indemnizacion: null,
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: null,
-    ingresoOrdenex: null,
+    ingresoEmpresa: null,
   };
 }
 
@@ -375,7 +375,7 @@ const BOTON_DETALLE_ARCHIVO = "Descargar Gestiones de cierres";
  * verde, y lo que se afirma aquí es que la clave guardada es ESA y no otra.
  */
 function claveDe(ambito: string): string {
-  return `ordenex:descarga-columnas:${ambito}`;
+  return `app:descarga-columnas:${ambito}`;
 }
 
 function encabezadosDe(columnas: readonly DescargaColumna[]): string[] {

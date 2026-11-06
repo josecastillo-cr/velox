@@ -42,15 +42,15 @@ import {
 } from "@/app/(app)/cierre-dia/_components/cierre-dia-descarga-columnas";
 import type {
   CierreResultado,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreGestionDescargaDTO } from "@/lib/interfaces/services/ICierresAdminService";
 import { NOMBRE_CORTO_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // --- Fixtures -------------------------------------------------------------
 
-/** Ingreso de Ordenex con los seis conceptos poblados y money-safe (STRING escala 2). */
-function ingreso(over: Partial<IngresoOrdenexDTO> = {}): IngresoOrdenexDTO {
+/** Ingreso de la empresa con los seis conceptos poblados y money-safe (STRING escala 2). */
+function ingreso(over: Partial<IngresoEmpresaDTO> = {}): IngresoEmpresaDTO {
   return {
     montoCobrar: "1000.10",
     cobraComision: true,
@@ -118,7 +118,7 @@ function gestion(
     indemnizacion: null,
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: null,
-    ingresoOrdenex: ingreso(),
+    ingresoEmpresa: ingreso(),
     ...over,
   };
 }
@@ -530,7 +530,7 @@ describe("proyección de una gestión a una fila de la hoja fundida (T3.3)", () 
           { metodo: "efectivo", monto: "1000000.00" },
           { metodo: "SINPE", monto: "234567.89" },
         ],
-        ingresoOrdenex: ingreso({ montoCobrar: "1234567.89", total: "1000.00" }),
+        ingresoEmpresa: ingreso({ montoCobrar: "1234567.89", total: "1000.00" }),
       }),
     );
     // El STRING TAL CUAL: ni `₡`, ni separador de miles, ni redondeo, ni `number`.
@@ -563,7 +563,7 @@ describe("proyección de una gestión a una fila de la hoja fundida (T3.3)", () 
         distritoNombre: null,
         motivo: null,
         // Sin tarifa vigente al solicitar (gap conocido de la 69): no hay ingreso ninguno.
-        ingresoOrdenex: null,
+        ingresoEmpresa: null,
         pagoMensajero: null,
       }),
     );

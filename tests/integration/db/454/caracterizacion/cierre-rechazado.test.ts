@@ -42,6 +42,8 @@ describeSiHayBase("454/C17 — cierre rechazado, re-solicitado y aprobado (Postg
       };
       const resolicitud = await e.solicitarCierre();
       const aprobacion = await e.aprobar(cierreId);
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+      await e.asentar(cierreId);
       const trasAprobar = {
         dinero: await dinero(),
         historial: await historial(),
@@ -49,6 +51,8 @@ describeSiHayBase("454/C17 — cierre rechazado, re-solicitado y aprobado (Postg
         rec: await e.estadoDe(rec.ordenId),
       };
       const reaprobacion = await e.aprobar(cierreId);
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+      await e.asentar(cierreId);
       const trasReaprobar = { dinero: await dinero(), historial: await historial() };
       return {
         historialAntes,

@@ -23,6 +23,8 @@ function buildTx() {
     // no lo miden no tengan que fijarlo.
     orden: { findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn(), count: vi.fn().mockResolvedValue(0) },
     tarifaZonaMensajero: { createMany: vi.fn(), deleteMany: vi.fn(), findMany: vi.fn() },
+    // FICHA 500: los nombres de los distritos que entran o salen (rastro `zona_distrito_cambiado`).
+    distrito: { findMany: vi.fn().mockResolvedValue([]) },
     // FICHA 362: el borrado registra su accion DENTRO de esta misma transaccion.
     historialAccion: { createMany: vi.fn() },
     usuario: {
@@ -900,6 +902,19 @@ function filasDeHistorial(tx: ReturnType<typeof buildTx>, n = 0): Record<string,
 
 const DATOS_BASE = { nombre: "B", cobroVehiculo: false, distritoIds: ["d1"], tarifas: [] };
 
+/**
+ * FICHA 500: en los casos que afirman «no se registro NADA», la zona YA tenia los distritos que se
+ * reenvian (`d1`). Sin esto, el doble diria que la zona no tenia ninguno y el guardado escribiria,
+ * con razon, una fila `zona_distrito_cambiado`.
+ */
+function conDistritosPrevios(tx: ReturnType<typeof buildTx>) {
+  tx.zonaDistrito.findMany.mockImplementation(async (args: { where?: { zonaId?: string; distritoId?: unknown } }) =>
+    args?.where?.zonaId !== undefined && args.where.distritoId === undefined
+      ? DATOS_BASE.distritoIds.map((distritoId) => ({ distritoId }))
+      : [],
+  );
+}
+
 describe("376/T6 — la guarda de `update` (R5) y el desenlace nombrado", () => {
   it("⭑ R5: `esCentral: false` sobre la zona QUE ES la central -> `sin_zona_central`, sin escribir NADA", async () => {
     const tx = buildTx();
@@ -922,6 +937,7 @@ describe("376/T6 — la guarda de `update` (R5) y el desenlace nombrado", () => 
     // La guarda es «no quedarse sin», no «la marca no se apaga nunca». Sin este caso, quitar el
     // `&& exists.esCentral` de la condicion pasaria desapercibido.
     const tx = buildTx();
+    conDistritosPrevios(tx); // ficha 500
     tx.zona.findUnique.mockResolvedValue({ id: "zB", esCentral: false });
     tx.zona.update.mockResolvedValue({
       id: "zB",
@@ -941,6 +957,7 @@ describe("376/T6 — la guarda de `update` (R5) y el desenlace nombrado", () => 
 
   it("⭑ R1/R3: el campo AUSENTE no dispara la guarda ni el rastro, ni siquiera en la central", async () => {
     const tx = buildTx();
+    conDistritosPrevios(tx); // ficha 500
     tx.zona.findUnique.mockResolvedValue({ id: "zA", esCentral: true });
     tx.zona.update.mockResolvedValue({
       id: "zA",
@@ -966,6 +983,7 @@ describe("376/T6 — la guarda de `update` (R5) y el desenlace nombrado", () => 
 
   it("R18: reenviar `esCentral: true` en la zona que YA es la central no deja fila", async () => {
     const tx = buildTx();
+    conDistritosPrevios(tx); // ficha 500
     tx.zona.findUnique.mockResolvedValue({ id: "zA", esCentral: true });
     tx.zona.update.mockResolvedValue({
       id: "zA",

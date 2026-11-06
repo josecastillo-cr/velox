@@ -281,8 +281,8 @@ afterEach(cleanup);
  *   ingresosPropios − egresosPropios = ganancia
  *
  * FICHA 459 (T A.8) — la segunda identidad era «terceros + ganancia = en caja». Desde
- * la 459 la cifra principal tiene TRES sumandos: el capital de Ordenex (saldo inicial y
- * aportes) es dinero de Ordenex que no es ganancia (R6/R7). El conjunto lleva un capital
+ * la 459 la cifra principal tiene TRES sumandos: el capital de la empresa (saldo inicial y
+ * aportes) es dinero de la empresa que no es ganancia (R6/R7). El conjunto lleva un capital
  * DISTINTO de cero y con céntimos: con capital 0 la identidad vieja y la nueva serían la
  * misma y el caso no distinguiría nada. Es el contrato, reescrito a conciencia.
  *
@@ -305,10 +305,14 @@ const CAJA_CON_CENTIMOS: CajaResumenDTO = {
   ivaPorPagar: "0.00",
   signoIvaPorPagar: "cero",
   porcentajeIva: "0.00",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos",
   capital: "1000.33",
   signoCapital: "positivo",
-  deOrdenex: "3416.25",
+  deEmpresa: "3416.25",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "8999.67",
   // Estado «flujo»: el de producción hoy. La identidad no depende del estado (R7).
@@ -327,7 +331,7 @@ describe("ficha 359 · B1 — la tarjeta de la caja: las tres identidades (459: 
     expect(c("deTerceros").add(c("ganancia")).add(c("capital")).toFixed(2)).toBe(
       CAJA_CON_CENTIMOS.enCaja,
     );
-    expect(c("ganancia").add(c("capital")).toFixed(2)).toBe(CAJA_CON_CENTIMOS.deOrdenex);
+    expect(c("ganancia").add(c("capital")).toFixed(2)).toBe(CAJA_CON_CENTIMOS.deEmpresa);
     // Capital con céntimos y distinto de cero: con 0 la identidad de dos sumandos también
     // cerraría y el caso no probaría la de tres.
     expect(CAJA_CON_CENTIMOS.capital).not.toBe("0.00");
@@ -345,7 +349,7 @@ describe("ficha 359 · B1 — la tarjeta de la caja: las tres identidades (459: 
     const ganancia = leerImporte(
       screen.getByRole("region", { name: CAJA_RESUMEN_LABEL.ganancia }),
     );
-    // Ficha 459 (R25): el capital es su propia región, dentro del bolsillo de Ordenex.
+    // Ficha 459 (R25): el capital es su propia región, dentro del bolsillo de la empresa.
     const capital = leerImporte(
       screen.getByRole("region", { name: CAJA_RESUMEN_LABEL.capital }),
     );
@@ -366,7 +370,7 @@ describe("ficha 359 · B1 — la tarjeta de la caja: las tres identidades (459: 
     laCuentaCierra([enCaja, salidas], entradas, "caja: entradas − salidas");
     // Identidad 2 — ficha 459 (R7): terceros + ganancia + capital = cifra principal.
     laCuentaCierra([terceros, ganancia, capital], enCaja, "caja: terceros + ganancia + capital");
-    // Identidad 3 — el bolsillo de Ordenex, por dentro.
+    // Identidad 3 — el bolsillo de la empresa, por dentro.
     laCuentaCierra([ganancia, egresos], ingresos, "caja: ingresos − egresos");
   });
 
@@ -551,9 +555,9 @@ import {
   CASCADA_CENTRAL_TITULO,
   CASCADA_DUENO_TITULO,
   COBRADO_SOBRE_RECAUDADO_LABEL,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_TIENDA_LABEL,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
@@ -682,8 +686,8 @@ describe("ficha 359 · B3 — reparto al mensajero: el máximo que se anuncia es
 // archivo mata.
 //
 //   R6  recaudado − flete − comisión            = para la tienda
-//   R7  cobrado + flete por devolución a origen             = lo que Ordenex facturó
-//   R8  facturado − mensajeros − gana la bodega = neto de Ordenex
+//   R7  cobrado + flete por devolución a origen             = lo que la empresa facturó
+//   R8  facturado − mensajeros − gana la bodega = neto de la empresa
 //   R9  recaudado − mensajeros − gana la bodega = para la central
 // ---------------------------------------------------------------------------
 
@@ -901,7 +905,7 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
       // de lo recaudado, y por eso existe la línea puente).
       pagoTienda: "98954.34",
       cobradoSobreRecaudado: "27134.83",
-      netoOrdenex: "13384.78",
+      netoEmpresa: "13384.78",
       // Ficha 396 (D1) — el agregado que le faltaba a este contrato: 126.089,17 - 27.635,58.
       // Este bloque es de la 393 y NO lo pinta; los dos campos van porque el DTO los declara
       // REQUERIDOS. Ni una aserción de este archivo cambia.
@@ -910,6 +914,7 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
       partesPorTienda: [],
       paraLaCentral: "111838.37",
       efectivoCubreDescuentos: true,
+      puedeDesmarcar: false, // ficha 500
     });
 
     render(
@@ -956,14 +961,14 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
         importeTrasEn(dueno, COBRADO_SOBRE_RECAUDADO_LABEL),
         importeTrasEn(dueno, FLETE_DEV_CON_IVA_LABEL),
       ],
-      importeTrasEn(dueno, FACTURADO_ORDENEX_LABEL),
+      importeTrasEn(dueno, FACTURADO_EMPRESA_LABEL),
       "detalle de bodega: línea puente",
     );
 
     // LA RAZÓN DE SER DE LA LÍNEA PUENTE, medida: sin ella, la resta que quedaría a
     // la vista NO da. El hueco es exactamente el flete por devolución a origen.
     const recaudado = centimosPintados(importeTrasEn(dueno, TOTAL_GENERAL_LABEL));
-    const facturado = centimosPintados(importeTrasEn(dueno, FACTURADO_ORDENEX_LABEL));
+    const facturado = centimosPintados(importeTrasEn(dueno, FACTURADO_EMPRESA_LABEL));
     const tienda = centimosPintados(importeTrasEn(dueno, PARA_LA_TIENDA_LABEL));
     expect(recaudado - facturado).not.toBe(tienda);
     expect(tienda - (recaudado - facturado)).toBe(centimosDelServidor("500.75"));
@@ -973,11 +978,11 @@ describe("ficha 393 · B5 — el DETALLE del cierre de bodega: las cuatro identi
     const { dueno } = await abrir();
     laCuentaCierra(
       [
-        importeTrasEn(dueno, FACTURADO_ORDENEX_LABEL),
+        importeTrasEn(dueno, FACTURADO_EMPRESA_LABEL),
         importeTrasEn(dueno, PAGO_MENSAJERO_LABEL),
         importeTrasEn(dueno, GANA_BODEGA_SATELITE_LABEL),
       ],
-      importeTrasEn(dueno, NETO_ORDENEX_LABEL),
+      importeTrasEn(dueno, NETO_EMPRESA_LABEL),
       `detalle de bodega: neto de ${NOMBRE_ESPERADO}`,
     );
   });
@@ -1059,12 +1064,12 @@ describe("ficha 359 · C — el resto del censo, por su propia etiqueta", () => 
   });
 
   it(`dinero por producto: recaudado = liquidado a ${NOMBRE_ESPERADO} + liquidado a la tienda + pendiente`, () => {
-    const ordenex = new Prisma.Decimal("416.47");
+    const empresa = new Prisma.Decimal("416.47");
     const tienda = new Prisma.Decimal("11482.53");
     const pendiente = new Prisma.Decimal("0.50");
-    const recaudado = ordenex.add(tienda).add(pendiente);
+    const recaudado = empresa.add(tienda).add(pendiente);
     laCuentaCierra(
-      [money(ordenex.toFixed(2)), money(tienda.toFixed(2)), money(pendiente.toFixed(2))],
+      [money(empresa.toFixed(2)), money(tienda.toFixed(2)), money(pendiente.toFixed(2))],
       money(recaudado.toFixed(2)),
       "dinero por producto",
     );

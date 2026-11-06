@@ -37,7 +37,7 @@ import type {
   CierrePasadoDTO,
   CierreResultado,
   CierreTotales,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
 // Feature 170 — FASE 2 (T I.2): los cuatro históricos de estas pantallas se pintan desde una
@@ -320,10 +320,10 @@ const CONSOLIDABLES = [consolidable(1), consolidable(2)];
 const BODEGA_SOLICITADOS = [cierreBodega({ cierreBodegaId: "b3", estado: "aprobado" })];
 
 /**
- * Ingreso de Ordenex por orden. Solo el detalle de ADMIN lo trae, y es lo que hace que la
+ * Ingreso de la empresa por orden. Solo el detalle de ADMIN lo trae, y es lo que hace que la
  * fila tenga desglose desplegable — el estado que el test de R37 usa como testigo.
  */
-function ingreso(): IngresoOrdenexDTO {
+function ingreso(): IngresoEmpresaDTO {
   return {
     montoCobrar: "1000.10",
     cobraComision: true,
@@ -357,7 +357,7 @@ function gruposConEvidencia(): CierreGrupos {
         metodoPago: "SINPE",
         // Feature 213 (T8): desglose COHERENTE con el escalar ya declarado (R23).
         pagos: [{ metodo: "SINPE", monto: "1000.10" }],
-        ingresoOrdenex: ingreso(),
+        ingresoEmpresa: ingreso(),
       }),
     ],
     devolucion_a_origen_por_rechazo: [

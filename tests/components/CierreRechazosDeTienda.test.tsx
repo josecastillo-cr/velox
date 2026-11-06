@@ -11,7 +11,7 @@ import type {
   CierreDetalleGestion,
   CierreGrupos,
   CierreRechazoDeTienda,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
 /**
@@ -81,7 +81,7 @@ function cabecera(
   return { ...BASE, ...quien, ...dinero };
 }
 
-const INGRESO: TotalesIngresoOrdenex = {
+const INGRESO: TotalesIngresoEmpresa = {
   montoCobrar: "8000.00",
   fleteConIva: "2260.00",
   fleteDevolucionConIva: "0.00",
@@ -95,7 +95,7 @@ const INGRESO: TotalesIngresoOrdenex = {
   ivaComisionCod: "92.04",
 };
 
-const INGRESO_EN_CERO: TotalesIngresoOrdenex = {
+const INGRESO_EN_CERO: TotalesIngresoEmpresa = {
   montoCobrar: "0.00",
   fleteConIva: "0.00",
   fleteDevolucionConIva: "0.00",

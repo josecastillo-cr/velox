@@ -311,7 +311,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
     await sembrar("ingreso", "ingreso_reverso_pago_iva", "5.00", DIA, "gasto", pagoDelDia.id);
     await sembrar("ingreso", "ingreso_iva_flete", "999.00", DIA_FUERA, "cierre_dia", randomUUID()); // fuera del periodo
     const periodo = await leer(actor, PERIODO);
-    const gananciaMetrica = await metrica("ganancia_ordenex", actor);
+    const gananciaMetrica = await metrica("ganancia_empresa", actor);
     const egresosMetricaDespues = await metrica("egresos", actor);
     const diaDespues = await delDia();
 
@@ -385,7 +385,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
   //   egresos propios  = 153 845,77 + 1 000,00 (reverso del FLETE del cobro anulado) = 154 845,77
   //   ganancia = 64 979,22 − 154 845,77 = −89 866,55
   //   IVA cobrado = IVA por pagar = 1 492,21 − 130,00 (reverso del IVA del cobro) = 1 362,21
-  //   De Ordenex = −89 866,55 + 20 000,00 = −69 866,55
+  //   De la empresa = −89 866,55 + 20 000,00 = −69 866,55
   //   R7: −69 866,55 + 14 175,82 + 1 362,21 = −54 328,52 = la cifra principal de B.0
   // ───────────────────────────────────────────────────────────────────────────────────────────
   it(`§1 R2/R3/R4/R5/R6: ganancia, ingresos y gastos de ${NOMBRE_ESPERADO} SIN IVA; IVA cobrado; IVA por pagar; «De ${NOMBRE_CORTO_ESPERADO}»`, () => {
@@ -397,24 +397,24 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
       ganancia: d(antes, base, "ganancia"),
       ivaCobrado: d(antes, base, "ivaCobrado"),
       ivaPorPagar: d(antes, base, "ivaPorPagar"),
-      deOrdenex: d(antes, base, "deOrdenex"),
+      deEmpresa: d(antes, base, "deEmpresa"),
     }).toEqual({
       ingresosPropios: "64979.22",
       egresosPropios: "154845.77",
       ganancia: "-89866.55",
       ivaCobrado: "1362.21",
       ivaPorPagar: "1362.21",
-      deOrdenex: "-69866.55",
+      deEmpresa: "-69866.55",
     });
   });
 
   it(`§1 R7: cifra principal = «De ${NOMBRE_CORTO_ESPERADO}» + «De las tiendas» + IVA por pagar, al centimo (diferencia y libro entero)`, () => {
     const { antes, base, trasPago, trasAnular } = m();
-    expect(suma(d(antes, base, "deOrdenex"), d(antes, base, "deTerceros"), d(antes, base, "ivaPorPagar"))).toBe(
+    expect(suma(d(antes, base, "deEmpresa"), d(antes, base, "deTerceros"), d(antes, base, "ivaPorPagar"))).toBe(
       d(antes, base, "enCaja"),
     );
     for (const r of [base, trasPago, trasAnular]) {
-      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar)).toBe(r.enCaja);
+      expect(suma(r.deEmpresa, r.deTerceros, r.ivaPorPagar)).toBe(r.enCaja);
     }
   });
 
@@ -603,7 +603,7 @@ describeSiHayBase("⭑ 488 — la ganancia de la caja sin IVA (Postgres real)", 
   // ───────────────────────────────────────────────────────────────────────────────────────────
   // §7 — R31/R32: la analitica financiera sobre el mismo periodo.
   // ───────────────────────────────────────────────────────────────────────────────────────────
-  it("§7 R31: `ganancia_ordenex` del tablero = la ganancia de la tarjeta sobre el MISMO periodo (sin IVA)", () => {
+  it("§7 R31: `ganancia_empresa` del tablero = la ganancia de la tarjeta sobre el MISMO periodo (sin IVA)", () => {
     const { gananciaMetrica, periodo } = m();
     expect(gananciaMetrica.forma).toBe("bruto_y_neto");
     expect((gananciaMetrica as { neto: string }).neto).toBe(periodo.resumen.ganancia);

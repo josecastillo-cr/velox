@@ -23,7 +23,7 @@ import { congelada, dineroFalso, filaDinero, TARIFA } from "./_dinero-falso";
 // Cubre R5, R11, R12, R13, R16, R17, R18, R19, R20, R21, R22, R25, R28, R30, R76, R77, R78.
 //
 // Los numeros estan calculados a mano (ver `_dinero-falso.ts`): con la tarifa del fixture, una
-// entrega liquidada de 10.000 deja `ordenex = 3.955,00` y `tienda = 6.045,00`.
+// entrega liquidada de 10.000 deja `empresa = 3.955,00` y `tienda = 6.045,00`.
 
 const AHORA = new Date("2026-09-01T12:00:00.000Z");
 const T1 = "t1";
@@ -62,12 +62,12 @@ function grupo(filas: readonly ReturnType<typeof filaDinero>[], clave: string, t
 }
 
 describe("R11 / R14 / R15 / R20 · las cuatro cifras de una fila", () => {
-  it("una entrega liquidada da recaudado, `ordenex` y tienda con los numeros de la tarifa", () => {
+  it("una entrega liquidada da recaudado, `empresa` y tienda con los numeros de la tarifa", () => {
     const c = grupo([filaDinero()], "base c");
 
     expect(c.recaudado).toBe("10000.00");
     expect(c.liquidado.recaudado).toBe("10000.00");
-    expect(c.liquidado.ordenex).toBe("3955.00");
+    expect(c.liquidado.empresa).toBe("3955.00");
     expect(c.liquidado.tienda).toBe("6045.00");
     expect(c.liquidado.ordenes).toBe(1);
     expect(c.pendiente.recaudado).toBe("0.00");
@@ -75,7 +75,7 @@ describe("R11 / R14 / R15 / R20 · las cuatro cifras de una fila", () => {
     expect(c.retorno).toBe("0.00");
   });
 
-  it("R20 · `ordenex + tienda === liquidado.recaudado` para TODAS las filas fundidas", () => {
+  it("R20 · `empresa + tienda === liquidado.recaudado` para TODAS las filas fundidas", () => {
     const filas = [
       filaDinero({ ordenId: "o1" }),
       filaDinero({ ordenId: "o2", montoRecibido: "7333.33", congelada: congelada({ montoCobrar: "7333.33" }) }),
@@ -85,9 +85,9 @@ describe("R11 / R14 / R15 / R20 · las cuatro cifras de una fila", () => {
     expect(fundidas.size).toBeGreaterThan(0);
 
     for (const [id, c] of fundidas) {
-      if (c.liquidado.ordenex === null) continue;
+      if (c.liquidado.empresa === null) continue;
       expect(
-        new Prisma.Decimal(c.liquidado.ordenex).plus(c.liquidado.tienda!).toFixed(2),
+        new Prisma.Decimal(c.liquidado.empresa).plus(c.liquidado.tienda!).toFixed(2),
         id,
       ).toBe(c.liquidado.recaudado);
     }
@@ -111,7 +111,7 @@ describe("R11 / R14 / R15 / R20 · las cuatro cifras de una fila", () => {
     const importes = [
       c.recaudado,
       c.liquidado.recaudado,
-      c.liquidado.ordenex,
+      c.liquidado.empresa,
       c.liquidado.tienda,
       c.pendiente.recaudado,
       c.retorno,
@@ -195,7 +195,7 @@ describe("R18 · ⚠ MUTACION M10 · una orden en DOS cierres cuenta UNA vez", (
     );
 
     expect(c.recaudado).toBe("15000.00");
-    expect(c.liquidado.ordenex).toBe("5085.00"); // 3.955 + (1.000 + 130)
+    expect(c.liquidado.empresa).toBe("5085.00"); // 3.955 + (1.000 + 130)
     // ⚠ SI LA ORDEN CONTARA DOS VECES (mutacion M10), esto valdria 2.
     expect(c.liquidado.ordenes).toBe(1);
     expect(c.pendiente.ordenes).toBe(0);
@@ -212,7 +212,7 @@ describe("R18 · ⚠ MUTACION M10 · una orden en DOS cierres cuenta UNA vez", (
 });
 
 describe("R19 · ⚠ MUTACION M3 · el retorno NO entra en el reparto", () => {
-  it("una rechazada liquidada suma `retorno` y deja `ordenex` intacto", () => {
+  it("una rechazada liquidada suma `retorno` y deja `empresa` intacto", () => {
     const c = grupo(
       [
         filaDinero({ ordenId: "o1" }),
@@ -222,9 +222,9 @@ describe("R19 · ⚠ MUTACION M3 · el retorno NO entra en el reparto", () => {
     );
 
     expect(c.retorno).toBe("2260.00");
-    expect(c.liquidado.ordenex).toBe("3955.00");
-    // ⚠ SI EL RETORNO ENTRARA EN `ordenex` (M3), valdria 6.215,00 y esta igualdad se rompe.
-    expect(new Prisma.Decimal(c.liquidado.ordenex!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
+    expect(c.liquidado.empresa).toBe("3955.00");
+    // ⚠ SI EL RETORNO ENTRARA EN `empresa` (M3), valdria 6.215,00 y esta igualdad se rompe.
+    expect(new Prisma.Decimal(c.liquidado.empresa!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
       c.liquidado.recaudado,
     );
     expect(c.liquidado.recaudado).toBe("10000.00");
@@ -239,7 +239,7 @@ describe("R26 / R28 / R30 · ⚠ MUTACIONES M1 y M6 · liquidado, pendiente y el
       expect(c.liquidado.recaudado, estado).toBe("0.00");
       // ⚠ SI SE QUITARA `estado = 'aprobado'` del criterio (M1), aqui entrarian 3.955,00 de un
       // cierre que todavia nadie aprobo.
-      expect(c.liquidado.ordenex, estado).toBeNull();
+      expect(c.liquidado.empresa, estado).toBeNull();
       expect(c.liquidado.ordenes, estado).toBe(0);
       expect(c.pendiente.ordenes, estado).toBe(1);
     }
@@ -248,12 +248,12 @@ describe("R26 / R28 / R30 · ⚠ MUTACIONES M1 y M6 · liquidado, pendiente y el
   it("⚠ M6 · sin nada liquidado el reparto es `null`, NUNCA `\"0.00\"`", () => {
     const c = grupo([filaDinero({ cierreEstado: null, congelada: null })], "base c");
 
-    expect(c.liquidado.ordenex).toBeNull();
+    expect(c.liquidado.empresa).toBeNull();
     expect(c.liquidado.tienda).toBeNull();
     expect(c.retorno).toBeNull();
     // Y no hay ningun `"0.00"` disfrazado en el reparto: se comprueba sobre el JSON, que es lo
     // que de verdad cruza la frontera.
-    expect(JSON.stringify({ o: c.liquidado.ordenex, t: c.liquidado.tienda, r: c.retorno })).toBe(
+    expect(JSON.stringify({ o: c.liquidado.empresa, t: c.liquidado.tienda, r: c.retorno })).toBe(
       '{"o":null,"t":null,"r":null}',
     );
     // El recaudo SI existe: es un hecho desde que se registro la gestion (R28).
@@ -275,7 +275,7 @@ describe("R26 / R28 / R30 · ⚠ MUTACIONES M1 y M6 · liquidado, pendiente y el
     expect(c.liquidado.ordenes).toBe(1);
     expect(c.pendiente.ordenes).toBe(1);
     // El reparto es SOLO de lo liquidado: no se proyecta lo pendiente (R31).
-    expect(c.liquidado.ordenex).toBe("3955.00");
+    expect(c.liquidado.empresa).toBe("3955.00");
   });
 });
 
@@ -360,7 +360,7 @@ describe("R5 · con el dinero DENEGADO, el repositorio de dinero NO se llama ni 
     expect(dinero.llamadas).toBe(1);
     expect(datos.dinero).toEqual({ estado: "concedido" });
     expect(datos.filas[0].dinero?.recaudado).toBe("10000.00");
-    expect(datos.filas[0].dinero?.liquidado.ordenex).toBe("3955.00");
+    expect(datos.filas[0].dinero?.liquidado.empresa).toBe("3955.00");
   });
 });
 
@@ -449,7 +449,7 @@ describe("R76 · el tope: o van todas las ordenes, o no va ninguna", () => {
 // ============================================================================================
 // FICHA 449 — EL FULFILLMENT LLEGA AL DTO, AGREGADO POR LA MISMA UNIDAD QUE LAS OTRAS TRES.
 //
-// La tabla de productos ensena tres columnas de dinero —Recaudado, Cobro Ordenex y Para la
+// La tabla de productos ensena tres columnas de dinero —Recaudado, Cobró Velox y Para la
 // tienda— agregadas por `(tienda, producto)`. La cifra de bodega tiene que llegar por esa MISMA
 // unidad, y como cifra PROPIA: `ITarifaVigenteRepository` prohibe que entre en la formula.
 //
@@ -461,11 +461,11 @@ describe("FICHA 449 · el fulfillment agregado por `(tienda, producto)`", () => 
     const c = grupo([filaDinero({ fulfillment: "696.00" })], "base c");
 
     expect(c.fulfillment).toBe("696.00");
-    // ⚠ FUERA del reparto: `ordenex` sigue siendo 3.955,00 (3000 + 390 + 500 + 65). Si se
+    // ⚠ FUERA del reparto: `empresa` sigue siendo 3.955,00 (3000 + 390 + 500 + 65). Si se
     // sumara, valdria 4.651,00 y R20 se romperia sin que nada se pusiera rojo.
-    expect(c.liquidado.ordenex).toBe("3955.00");
+    expect(c.liquidado.empresa).toBe("3955.00");
     expect(c.liquidado.tienda).toBe("6045.00");
-    expect(new Prisma.Decimal(c.liquidado.ordenex!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
+    expect(new Prisma.Decimal(c.liquidado.empresa!).plus(c.liquidado.tienda!).toFixed(2)).toBe(
       c.liquidado.recaudado,
     );
   });
@@ -528,13 +528,13 @@ describe("FICHA 449 · el fulfillment agregado por `(tienda, producto)`", () => 
   });
 
   it("R30 · sin NINGUNA orden liquidada la cifra es `null`, jamas un cero", () => {
-    // Mismo criterio que `ordenex`, `tienda` y `retorno`: «no hubo» y «salio cero» son hechos
+    // Mismo criterio que `empresa`, `tienda` y `retorno`: «no hubo» y «salio cero» son hechos
     // distintos. Y el umbral es el mismo —cierre APROBADO— porque un cierre solicitado se ha
     // llegado a BORRAR en este repo, y con el su snapshot.
     const c = grupo([filaDinero({ cierreEstado: "solicitado", fulfillment: "696.00" })], "base c");
 
     expect(c.fulfillment).toBeNull();
-    expect(c.liquidado.ordenex).toBeNull();
+    expect(c.liquidado.empresa).toBeNull();
     // ANTI-VACIO: la fila SI tiene dinero, lo que no tiene es nada liquidado.
     expect(c.recaudado).toBe("10000.00");
   });

@@ -46,7 +46,7 @@ export const COLUMNAS_DESCARGA_ESTADO_CUENTA: DescargaColumna[] = [
 
 /**
  * R3 — la hoja «Movimientos» de `/mi-wallet`: la misma SIN «Registró» (la tienda no ve los nombres de la
- * gente de Ordenex: el servidor no los manda y la pantalla no pinta esa línea, R49).
+ * gente de la empresa: el servidor no los manda y la pantalla no pinta esa línea, R49).
  */
 export const COLUMNAS_DESCARGA_MI_ESTADO_CUENTA: DescargaColumna[] = [
   COLUMNA_LIBRO.fecha,

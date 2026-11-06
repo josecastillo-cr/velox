@@ -114,6 +114,7 @@ function buildTx(
     cierreDia: {
       updateMany: vi.fn(async () => ({ count: 1 })),
       findUnique: vi.fn(async () => ({
+        destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
         mensajeroId: MENSAJERO_ID,
         totalPagoMensajero: new Prisma.Decimal("1500.00"),
         totalEfectivo: new Prisma.Decimal("10000.00"),
@@ -299,7 +300,7 @@ describe("264/B8 — aprobar un cierre CON ordenes sin gestionar mueve el mismo 
     const sinLista = await aprobarCon([]);
 
     expect(conLista.resultado).toBe(sinLista.resultado);
-    // Caja principal (ingresos de Ordenex + egreso del pago al mensajero + ingreso COD).
+    // Caja principal (ingresos de la empresa + egreso del pago al mensajero + ingreso COD).
     expect(conLista.caja).toEqual(sinLista.caja);
     // Ledger por tienda (credito COD + debitos por concepto).
     expect(conLista.tienda).toEqual(sinLista.tienda);

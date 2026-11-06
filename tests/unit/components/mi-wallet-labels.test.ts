@@ -24,14 +24,14 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 // FICHA 461 (T C.3, design §7.4/§7.5, HD3, P4) — EL LIBRO DE LA TIENDA SE LEE DESDE DOS LADOS
 // =================================================================================================
 //
-// R44: `/mi-wallet` rotula cada concepto con su LECTURA DESDE LA TIENDA («Ordenex te cobró») y esa
-// lectura es DISTINTA del nombre desde Ordenex que ve la oficina en `/wallet/tiendas` («Ordenex le
+// R44: `/mi-wallet` rotula cada concepto con su LECTURA DESDE LA TIENDA («la empresa te cobró») y esa
+// lectura es DISTINTA del nombre desde la empresa que ve la oficina en `/wallet/tiendas` («la empresa le
 // cobra a la tienda») en todo concepto en el que una de las dos partes actúa sobre la otra. R45: las
 // pistas de la cabecera nombran el cobro y su anulación con la misma palabra que su fila.
 //
 // Los textos esperados van ESCRITOS A MANO: comparar un diccionario contra sí mismo está siempre
 // verde. Son el contrato aprobado por el humano (HD3). La mutación 12 de design §14.2 —poner en
-// `/mi-wallet` el nombre desde Ordenex del cobro— pone rojos dos casos de este archivo.
+// `/mi-wallet` el nombre desde la empresa del cobro— pone rojos dos casos de este archivo.
 
 /** design §7.5 — la lectura desde la tienda, los 14 conceptos. */
 const LECTURA_DESDE_LA_TIENDA: Record<WalletTiendaMovimientoCategoria, string> = {
@@ -47,7 +47,7 @@ const LECTURA_DESDE_LA_TIENDA: Record<WalletTiendaMovimientoCategoria, string> =
   pago_tienda: `${NOMBRE_ESPERADO} te pagó`,
   pago_por_cuenta: `${NOMBRE_ESPERADO} pagó un gasto por ti`,
   pago_por_cuenta_anulado: `${NOMBRE_ESPERADO} anuló un pago hecho por ti`,
-  // Ficha 457 (design §2, D10, R47): la lectura desde la tienda del pago que ELLA le hizo a Ordenex.
+  // Ficha 457 (design §2, D10, R47): la lectura desde la tienda del pago que ELLA le hizo a la empresa.
   abono_tienda: `Le pagaste a ${NOMBRE_ESPERADO}`,
   abono_tienda_anulado: `${NOMBRE_ESPERADO} anuló el pago que le hiciste`,
   // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, desde la tienda.
@@ -58,7 +58,7 @@ const LECTURA_DESDE_LA_TIENDA: Record<WalletTiendaMovimientoCategoria, string> =
 };
 
 /**
- * Los conceptos en los que una parte ACTÚA sobre la otra (Ordenex cobra, paga, anula, corrige; la
+ * Los conceptos en los que una parte ACTÚA sobre la otra (la empresa cobra, paga, anula, corrige; la
  * tienda recibe). Es todo el libro salvo lo cobrado a los clientes, que también se dice distinto
  * porque «tus clientes» no son «los clientes de la tienda».
  */
@@ -74,10 +74,10 @@ const UNA_PARTE_ACTUA_SOBRE_LA_OTRA: readonly WalletTiendaMovimientoCategoria[] 
   "pago_tienda",
   "pago_por_cuenta",
   "pago_por_cuenta_anulado",
-  // Ficha 457: la tienda paga y Ordenex anula: las dos partes actuan.
+  // Ficha 457: la tienda paga y la empresa anula: las dos partes actuan.
   "abono_tienda",
   "abono_tienda_anulado",
-  // Ficha 458-B: Ordenex anula y la tienda recibe.
+  // Ficha 458-B: la empresa anula y la tienda recibe.
   "flete_devolucion_anulado",
   "iva_flete_devolucion_anulado",
   "ajuste_credito",
@@ -94,7 +94,7 @@ describe("461 — CATEGORIA_MI_WALLET_LABEL: la lectura desde la tienda (R44, de
   });
 
   it(`⭑ 457 (R46/R47): el pago de la tienda a ${NOMBRE_ESPERADO} y su anulacion se leen distinto desde cada lado`, () => {
-    // Mutacion 11 de design §13: poner en `/mi-wallet` el nombre desde Ordenex → rojo aqui.
+    // Mutacion 11 de design §13: poner en `/mi-wallet` el nombre desde la empresa → rojo aqui.
     expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda).toBe(`Le pagaste a ${NOMBRE_ESPERADO}`);
     expect(CATEGORIA_MI_WALLET_LABEL.abono_tienda_anulado).toBe(`${NOMBRE_ESPERADO} anuló el pago que le hiciste`);
     expect(CATEGORIA_TIENDA_LABEL.abono_tienda).toBe(`La tienda le paga a ${NOMBRE_ESPERADO}`);
@@ -126,7 +126,7 @@ describe("461 — CATEGORIA_MI_WALLET_LABEL: la lectura desde la tienda (R44, de
     );
     expect(CATEGORIA_MI_WALLET_LABEL.pago_tienda).toBe(`${NOMBRE_ESPERADO} te pagó`);
     expect(CATEGORIA_MI_WALLET_LABEL.pago_por_cuenta).toBe(`${NOMBRE_ESPERADO} pagó un gasto por ti`);
-    // Ninguno de los dos es el nombre desde Ordenex (design §7.4): esa es la mutación 12.
+    // Ninguno de los dos es el nombre desde la empresa (design §7.4): esa es la mutación 12.
     expect(CATEGORIA_MI_WALLET_LABEL.cobro_manual).not.toBe(`${NOMBRE_ESPERADO} le cobra a la tienda`);
     expect(CATEGORIA_MI_WALLET_LABEL.pago_por_cuenta).not.toBe(`${NOMBRE_ESPERADO} paga un gasto de la tienda`);
   });
@@ -168,14 +168,14 @@ describe("461 — la cabecera de /mi-wallet habla desde la tienda (R45, design �
   });
 
   it("R45: la pista de «Cargos» usa la MISMA palabra con la que el cobro se rotula en su fila", () => {
-    // La tienda ve la cifra agregada arriba y, más abajo, una fila «Ordenex te cobró». Que la
-    // aclaración diga «lo que Ordenex te cobró» es lo que permite relacionar las dos sin adivinar.
+    // La tienda ve la cifra agregada arriba y, más abajo, una fila «la empresa te cobró». Que la
+    // aclaración diga «lo que la empresa te cobró» es lo que permite relacionar las dos sin adivinar.
     expect(DESGLOSE_MI_WALLET_LABEL.cargosHint).toContain(CATEGORIA_MI_WALLET_LABEL.cobro_manual);
     // …y sigue nombrando los tres automáticos (R37 de la 381: AÑADIR, no sustituir).
     expect(DESGLOSE_MI_WALLET_LABEL.cargosHint).toMatch(/flete/i);
     expect(DESGLOSE_MI_WALLET_LABEL.cargosHint).toMatch(/comisión/i);
     expect(DESGLOSE_MI_WALLET_LABEL.cargosHint).toMatch(/IVA/);
-    // R45 también para la anulación: «te devolvió al anular» ↔ «Ordenex anuló un cobro y te lo devolvió».
+    // R45 también para la anulación: «te devolvió al anular» ↔ «la empresa anuló un cobro y te lo devolvió».
     expect(DESGLOSE_MI_WALLET_LABEL.aFavorHint).toMatch(/te devolvió al anular/);
     expect(CATEGORIA_MI_WALLET_LABEL.cobro_tienda_anulado).toMatch(/te lo devolvió/);
   });
@@ -214,7 +214,7 @@ describe("461 — la cabecera de /mi-wallet habla desde la tienda (R45, design �
 /**
  * Los orígenes que ESCRIBEN en el libro de la tienda (`wallet_tienda_movimiento`), medidos en el
  * código: el cierre (`WalletTiendaFeedService`), el pago a tienda y su anulación
- * (`LiquidacionService`), el cobro de Ordenex a la tienda (`CobroTiendaService`, origen `manual`),
+ * (`LiquidacionService`), el cobro de la empresa a la tienda (`CobroTiendaService`, origen `manual`),
  * el cobro por devolución a origen (`RechazoTiendaCobroService`, `gestion_orden`), el pago de un gasto de la
  * tienda y su anulación (`PagoPorCuentaTiendaService`) y, desde la 461, el crédito de la anulación de
  * un cobro (`CobroTiendaService.anular`, origen `cobro_tienda`). Las dos listas juntas cubren el
@@ -227,7 +227,7 @@ const ESCRIBEN_EN_LA_TIENDA: readonly WalletOrigenTipo[] = [
   "gestion_orden",
   "pago_por_cuenta_tienda",
   "cobro_tienda",
-  // Ficha 457: el credito del pago de la tienda a Ordenex y el debito de su anulacion.
+  // Ficha 457: el credito del pago de la tienda a la empresa y el debito de su anulacion.
   "abono_tienda",
 ];
 const NO_ESCRIBEN_EN_LA_TIENDA: readonly WalletOrigenTipo[] = [
@@ -239,6 +239,8 @@ const NO_ESCRIBEN_EN_LA_TIENDA: readonly WalletOrigenTipo[] = [
   "cobro_manual_reclasificado",
   // Las líneas de caja completadas por la migración de datos solo escriben en la caja.
   "cobro_tienda_completado",
+  // Ficha 498: la diferencia de la satélite solo escribe en la caja.
+  "conciliacion_bodega_ajuste",
 ];
 
 describe("ORIGEN_TIENDA_LABEL cubre cada origen que escribe en el libro de la tienda (459 R44 / 461 §7.3)", () => {
@@ -275,6 +277,7 @@ describe("ORIGEN_TIENDA_LABEL cubre cada origen que escribe en el libro de la ti
       aporte_capital: "Aporte de dinero a la caja",
       cobro_manual_reclasificado: "Cobro reclasificado como pago de un gasto de la tienda",
       cobro_tienda_completado: `Cobro de ${NOMBRE_ESPERADO} a una tienda (línea de caja completada al corregir)`,
+      conciliacion_bodega_ajuste: "Conciliación de satélite", // ficha 498: el texto de la caja
     });
   });
 

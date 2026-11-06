@@ -7,23 +7,23 @@ import {
 
 describe("buildPaqueteUrl", () => {
   it("construye la URL absoluta con el num_guia y el origin inyectado", () => {
-    expect(buildPaqueteUrl(1234, "https://ordenex.app")).toBe(
-      "https://ordenex.app/paquete/1234",
+    expect(buildPaqueteUrl(1234, "https://ejemplo.test")).toBe(
+      "https://ejemplo.test/paquete/1234",
     );
   });
 });
 
 describe("extractNumGuiaFromScan", () => {
   it("extrae el num_guia del último segmento de una URL de paquete", () => {
-    expect(extractNumGuiaFromScan("https://ordenex.app/paquete/1234")).toBe(1234);
+    expect(extractNumGuiaFromScan("https://ejemplo.test/paquete/1234")).toBe(1234);
   });
 
   it("ignora la barra final de la URL", () => {
-    expect(extractNumGuiaFromScan("https://ordenex.app/paquete/1234/")).toBe(1234);
+    expect(extractNumGuiaFromScan("https://ejemplo.test/paquete/1234/")).toBe(1234);
   });
 
   it("ignora espacios alrededor del valor escaneado", () => {
-    expect(extractNumGuiaFromScan("  https://ordenex.app/paquete/7  ")).toBe(7);
+    expect(extractNumGuiaFromScan("  https://ejemplo.test/paquete/7  ")).toBe(7);
   });
 
   it("devuelve null si el escaneo es un UUID pelado (sin retrocompatibilidad)", () => {
@@ -33,12 +33,12 @@ describe("extractNumGuiaFromScan", () => {
   });
 
   it("devuelve null si el último segmento no es un entero (basura tipo 123abc)", () => {
-    expect(extractNumGuiaFromScan("https://ordenex.app/paquete/123abc")).toBeNull();
+    expect(extractNumGuiaFromScan("https://ejemplo.test/paquete/123abc")).toBeNull();
   });
 
   it("devuelve null si el num_guia no es positivo", () => {
-    expect(extractNumGuiaFromScan("https://ordenex.app/paquete/0")).toBeNull();
-    expect(extractNumGuiaFromScan("https://ordenex.app/paquete/-5")).toBeNull();
+    expect(extractNumGuiaFromScan("https://ejemplo.test/paquete/0")).toBeNull();
+    expect(extractNumGuiaFromScan("https://ejemplo.test/paquete/-5")).toBeNull();
   });
 
   it("devuelve null si el valor escaneado no es una URL", () => {

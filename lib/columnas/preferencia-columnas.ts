@@ -51,6 +51,8 @@
  * clave a clave contra el parámetro `publicadas`.
  */
 
+import { leerConLegado } from "@/lib/navegador/claves-legadas";
+
 /** Preferencia ya saneada. Las dos listas son PARCIALES a propósito (design §0/D2). */
 export interface PreferenciaColumnas {
   /** Claves que NO salen en el archivo. Ausencia = sale. */
@@ -64,10 +66,11 @@ export type DireccionMovimiento = "arriba" | "abajo";
 
 /**
  * Ficha 314 — prefijo de la clave de preferencia de columnas de un LISTADO. Estrena el suyo a
- * propósito: la clave del manifiesto (`ordenex:manifiesto-columnas:<flujo>`) no se toca, porque
- * es superficie viva en producción y moverla huerfanaría en silencio lo ya guardado (R10).
+ * propósito: la clave del manifiesto (`app:manifiesto-columnas:<flujo>`) es otra, y un listado no
+ * puede leer lo que guardó el manifiesto (R10). Mover cualquiera de los dos prefijos deja huérfano lo
+ * ya guardado, salvo que pase por `lib/navegador/claves-legadas.ts` (feature 494).
  */
-const PREFIJO_CLAVE_DESCARGA = "ordenex:descarga-columnas:";
+const PREFIJO_CLAVE_DESCARGA = "app:descarga-columnas:";
 
 /**
  * La clave de almacenamiento de un ámbito de descarga.
@@ -92,12 +95,16 @@ export function claveDeAmbitoDescarga(ambito: string): string {
  * Devuelve `null` si no hay clave de ámbito (R33), si no hay `window` (servidor), si no hay
  * valor, o si el almacenamiento lanza (modo privado, cookies bloqueadas). NUNCA lanza: R31
  * exige que ningún camino degradado impida la descarga.
+ *
+ * Feature 494: si la preferencia sigue bajo la clave vieja, aquí se traslada a la nueva. Escribir
+ * dentro de un snapshot es seguro porque es idempotente: la segunda lectura ya no escribe nada y
+ * devuelve el mismo string, así que `useSyncExternalStore` no ve ningún cambio.
  */
 export function leerCrudo(clave: string | null): string | null {
   if (clave === null) return null;
   if (typeof window === "undefined") return null;
   try {
-    return window.localStorage.getItem(clave);
+    return leerConLegado(window.localStorage, clave);
   } catch {
     // Sin almacenamiento se procede como si no hubiera preferencia guardada (R31). No se
     // propaga: el usuario perdería la descarga por un dato de presentación corrupto.

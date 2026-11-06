@@ -11,16 +11,16 @@ import type {
 } from "@/lib/interfaces/services/ICierreBodegaService";
 import type {
   CierreGrupos,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 import {
   CASCADA_CENTRAL_TITULO,
   CASCADA_DUENO_TITULO,
   DESGLOSE_NO_REPARTIDO_NOTA,
   DESGLOSE_POR_TIENDA_NOTA,
   DESGLOSE_POR_TIENDA_TITULO,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_TIENDA_LABEL,
   TIENDA_GANA_TOTAL_LABEL,
@@ -190,7 +190,7 @@ function totalesIngreso(over: {
   comisionConIva: string;
   fleteDevolucionConIva: string;
   total: string;
-}): TotalesIngresoOrdenex {
+}): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     flete: over.fleteConIva,
@@ -320,7 +320,7 @@ const DIA_ANA: CierreBodegaDetalleCierre = {
   ganancia: "9000.80",
   pagoTienda: "62499.75",
   cobradoSobreRecaudado: "17500.35",
-  netoOrdenex: "8750.55",
+  netoEmpresa: "8750.55",
   ganaLaTienda: "61999.00",
   partesPorTienda: [ANA_NORTE, ANA_SUR],
   paraLaCentral: "70749.55",
@@ -352,7 +352,7 @@ const DIA_BETO: CierreBodegaDetalleCierre = {
   ganancia: "4634.23",
   pagoTienda: "36454.59",
   cobradoSobreRecaudado: "9634.48",
-  netoOrdenex: "4634.23",
+  netoEmpresa: "4634.23",
   ganaLaTienda: "36454.59",
   partesPorTienda: [BETO_NORTE, BETO_ESTE],
   paraLaCentral: "41088.82",
@@ -374,11 +374,12 @@ const DETALLE_OK = {
   ganancia: "13635.03",
   pagoTienda: "98954.34",
   cobradoSobreRecaudado: "27134.83",
-  netoOrdenex: "13384.78",
+  netoEmpresa: "13384.78",
   ganaLaTienda: "98453.59",
   partesPorTienda: [AGG_NORTE, AGG_SUR, AGG_ESTE],
   paraLaCentral: "111838.37",
   efectivoCubreDescuentos: true,
+  puedeDesmarcar: false, // ficha 500
   // FICHA 431: la marca de conciliacion, CUADRADA con el efectivo de este doble.
   ...marcaSinConciliar("40000.07"),
 };
@@ -673,7 +674,7 @@ describe("396 · D3 · ⚠️ EL CASO QUE SEPARA LOS UMBRALES — R19 vs R20", (
     expect(screen.queryByText("Tienda Única")).toBeNull();
     // Y las tres cifras destacadas de la pantalla siguen exactamente donde y como estaban.
     expect(importeTras(duenoAgregado(), PARA_LA_TIENDA_LABEL)).toBe("₡98.954,34");
-    expect(importeTras(duenoAgregado(), NETO_ORDENEX_LABEL)).toBe("₡13.384,78");
+    expect(importeTras(duenoAgregado(), NETO_EMPRESA_LABEL)).toBe("₡13.384,78");
     expect(importeTras(centralAgregada(), PARA_LA_CENTRAL_LABEL)).toBe("₡111.838,37");
   });
 });
@@ -1006,11 +1007,11 @@ describe("396 · D3 · R18 — ni un importe ya visible cambia de valor", () => 
 
     expect(importeTras(centralAgregada(), PARA_LA_CENTRAL_LABEL)).toBe("₡111.838,37");
     expect(importeTras(duenoAgregado(), PARA_LA_TIENDA_LABEL)).toBe("₡98.954,34");
-    expect(importeTras(duenoAgregado(), NETO_ORDENEX_LABEL)).toBe("₡13.384,78");
+    expect(importeTras(duenoAgregado(), NETO_EMPRESA_LABEL)).toBe("₡13.384,78");
     expect(importeTras(duenoDe("Ana Mensajera"), PARA_LA_TIENDA_LABEL)).toBe("₡62.499,75");
-    expect(importeTras(duenoDe("Ana Mensajera"), NETO_ORDENEX_LABEL)).toBe("₡8.750,55");
+    expect(importeTras(duenoDe("Ana Mensajera"), NETO_EMPRESA_LABEL)).toBe("₡8.750,55");
     expect(importeTras(duenoDe("Beto Mensajero"), PARA_LA_TIENDA_LABEL)).toBe("₡36.454,59");
-    expect(importeTras(duenoDe("Beto Mensajero"), NETO_ORDENEX_LABEL)).toBe("₡4.634,23");
+    expect(importeTras(duenoDe("Beto Mensajero"), NETO_EMPRESA_LABEL)).toBe("₡4.634,23");
   });
 });
 

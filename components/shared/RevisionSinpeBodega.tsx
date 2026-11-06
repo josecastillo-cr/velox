@@ -10,6 +10,7 @@ import {
   confirmarSinpeBodega,
   guardarSinpeBodega,
 } from "@/lib/actions/sinpe-bodega";
+import { leerConLegado } from "@/lib/navegador/claves-legadas";
 import type { SinpeBodegaDTO } from "@/lib/types/sinpe-bodega";
 import { messageFromActionError } from "@/lib/utils/action-error-message";
 
@@ -62,7 +63,7 @@ export interface RevisionSinpeBodegaProps {
  * pero el modelo lo permite— tiene que poder aplazar una sin aplazar la otra.
  */
 function claveDeSesion(zonaId: string): string {
-  return `ordenex:sinpe-revision-aplazada:${zonaId}`;
+  return `app:sinpe-revision-aplazada:${zonaId}`;
 }
 
 /** `true` si en ESTA sesion ya se cerro el aviso de esa bodega. */
@@ -71,7 +72,7 @@ function yaAplazadoEnEstaSesion(zonaId: string): boolean {
   // terceros bloqueadas. Un almacenamiento inaccesible no puede impedir que el aviso se vea —
   // como mucho hace que reaparezca, que es el lado seguro del fallo.
   try {
-    return window.sessionStorage.getItem(claveDeSesion(zonaId)) !== null;
+    return leerConLegado(window.sessionStorage, claveDeSesion(zonaId)) !== null;
   } catch {
     return false;
   }

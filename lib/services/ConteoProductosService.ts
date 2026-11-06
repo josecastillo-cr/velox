@@ -25,7 +25,7 @@
 //
 // ⚠ TODO IMPORTE ES STRING escala 2 de punta a punta (R22). Aqui no se escribe ni una formula de
 // dinero: la unica aritmetica monetaria vive en `repartoDeOrden`, que a su vez solo LLAMA a
-// `derivarIngresoOrden` y a `pagoTiendaOrdenex`.
+// `derivarIngresoOrden` y a `pagoTiendaEmpresa`.
 
 // FICHA 449 — `Prisma.Decimal` entra aqui SOLO como ARITMETICA (es lo mismo que hace
 // `lib/utils/dinero-por-producto.ts`, que lo importa por el mismo motivo). No es una formula de
@@ -385,7 +385,7 @@ export function ordenesQueAportan(
  *
  * ⚠ EL REPARTO DEL GRUPO SALE DE `repartoDeOrden` SOBRE LAS GESTIONES CONCATENADAS, y no de una
  * segunda acumulacion escrita aparte. Las dos son lineales sobre importes de escala 2, asi que
- * `Σ detalle[].ordenex === fila.liquidado.ordenex` es EXACTO (R38) y `ordenex + tienda ===
+ * `Σ detalle[].empresa === fila.liquidado.empresa` es EXACTO (R38) y `empresa + tienda ===
  * liquidado.recaudado` (R20) lo sigue siendo a nivel de grupo, porque `tienda` sigue siendo la
  * misma resta.
  */
@@ -407,13 +407,13 @@ export function cifrasDelGrupo(ordenes: readonly OrdenQueAporta[]): DineroProduc
     recaudado: r.recaudado,
     liquidado: {
       recaudado: r.liquidadoRecaudado,
-      ordenex: r.ordenex,
+      empresa: r.empresa,
       tienda: r.tienda,
       ordenes: liquidadas.size,
     },
     pendiente: { recaudado: r.pendienteRecaudado, ordenes: pendientes.size },
     retorno: r.retorno,
-    // `null` cuando NINGUNA orden del grupo esta liquidada, exactamente igual que `ordenex`,
+    // `null` cuando NINGUNA orden del grupo esta liquidada, exactamente igual que `empresa`,
     // `tienda` y `retorno` (R30): «no hubo» y «salio cero» son hechos distintos.
     fulfillment: liquidadas.size === 0 ? null : fulfillment.toFixed(2),
   };
@@ -422,7 +422,7 @@ export function cifrasDelGrupo(ordenes: readonly OrdenQueAporta[]): DineroProduc
 /**
  * FICHA 449 — EL FULFILLMENT DE UNA ORDEN LIQUIDADA: UNO, no uno por gestion.
  *
- * ⚠ POR QUE NO SE SUMAN SUS GESTIONES, que es lo que hacen las otras cifras. `ordenex`, `tienda`
+ * ⚠ POR QUE NO SE SUMAN SUS GESTIONES, que es lo que hacen las otras cifras. `empresa`, `tienda`
  * y `retorno` se DERIVAN por gestion porque cada gestion tiene su propio `resultado` y la
  * formula depende de el. El fulfillment no depende del resultado: es un monto FIJO por el
  * servicio de preparar y despachar el paquete, y el contrato publico lo dice con todas las
@@ -437,7 +437,7 @@ export function cifrasDelGrupo(ordenes: readonly OrdenQueAporta[]): DineroProduc
  * preferible a sumar: sumar seria cobrar dos bodegas por un paquete; elegir, como mucho, usar el
  * monto congelado del primero de dos cierres que casi siempre traen el mismo numero.
  *
- * Solo se miran las gestiones LIQUIDADAS: es el mismo umbral que `ordenex`/`tienda`/`retorno`, y
+ * Solo se miran las gestiones LIQUIDADAS: es el mismo umbral que `empresa`/`tienda`/`retorno`, y
  * esta puesto por el motivo ya escrito en `ESTADO_CIERRE_LIQUIDADO` — un cierre solicitado se ha
  * llegado a BORRAR en este repo, y con el su snapshot. Ademas `esLiquidada` implica que hay fila
  * de `cierre_detail`, asi que su `fulfillment` no puede ser el `null` de «no se pudo leer».

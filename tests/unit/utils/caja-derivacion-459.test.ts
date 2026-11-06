@@ -17,7 +17,7 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
  *
  * FICHA 488 (design §2.1): el IVA deja de ser ganancia. El IVA de M6 es 568 360,00 + 132 223,43 +
  * 227 916,00 = 928 499,43, y pasa al bolsillo «IVA por pagar». Se reescriben SOLO las cifras que lo
- * llevaban dentro (ganancia, ingresos propios, «De Ordenex», la composicion y la porcion de la barra),
+ * llevaban dentro (ganancia, ingresos propios, «De la empresa», la composicion y la porcion de la barra),
  * con el valor de antes en su comentario. La cifra principal, «Entro», «Salio» y «De las tiendas» NO
  * cambian (R8 de la 488).
  */
@@ -74,7 +74,7 @@ describe("459/A.2 — la caja de produccion (M6) con la formula nueva, sin recla
   it(`R6/R11: capital 0,00 y «De ${NOMBRE_CORTO_ESPERADO}» = la ganancia`, () => {
     expect(r.capital).toBe("0.00");
     expect(r.signoCapital).toBe("cero");
-    expect(r.deOrdenex).toBe("-5334135.96"); // 459: −4 405 636,53 (con el IVA dentro)
+    expect(r.deEmpresa).toBe("-5334135.96"); // 459: −4 405 636,53 (con el IVA dentro)
   });
 
   it("R7 (488): −5 334 135,96 + 20 988 450,53 + 0 + 928 499,43 = 16 582 814,00", () => {
@@ -141,7 +141,7 @@ describe("459/B.14 — columna 4 de design §2.4: + un saldo inicial S (simbolic
     expect(r.enCaja).toBe("-8186220.50");
     expect(r.ganancia).toBe("-5334135.96"); // 459: −4 405 636,53
     expect(r.deTerceros).toBe("-4780583.97");
-    expect(r.deOrdenex).toBe("-4334135.96"); // 459: −3 405 636,53
+    expect(r.deEmpresa).toBe("-4334135.96"); // 459: −3 405 636,53
     expect(r.estado).toBe("saldo");
   });
 
@@ -186,10 +186,16 @@ describe("459/A.2 — R7 sobre subconjuntos al azar (semilla fija)", () => {
         filas.push(fila(categoria, new Prisma.Decimal(centimos).div(100).toFixed(2)));
       }
       const r = derivarCaja(filas, { periodoFiltrado: azar() < 0.5 });
-      const suma = new Prisma.Decimal(r.ganancia).add(r.deTerceros).add(r.capital).add(r.ivaPorPagar);
+      // Ficha 498 (R35): el catalogo gana las diferencias de la satelite, asi que la identidad gana su
+      // termino: − «Por cobrar a satelites».
+      const suma = new Prisma.Decimal(r.ganancia)
+        .add(r.deTerceros)
+        .add(r.capital)
+        .add(r.ivaPorPagar)
+        .sub(r.porCobrarSatelites);
       expect(suma.toFixed(2), `conjunto ${n}`).toBe(r.enCaja);
       expect(
-        new Prisma.Decimal(r.deOrdenex).add(r.deTerceros).add(r.ivaPorPagar).toFixed(2),
+        new Prisma.Decimal(r.deEmpresa).add(r.deTerceros).add(r.ivaPorPagar).sub(r.porCobrarSatelites).toFixed(2),
         `conjunto ${n}`,
       ).toBe(r.enCaja);
       comprobados += 1;

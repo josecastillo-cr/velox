@@ -10,9 +10,9 @@ import type { ISignedUrlProvider } from "@/lib/interfaces/external/ISignedUrlPro
 import type { IZonaRepository } from "@/lib/interfaces/repositories/IZonaRepository";
 import type { IOrdenRepository } from "@/lib/interfaces/repositories/IOrdenRepository";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
-import type { IngresoOrdenexDTO } from "@/lib/interfaces/services/ICierreDiaService";
+import type { IngresoEmpresaDTO } from "@/lib/interfaces/services/ICierreDiaService";
 import { conPagos } from "@/tests/fixtures/cierre-pagos";
-import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-ordenex";
+import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-empresa";
 
 /**
  * 💰 FICHA 396 (D4) — **LAS TRES SUPERFICIES PASAN DE VERDAD POR `partesPorTienda`.**
@@ -53,7 +53,7 @@ const MAESTRO: Actor = { usuarioId: "adm-maestro", rol: "maestro" };
 /* El corpus COMPARTIDO por las tres superficies                              */
 /* -------------------------------------------------------------------------- */
 
-function ingreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+function ingreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
   return {
     montoCobrar: null,
     cobraComision: false,
@@ -124,7 +124,7 @@ const GESTIONES = (): CierreGestionPendienteRow[] => [
     resultado: "entregado",
     montoRecibido: "100000.00",
     metodoPago: "efectivo",
-    ingresoOrdenex: ingreso({
+    ingresoEmpresa: ingreso({
       flete: "2500.00",
       ivaFlete: "325.00",
       fleteConIva: "2825.00",
@@ -140,7 +140,7 @@ const GESTIONES = (): CierreGestionPendienteRow[] => [
     tiendaId: "t-norte",
     tiendaNombre: "Tienda Norte",
     resultado: "devolucion_a_origen_por_rechazo",
-    ingresoOrdenex: ingreso({
+    ingresoEmpresa: ingreso({
       fleteDevolucion: "1500.00",
       ivaFleteDevolucion: "195.00",
       fleteDevolucionConIva: "1695.00",
@@ -155,7 +155,7 @@ const GESTIONES = (): CierreGestionPendienteRow[] => [
     resultado: "entregado",
     montoRecibido: "40000.00",
     metodoPago: "SINPE",
-    ingresoOrdenex: ingreso({
+    ingresoEmpresa: ingreso({
       flete: "2000.00",
       ivaFlete: "260.00",
       fleteConIva: "2260.00",

@@ -280,7 +280,7 @@ export async function sembrarEscenario458(tx: TxDeTest, cat: Catalogo459): Promi
   //   b1  solicitada, sin marcar          efectivo 5 000,00                → pendiente 5 000,00
   //   b2  aprobada, recibida de MENOS     efectivo 4 500,00, recibido 4 000 → pendiente   500,00
   //   b3  RECHAZADA                       efectivo 9 999,00                → no cuenta
-  await tx.cierreBodega.create({
+  const b1 = await tx.cierreBodega.create({
     data: {
       zonaId: zona.id,
       solicitadoPor: adminSat,
@@ -289,8 +289,9 @@ export async function sembrarEscenario458(tx: TxDeTest, cat: Catalogo459): Promi
       totalGeneral: "5000.00",
       solicitadoAt: T1,
     },
+    select: { id: true },
   });
-  await tx.cierreBodega.create({
+  const b2 = await tx.cierreBodega.create({
     data: {
       zonaId: zona.id,
       solicitadoPor: adminSat,
@@ -304,7 +305,33 @@ export async function sembrarEscenario458(tx: TxDeTest, cat: Catalogo459): Promi
       conciliadoPor: maestroId,
       montoRecibido: "4000.00",
     },
+    select: { id: true },
   });
+  // FICHA 498 (fixture): desde la 498 la deuda de una satelite sale de los APORTES de los cierres de sus
+  // consolidaciones (todos los metodos de pago), no del snapshot de efectivo. Cada consolidacion lleva
+  // su cierre del dia aprobado, con los mismos totales que su snapshot (b2: 4 500 en efectivo + 1 500
+  // por SINPE = 6 000). `mensajero_id` es el adminSat: solo hace falta la FK, y asi ninguna cuenta de
+  // mensajero del escenario gana un cierre.
+  for (const [bodega, efectivo, simpe, general] of [
+    [b1.id, "5000.00", "0.00", "5000.00"],
+    [b2.id, "4500.00", "1500.00", "6000.00"],
+  ] as const) {
+    await tx.cierreDia.create({
+      data: {
+        mensajeroId: adminSat,
+        estado: "aprobado",
+        destinoTipo: "bodega_satelite",
+        destinoZonaId: zona.id,
+        cierreBodegaId: bodega,
+        totalEfectivo: efectivo,
+        totalSimpe: simpe,
+        totalGeneral: general,
+        solicitadoAt: T1,
+        resueltoAt: T1,
+        resueltoPor: maestroId,
+      },
+    });
+  }
   await tx.cierreBodega.create({
     data: {
       zonaId: zona.id,

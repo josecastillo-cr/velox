@@ -13,9 +13,9 @@
  * un aviso que no bloquea nada.
  *
  * LOS DOS DINEROS DE ESTA PANTALLA, que hoy se rotulaban igual de neutros:
- * - Lo que Ordenex PAGA por gestionar en la zona (`tarifa_zona_mensajero`) → los dos montos
+ * - Lo que la empresa PAGA por gestionar en la zona (`tarifa_zona_mensajero`) → los dos montos
  *   de `CobroVehiculoTarifas`.
- * - Lo que Ordenex COBRA a la tienda por repartir (`tarifas`) → los campos de `TarifaCampos`.
+ * - Lo que la empresa COBRA a la tienda por repartir (`tarifas`) → los campos de `TarifaCampos`.
  */
 
 import { nombreDeResultado } from "@/lib/types/gestion-resultado";
@@ -32,7 +32,7 @@ export const TARIFA_CAMPO_LABEL = {
   valorFlete: "Valor flete",
   /**
    * Antes «Valor flete devuelto», y entre medias «Flete de retorno (solo rechazos)». Este monto
-   * se cobra SOLO cuando la gestión es `rechazada` (`lib/utils/ingreso-ordenex.ts`): desde la
+   * se cobra SOLO cuando la gestión es `rechazada` (`lib/utils/ingreso-empresa.ts`): desde la
    * ficha 301, una `devuelta` NO genera nada —el paquete sigue vivo en la calle y todavía puede
    * reprogramarse—. «Devuelto» nombraba justo el caso que no cobra.
    *
@@ -61,7 +61,7 @@ export const TARIFA_CAMPO_LABEL = {
 } as const;
 
 /**
- * Textos del bloque de montos que Ordenex PAGA por cada gestión de la zona.
+ * Textos del bloque de montos que la empresa PAGA por cada gestión de la zona.
  *
  * `rechazado` era «No entregado», y ese rótulo abarcaba TRES casos cuando la regla cubre uno:
  * `lib/utils/ingreso-bodega.ts` paga ese monto sólo si el resultado es `rechazada`; una
@@ -106,7 +106,7 @@ export const PAGO_ZONA_TEXTO = {
  * indistinguible de que nadie lo configuró—. Se pinta como ayuda del campo (`FormField
  * hint`), enlazada por `aria-describedby`, y no impide guardar ni cambia validación alguna.
  *
- * Dos redacciones porque son dos dineros opuestos: uno sale de Ordenex, el otro entra.
+ * Dos redacciones porque son dos dineros opuestos: uno sale de la empresa, el otro entra.
  */
 export const AVISO_MONTO_CERO = {
   pago: "Sin configurar: no se pagará nada por este concepto.",

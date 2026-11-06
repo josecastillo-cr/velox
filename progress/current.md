@@ -1,3 +1,64 @@
+# ESTADO 2026-11-05 — 494 TERMINADA EN RAMAS; FALTA MERGEAR #891, #892 Y #893, EN ESE ORDEN
+
+- En `dev` sin desplegar: 498, 500, 501, 502 y las tandas 0-3 de la 494.
+- 494: #891 (tanda 4), #892 (tandas 5 y 6) y #893 (tanda 7) van apilados y apuntan a `dev`. Tras cada merge, comprobar el SHA en `origin/dev` y `gh pr checks`. Worktree `R:/w494`. Sin migración. Revisión final OK con menores (`progress/review_494_t7.md`).
+- Antes de la release, decide el humano: Skew Protection (fila A12 de `docs/release.md`; `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` no existe en Vercel, medido el 2026-11-04), «sin alias» (`design.md` §3.2), m7 (`seed-usuarios-qa` sin guard de entorno) y la tarjeta `AvisoVersionNueva` descompuesta.
+- Tras mergear: `seed-usuarios-qa` en preview con el `QA_PASSWORD` vigente. En la base local las cuentas QA ya son `<rol>.qa@empresa.test`.
+- Después: release a prod con todo (gate completo hasta `INIT_EXIT=0` y 26 skipped sobre el SHA final; T8.4 de la 498 el mismo día; no conciliar durante el deploy).
+- Fichas 503 y 504 registradas, `pending`, no bloquean la release: la frase de las saldadas en la ayuda de Wallet · Satélites, y «no se deben nada» por descarte en la frase del saldo.
+- Repo público a propósito: nada identificable de prod ni credenciales en archivos versionados. Logs del dev server fuera del repo.
+- Antes de lanzar subagentes en auto mode: el primer intento lo rechaza el hook de context-mode; repetir con el input que devuelve.
+
+# ESTADO 2026-11-03 (cierre) — 500 MERGEADA en `dev` (PR #884, 6af0749e), SIN DESPLEGAR; in_progress = 0
+
+- Gate post-merge verde (`progress/gate_dev_tras_884.log`). En dev sin desplegar: 498 y 500.
+- Siguiente (decisión del humano 2026-11-03): terminar 501, 494 y 502 (spec → aprobación → implementar) y DESPUÉS una sola release a prod con 498+500+esas fichas (T8.4 de la 498 el mismo día; gate COMPLETO antes).
+- Bloque 8 de la 500 (retirar respaldos): pendiente de su puerta.
+- Antes de lanzar subagentes: salir de auto mode.
+
+# CIERRE 2026-11-03 (noche) — 500 con PR #884 abierto (revisión OK, build verde), pendiente de merge del humano
+
+- Al mergear #884: `prisma migrate deploy` local, gate `--rapido` sobre dev, cerrar la 500 (feature_list, current, history), borrar worktrees R:/w498 y R:/w500 (robocopy /MIR antes de `git worktree remove`).
+- 502 registrada (menores m1/m4/m5 de la 500), pending; m5 lleva pregunta al humano.
+- Siguen: 501, 494; release a prod con 498 (+500) y su T8.4 el mismo día.
+- CI revisado a pedido del humano: sin fallos (último ERROR de Vercel en velox: ninguno; último CANCELED: merge #880 del 2026-11-01, sustituido por el siguiente build).
+
+# RETOMAR AQUÍ — 2026-11-03 cierre de sesión
+
+**Antes de lanzar subagentes: salir de auto mode** (Shift+Tab). En auto, el hook de context-mode bloquea el Agent (memoria «context-mode bloquea agentes en auto»).
+
+Orden de trabajo para la próxima sesión:
+1. **500, terminar** (worktree `R:/w500`, rama `fix/500-deuda-satelites-zonas`, HEAD 86db056c, todo pusheado; backend y frontend hechos, gates verdes):
+   a-b. HECHOS: T7.6 (app vista, base limpia) y T8 (gate --rapido verde sin rojos, R1-R23 con test). HEAD ccf92468.
+   OJO para el reviewer: en la app, una consolidación conciliada CON dinero (debe ₡0, marcada con ₡90) no mostró ni «Desmarcar» ni «Corregir» en /wallet/satelites; R5 dice que «Corregir» no cambia. Confirmar si es regresión de la 500 o comportamiento previo de la 498. Notas menores en impl_500.md (nota de la 498 contradictoria en el diálogo de Desmarcar; fila «pago al mensajero —→—» al guardar zona; «Falta por recibir -₡90»).
+   c. reviewer (que COMMITEE su informe) → PR contra `dev` → `gh pr checks` → el humano mergea (el auto mode bloquea el merge) → `prisma migrate deploy` local, gate post-merge, cerrar ficha (feature_list, current, history).
+   d. Bloque 8 (R24-R30, retirar respaldos): NO hasta 498 en prod y verificada + medición + autorización escrita.
+2. **501** (fechas de Pagos registrados en hora CR, frontend, pending) y **494** (marca en identificadores, fullstack, pending): spec_author → aprobación del humano → implementar.
+3. **Release a prod** cuando el humano la pida: incluye 498 (+500 si está). Mismo día: T8.4 de la 498 (SQL solo lectura en prod, puerta (c)=(d)=(e)=0; `progress/impl_498.md`), no conciliar durante el deploy, verificaciones b1-b3/d1-d4 tras el deploy. Gate COMPLETO antes de la release.
+4. Limpieza: worktrees `R:/w498` (mergeada) y `R:/w489` por borrar con el procedimiento seguro (robocopy /MIR antes de `git worktree remove`).
+
+# ESTADO 2026-11-03 (noche) — 500 BACKEND HECHO en `fix/500-deuda-satelites-zonas` (f4358e1e, pusheado); frontend HECHO (e4d0240f)
+
+- Spec 500 aprobado (Q1=B, Q2 sin comillas). Worktree `R:/w500`. Backend R1-R4 y R9-R23 hecho: gate --rapido INIT_EXIT=0 (`R:/w500/progress/gate_500_backend.log`, 3 intermitentes verdes aislados), mutaciones 9/10 (T6.10 no distinguible con la fixture, anotado). Migración `20261104120000_historial_accion_zona_distrito_500` aplicada en la base local.
+- Frontend T7.1-T7.5 hecho (e4d0240f, gate --rapido INIT_EXIT=0, 4 intermitentes verdes aislados). Siguiente: T7.6 ver la app («Desmarcar» con/sin dinero en /wallet/satelites y /cierres-admin; distritos en /historico/acciones), T8, reviewer, PR. Bloque 8 (R24-R30) bloqueado por su puerta.
+- 498 sigue mergeada sin desplegar (ver entrada de abajo).
+
+# ESTADO 2026-11-03 (tarde) — 498 MERGEADA en `dev` (PR #883, 2f5e38e9), SIN DESPLEGAR; in_progress = 0
+
+- 498 (dinero satélite al conciliar): revisión APROBADA, gate post-merge verde (`progress/gate_dev_tras_883.log`; marca-fuente-unica-493 intermitente, verde aislado). Migraciones M1-M4 (20261103120000-120300) ya aplicadas en local y en preview.
+- Antes de la release: T8.4 = medir en prod con el SQL de solo lectura de `progress/impl_498.md` (puerta (c)=(d)=(e)=0) el mismo día; no conciliar durante el despliegue; tras el deploy, verificaciones b1-b3 y d1-d4 (T8.3).
+- Siguiente: spec de la 500 (resto de H5), 501 (fechas de Pagos registrados), 494 (marca en identificadores).
+- Local: el QA_PASSWORD del .env ya no coincide con las cuentas QA (rotadas hoy). Worktree R:/w498 por borrar (procedimiento seguro).
+
+# ESTADO 2026-11-03 — RELEASE DESPLEGADA (PR #882, b8a9cf43, dpl_9RHvJqPYjfu1Pvcr2TGMTCoxzv1P); in_progress = 0
+- 2026-11-03 (sesión nueva): 498 en `in_progress` (13fd57fc). Worktree `R:/w498`, rama `fix/498-satelite-dinero-al-conciliar`; backend_dev (Opus) haciendo T0–T6. Después: frontend_dev (T7), mutaciones y gate (T8), reviewer. Gate de arranque verde: `progress/gate_498_arranque.log`.
+
+- En prod: 492, 493 (marca Velox Courier), 495, 496, 497, 499 (hotfix portados). Detalle y verificación en docs/release.md. dev = prod.
+- Mañana: 498 (spec aprobado, 64 req.; dinero satélite al conciliar, lleva migración «saldada con la regla anterior» con medición previa en prod), luego spec de la 500 (resto de H5), 501 (fechas de Pagos registrados, pending), 494 (marca en identificadores, pending).
+- Pendiente de verificar: la 495 en la app; la 497 con el primer cierre real que apruebe bodega.
+- Sin ficha: scripts/seed-zonas.ts (local) puede fallar con el índice de la 499.
+- Decisiones del humano 2026-11-02: las dos cuentas de David se quedan; las API keys de Gameos/Nuform NO se desactivan.
+
 # ESTADO 2026-11-02 (noche) — MARCA 492/493 Y 499 EN `dev`, SIN DESPLEGAR; hotfix portados en curso
 
 - En `dev` sin desplegar: 492 (#876), 493 (#877), 499 (#878), 495 (#879), 496 (#880), 497 (#881). Release en curso 2026-11-03. Antes de prod: gate completo; poner la fecha en la entrada «PENDIENTE» del CHANGELOG (493); pasos post-deploy de la 499 (design §8).
@@ -49,7 +110,7 @@
 
 - En `dev` (sin desplegar): 473 (#847), 474 (#848 + botón #849), validaciones en español (#850), 475 (#851), 476 (#852). 472 ya resuelta por la 470. Lo que hay que hacer al desplegar está en `docs/release.md` › «473 y 474…» (Daniel apaga su sistema ANTES de encender envíos; NEXT_PUBLIC_APP_URL; Meta real T11.4; EXPLAIN de tránsito; verlo todo; un envío por tienda).
 - Arnés cambiado (pedido del humano): `--rapido` siempre, se amplía con integration/db en dinero/datos, repite aislados los rojos; completo SOLO antes de prod (o si se toca init.sh, tests/setup, instrumentation.ts o config de build).
-- Preview: entrar con `maestro.qa@ordenex.test` / `Preview474!Qa` (reseteada por Carlos con SQL). `.mcp.json` tiene `supabase-preview` (ref uyqzqxczfhfndlhpsmxq); requiere reiniciar la sesión para cargarlo.
+- Preview: entrar con `maestro.qa@ordenex.test` (contraseña fuera del repo, rotada el 2026-11-04). `.mcp.json` tiene `supabase-preview` (ref uyqzqxczfhfndlhpsmxq); requiere reiniciar la sesión para cargarlo.
 - Pendiente: 471 (texto del periodo cortado en la caja) registrada, sin empezar. Google Maps (403/REQUEST_DENIED): Carlos lo deja para después.
 
 # ESTADO 2026-10-05 — 470 VALIDADA EN PROD; siguiente: WhatsApp interno

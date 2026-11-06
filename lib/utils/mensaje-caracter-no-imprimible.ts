@@ -80,7 +80,7 @@ export function seVenIgual(a: string, b: string): boolean {
  * mirando esa orden lo pegue. Es el mismo criterio que este repo ya aplica al dinero en estas dos
  * mismas superficies —la carga ajusta y avisa (299), la correccion pregunta antes de escribir
  * (327/R11)—, y el motivo es el mismo: en la carga no hay nadie delante de 500 filas en el
- * instante en que se decide; aqui SI hay una persona mirando. Asi Ordenex nunca guarda un nombre
+ * instante en que se decide; aqui SI hay una persona mirando. Asi la empresa nunca guarda un nombre
  * que el humano no haya tecleado.
  *
  * ── EL CASO EN EL QUE «ESCRIBELO ASI» NO DICE NADA (revision del 2026-09-07, menor 1) ────────

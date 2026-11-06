@@ -22,7 +22,7 @@ import { intentarSql as intentar } from "./_fixtures/sqlstate-461";
 import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
-// ⭑ FICHA 457 / T1.5 — LAS DOS MIGRACIONES DEL PAGO DE UNA TIENDA A ORDENEX, contra Postgres (R75, R76).
+// ⭑ FICHA 457 / T1.5 — LAS DOS MIGRACIONES DEL PAGO DE UNA TIENDA A LA EMPRESA, contra Postgres (R75, R76).
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 //  (a) los CINCO catalogos son EXACTAMENTE los seeds, con los valores de la 457 AL FINAL (valor a valor);
@@ -101,14 +101,16 @@ describeSiHayBase(`457/T1.5 — las migraciones del pago de una tienda a ${NOMBR
     // Ficha 458-B (2026-09-26): sus valores (`20260928120000`) van DETRAS de los de la 457 (dos en la
     // caja, dos en la tienda, dos en el historial): los de esta ficha se leen un tramo mas atras.
     // Ficha 488: + 2 valores de caja al final (el Pago de IVA y su anulacion) → la ventana se corre 2.
-    expect(caja.slice(-6, -4)).toEqual([...VALORES_457.wallet_movimiento_categoria]);
+    // Ficha 498: + 2 de caja y + 1 origen al final (la diferencia de la satelite y su origen).
+    expect(caja.slice(-8, -6)).toEqual([...VALORES_457.wallet_movimiento_categoria]);
     expect(tienda.slice(-4, -2)).toEqual([...VALORES_457.wallet_tienda_movimiento_categoria]);
-    expect(origen.slice(-1)).toEqual([...VALORES_457.wallet_origen_tipo]);
-    expect(tipos.slice(-4, -2)).toEqual([...VALORES_457.historial_accion_tipo]);
+    expect(origen.slice(-2, -1)).toEqual([...VALORES_457.wallet_origen_tipo]);
+    // Ficha 500: + 1 tipo del historial al final (`zona_distrito_cambiado`) → la ventana de tipos se corre 1.
+    expect(tipos.slice(-5, -3)).toEqual([...VALORES_457.historial_accion_tipo]);
     expect(entidades.slice(-1)).toEqual([...VALORES_457.historial_accion_entidad]);
     // Los conteos de design §14 «despues»: 25 / 16 / 14 / 63 / 24; con la 458-B detras: 27 / 18 / 14 / 65 / 24;
-    // con la 488 detras (+ 2 en la caja): 29 / 18 / 14 / 65 / 24.
-    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([29, 18, 14, 65, 24]);
+    // con la 488 detras (+ 2 en la caja): 29 / 18 / 14 / 65 / 24; con la 498 (+ 2 caja, + 1 origen): 31 / 18 / 15 / 65 / 24.
+    expect([caja.length, tienda.length, origen.length, tipos.length, entidades.length]).toEqual([31, 18, 15, 66, 24]); // ficha 500: 66 tipos
     // El `up` de la 1 es aditivo y solo eso: ocho `ADD VALUE IF NOT EXISTS`, ni un CHECK ni una tabla.
     const up1 = soloEjecutable(UP_1);
     expect(up1.match(/ADD VALUE IF NOT EXISTS/g)).toHaveLength(8);

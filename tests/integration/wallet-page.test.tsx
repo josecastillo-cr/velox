@@ -87,7 +87,7 @@ vi.mock("@/lib/actions/libro-caja-autoria", () => ({
     status: "ok",
     filas: movimientoIds.map((id) => ({
       movimientoId: id,
-      aQuien: { nombre: "Mario Mensajero", beneficiario: null, cuenta: null, esOrdenex: false },
+      aQuien: { nombre: "Mario Mensajero", beneficiario: null, cuenta: null, esEmpresa: false },
       registro: { nombre: null, automatico: { accion: "aprobacion_cierre", por: "Ana Maestra" } },
     })),
   })),
@@ -163,7 +163,7 @@ const MOVIMIENTOS_OK = {
         descripcion: null,
         registradoPor: null,
         fechaMovimiento: "2026-07-12T10:00:00.000Z",
-        dueno: "propio" as const, // feature 231 (R31): el flete es dinero de Ordenex
+        dueno: "propio" as const, // feature 231 (R31): el flete es dinero de la empresa
         documento: null, // ficha 459 (design §7.3): fila sin documento
         origen: { texto: "Cierre del día", enlace: null }, // ficha 458-A (TA.2)
       },
@@ -215,11 +215,15 @@ const RESUMEN_OK = {
     ivaPorPagar: "0.00",
     signoIvaPorPagar: "cero" as const,
     porcentajeIva: "0.00",
+    // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+    porCobrarSatelites: "0.00",
+    signoPorCobrarSatelites: "cero" as const,
+    porcentajePorCobrar: "0.00",
     modoComposicion: "dos_bolsillos" as const,
     // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
     capital: "0.00",
     signoCapital: "cero" as const,
-    deOrdenex: "1500.00",
+    deEmpresa: "1500.00",
     signoDeTerceros: "positivo" as const,
     deTercerosAbsoluto: "10000.00",
     estado: "flujo" as const,
@@ -252,7 +256,7 @@ const RESUMEN_OK = {
     otrosEgresos: "0.00",
     totalEgresos: "0.00",
     // Ficha 339 (R9): la UNICA clave no-STRING de la composicion, y no es una cantidad: es la
-    // decision del SERVIDOR sobre si la fila «Otros gastos de Ordenex» se pinta.
+    // decision del SERVIDOR sobre si la fila «Otros gastos de la empresa» se pinta.
     hayOtrosEgresos: false,
   },
 };

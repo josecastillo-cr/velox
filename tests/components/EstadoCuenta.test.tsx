@@ -68,7 +68,7 @@ afterEach(() => cleanup());
 
 describe("R18 — las tarjetas dicen quién le debe a quién, en palabras", () => {
   it(`tienda con saldo a favor: «${NOMBRE_ESPERADO} le debe ₡1.000 a Tania Tienda»`, () => {
-    montarTienda(estado({ saldoActual: "1000.00", signo: "positivo", sentido: "ordenex_debe" }));
+    montarTienda(estado({ saldoActual: "1000.00", signo: "positivo", sentido: "empresa_debe" }));
     expect(screen.getByText(`${NOMBRE_ESPERADO} le debe ₡1.000 a Tania Tienda`)).toBeTruthy();
   });
 

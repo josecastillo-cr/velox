@@ -101,7 +101,7 @@ describeSiHayBase("463/T3 — buscador y orden de los estados de cuenta (Postgre
         // tres filas comparten `fecha`: solo `orden` (declarado antes que recibido) y el id las ordenan.
         const t5 = new Date(T4.getTime() + 3_600_000);
         for (const recibida of [true, false]) {
-          await tx.cierreBodega.create({
+          const cb = await tx.cierreBodega.create({
             data: {
               zonaId: esc.zonaZ,
               solicitadoPor: esc.maestro.usuarioId,
@@ -112,6 +112,22 @@ describeSiHayBase("463/T3 — buscador y orden de los estados de cuenta (Postgre
               ...(recibida
                 ? { resueltoPor: esc.maestro.usuarioId, resueltoAt: t5, conciliadoAt: t5, conciliadoPor: esc.maestro.usuarioId, montoRecibido: "650.00" }
                 : {}),
+            },
+            select: { id: true },
+          });
+          // FICHA 498 (fixture): el declarado de una consolidacion sale de los aportes de SUS cierres;
+          // cada una lleva su cierre aprobado de 700 (como su snapshot).
+          await tx.cierreDia.create({
+            data: {
+              mensajeroId: esc.maestro.usuarioId,
+              estado: "aprobado",
+              destinoTipo: "bodega_satelite",
+              destinoZonaId: esc.zonaZ,
+              cierreBodegaId: cb.id,
+              totalEfectivo: "700.00",
+              totalGeneral: "700.00",
+              solicitadoAt: t5,
+              resueltoAt: t5,
             },
           });
         }

@@ -6,6 +6,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ComponentProps, ReactNode } from "react";
 import AppLayout from "@/app/(app)/layout";
+import { COOKIE_TEMA_VIEJA } from "@/lib/navegador/claves-legadas";
 
 // El layout monta el <Sidebar /> (Client Component) que usa usePathname; se
 // mockea next/navigation y next/link igual que en Sidebar.test.tsx.
@@ -40,12 +41,20 @@ vi.mock("@/lib/auth/resolve-actor", () => ({
 // («`cookies` was called outside a request scope»), así que se mockea con un almacén
 // controlable. Por defecto: sin cookie -> tema «sistema».
 const cookieTemaMock = vi.fn<() => string | undefined>(() => undefined);
+// Feature 494 (R17): el nombre anterior de la misma cookie. Sale del módulo y no se escribe aquí: el
+// literal lo afirma `tests/unit/tema/cookie-legada-494.test.ts`.
+const cookieTemaViejaMock = vi.fn<() => string | undefined>(() => undefined);
 vi.mock("next/headers", () => ({
   cookies: async () => ({
-    get: (nombre: string) =>
-      nombre === "ordenex_tema" && cookieTemaMock() !== undefined
-        ? { name: nombre, value: cookieTemaMock() }
-        : undefined,
+    get: (nombre: string) => {
+      const valor =
+        nombre === "app_tema"
+          ? cookieTemaMock()
+          : nombre === COOKIE_TEMA_VIEJA
+            ? cookieTemaViejaMock()
+            : undefined;
+      return valor === undefined ? undefined : { name: nombre, value: valor };
+    },
   }),
 }));
 
@@ -262,6 +271,37 @@ describe("Layout de la zona autenticada app/(app)/layout.tsx", () => {
       unmount();
     }
     cookieTemaMock.mockReturnValue(undefined);
+  });
+
+  it("494/R17: quien solo tiene la cookie con el nombre anterior recibe su tema desde el servidor", async () => {
+    resolveActorMock.mockResolvedValue({ usuarioId: "u1", rol: "maestro" });
+    cookieTemaViejaMock.mockReturnValue("oscuro");
+
+    const { unmount } = await renderLayout(<div>Contenido</div>);
+    const envoltorio = document.querySelector('[data-tema="oscuro"]');
+    expect(envoltorio, "sin envoltorio para la cookie vieja").not.toBeNull();
+    expect(envoltorio!.className.split(" ")).toContain("dark");
+    unmount();
+
+    cookieTemaViejaMock.mockReturnValue(undefined);
+  });
+
+  it("494/R15: con las dos cookies manda la nueva; con basura en la nueva, la vieja", async () => {
+    resolveActorMock.mockResolvedValue({ usuarioId: "u1", rol: "maestro" });
+    cookieTemaViejaMock.mockReturnValue("oscuro");
+
+    cookieTemaMock.mockReturnValue("claro");
+    const primera = await renderLayout(<div>Contenido</div>);
+    expect(document.querySelector('[data-tema="claro"]')).not.toBeNull();
+    primera.unmount();
+
+    cookieTemaMock.mockReturnValue("azul");
+    const segunda = await renderLayout(<div>Contenido</div>);
+    expect(document.querySelector('[data-tema="oscuro"]')).not.toBeNull();
+    segunda.unmount();
+
+    cookieTemaMock.mockReturnValue(undefined);
+    cookieTemaViejaMock.mockReturnValue(undefined);
   });
 
   // «sistema» dejó de ser una opción ELEGIBLE (2026-08-14), pero sigue siendo lo que se

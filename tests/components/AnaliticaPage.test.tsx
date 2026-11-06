@@ -102,7 +102,7 @@ vi.mock("@/lib/actions/usuarios-por-rol", () => ({
 // importar `lib/actions` — quien invoca ésta es el componente, no `page.tsx`, y el censo del
 // código fuente de más abajo lo sigue afirmando.
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(async () => ({ status: "forbidden" as const })),
+  consultarConteoProductosV2: vi.fn(async () => ({ status: "forbidden" as const })),
 }));
 // FICHA 411 — la sección de cohortes es el octavo trozo del árbol de CLIENTE que la página monta
 // (`CohorteCargaTabla` → SWR → Server Action). Mismo trato y mismo motivo que los cuatro de

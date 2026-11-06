@@ -141,10 +141,12 @@ describeSiHayBase("⭑ 458-B/FASE 0 — la fotografia de las cuentas (Postgres r
 
   // ─── R84 — pendiente de la bodega Z ─────────────────────────────────────────────────────────
   //   efectivo de las NO rechazadas: 5 000 + 4 500 = 9 500,00 (la rechazada de 9 999 no cuenta)
-  //   recibido: 4 000,00 ; pendiente = 9 500 − 4 000 = 5 500,00
+  //   ⭑ FICHA 498 (R23, decision del humano del 2026-11-02 que REVOCA la Q2 del 2026-09-16): la deuda
+  //   es Σ APORTES de los cierres (todos los metodos de pago): 5 000 + 6 000 (4 500 efectivo + 1 500
+  //   SINPE) = 11 000 ; recibido 4 000 ; pendiente = 7 000,00 (antes de la ficha: 5 500, solo efectivo).
   it("R84: pendiente de la bodega Z (la consolidacion rechazada no cuenta)", () => {
     expect(foto().bodegaZ).toEqual({
-      saldoSinConciliar: "5500.00",
+      saldoSinConciliar: "7000.00",
       totalEfectivo: "9500.00",
       totalRecibido: "4000.00",
     });
@@ -224,7 +226,7 @@ describeSiHayBase("⭑ 458-B/FASE 0 — la fotografia de las cuentas (Postgres r
       cargos: "4800.00",
       saldoFinal: "5200.00",
       saldoActual: "5200.00",
-      sentido: "ordenex_debe",
+      sentido: "empresa_debe",
       total: 7,
     });
     // R22: el final del estado de cuenta es el saldo del listado de `/wallet/tiendas`.
@@ -302,7 +304,7 @@ describeSiHayBase("⭑ 458-B/FASE 0 — la fotografia de las cuentas (Postgres r
       "2700.00",
       "3300.00",
       "3300.00",
-      "ordenex_debe",
+      "empresa_debe",
     ]);
     expect(e.saldoActual).toBe(foto().mensajeroM.cuentaPorPagar);
   });
@@ -313,16 +315,17 @@ describeSiHayBase("⭑ 458-B/FASE 0 — la fotografia de las cuentas (Postgres r
   it("TB.6 R20–R22: la bodega Z, con el pendiente acumulado", () => {
     const e = foto().ec.bodegaTodo;
     expect(e.filas.map(lineaDe)).toEqual([
+      // FICHA 498 (R29): el declarado de b2 es su aporte (6 000 con el SINPE), no su efectivo (4 500).
       "2026-09-10|5000.00|-|5000.00|declarado",
-      "2026-09-11|4500.00|-|9500.00|declarado",
-      "2026-09-12|-|4000.00|5500.00|recibido",
+      "2026-09-11|6000.00|-|11000.00|declarado",
+      "2026-09-12|-|4000.00|7000.00|recibido",
     ]);
     expect([e.saldoInicial, e.abonos, e.cargos, e.saldoFinal, e.saldoActual, e.sentido]).toEqual([
       "0.00",
       "4000.00",
-      "9500.00",
-      "5500.00",
-      "5500.00",
+      "11000.00",
+      "7000.00",
+      "7000.00",
       "por_entregar",
     ]);
     expect(e.saldoActual).toBe(foto().bodegaZ.saldoSinConciliar);

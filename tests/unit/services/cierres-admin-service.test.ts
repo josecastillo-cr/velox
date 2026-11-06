@@ -11,7 +11,7 @@ import { WalletTiendaFeedService } from "@/lib/services/WalletTiendaFeedService"
 import { PagoMensajeroMovimientoRepository } from "@/lib/repositories/PagoMensajeroMovimientoRepository";
 import { WalletMensajeroFeedService } from "@/lib/services/WalletMensajeroFeedService";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
-import type { IngresoOrdenexDTO } from "@/lib/interfaces/services/ICierreDiaService";
+import type { IngresoEmpresaDTO } from "@/lib/interfaces/services/ICierreDiaService";
 import type {
   Alcance,
   CierreAdminResumenRow,
@@ -377,7 +377,7 @@ describe("CierresAdminService.listarCierresAdmin — particion y totales (R4/R5/
 
 describe("CierresAdminService.verCierreDetalle — ingreso y ganancia", () => {
   /** Desglose por orden como lo emite el repo (ya derivado del snapshot). */
-  function conIngreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+  function conIngreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
     return {
       montoCobrar: null,
       cobraComision: false,
@@ -411,7 +411,7 @@ describe("CierresAdminService.verCierreDetalle — ingreso y ganancia", () => {
           gestionRow({
             gestionId: "a",
             resultado: "entregado",
-            ingresoOrdenex: conIngreso({
+            ingresoEmpresa: conIngreso({
               flete: "2500.00",
               ivaFlete: "325.00",
               comisionCod: "750.00",
@@ -424,7 +424,7 @@ describe("CierresAdminService.verCierreDetalle — ingreso y ganancia", () => {
           gestionRow({
             gestionId: "b",
             resultado: "devolucion_a_origen_por_rechazo",
-            ingresoOrdenex: conIngreso({
+            ingresoEmpresa: conIngreso({
               fleteDevolucion: "1000.00",
               ivaFleteDevolucion: "130.00",
               fleteDevolucionConIva: "1130.00",
@@ -490,7 +490,7 @@ describe("CierresAdminService.verCierreDetalle — ingreso y ganancia", () => {
  */
 describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el neto", () => {
   /** Desglose por orden como lo emite el repo. `total` = suma de los conceptos presentes. */
-  function conIngreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+  function conIngreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
     return {
       montoCobrar: null,
       cobraComision: false,
@@ -534,7 +534,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
 
   function repoCon(
     cierre: Partial<CierreAdminResumenRow>,
-    gestiones: Array<{ gestionId: string; resultado: "entregado" | "devolucion_a_origen_por_rechazo" | "reprogramado"; ingresoOrdenex?: IngresoOrdenexDTO }>,
+    gestiones: Array<{ gestionId: string; resultado: "entregado" | "devolucion_a_origen_por_rechazo" | "reprogramado"; ingresoEmpresa?: IngresoEmpresaDTO }>,
   ): Repo {
     return fakeRepo({
       findCierreByIdEnAlcance: vi.fn(async () => ({
@@ -561,8 +561,8 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
           totalIngresoBodegaRechazos: "450.25",
         },
         [
-          { gestionId: "a", resultado: "entregado", ingresoOrdenex: ENTREGADA },
-          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoOrdenex: RECHAZADA },
+          { gestionId: "a", resultado: "entregado", ingresoEmpresa: ENTREGADA },
+          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoEmpresa: RECHAZADA },
         ],
       ),
     });
@@ -597,8 +597,8 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
           totalIngresoBodegaRechazos: "450.25",
         },
         [
-          { gestionId: "a", resultado: "entregado", ingresoOrdenex: ENTREGADA },
-          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoOrdenex: RECHAZADA },
+          { gestionId: "a", resultado: "entregado", ingresoEmpresa: ENTREGADA },
+          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoEmpresa: RECHAZADA },
         ],
       ),
     });
@@ -609,9 +609,9 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
     // `ganancia` resta SOLO el pago al mensajero y sigue viajando intacta (no la absorbe nadie).
     expect(r.ganancia).toBe("1372.80"); // 4973.15 − 3600.35
     // El neto resta ademas la bodega. Implementarlo encadenando `ganancia` daria 1372.80.
-    expect(r.netoOrdenex).toBe("922.55"); // 4973.15 − 3600.35 − 450.25
-    expect(r.netoOrdenex).not.toBe(r.ganancia);
-    expect(typeof r.netoOrdenex).toBe("string"); // money-safe
+    expect(r.netoEmpresa).toBe("922.55"); // 4973.15 − 3600.35 − 450.25
+    expect(r.netoEmpresa).not.toBe(r.ganancia);
+    expect(typeof r.netoEmpresa).toBe("string"); // money-safe
   });
 
   it("SIN rechazos: la linea puente se emite IGUAL, no desaparece cuando el flete por devolución a origen es 0.00", async () => {
@@ -627,7 +627,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
           totalPagoMensajero: "3600.35",
           totalIngresoBodegaRechazos: "0.00",
         },
-        [{ gestionId: "a", resultado: "entregado", ingresoOrdenex: ENTREGADA }],
+        [{ gestionId: "a", resultado: "entregado", ingresoEmpresa: ENTREGADA }],
       ),
     });
 
@@ -643,8 +643,8 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
 
     // Y con la bodega en 0.00 el neto SI coincide con la ganancia: si divergieran aqui, alguien
     // estaria restando dos veces.
-    expect(r.netoOrdenex).toBe("16.29"); // 3616.64 − 3600.35 − 0.00
-    expect(r.netoOrdenex).toBe(r.ganancia);
+    expect(r.netoEmpresa).toBe("16.29"); // 3616.64 − 3600.35 − 0.00
+    expect(r.netoEmpresa).toBe(r.ganancia);
   });
 
   it("el neto NEGATIVO sale con su signo, nunca recortado a 0.00", async () => {
@@ -664,8 +664,8 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
     if (r.status !== "ok") throw new Error("esperaba ok");
 
     expect(r.totalesIngreso.total).toBe("0.00");
-    // Un "0.00" aqui diria «Ordenex no perdio nada en este cierre», que es falso.
-    expect(r.netoOrdenex).toBe("-1950.60"); // 0 − 1500.35 − 450.25
+    // Un "0.00" aqui diria «la empresa no perdio nada en este cierre», que es falso.
+    expect(r.netoEmpresa).toBe("-1950.60"); // 0 − 1500.35 − 450.25
     expect(r.ganancia).toBe("-1500.35"); // la ganancia tampoco se recorta, y no es el neto
     // La puente de un cierre sin entregas es cero DE VERDAD (no hay nada facturado sobre lo
     // recaudado), y aun asi se emite.
@@ -692,8 +692,8 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
           totalIngresoBodegaRechazos: "450.25",
         },
         [
-          { gestionId: "a", resultado: "entregado", ingresoOrdenex: ENTREGADA },
-          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoOrdenex: RECHAZADA },
+          { gestionId: "a", resultado: "entregado", ingresoEmpresa: ENTREGADA },
+          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoEmpresa: RECHAZADA },
         ],
       ),
     });
@@ -713,7 +713,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
     ).toBe(r.ganaLaTienda);
 
     // LA IDENTIDAD que hace evidente la pantalla: lo que gana la tienda + lo que factura
-    // Ordenex = lo recaudado. Es la particion, y va ANTES del desglose en la cascada.
+    // la empresa = lo recaudado. Es la particion, y va ANTES del desglose en la cascada.
     expect(
       new Prisma.Decimal(r.ganaLaTienda).plus(r.totalesIngreso.total).toFixed(2),
     ).toBe(r.cierre.totales.general);
@@ -733,7 +733,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
           totalPagoMensajero: "3600.35",
           totalIngresoBodegaRechazos: "0.00",
         },
-        [{ gestionId: "a", resultado: "entregado", ingresoOrdenex: ENTREGADA }],
+        [{ gestionId: "a", resultado: "entregado", ingresoEmpresa: ENTREGADA }],
       ),
     });
 
@@ -754,7 +754,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
           totalPagoMensajero: "0.00",
           totalIngresoBodegaRechazos: "450.25",
         },
-        [{ gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoOrdenex: RECHAZADA }],
+        [{ gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoEmpresa: RECHAZADA }],
       ),
     });
 
@@ -775,7 +775,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
   it("aprobado y CON flete por devolución a origen: el cargo YA ocurrio", async () => {
     const { service } = newService({
       repo: repoCon({ estado: "aprobado" }, [
-        { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoOrdenex: RECHAZADA },
+        { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoEmpresa: RECHAZADA },
       ]),
     });
     const r = await service.verCierreDetalle("c1", MAESTRO);
@@ -788,7 +788,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
     async (estado) => {
       const { service } = newService({
         repo: repoCon({ estado }, [
-          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoOrdenex: RECHAZADA },
+          { gestionId: "b", resultado: "devolucion_a_origen_por_rechazo", ingresoEmpresa: RECHAZADA },
         ]),
       });
       const r = await service.verCierreDetalle("c1", MAESTRO);
@@ -800,7 +800,7 @@ describe("395 — el detalle del cierre de MENSAJERO emite la linea puente y el 
   it("aprobado pero SIN un solo rechazo: no hay cargo del que hablar", async () => {
     const { service } = newService({
       repo: repoCon({ estado: "aprobado" }, [
-        { gestionId: "a", resultado: "entregado", ingresoOrdenex: ENTREGADA },
+        { gestionId: "a", resultado: "entregado", ingresoEmpresa: ENTREGADA },
       ]),
     });
     const r = await service.verCierreDetalle("c1", MAESTRO);
@@ -1355,6 +1355,7 @@ describe("CierresAdminService.aprobarCierre — alimenta el ledger por tienda (f
         updateMany: vi.fn().mockResolvedValue({ count: 1 }),
         count: vi.fn().mockResolvedValue(1),
         findUnique: vi.fn(async () => ({
+          destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
           mensajeroId: cierre.mensajeroId,
           totalPagoMensajero: new Prisma.Decimal(cierre.totalPagoMensajero),
           totalEfectivo: new Prisma.Decimal(cierre.totalEfectivo),
@@ -1554,6 +1555,7 @@ describe("CierresAdminService.aprobarCierre — alimenta el pago al mensajero (f
         updateMany: vi.fn().mockResolvedValue({ count: 1 }),
         count: vi.fn().mockResolvedValue(1),
         findUnique: vi.fn(async () => ({
+          destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
           mensajeroId: cierre.mensajeroId,
           totalPagoMensajero: new Prisma.Decimal(cierre.totalPagoMensajero),
           totalEfectivo: new Prisma.Decimal(cierre.totalEfectivo),
@@ -1845,7 +1847,7 @@ describe("Feature 158 · verCierreDetalle — el incidente es un grupo PROPIO (R
             metodoPago: null,
             // El repo deriva el desglose con `derivarIngresoOrden`, que para `incidente`
             // devuelve {} -> todos los conceptos en null y el total en 0.00.
-            ingresoOrdenex: {
+            ingresoEmpresa: {
               montoCobrar: "50000.00",
               cobraComision: true,
               esCentral: true,
@@ -2199,7 +2201,7 @@ describe("264/B5 — verCierreDetalle emite las ordenes sin gestionar", () => {
  */
 describe("396 — `verCierreDetalle` emite el desglose por tienda", () => {
   /** Desglose por orden como lo emite el repositorio (ya derivado del snapshot congelado). */
-  function ingreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+  function ingreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
     return {
       montoCobrar: null,
       cobraComision: false,
@@ -2240,7 +2242,7 @@ describe("396 — `verCierreDetalle` emite el desglose por tienda", () => {
       resultado: "entregado",
       montoRecibido: "100000.00",
       metodoPago: "efectivo",
-      ingresoOrdenex: ingreso({
+      ingresoEmpresa: ingreso({
         flete: "2500.00",
         ivaFlete: "325.00",
         fleteConIva: "2825.00",
@@ -2258,7 +2260,7 @@ describe("396 — `verCierreDetalle` emite el desglose por tienda", () => {
       resultado: "devolucion_a_origen_por_rechazo",
       montoRecibido: null,
       metodoPago: null,
-      ingresoOrdenex: ingreso({
+      ingresoEmpresa: ingreso({
         fleteDevolucion: "1500.00",
         ivaFleteDevolucion: "195.00",
         fleteDevolucionConIva: "1695.00",
@@ -2273,7 +2275,7 @@ describe("396 — `verCierreDetalle` emite el desglose por tienda", () => {
       resultado: "entregado",
       montoRecibido: "40000.00",
       metodoPago: "SINPE",
-      ingresoOrdenex: ingreso({
+      ingresoEmpresa: ingreso({
         flete: "2000.00",
         ivaFlete: "260.00",
         fleteConIva: "2260.00",
@@ -2391,7 +2393,7 @@ describe("396 — `verCierreDetalle` emite el desglose por tienda", () => {
     expect(r.pagoTienda).toBe("130169.00");
     // Los CUATRO campos que dejó la ficha 395, intactos.
     expect(r.cobradoSobreRecaudado).toBe("9831.00"); // 5.085,00 + 4.746,00
-    expect(r.netoOrdenex).toBe("8026.00"); // 11.526,00 − 3.000,00 − 500,00
+    expect(r.netoEmpresa).toBe("8026.00"); // 11.526,00 − 3.000,00 − 500,00
     expect(r.ganaLaTienda).toBe("128474.00");
     expect(r.fleteRechazoYaCobradoATienda).toBe(false); // el cierre está `solicitado`
   });

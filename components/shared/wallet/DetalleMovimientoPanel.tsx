@@ -46,7 +46,7 @@ import {
 export interface DetalleMovimiento {
   /** La fila de un libro: viaja al servidor, nunca se pinta. */
   destino: { libro: "caja" | "tienda" | "mensajero"; movimientoId: string };
-  /** El nombre del concepto desde Ordenex. */
+  /** El nombre del concepto desde la empresa. */
   concepto: string;
   /** El día CR ya legible. */
   fecha: string;
@@ -100,7 +100,7 @@ function textoRegistroConInstante(registro: RegistroDTO, registradoEl: Registrad
 }
 
 function textoAQuien(a: AQuienDTO): string {
-  if (a.esOrdenex) return PANEL_TEXTO.esOrdenex;
+  if (a.esEmpresa) return PANEL_TEXTO.esEmpresa;
   if (a.nombre === null) return PANEL_TEXTO.sinDato;
   return a.beneficiario === null ? a.nombre : `${a.nombre} · ${PANEL_TEXTO.aTercero(a.beneficiario)}`;
 }

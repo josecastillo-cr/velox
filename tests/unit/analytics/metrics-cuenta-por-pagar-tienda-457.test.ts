@@ -5,7 +5,7 @@ import { WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED } from "@/lib/types/wallet-tien
 import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // FICHA 457 (R52, hallazgo m1 de la revision) — la metrica `cuenta_por_pagar_tienda` DECLARA todas
-// las categorias del libro de las tiendas, incluidas las dos del pago de una tienda a Ordenex.
+// las categorias del libro de las tiendas, incluidas las dos del pago de una tienda a la empresa.
 //
 // Por que hace falta: `definicion.categorias` esta tipado `readonly string[]`, asi que el compilador
 // no obliga a nombrar una categoria nueva, y el repositorio suma el libro ENTERO sin filtrar por

@@ -70,6 +70,9 @@ describeSiHayBase("454/C11 — dinero de la aprobacion (Postgres real)", () => {
 
       const indemnizaciones = [{ gestionId: gInc, monto: "3000.00" }];
       const aprobacion = await e.aprobar(cierreId, e.actorAdminSatelite, indemnizaciones);
+      // FICHA 498 (fixture): el cierre es SATELITE; su dinero ya no entra al aprobar sino al conciliar,
+      // por el mismo procedimiento. Se asienta aqui para medir las MISMAS filas (ninguna asercion cambia).
+      await e.asentar(cierreId);
 
       const movimientos = async () => {
         const caja = await e.tx.walletMovimiento.findMany({
@@ -90,6 +93,7 @@ describeSiHayBase("454/C11 — dinero de la aprobacion (Postgres real)", () => {
       };
       const trasAprobar = await movimientos();
       const reaprobacion = await e.aprobar(cierreId, e.actorAdminSatelite, indemnizaciones);
+      await e.asentar(cierreId); // asentar otra vez tampoco duplica (R5 de la 498)
       const trasReaprobar = await movimientos();
       return { totales, aprobacion: aprobacion.status, reaprobacion: reaprobacion.status, trasAprobar, trasReaprobar };
     });

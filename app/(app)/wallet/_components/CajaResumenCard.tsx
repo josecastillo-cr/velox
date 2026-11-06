@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { Landmark, ReceiptText, TriangleAlert } from "lucide-react";
+import { HandCoins, Landmark, ReceiptText, TriangleAlert } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ import {
 //
 // Lo que cambia respecto de la 42 no es como se pinta un numero: son DOS numeros donde habia uno,
 // y se ven A LA VEZ (R58). Nada de pestanas ni de desplegables — el punto entero de la feature es
-// que nadie confunda el dinero que pasa por la caja con lo que Ordenex gana.
+// que nadie confunda el dinero que pasa por la caja con lo que la empresa gana.
 //
 // Money-safe (R64 de la 173 / R12 de la 231 / R28 de la 459): los importes llegan ya derivados y
 // serializados por el SERVIDOR y se pintan TAL CUAL con `money`. Aqui no se suma, no se resta y no
@@ -51,7 +51,7 @@ import {
 // Tres detalles del arbol que NO son esteticos y que sostienen las aserciones vivas de la 173:
 //
 //  - las regiones son DISJUNTAS: la de la cifra principal no envuelve a la de «Ganancia de
-//    Ordenex», asi que ningun importe puede leerse bajo el rotulo del vecino;
+//    la empresa», asi que ningun importe puede leerse bajo el rotulo del vecino;
 //  - cada region tiene un PADRE ACOTADO que contiene su propio desglose y no el del otro;
 //  - CERO elementos interactivos (R8): ni un `<button>`, ni `details/summary`, ni tooltip. La
 //    barra es `role="img"`, no un `Progress` de Radix.
@@ -65,19 +65,26 @@ import {
 //  - Si la cifra es negativa y no hay filtros, una linea lo explica (R17/R19).
 //  - La barra y sus mensajes solo se pintan en «saldo» (R22): repartir «el dinero en caja» entre
 //    dos bolsillos no tiene sentido cuando la app no sabe cuanto dinero hay.
-//  - «De las tiendas» ES lo que Ordenex les debe (R23); si es negativo se dice en palabras quien
+//  - «De las tiendas» ES lo que la empresa les debe (R23); si es negativo se dice en palabras quien
 //    le debe a quien y cuanto, con el ABSOLUTO que manda el servidor.
-//  - El bolsillo de Ordenex gana una region propia, «Saldo inicial y aportes» (R25). La ganancia
+//  - El bolsillo de la empresa gana una region propia, «Saldo inicial y aportes» (R25). La ganancia
 //    no cambia ni de rotulo ni de valor.
 //  - La tarjeta NUNCA propone ni calcula un saldo inicial (R27): no hay control para eso aqui.
 //
 // ── Ficha 488 (T F.2, design §6.1) — LA GANANCIA, SIN IVA ──
 //
-//  - La cifra del bloque «Ganancia de Ordenex» ya llega sin IVA (R11). Debajo, dentro de la MISMA
+//  - La cifra del bloque «Ganancia de la empresa» ya llega sin IVA (R11). Debajo, dentro de la MISMA
 //    region y en tipografia menor, el IVA cobrado a las tiendas (R12).
 //  - Un TERCER bolsillo, «IVA por pagar», hermano de los otros dos, siempre visible —en «flujo» y en
 //    «saldo», con o sin filtros— con su importe, su insignia de signo y una pista que dice que no es
-//    ganancia de Ordenex (R13). Superficie neutra: es dinero que se debe, no una alarma.
+//    ganancia de la empresa (R13). Superficie neutra: es dinero que se debe, no una alarma.
+//
+// ── Ficha 498 (T7.1, design §8.3) — EL CUARTO BOLSILLO, «POR COBRAR A SATÉLITES» ──
+//
+//  - Hermano de los otros tres y SIEMPRE visible, también con 0 (R37): la diferencia de una
+//    satélite al conciliar es dinero que la caja esperaba y no entró (o que entró de más).
+//  - La pista la decide el SIGNO del servidor: positivo y negativo con su texto literal; cero sin
+//    pista. Superficie neutra, como el IVA: es una cuenta pendiente, no una alarma.
 
 /**
  * Feature 200 (tanda 2) — las insignias de signo usan las variantes SEMANTICAS de la
@@ -104,7 +111,7 @@ const SIGNO_COLOR: Record<WalletBalanceSigno, string> = {
 const BOLSILLO = "flex flex-col gap-2 rounded-xl border p-4";
 
 /**
- * R5/R16 de la 231 — de que color va el bloque de ORDENEX en cada modo. `Record` TOTAL sobre los
+ * R5/R16 de la 231 — de que color va el bloque de LA EMPRESA en cada modo. `Record` TOTAL sobre los
  * cuatro: un modo nuevo rompe el build en vez de heredar en silencio el color de otro caso.
  *
  * Neutro salvo en el caso limite (`solo_tiendas`), que SI es un estado que avisar. Ficha 459: el
@@ -115,23 +122,33 @@ const SUPERFICIE_NEUTRA = "border-border bg-muted/40";
 const TONO_INFORMATIVO = "text-muted-foreground";
 const TONO_PELIGRO = "font-medium text-danger-strong";
 
-type SuperficieOrdenex = { superficie: "neutra" | "peligro"; clase: string; tonoMensaje: string };
+type SuperficieEmpresa = { superficie: "neutra" | "peligro"; clase: string; tonoMensaje: string };
 
-const ORDENEX_NEUTRO: SuperficieOrdenex = {
+const EMPRESA_NEUTRO: SuperficieEmpresa = {
   superficie: "neutra",
   clase: SUPERFICIE_NEUTRA,
   tonoMensaje: TONO_INFORMATIVO,
 };
 
-const BOLSILLO_ORDENEX: Record<ModoComposicionCaja, SuperficieOrdenex> = {
-  dos_bolsillos: ORDENEX_NEUTRO,
-  solo_ordenex: ORDENEX_NEUTRO,
-  sin_reparto: ORDENEX_NEUTRO,
+const BOLSILLO_EMPRESA: Record<ModoComposicionCaja, SuperficieEmpresa> = {
+  dos_bolsillos: EMPRESA_NEUTRO,
+  solo_empresa: EMPRESA_NEUTRO,
+  sin_reparto: EMPRESA_NEUTRO,
   solo_tiendas: {
     superficie: "peligro",
     clase: "border-danger/30 bg-danger-soft dark:bg-danger/15",
     tonoMensaje: TONO_PELIGRO,
   },
+};
+
+/**
+ * Ficha 498 (R37) — la pista del bolsillo «Por cobrar a satélites» por signo. `Record` TOTAL: un
+ * signo nuevo no compila sin decidir qué se dice. En cero, nada (`null`).
+ */
+const PISTA_POR_COBRAR: Record<WalletBalanceSigno, string | null> = {
+  positivo: CAJA_RESUMEN_LABEL.porCobrarSatelitesPistaPositivo,
+  negativo: CAJA_RESUMEN_LABEL.porCobrarSatelitesPistaNegativo,
+  cero: null,
 };
 
 /** Tipografia de la cifra grande de la caja. */
@@ -187,7 +204,9 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
   const badgeGanancia = SIGNO_BADGE[resumen.signoGanancia];
   const badgeCapital = SIGNO_BADGE[resumen.signoCapital];
   const badgeIva = SIGNO_BADGE[resumen.signoIvaPorPagar];
-  const ordenex = conBarra ? BOLSILLO_ORDENEX[resumen.modoComposicion] : ORDENEX_NEUTRO;
+  const badgePorCobrar = SIGNO_BADGE[resumen.signoPorCobrarSatelites];
+  const pistaPorCobrar = PISTA_POR_COBRAR[resumen.signoPorCobrarSatelites];
+  const empresa = conBarra ? BOLSILLO_EMPRESA[resumen.modoComposicion] : EMPRESA_NEUTRO;
   // R16/R17/R18 de la 231: lo que hay que decir cuando la barra no se puede partir. Solo con barra.
   const mensajeModo = conBarra ? CAJA_COMPOSICION_MENSAJE[resumen.modoComposicion] : null;
 
@@ -252,8 +271,9 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
         {/* 2 — la barra (R2 de la 231), SOLO en estado «saldo» (R22 de la 459). */}
         {conBarra ? <BarraComposicionCaja resumen={resumen} /> : null}
 
-        {/* 3 — los bolsillos, hermanos y a la vez (R3). Ficha 488: tres, con el IVA por pagar. */}
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-3">
+        {/* 3 — los bolsillos, hermanos y a la vez (R3). Ficha 488: tres, con el IVA por pagar.
+            Ficha 498: cuatro, con «Por cobrar a satélites». */}
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
           <section
             aria-label={CAJA_RESUMEN_LABEL.deTerceros}
             data-bolsillo="tiendas"
@@ -274,7 +294,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             <span className="text-sm font-medium text-warning-strong">
               {CAJA_RESUMEN_LABEL.deTerceros}
             </span>
-            {/* R23: negativo = las tiendas le deben a Ordenex, y cuanto. El ABSOLUTO lo manda
+            {/* R23: negativo = las tiendas le deben a la empresa, y cuanto. El ABSOLUTO lo manda
                 el servidor: el navegador no le quita el signo a nada (R28). */}
             {resumen.signoDeTerceros === "negativo" ? (
               <p data-frase="tiendas-deben" className="text-sm font-medium text-foreground">
@@ -292,17 +312,17 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             </Link>
           </section>
 
-          {/* El bolsillo de Ordenex: la ganancia (sin cambios) y, HERMANA suya dentro del mismo
+          {/* El bolsillo de la empresa: la ganancia (sin cambios) y, HERMANA suya dentro del mismo
               padre acotado, la region del capital (R25). */}
           <div
-            data-bolsillo="ordenex"
-            data-superficie={ordenex.superficie}
-            className={cn(BOLSILLO, ordenex.clase)}
+            data-bolsillo="empresa"
+            data-superficie={empresa.superficie}
+            className={cn(BOLSILLO, empresa.clase)}
           >
             <section aria-label={CAJA_RESUMEN_LABEL.ganancia} className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {CAJA_COMPOSICION_LABEL.ordenex}
+                  {CAJA_COMPOSICION_LABEL.empresa}
                 </span>
                 <Badge variant={badgeGanancia.variant}>{badgeGanancia.label}</Badge>
               </div>
@@ -334,7 +354,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
               />
             </div>
 
-            {/* R25 (ficha 459): el capital de Ordenex, cifra PROPIA junto a la ganancia. */}
+            {/* R25 (ficha 459): el capital de la empresa, cifra PROPIA junto a la ganancia. */}
             <section
               aria-label={CAJA_RESUMEN_LABEL.capital}
               className="flex flex-col gap-1 border-t pt-3"
@@ -354,7 +374,7 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             </section>
 
             {mensajeModo === null ? null : (
-              <p role="note" className={cn("text-xs", ordenex.tonoMensaje)}>
+              <p role="note" className={cn("text-xs", empresa.tonoMensaje)}>
                 {mensajeModo}
               </p>
             )}
@@ -381,6 +401,31 @@ export function CajaResumenCard({ resumen, movimientos }: CajaResumenCardProps) 
             <span className="text-xs text-muted-foreground">
               {CAJA_RESUMEN_LABEL.ivaPorPagarPista}
             </span>
+          </section>
+
+          {/* Ficha 498 (R37): el cuarto bolsillo. Siempre visible, también con 0. */}
+          <section
+            aria-label={CAJA_RESUMEN_LABEL.porCobrarSatelites}
+            data-bolsillo="por-cobrar-satelites"
+            className={cn(BOLSILLO, SUPERFICIE_NEUTRA)}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center justify-center rounded-md bg-muted p-2 text-muted-foreground">
+                <HandCoins className="size-4" aria-hidden="true" />
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">
+                {CAJA_RESUMEN_LABEL.porCobrarSatelites}
+              </span>
+              <Badge variant={badgePorCobrar.variant}>{badgePorCobrar.label}</Badge>
+            </div>
+            <span className={cn(CIFRA_BOLSILLO, "text-foreground")}>
+              {money(resumen.porCobrarSatelites)}
+            </span>
+            {pistaPorCobrar === null ? null : (
+              <span data-pista="por-cobrar-satelites" className="text-xs text-muted-foreground">
+                {pistaPorCobrar}
+              </span>
+            )}
           </section>
         </div>
 

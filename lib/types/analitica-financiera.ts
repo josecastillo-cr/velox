@@ -1,5 +1,5 @@
 // Feature 127 (T A.1) — CONTRATO DE SALIDA de las metricas financieras (ocho al escribirse;
-// DIEZ desde la 173, que anadio `dinero_en_caja` y `ganancia_ordenex` — ver `IDS_FINANCIERAS_SERVIDAS`).
+// DIEZ desde la 173, que anadio `dinero_en_caja` y `ganancia_empresa` — ver `IDS_FINANCIERAS_SERVIDAS`).
 //
 // Modulo de TIPOS: sin consultas, sin logica, sin Prisma en import de valor, sin HTTP.
 // Lo unico de runtime que exporta son tres registros declarativos (los ids servidos, los
@@ -317,7 +317,7 @@ export const IDS_FINANCIERAS_SERVIDAS = [
   "ingreso_iva",
   "egresos",
   "dinero_en_caja",
-  "ganancia_ordenex",
+  "ganancia_empresa",
   "cuenta_por_pagar_tienda",
   "cuenta_por_pagar_mensajero",
   "conciliacion_cierres",
@@ -345,7 +345,7 @@ export function esMetricaAcumulada(metricaId: string): boolean {
  * unicas que hoy no tienen NINGUN cubo y publican `filas: []`.
  *
  * Q1 = (a), decidida por el humano el **2026-08-05** (`requirements.md` §5 de la 180). Son las
- * SEIS de caja —la ficha decia «cuatro», pero desde la 173 `dinero_en_caja` y `ganancia_ordenex`
+ * SEIS de caja —la ficha decia «cuatro», pero desde la 173 `dinero_en_caja` y `ganancia_empresa`
  * salen del mismo repositorio y del mismo material— mas `cuenta_por_pagar_mensajero`.
  *
  * POR QUE `cod_recaudado` Y `cuenta_por_pagar_tienda` QUEDAN FUERA, que es la parte que no se
@@ -367,7 +367,7 @@ export const IDS_FINANCIERAS_CON_DESGLOSE_POR_FECHA = [
   "ingreso_iva",
   "egresos",
   "dinero_en_caja",
-  "ganancia_ordenex",
+  "ganancia_empresa",
   "cuenta_por_pagar_mensajero",
 ] as const satisfies readonly MetricaFinancieraId[];
 

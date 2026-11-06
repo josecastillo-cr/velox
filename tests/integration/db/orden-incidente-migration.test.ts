@@ -218,11 +218,13 @@ describe("DOWN — deja la base como estaba (R40)", () => {
       "pago_por_cuenta_tienda",
       "aporte_capital",
       "cobro_manual_reclasificado",
-      // 461: las filas del cobro de Ordenex a una tienda (servicio) y las completadas por su migracion
+      // 461: las filas del cobro de la empresa a una tienda (servicio) y las completadas por su migracion
       "cobro_tienda",
       "cobro_tienda_completado",
-      // 457: el documento del pago de una tienda a Ordenex (`abono-tienda-457-migration.test.ts`)
+      // 457: el documento del pago de una tienda a la empresa (`abono-tienda-457-migration.test.ts`)
       "abono_tienda",
+      // 498: la fila de ajuste de la conciliacion de una satelite (`498-satelite-migraciones.test.ts`)
+      "conciliacion_bodega_ajuste",
     ];
     expect(valores).toEqual(
       WALLET_ORIGEN_TIPO_SEED.filter(

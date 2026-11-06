@@ -42,7 +42,7 @@ export function estado(parcial: Partial<EstadoCuentaDTO> & { tipo?: TipoDeCuenta
     cuenta: { tipo, id: idCuenta, nombre },
     saldoActual: "1000.00",
     signo: "positivo",
-    sentido: tipo === "bodega" ? "por_entregar" : "ordenex_debe",
+    sentido: tipo === "bodega" ? "por_entregar" : "empresa_debe",
     saldoInicial: "0.00",
     abonos: "1000.00",
     cargos: "0.00",

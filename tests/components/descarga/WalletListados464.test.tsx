@@ -59,6 +59,8 @@ const SATELITES: SaldoSateliteDTO[] = [
     zonaId: "z1",
     zonaNombre: "Bodega Norte",
     saldoSinConciliar: "100.00",
+    sinConsolidar: "0.00", // ficha 498
+    cierresSinConsolidar: 0,
     totalEfectivo: "100.00",
     totalConsolidado: "150.00",
     totalRecibido: "0.00",
@@ -100,6 +102,9 @@ const LISTADOS = [
     cabecera: [
       "Bodega",
       "Pendiente",
+      // Ficha 498 (R42): la columna «Sin consolidar» y su conteo.
+      "Sin consolidar",
+      "Cierres sin consolidar",
       "Efectivo consolidado",
       "Total consolidado",
       "Recibido",

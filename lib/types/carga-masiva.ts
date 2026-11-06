@@ -15,7 +15,7 @@ export type RowResultado = "creada" | "duplicada" | "error";
  *
  * `campo` es la clave de la COLUMNA DEL ARCHIVO, no el nombre de la columna de la base: es la
  * celda que hay que mirar. `num_remision` NO esta en la lista y no puede estarlo (R12): es el
- * identificador que Ordenex comparte con la tienda, y repararlo dejaria a los dos sistemas con
+ * identificador que la empresa comparte con la tienda, y repararlo dejaria a los dos sistemas con
  * dos claves distintas para la misma orden.
  *
  * Este archivo NO importa nada de `lib/pdf/`: viaja al navegador (`OrdenesCargaUpload` importa

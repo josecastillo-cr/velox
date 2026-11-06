@@ -36,6 +36,7 @@ import {
   SIN_DATO,
   ULTIMA_RECIBIDA,
   antiguedadLabel,
+  cierresSinConsolidarLabel,
   diaCR,
   hayFaltantePorRecibir,
   money,
@@ -165,8 +166,10 @@ export function SaldosSatelitesTable({ initialData, resumen }: Readonly<SaldosSa
           <span className={tienePendiente(s) ? "font-medium" : ""}>{s.zonaNombre}</span>
           {/* La marca de «llegó incompleta» a nivel de bodega: hay saldo pendiente y NINGUNA
               consolidación sin marcar, así que lo que queda es pura diferencia de una ya
-              conciliada. Es el caso que hay que poder distinguir de un bulto que no ha salido. */}
-          {tienePendiente(s) && s.consolidacionesSinConciliar === 0 ? (
+              conciliada. Es el caso que hay que poder distinguir de un bulto que no ha salido.
+              FICHA 498 (R23/R24): la deuda cuenta también los cierres SIN CONSOLIDAR; con alguno,
+              lo pendiente no es (solo) una diferencia, y la marca no se enciende. */}
+          {tienePendiente(s) && s.consolidacionesSinConciliar === 0 && s.cierresSinConsolidar === 0 ? (
             <Badge variant="warning">{RECIBIDO_INCOMPLETO_LABEL}</Badge>
           ) : null}
         </span>
@@ -182,6 +185,23 @@ export function SaldosSatelitesTable({ initialData, resumen }: Readonly<SaldosSa
           <span className="font-medium tabular-nums">{money(s.saldoSinConciliar)}</span>
         ) : (
           <span className="text-muted-foreground">{SIN_DATO}</span>
+        ),
+    },
+    {
+      // FICHA 498 (R24/R42) — lo aprobado que todavía no entró en ninguna consolidación, con cuántos
+      // cierres lo forman. Importe y conteo del SERVIDOR, tal cual. Sin cierres, «—».
+      id: "sinConsolidar",
+      value: SALDOS_SATELITES_COLUMNAS.sinConsolidar,
+      render: (s) =>
+        s.cierresSinConsolidar === 0 ? (
+          <span className="text-muted-foreground">{SIN_DATO}</span>
+        ) : (
+          <span className="flex flex-col">
+            <span className="tabular-nums">{money(s.sinConsolidar)}</span>
+            <span className="text-xs text-muted-foreground">
+              {cierresSinConsolidarLabel(s.cierresSinConsolidar)}
+            </span>
+          </span>
         ),
     },
     {

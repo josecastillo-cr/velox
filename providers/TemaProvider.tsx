@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -11,7 +12,7 @@ import {
 } from "react";
 
 import { cn } from "@/lib/utils";
-import { guardarPreferenciaTema } from "@/lib/tema/preferencia-tema";
+import { guardarPreferenciaTema, migrarCookieTema } from "@/lib/tema/preferencia-tema";
 import {
   claseDeTema,
   resolverTemaDelSistema,
@@ -58,6 +59,13 @@ export function TemaProvider({
   // render del cliente coincide con el HTML recibido, así que no hay discrepancia de
   // hidratación. `null` = nadie ha elegido todavía.
   const [elegido, setElegido] = useState<TemaElegido>(temaInicial);
+
+  // Feature 494 (R17) — traslada la cookie con el nombre anterior. Va en un efecto y no en el
+  // render porque escribe una cookie, y aquí porque este proveedor es lo único que se monta en
+  // todas las páginas del portal. No toca el estado: el tema ya llegó bien del servidor.
+  useEffect(() => {
+    migrarCookieTema();
+  }, []);
 
   // Lo que dice el SISTEMA OPERATIVO. `useSyncExternalStore` y no un efecto por dos
   // motivos concretos:

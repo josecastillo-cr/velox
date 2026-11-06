@@ -41,7 +41,7 @@ export interface IEstadoCuentaService {
    * FICHA 458-D (servidor, R34–R36) — el estado de cuenta de `/mi-wallet`: SOLO `adminTienda`, y la
    * cuenta es la tienda de la SESION (`actor.usuarioId`), nunca una de la entrada. La MISMA lectura
    * que la oficina (mismo corrido, mismo R22), vista desde la tienda: sin nombres de la gente de
-   * Ordenex, sin «Anular…» y con los enlaces que la tienda puede abrir.
+   * la empresa, sin «Anular…» y con los enlaces que la tienda puede abrir.
    */
   leerMiTienda(input: MiEstadoCuentaInput, actor: Actor): Promise<VerEstadoCuentaServiceResult>;
 

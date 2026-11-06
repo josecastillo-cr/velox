@@ -16,7 +16,7 @@
 // | posicion de «Efectividad»         | **13.ª — fuera de pantalla** |
 // | ancho de la tabla                 | 1584 px en una ventana de 1440 |
 //
-// Y lo primero que se veia eran las TRES columnas de dinero —Recaudado, Cobro Ordenex, Para la
+// Y lo primero que se veia eran las TRES columnas de dinero —Recaudado, Cobró Velox, Para la
 // tienda—, las tres en «—» en las 25 filas, cada una arrastrando una linea secundaria («Con otro
 // producto: 0 de 6») que doblaba el alto de cada fila. «Tienda» repetia el mismo nombre 25 veces
 // y encima de la tabla habia SEIS lineas de advertencias en gris.
@@ -29,7 +29,7 @@
 //
 //  - **Cinco columnas**: Producto · Órdenes · **En qué terminaron** (una barra y su frase, no
 //    cuatro columnas de numeros) · **Efectividad** · Recaudado.
-//  - **Una fila que se abre** con el resto: unidades, cobro Ordenex, para la tienda, otros
+//  - **Una fila que se abre** con el resto: unidades, cobro la empresa, para la tienda, otros
 //    resultados, % de rechazo — y, cuando hay dinero, el detalle orden por orden de la 347.
 //  - **«Tienda» deja de ser una columna repetida** cuando es constante: pasa a un chip que la
 //    dice UNA vez. Ver `hayVariasTiendas`.
@@ -197,7 +197,7 @@ export const PRODUCTOS_TEXTOS = {
     "El dinero es de la ORDEN completa, no del producto: una orden con varios productos cuenta entera en cada uno, así que estas cifras no se pueden sumar hacia abajo.",
   /**
    * FICHA 347 (R29) — de que habla el reparto. Va junto al aviso de arriba porque las dos
-   * cifras del reparto solo tienen sentido leidas con esta frase delante: lo que Ordenex cobro
+   * cifras del reparto solo tienen sentido leidas con esta frase delante: lo que la empresa cobro
    * y lo que es de la tienda se saben SOLO de las ordenes ya liquidadas; de las demas no se
    * proyecta nada (R31) y por eso su celda dice «—» y no «0,00» (R30).
    */
@@ -247,7 +247,7 @@ export const PRODUCTOS_COLUMNAS = {
    * abre la fila, que es cuando interesa.
    */
   recaudado: "Recaudado",
-  ordenex: `Cobró ${MARCA.nombreCorto}`,
+  empresa: `Cobró ${MARCA.nombreCorto}`,
   paraTienda: "Para la tienda",
   /**
    * FICHA 449 — EL SERVICIO DE BODEGA, con el nombre que YA tiene en el resto de la app.
@@ -475,7 +475,7 @@ function cifrasDeFila(fila: FilaProductoDTO): Readonly<Record<IdCifra, string>> 
  *
  * FICHA 449 — son CUATRO: entra el servicio de bodega, en el detalle y solo cuando hay monto.
  */
-type IdDinero = "recaudado" | "ordenex" | "paraTienda" | "fulfillment";
+type IdDinero = "recaudado" | "empresa" | "paraTienda" | "fulfillment";
 
 interface DeclaracionDinero {
   readonly id: IdDinero;
@@ -495,9 +495,9 @@ interface DeclaracionDinero {
 
 const DINERO: readonly DeclaracionDinero[] = [
   { id: "recaudado", etiqueta: PRODUCTOS_COLUMNAS.recaudado, enColumna: true },
-  { id: "ordenex", etiqueta: PRODUCTOS_COLUMNAS.ordenex, enColumna: false },
+  { id: "empresa", etiqueta: PRODUCTOS_COLUMNAS.empresa, enColumna: false },
   { id: "paraTienda", etiqueta: PRODUCTOS_COLUMNAS.paraTienda, enColumna: false },
-  // FICHA 449 — DETRAS del reparto y nunca dentro de el. `ordenex + paraTienda` es exactamente
+  // FICHA 449 — DETRAS del reparto y nunca dentro de el. `empresa + paraTienda` es exactamente
   // lo recaudado liquidado (R20) y esa igualdad es cierta POR CONSTRUCCION; una cuarta cifra
   // entre las dos se leeria como un tercer trozo del mismo reparto, que es justo lo que NO es.
   {
@@ -546,7 +546,7 @@ export function textoColumnasNoSumables(etiquetas: readonly string[]): string {
  *
  * ⚠ LOS TRES CAMINOS QUE DEVUELVEN `null` SON DISTINTOS Y SE PINTAN IGUAL, y esta bien que asi
  * sea: la fila no tiene ninguna orden que aporte (`fila.dinero === null`), o la tiene pero
- * ninguna esta liquidada (`ordenex`/`tienda` llegan `null` del servidor, R30). En los dos casos
+ * ninguna esta liquidada (`empresa`/`tienda` llegan `null` del servidor, R30). En los dos casos
  * el hecho es el mismo —«todavia no hay reparto»— y `money(null)` lo pinta «—».
  *
  * ⚠ AQUI NO HAY —NI PUEDE HABER— UN `?? "0.00"`. Ese es exactamente el defecto que la mutacion
@@ -556,7 +556,7 @@ function importeDeFila(fila: FilaProductoDTO, id: IdDinero): string | null {
   const dinero = fila.dinero;
   if (dinero === null) return null;
   if (id === "recaudado") return dinero.recaudado;
-  if (id === "ordenex") return dinero.liquidado.ordenex;
+  if (id === "empresa") return dinero.liquidado.empresa;
   // FICHA 449 — SALE DE LA RAIZ DEL DTO, no de `liquidado`, y el sitio del que se lee es la
   // afirmacion: `liquidado` es el reparto de lo recaudado y el fulfillment no forma parte de el.
   if (id === "fulfillment") return dinero.fulfillment;
@@ -768,7 +768,7 @@ function DetalleDeFila({
       {/**
        * `data-slot` para que una suite pueda leer ESTE bloque y no el del panel de la 347, que
        * repite los mismos rótulos a propósito: sus totales existen «para cotejar» (R38). Sin el
-       * marcador, un `getByText("Cobró Ordenex")` encuentra dos y no se sabe cuál mide.
+       * marcador, un `getByText("Cobró Velox")` encuentra dos y no se sabe cuál mide.
        */}
       <div data-slot="detalle-producto" className="flex flex-wrap gap-x-8 gap-y-3">
         {CIFRAS_EN_DETALLE.map((cifra) => (
@@ -880,15 +880,15 @@ const MIN_CIFRA: Readonly<Record<IdCifra, string>> = {
 };
 const MIN_DINERO: Readonly<Record<IdDinero, string>> = {
   recaudado: "6.5rem",
-  ordenex: "6rem",
+  empresa: "6rem",
   paraTienda: "6rem",
-  // FICHA 449 — declarado aunque hoy NO sea columna, igual que `ordenex` y `paraTienda`: el
+  // FICHA 449 — declarado aunque hoy NO sea columna, igual que `empresa` y `paraTienda`: el
   // `Record` exige una entrada por cifra. Se le da el MISMO 6rem que a esos dos, y no un numero
   // propio, porque ese numero no esta medido contra la tipografia de la app y aqui no se
   // inventa: hoy nadie lo lee. Lo que SI esta medido (Chromium, tipografia del sistema, mismo
   // `text-xs font-bold` del `<th>` para los cuatro rotulos) es la comparacion RELATIVA, que es
   // la que sobrevive a un cambio de fuente: `Fulfillment` mide 57 px, lo mismo que `Recaudado`
-  // y MENOS que `Cobró Ordenex` (80) y `Para la tienda` (72). O sea: el minimo que ya sostiene
+  // y MENOS que `Cobró Velox` (80) y `Para la tienda` (72). O sea: el minimo que ya sostiene
   // a esos dos sostiene tambien a este. Si algun dia vuelve a ser columna, hay que remedirlo
   // contra la fuente real, que es lo que la 348 dejo escrito.
   fulfillment: "6rem",

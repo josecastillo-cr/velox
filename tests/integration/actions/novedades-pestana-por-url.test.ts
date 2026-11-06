@@ -141,7 +141,7 @@ describe("R7 — `/novedades?superficie=` deja abierta ESA superficie", () => {
     }
     expect(accion.atajo.href).toBe("/novedades?superficie=devolucion");
 
-    const query = new URL(accion.atajo.href, "https://ordenex.co").searchParams;
+    const query = new URL(accion.atajo.href, "https://ejemplo.test").searchParams;
     expect(await pestanaActivaCon({ superficie: query.get("superficie") ?? undefined })).toBe(
       "Novedad",
     );

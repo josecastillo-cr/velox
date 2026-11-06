@@ -104,7 +104,7 @@ describeSiHayBase("486 — evidencias de una gestion en los cierres, contra Post
             await tx.usuario.create({
               data: {
                 nombre,
-                email: `u-${clave}-${SUFIJO}@ordenex.test`,
+                email: `u-${clave}-${SUFIJO}@ejemplo.test`,
                 telefono: "88880000",
                 passwordHash: plantilla.passwordHash,
                 cedula: `C-${clave}-${SUFIJO}`,

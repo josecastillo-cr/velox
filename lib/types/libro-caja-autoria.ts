@@ -26,13 +26,13 @@ export interface AQuienDTO {
   beneficiario: string | null;
   /** El estado de cuenta al que enlazar (tienda o mensajero). Viaja, no se pinta. */
   cuenta: { tipo: "tienda" | "mensajero"; id: string } | null;
-  /** El aporte de capital: «Ordenex». */
-  esOrdenex: boolean;
+  /** El aporte de capital: «la empresa». */
+  esEmpresa: boolean;
 }
 
 /**
  * Ficha 458-C (revision M1, R58) — «Como»: el metodo y la referencia del documento de la fila (pago a
- * una tienda o a un mensajero, pago de un gasto de una tienda, pago de una tienda a Ordenex) o la
+ * una tienda o a un mensajero, pago de un gasto de una tienda, pago de una tienda a la empresa) o la
  * referencia anotada a mano (sueldo, gasto, correccion). `null` = la fila no tiene ninguno de los dos.
  */
 export interface ComoDTO {

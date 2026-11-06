@@ -9,9 +9,9 @@ import { ACCIONES_TIENDA_TEXTO } from "./estado-cuenta-tienda-labels";
 // FICHA 458-D (T D.2, design §5; R26–R28, R40, R48) — las ACCIONES del estado de cuenta de una tienda.
 // Cada una abre el diálogo ÚNICO de la 458-C con el concepto y ESTA tienda fijos (R40):
 //
-//  - «La tienda le paga a Ordenex» (457): SOLO con saldo en contra (R26).
-//  - «Ordenex le cobra a la tienda» (461): siempre (R27).
-//  - «Ordenex le paga a la tienda» (172): con saldo a favor; sin él, deshabilitado y diciendo por qué
+//  - «La tienda le paga a la empresa» (457): SOLO con saldo en contra (R26).
+//  - «la empresa le cobra a la tienda» (461): siempre (R27).
+//  - «la empresa le paga a la tienda» (172): con saldo a favor; sin él, deshabilitado y diciendo por qué
 //    en texto visible (R28). El tope del pago lo decide el SERVIDOR en «Así queda» (`superaDisponible`)
 //    y al registrar; aquí no se compara ningún importe.
 //
@@ -46,19 +46,19 @@ export function EstadoCuentaAcciones({ estado, onCambio }: Readonly<EstadoCuenta
         <RegistrarMovimientoDialog
           conceptoInicial="cobro_tienda"
           cuentaFija={cuenta}
-          etiquetaBoton={ACCIONES_TIENDA_TEXTO.ordenexCobra}
+          etiquetaBoton={ACCIONES_TIENDA_TEXTO.empresaCobra}
           onRegistrado={refrescar}
         />
         {aFavor ? (
           <RegistrarMovimientoDialog
             conceptoInicial="pago_a_tienda"
             cuentaFija={cuenta}
-            etiquetaBoton={ACCIONES_TIENDA_TEXTO.ordenexPaga}
+            etiquetaBoton={ACCIONES_TIENDA_TEXTO.empresaPaga}
             onRegistrado={refrescar}
           />
         ) : (
           <Button type="button" variant="outline" disabled aria-describedby="estado-cuenta-sin-saldo-a-favor">
-            {ACCIONES_TIENDA_TEXTO.ordenexPaga}
+            {ACCIONES_TIENDA_TEXTO.empresaPaga}
           </Button>
         )}
       </div>

@@ -9,8 +9,10 @@
  * y asi el toggle de la campana lee el estado sin arrastrar el contexto de audio.
  */
 
-/** Clave de almacenamiento. Prefijo `ordenex:` para no colisionar con nada del host. */
-export const CLAVE_SONIDO = "ordenex:sonido-notificaciones";
+import { leerConLegado } from "@/lib/navegador/claves-legadas";
+
+/** Clave de almacenamiento. Prefijo `app:` para no colisionar con nada del host. */
+export const CLAVE_SONIDO = "app:sonido-notificaciones";
 
 const VALOR_ACTIVADO = "on";
 const VALOR_SILENCIADO = "off";
@@ -25,7 +27,7 @@ const VALOR_SILENCIADO = "off";
 export function leerPreferenciaSonido(): boolean {
   if (typeof window === "undefined") return true;
   try {
-    return window.localStorage.getItem(CLAVE_SONIDO) !== VALOR_SILENCIADO;
+    return leerConLegado(window.localStorage, CLAVE_SONIDO) !== VALOR_SILENCIADO;
   } catch {
     return true;
   }

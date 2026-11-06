@@ -114,7 +114,7 @@ export interface CrearMovimientoTiendaInput {
   fechaMovimiento?: Date;
   /**
    * Ficha 461 (R66/R67/R68, auditoria D2) — la clave de idempotencia del CLIENTE, SOLO en el cobro
-   * de Ordenex a la tienda (`cobro_manual`). Columna UNIQUE; con `skipDuplicates` un choque deja
+   * de la empresa a la tienda (`cobro_manual`). Columna UNIQUE; con `skipDuplicates` un choque deja
    * `count = 0` y el servicio relee por la clave (`obtenerCobroPorClave`). Opcional: ausente ⇒ NULL.
    */
   claveIdempotencia?: string;
@@ -308,7 +308,7 @@ export interface IWalletTiendaMovimientoRepository {
    */
   nombreDeTienda(tx: WalletTiendaHistorialTxClient, tiendaId: string): Promise<string>;
   /**
-   * FICHA 461 (design §5.3, R13/R16) — UN cobro de Ordenex a una tienda por su id: SOLO filas
+   * FICHA 461 (design §5.3, R13/R16) — UN cobro de la empresa a una tienda por su id: SOLO filas
    * `debito`/`cobro_manual`, con el `WHERE` en la base (no se lee la fila para descartarla despues).
    * Cualquier otra fila del libro responde `null`, igual que un id inexistente: para el servicio las
    * dos cosas son «no se encontro un cobro».

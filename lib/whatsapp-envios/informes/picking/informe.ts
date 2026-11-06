@@ -148,7 +148,7 @@ export function crearInformePicking(deps?: DepsInformePicking): InformeWhatsapp<
       { clave: "hora", nombre: "Hora del picking", descripcion: "Hora del envío (hora de Costa Rica).", ejemplo: "06:30" },
     ],
     generaDocumento: true,
-    // D3: el picking lo hace la bodega de Ordenex; no llega a una tienda.
+    // D3: el picking lo hace la bodega de la empresa; no llega a una tienda.
     aptoParaAdminTienda: false,
     eventos: [],
     soloPorEvento: false,

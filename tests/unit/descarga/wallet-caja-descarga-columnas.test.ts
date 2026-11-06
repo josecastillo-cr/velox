@@ -18,7 +18,7 @@ const MOV: WalletMovimientoDTO = {
   descripcion: "Alquiler de bodega",
   registradoPor: "1b2c3d4e-5f6a-4b7c-8d9e-0f1a2b3c4d5e",
   fechaMovimiento: "2026-07-12T10:00:00.000Z",
-  dueno: "propio", // feature 231 (R31): un gasto fijo es dinero de Ordenex
+  dueno: "propio", // feature 231 (R31): un gasto fijo es dinero de la empresa
   documento: null, // ficha 459 (design §7.3): fila sin documento
 };
 
@@ -148,7 +148,7 @@ describe("columnas de descarga del libro de caja", () => {
         beneficiario: "Facebook",
         // El id de la cuenta viaja para el ENLACE de la pantalla; en la hoja no puede salir.
         cuenta: { tipo: "tienda", id: "9c8b7a6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d" },
-        esOrdenex: false,
+        esEmpresa: false,
       },
       registro: { nombre: "Ana Maestra", automatico: null },
       registradoEl: { fecha: "2026-09-20", hora: "09:15" },
@@ -167,7 +167,7 @@ describe("columnas de descarga del libro de caja", () => {
     // Lo automático, con la acción y quien la decidió.
     const automatico = filaDescargaMovimientoCaja(MOV, {
       ...autoria,
-      aQuien: { nombre: null, beneficiario: null, cuenta: null, esOrdenex: false },
+      aQuien: { nombre: null, beneficiario: null, cuenta: null, esEmpresa: false },
       registro: { nombre: null, automatico: { accion: "plantilla_gasto_fijo", por: null } },
       registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     });

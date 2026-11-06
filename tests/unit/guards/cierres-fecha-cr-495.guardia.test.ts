@@ -41,10 +41,10 @@ function archivosDe(dir: string): string[] {
 }
 
 /** Números de línea (1-based) de código, sin comentarios, con una forma prohibida. */
-function recortesEn(fuente: string): number[] {
+function recortesEn(fuente: string, formas: readonly RegExp[] = PROHIBIDAS): number[] {
   // CRLF invisible: se normaliza antes de partir por líneas.
   return lineasSinComentarios(fuente.replace(/\r\n/g, "\n"))
-    .map((linea, i) => (PROHIBIDAS.some((re) => re.test(linea)) ? i + 1 : 0))
+    .map((linea, i) => (formas.some((re) => re.test(linea)) ? i + 1 : 0))
     .filter((n) => n > 0);
 }
 
@@ -91,6 +91,71 @@ describe("GUARDIA 495 — cierres e incidentes no recortan fechas en UTC", () =>
     }
     // Sin archivos que mirar la guardia sería verde por vacía.
     expect(revisados).toBeGreaterThan(30);
+    expect(hallazgos).toEqual([]);
+  });
+});
+
+// =================================================================================================
+// FICHA 501 (R10) — PAGOS REGISTRADOS: LOS INSTANTES TAMPOCO SE RECORTAN EN UTC
+// =================================================================================================
+//
+// La tabla y sus columnas de descarga viven en `components/shared/liquidacion`, fuera de las tres
+// carpetas de arriba. `registradoAt` y `anuladoAt` son instantes (`fechaDiaInstanteCR`), pero
+// `fechaPago` es un `@db.Date` y SÍ pasa por `fechaDiaISO` con razón; por eso el detector es otro.
+//
+// Lista explícita: si un archivo se mueve, `readFileSync` lanza y la guardia cae en vez de quedarse
+// verde por vacía. El detector dispara también con `fechaDiaISO(iso)`: un alias único sobre los dos
+// tipos de fecha es lo que escondía el defecto.
+
+const ARCHIVOS_PAGOS_REGISTRADOS = [
+  "components/shared/liquidacion/PagosRegistradosTabla.tsx",
+  "components/shared/liquidacion/pagos-registrados-descarga-columnas.ts",
+];
+
+const PROHIBIDAS_PAGOS_REGISTRADOS: readonly RegExp[] = [
+  /\.(?:slice|substring|substr)\(\s*0\s*,\s*10\s*\)/,
+  /\.split\(\s*["'`]T["'`]\s*\)/,
+  /\bfechaDiaISO\s*\(\s*(?!(?:[\w?.]+\.)?fechaPago\s*\))/,
+];
+
+const recortesDePago = (fuente: string) => recortesEn(fuente, PROHIBIDAS_PAGOS_REGISTRADOS);
+
+describe("GUARDIA 501 — Pagos registrados solo recorta como texto `fechaPago`", () => {
+  it("contraprueba: el detector encuentra las formas de antes de la ficha", () => {
+    expect(recortesDePago("registradoEl: fechaDiaISO(pago.registradoAt),")).toEqual([1]);
+    expect(recortesDePago("anuladoEl: a ? fechaDiaISO(a.anuladoAt) : null,")).toEqual([1]);
+    expect(recortesDePago("render: (p) => fechaDiaISO(p.registradoAt),")).toEqual([1]);
+    // Volver a meter un alias sobre `fechaDiaISO`, con el cuerpo en su propia línea.
+    expect(recortesDePago("function dia(iso: string) {\n  return fechaDiaISO(iso);\n}")).toEqual([2]);
+    expect(recortesDePago("const d = p.registradoAt.slice(0, 10);")).toEqual([1]);
+    expect(recortesDePago("const d = x.substring(0, 10);")).toEqual([1]);
+    expect(recortesDePago("const d = p.registradoAt.split(\"T\")[0];")).toEqual([1]);
+    // Que un campo se parezca a `fechaPago` no lo salva.
+    expect(recortesDePago("fechaDiaISO(p.fechaPagoRegistrada)")).toEqual([1]);
+    // Nombra la línea correcta, también con CRLF.
+    expect(recortesDePago("const a = 1;\r\nconst b = 2;\r\nfechaDiaISO(p.registradoAt);")).toEqual([3]);
+  });
+
+  it("contraprueba: lo que SÍ se puede escribir no salta, y un comentario no cuenta", () => {
+    expect(recortesDePago("fechaPago: fechaDiaISO(pago.fechaPago),")).toEqual([]);
+    expect(recortesDePago("render: (p) => fechaDiaISO(p.fechaPago),")).toEqual([]);
+    expect(recortesDePago("fechaDiaISO(pago?.fechaPago)")).toEqual([]);
+    expect(recortesDePago("fechaDiaISO(fechaPago)")).toEqual([]);
+    expect(recortesDePago("registradoEl: fechaDiaInstanteCR(pago.registradoAt),")).toEqual([]);
+    expect(recortesDePago("import { fechaDiaISO, fechaDiaInstanteCR } from \"x\";")).toEqual([]);
+    expect(recortesDePago("// antes: fechaDiaISO(pago.registradoAt)")).toEqual([]);
+    expect(recortesDePago("/* antes: iso.slice(0, 10) */")).toEqual([]);
+  });
+
+  it("la tabla y las columnas de descarga no cortan así ninguna fecha que no sea `fechaPago`", () => {
+    // Literal a propósito: el alcance ES el contrato (R10).
+    expect(ARCHIVOS_PAGOS_REGISTRADOS).toEqual([
+      "components/shared/liquidacion/PagosRegistradosTabla.tsx",
+      "components/shared/liquidacion/pagos-registrados-descarga-columnas.ts",
+    ]);
+    const hallazgos = ARCHIVOS_PAGOS_REGISTRADOS.flatMap((archivo) =>
+      recortesDePago(readFileSync(path.join(RAIZ, archivo), "utf8")).map((n) => `${archivo}:${n}`),
+    );
     expect(hallazgos).toEqual([]);
   });
 });

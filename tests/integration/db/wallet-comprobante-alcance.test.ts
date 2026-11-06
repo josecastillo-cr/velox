@@ -22,7 +22,7 @@ import { cargarCatalogo459, enTransaccionRevertida459, montarServicios459, sembr
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 // FICHA 458-B / TB.10 (R74–R80) — el comprobante LATERAL contra Postgres: adjuntar despues (una vez,
 // a la columna de SU destino), el UNIQUE como R79 y el alcance de la tienda (R77/R78), sobre el
-// escenario de la fase 0 de la 459 (tiendas A y B, cierres, pagos de la 172, cobros de Ordenex).
+// escenario de la fase 0 de la 459 (tiendas A y B, cierres, pagos de la 172, cobros de la empresa).
 //
 // El almacenamiento es un doble en memoria (el bucket no es de la base); todo lo demas es real: el
 // repositorio, el clasificador de la anulacion, la transaccion y las Server Actions.

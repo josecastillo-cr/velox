@@ -108,7 +108,7 @@ describeSiHayBase("458-B/TB.12 — «Así queda» predice lo que queda (Postgres
         await paso("sueldo", "11.00", null, () =>
           s.egresos.registrarEgreso({ tipoEgreso: "sueldo", monto: "11.00", descripcion: "Sueldo", claveIdempotencia: k() }, m),
         );
-        await paso("gasto_ordenex", "12.00", null, () =>
+        await paso("gasto_empresa", "12.00", null, () =>
           s.egresos.registrarEgreso({ tipoEgreso: "gasto_variable", monto: "12.00", descripcion: "Gasto", claveIdempotencia: k() }, m),
         );
         await paso("correccion_resta", "13.00", null, () =>
@@ -135,12 +135,12 @@ describeSiHayBase("458-B/TB.12 — «Así queda» predice lo que queda (Postgres
         await paso("pago_a_mensajero", "1.00", { tipo: "mensajero", id: esc.mensajeroId }, () =>
           s.liquidacion.registrarRepartoMensajero({ claveIdempotencia: k(), mensajeroId: esc.mensajeroId, monto: "1.00", metodo: "efectivo", fechaPago: hoy }, m),
         );
-        // El cobro deja a la tienda B en contra (R47) y asi la tienda B puede pagarle a Ordenex (457).
+        // El cobro deja a la tienda B en contra (R47) y asi la tienda B puede pagarle a la empresa (457).
         const cobro = new Prisma.Decimal(await saldoTienda(esc.tiendaB)).abs().add("50.00").toFixed(2);
         await paso("cobro_a_tienda", cobro, B, () =>
           s.cobroTienda.registrarCobro({ claveIdempotencia: k(), tiendaId: esc.tiendaB, monto: cobro, descripcion: "Bolsas" }, m),
         );
-        await paso("tienda_paga_a_ordenex", "20.00", B, () =>
+        await paso("tienda_paga_a_empresa", "20.00", B, () =>
           s.abonoTienda.registrar(
             { claveIdempotencia: k(), tiendaId: esc.tiendaB, monto: "20.00", metodo: "efectivo", motivo: "Abono", fechaPago: hoy },
             null,
@@ -165,12 +165,12 @@ describeSiHayBase("458-B/TB.12 — «Así queda» predice lo que queda (Postgres
         "cobro_a_tienda",
         "correccion_resta",
         "correccion_suma",
-        "gasto_ordenex",
+        "gasto_empresa",
         "pago_a_mensajero",
         "pago_a_tienda",
         "pago_gasto_tienda",
         "sueldo",
-        "tienda_paga_a_ordenex",
+        "tienda_paga_a_empresa",
       ].sort(),
     );
     for (const x of p()) expect(x.registro, x.concepto).toBe("ok");
@@ -199,7 +199,7 @@ describeSiHayBase("458-B/TB.12 — «Así queda» predice lo que queda (Postgres
     );
     //                                cifra   ganancia tiendas capital
     expect(cambia).toEqual({
-      gasto_ordenex: [true, true, false, false],
+      gasto_empresa: [true, true, false, false],
       sueldo: [true, true, false, false],
       pago_gasto_tienda: [true, false, true, false],
       correccion_resta: [true, true, false, false],
@@ -207,7 +207,7 @@ describeSiHayBase("458-B/TB.12 — «Así queda» predice lo que queda (Postgres
       pago_a_mensajero: [false, false, false, false],
       aporte: [true, false, false, true],
       correccion_suma: [true, true, false, false],
-      tienda_paga_a_ordenex: [true, false, true, false],
+      tienda_paga_a_empresa: [true, false, true, false],
       cobro_a_tienda: [false, true, true, false],
     });
   });

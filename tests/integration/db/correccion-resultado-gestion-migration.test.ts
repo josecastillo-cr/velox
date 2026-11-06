@@ -440,11 +440,11 @@ describe.skipIf(!HAY_BASE_DE_DATOS)("398/T1.5 (b) — el down recrea las listas 
       "pago_por_cuenta_tienda_anulado",
       "aporte_capital_registrado",
       "aporte_capital_anulado",
-      // Ficha 461 (2026-09-25): la anulacion del cobro de Ordenex a una tienda (migracion 1 de la
+      // Ficha 461 (2026-09-25): la anulacion del cobro de la empresa a una tienda (migracion 1 de la
       // 461) y la anulacion de una correccion de caja (migracion 4, auditoria D3).
       "cobro_tienda_anulado",
       "wallet_movimiento_manual_anulado",
-      // Ficha 457 (2026-09-25): el pago de una tienda a Ordenex, registrar y anular (la guardia del censo
+      // Ficha 457 (2026-09-25): el pago de una tienda a la empresa, registrar y anular (la guardia del censo
       // mide por metodo). Su archivo: `abono-tienda-457-migration.test.ts`.
       "abono_tienda_registrado",
       "abono_tienda_anulado",
@@ -452,6 +452,9 @@ describe.skipIf(!HAY_BASE_DE_DATOS)("398/T1.5 (b) — el down recrea las listas 
       // caja (D13). Su migracion: `20260928120000_wallet_458_enums`.
       "cobro_rechazo_tienda_anulado",
       "egreso_caja_anulado",
+      // Ficha 500 (2026-11-03): el rastro de los distritos de una zona. Su archivo:
+      // `historial-accion-zona-distrito-500-migration.test.ts`.
+      "zona_distrito_cambiado",
     ];
     expect([...origenAntes].sort()).toEqual(
       ORDEN_HISTORIAL_ORIGEN_TIPO_SEED.filter(

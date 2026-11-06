@@ -85,7 +85,7 @@ export function aPagoPorCuentaDTO(r: PagoPorCuentaRegistro): PagoPorCuentaTienda
 }
 
 /**
- * FICHA 459 (design §6.1) — el PAGO POR CUENTA de una tienda: Ordenex saca dinero de la caja para
+ * FICHA 459 (design §6.1) — el PAGO POR CUENTA de una tienda: la empresa saca dinero de la caja para
  * pagarle a un tercero en nombre de la tienda. En UNA transaccion: el documento y su historial,
  * el cargo en el libro de la tienda y la salida en la caja, con el MISMO monto y el MISMO instante
  * (R29). Baja la caja y «De las tiendas», baja el saldo de la tienda y NO toca la ganancia (R39).
@@ -97,7 +97,7 @@ export class PagoPorCuentaTiendaService implements IPagoPorCuentaTiendaService {
       IWalletTiendaMovimientoRepository,
       "crearMovimientos" | "agregarSaldoPorTienda"
     >,
-    /** R42 — el MISMO candado de tienda que toma el pago de Ordenex a esa tienda. */
+    /** R42 — el MISMO candado de tienda que toma el pago de la empresa a esa tienda. */
     private readonly candado: Pick<ILiquidacionPagoRepository, "bloquearBeneficiario">,
     private readonly usuarioRepo: Pick<IUserRepository, "obtenerCuentaTienda">,
     /** Obligatorio: sin caja no se construye (un pago por cuenta sin salida seria F1 otra vez). */

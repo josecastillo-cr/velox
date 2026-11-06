@@ -8,7 +8,7 @@ import {
 import {
   agregarIngresosPorConcepto,
   type OrdenIngresoInput,
-} from "@/lib/utils/ingreso-ordenex";
+} from "@/lib/utils/ingreso-empresa";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
 
 /**

@@ -110,6 +110,7 @@ function buildPrisma(opciones: { ledgerPrevio?: FilaLedger[]; updateCierreCount?
       count: vi.fn(async () => 1),
       // FICHA 362: `resolverCierre` lee ademas el total y el mensajero para congelar la fila.
       findUnique: vi.fn(async () => ({
+        destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
         mensajeroId: "m1",
         totalGeneral: new Prisma.Decimal("0.00"),
         solicitadoAt: new Date("2026-09-02T12:00:00Z"),
@@ -267,7 +268,7 @@ describe("T B.2 — aprobar un cierre mete el contra-entrega en la caja (R11/R12
       registradoPor: null,
     });
     // 12500.75 + 300.25 = 12801.00. El debito de flete (1000.00) NO entra: eso es lo que
-    // Ordenex se queda, y ya entro por su propio concepto en la 42.
+    // la empresa se queda, y ya entro por su propio concepto en la 42.
     expect(montoDe(cod(d)[0])).toBe("12801.00");
   });
 

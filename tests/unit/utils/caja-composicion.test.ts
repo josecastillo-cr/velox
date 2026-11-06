@@ -79,7 +79,7 @@ const DOS_BOLSILLOS: AgregadoCajaRow[] = [
   fila("ingreso_cod_recaudado", "10000.00"),
 ];
 
-/** R15 — G = −900, T = 4 500: Ordenex pierde y el dinero de las tiendas cubre el saldo. */
+/** R15 — G = −900, T = 4 500: la empresa pierde y el dinero de las tiendas cubre el saldo. */
 const SOLO_TIENDAS: AgregadoCajaRow[] = [
   fila("ingreso_ajuste", "400.00"),
   fila("egreso_gasto", "1300.00"),
@@ -88,7 +88,7 @@ const SOLO_TIENDAS: AgregadoCajaRow[] = [
 ];
 
 /** R17 — G = 5 600, T = −1 900: el espejo (D4), se pago a las tiendas mas de lo recaudado. */
-const SOLO_ORDENEX: AgregadoCajaRow[] = [
+const SOLO_EMPRESA: AgregadoCajaRow[] = [
   fila("ingreso_ajuste", "6400.00"),
   fila("egreso_gasto", "800.00"),
   fila("ingreso_cod_recaudado", "1200.00"),
@@ -111,7 +111,7 @@ describe("derivarCaja — el modo de composicion y la proporcion (R10/R14-R19)",
     for (const [nombre, filas] of Object.entries({
       DOS_BOLSILLOS,
       SOLO_TIENDAS,
-      SOLO_ORDENEX,
+      SOLO_EMPRESA,
       SIN_REPARTO,
     })) {
       expect(filas.length, `${nombre} esta vacio`).toBeGreaterThan(2);
@@ -145,13 +145,13 @@ describe("derivarCaja — el modo de composicion y la proporcion (R10/R14-R19)",
     expect(caja.porcentajeTiendas).toBe("100.00");
   });
 
-  it("R17: `deTerceros` negativo → `solo_ordenex`", () => {
-    const caja = derivarCaja(SOLO_ORDENEX);
+  it("R17: `deTerceros` negativo → `solo_empresa`", () => {
+    const caja = derivarCaja(SOLO_EMPRESA);
 
     expect(caja.deTerceros).toBe("-1900.00");
     expect(caja.ganancia).toBe("5600.00");
     expect(caja.enCaja).toBe("3700.00");
-    expect(caja.modoComposicion).toBe("solo_ordenex");
+    expect(caja.modoComposicion).toBe("solo_empresa");
     expect(caja.porcentajeTiendas).toBe("0.00");
   });
 
@@ -168,11 +168,11 @@ describe("derivarCaja — el modo de composicion y la proporcion (R10/R14-R19)",
   it("R14: los cuatro modos, uno por conjunto", () => {
     // El union entero se cubre, y con conjuntos DISTINTOS: ningun modo queda sin caso vivo y
     // ninguno se produce dos veces por el mismo camino.
-    const medidos = [DOS_BOLSILLOS, SOLO_TIENDAS, SOLO_ORDENEX, SIN_REPARTO].map(
+    const medidos = [DOS_BOLSILLOS, SOLO_TIENDAS, SOLO_EMPRESA, SIN_REPARTO].map(
       (filas) => derivarCaja(filas).modoComposicion,
     );
 
-    expect(medidos).toEqual(["dos_bolsillos", "solo_tiendas", "solo_ordenex", "sin_reparto"]);
+    expect(medidos).toEqual(["dos_bolsillos", "solo_tiendas", "solo_empresa", "sin_reparto"]);
     expect(new Set(medidos).size).toBe(4);
   });
 
@@ -208,7 +208,7 @@ describe("derivarCaja — el modo de composicion y la proporcion (R10/R14-R19)",
       [G.cero, T.neg, "sin_reparto", "0.00"],
       [G.cero, T.cero, "sin_reparto", "0.00"],
       [G.cero, T.pos, "dos_bolsillos", "100.00"],
-      [G.pos, T.neg, "solo_ordenex", "0.00"],
+      [G.pos, T.neg, "solo_empresa", "0.00"],
       [G.pos, T.cero, "dos_bolsillos", "0.00"],
       [G.pos, T.pos, "dos_bolsillos", "69.05"],
     ];
@@ -249,7 +249,7 @@ describe("derivarCaja — el modo de composicion y la proporcion (R10/R14-R19)",
 
     // El rango, sobre TODOS los conjuntos de la suite: nunca por debajo de 0 ni por encima de
     // 100, y siempre con escala 2 (tambien en los extremos).
-    for (const filas of [DOS_BOLSILLOS, SOLO_TIENDAS, SOLO_ORDENEX, SIN_REPARTO]) {
+    for (const filas of [DOS_BOLSILLOS, SOLO_TIENDAS, SOLO_EMPRESA, SIN_REPARTO]) {
       const p = derivarCaja(filas).porcentajeTiendas;
       expect(p).toMatch(/^\d+\.\d{2}$/);
       expect(new Prisma.Decimal(p).gte(0)).toBe(true);
@@ -370,7 +370,7 @@ describe("derivarComposicionGanancia — la ganancia concepto por concepto (R23/
     const conjuntos: { nombre: string; filas: AgregadoCajaRow[] }[] = [
       { nombre: "dos bolsillos", filas: DOS_BOLSILLOS },
       { nombre: "solo tiendas", filas: SOLO_TIENDAS },
-      { nombre: "solo_ordenex", filas: SOLO_ORDENEX },
+      { nombre: "solo_empresa", filas: SOLO_EMPRESA },
       { nombre: "sin reparto", filas: SIN_REPARTO },
       {
         nombre: "solo egresos propios, sin ningun ingreso",

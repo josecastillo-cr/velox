@@ -66,7 +66,7 @@ export { CATEGORIA_LABEL } from "@/lib/constants/wallet-rotulos";
 // registró un saldo inicial vigente; «flujo» en cualquier otro caso. El NUMERO no cambia con el
 // estado; cambia como se llama y lo que la tarjeta explica. Mientras sea «flujo», las palabras
 // «Dinero en caja» no pueden aparecer en ningun rotulo, pista, aviso ni nombre accesible (R16):
-// la app no sabe con cuanto dinero empezo Ordenex y no lo inventa (HF4, R27).
+// la app no sabe con cuanto dinero empezo la empresa y no lo inventa (HF4, R27).
 //
 // Textos LITERALES de design §3.3. La pista y el aviso viejos de la 173 (la cifra «incluido el
 // dinero de las tiendas» y el «de las tiendas es MÁS que lo que se les debe») se retiran: desde
@@ -93,16 +93,25 @@ export const CAJA_RESUMEN_LABEL = {
   gananciaPista: `Lo que ${MARCA.nombre} gana menos lo que gasta, sin el IVA`,
   /** Ficha 488 (R12) — la linea pequena bajo la cifra de la ganancia: «IVA cobrado a las tiendas: ₡X». */
   ivaCobrado: "IVA cobrado a las tiendas",
-  /** Ficha 488 (R13) — el TERCER bolsillo: el IVA que se le debe a Hacienda. No es de Ordenex. */
+  /** Ficha 488 (R13) — el TERCER bolsillo: el IVA que se le debe a Hacienda. No es de la empresa. */
   ivaPorPagar: "IVA por pagar",
   ivaPorPagarPista:
     `El IVA cobrado a las tiendas menos lo ya pagado a Hacienda. No es ganancia de ${MARCA.nombre}.`,
+  /**
+   * Ficha 498 (design §8.3, R37) — el CUARTO bloque, siempre visible. Su pista depende del signo que
+   * manda el servidor: positivo y negativo tienen texto LITERAL de R37; en cero no hay pista (como
+   * el bloque del IVA en cero).
+   */
+  porCobrarSatelites: "Por cobrar a satélites",
+  porCobrarSatelitesPistaPositivo:
+    "Lo que las satélites entregaron de menos al conciliar y aún no han pagado.",
+  porCobrarSatelitesPistaNegativo: "La central les debe a las satélites.",
   ingresosPropios: `Ingresos de ${MARCA.nombreCorto}`,
   egresosPropios: `Gastos de ${MARCA.nombreCorto}`,
-  /** R23 — desde esta ficha «De las tiendas» ES lo que Ordenex les debe. */
+  /** R23 — desde esta ficha «De las tiendas» ES lo que la empresa les debe. */
   deTerceros: `Lo que ${MARCA.nombre} les debe a las tiendas`,
   deTercerosEnlace: "Ver la deuda de cada tienda",
-  /** R25 — el capital de Ordenex, cifra propia junto a la ganancia. */
+  /** R25 — el capital de la empresa, cifra propia junto a la ganancia. */
   capital: "Saldo inicial y aportes",
   capitalPista: `Dinero de ${MARCA.nombre} que no es ganancia.`,
   // Feature 200 (tanda 1) — el TERCER tile de la cabecera. No es dinero: es cuántos registros
@@ -121,7 +130,7 @@ export const CAJA_RESUMEN_AVISO_FLUJO_NEGATIVO =
 export const CAJA_RESUMEN_AVISO_SALDO_NEGATIVO =
   "El dinero en caja no puede ser negativo. Revisá el saldo inicial y los pagos registrados.";
 
-/** R23 — «De las tiendas» negativo: son las tiendas las que le deben a Ordenex, y cuánto. */
+/** R23 — «De las tiendas» negativo: son las tiendas las que le deben a la empresa, y cuánto. */
 export function CAJA_RESUMEN_TIENDAS_DEBEN(monto: string): string {
   return `Las tiendas le deben a ${MARCA.nombre} ${monto}.`;
 }
@@ -130,10 +139,10 @@ export function CAJA_RESUMEN_TIENDAS_DEBEN(monto: string): string {
  * R23/R24 de la 459 — la explicacion de «De las tiendas». Sustituye al aviso de la 173 que decia
  * que la cifra era MAYOR que la deuda: con la derivacion de la 459 ya no lo es.
  *
- * Ficha 461 (HD1/HD2, R50): desde esta ficha el cobro de Ordenex a una tienda SI pasa por la caja
+ * Ficha 461 (HD1/HD2, R50): desde esta ficha el cobro de la empresa a una tienda SI pasa por la caja
  * (es un cargo, como el flete: sube la ganancia y baja «De las tiendas»), asi que la frase de la 459
  * que afirmaba lo contrario de los cobros se RETIRA (la guardia `caja-textos-459` la vigila, y por
- * eso este comentario no la repite) y la suma nombra tambien lo que Ordenex les cobro.
+ * eso este comentario no la repite) y la suma nombra tambien lo que la empresa les cobro.
  */
 export const CAJA_RESUMEN_AVISO_TERCEROS =
   `Es la suma de los saldos de todas las tiendas, ya descontados el flete, la comisión, el impuesto y lo que ${MARCA.nombre} les cobró. El detalle de cada tienda está en Wallet → Tiendas.`;
@@ -214,15 +223,17 @@ export const CAJA_RESUMEN_AVISO_PERIODO =
  * fuera del componente) y porque el nombre accesible de la barra se COMPONE con ellos: el dia
  * que alguien renombre un bolsillo, lo que oye un lector de pantalla lo sigue.
  *
- * Vocabulario de maestro, no de contador (R59 de la 173): «de las tiendas» y «de Ordenex»,
+ * Vocabulario de maestro, no de contador (R59 de la 173): «de las tiendas» y «de la empresa»,
  * nunca «terceros», «propio» ni el nombre de ningun enum.
  */
 export const CAJA_COMPOSICION_LABEL = {
   barra: "Reparto del dinero en caja",
   tiendas: "De las tiendas",
-  ordenex: `De ${MARCA.nombreCorto}`,
+  empresa: `De ${MARCA.nombreCorto}`,
   // Ficha 488 (decision 1a, R13–R15) — el tercer bolsillo de la barra.
   iva: "IVA por pagar",
+  // Ficha 498 (design §8.2, R38) — el cuarto: solo se pinta si es positivo.
+  porCobrar: "Por cobrar a satélites",
 } as const;
 
 /**
@@ -234,7 +245,7 @@ export const CAJA_COMPOSICION_LABEL = {
  */
 //
 // Ficha 459 (design §3.4, R26) — los tres mensajes, reescritos con el significado nuevo: «De las
-// tiendas» es lo que se les DEBE (R5) y «De Ordenex» es ganancia MAS aportes (R11). La barra y
+// tiendas» es lo que se les DEBE (R5) y «De la empresa» es ganancia MAS aportes (R11). La barra y
 // estos mensajes solo se pintan en estado «saldo» (R22).
 export const CAJA_COMPOSICION_MENSAJE: Record<ModoComposicionCaja, string | null> = {
   dos_bolsillos: null,
@@ -242,9 +253,9 @@ export const CAJA_COMPOSICION_MENSAJE: Record<ModoComposicionCaja, string | null
   solo_tiendas:
     `Lo de ${MARCA.nombre} (ganancia más aportes) está en negativo, así que hay dinero de las tiendas cubriendo ese saldo. Lo que hay en la caja no alcanza para entregarles todo lo suyo.`,
   // R17 de la 231 (D4): el espejo — «De las tiendas» negativo.
-  // Ficha 488 (R17): ya no dice que «todo» es de Ordenex, porque con IVA por pagar positivo parte
+  // Ficha 488 (R17): ya no dice que «todo» es de la empresa, porque con IVA por pagar positivo parte
   // de la caja es IVA que se le debe a Hacienda.
-  solo_ordenex:
+  solo_empresa:
     `Las tiendas le deben a ${MARCA.nombre}, así que en la caja no hay dinero de las tiendas y además hay dinero por cobrarles.`,
   // R18 de la 231: nada que repartir. Ni se enuncia porcentaje ni se pinta segmento alguno.
   sin_reparto:
@@ -253,7 +264,7 @@ export const CAJA_COMPOSICION_MENSAJE: Record<ModoComposicionCaja, string | null
 
 /**
  * R13 de la 231 — el nombre accesible de la barra: las DOS porciones, cada una con su rotulo y
- * su importe. Ficha 459 (design §3.4): el bolsillo de Ordenex es «De Ordenex» (ganancia y
+ * su importe. Ficha 459 (design §3.4): el bolsillo de la empresa es «De la empresa» (ganancia y
  * aportes), no la ganancia a secas. La barra solo se monta en estado «saldo», asi que «dinero en
  * caja» es cierto donde aparece (R16).
  *
@@ -264,9 +275,14 @@ export function composicionCajaNombreAccesible(resumen: CajaResumenDTO): string 
   return (
     `${CAJA_COMPOSICION_LABEL.barra}. ` +
     `${CAJA_COMPOSICION_LABEL.tiendas}: ${money(resumen.deTerceros)}. ` +
-    `${CAJA_COMPOSICION_LABEL.ordenex}: ${money(resumen.deOrdenex)} (ganancia y aportes). ` +
+    `${CAJA_COMPOSICION_LABEL.empresa}: ${money(resumen.deEmpresa)} (ganancia y aportes). ` +
     // Ficha 488 (R15): el tercer bolsillo, con su importe.
-    `${CAJA_COMPOSICION_LABEL.iva}: ${money(resumen.ivaPorPagar)}.`
+    `${CAJA_COMPOSICION_LABEL.iva}: ${money(resumen.ivaPorPagar)}.` +
+    // Ficha 498 (R38): el cuarto, SOLO cuando la barra lo pinta (signo positivo del servidor). Con
+    // cero o negativo el nombre accesible es el de antes, igual que la barra (R39).
+    (resumen.signoPorCobrarSatelites === "positivo"
+      ? ` ${CAJA_COMPOSICION_LABEL.porCobrar}: ${money(resumen.porCobrarSatelites)}.`
+      : "")
   );
 }
 
@@ -285,6 +301,8 @@ export const DUENO_LABEL: Record<NaturalezaMovimiento, string> = {
   capital: `${MARCA.nombreCorto} (capital)`,
   // Ficha 488 (design §6, R29) — los movimientos de IVA: se le deben a Hacienda.
   iva: "IVA por pagar",
+  // Ficha 498 (design §8.3, R40) — la diferencia de la satelite al conciliar.
+  por_cobrar_satelite: "Satélite",
 };
 
 export { ORIGEN_LABEL } from "@/lib/constants/wallet-rotulos";
@@ -293,7 +311,7 @@ export { ORIGEN_LABEL } from "@/lib/constants/wallet-rotulos";
 //
 // Solo la fila ORIGINAL de un documento lleva `documento` (`WalletMovimientoDTO.documento`,
 // resuelto en el servidor): el pago de un gasto de una tienda, el aporte de dinero a la caja y,
-// desde la ficha 461, la linea de caja de un cobro de Ordenex a una tienda (propia o completada,
+// desde la ficha 461, la linea de caja de un cobro de la empresa a una tienda (propia o completada,
 // R20/R37) y la correccion de caja (R71). Los contra-asientos y las salidas de los cobros
 // reclasificados llegan con `documento: null` y no ofrecen nada (R66). Ningun texto nombra un
 // identificador interno (R100): el documento se nombra por lo que la persona ve en la fila (el
@@ -304,7 +322,7 @@ export const DOCUMENTO_CAJA_NOMBRE: Record<
   NonNullable<WalletMovimientoDTO["documento"]>["tipo"],
   string
 > = {
-  // Ficha 461 (design §7): los nombres desde Ordenex, en minuscula porque van dentro de «Anular …».
+  // Ficha 461 (design §7): los nombres desde la empresa, en minuscula porque van dentro de «Anular …».
   pago_por_cuenta_tienda: "el pago de un gasto de una tienda",
   aporte_capital: "el aporte de dinero a la caja",
   cobro_tienda: `el cobro de ${MARCA.nombre} a una tienda`,
@@ -315,7 +333,7 @@ export const DOCUMENTO_CAJA_NOMBRE: Record<
   egreso_caja: "el gasto de la caja",
   indemnizacion: "la indemnización por un incidente",
   rechazo_tienda_cobro: "el cobro por devolución a origen a una tienda",
-  // Ficha 458-C (revision B3): el pago de Ordenex a una tienda (172) y el premio del ranking (293).
+  // Ficha 458-C (revision B3): el pago de la empresa a una tienda (172) y el premio del ranking (293).
   pago_tienda: `el pago de ${MARCA.nombre} a una tienda`,
   premio_del_ranking: "el premio del ranking",
 };
@@ -397,7 +415,7 @@ export const CATEGORIA_TODAS_OPTION = { value: "", label: "Todas las categorías
 // Etiqueta legible de cada TIPO de egreso manual (R22a). El gasto FIJO NO figura: lo
 // emite el cron, no el formulario manual (R2/R19).
 //
-// Ficha 461 (design §7.1): «Gasto de Ordenex», el mismo nombre que el concepto del dialogo y que
+// Ficha 461 (design §7.1): «Gasto de la empresa», el mismo nombre que el concepto del dialogo y que
 // `CATEGORIA_LABEL.egreso_gasto_variable`; el nombre de la 45 queda retirado (design §7.9).
 export const TIPO_EGRESO_MANUAL_LABEL: Record<TipoEgresoManual, string> = {
   gasto_variable: `Gasto de ${MARCA.nombreCorto}`,

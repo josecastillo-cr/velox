@@ -24,10 +24,10 @@ import type {
   ILibroCajaAutoriaService,
 } from "@/lib/interfaces/services/ILibroCajaAutoriaService";
 
-const NADIE: AQuienDTO = { nombre: null, beneficiario: null, cuenta: null, esOrdenex: false };
+const NADIE: AQuienDTO = { nombre: null, beneficiario: null, cuenta: null, esEmpresa: false };
 
 function aCuenta(c: CuentaNombrada | undefined): AQuienDTO {
-  return c === undefined ? NADIE : { nombre: c.nombre, beneficiario: null, cuenta: { tipo: c.tipo, id: c.id }, esOrdenex: false };
+  return c === undefined ? NADIE : { nombre: c.nombre, beneficiario: null, cuenta: { tipo: c.tipo, id: c.id }, esEmpresa: false };
 }
 
 /**
@@ -43,7 +43,7 @@ function aCuenta(c: CuentaNombrada | undefined): AQuienDTO {
  *   pago_por_cuenta_tienda                la tienda y el beneficiario del documento
  *   cobro_tienda(_completado), cobro_manual_reclasificado   la tienda del cobro (el debito)
  *   abono_tienda                          la tienda que pago
- *   aporte_capital                        «Ordenex»
+ *   aporte_capital                        «la empresa»
  *   gasto / manual                        la anotacion (nombre libre); sin anotacion, «—». El
  *                                         contra-asiento, la de su original (revision M2, 458-E)
  *
@@ -103,7 +103,7 @@ export class LibroCajaAutoriaService implements ILibroCajaAutoriaService {
         case "abono_tienda":
           return aCuenta(o === null ? undefined : abonos.get(o));
         case "aporte_capital":
-          return { ...NADIE, esOrdenex: true };
+          return { ...NADIE, esEmpresa: true };
         default: {
           // gasto / manual: el nombre libre anotado; una fila anterior a la 458 no tiene («—»).
           const nombre = anotaciones.get(movimientoDeLaAnotacion(m)) ?? null;

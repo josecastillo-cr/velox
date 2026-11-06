@@ -388,7 +388,7 @@ describe("262 — autocomprobación: el detector caza sus violaciones inyectadas
     expect(soloCodigo("/* ni new Date() */\nconst a = 1;")).not.toContain("new Date");
     expect(soloCodigo("const x = estatusLabel(v);")).toContain("estatusLabel");
     // Y no se come una URL (`https://`), que es el falso positivo clásico del stripper de `//`.
-    expect(soloCodigo('const u = "https://ordenex.cr";')).toContain("https://ordenex.cr");
+    expect(soloCodigo('const u = "https://ejemplo.test";')).toContain("https://ejemplo.test");
   });
 
   it("el detector de la anotación exige un motivo de verdad, no un `TODO`", () => {

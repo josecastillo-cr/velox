@@ -29,7 +29,7 @@ import { HAY_BASE_DE_DATOS, crearPrismaDeTest } from "./_postgres-real";
 import { cargarCatalogo459, enTransaccionRevertida459, montarServicios459, sembrarEscenario459 } from "./_fixtures/caja-459";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
-// FICHA 458-B — revision M1: `tieneComprobante` de la CORRECCION de caja y del COBRO de Ordenex a
+// FICHA 458-B — revision M1: `tieneComprobante` de la CORRECCION de caja y del COBRO de la empresa a
 // una tienda lo decide la base (`wallet_comprobante`), no un `false` fijo. Contra Postgres: se
 // registran, por sus actions con `FormData`, una correccion y un cobro CON comprobante y otros dos
 // SIN; se leen por los lectores del libro (el WHERE vive en el repositorio) y por

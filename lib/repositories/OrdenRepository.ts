@@ -179,7 +179,7 @@ import { traspasarConversaciones } from "@/lib/repositories/traspasar-conversaci
 import { encolarOptimizacionDebounce } from "@/lib/services/jobs/optimizacion-ruta-encolado";
 import { loadRouteOptimizationConfig } from "@/lib/config/route-optimization";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
-import { costosListadoOrden } from "@/lib/utils/ingreso-ordenex";
+import { costosListadoOrden } from "@/lib/utils/ingreso-empresa";
 // ⏳ 2026-09-10 (feature 415, T3): la reconstruccion de la tarifa CONGELADA se importa de su fuente
 // UNICA y no se reescribe aqui. `TarifaCongeladaRow` es justo el subconjunto de columnas que
 // `tarifaDe` necesita, asi que el `select` de `cierreDetalles` y este tipo no pueden divergir.
@@ -2394,7 +2394,7 @@ export class OrdenRepository implements IOrdenRepository {
             accion: "orden_ubicacion_corregida",
             entidadTipo: "orden",
             entidadId: ordenId,
-            // La GUIA, que es un identificador de envio de Ordenex y no un dato personal. Ni la
+            // La GUIA, que es un identificador de envio de la empresa y no un dato personal. Ni la
             // direccion, ni el distrito, ni la zona entran en la etiqueta.
             entidadEtiqueta: etiquetaDeEntidad("orden", {
               numGuia: envio?.numGuia ?? null,

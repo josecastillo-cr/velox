@@ -29,7 +29,7 @@ vi.mock("@/lib/audio/tono-notificacion", () => ({
 vi.mock("@/lib/audio/preferencia-sonido", () => ({
   leerPreferenciaSonido: leerPreferenciaMock,
   guardarPreferenciaSonido: vi.fn(),
-  CLAVE_SONIDO: "ordenex:sonido-notificaciones",
+  CLAVE_SONIDO: "app:sonido-notificaciones",
 }));
 
 /**
@@ -37,7 +37,7 @@ vi.mock("@/lib/audio/preferencia-sonido", () => ({
  * `public/sw.js`, que no puede importar del bundle. Compararlo con su propia fuente estaría siempre
  * verde. (Que los dos archivos no divergen lo vigila `pwa-push.guardia.test.ts`.)
  */
-const MENSAJE_DEL_SERVICE_WORKER = "ordenex:push-recibido";
+const MENSAJE_DEL_SERVICE_WORKER = "app:push-recibido";
 
 const revalidar = vi.fn();
 
@@ -152,6 +152,28 @@ describe("el mensaje que se escucha es el del canal, y solo ése", () => {
   it("otro mensaje del service worker (el relevo de versión) no revalida ni silencia nada", () => {
     const { rerender } = render(<Sonda contador={1} />);
 
+    llegaUnPush("app:relevo-ahora");
+    rerender(<Sonda contador={2} />);
+
+    expect(revalidar).not.toHaveBeenCalled();
+    expect(reproducirMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("494/R22: el mensaje del service worker de la versión anterior revalida y calla igual", () => {
+    // Durante el relevo, una página nueva puede seguir controlada por el SW anterior.
+    const { rerender } = render(<Sonda contador={1} />);
+
+    llegaUnPush("ordenex:push-recibido");
+    rerender(<Sonda contador={2} />);
+
+    expect(revalidar).toHaveBeenCalledTimes(1);
+    expect(reproducirMock).not.toHaveBeenCalled();
+  });
+
+  it("494/R22: el alias es ese mensaje y no un prefijo: otro con el nombre viejo no hace nada", () => {
+    const { rerender } = render(<Sonda contador={1} />);
+
+    llegaUnPush("ordenex:cualquier-otra-cosa");
     llegaUnPush("ordenex:relevo-ahora");
     rerender(<Sonda contador={2} />);
 

@@ -48,7 +48,7 @@ function mov(overrides: Partial<WalletMovimientoDTO> = {}): WalletMovimientoDTO 
 
 /**
  * Feature 173 (T D.2) — el agregado que devuelve el doble tiene dinero de las DOS naturalezas
- * a proposito: contra-entrega recaudado (de TERCEROS) junto a flete y gasto (de Ordenex). Con
+ * a proposito: contra-entrega recaudado (de TERCEROS) junto a flete y gasto (de la empresa). Con
  * un conjunto solo-propio las dos cifras coincidirian y el test no distinguiria una derivacion
  * correcta de una que ignora la naturaleza.
  *
@@ -229,7 +229,7 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
     if (r.status !== "ok") throw new Error("esperado ok");
     // Ficha 459 (reescrito A PROPOSITO): el ingreso propio de 1 000 es un CARGO a la tienda
     // (flete/comision), no efectivo: «Entro» es el contra-entrega (5 000) y «De las tiendas» baja
-    // lo que Ordenex se queda de el (5 000 − 1 000 = 4 000). La ganancia no cambia (700).
+    // lo que la empresa se queda de el (5 000 − 1 000 = 4 000). La ganancia no cambia (700).
     expect(r.resumen).toEqual({
       entradas: "5000.00",
       salidas: "300.00",
@@ -246,7 +246,7 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       modoComposicion: "dos_bolsillos",
       capital: "0.00",
       signoCapital: "cero",
-      deOrdenex: "700.00",
+      deEmpresa: "700.00",
       signoDeTerceros: "positivo",
       deTercerosAbsoluto: "4000.00",
       estado: "flujo",
@@ -256,6 +256,9 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       ivaPorPagar: "0.00",
       signoIvaPorPagar: "cero",
       porcentajeIva: "0.00",
+      porCobrarSatelites: "0.00", // ficha 498
+      signoPorCobrarSatelites: "cero",
+      porcentajePorCobrar: "0.00",
     });
     // Lo que la feature existe para conseguir: los ₡5000 de contra-entrega estan en la caja y
     // NO estan en la ganancia. Si `verResumenCaja` ignorara la naturaleza, serian iguales.
@@ -368,7 +371,7 @@ describe("WalletService.verResumenCaja (R8/R64/R65)", () => {
       // servidor no redacta») se conserva entera: sigue sin haber ni un texto que la pantalla
       // deba limitarse a repetir.
       if (clave === "modoComposicion") {
-        expect(["dos_bolsillos", "solo_tiendas", "solo_ordenex", "sin_reparto"]).toContain(valor);
+        expect(["dos_bolsillos", "solo_tiendas", "solo_empresa", "sin_reparto"]).toContain(valor);
         continue;
       }
       // Ficha 459 (R14/R15): el ESTADO es un cuarto enum cerrado y `flujoDesde` una fecha (o
@@ -826,7 +829,7 @@ const SIN_DOCUMENTOS_459 = {
   pagosPorCuenta: { estadoDeDocumentos: async () => [] },
   aportes: { estadoDeDocumentos: async () => [] },
   cobros: { estadoDeDocumentos: async () => [] }, ajustes: { estadoDeDocumentos: async () => [] }, // ficha 461
-  abonos: { estadoDeDocumentos: async () => [] }, // ficha 457: lo exige `LectoresDocumentosCaja`; esta suite no lee pagos de una tienda a Ordenex
+  abonos: { estadoDeDocumentos: async () => [] }, // ficha 457: lo exige `LectoresDocumentosCaja`; esta suite no lee pagos de una tienda a la empresa
   egresos: { estadoDeDocumentos: async () => [] }, indemnizaciones: { estadoDeDocumentos: async () => [] }, rechazos: { estadoDeDocumentos: async () => [] }, pagosATienda: { estadoDeDocumentos: async () => [] }, premios: { estadoDeDocumentos: async () => [] }, // ficha 458-B: lo exige `LectoresDocumentosCaja`
 };
 
@@ -839,11 +842,11 @@ describe("WalletService.listarMovimientos — el documento de las filas original
   // Ficha 461: un cobro con su linea PROPIA (vigente), otro COMPLETADO por la migracion (anulado).
   const COBRO_PROPIO = "4610000a-0000-4000-8000-000000000001";
   const COBRO_COMPLETADO = "4610000a-0000-4000-8000-000000000002";
-  // Ficha 457 (R41): un pago de una tienda a Ordenex (vigente, con comprobante) y su reverso.
+  // Ficha 457 (R41): un pago de una tienda a la empresa (vigente, con comprobante) y su reverso.
   const ABONO = "4570000a-0000-4000-8000-000000000001";
 
   const PAGINA: WalletMovimientoDTO[] = [
-    // Ficha 457 (design §8.5): la ENTRADA del pago de una tienda a Ordenex es original; su reverso no.
+    // Ficha 457 (design §8.5): la ENTRADA del pago de una tienda a la empresa es original; su reverso no.
     // Mutacion 10 de design §13 (sin la rama del abono en `tipoDeDocumentoOriginal`) deja `b1` en `null`.
     mov({ id: "b1", tipo: "ingreso", categoria: "ingreso_abono_tienda", origenTipo: "abono_tienda", origenId: ABONO }),
     mov({ id: "b1r", tipo: "egreso", categoria: "egreso_reverso_abono_tienda", origenTipo: "abono_tienda", origenId: ABONO }),
@@ -890,7 +893,7 @@ describe("WalletService.listarMovimientos — el documento de las filas original
           ids.map((id) => ({ id, anulado: false, tieneComprobante: false })),
         ),
       },
-      // Ficha 457 (R41): los pagos de una tienda a Ordenex; el de esta pagina lleva comprobante.
+      // Ficha 457 (R41): los pagos de una tienda a la empresa; el de esta pagina lleva comprobante.
       abonos: {
         estadoDeDocumentos: vi.fn(async (ids: readonly string[]) =>
           ids.map((id) => ({ id, anulado: false, tieneComprobante: true })),

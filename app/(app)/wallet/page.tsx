@@ -14,7 +14,7 @@ import { WalletModule } from "./_components/WalletModule";
 import { MARCA } from "@/lib/marca/identidad";
 
 /**
- * Feature 42 (T11, R18/R19/R21) — página `/wallet`: la caja principal de Ordenex.
+ * Feature 42 (T11, R18/R19/R21) — página `/wallet`: la caja principal de la empresa.
  * Server Component role-aware. El rol se resuelve SOLO server-side vía
  * `resolveActorFromSession` (patrón cierres-admin): cualquier rol distinto de `maestro`
  * (o sin sesión) NO ve la wallet (`notFound`, R19 — forbidden sin exponer datos). Los
@@ -88,7 +88,7 @@ export default async function WalletPage() {
   //
   // ⚠️ NO es el mismo predicado que la linea de arriba, y la diferencia es una decision del humano
   // del 2026-08-31: la 333 estrecho su guard a `maestro` porque autoriza dinero que SALE de la
-  // caja de Ordenex; esto es COBRAR a una tienda por un servicio ya prestado -- el retorno del
+  // caja de la empresa; esto es COBRAR a una tienda por un servicio ya prestado -- el retorno del
   // paquete-- y es operacion diaria. Estrechar aqui pondria la caja diaria a esperar al maestro.
   //
   // Se calcula con `esAccesoTotal` y no con un `=== admin || === maestro` escrito a mano, para que

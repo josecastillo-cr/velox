@@ -1,3 +1,4 @@
+import { CABECERA_FIRMA_RETIRADA, CABECERA_TIMESTAMP_RETIRADA } from "@/tests/fixtures/marca-retirada-nombre-493";
 import { describe, it, expect, vi } from "vitest";
 import { randomBytes } from "node:crypto";
 
@@ -26,7 +27,7 @@ const config: WebhookConfig = {
   WEBHOOK_TIMEOUT_MS: 10_000,
   WEBHOOK_REPLAY_WINDOW_S: 300,
   WEBHOOK_SECRET_ENC_KEY: CLAVE,
-  WEBHOOK_APP_ORIGIN: "https://app.ordenex.co",
+  WEBHOOK_APP_ORIGIN: "https://app.ejemplo.test",
   WEBHOOK_PAUSA_FALLOS_MINIMOS: 3,
   WEBHOOK_PAUSA_VENTANA_MS: 30 * 60_000,
   WEBHOOK_PAUSA_INTERVALO_MS: 3_600_000,
@@ -146,8 +147,8 @@ describe("454/T1.5 — WebhookEventoOrdenService", () => {
     expect(headers["X-Velox-Timestamp"]).toBe(String(ts));
     expect(headers["X-Velox-Signature"]).toContain(firmarWebhook(SECRETO, ts, cuerpo));
     // 493/R17 (L5b): sin doble cabecera, la vieja no viaja.
-    expect(Object.keys(headers)).not.toContain("X-Ordenex-Signature");
-    expect(Object.keys(headers)).not.toContain("X-Ordenex-Timestamp");
+    expect(Object.keys(headers)).not.toContain(CABECERA_FIRMA_RETIRADA);
+    expect(Object.keys(headers)).not.toContain(CABECERA_TIMESTAMP_RETIRADA);
   });
 
   it("idempotente: reejecutar el mismo job produce el MISMO cuerpo", async () => {

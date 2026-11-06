@@ -190,6 +190,9 @@ export const CLASIFICACION_FK_USUARIO: Record<string, ClasificacionFk> = {
   // esta columna. La FK es `Restrict` a proposito —quien afirmo que el dinero llego no se borra
   // dejando la afirmacion huerfana—, pero esa restriccion no alcanza al borrado de una API key.
   "CierreBodega.conciliadoPorUsuario": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
+  // ⭑ FICHA 498 — quien registro un AJUSTE de la conciliacion (la marca o una correccion). Lo escribe
+  // la misma accion que `conciliadoPorUsuario` (`esAccesoTotal`): una API key nunca llega aqui.
+  "ConciliacionBodegaAjuste.creador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "WalletMovimiento.registrador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "WalletTiendaMovimiento.registrador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "PagoMensajeroMovimiento.mensajero": { categoria: "no_alcanzable", motivo: SOLO_MENSAJERO },
@@ -210,14 +213,14 @@ export const CLASIFICACION_FK_USUARIO: Record<string, ClasificacionFk> = {
   },
   "PagoPorCuentaTienda.registrador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "PagoPorCuentaTiendaAnulacion.anulador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
-  // Ficha 461 (R10): quien anulo un cobro de Ordenex a una tienda. Solo el acceso total anula; la
+  // Ficha 461 (R10): quien anulo un cobro de la empresa a una tienda. Solo el acceso total anula; la
   // cuenta dedicada de una API key no llega a esa accion.
   "CobroTiendaAnulacion.anulador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   // Ficha 461 (R69): quien anulo una correccion de caja. Solo el acceso total anula.
   "AjusteCajaAnulacion.anulador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "AporteCapital.registrador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
   "AporteCapitalAnulacion.anulador": { categoria: "no_alcanzable", motivo: SOLO_OPERADOR },
-  // ⭑ FICHA 457 — el pago de una tienda a Ordenex. La tienda la valida `AbonoTiendaService` (R10):
+  // ⭑ FICHA 457 — el pago de una tienda a la empresa. La tienda la valida `AbonoTiendaService` (R10):
   // rol `adminTienda` (activa o no, D2), asi que la cuenta dedicada de una key (rol `apiKey`) no
   // puede serlo. Registrar y anular son solo de acceso total. Las tres FK son `Restrict`.
   "AbonoTienda.tienda": {

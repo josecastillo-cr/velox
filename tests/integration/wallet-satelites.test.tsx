@@ -87,6 +87,8 @@ const PUNTARENAS: SaldoSateliteDTO = {
   zonaId: "z-punta",
   zonaNombre: "FGAM Puntarenas",
   saldoSinConciliar: "115000.00",
+  sinConsolidar: "0.00", // ficha 498
+  cierresSinConsolidar: 0,
   totalEfectivo: "1090000.00",
   // El general es DISTINTO del efectivo a propósito: el SINPE no viaja en el bulto (Q2).
   totalConsolidado: "1250000.50",
@@ -108,6 +110,8 @@ const GUANACASTE: SaldoSateliteDTO = {
   zonaId: "z-guana",
   zonaNombre: "FGAM Guanacaste",
   saldoSinConciliar: "0.00",
+  sinConsolidar: "0.00", // ficha 498
+  cierresSinConsolidar: 0,
   totalEfectivo: "92300.00",
   totalConsolidado: "92300.00",
   totalRecibido: "92300.00",
@@ -149,6 +153,15 @@ function consolidacion(over: Partial<ConsolidacionSateliteDTO> = {}): Consolidac
     conciliadoPorNombre: null,
     nota: null,
     cantidadCierres: 2,
+    // Ficha 498 (fixture): sin SINPE, sin pago a mensajeros y sin rechazos, lo que DEBE (el aporte)
+    // es el efectivo. Cada consolidación de abajo pone el suyo, coherente con su `faltaPorRecibir`.
+    totalPagoMensajero: "0.00",
+    totalIngresoBodegaRechazos: "0.00",
+    paraLaCentral: "100000.00",
+    debe: "100000.00",
+    debePositivo: true,
+    saldadaReglaAnterior: false,
+    puedeDesmarcar: false, // ficha 500
     ...over,
   };
 }
@@ -158,9 +171,12 @@ const INCOMPLETA = consolidacion({
   cierreBodegaId: "cb-2",
   solicitadoAt: "2026-09-15T14:00:00.000Z",
   totales: { efectivo: "500000.00", simpe: "0.00", transferencia: "0.00", general: "500000.00" },
+  paraLaCentral: "500000.00",
+  debe: "500000.00",
   montoRecibido: "485000.00",
   faltaPorRecibir: "15000.00",
   conciliado: true,
+  puedeDesmarcar: true, // ficha 500: sin dinero en la caja en este doble, así que se ofrece «Desmarcar»
   conciliadoAt: "2026-09-15T17:40:00.000Z",
   conciliadoPorNombre: "Ana Rojas",
 });
@@ -170,9 +186,12 @@ const COMPLETA = consolidacion({
   cierreBodegaId: "cb-3",
   solicitadoAt: "2026-09-13T14:00:00.000Z",
   totales: { efectivo: "284900.00", simpe: "0.00", transferencia: "0.00", general: "284900.00" },
+  paraLaCentral: "284900.00",
+  debe: "284900.00",
   montoRecibido: "284900.00",
   faltaPorRecibir: "0.00",
   conciliado: true,
+  puedeDesmarcar: true, // ficha 500: sin dinero en la caja en este doble, así que se ofrece «Desmarcar»
   conciliadoAt: "2026-09-13T16:02:00.000Z",
   conciliadoPorNombre: "Ana Rojas",
 });
@@ -340,17 +359,17 @@ describe("R23 — la tabla de saldos y sus tres tarjetas", () => {
     expect(screen.getByText("FGAM Puntarenas")).toBeInTheDocument();
   });
 
-  it("⭑ LA NOTA que impide contar dos veces está a la vista, y sin desplegable", () => {
-    // Es lo único que separa un número de siete cifras llamado «pendiente» dentro del módulo
-    // Wallet de que alguien lo sume al balance y lo cuente dos veces. Si desaparece, la pantalla
-    // sigue funcionando y el error se comete en una hoja de cálculo, fuera de la app.
+  it("⭑ LA NOTA de qué es el saldo está a la vista, y sin desplegable", () => {
+    // [S] Sustituido por su inverso (decisión del humano del 2026-11-02 (ficha 498)): la nota decía que el dinero «ya
+    // entró» a la caja al aprobar el cierre de cada mensajero. Ahora entra al MARCAR RECIBIDA la
+    // consolidación, y la nota lo dice: el saldo todavía NO está en la caja.
     renderTabla();
     const nota = screen.getByRole("note");
-    expect(nota).toHaveTextContent("El saldo no es un movimiento de caja.");
+    expect(nota).toHaveTextContent("El saldo todavía no está en la caja.");
     expect(nota).toHaveTextContent(
-      new RegExp(`Ese dinero ya entró a la caja de ${NOMBRE_ESPERADO} cuando se aprobó el cierre de cada mensajero`),
+      new RegExp(`entra a la caja de ${NOMBRE_ESPERADO} cuando se marca recibida su consolidación`),
     );
-    expect(nota).toHaveTextContent(/dónde está físicamente/);
+    expect(nota).not.toHaveTextContent(/cuando se aprobó el cierre/);
     expect(nota).toHaveTextContent(
       /cuánto queda en manos de cada bodega esperando llegar a la central/,
     );
@@ -359,15 +378,17 @@ describe("R23 — la tabla de saldos y sus tres tarjetas", () => {
 
 // =========================================================================
 describe("R22/R24 — la conciliación de una bodega (458-D: en su estado de cuenta)", () => {
-  it("lista sus consolidaciones con declarado, recibido, estado y quién conciló", async () => {
+  it("lista sus consolidaciones con lo que debe, recibido, estado y quién conciló", async () => {
     const region = await montarConciliacion();
     await waitFor(() => expect(listarConsolidacionesMock).toHaveBeenCalled());
 
     // El «Pendiente de llegar» de la cabecera es el saldo que el SERVIDOR cuadró.
     expect(within(region).getByText("₡115.000")).toBeInTheDocument();
-    // Declarado es el EFECTIVO (Q2), recibido es lo que se contó.
-    expect(within(region).getByText("₡500.000")).toBeInTheDocument();
-    expect(within(region).getByText("₡485.000")).toBeInTheDocument();
+    // Ficha 498 (R41): «Debe» es el aporte reconocido (ya no el efectivo, Q2 revocada el
+    // 2026-11-02); recibido es lo que llegó. Se leen en SU fila y en SU dato.
+    const fila = within(region).getAllByText("15 sept")[0].closest("tr") as HTMLElement;
+    expect(fila.querySelector('[data-dato="debe"]')).toHaveTextContent("₡500.000");
+    expect(fila.querySelector('[data-dato="recibido"]')).toHaveTextContent("₡485.000");
     expect(within(region).getAllByText("Ana Rojas · 15 sept").length).toBeGreaterThan(0);
   });
 
@@ -413,7 +434,8 @@ describe("R22/R24 — la conciliación de una bodega (458-D: en su estado de cue
     const aviso = await within(region).findByRole("status");
     expect(aviso).toHaveTextContent("Una consolidación llegó incompleta");
     expect(aviso).toHaveTextContent(
-      /Se consolidaron ₡500\.000 y se recibieron ₡485\.000\. La diferencia de ₡15\.000 sigue contando como pendiente/,
+      // Ficha 498 (R41): el primer importe es lo que DEBÍA, no lo «consolidado» en efectivo.
+      /Debía ₡500\.000 y se recibieron ₡485\.000\. La diferencia de ₡15\.000 sigue contando como pendiente/,
     );
   });
 
@@ -430,14 +452,15 @@ describe("R22/R24 — la conciliación de una bodega (458-D: en su estado de cue
     expect(within(region).queryByRole("status")).toBeNull();
   });
 
-  it("D6 — la nota de «Desmarcar no mueve dinero» va al pie y visible", async () => {
+  it("R43 — la nota de la conciliación va al pie, visible y LITERAL", async () => {
+    // [S] Sustituido por su inverso (decisión del humano del 2026-11-02 (ficha 498)): la nota de la 431 decía que la marca
+    // era informativa y que desmarcar no movía dinero. Desde la 498 marcar asienta el dinero.
     const region = await montarConciliacion();
     const nota = within(region).getByRole("note");
-    expect(nota).toHaveTextContent("Desmarcar no mueve dinero.");
-    expect(nota).toHaveTextContent(
-      /La marca es informativa: dice si el efectivo llegó, no lo contabiliza/,
+    expect(nota.textContent).toBe(
+      "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es el correcto, usa «Corregir»",
     );
-    expect(nota).toHaveTextContent(/queda registrado quién marcó y quién deshizo/);
+    expect(nota).not.toHaveTextContent(/informativa|no mueve dinero/);
   });
 
   it("listar las bodegas no lee ninguna conciliación; la de UNA bodega lee UNA vez, y sólo la suya", async () => {
@@ -457,7 +480,7 @@ describe("R22/R24 — la conciliación de una bodega (458-D: en su estado de cue
 
 // =========================================================================
 describe("R25 — marcar recibido, corregir y desmarcar", () => {
-  it("⭑ el diálogo PRECARGA el monto con lo declarado, y lo dice", async () => {
+  it("⭑ el diálogo PRECARGA el monto con lo que DEBE, y lo dice", async () => {
     const user = userEvent.setup();
     const region = await montarConciliacion();
     await user.click(
@@ -466,13 +489,14 @@ describe("R25 — marcar recibido, corregir y desmarcar", () => {
       }),
     );
     const dialogo = await screen.findByRole("dialog");
-    // El campo nace con el EFECTIVO declarado: la conciliación normal es un clic.
+    // Ficha 498 (R16): el campo nace con lo que DEBE (aquí, sin SINPE ni descuentos, coincide
+    // con el efectivo; los casos que los separan viven en `MarcarRecibidoDialog498.test.tsx`).
     expect(within(dialogo).getByLabelText(/Monto recibido/)).toHaveValue("100000.00");
-    // Lo declarado, a la vista, para comparar mentalmente.
-    expect(within(dialogo).getByText("₡100.000")).toBeInTheDocument();
+    // Lo que debe, a la vista, en su banda.
+    expect(dialogo.querySelector('[data-banda="debe"]')).toHaveTextContent("₡100.000");
     // Y la pista dice las dos cosas que hay que saber.
     expect(dialogo).toHaveTextContent(
-      "Viene con lo declarado. Cambialo solo si contaste una cantidad distinta.",
+      "Viene con lo que debe. Cámbialo solo si la central recibió una cantidad distinta.",
     );
   });
 
@@ -525,7 +549,10 @@ describe("R25 — marcar recibido, corregir y desmarcar", () => {
     // falta para decidir, y por eso se dice aquí.
     expect(dialogo).toHaveTextContent(/Ahora mismo consta recibida por/);
     expect(within(dialogo).getByText("₡485.000")).toBeInTheDocument();
-    expect(dialogo).toHaveTextContent("Desmarcar no mueve dinero.");
+    // [S] Ficha 498 (R43, decisión del humano del 2026-11-02 (ficha 498)): ya no dice «Desmarcar no mueve dinero».
+    // [S] Ficha 502 (R1, decisión del humano del 2026-11-04): la nota sale del diálogo; sigue al pie (R3).
+    expect(dialogo).not.toHaveTextContent("Marcar recibido asienta el dinero en la caja.");
+    expect(dialogo).not.toHaveTextContent(/no mueve dinero|informativa/);
   });
 
   it("R27 — sin permiso NO se monta ningún botón de conciliar", async () => {

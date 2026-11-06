@@ -48,6 +48,8 @@ describeSiHayBase("454/C21 — deshacer una gestion (Postgres real)", () => {
       const deshacerEnCierre = await e.s.cierreDia.deshacerGestion(g2, e.actorMensajero);
       const g1TrasCierre = await e.tx.gestionOrden.findUniqueOrThrow({ where: { id: g1 }, select: { cierreId: true } });
       const aprobacion = await e.aprobar(cierreId);
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+      await e.asentar(cierreId);
       const cod = await e.tx.walletTiendaMovimiento.findMany({
         where: { origenId: cierreId, categoria: "cod_recaudado" },
         select: { monto: true },

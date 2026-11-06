@@ -76,7 +76,7 @@ export class AjusteCajaAnulacionRepository implements IAjusteCajaAnulacionReposi
 
   /**
    * FICHA 458-B (D13, R64/R66/R67) — la constancia de la anulacion de un EGRESO (sueldo, gasto de
-   * Ordenex, gasto fijo cobrado, indemnizacion) y `egreso_caja_anulado`, en la MISMA transaccion.
+   * la empresa, gasto fijo cobrado, indemnizacion) y `egreso_caja_anulado`, en la MISMA transaccion.
    *
    * `createMany({ skipDuplicates })` y NO `create` + P2002: un choque dentro de una transaccion de
    * Postgres la deja abortada, y leer el nombre de la restriccion en un P2002 es justo lo que la

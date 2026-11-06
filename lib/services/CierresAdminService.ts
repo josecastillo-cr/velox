@@ -29,7 +29,7 @@ import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import type { IReprogramadasRetenidasService } from "@/lib/interfaces/services/IReprogramadasRetenidasService";
 import type {
   CierreGrupos,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type {
   ActualizarPagosGestionInput,
@@ -66,12 +66,12 @@ import { toDetalleDTO } from "@/lib/services/CierreDiaService";
 import {
   cobradoSobreRecaudado,
   ganaLaTienda,
-  gananciaOrdenex,
-  netoOrdenex,
-  pagoTiendaOrdenex,
+  gananciaEmpresa,
+  netoEmpresa,
+  pagoTiendaEmpresa,
   partesPorTienda,
-  totalesIngresoOrdenex,
-} from "@/lib/utils/ingreso-ordenex";
+  totalesIngresoEmpresa,
+} from "@/lib/utils/ingreso-empresa";
 import { desglosarIngresoBodegaPorOrigen } from "@/lib/utils/desglose-rechazos-sla";
 // FICHA 398: el destino de la orden corregida sale del PUNTO UNICO de la regla `resultado ->
 // estado` (239/R3), no de un literal escrito en el servicio.
@@ -103,25 +103,25 @@ const ROL_ADMIN_SATELITE = "adminSatelite";
 
 /**
  * FICHA 481 (2026-10-15, «solo lo debe ver la central») — el fulfillment congelado de la fila
- * (`ingresoOrdenex.tarifa.fulfillment`) es dato de la CENTRAL: es el servicio de su bodega, no
+ * (`ingresoEmpresa.tarifa.fulfillment`) es dato de la CENTRAL: es el servicio de su bodega, no
  * de la satelite. Para un actor sin acceso total sale ANULADO (`null`), no omitido: el tipo
  * (`TarifaSnapshotDTO.fulfillment: string | null`) no admite la ausencia, y `null` es su
  * «no hay dato que mostrar». Nunca "0.00": eso afirmaria que no se cobro.
  *
  * Falla CERRADO: el criterio es «NO es acceso total», no «es adminSatelite», asi que un rol que
  * un dia llegue aqui sin estar previsto tampoco lo recibe. Solo toca la tarifa: ningun total se
- * recalcula (el fulfillment no entra en `ingresoOrdenex.total`, ver `TarifaSnapshotDTO`).
+ * recalcula (el fulfillment no entra en `ingresoEmpresa.total`, ver `TarifaSnapshotDTO`).
  */
-function ocultarFulfillmentSiNoCentral<T extends { ingresoOrdenex?: IngresoOrdenexDTO | null }>(
+function ocultarFulfillmentSiNoCentral<T extends { ingresoEmpresa?: IngresoEmpresaDTO | null }>(
   fila: T,
   actor: Actor,
 ): T {
   if (esAccesoTotal(actor.rol)) return fila;
-  const ingreso = fila.ingresoOrdenex;
+  const ingreso = fila.ingresoEmpresa;
   if (ingreso === undefined || ingreso === null || ingreso.tarifa === null) return fila;
   return {
     ...fila,
-    ingresoOrdenex: { ...ingreso, tarifa: { ...ingreso.tarifa, fulfillment: null } },
+    ingresoEmpresa: { ...ingreso, tarifa: { ...ingreso.tarifa, fulfillment: null } },
   };
 }
 
@@ -827,18 +827,18 @@ export class CierresAdminService implements ICierresAdminService {
 
     // Totales por concepto del cierre: se suman desde el MISMO desglose por orden que ve el
     // admin en las tablas, no por una consulta aparte que podria no cuadrar con ellas.
-    const totalesIngreso = totalesIngresoOrdenex(found.gestiones);
+    const totalesIngreso = totalesIngresoEmpresa(found.gestiones);
 
     // Ganancia DERIVADA: el ingreso bruto MENOS lo que se le debe al mensajero. El pago sale
     // del snapshot del cierre (no se recomputa, R4); el ingreso, del desglose por orden.
     // Feature 172 (T C.2/R26): el detalle tambien trae el pendiente —R26 lo pide «en el listado
     // de cierres Y en el detalle de ese cierre»—, por el mismo camino y con una sola agregacion.
     const [resumen] = await this.conPendiente([found.cierre]);
-    const ganancia = gananciaOrdenex(totalesIngreso.total, resumen.totalPagoMensajero);
+    const ganancia = gananciaEmpresa(totalesIngreso.total, resumen.totalPagoMensajero);
 
-    // Pago a la tienda DERIVADO: lo RECIBIDO (total general) menos lo que Ordenex le factura
+    // Pago a la tienda DERIVADO: lo RECIBIDO (total general) menos lo que la empresa le factura
     // sobre esa plata. Sale de otra resta que la ganancia: parte de lo cobrado, no del bruto.
-    const pagoTienda = pagoTiendaOrdenex(
+    const pagoTienda = pagoTiendaEmpresa(
       resumen.totales.general,
       totalesIngreso.fleteConIva,
       totalesIngreso.comisionConIva,
@@ -852,7 +852,7 @@ export class CierresAdminService implements ICierresAdminService {
     // resta escrita aqui: si divergieran, la misma plata se leeria distinta segun por que
     // pantalla se entra. Ese motivo esta escrito en los docstrings de las dos funciones.
 
-    // LA LINEA PUENTE: lo que Ordenex cobra SOBRE LO RECAUDADO. Se emite SIEMPRE, tambien con
+    // LA LINEA PUENTE: lo que la empresa cobra SOBRE LO RECAUDADO. Se emite SIEMPRE, tambien con
     // el flete por rechazo en "0.00": no es una linea condicional, es la que hace que
     // «recaudado − esto = para la tienda» de en TODOS los cierres, con rechazos o sin ellos.
     const cobradoSobreLoRecaudado = cobradoSobreRecaudado(
@@ -860,13 +860,13 @@ export class CierresAdminService implements ICierresAdminService {
       totalesIngreso.comisionConIva,
     );
 
-    // EL NETO: lo facturado menos los DOS pagos de Ordenex. NO es `ganancia` y NO se encadena
-    // con ella —`gananciaOrdenex` resta solo el pago al mensajero—: coinciden cuando el ingreso
+    // EL NETO: lo facturado menos los DOS pagos de la empresa. NO es `ganancia` y NO se encadena
+    // con ella —`gananciaEmpresa` resta solo el pago al mensajero—: coinciden cuando el ingreso
     // de bodega por rechazos vale "0.00" y divergen en cuanto hay un rechazo. `ganancia` sigue
     // saliendo intacta en este mismo DTO; esta es OTRA resta, no su sustituta.
     //
     // Los dos snapshots salen del `resumen` del propio cierre (R4: leidos, no recomputados).
-    const neto = netoOrdenex(
+    const neto = netoEmpresa(
       totalesIngreso.total,
       resumen.totalPagoMensajero,
       resumen.totalIngresoBodegaRechazos,
@@ -931,7 +931,7 @@ export class CierresAdminService implements ICierresAdminService {
       // Feature 395: las tres lineas derivadas arriba (STRING con su signo) y el booleano que
       // dice en que TIEMPO VERBAL se puede hablar del cargo del flete por rechazo.
       cobradoSobreRecaudado: cobradoSobreLoRecaudado,
-      netoOrdenex: neto,
+      netoEmpresa: neto,
       ganaLaTienda: ganaTienda,
       fleteRechazoYaCobradoATienda,
       // Ficha 396: la particion de `pagoTienda` y `ganaLaTienda` por tienda, ya ORDENADA por el

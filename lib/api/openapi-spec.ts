@@ -898,7 +898,7 @@ export const openApiSpec = {
   },
   // ---------------------------------------------------------------------------------------------
   // Feature 256/R24 — WEBHOOKS SALIENTES. Seccion de NIVEL SUPERIOR de OpenAPI 3.1 (fuera de
-  // `paths:`): describe lo que Ordenex ENVIA al callback del integrador, no lo que el integrador
+  // `paths:`): describe lo que la empresa ENVIA al callback del integrador, no lo que el integrador
   // pide. Va aqui y NO dentro de `paths` a proposito: la lista de endpoints del canal por API key
   // esta congelada en `tests/unit/api/openapi-177-paths-pdf-y-carga-id.test.ts` y publicar un
   // webhook no es dar de alta un endpoint.
@@ -954,7 +954,7 @@ export const openApiSpec = {
       //
       // Vive aqui, en `components.schemas`, y NO como una entrada de `webhooks`: esa seccion la
       // pinta Swagger UI como un endpoint mas, y este evento no es algo que el integrador LLAME
-      // —es Ordenex quien lo entrega a su callback—. Publicar la FORMA sin publicar una operacion
+      // —es la empresa quien lo entrega a su callback—. Publicar la FORMA sin publicar una operacion
       // es exactamente lo que se quiere: el integrador tipa el cuerpo que va a recibir y no ve un
       // `POST` que no existe para el.
       WebhookOrdenEstadoActualizado: {

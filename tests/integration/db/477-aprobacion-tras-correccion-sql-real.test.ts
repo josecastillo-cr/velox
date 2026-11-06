@@ -47,6 +47,8 @@ describeSiHayBase("477/T4.6 — aprobar un cierre rechazado y corregido (Postgre
       const gRep = await e.gestionarOk(corr.ordenId, "reprogramado");
       const resolicitud = await e.s.cierreDia.solicitarCierre(e.actorMensajero);
       const aprobacion = await e.aprobar(x);
+      // FICHA 498 (fixture): el dinero de un cierre satelite entra al conciliar, por el mismo procedimiento.
+      await e.asentar(x);
 
       // Las categorias son enums DISTINTOS por libro: se lee todo lo del cierre y se filtra aqui.
       const movimientos = async (categorias: string[]) => {

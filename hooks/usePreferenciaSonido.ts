@@ -18,7 +18,7 @@ import {
 // Efecto lateral util: al escuchar `storage`, silenciar en una pestana silencia las demas.
 
 /** Evento propio: `storage` NO se dispara en la pestana que escribio. */
-const EVENTO_CAMBIO = "ordenex:sonido-notificaciones-cambio";
+const EVENTO_CAMBIO = "app:sonido-notificaciones-cambio";
 
 function suscribir(alCambiar: () => void): () => void {
   window.addEventListener(EVENTO_CAMBIO, alCambiar);

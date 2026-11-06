@@ -287,7 +287,7 @@ export class DetalleEnLoteService implements IDetalleEnLoteService {
 
 /** La clave de un concepto con reparto: dos movimientos del mismo concepto comparten consultas. */
 function claveDeFuente(fuente: FuenteDeAporte): string {
-  if (fuente.tipo === "concepto_ordenex") return fuente.concepto;
+  if (fuente.tipo === "concepto_empresa") return fuente.concepto;
   if (fuente.tipo === "snapshot_gestion") return `snapshot:${fuente.campo}`; // 468: un grupo por columna
   return fuente.tipo;
 }

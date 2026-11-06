@@ -20,7 +20,7 @@ import type {
   CierreGrupos,
   CierreTotales,
   CierreResultado,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
@@ -158,8 +158,8 @@ function makeDesglose(
   return { sla: "0.00", manual: "0.00", total: "0.00", ...over };
 }
 
-/** Ingreso de Ordenex en cero: el default para los tests que no lo están mirando. */
-function zeroIngreso(over: Partial<TotalesIngresoOrdenex> = {}): TotalesIngresoOrdenex {
+/** Ingreso de la empresa en cero: el default para los tests que no lo están mirando. */
+function zeroIngreso(over: Partial<TotalesIngresoEmpresa> = {}): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     fleteConIva: "0.00",
@@ -333,7 +333,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola
@@ -375,7 +375,7 @@ describe("CierresAdminModule", () => {
       ganancia: "2172.50", // 3672.50 - 1500.00, derivado server-side (positiva)
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -420,7 +420,7 @@ describe("CierresAdminModule", () => {
       // Ficha 395: la MISMA resta, dicha por su eslabon. Aqui NO puede ir "0.00" como en el
       // resto de fixturas: esta si lleva importes, y un cero mentiria sobre la resta de arriba.
       cobradoSobreRecaudado: "3672.50", // 2825.00 + 847.50
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -450,7 +450,7 @@ describe("CierresAdminModule", () => {
       ganancia: "-1500.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -490,7 +490,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -525,7 +525,7 @@ describe("CierresAdminModule", () => {
         numRemision: "REM-123",
         destinatario: "Ana Pérez",
         montoRecibido: "25000.00",
-        ingresoOrdenex: {
+        ingresoEmpresa: {
           montoCobrar: "25000.00",
           cobraComision: true,
           esCentral: true,
@@ -570,7 +570,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -625,7 +625,7 @@ describe("CierresAdminModule", () => {
     expect(within(region).getAllByText("13.00 % de ₡2.500").length).toBeGreaterThan(0);
   });
 
-  it("sin ingresoOrdenex (cierre sin snapshot) no se pinta el botón de desglose", async () => {
+  it("sin ingresoEmpresa (cierre sin snapshot) no se pinta el botón de desglose", async () => {
     const user = userEvent.setup();
     const grupos = emptyGrupos();
     grupos.entregado = [
@@ -643,7 +643,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -684,7 +684,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -731,7 +731,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -783,7 +783,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -831,7 +831,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -871,7 +871,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -910,7 +910,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -971,7 +971,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -1015,7 +1015,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -1060,7 +1060,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -1100,7 +1100,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -1139,7 +1139,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -1190,7 +1190,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -1230,7 +1230,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],
@@ -1331,7 +1331,7 @@ describe("CierresAdminModule", () => {
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],

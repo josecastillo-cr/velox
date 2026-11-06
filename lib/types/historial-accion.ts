@@ -161,7 +161,7 @@ export const HISTORIAL_ACCION_TIPOS = [
   // ⚠️ TIPO PROPIO Y NO `wallet_movimiento_manual_registrado`: la etiqueta de aquel dice
   // «Registró un movimiento manual de CAJA» y su productor censado es
   // `WalletMovimientoRepository.crearMovimientoRegistrado`. Reusarlo pondria en el historial una
-  // frase FALSA —un cobro NO toca la caja de Ordenex (D1)— y romperia la guardia del censo, que
+  // frase FALSA —un cobro NO toca la caja de la empresa (D1)— y romperia la guardia del censo, que
   // exige que el tipo lo escriba el metodo declarado.
   //
   // ⚠️ POR QUE DEJA RASTRO SI EL LEDGER YA TIENE `registrado_por`: el criterio lo fijo la 362 y esta
@@ -174,14 +174,14 @@ export const HISTORIAL_ACCION_TIPOS = [
   "cobro_tienda_registrado", // wallet-tienda.registrarCobroTiendaAction -> WalletTiendaMovimientoRepository.registrarCobroEnHistorial
   // ⭑ FICHA 459 (R53/R78) — el PAGO POR CUENTA de una tienda y el SALDO INICIAL o APORTE DE
   // CAPITAL, registrados y anulados. Los cuatro «mueve dinero»: el pago por cuenta saca dinero de
-  // la caja y baja el saldo de la tienda; el aporte mete dinero de Ordenex en la caja. UN TIPO POR
+  // la caja y baja el saldo de la tienda; el aporte mete dinero de la empresa en la caja. UN TIPO POR
   // METODO (la guardia del censo mide por metodo). La fila lleva el importe y, en el pago por
   // cuenta, el NOMBRE de la tienda; NUNCA el motivo, la referencia ni el beneficiario (texto libre).
   "pago_por_cuenta_tienda_registrado", // PagoPorCuentaTiendaRepository.crear
   "pago_por_cuenta_tienda_anulado", // PagoPorCuentaTiendaRepository.anular
   "aporte_capital_registrado", // AporteCapitalRepository.crear
   "aporte_capital_anulado", // AporteCapitalRepository.anular
-  // ⭑ FICHA 461 (R55) — alguien ANULO un cobro de Ordenex a una tienda. «Mueve dinero» en el sentido
+  // ⭑ FICHA 461 (R55) — alguien ANULO un cobro de la empresa a una tienda. «Mueve dinero» en el sentido
   // mas directo: le devuelve a la tienda el monto del cobro (credito) y baja la ganancia (reverso del
   // cargo en la caja). TIPO PROPIO y metodo propio (la guardia del censo mide POR METODO). La fila
   // lleva el importe y el NOMBRE de la tienda; NUNCA el motivo de la anulacion (texto libre, R5 de la
@@ -193,7 +193,7 @@ export const HISTORIAL_ACCION_TIPOS = [
   // importe y la CATEGORIA de la correccion; NUNCA el motivo (texto libre, R5 de la 362). Entidad:
   // `wallet_movimiento` (la correccion original).
   "wallet_movimiento_manual_anulado", // AjusteCajaAnulacionRepository.anular
-  // ⭑ FICHA 457 (R61/R62) — alguien REGISTRO un pago de una tienda a Ordenex, o lo ANULO. Los dos
+  // ⭑ FICHA 457 (R61/R62) — alguien REGISTRO un pago de una tienda a la empresa, o lo ANULO. Los dos
   // «mueven dinero» en el sentido mas directo: entra (o vuelve a salir) dinero de la tienda y su saldo
   // sube (o baja). UN TIPO POR METODO (la guardia del censo mide por metodo). La fila lleva el importe
   // y el NOMBRE de la tienda; NUNCA el motivo, la referencia ni la ruta del comprobante (R63).
@@ -206,7 +206,7 @@ export const HISTORIAL_ACCION_TIPOS = [
   // guardia del censo mide POR METODO). La fila lleva el importe (flete + IVA) y el NOMBRE de la
   // tienda; NUNCA el motivo (texto libre, R5 de la 362). Entidad: `rechazo_tienda_cobro`.
   "cobro_rechazo_tienda_anulado", // RechazoTiendaCobroAnulacionRepository.anular
-  // ⭑ FICHA 458-B (R63/R64, D13) — alguien ANULO con motivo un sueldo, un gasto de Ordenex, un gasto
+  // ⭑ FICHA 458-B (R63/R64, D13) — alguien ANULO con motivo un sueldo, un gasto de la empresa, un gasto
   // fijo cobrado o una indemnizacion. Mueve dinero: el contra-asiento devuelve el importe a la caja
   // y a la ganancia. TIPO PROPIO: el de la 461 (`wallet_movimiento_manual_anulado`) dice «corrección
   // de caja». La fila lleva el importe y la CATEGORIA del egreso; NUNCA el motivo. Entidad:
@@ -335,6 +335,11 @@ export const HISTORIAL_ACCION_TIPOS = [
   // Y la fila SOBREVIVE a la key: `entidad_id` es opaco y sin FK, y `entidad_etiqueta` va
   // denormalizada (R26).
   "api_key_eliminada", // api-keys.eliminarApiKey -> ApiKeyRepository.eliminar
+  // ⭑ FICHA 500 (bloque 6 de H5, R12-R20) — un distrito ENTRO o SALIO de una zona al guardar su
+  // edicion. Una fila por distrito, colgada de la zona, con lote propio. SOLO la edicion: crear y
+  // borrar no lo escriben. `update` ya escribe otros tres tipos: la guardia del censo mide POR
+  // METODO, asi que lo que de verdad lo vigila es `zona-distrito-rastro-500.test.ts`.
+  "zona_distrito_cambiado", // zonas.actualizarZona -> ZonaRepository.update
 ] as const satisfies readonly PrismaHistorialAccionTipo[];
 
 export type HistorialAccionTipo = (typeof HISTORIAL_ACCION_TIPOS)[number];
@@ -377,7 +382,7 @@ export const HISTORIAL_ACCION_ENTIDADES = [
   // ⭑ FICHA 459 — los dos documentos nuevos, 1:1 con sus tablas (criterio de la 381/457).
   "pago_por_cuenta_tienda",
   "aporte_capital",
-  // ⭑ FICHA 457 — el documento del pago de una tienda a Ordenex, 1:1 con su tabla.
+  // ⭑ FICHA 457 — el documento del pago de una tienda a la empresa, 1:1 con su tabla.
   "abono_tienda",
 ] as const satisfies readonly PrismaHistorialAccionEntidad[];
 
@@ -453,6 +458,8 @@ export const CATEGORIA_POR_ACCION: Record<HistorialAccionTipo, CategoriaAccion> 
   // ganancia; anular un egreso devuelve el importe a la caja y a la ganancia.
   cobro_rechazo_tienda_anulado: "mueve_dinero",
   egreso_caja_anulado: "mueve_dinero",
+  // FICHA 500 (R20): el distrito decide la zona de una orden y la zona decide la tarifa.
+  zona_distrito_cambiado: "mueve_dinero",
   // FICHA 398: la correccion saca del cierre un cobro que nadie recaudo y pone en cero el pago
   // de esa gestion al mensajero. No hay lectura mas directa de «mueve dinero», y R17 exige
   // exactamente una categoria por tipo.
@@ -519,7 +526,7 @@ export const ACCION_LABELS: Record<HistorialAccionTipo, string> = {
   zona_central_cambiada: "Cambió la marca de zona central",
   zona_pago_mensajero_cambiado: "Cambió el pago al mensajero de una zona",
   zona_sinpe_cambiado: "Cambió el SINPE de una bodega",
-  // Ficha 461 (design §7.7, HD3/P15): los seis textos que esta ficha toca, desde Ordenex y diciendo
+  // Ficha 461 (design §7.7, HD3/P15): los seis textos que esta ficha toca, desde la empresa y diciendo
   // quien le paga a quien; verbo en pasado con la persona como sujeto, como el resto del catalogo.
   cobro_tienda_registrado: "Le cobró a una tienda",
   cobro_tienda_anulado: "Anuló un cobro a una tienda",
@@ -529,12 +536,13 @@ export const ACCION_LABELS: Record<HistorialAccionTipo, string> = {
   pago_por_cuenta_tienda_anulado: "Anuló el pago de un gasto de una tienda",
   aporte_capital_registrado: "Registró un aporte de dinero a la caja",
   aporte_capital_anulado: "Anuló un aporte de dinero a la caja",
-  // Ficha 457 (design §2/§9): desde Ordenex, diciendo quien le paga a quien (HD3 de la 461).
+  // Ficha 457 (design §2/§9): desde la empresa, diciendo quien le paga a quien (HD3 de la 461).
   abono_tienda_registrado: `Registró un pago de una tienda a ${MARCA.nombre}`,
   abono_tienda_anulado: `Anuló un pago de una tienda a ${MARCA.nombre}`,
   // Ficha 458-B (R63/R64): verbo en pasado con la persona como sujeto, como el resto del catálogo.
   cobro_rechazo_tienda_anulado: "Anuló un cobro por devolución a origen a una tienda",
   egreso_caja_anulado: "Anuló un gasto de la caja",
+  zona_distrito_cambiado: "Cambió los distritos de una zona", // FICHA 500 (R20)
   cierre_dia_gestion_corregida: "Corrigió el resultado de una gestión",
   cierre_bodega_conciliado: "Marcó recibida una consolidación de bodega",
   cierre_bodega_conciliacion_revertida: "Revirtió la conciliación de una consolidación de bodega",
@@ -595,7 +603,7 @@ export const ENTIDAD_LABELS: Record<HistorialAccionEntidad, string> = {
   // Ficha 461 (design §7.7): las dos etiquetas de entidad con el nombre nuevo.
   pago_por_cuenta_tienda: "Pago de un gasto de una tienda",
   aporte_capital: "Aporte de dinero a la caja",
-  // Ficha 457 (design §2): el documento del pago de una tienda a Ordenex.
+  // Ficha 457 (design §2): el documento del pago de una tienda a la empresa.
   abono_tienda: `Pago de una tienda a ${MARCA.nombre}`,
 };
 

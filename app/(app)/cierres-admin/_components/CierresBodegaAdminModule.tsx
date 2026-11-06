@@ -37,11 +37,11 @@ import type {
   CierreBodegaDetalleCierre,
   CierreBodegaResumen,
 } from "@/lib/interfaces/services/ICierreBodegaService";
-import type { TotalesIngresoOrdenex } from "@/lib/interfaces/services/ICierreDiaService";
+import type { TotalesIngresoEmpresa } from "@/lib/interfaces/services/ICierreDiaService";
 // Ficha 396 (D2) — el tipo del desglose se pide DONDE VIVE la identidad que particiona
-// (`lib/utils/ingreso-ordenex.ts`), igual que hace el contrato del servicio. Es un `import type`:
+// (`lib/utils/ingreso-empresa.ts`), igual que hace el contrato del servicio. Es un `import type`:
 // se borra al compilar y no arrastra ni `Prisma` ni una linea de servidor al navegador.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 import {
   TotalesIngresoPanel,
   TotalesPanel,
@@ -54,9 +54,9 @@ import {
   CASCADA_DUENO_TITULO,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_TIENDA_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   COBRADO_SOBRE_RECAUDADO_LABEL,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
   PAGO_MENSAJERO_LABEL,
   FLETE_CON_IVA_LABEL,
@@ -202,19 +202,19 @@ const CONCILIACION_SECCION_LABEL = "Conciliación del cierre de bodega";
 interface DetalleAbierto {
   cierre: CierreBodegaResumen;
   cierres: CierreBodegaDetalleCierre[];
-  /** Ingreso de Ordenex agregado de toda la bodega, por concepto (derivado del snapshot). */
-  totalesIngreso: TotalesIngresoOrdenex;
+  /** Ingreso de la empresa agregado de toda la bodega, por concepto (derivado del snapshot). */
+  totalesIngreso: TotalesIngresoEmpresa;
   /** Total general agregado menos flete + IVA y comisión + IVA (puede ser negativo). */
   pagoTienda: string;
   /**
    * Feature 393 — los cuatro derivados AGREGADOS de las dos cascadas, tal como los emite el
-   * servidor. `ganancia` ya no se guarda: en esta superficie la absorbió `netoOrdenex`, que
+   * servidor. `ganancia` ya no se guarda: en esta superficie la absorbió `netoEmpresa`, que
    * resta ADEMÁS lo que gana la bodega satélite (las dos sólo coinciden cuando esa cifra es 0).
    * El servicio la sigue devolviendo —la lee el detalle del cierre de MENSAJERO (R30)—, aquí
    * simplemente no se pinta.
    */
   cobradoSobreRecaudado: string;
-  netoOrdenex: string;
+  netoEmpresa: string;
   paraLaCentral: string;
   efectivoCubreDescuentos: boolean;
   /**
@@ -227,6 +227,11 @@ interface DetalleAbierto {
    * evalua esta pantalla, nivel por nivel.
    */
   partesPorTienda: ParteDeTienda[];
+  /**
+   * FICHA 500 (R3) — ¿se ofrece «Desmarcar»? Del SERVIDOR (`verCierreBodegaDetalle`), tal cual: sin
+   * dinero en la caja y no saldada con la regla anterior. La cabecera del listado no lo lleva.
+   */
+  puedeDesmarcar: boolean;
 }
 
 /**
@@ -296,12 +301,12 @@ function lineasCascadaCentral(nivel: {
 function lineasCascadaDueno(
   nivel: {
     general: string;
-    totalesIngreso: TotalesIngresoOrdenex;
+    totalesIngreso: TotalesIngresoEmpresa;
     totalPagoMensajero: string;
     totalIngresoBodegaRechazos: string;
     pagoTienda: string;
     cobradoSobreRecaudado: string;
-    netoOrdenex: string;
+    netoEmpresa: string;
   },
   // Ficha 396 (R1) — LA MARCA de este nivel, o `null` si sus gestiones son de una sola tienda.
   // Sale de `marcaDeVariasTiendas`, la MISMA funcion que decide si se pinta el desglose: las dos
@@ -328,7 +333,7 @@ function lineasCascadaDueno(
       destacado: true,
       notas: notasDelPago,
     },
-    // La línea puente: lo mismo que se acaba de restar, ahora leído como lo que Ordenex cobró.
+    // La línea puente: lo mismo que se acaba de restar, ahora leído como lo que la empresa cobró.
     {
       label: COBRADO_SOBRE_RECAUDADO_LABEL,
       monto: nivel.cobradoSobreRecaudado,
@@ -340,7 +345,7 @@ function lineasCascadaDueno(
       signo: "suma",
       notas: [FLETE_RECHAZO_NO_DEDUCIBLE_NOTA],
     },
-    { label: FACTURADO_ORDENEX_LABEL, monto: nivel.totalesIngreso.total, signo: "neutro" },
+    { label: FACTURADO_EMPRESA_LABEL, monto: nivel.totalesIngreso.total, signo: "neutro" },
     { label: PAGO_MENSAJERO_LABEL, monto: nivel.totalPagoMensajero, signo: "resta" },
     {
       label: GANA_BODEGA_SATELITE_LABEL,
@@ -348,7 +353,7 @@ function lineasCascadaDueno(
       signo: "resta",
       notas: [GANA_BODEGA_SATELITE_NOTA],
     },
-    { label: NETO_ORDENEX_LABEL, monto: nivel.netoOrdenex, signo: "neutro", destacado: true },
+    { label: NETO_EMPRESA_LABEL, monto: nivel.netoEmpresa, signo: "neutro", destacado: true },
   ];
 }
 
@@ -462,12 +467,13 @@ export function CierresBodegaAdminModule({
         // Feature 393 (R12/R20): los cuatro llegan derivados del servidor con aritmética
         // decimal exacta. La pantalla no resta nada.
         cobradoSobreRecaudado: result.cobradoSobreRecaudado,
-        netoOrdenex: result.netoOrdenex,
+        netoEmpresa: result.netoEmpresa,
         paraLaCentral: result.paraLaCentral,
         efectivoCubreDescuentos: result.efectivoCubreDescuentos,
         // Ficha 396 (R20/R8): se guarda TAL CUAL llega. La pantalla no lo filtra, no lo suma y
         // no lo reordena — el orden es el que emitio el servidor.
         partesPorTienda: result.partesPorTienda,
+        puedeDesmarcar: result.puedeDesmarcar,
       });
       return;
     }
@@ -517,10 +523,11 @@ export function CierresBodegaAdminModule({
   // operacion.
   //
   // «RECHAZAR» NO TIENE SUSTITUTO, Y ES EL PUNTO (R16): no se rechaza una consolidacion, se
-  // marca si llego o no. Lo reversible es la MARCA, y eso lo hace «Desmarcar», que no es lo
-  // mismo —desmarcar no manda a nadie a corregir nada, solo dice «esto todavia no ha llegado»—.
-  // Las `rechazado` historicas se quedan en la base (cero en produccion) y dejan de tener
-  // rotulo en pantalla.
+  // marca si llego o no. FICHA 498 (R20/R43): marcar ASIENTA el dinero de los cierres en la caja,
+  // asi que una marca con asientos ya no se desmarca: el monto se corrige con «Corregir».
+  // FICHA 500 (R3): «Desmarcar» solo APARECE sobre una conciliada sin dinero y no saldada con la
+  // regla anterior (`puedeDesmarcar` del detalle, calculado en el servidor). Las `rechazado` historicas se
+  // quedan en la base (cero en produccion) y dejan de tener rotulo en pantalla.
   //
   // El refresco de las listas (`refrescarListas`) SI se conserva: la fila marcada se mueve de
   // pestaña igual que antes se movia al aprobar.
@@ -590,7 +597,7 @@ export function CierresBodegaAdminModule({
                 : descargaBodegaResueltos(filtros)
             }
             catalogo={catalogoFiltros}
-            accion={(f) => descargarDatos("listarGestionesCierresBodegaCompleto", f)}
+            accion={(f) => descargarDatos("listarGestionesCierresBodegaCompletoV2", f)}
             disabled={pendientesCargando}
             audiencia={audiencia}
           />
@@ -724,7 +731,7 @@ export function CierresBodegaAdminModule({
                   totalIngresoBodegaRechazos: detalle.cierre.totalIngresoBodegaRechazos,
                   pagoTienda: detalle.pagoTienda,
                   cobradoSobreRecaudado: detalle.cobradoSobreRecaudado,
-                  netoOrdenex: detalle.netoOrdenex,
+                  netoEmpresa: detalle.netoEmpresa,
                 },
                 marcaAgregada,
               )}
@@ -739,7 +746,7 @@ export function CierresBodegaAdminModule({
               <DesglosePorTienda partes={detalle.partesPorTienda} de="cierre de bodega" />
             ) : null}
 
-            {/* El desglose por concepto de la línea «Lo que Ordenex facturó»: sin cambios. */}
+            {/* El desglose por concepto de la línea «Lo que la empresa facturó»: sin cambios. */}
             <TotalesIngresoPanel
               totales={detalle.totalesIngreso}
               ariaLabel={`Ingreso de ${MARCA.nombreCorto} del cierre de bodega`}
@@ -806,7 +813,7 @@ export function CierresBodegaAdminModule({
                       totalIngresoBodegaRechazos: cierreDia.totalIngresoBodegaRechazos,
                       pagoTienda: cierreDia.pagoTienda,
                       cobradoSobreRecaudado: cierreDia.cobradoSobreRecaudado,
-                      netoOrdenex: cierreDia.netoOrdenex,
+                      netoEmpresa: cierreDia.netoEmpresa,
                     },
                     marcaDelMensajero,
                   )}
@@ -850,10 +857,11 @@ export function CierresBodegaAdminModule({
               satelite no podia asignar ni una orden mas.
 
               Ahora hay UNO: «Marcar recibido». No es el mismo boton con otro nombre —es otra
-              cosa—: no autoriza nada, dice que el efectivo LLEGO y cuanto se conto. Por eso
-              abre un dialogo con el declarado a la vista y un monto editable, y por eso es
-              REVERSIBLE («Desmarcar»): una marca informativa puesta por error tiene que poder
-              deshacerse, y deshacerla no mueve un colon.
+              cosa—: no autoriza nada, dice que el dinero LLEGO a la central y cuanto. FICHA 498
+              (R43): marcar asienta ese dinero en la caja; por eso, una vez marcada, el monto se
+              corrige con «Corregir» y ya no se desmarca: desde la ficha 500 «Desmarcar» ni
+              aparece si la consolidacion movio dinero (`puedeDesmarcar` del servidor), y si la
+              pantalla esta desactualizada el servidor responde `con_asientos`.
 
               «RECHAZAR» SE RETIRA SIN SUSTITUTO (R16). Rechazar una consolidacion era mandar a
               la satelite a corregir un bulto que ya habia salido; hoy la respuesta a «llego
@@ -879,10 +887,15 @@ export function CierresBodegaAdminModule({
                 cierreBodegaId={detalle.cierre.cierreBodegaId}
                 bodega={detalle.cierre.zonaNombre}
                 fecha={fechaCalendarioCR(new Date(detalle.cierre.solicitadoAt))}
-                declarado={detalle.cierre.totales.efectivo}
+                recaudado={detalle.cierre.totales}
+                // FICHA 498 (R16): lo que DEBE la consolidación y su signo, decididos en el SERVIDOR
+                // (misma fuente que `ConsolidacionSateliteDTO.debe`). Nunca el efectivo.
+                debe={{ monto: detalle.cierre.debe, positivo: detalle.cierre.debePositivo }}
                 marca={detalle.cierre}
                 nota={detalle.cierre.conciliadoNota}
                 puedeConciliar={puedeConciliar}
+                // FICHA 500 (R3): del DETALLE, no de la cabecera del listado (que no lo lleva).
+                puedeDesmarcar={detalle.puedeDesmarcar}
                 onCambio={() => {
                   cerrarDetalle();
                   refrescarListas();

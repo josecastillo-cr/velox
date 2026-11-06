@@ -38,7 +38,7 @@ import type { DireccionOrden } from "@/lib/types/ordenamiento-listado";
 import type { LibroWallet } from "@/lib/types/wallet-origen";
 import type { PagoMensajeroMovimientoCategoria } from "@/lib/types/wallet-mensajero";
 import type { DesgloseTiendaDTO, WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda";
-import { saldoDe } from "@/lib/utils/conciliacion-satelite";
+import { deudaDeZona } from "@/lib/utils/conciliacion-satelite";
 import { derivarCuentaPorPagar } from "@/lib/utils/cuenta-por-pagar";
 import {
   claveDeParMensajero,
@@ -118,7 +118,7 @@ function aAnulacion(a: AnulacionLeida): AnulacionDeFilaDTO {
 /**
  * FICHA 458-B (design §3.2, R16–R25, R81) — el ESTADO DE CUENTA. No deriva dinero nuevo: el saldo
  * actual y el inicial salen de la MISMA funcion que hoy deriva el saldo de cada cuenta
- * (`derivarSaldoTienda`, `derivarCuentaPorPagar`, `saldoDe`), y el corrido lo calcula la base con una
+ * (`derivarSaldoTienda`, `derivarCuentaPorPagar`, `deudaDeZona`), y el corrido lo calcula la base con una
  * ventana (`EstadoCuentaRepository`). Lo propio de este servicio es el orden de las lecturas, los
  * totales netos del periodo (D3, `totalesNetos`) y afirmar R22 antes de responder.
  */
@@ -195,7 +195,7 @@ export class EstadoCuentaService implements IEstadoCuentaService {
 
   /**
    * El extracto de UNA cuenta, sin mirar el rol (lo miro quien llama). `vista` decide lo que se
-   * nombra: la tienda en `/mi-wallet` ve SU extracto sin los nombres de la gente de Ordenex (quien
+   * nombra: la tienda en `/mi-wallet` ve SU extracto sin los nombres de la gente de la empresa (quien
    * registro o anulo; `/mi-wallet` nunca los enseño, 335/D2) y sin «Anular…» (R35).
    */
   private async leerCuenta(
@@ -411,8 +411,9 @@ export class EstadoCuentaService implements IEstadoCuentaService {
     // En la bodega el «abono» es lo RECIBIDO (baja lo que tiene por entregar); no hay pares anulados.
     const totales = totalesNetos(periodo, () => null, (m) => m.tipo === "recibido");
     const cero = new Prisma.Decimal(0);
-    const pendiente = (t: { efectivo: string; recibido: string }) =>
-      saldoDe(new Prisma.Decimal(t.efectivo), new Prisma.Decimal(t.recibido)).toFixed(2);
+    // FICHA 498 (R31): el pendiente es la deuda de la zona, con la MISMA resta que Saldos.
+    const pendiente = (t: { declarado: string; recibido: string }) =>
+      deudaDeZona(new Prisma.Decimal(t.declarado), new Prisma.Decimal(t.recibido)).toFixed(2);
     return {
       libro: null,
       crudas: pagina.filas,
@@ -423,7 +424,8 @@ export class EstadoCuentaService implements IEstadoCuentaService {
       total: pagina.total,
       filas: pagina.filas.map((f) => ({
         ref: null,
-        consolidacionId: f.origenId,
+        // FICHA 498: la fila de un cierre sin consolidar no es de ninguna consolidacion.
+        consolidacionId: f.origenTipo === "cierre_bodega" ? f.origenId : null,
         fecha: fechaDiaMovimientoCR(f.fechaMovimiento.toISOString()),
         categoria: f.categoria,
         origenTipo: f.origenTipo,
@@ -609,10 +611,10 @@ function ventanaDeArchivo(): { page: number; pageSize: number } {
 
 /**
  * R34/R35 — la fila tal como la ve la tienda en `/mi-wallet`: sin «Anular…», y sin los nombres de la
- * gente de Ordenex (quien la registro, quien aprobo el cierre, quien la anulo). Se conservan el motivo,
+ * gente de la empresa (quien la registro, quien aprobo el cierre, quien la anulo). Se conservan el motivo,
  * el dia y la hora de la anulacion (R25) y el destino (`ref`), que es por donde abre SU comprobante
  * (R78). R25 en la tienda (decision del leader, 2026-09-26, revision m3): la pantalla dice «Anulado
- * por Ordenex» con el dia y la hora de Costa Rica y el motivo; el NOMBRE de la persona no viaja.
+ * por la empresa» con el dia y la hora de Costa Rica y el motivo; el NOMBRE de la persona no viaja.
  */
 function paraLaTienda(f: FilaEstadoCuentaDTO): FilaEstadoCuentaDTO {
   return {
@@ -648,6 +650,6 @@ function registroDe(f: FilaDeLibroRow, aprobadores: Map<string, string | null>):
 function sentidoDe(tipo: TipoDeCuenta, saldo: string): SentidoDelSaldo {
   const s = new Prisma.Decimal(saldo);
   if (s.isZero()) return "en_cero";
-  if (tipo === "bodega") return s.gt(0) ? "por_entregar" : "ordenex_debe";
-  return s.gt(0) ? "ordenex_debe" : "cuenta_debe";
+  if (tipo === "bodega") return s.gt(0) ? "por_entregar" : "empresa_debe";
+  return s.gt(0) ? "empresa_debe" : "cuenta_debe";
 }

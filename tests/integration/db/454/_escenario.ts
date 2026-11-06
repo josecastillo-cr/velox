@@ -9,6 +9,7 @@ import type { ConfirmacionFisicaInput } from "@/lib/interfaces/services/ICierres
 import type { GestionarInput } from "@/lib/interfaces/services/IMisAsignacionesService";
 import { CierreDiaRepository } from "@/lib/repositories/CierreDiaRepository";
 import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
+import { asentarCierreDia, dependenciasRealesDeAsiento } from "@/lib/repositories/asentar-cierre-dia";
 import { CorteDiarioRepository } from "@/lib/repositories/CorteDiarioRepository";
 import { GestionOrdenRepository } from "@/lib/repositories/GestionOrdenRepository";
 import { LiquidacionPagoRepository } from "@/lib/repositories/LiquidacionPagoRepository";
@@ -518,6 +519,22 @@ export async function crearEscenario(
     return s.cierresAdmin.aprobarCierre(cierreId, actor, indemnizaciones, confirmacion);
   }
 
+  /**
+   * FICHA 498 — el DINERO de un cierre, por el procedimiento compartido (`asentarCierreDia`). Desde la
+   * 498, aprobar un cierre SATELITE no escribe en los libros (su dinero entra al conciliar la
+   * consolidacion). Las caracterizaciones que miden el dinero de un cierre satelite lo asientan con
+   * esto despues de aprobar: las MISMAS filas que la aprobacion escribia antes. Idempotente.
+   */
+  async function asentar(cierreId: string): Promise<void> {
+    // Solo un cierre APROBADO tiene dinero que asentar (como al conciliar, que solo toma aprobados). Si
+    // no lo esta, se LANZA: un `return` mudo dejaria un test de dinero verde sin dinero (revision m6).
+    const c = await tx.cierreDia.findUnique({ where: { id: cierreId }, select: { estado: true } });
+    if (c?.estado !== "aprobado") {
+      throw new Error(`escenario 454: asentar(${cierreId}) sobre un cierre ${c?.estado ?? "inexistente"}, no aprobado`);
+    }
+    await asentarCierreDia(tx, cierreId, dependenciasRealesDeAsiento(cliente));
+  }
+
   async function rechazar(cierreId: string, actor: Actor = actorAdminSatelite) {
     return s.cierresAdmin.rechazarCierre(cierreId, "No cuadra", actor);
   }
@@ -706,6 +723,7 @@ export async function crearEscenario(
     mensajeroCentral,
     recuperar,
     aprobar,
+    asentar,
     rechazar,
     estadoDe,
     ordenDe,

@@ -86,6 +86,13 @@ const CONSOLIDACION = {
   conciliadoPorNombre: null,
   nota: null,
   cantidadCierres: 1,
+  // Ficha 498 (fixture): los campos nuevos del DTO; sin SINPE ni descuentos, debe = efectivo.
+  totalPagoMensajero: "0.00",
+  totalIngresoBodegaRechazos: "0.00",
+  paraLaCentral: "115000.00",
+  debe: "115000.00",
+  debePositivo: true,
+  saldadaReglaAnterior: false,
 };
 
 function montar(puedeConciliar = true) {

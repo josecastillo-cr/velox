@@ -43,8 +43,17 @@ import { montoPositivoSchema } from "@/lib/types/wallet";
 export interface SaldoSateliteDTO {
   zonaId: string;
   zonaNombre: string;
-  /** R17/R18 — Σ(`total_efectivo` − COALESCE(`monto_recibido`, 0)) sobre las no rechazadas. */
+  /**
+   * ⭑ FICHA 498 (R23) — LA DEUDA de la zona. Conserva el nombre de la 431 y cambia de significado:
+   * Σ aportes de sus cierres aprobados (todos los metodos de pago, menos lo que es de la satelite)
+   * + Σ aporte reconocido de sus consolidaciones saldadas con la regla anterior − Σ `monto_recibido`
+   * de sus consolidaciones no rechazadas. Con signo. Ya NO es el efectivo.
+   */
   saldoSinConciliar: string;
+  /** FICHA 498 (R24/R42) — Σ aportes de sus cierres aprobados SIN consolidar (o de una rechazada). */
+  sinConsolidar: string;
+  /** FICHA 498 (R24) — cuantos cierres forman `sinConsolidar`. */
+  cierresSinConsolidar: number;
   /** Σ `total_efectivo`: la base del saldo, para que la resta sea auditable desde la pantalla. */
   totalEfectivo: string;
   /** Σ `total_general`: CONTEXTO (lo que la bodega recaudo), NO lo pendiente. Ver la cabecera. */
@@ -84,12 +93,14 @@ export interface UltimaRecibidaDTO {
   fecha: string;
   /** `monto_recibido` de ESA consolidacion: lo que se conto al recibir el bulto. */
   monto: string;
-  /** `total_efectivo` de ESA consolidacion: lo que la bodega habia declarado. */
+  /**
+   * FICHA 498: el APORTE RECONOCIDO de ESA consolidacion («Para la central», o el valor de la
+   * regularizacion si esta saldada con la regla anterior). Ya no es el efectivo.
+   */
   declarado: string;
   /**
-   * R17/R18/R20 — `declarado` − `monto` de ESA fila, derivado en el servidor con la MISMA
-   * `saldoDe` que el saldo de la bodega. Distinto de cero = esa ultima llego incompleta y la
-   * pantalla lo dice («₡ 485.000 de ₡ 500.000»). Puede ser NEGATIVO (llego de mas).
+   * R26 — `declarado` − `monto` de ESA fila, derivado en el servidor con `faltaPorRecibir`, la misma
+   * funcion que la deuda. Distinto de cero = esa ultima llego incompleta. Puede ser NEGATIVO.
    */
   faltaPorRecibir: string;
 }
@@ -107,9 +118,9 @@ export interface UltimaRecibidaDTO {
  */
 export interface ResumenSatelitesDTO {
   /**
-   * Tarjeta 1 — «Pendiente de conciliar»: Σ de `saldoSinConciliar` de TODAS las bodegas satelite.
-   * Es la misma formula de R17/R18 aplicada al conjunto, asi que la suma de la columna
-   * «Pendiente» de la tabla ES esta cifra. Puede ser NEGATIVA si llego mas de lo declarado.
+   * Tarjeta 1 — Σ de `saldoSinConciliar` (la deuda) de TODAS las bodegas satelite, con las MISMAS
+   * agregaciones que las filas (FICHA 498, R25): la suma de la columna ES esta cifra. Puede ser
+   * NEGATIVA.
    */
   pendienteTotal: string;
   /** Cuantas consolidaciones siguen SIN marcar (`conciliado_at IS NULL`). */
@@ -159,16 +170,34 @@ export interface ConsolidacionSateliteDTO {
   /** `null` = sin conciliar. NUNCA `"0.00"` por ausencia: cero recibido es otra cosa. */
   montoRecibido: string | null;
   /**
-   * R17/R20 — `total_efectivo` − COALESCE(`monto_recibido`, 0), DERIVADO EN EL SERVIDOR.
-   *
-   * ⚠️ SOBRE EL EFECTIVO Y NO SOBRE `general`: es el sumando exacto del saldo de su bodega, asi que
-   * la suma de esta columna ES `saldoSinConciliar`. Con `general` aqui y efectivo alla, las dos
-   * cifras de la misma pantalla no cuadrarian y nadie sabria cual creer.
-   *
-   * Puede ser NEGATIVO (llego de mas). No se recorta a cero: mismo criterio con el que la ficha 393
-   * decidio ensenar «Para la central» en negativo en vez de maquillarlo.
+   * FICHA 498 (R26) — `debe` − COALESCE(`monto_recibido`, 0), DERIVADO EN EL SERVIDOR con
+   * `faltaPorRecibir`. Ya NO es el efectivo. Puede ser NEGATIVO (llego de mas): no se recorta.
    */
   faltaPorRecibir: string;
+  /** FICHA 498 (R41) — snapshot: el pago a los mensajeros de la satelite. */
+  totalPagoMensajero: string;
+  /** FICHA 498 (R41) — snapshot: la ganancia de la satelite por rechazos. */
+  totalIngresoBodegaRechazos: string;
+  /** FICHA 498 (R41) — `paraLaCentral` de la consolidacion (general − pago − rechazos), con signo. */
+  paraLaCentral: string;
+  /**
+   * FICHA 498 (R41/R41a) — lo que DEBE: el aporte reconocido. Igual a `paraLaCentral` salvo en una
+   * saldada con la regla anterior, donde es el valor que fijo la regularizacion.
+   */
+  debe: string;
+  /**
+   * FICHA 498 (§8.4, R16) — `debe > 0`, decidido en el SERVIDOR. Si es `false`, el dialogo de marcar
+   * propone 0 (el unico caso en que el recibido 0 se admite, Q5).
+   */
+  debePositivo: boolean;
+  /** FICHA 498 (R41a) — saldada con la regla anterior (rotulo propio en la pantalla). */
+  saldadaReglaAnterior: boolean;
+  /**
+   * ⭑ FICHA 500 (R3/R4) — ¿se ofrece «Desmarcar»? Conciliada, sin dinero (`consolidacionesConDinero`,
+   * el criterio de `revertirConciliacion`) y no saldada con la regla anterior. Lo decide el SERVIDOR;
+   * la pantalla no lo deriva de otros campos. No baja a la descarga.
+   */
+  puedeDesmarcar: boolean;
   /** Derivado de `conciliadoAt !== null`. */
   conciliado: boolean;
   conciliadoAt: string | null;
@@ -241,20 +270,28 @@ export type ListarConsolidacionesSateliteCompletoInput = z.infer<
 >;
 
 /**
- * R9/R10 — MARCAR RECIBIDA.
+ * FICHA 498 (Q5, design §4.4 bis) — el CERO literal, y nada mas: `"0"`, `"0.0"` o `"0.00"`. Un
+ * negativo, un vacio o tres decimales siguen muriendo en el borde (R15b).
+ */
+export const montoCeroSchema = z.string().regex(/^0(\.0{1,2})?$/, "Monto inválido");
+
+/**
+ * R9/R10 — MARCAR RECIBIDA (y CORREGIR: las dos acciones comparten este schema).
  *
- * ⚠️ `montoPositivoSchema` TAL CUAL, que exige **> 0**, y la pieza NO se reescribe relajada aqui.
- * Marcar «recibi ₡0» no es una marca: es no marcar, y para eso ya esta no hacer nada. Reescribir la
- * definicion de «cuanto dinero es valido» en este archivo seria la segunda declaracion que un dia
- * diverge (leccion de la ficha 381). Si el humano quiere admitir `0`, se cambia la pieza
- * compartida y se enteran sus otros seis consumidores, que es el punto.
+ * ⭑ FICHA 498 (Q5, decision del humano del 2026-11-02): el humano admitio el recibido 0 SOLO en la
+ * conciliacion y SOLO cuando la consolidacion no tiene nada que entregar (aporte reconocido ≤ 0).
+ * Esa es una regla de DATO, no de formato: por eso el borde admite el cero literal (`montoCeroSchema`)
+ * ademas de `montoPositivoSchema` —que NO se toca: lo comparten la liquidacion, los gastos fijos, los
+ * efectos y los cierres admin, que no deben aceptar 0— y la decision la toma el repositorio con el
+ * aporte leido en la misma transaccion (desenlace `recibido_cero_con_aporte`).
  *
  * La `nota` es opcional y se recorta: cero caracteres no es una nota, es ausencia.
  */
 export const marcarConsolidacionRecibidaSchema = z
   .object({
     cierreBodegaId: z.string().uuid(),
-    montoRecibido: montoPositivoSchema, // STRING, > 0, <= 2 decimales (R10)
+    // STRING, > 0 con <= 2 decimales, o el cero literal (R10, R15a/R15b).
+    montoRecibido: z.union([montoPositivoSchema, montoCeroSchema]),
     nota: z.string().trim().min(1).max(500).optional(),
   })
   .strict();

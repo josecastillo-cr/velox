@@ -290,7 +290,7 @@ describe.skipIf(!HAY_BASE_DE_DATOS)("F.1-F.6 · la 127 contra Postgres, sin mock
         estados[metricaId] = (await consultarDia(tx, metricaId, DIA_A)).status;
       }
       expect(estados).toEqual(Object.fromEntries(IDS_FINANCIERAS_SERVIDAS.map((m) => [m, "ok"])));
-      // 8 de la 127 + `dinero_en_caja` y `ganancia_ordenex` (173, P4): las dos tambien
+      // 8 de la 127 + `dinero_en_caja` y `ganancia_empresa` (173, P4): las dos tambien
       // responden contra Postgres de verdad, no solo contra dobles.
       expect(Object.keys(estados)).toHaveLength(10);
     });

@@ -2,8 +2,8 @@ import { Prisma } from "@prisma/client";
 import type { GestionResultado } from "@prisma/client";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
 import type {
-  IngresoOrdenexDTO,
-  TotalesIngresoOrdenex,
+  IngresoEmpresaDTO,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { WalletIngresoConcepto } from "@/lib/types/wallet";
 import type { OrigenFlete } from "@/lib/types/tarifa";
@@ -14,7 +14,7 @@ import type { OrigenFlete } from "@/lib/types/tarifa";
 import { computeTotales, type GestionConPagos } from "@/lib/utils/cierre-totales";
 
 /**
- * Feature 42 (design §4, R8/R9/R26) — derivacion del INGRESO de Ordenex por gestion.
+ * Feature 42 (design §4, R8/R9/R26) — derivacion del INGRESO de la empresa por gestion.
  * Funcion PURA, money-safe: toda la aritmetica con `Prisma.Decimal`, salida STRING escala 2.
  * Espejo estructural de `lib/utils/pago-mensajero.ts`/`ingreso-bodega.ts`. La gestion aporta
  * su `resultado`; la orden aporta `esCentral` (zona), `montoCobrar` (COD) y `cobraComision`.
@@ -284,9 +284,9 @@ export function costosListadoOrden(
  * Money-safe: suma con Prisma.Decimal sobre los STRING ya derivados, salida STRING escala 2.
  * Las gestiones sin desglose (vista en vivo, o cierre pre-snapshot) no aportan.
  */
-export function totalesIngresoOrdenex(
-  gestiones: Array<{ ingresoOrdenex?: IngresoOrdenexDTO | null }>,
-): TotalesIngresoOrdenex {
+export function totalesIngresoEmpresa(
+  gestiones: Array<{ ingresoEmpresa?: IngresoEmpresaDTO | null }>,
+): TotalesIngresoEmpresa {
   const acc = {
     montoCobrar: new Prisma.Decimal(0),
     fleteConIva: new Prisma.Decimal(0),
@@ -301,7 +301,7 @@ export function totalesIngresoOrdenex(
     ivaComisionCod: new Prisma.Decimal(0),
   };
   for (const g of gestiones) {
-    const i = g.ingresoOrdenex;
+    const i = g.ingresoEmpresa;
     if (!i) continue;
     for (const k of Object.keys(acc) as Array<keyof typeof acc>) {
       const v = i[k];
@@ -325,7 +325,7 @@ export function totalesIngresoOrdenex(
 }
 
 /**
- * Ganancia de Ordenex: el ingreso BRUTO facturado menos lo que se le debe al mensajero.
+ * Ganancia de la empresa: el ingreso BRUTO facturado menos lo que se le debe al mensajero.
  * Incluye los conceptos de devolucion (un rechazo tambien factura flete), asi que siempre
  * cuadra con el `total` del desglose. Puede ser NEGATIVA: un cierre de puras
  * reprogramaciones no factura nada y aun asi paga.
@@ -336,13 +336,13 @@ export function totalesIngresoOrdenex(
  *
  * Money-safe: resta con Prisma.Decimal sobre STRING, salida STRING escala 2.
  */
-export function gananciaOrdenex(ingresoTotal: string, pagoMensajero: string): string {
+export function gananciaEmpresa(ingresoTotal: string, pagoMensajero: string): string {
   return new Prisma.Decimal(ingresoTotal).minus(pagoMensajero).toFixed(2);
 }
 
 /**
  * Pago a la tienda: la plata RECIBIDA (total general del cierre) menos los dos conceptos que
- * Ordenex le factura sobre esa plata — flete + IVA y comision + IVA.
+ * la empresa le factura sobre esa plata — flete + IVA y comision + IVA.
  *
  * NO descuenta el flete de devolucion + IVA (el de los RECHAZOS desde la ficha 301): un
  * rechazo no cobra COD, asi que no aporta al total general y no se le resta a lo recibido. Si
@@ -354,7 +354,7 @@ export function gananciaOrdenex(ingresoTotal: string, pagoMensajero: string): st
  *
  * Money-safe: resta con Prisma.Decimal sobre STRING, salida STRING escala 2.
  */
-export function pagoTiendaOrdenex(
+export function pagoTiendaEmpresa(
   totalGeneral: string,
   fleteConIva: string,
   comisionConIva: string,
@@ -364,12 +364,12 @@ export function pagoTiendaOrdenex(
 
 /**
  * Feature 395 — LO QUE LA TIENDA GANA EN TOTAL con un cierre: lo recaudado menos TODO lo que
- * Ordenex le factura (`totalesIngresoOrdenex().total`), incluido el flete por rechazo + IVA.
+ * la empresa le factura (`totalesIngresoEmpresa().total`), incluido el flete por rechazo + IVA.
  *
- * **NO ES `pagoTiendaOrdenex`, y confundirlas es exactamente el fallo que esta ficha arregla.**
+ * **NO ES `pagoTiendaEmpresa`, y confundirlas es exactamente el fallo que esta ficha arregla.**
  * Son dos preguntas distintas sobre el mismo cierre:
  *
- *   `pagoTiendaOrdenex`  = lo que se le paga DE ESTE DINERO. No resta el flete por rechazo
+ *   `pagoTiendaEmpresa`  = lo que se le paga DE ESTE DINERO. No resta el flete por rechazo
  *                          porque ese flete nunca entro en lo recaudado (un rechazo no cobra
  *                          COD): se le cobra APARTE, contra su wallet.
  *   `ganaLaTienda`       = lo que le queda DESPUES de que tambien le cobren aquello. Es el
@@ -381,7 +381,7 @@ export function pagoTiendaOrdenex(
  * EXISTE POR LA IDENTIDAD QUE HACE EVIDENTE LA PANTALLA, y que hasta hoy no se podia leer en
  * ningun sitio —el humano la estaba calculando a mano cada vez que miraba el cierre—:
  *
- *   lo que gana la tienda  +  lo que factura Ordenex  =  lo recaudado
+ *   lo que gana la tienda  +  lo que factura la empresa  =  lo recaudado
  *        214.328,33        +        70.946,67         =    285.275,00
  *
  * Se deriva aca, y no restando dos celdas en el navegador, por el mismo motivo que sus
@@ -421,13 +421,13 @@ export interface ParteDeTienda {
    */
   recaudado: string;
   /**
-   * Lo que se le paga A ESTA TIENDA de este dinero. `pagoTiendaOrdenex` sobre SU subconjunto.
+   * Lo que se le paga A ESTA TIENDA de este dinero. `pagoTiendaEmpresa` sobre SU subconjunto.
    * NO descuenta el flete por rechazo —ese se le cobra aparte, contra su wallet—. Puede ser
    * NEGATIVO y viaja con su signo.
    */
   pagoTienda: string;
   /**
-   * Lo que ESTA TIENDA gana en total: lo recaudado menos TODO lo que Ordenex le factura,
+   * Lo que ESTA TIENDA gana en total: lo recaudado menos TODO lo que la empresa le factura,
    * incluido el flete por rechazo + IVA. `ganaLaTienda` sobre SU subconjunto.
    *
    * **NO ES `pagoTienda`**, y confundirlas es el fallo que la ficha 395 arreglo un nivel mas
@@ -449,7 +449,7 @@ export interface ParteDeTienda {
 export type GestionDeTienda = GestionConPagos & {
   tiendaId: string;
   tiendaNombre: string;
-  ingresoOrdenex?: IngresoOrdenexDTO | null;
+  ingresoEmpresa?: IngresoEmpresaDTO | null;
 };
 
 /**
@@ -473,18 +473,18 @@ export type GestionDeTienda = GestionConPagos & {
  * las cuatro funciones que ya producen esas mismas cifras para el conjunto entero:
  *
  *   `recaudado`     -> `computeTotales(subconjunto).general`      (`lib/utils/cierre-totales.ts`)
- *   (interno)       -> `totalesIngresoOrdenex(subconjunto)`       (arriba, en este archivo)
- *   `pagoTienda`    -> `pagoTiendaOrdenex(recaudado, fleteConIva, comisionConIva)`
+ *   (interno)       -> `totalesIngresoEmpresa(subconjunto)`       (arriba, en este archivo)
+ *   `pagoTienda`    -> `pagoTiendaEmpresa(recaudado, fleteConIva, comisionConIva)`
  *   `ganaLaTienda`  -> `ganaLaTienda(recaudado, total)`
  *
  * Es EXACTAMENTE lo que `lib/utils/dinero-por-producto.ts:200-273` (`repartoDeOrden`, ficha 347)
  * ya hace para partir el MISMO importe por OTRA dimension —el producto—, reusando
- * `pagoTiendaOrdenex` sobre subconjuntos. No es un patron nuevo: es el que el repo ya eligio
+ * `pagoTiendaEmpresa` sobre subconjuntos. No es un patron nuevo: es el que el repo ya eligio
  * una vez, con su invariante escrita en la cabecera.
  *
  * ─── POR QUE VIVE AQUI ────────────────────────────────────────────────────────────────────
  *
- * Porque aqui viven las identidades que esta funcion particiona (`pagoTiendaOrdenex`,
+ * Porque aqui viven las identidades que esta funcion particiona (`pagoTiendaEmpresa`,
  * `ganaLaTienda`), y una identidad tiene UN sitio. Verificado que el import de
  * `cierre-totales.ts` NO crea ciclo: ese modulo importa `pago-mensajero`, `ingreso-bodega` y
  * tipos, y ninguno importa este archivo.
@@ -509,12 +509,12 @@ export type GestionDeTienda = GestionConPagos & {
  *
  * Las tres primeras atan las partes con su agregado, para el MISMO conjunto de gestiones:
  *
- *   R10 ·  Σ parte.pagoTienda    ===  pagoTiendaOrdenex(general, fleteConIva, comisionConIva)
- *   R11 ·  Σ parte.ganaLaTienda  ===  ganaLaTienda(general, totalesIngresoOrdenex(todas).total)
+ *   R10 ·  Σ parte.pagoTienda    ===  pagoTiendaEmpresa(general, fleteConIva, comisionConIva)
+ *   R11 ·  Σ parte.ganaLaTienda  ===  ganaLaTienda(general, totalesIngresoEmpresa(todas).total)
  *   R12 ·  Σ parte.recaudado     ===  computeTotales(todas).general
  *
  * Son ciertas por construccion porque la particion por `tiendaId` es exhaustiva y disjunta (cada
- * gestion cae en una y solo una tienda), porque `computeTotales` y `totalesIngresoOrdenex` son
+ * gestion cae en una y solo una tienda), porque `computeTotales` y `totalesIngresoEmpresa` son
  * sumas puras sobre gestiones, y porque las tres derivaciones son restas lineales:
  * `Σ(gᵢ − fᵢ − cᵢ) = Σgᵢ − Σfᵢ − Σcᵢ`. Sin deriva de redondeo: todos los sumandos ya vienen a
  * escala 2 y sumar decimales de escala 2 da escala 2.
@@ -579,12 +579,12 @@ export function partesPorTienda(gestiones: ReadonlyArray<GestionDeTienda>): Part
     // resta escrita a mano: si un dia cambia la definicion de «lo que se le paga», cambia arriba
     // y esto la sigue sola.
     const recaudado = computeTotales(grupo.gestiones).general;
-    const ingreso = totalesIngresoOrdenex(grupo.gestiones);
+    const ingreso = totalesIngresoEmpresa(grupo.gestiones);
     partes.push({
       tiendaId,
       tiendaNombre: grupo.nombre,
       recaudado,
-      pagoTienda: pagoTiendaOrdenex(recaudado, ingreso.fleteConIva, ingreso.comisionConIva),
+      pagoTienda: pagoTiendaEmpresa(recaudado, ingreso.fleteConIva, ingreso.comisionConIva),
       // La CUARTA identidad se sostiene porque este `ingreso.total` es el DE ESTA TIENDA. Con el
       // total agregado aqui, `pagoTienda − ganaLaTienda` dejaria de dar su flete por rechazo.
       ganaLaTienda: ganaLaTienda(recaudado, ingreso.total),
@@ -612,10 +612,10 @@ export function partesPorTienda(gestiones: ReadonlyArray<GestionDeTienda>): Part
 
 /**
  * Feature 393 (R7/R10, design §3) — LA LINEA PUENTE de la cascada «de quien es el dinero»:
- * lo que Ordenex cobra SOBRE LO RECAUDADO, o sea el subconjunto DEDUCIBLE de lo facturado
+ * lo que la empresa cobra SOBRE LO RECAUDADO, o sea el subconjunto DEDUCIBLE de lo facturado
  * (flete + IVA y comision COD + IVA, los dos de las entregadas).
  *
- * Existe porque `total` de `totalesIngresoOrdenex` NO es deducible entero: incluye el flete
+ * Existe porque `total` de `totalesIngresoEmpresa` NO es deducible entero: incluye el flete
  * por rechazo + IVA, que se le factura a la tienda pero NO sale de `total_general` —un rechazo
  * no cobra contra entrega, asi que ese dinero nunca entro—. Sin esta linea la pantalla
  * ensenaria «recaudado − facturado = para la tienda», que NO da en cuanto hay un rechazo.
@@ -630,23 +630,23 @@ export function cobradoSobreRecaudado(fleteConIva: string, comisionConIva: strin
 }
 
 /**
- * Feature 393 (R8, design §2.2) — NETO de Ordenex: lo FACTURADO menos lo que Ordenex paga,
+ * Feature 393 (R8, design §2.2) — NETO de la empresa: lo FACTURADO menos lo que la empresa paga,
  * que son DOS pagos y no uno: a los mensajeros y a la bodega satelite por los rechazos.
  *
- * **NO es `gananciaOrdenex`, y por eso no se implementa encadenandola.** `gananciaOrdenex`
+ * **NO es `gananciaEmpresa`, y por eso no se implementa encadenandola.** `gananciaEmpresa`
  * resta solo el pago al mensajero; este resta ademas el ingreso de bodega por rechazos. Los
  * dos coinciden EXACTAMENTE cuando la bodega vale "0.00" —que es el caso del cierre que el
  * humano midio el 2026-09-08— y divergen en cuanto hay un rechazo. Que la identidad de R8
  * viva en un solo sitio auditable vale mas que ahorrar una resta.
  *
- * `gananciaOrdenex` NO se toca: la sigue leyendo el detalle del cierre de MENSAJERO (R30).
+ * `gananciaEmpresa` NO se toca: la sigue leyendo el detalle del cierre de MENSAJERO (R30).
  *
  * Puede ser NEGATIVO (un cierre de puras reprogramaciones no factura nada y aun asi paga);
  * se devuelve con su signo, nunca recortado.
  *
  * Money-safe: resta con Prisma.Decimal sobre STRING, salida STRING escala 2.
  */
-export function netoOrdenex(
+export function netoEmpresa(
   ingresoTotal: string,
   pagoMensajero: string,
   ganaBodegaSatelite: string,

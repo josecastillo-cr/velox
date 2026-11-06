@@ -20,7 +20,7 @@ import type { CierreGestionPendienteRow } from "@/lib/interfaces/repositories/IC
 // LA ASIMETRÍA DELIBERADA que se fija aquí (design §7.2, R17): el detalle de ADMIN lleva el
 // monto; la vista EN VIVO del MENSAJERO **no**, y no por casualidad de que allí las gestiones
 // tengan `cierre_id IS NULL`, sino porque la columna **no se selecciona** en su consulta. La
-// indemnización es plata que Ordenex paga por el paquete, no del mensajero, y un número grande
+// indemnización es plata que la empresa paga por el paquete, no del mensajero, y un número grande
 // junto a su gestión se leería como una deuda suya.
 
 // --- Dobles de las dos proyecciones -------------------------------------------------------

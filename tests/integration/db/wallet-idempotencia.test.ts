@@ -225,6 +225,7 @@ function cierreDiaFake(estadoInicial = "solicitado") {
       count: vi.fn().mockResolvedValue(1), // existe en alcance -> `conflict`, no `fuera_de_alcance`
       // FICHA 362: la resolucion lee ademas el total y el mensajero para congelar la fila.
       findUnique: vi.fn().mockResolvedValue({
+        destinoTipo: "bodega_central", // ficha 498 (fixture): el destino que la aprobacion lee (R4)
         mensajeroId: "m1",
         totalGeneral: new Prisma.Decimal("0.00"),
         solicitadoAt: new Date("2026-09-02T12:00:00Z"),
@@ -283,6 +284,7 @@ function buildPrisma(
           count: vi.fn().mockResolvedValue(1),
           // FICHA 362: la resolucion lee el total y el mensajero para congelar la fila del registro.
           findUnique: vi.fn().mockResolvedValue({
+            destinoTipo: "bodega_central", // ficha 498 (fixture)
             totalGeneral: new Prisma.Decimal("0.00"),
             solicitadoAt: new Date("2026-09-02T12:00:00Z"),
             mensajero: { nombre: "Mensa", primerApellido: "Uno" },

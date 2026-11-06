@@ -9,7 +9,7 @@ import {
 } from "@/lib/types/wallet";
 
 /**
- * FICHA 461 / T A.2 — la derivacion con el cobro de Ordenex a una tienda y su reverso
+ * FICHA 461 / T A.2 — la derivacion con el cobro de la empresa a una tienda y su reverso
  * (R22, R23, R24, R28; design §2.2).
  *
  * Los literales son los de PRODUCCION medidos el 2026-09-24 (M6 de `progress/medicion_457.md`) y
@@ -192,9 +192,11 @@ describe("461/A.2 — R24: R7 sobre subconjuntos al azar CON los conceptos nuevo
       if (filas.some((f) => f.categoria === "ingreso_cobro_tienda")) conCobro += 1;
       if (filas.some((f) => f.categoria === "egreso_reverso_cobro_tienda")) conReverso += 1;
       const r = derivarCaja(filas, { periodoFiltrado: azar() < 0.5 });
-      // FICHA 488: la identidad gana el cuarto bolsillo, el IVA por pagar.
-      expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar), `conjunto ${n}`).toBe(r.enCaja);
-      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar), `conjunto ${n}`).toBe(r.enCaja);
+      // FICHA 488: la identidad gana el cuarto bolsillo, el IVA por pagar. FICHA 498 (R35): y el quinto,
+      // − «Por cobrar a satelites» (el catalogo trae las diferencias de la satelite).
+      const menosPorCobrar = new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2);
+      expect(suma(r.ganancia, r.deTerceros, r.capital, r.ivaPorPagar, menosPorCobrar), `conjunto ${n}`).toBe(r.enCaja);
+      expect(suma(r.deEmpresa, r.deTerceros, r.ivaPorPagar, menosPorCobrar), `conjunto ${n}`).toBe(r.enCaja);
       // Y ni el cobro ni su reverso estan en «Entro»/«Salio»: la cifra es la de los efectivos solos.
       const efectivos = derivarCaja(
         filas.filter(

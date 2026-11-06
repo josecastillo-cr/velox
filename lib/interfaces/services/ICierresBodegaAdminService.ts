@@ -4,10 +4,10 @@ import type {
   CierreBodegaDetalleCierre,
   CierreBodegaResumen,
 } from "@/lib/interfaces/services/ICierreBodegaService";
-import type { TotalesIngresoOrdenex } from "@/lib/interfaces/services/ICierreDiaService";
+import type { TotalesIngresoEmpresa } from "@/lib/interfaces/services/ICierreDiaService";
 // Ficha 396 — mismo camino que en `ICierresAdminService` y en `ICierreBodegaService`: la parte
 // de UNA tienda se declara junto a la funcion que la produce y aqui viaja como TIPO.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 // Feature 230 (T7.2, R26): el DTO y el union de la hoja fundida se IMPORTAN del contrato de
 // `cierres-admin`, no se redeclaran. Los dos bordes de la feature emiten la misma fila.
 import type { ListarGestionesDescargaServiceResult } from "@/lib/interfaces/services/ICierresAdminService";
@@ -74,10 +74,10 @@ export type CierreBodegaDetalleServiceResult =
       status: "ok";
       cierre: CierreBodegaResumen; // cabecera + totales agregados snapshot (R13)
       cierres: CierreBodegaDetalleCierre[]; // un elemento por cierre_dia incluido (R11)
-      // Ingreso de Ordenex AGREGADO de todo el cierre de bodega (suma de los cierre_dia).
-      totalesIngreso: TotalesIngresoOrdenex;
+      // Ingreso de la empresa AGREGADO de todo el cierre de bodega (suma de los cierre_dia).
+      totalesIngreso: TotalesIngresoEmpresa;
       // DERIVADO: `totalesIngreso.total` - `cierre.totalPagoMensajero` (STRING money-safe).
-      // Lo que le queda a Ordenex de toda la bodega. Puede ser NEGATIVO.
+      // Lo que le queda a la empresa de toda la bodega. Puede ser NEGATIVO.
       ganancia: string;
       // DERIVADO: `cierre.totales.general` - `fleteConIva` - `comisionConIva` (STRING
       // money-safe). Lo que se le paga a las tiendas. Puede ser NEGATIVO.
@@ -92,7 +92,7 @@ export type CierreBodegaDetalleServiceResult =
        * `cierre.totalIngresoBodegaRechazos`. NO es `ganancia` (que no resta la bodega). Puede
        * ser NEGATIVO.
        */
-      netoOrdenex: string;
+      netoEmpresa: string;
       /**
        * Ficha 396 (D1) — DERIVADO: `cierre.totales.general` − `totalesIngreso.total`. LO QUE LAS
        * TIENDAS GANAN EN TOTAL con todo el cierre de bodega.
@@ -105,7 +105,7 @@ export type CierreBodegaDetalleServiceResult =
        * FALTABA en este contrato, y por eso lo trae esta ficha: la 395 puso `ganaLaTienda` SOLO
        * en el detalle del cierre del mensajero, asi que el desglose por tienda de bodega sumaria
        * hacia un total que no estaba en ninguna parte (`design.md §5.2`). Se deriva con la MISMA
-       * funcion (`ganaLaTienda`, `lib/utils/ingreso-ordenex.ts`), no con una resta escrita aqui.
+       * funcion (`ganaLaTienda`, `lib/utils/ingreso-empresa.ts`), no con una resta escrita aqui.
        *
        * MISMO minuendo que `pagoTienda`: el snapshot AGREGADO del propio cierre de bodega, nunca
        * la suma de sus `cierre_dia` (R21, decision explicita de la 393). Puede ser NEGATIVO y se
@@ -159,6 +159,12 @@ export type CierreBodegaDetalleServiceResult =
       paraLaCentral: string;
       /** Feature 393 (R37) — DERIVADO: ¿los descuentos caben en el EFECTIVO agregado? */
       efectivoCubreDescuentos: boolean;
+      /**
+       * ⭑ FICHA 500 (R3/R4) — ¿se ofrece «Desmarcar»? Lo calcula el REPOSITORIO con
+       * `consolidacionesConDinero` + `puedeDesmarcarse` (los dos cortes de `revertirConciliacion`);
+       * el servicio lo propaga tal cual, sin recalcularlo.
+       */
+      puedeDesmarcar: boolean;
     }
   | { status: "forbidden" } // rol != maestro (R2)
   | { status: "no_encontrada" }; // id inexistente (R19)

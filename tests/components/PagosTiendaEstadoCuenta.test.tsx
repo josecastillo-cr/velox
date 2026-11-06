@@ -9,7 +9,7 @@ import type { PagoRegistradoDTO } from "@/lib/types/liquidacion";
 import { FORMA_UUID, UUID_TIENDA } from "@/tests/fixtures/estado-cuenta";
 
 // =================================================================================================
-// FICHA 458-D (T D.2/T D.8; 172 R4, R33, R50, R53, R70–R76; 458 R30) — LOS PAGOS DE ORDENEX A LA TIENDA
+// FICHA 458-D (T D.2/T D.8; 172 R4, R33, R50, R53, R70–R76; 458 R30) — LOS PAGOS DE LA EMPRESA A LA TIENDA
 // EN SU ESTADO DE CUENTA.
 //
 // Vivían en el desglose desplegable (`PagoTiendaAcciones`, retirado). Se conservan en el estado de cuenta

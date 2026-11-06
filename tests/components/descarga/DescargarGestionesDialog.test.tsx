@@ -126,7 +126,7 @@ function gestion(): CierreGestionDescargaDTO {
     indemnizacion: null,
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: null,
-    ingresoOrdenex: null,
+    ingresoEmpresa: null,
   };
 }
 

@@ -6,7 +6,7 @@
 // el humano el 2026-07-30 (D1 «todas») = **15 ids operativos + 8 financieros = 23**.
 // Anadir o quitar una metrica exige una decision humana nueva y fechada.
 // ⟨P4⟩ humano, 2026-08-03 (`progress/decision_F2_173.md`): +2 financieras (`dinero_en_caja`
-// y `ganancia_ordenex`) = **15 operativos + 10 financieros = 25**.
+// y `ganancia_empresa`) = **15 operativos + 10 financieros = 25**.
 //
 // R1 (modulo puro): este archivo no importa `@/lib/db`, ni repositorios, ni servicios,
 // ni `next/headers`, ni `@prisma/client` como valor, ni ejecuta efectos al importarse.
@@ -679,7 +679,7 @@ const CATALOGO = [
   // ⟨P4⟩ humano, 2026-08-03 (`progress/decision_F2_173.md`) — LAS DOS METRICAS NUEVAS.
   //
   // Nacen juntas porque su valor esta en la DIFERENCIA. Mientras la caja solo contuvo dinero de
-  // Ordenex, «entradas − salidas» era la ganancia y una sola cifra bastaba. Desde la 173 la caja
+  // la empresa, «entradas − salidas» era la ganancia y una sola cifra bastaba. Desde la 173 la caja
   // registra tambien el contra-entrega cobrado a nombre de las tiendas, que solo PASA por ella:
   // el mismo numero paso a significar dos cosas. Servir una sola —cualquiera de las dos— es lo
   // que la feature existe para impedir.
@@ -692,7 +692,7 @@ const CATALOGO = [
     id: "dinero_en_caja",
     etiqueta: "Dinero en caja",
     descripcion:
-      `TESORERIA: el flujo de dinero registrado de la caja principal — el dinero que entro de verdad menos todo lo que salio, sin distinguir de quien es: incluye el contra-entrega cobrado a nombre de las tiendas, lo que las tiendas le pagan a ${MARCA.nombre} y su anulacion, los reversos y los ajustes. NO suma aparte el flete, la comision ni sus impuestos: son la parte de ${MARCA.nombre} que se descuenta del contra-entrega de la tienda (o una deuda de la tienda), no dinero que entre a la caja; ni el cobro de ${MARCA.nombre} a una tienda ni su anulacion, que tampoco son dinero que entre o salga (se toman del saldo de la tienda y se le devuelven). Es la misma cifra principal de la tarjeta de la caja; solo es el saldo real si hay un saldo inicial registrado. NO es lo que ${MARCA.nombre} gano (eso es ganancia_ordenex). Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
+      `TESORERIA: el flujo de dinero registrado de la caja principal — el dinero que entro de verdad menos todo lo que salio, sin distinguir de quien es: incluye el contra-entrega cobrado a nombre de las tiendas, lo que las tiendas le pagan a ${MARCA.nombre} y su anulacion, los reversos y los ajustes. NO suma aparte el flete, la comision ni sus impuestos: son la parte de ${MARCA.nombre} que se descuenta del contra-entrega de la tienda (o una deuda de la tienda), no dinero que entre a la caja; ni el cobro de ${MARCA.nombre} a una tienda ni su anulacion, que tampoco son dinero que entre o salga (se toman del saldo de la tienda y se le devuelven). Es la misma cifra principal de la tarjeta de la caja; solo es el saldo real si hay un saldo inicial registrado. NO es lo que ${MARCA.nombre} gano (eso es ganancia_empresa). Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
     dominio: "financiera",
     clase: "live",
     unidad: "moneda",
@@ -727,12 +727,12 @@ const CATALOGO = [
         "ingreso_reverso_pago_por_cuenta_tienda",
         "ingreso_aporte_capital",
         "egreso_reverso_aporte_capital",
-        // FICHA 461 (R29): el cobro de Ordenex a una tienda y su anulacion. La caja entera, ahora 23.
+        // FICHA 461 (R29): el cobro de la empresa a una tienda y su anulacion. La caja entera, ahora 23.
         // La cifra NO cambia con ellos (son cargos: no entran ni salen), pero la lista es «la caja
         // entera» y la guardia la compara con el seed.
         "ingreso_cobro_tienda",
         "egreso_reverso_cobro_tienda",
-        // FICHA 457 (R52): lo que las tiendas le pagan a Ordenex y su anulacion. La caja entera, ahora
+        // FICHA 457 (R52): lo que las tiendas le pagan a la empresa y su anulacion. La caja entera, ahora
         // 25. Los dos SI mueven la cifra (efectivo de terceros: entra y sale de verdad).
         "ingreso_abono_tienda",
         "egreso_reverso_abono_tienda",
@@ -744,11 +744,15 @@ const CATALOGO = [
         // dos SI mueven la cifra (efectivo: el pago sale de verdad hacia Hacienda).
         "egreso_pago_iva",
         "ingreso_reverso_pago_iva",
+        // FICHA 498 (design §8.1): la diferencia de la satelite al conciliar. La caja entera, ahora
+        // 31. Las dos SI mueven la cifra (efectivo: lo que la satelite entrego de menos o de mas).
+        "egreso_diferencia_satelite",
+        "ingreso_diferencia_satelite",
       ],
     },
   },
   {
-    id: "ganancia_ordenex",
+    id: "ganancia_empresa",
     etiqueta: `Ganancia de ${MARCA.nombreCorto}`,
     descripcion:
       `RESULTADO: ingresos propios de ${MARCA.nombre} menos sus egresos propios, dejando fuera el dinero de terceros que solo pasa por la caja (el contra-entrega y su devolucion a la tienda). Incluye lo que ${MARCA.nombre} les cobra a las tiendas (el cobro de ${MARCA.nombre} a una tienda es ganancia: se toma del saldo que le guardaba) y descuenta sus anulaciones. Es, numero por numero, lo que \`derivarBalance\` devolvia sobre el libro entero antes de la 173: no cambia de valor, cambia de nombre. DESDE LA FICHA 488 NO incluye el IVA cobrado a las tiendas ni su anulacion: es IVA por pagar a Hacienda, no ganancia; la cifra baja a partir de esa fecha sin que su id ni su nombre cambien. Se lee del libro append-only de la wallet, no de ordenes, y las gestiones anuladas no generan movimiento que contar.`,
@@ -776,7 +780,7 @@ const CATALOGO = [
         "egreso_gasto_fijo",
         "egreso_gasto_variable",
         "egreso_indemnizacion",
-        // FICHA 461 (R29): DIECISEIS. El cobro de Ordenex a una tienda ES ganancia (HD1) y su
+        // FICHA 461 (R29): DIECISEIS. El cobro de la empresa a una tienda ES ganancia (HD1) y su
         // anulacion la devuelve; los dos son propios en `NATURALEZA_POR_CATEGORIA`.
         "ingreso_cobro_tienda",
         "egreso_reverso_cobro_tienda",
@@ -820,9 +824,9 @@ const CATALOGO = [
         // FICHA 459: el pago por cuenta de la tienda y su anulacion (mismo motivo: `string[]`).
         "pago_por_cuenta",
         "pago_por_cuenta_anulado",
-        // FICHA 461 (R29): el credito de la anulacion de un cobro de Ordenex (mismo motivo).
+        // FICHA 461 (R29): el credito de la anulacion de un cobro de la empresa (mismo motivo).
         "cobro_tienda_anulado",
-        // FICHA 457 (R52): el pago de la tienda a Ordenex (credito) y su anulacion (debito). Mismo
+        // FICHA 457 (R52): el pago de la tienda a la empresa (credito) y su anulacion (debito). Mismo
         // motivo: `string[]`, el compilador no obliga.
         "abono_tienda",
         "abono_tienda_anulado",

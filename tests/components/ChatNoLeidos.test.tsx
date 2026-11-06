@@ -335,7 +335,7 @@ describe("tono con el chat cerrado", () => {
   });
 
   it("con el sonido silenciado no suena, pero el distintivo sigue subiendo", async () => {
-    window.localStorage.setItem("ordenex:sonido-notificaciones", "off");
+    window.localStorage.setItem("app:sonido-notificaciones", "off");
     resumenNoLeidosChatMock
       .mockResolvedValueOnce({
         status: "ok",

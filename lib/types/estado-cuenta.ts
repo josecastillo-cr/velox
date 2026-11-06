@@ -147,8 +147,8 @@ export type OrdenesDeFilaInput = z.infer<typeof ordenesDeFilaSchema>;
 
 /** Quien le debe a quien (R18). La pantalla compone la frase con sus textos. */
 export type SentidoDelSaldo =
-  | "ordenex_debe" // saldo a favor del titular (tienda / mensajero)
-  | "cuenta_debe" // la tienda le debe a Ordenex (saldo en contra)
+  | "empresa_debe" // saldo a favor del titular (tienda / mensajero)
+  | "cuenta_debe" // la tienda le debe a la empresa (saldo en contra)
   | "por_entregar" // la bodega tiene efectivo por entregar
   | "en_cero";
 
@@ -170,7 +170,7 @@ export interface AnulacionDeFilaDTO {
   fecha: string | null;
   /**
    * FICHA 458-D (revision m3, R25 en `/mi-wallet`) — la hora de pared de Costa Rica («HH:mm») de la
-   * anulacion; `null` junto con `fecha`. La tienda ve «Anulado por Ordenex» con el dia y la hora, sin
+   * anulacion; `null` junto con `fecha`. La tienda ve «Anulado por la empresa» con el dia y la hora, sin
    * el nombre de la persona (decision del leader, 2026-09-26).
    */
   hora: string | null;
@@ -196,7 +196,7 @@ export interface FilaEstadoCuentaDTO {
   /**
    * FICHA 458-D (servidor) — el METODO y la REFERENCIA del documento de pago de la fila ORIGINAL: el
    * pago de la 172 (a una tienda o a un mensajero), el pago de un gasto de la tienda (459) y el pago
-   * de la tienda a Ordenex (457). `null` en toda otra fila (cierres, cobros, correcciones,
+   * de la tienda a la empresa (457). `null` en toda otra fila (cierres, cobros, correcciones,
    * contra-asientos). `referencia` es texto libre tal como se guardo (`null` si no se dio).
    */
   pago: { metodo: MetodoPagoValue; referencia: string | null } | null;
@@ -233,7 +233,7 @@ export interface EstadoCuentaDTO {
   saldoFinal: string;
   /**
    * FICHA 458-D (cierre, 172 R55/N1) — el RESUMEN DE TRES CIFRAS de `/mi-wallet` («A tu favor»,
-   * «Cargos de Ordenex», «Ya pagado»): la cuenta ENTERA de la tienda, sin periodo, chip ni cierre,
+   * «Cargos de la empresa», «Ya pagado»): la cuenta ENTERA de la tienda, sin periodo, chip ni cierre,
    * clasificada por `derivarDesgloseTienda` (la MISMA funcion que la cabecera del maestro, 171) y
    * leida en la MISMA transaccion que el saldo actual. El servicio AFIRMA `resumen.saldo ===
    * saldoActual` antes de responder. Son cifras BRUTAS (N1: el pago anulado sigue en «Ya pagado» y su

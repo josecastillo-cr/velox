@@ -51,7 +51,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 //     `ok`, y la tienda queda con +6 000 A FAVOR: se le acredito dinero que no debia (R66 rota).
 //     A diferencia del pago de un gasto de la 459, aqui el candado SI decide: el pago de la tienda LEE el
 //     saldo antes de escribir, y sin `FOR UPDATE` esa lectura no espera a nadie.
-//   · R16 — pago de la tienda pausado ∥ pago de Ordenex a esa tienda: el pago a tienda espera (misma fila
+//   · R16 — pago de la tienda pausado ∥ pago de la empresa a esa tienda: el pago a tienda espera (misma fila
 //     `usuario`) y al entrar la tienda sigue en contra → `sin_saldo`.
 //   · R16 — pago de la tienda pausado ∥ pago de un gasto de la tienda: el pago de un gasto espera y al
 //     entrar se registra sobre el saldo ya subido: −10 000 + 8 000 − 5 000 = −7 000.

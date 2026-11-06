@@ -10,6 +10,7 @@ import { AporteCapitalRepository } from "@/lib/repositories/AporteCapitalReposit
 import { CierreDelDiaRepository } from "@/lib/repositories/CierreDelDiaRepository";
 import { CierreDiaRepository } from "@/lib/repositories/CierreDiaRepository";
 import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
+import { asentarCierreDia, dependenciasRealesDeAsiento } from "@/lib/repositories/asentar-cierre-dia";
 import { GastoFijoCobroRepository } from "@/lib/repositories/GastoFijoCobroRepository";
 import { LiquidacionPagoRepository } from "@/lib/repositories/LiquidacionPagoRepository";
 import { LiquidacionRepartoRepository } from "@/lib/repositories/LiquidacionRepartoRepository";
@@ -316,7 +317,7 @@ export function montarServicios459(tx: TxDeTest) {
       egresos: new EgresoCajaDocumentosRepository(c),
       indemnizaciones: new IndemnizacionDocumentosRepository(c),
       rechazos: new RechazoTiendaCobroAnulacionRepository(c),
-      // Ficha 458-C (revision B3, R71): el pago de Ordenex a una tienda y el premio del ranking.
+      // Ficha 458-C (revision B3, R71): el pago de la empresa a una tienda y el premio del ranking.
       pagosATienda: new PagoTiendaCajaDocumentosRepository(c),
       premios: new PremioCajaDocumentosRepository(c),
     }, undefined, busquedaPorGuiaDe(c)), // FICHA 469: como `buildService()`, con la busqueda por guia
@@ -341,7 +342,7 @@ export function montarServicios459(tx: TxDeTest) {
       ((fn: (t: never) => Promise<unknown>) =>
         c.$transaction((t) => fn(t as never))) as unknown as AporteCapitalTxRunner,
     ),
-    // Ficha 457 (T5.4) — el pago de una tienda a Ordenex, cableado como su `buildService()`: el puerto
+    // Ficha 457 (T5.4) — el pago de una tienda a la empresa, cableado como su `buildService()`: el puerto
     // de caja REAL, el MISMO candado (`LiquidacionPagoRepository`) y el repositorio del documento.
     abonoTienda: new AbonoTiendaService(
       new AbonoTiendaRepository(c),
@@ -592,6 +593,11 @@ export async function sembrarEscenario459(
     [{ gestionId: g4, numGuia: o4.numGuia }],
   );
   afirmarOk(pasos, "aprobarCierre", aprobacion);
+  // FICHA 498 (fixture): desde la 498 aprobar un cierre SATELITE no escribe dinero (R1); su dinero entra
+  // al CONCILIAR la consolidacion, por el MISMO procedimiento. Este escenario mide la caja y los saldos
+  // CON el dinero del cierre dentro: se asienta aqui, tras aprobar, con `asentarCierreDia` (las mismas
+  // filas, en el mismo orden, que la aprobacion escribia antes). Ninguna cifra del escenario cambia.
+  await asentarCierreDia(tx, cierreId, dependenciasRealesDeAsiento(clienteConSavepoint(tx)));
 
   // ── Cobro por devolución a origen de tienda (337), fuera de todo cierre ───────────────────────────────
   const o6 = await sembrarOrden({

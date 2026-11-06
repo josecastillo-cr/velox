@@ -133,21 +133,21 @@ const PAGO_TIENDA = fila("00000003-0000-4000-8000-000000000003", {
 
 const AUTORIA: Record<string, Omit<AutoriaDeFilaDTO, "movimientoId">> = {
   [SUELDO.id]: {
-    aQuien: { nombre: "Juan Pérez", beneficiario: null, cuenta: null, esOrdenex: false },
+    aQuien: { nombre: "Juan Pérez", beneficiario: null, cuenta: null, esEmpresa: false },
     registro: { nombre: "Ana Maestra", automatico: null },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
     anulacion: null,
   },
   [COBRO.id]: {
-    aQuien: { nombre: "Tania Tienda", beneficiario: null, cuenta: { tipo: "tienda", id: TIENDA_ID }, esOrdenex: false },
+    aQuien: { nombre: "Tania Tienda", beneficiario: null, cuenta: { tipo: "tienda", id: TIENDA_ID }, esEmpresa: false },
     registro: { nombre: "Ana Maestra", automatico: null },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
     anulacion: null,
   },
   [PAGO_TIENDA.id]: {
-    aQuien: { nombre: "Tania Tienda", beneficiario: null, cuenta: { tipo: "tienda", id: TIENDA_ID }, esOrdenex: false },
+    aQuien: { nombre: "Tania Tienda", beneficiario: null, cuenta: { tipo: "tienda", id: TIENDA_ID }, esEmpresa: false },
     registro: { nombre: "Ana Maestra", automatico: null },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
@@ -172,10 +172,14 @@ const RESUMEN = {
   ivaPorPagar: "0.00",
   signoIvaPorPagar: "cero" as const,
   porcentajeIva: "0.00",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos" as const,
   capital: "3000.00",
   signoCapital: "positivo" as const,
-  deOrdenex: "-17000.00",
+  deEmpresa: "-17000.00",
   signoDeTerceros: "positivo" as const,
   deTercerosAbsoluto: "10000.00",
   estado: "flujo" as const,

@@ -155,7 +155,7 @@ beforeEach(() => {
     status: "ok",
     filas: movimientoIds.map((id) => ({
       movimientoId: id,
-      aQuien: { nombre: "Ana Mora", beneficiario: null, cuenta: null, esOrdenex: false },
+      aQuien: { nombre: "Ana Mora", beneficiario: null, cuenta: null, esEmpresa: false },
       registro: { nombre: "Maestra", automatico: null },
     })),
   }));
@@ -389,7 +389,7 @@ describe("458-C revisión M1 — R58: quién anuló, cuándo, por qué y cómo, 
       filas: [
         {
           movimientoId: PAGO_TIENDA_ANULADO.id,
-          aQuien: { nombre: "Tienda Norte", beneficiario: null, cuenta: null, esOrdenex: false },
+          aQuien: { nombre: "Tienda Norte", beneficiario: null, cuenta: null, esEmpresa: false },
           registro: { nombre: "Maestra", automatico: null },
           como: { metodo: "SINPE", referencia: "SINPE-77" },
           anulacion: { motivo: "Se pagó a la cuenta equivocada", por: "Carla Ruiz", fecha: "2026-09-25" },
@@ -412,7 +412,7 @@ describe("458-C revisión M1 — R58: quién anuló, cuándo, por qué y cómo, 
       filas: [
         {
           movimientoId: PAGO_TIENDA_ANULADO.id,
-          aQuien: { nombre: "Tienda Norte", beneficiario: null, cuenta: null, esOrdenex: false },
+          aQuien: { nombre: "Tienda Norte", beneficiario: null, cuenta: null, esEmpresa: false },
           registro: { nombre: "Maestra", automatico: null },
           como: { metodo: "SINPE", referencia: "SINPE-77" },
           anulacion: { motivo: "Se pagó a la cuenta equivocada", por: "Carla Ruiz", fecha: "2026-09-25", hora: "20:14" },
@@ -441,7 +441,7 @@ describe("458-C revisión M1 — R58: quién anuló, cuándo, por qué y cómo, 
       filas: [
         {
           movimientoId: m.id,
-          aQuien: { nombre: "Ana Mora", beneficiario: null, cuenta: null, esOrdenex: false },
+          aQuien: { nombre: "Ana Mora", beneficiario: null, cuenta: null, esEmpresa: false },
           registro: { nombre: "Maestra", automatico: null },
           como: { metodo: null, referencia: "SINPE 8899" },
           anulacion: null,
@@ -456,7 +456,7 @@ describe("458-C revisión M1 — R58: quién anuló, cuándo, por qué y cómo, 
       filas: [
         {
           movimientoId: DEL_CIERRE.id,
-          aQuien: { nombre: "Juan", beneficiario: null, cuenta: null, esOrdenex: false },
+          aQuien: { nombre: "Juan", beneficiario: null, cuenta: null, esEmpresa: false },
           registro: { nombre: null, automatico: { accion: "aprobacion_cierre", por: null } },
           como: null,
           anulacion: null,
@@ -477,7 +477,7 @@ describe("458-C revisión M1 — R58: quién anuló, cuándo, por qué y cómo, 
       filas: [
         {
           movimientoId: m.id,
-          aQuien: { nombre: "Tienda Norte", beneficiario: null, cuenta: null, esOrdenex: false },
+          aQuien: { nombre: "Tienda Norte", beneficiario: null, cuenta: null, esEmpresa: false },
           registro: { nombre: "Maestra", automatico: null },
           como: { metodo: "efectivo", referencia: null },
           anulacion: { motivo: "x", por: "y", fecha: "2026-09-25" },

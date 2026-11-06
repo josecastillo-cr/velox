@@ -9,10 +9,7 @@ import { Pagination } from "@/components/shared/Pagination";
 import { SegmentedToggle } from "@/components/shared/SegmentedToggle";
 import { filasDesdeResultado } from "@/components/shared/descarga-resultado";
 import { ConciliacionAcciones } from "@/components/shared/conciliacion/ConciliacionAcciones";
-import {
-  DESMARCAR_NO_MUEVE_DINERO_NOTA,
-  DESMARCAR_NO_MUEVE_DINERO_TITULO,
-} from "@/components/shared/conciliacion/conciliacion-labels";
+import { NOTA_CONCILIACION_ASIENTA } from "@/components/shared/conciliacion/conciliacion-labels";
 import {
   listarConsolidacionesSateliteAction,
 } from "@/lib/actions/conciliacion-satelites";
@@ -24,6 +21,7 @@ import {
   filaDescargaConsolidacionSatelite,
 } from "./consolidaciones-satelite-descarga-columnas";
 import {
+  CONSOLIDACION_BLOQUES,
   DESGLOSE_SATELITE,
   DESGLOSE_SATELITE_COLUMNAS,
   DESGLOSE_SATELITE_ERROR,
@@ -32,6 +30,8 @@ import {
   DESGLOSE_SATELITE_VACIO,
   ESTADO_CONCILIACION_LABEL,
   ESTADO_CONCILIACION_VARIANT,
+  FALTA_POR_RECIBIR_LABEL,
+  MONTO_RECIBIDO_LABEL,
   SIN_DATO,
   diaCR,
   estadoConciliacionDe,
@@ -48,8 +48,15 @@ import { descargarDatos } from "@/components/shared/descarga-datos";
 // (`/wallet/satelites/[zonaId]`), y esta tabla de consolidaciones con sus acciones de conciliación
 // (marcar y desmarcar lo recibido) se muda a esa página, DEBAJO del extracto, con el MISMO efecto y
 // los MISMOS textos (`ConciliacionAcciones`, `MarcarRecibidoDialog`, sin tocar). Lo único que cambia:
-// el «Pendiente de llegar» llega del estado de cuenta (el mismo `saldoDe` que el listado, R22) y,
+// el «Pendiente de llegar» llega del estado de cuenta (la misma deuda que el listado, R22) y,
 // tras marcar o desmarcar, se relee también el estado de cuenta de ESTA bodega (R30).
+//
+// ── FICHA 498 (T7.2, design §9, R41/R41a) — LOS TRES BLOQUES DE CADA CONSOLIDACIÓN
+// La columna «Declarado» (el efectivo) se sustituye por tres bloques, todos con importes del DTO
+// pintados tal cual: (1) lo recaudado por método y su total; (2) lo que es de la satélite —el pago
+// a sus mensajeros y su ganancia por rechazos—; (3) lo que debe (el aporte reconocido), lo recibido
+// y lo que falta. Una consolidación saldada con la regla anterior lleva su rótulo (R41a). La nota
+// del pie es la de R43: marcar asienta el dinero en la caja y ya no se desmarca.
 //
 // ── MONEY-SAFE (R20): CERO `Number(`, CERO `parseFloat`, CERO restas.
 // Los cinco importes de cada fila y el «Pendiente de llegar» de la cabecera llegan como STRING ya
@@ -123,6 +130,26 @@ async function leerDesglose(
   return { items: res.items, total: res.total };
 }
 
+/** FICHA 498 (R41) — un bloque de importes rotulados: una lista de definición, tal cual del DTO. */
+function BloqueImportes({
+  nombre,
+  filas,
+}: {
+  nombre: string;
+  filas: readonly { rotulo: string; valor: string; clave: string; className?: string }[];
+}) {
+  return (
+    <dl aria-label={nombre} className="grid grid-cols-[auto_auto] gap-x-3 gap-y-0.5 text-xs">
+      {filas.map((f) => (
+        <div key={f.clave} data-dato={f.clave} className="contents">
+          <dt className="text-muted-foreground">{f.rotulo}</dt>
+          <dd className={`text-right tabular-nums ${f.className ?? "text-foreground"}`}>{f.valor}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /** Quién marcó y cuándo, en una línea. Sin marca no hay nada que decir. */
 function conciliadoPorTexto(c: ConsolidacionSateliteDTO): string {
   if (c.conciliadoPorNombre === null || c.conciliadoAt === null) return SIN_DATO;
@@ -192,28 +219,89 @@ export function ConciliacionSatelite({
       render: (c) => diaCR(c.solicitadoAt),
     },
     {
-      id: "declarado",
-      // «Declarado» es el EFECTIVO: lo que viaja en el bulto (decisión Q2). El general vive en la
-      // línea de composición de abajo, como contexto.
-      value: DESGLOSE_SATELITE_COLUMNAS.declarado,
-      render: (c) => <span className="tabular-nums">{money(c.totales.efectivo)}</span>,
+      id: "recaudado",
+      // FICHA 498 (R41) — bloque 1: lo recaudado por método y su total.
+      value: DESGLOSE_SATELITE_COLUMNAS.recaudado,
+      render: (c) => (
+        <BloqueImportes
+          nombre={`${DESGLOSE_SATELITE_COLUMNAS.recaudado} del ${diaCR(c.solicitadoAt)}`}
+          filas={[
+            { clave: "efectivo", rotulo: CONSOLIDACION_BLOQUES.recaudado.efectivo, valor: money(c.totales.efectivo) },
+            { clave: "simpe", rotulo: CONSOLIDACION_BLOQUES.recaudado.simpe, valor: money(c.totales.simpe) },
+            {
+              clave: "transferencia",
+              rotulo: CONSOLIDACION_BLOQUES.recaudado.transferencia,
+              valor: money(c.totales.transferencia),
+            },
+            {
+              clave: "total",
+              rotulo: CONSOLIDACION_BLOQUES.recaudado.total,
+              valor: money(c.totales.general),
+              className: "font-medium text-foreground",
+            },
+          ]}
+        />
+      ),
     },
     {
-      id: "recibido",
-      value: DESGLOSE_SATELITE_COLUMNAS.recibido,
-      // Sin marcar se pinta «—» y NO «₡0,00»: «nadie lo ha mirado» no es «llegaron cero colones».
-      render: (c) =>
-        c.montoRecibido === null ? (
-          <span className="text-muted-foreground">{SIN_DATO}</span>
-        ) : (
-          <span
-            className={`tabular-nums font-medium ${
-              estadoConciliacionDe(c) === "incompleto" ? "text-warning-strong" : ""
-            }`}
-          >
-            {money(c.montoRecibido)}
-          </span>
-        ),
+      id: "deLaSatelite",
+      // FICHA 498 (R41) — bloque 2: lo que pertenece a la satélite y no viaja a la central.
+      value: DESGLOSE_SATELITE_COLUMNAS.deLaSatelite,
+      render: (c) => (
+        <BloqueImportes
+          nombre={`${DESGLOSE_SATELITE_COLUMNAS.deLaSatelite} del ${diaCR(c.solicitadoAt)}`}
+          filas={[
+            {
+              clave: "pagoMensajeros",
+              rotulo: CONSOLIDACION_BLOQUES.deLaSatelite.pagoMensajeros,
+              valor: money(c.totalPagoMensajero),
+            },
+            {
+              clave: "rechazos",
+              rotulo: CONSOLIDACION_BLOQUES.deLaSatelite.rechazos,
+              valor: money(c.totalIngresoBodegaRechazos),
+            },
+          ]}
+        />
+      ),
+    },
+    {
+      id: "cuenta",
+      // FICHA 498 (R41/R41a) — bloque 3: lo que debe (aporte reconocido), lo recibido y lo que falta.
+      // Sin marcar, «Recibido» se pinta «—» y NO «₡0»: «nadie lo ha mirado» no es «llegaron cero».
+      value: DESGLOSE_SATELITE_COLUMNAS.cuenta,
+      render: (c) => (
+        <div className="flex flex-col gap-1">
+          {c.saldadaReglaAnterior ? (
+            <Badge variant="secondary" data-rotulo="saldada-regla-anterior" className="w-fit">
+              {CONSOLIDACION_BLOQUES.saldadaReglaAnterior}
+            </Badge>
+          ) : null}
+          <BloqueImportes
+            nombre={`${DESGLOSE_SATELITE_COLUMNAS.cuenta} del ${diaCR(c.solicitadoAt)}`}
+            filas={[
+              {
+                clave: "debe",
+                rotulo: CONSOLIDACION_BLOQUES.cuenta.debe,
+                valor: money(c.debe),
+                className: "font-medium text-foreground",
+              },
+              {
+                clave: "recibido",
+                rotulo: MONTO_RECIBIDO_LABEL,
+                valor: c.montoRecibido === null ? SIN_DATO : money(c.montoRecibido),
+                className:
+                  c.montoRecibido === null
+                    ? "text-muted-foreground"
+                    : estadoConciliacionDe(c) === "incompleto"
+                      ? "font-medium text-warning-strong"
+                      : "font-medium text-foreground",
+              },
+              { clave: "falta", rotulo: FALTA_POR_RECIBIR_LABEL, valor: money(c.faltaPorRecibir) },
+            ]}
+          />
+        </div>
+      ),
     },
     {
       id: "estado",
@@ -247,10 +335,14 @@ export function ConciliacionSatelite({
           cierreBodegaId={c.cierreBodegaId}
           bodega={zonaNombre}
           fecha={diaCR(c.solicitadoAt)}
-          declarado={c.totales.efectivo}
+          recaudado={c.totales}
+          debe={{ monto: c.debe, positivo: c.debePositivo }}
           marca={c}
           nota={c.nota}
           puedeConciliar={puedeConciliar}
+          // FICHA 500 (R3): «Desmarcar» solo si el SERVIDOR dice que se puede (sin dinero y no
+          // saldada con la regla anterior). Sin esta línea no saldría nunca: el default es `false`.
+          puedeDesmarcar={c.puedeDesmarcar}
           onCambio={refrescar}
         />
       ),
@@ -290,7 +382,7 @@ export function ConciliacionSatelite({
             <span className="text-[13px] leading-relaxed">
               {incompletas.length === 1
                 ? DESGLOSE_SATELITE.diferenciaDetalle(
-                    money(incompletas[0].totales.efectivo),
+                    money(incompletas[0].debe),
                     money(incompletas[0].montoRecibido),
                     money(incompletas[0].faltaPorRecibir),
                   )
@@ -353,12 +445,9 @@ export function ConciliacionSatelite({
         ariaLabel={DESGLOSE_SATELITE_NOMBRE.paginacion(zonaNombre)}
       />
 
-      {/* D6 — la nota que impide que «Desmarcar» se lea como devolver plata. Al pie y visible. */}
+      {/* FICHA 498 (R43) — la nota literal de la conciliación. Al pie y visible. */}
       <p role="note" className="text-xs leading-relaxed text-muted-foreground">
-        <strong className="font-semibold text-foreground">
-          {DESMARCAR_NO_MUEVE_DINERO_TITULO}
-        </strong>{" "}
-        {DESMARCAR_NO_MUEVE_DINERO_NOTA}
+        {NOTA_CONCILIACION_ASIENTA}
       </p>
     </section>
   );

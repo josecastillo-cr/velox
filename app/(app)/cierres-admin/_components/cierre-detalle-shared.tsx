@@ -12,10 +12,10 @@ import type {
   CierreDetalleGestion,
   CierreResultado,
   CierreTotales,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreEstado } from "@/lib/types/cierre";
-import type { OrigenFlete } from "@/lib/utils/ingreso-ordenex";
+import type { OrigenFlete } from "@/lib/utils/ingreso-empresa";
 // Feature 158 (T2.3): las etiquetas visibles de la causa del incidente viven donde nacieron
 // (junto al panel que las captura), no se duplican aquí. Importar un módulo de etiquetas de
 // otra ruta tiene precedente EXACTO en este repo: `GestionarOrdenPanel` (mis-asignaciones)
@@ -46,9 +46,9 @@ import {
   CASCADA_CENTRAL_TITULO,
   PARA_LA_TIENDA_LABEL,
   PARA_LA_CENTRAL_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   COBRADO_SOBRE_RECAUDADO_LABEL,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
   PARA_LA_CENTRAL_NOTA,
   PARA_LA_CENTRAL_NEGATIVO_NOTA,
@@ -63,13 +63,13 @@ import {
   GANA_LA_TIENDA_NEGATIVO_NOTA,
   PAGO_TIENDA_HOY_NOTA,
   COBRADO_SOBRE_RECAUDADO_NOTA,
-  NETO_ORDENEX_NOTA,
-  NETO_ORDENEX_NEGATIVO_NOTA,
+  NETO_EMPRESA_NOTA,
+  NETO_EMPRESA_NEGATIVO_NOTA,
   FLETE_RECHAZO_YA_COBRADO_NOTA,
   FLETE_RECHAZO_AUN_NO_COBRADO_NOTA,
   FLETE_RECHAZO_NO_SE_COBRARA_NOTA,
   CASCADA_FACTURA_TIENDA_TITULO,
-  CASCADA_NETO_ORDENEX_TITULO,
+  CASCADA_NETO_EMPRESA_TITULO,
   // FICHA 408 — el traductor del motivo de un rechazo automatico. Vive en el modulo PURO
   // porque lo leen tambien las tres descargas, que no pueden arrastrar `Card`/`Badge`.
   MOTIVO_RECHAZO_AUTOMATICO_COLA,
@@ -127,9 +127,9 @@ export {
   CASCADA_CENTRAL_TITULO,
   PARA_LA_TIENDA_LABEL,
   PARA_LA_CENTRAL_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   COBRADO_SOBRE_RECAUDADO_LABEL,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
   PARA_LA_CENTRAL_NOTA,
   PARA_LA_CENTRAL_NEGATIVO_NOTA,
@@ -142,13 +142,13 @@ export {
   GANA_LA_TIENDA_NEGATIVO_NOTA,
   PAGO_TIENDA_HOY_NOTA,
   COBRADO_SOBRE_RECAUDADO_NOTA,
-  NETO_ORDENEX_NOTA,
-  NETO_ORDENEX_NEGATIVO_NOTA,
+  NETO_EMPRESA_NOTA,
+  NETO_EMPRESA_NEGATIVO_NOTA,
   FLETE_RECHAZO_YA_COBRADO_NOTA,
   FLETE_RECHAZO_AUN_NO_COBRADO_NOTA,
   FLETE_RECHAZO_NO_SE_COBRARA_NOTA,
   CASCADA_FACTURA_TIENDA_TITULO,
-  CASCADA_NETO_ORDENEX_TITULO,
+  CASCADA_NETO_EMPRESA_TITULO,
   // FICHA 408 — por el mismo camino y por el mismo motivo: el traductor del motivo vive en el
   // modulo PURO (lo necesitan las tres descargas) y las pantallas lo piden por esta puerta,
   // que es donde ya piden el resto. `cierre-factura` es quien lo lee de aqui.
@@ -328,7 +328,7 @@ export const TOTAL_GENERAL_LABEL = "Total general";
 export const CENTRAL_DEBE_LABEL = "Central debe";
 export const CENTRAL_DEBE_NOTA =
   "El efectivo no alcanzó para pagarle a todos los mensajeros (el pago no puede ser parcial).";
-// --- Desglose del ingreso de Ordenex por orden (texto separado, i18n-ready) ---
+// --- Desglose del ingreso de la empresa por orden (texto separado, i18n-ready) ---
 export const MONTO_COBRAR_LABEL = "Monto a cobrar";
 export const INGRESO_TOTAL_LABEL = `Total ${MARCA.nombreCorto}`;
 export const INGRESO_PANEL_LABEL = `Ingreso de ${MARCA.nombreCorto}`;
@@ -340,7 +340,7 @@ export const INGRESO_BRUTO_NOTA =
 export const GANANCIA_LABEL = "Ganancia";
 // Cuando la ganancia es NEGATIVA no es ganancia sino una deuda: se rotula "Debe".
 export const GANANCIA_DEBE_LABEL = "Debe";
-// --- Pago a la tienda: lo recibido menos lo que Ordenex le factura (texto separado, i18n-ready) ---
+// --- Pago a la tienda: lo recibido menos lo que la empresa le factura (texto separado, i18n-ready) ---
 export const PAGO_TIENDA_LABEL = "Pago a tienda";
 /**
  * ⏳ FICHA 338 (2026-08-31) — ESTA NOTA ENSEÑABA MAL, y era la frase que había que arreglar
@@ -348,7 +348,7 @@ export const PAGO_TIENDA_LABEL = "Pago a tienda";
  * COD», y eso deja entender que una devolución cobra ALGO. No cobra nada: desde la ficha 301
  * `derivarIngresoOrden` sólo deriva conceptos con `resultado === "rechazada"`.
  *
- * El motivo REAL de que no se descuente está en `pagoTiendaOrdenex`: un rechazo no recauda COD,
+ * El motivo REAL de que no se descuente está en `pagoTiendaEmpresa`: un rechazo no recauda COD,
  * así que ese dinero nunca entró en el total general y no hay nada de donde restarlo.
  */
 export const PAGO_TIENDA_NOTA =
@@ -395,7 +395,7 @@ export const COBRO_CERO = "0.00";
 export const COBROS_NOTA = `Lo que se le cobró a la tienda por esta gestión, con la tarifa congelada al solicitar el cierre. Un ${money(
   COBRO_CERO,
 )} es un concepto que no se cobró.`;
-/** El cierre SUMABLE del panel: sale del DTO (`ingresoOrdenex.total`), no se suma acá. */
+/** El cierre SUMABLE del panel: sale del DTO (`ingresoEmpresa.total`), no se suma acá. */
 export const COBROS_TOTAL_LABEL = "Total cobrado";
 export const SIN_COMISION_NOTA = "Esta orden no cobra comisión COD.";
 // --- Tarifa especial por distrito (texto separado, i18n-ready) ---
@@ -432,7 +432,7 @@ export const TARIFA_ESPECIAL_DEV_LABEL = "Tarifa especial devuelta";
 // llamaba «flete de devolución» / «flete devuelto» en pantallas, wallet, Excel y API, y ese
 // nombre decía JUSTO EL CASO QUE NO COBRA: desde la ficha 301 una `devuelta` no deriva nada
 // —el paquete sigue vivo en la calle— y sólo una `rechazada` cobra este flete
-// (`lib/utils/ingreso-ordenex.ts`). No había plata mal cobrada: había vocabulario que asusta,
+// (`lib/utils/ingreso-empresa.ts`). No había plata mal cobrada: había vocabulario que asusta,
 // y de hecho asustó —el humano abrió la ficha tras leer «Flete devuelto» en este panel—.
 //
 // Salen a constantes porque los pintan LOS DOS paneles del desglose (el de la izquierda con su
@@ -900,8 +900,8 @@ function pct(value: string): string {
  * Todos los montos llegan como STRING desde el server (money-safe): acá no se hace ninguna
  * aritmética de dinero, solo se muestran y se etiquetan.
  */
-export function DesgloseIngresoOrdenex({ g }: { g: CierreDetalleGestion }) {
-  const ing = g.ingresoOrdenex;
+export function DesgloseIngresoEmpresa({ g }: { g: CierreDetalleGestion }) {
+  const ing = g.ingresoEmpresa;
   if (!ing) return null;
 
   // Gap conocido (feature 69/R9): la tienda no tenía tarifa vigente al solicitar el cierre,
@@ -1070,7 +1070,7 @@ export function DesgloseIngresoOrdenex({ g }: { g: CierreDetalleGestion }) {
           columna se puede sumar de arriba abajo y termina en su total. Ni una operación de
           dinero se hace aquí: los importes son los STRING que derivó el servidor y el total es
           `ing.total` del DTO —la suma de los conceptos presentes, hecha con `Prisma.Decimal` en
-          `CierresAdminRepository.toIngresoOrdenex`—.
+          `CierresAdminRepository.toIngresoEmpresa`—.
 
           Las tres filas de flete de entrega —normal, GAM y pacto— son TRES COBROS POSIBLES de
           los que como mucho ocurre uno, y por eso se pueden listar las tres y sumarlas sin
@@ -1137,14 +1137,14 @@ export const COLUMNA_CAUSA_INCIDENTE: Column<CierreDetalleGestion> = {
 
 /**
  * Totales por concepto del cierre completo, sumados desde el MISMO desglose por orden que
- * muestran las tablas. Llegan ya derivados del server (`totalesIngresoOrdenex`): acá no se
+ * muestran las tablas. Llegan ya derivados del server (`totalesIngresoEmpresa`): acá no se
  * suma dinero, solo se muestra (money-safe).
  */
 export function TotalesIngresoPanel({
   totales,
   ariaLabel = INGRESO_PANEL_LABEL,
 }: Readonly<{
-  totales: TotalesIngresoOrdenex;
+  totales: TotalesIngresoEmpresa;
   ariaLabel?: string;
 }>) {
   return (

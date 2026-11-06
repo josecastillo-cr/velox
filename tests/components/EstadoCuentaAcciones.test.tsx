@@ -10,9 +10,9 @@ import { estado } from "@/tests/fixtures/estado-cuenta";
 // =================================================================================================
 // FICHA 458-D (T D.2; R26–R28, R40) — LAS ACCIONES DEL ESTADO DE CUENTA DE UNA TIENDA.
 //
-//  - R26: «La tienda le paga a Ordenex» SOLO con saldo en contra.
-//  - R27: «Ordenex le cobra a la tienda» siempre.
-//  - R28: «Ordenex le paga a la tienda» deshabilitado CON el motivo en texto visible sin saldo a favor;
+//  - R26: «La tienda le paga a la empresa» SOLO con saldo en contra.
+//  - R27: «la empresa le cobra a la tienda» siempre.
+//  - R28: «la empresa le paga a la tienda» deshabilitado CON el motivo en texto visible sin saldo a favor;
 //    con saldo a favor, abre el registro.
 //  - R40: cada acción abre el diálogo ÚNICO de la 458-C con el concepto y la tienda YA elegidos (y fijos),
 //    sin pedir el catálogo de tiendas.
@@ -36,7 +36,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 const PAGA = `La tienda le paga a ${NOMBRE_ESPERADO}`;
 const COBRA = `${NOMBRE_ESPERADO} le cobra a la tienda`;
-const ORDENEX_PAGA = `${NOMBRE_ESPERADO} le paga a la tienda`;
+const EMPRESA_PAGA = `${NOMBRE_ESPERADO} le paga a la tienda`;
 const SIN_SALDO = `${NOMBRE_ESPERADO} no le debe nada a Tania Tienda: sin saldo a favor no hay nada que pagarle.`;
 
 function montar(e: EstadoCuentaDTO) {
@@ -52,7 +52,7 @@ function montar(e: EstadoCuentaDTO) {
 }
 
 const EN_CONTRA = estado({ saldoActual: "-2500.00", signo: "negativo", sentido: "cuenta_debe" });
-const A_FAVOR = estado({ saldoActual: "1000.00", signo: "positivo", sentido: "ordenex_debe" });
+const A_FAVOR = estado({ saldoActual: "1000.00", signo: "positivo", sentido: "empresa_debe" });
 const EN_CERO = estado({ saldoActual: "0.00", signo: "cero", sentido: "en_cero" });
 
 beforeEach(() => vi.clearAllMocks());
@@ -91,7 +91,7 @@ describe(`R28 — «${NOMBRE_ESPERADO} le paga a la tienda»: sin saldo a favor,
     ["en cero", EN_CERO],
   ])("%s: deshabilitado, con el motivo en texto visible que lo describe", (_caso, e) => {
     montar(e);
-    const boton = screen.getByRole("button", { name: ORDENEX_PAGA });
+    const boton = screen.getByRole("button", { name: EMPRESA_PAGA });
     expect(boton).toBeDisabled();
     expect(screen.getByText(SIN_SALDO)).toBeVisible();
     expect(boton).toHaveAccessibleDescription(SIN_SALDO);
@@ -99,7 +99,7 @@ describe(`R28 — «${NOMBRE_ESPERADO} le paga a la tienda»: sin saldo a favor,
 
   it("a favor: habilitado y sin el aviso", () => {
     montar(A_FAVOR);
-    expect(screen.getByRole("button", { name: ORDENEX_PAGA })).toBeEnabled();
+    expect(screen.getByRole("button", { name: EMPRESA_PAGA })).toBeEnabled();
     expect(screen.queryByText(SIN_SALDO)).toBeNull();
   });
 });
@@ -108,7 +108,7 @@ describe("R40 — cada acción abre el diálogo único con concepto y tienda YA 
   it.each([
     [PAGA, `Una tienda le paga a ${NOMBRE_ESPERADO}`, /^Tienda que paga/, EN_CONTRA],
     [COBRA, `${NOMBRE_ESPERADO} le cobra a una tienda`, /^Tienda a la que se le cobra/, A_FAVOR],
-    [ORDENEX_PAGA, `${NOMBRE_ESPERADO} le paga a una tienda`, /^Tienda a la que se le paga/, A_FAVOR],
+    [EMPRESA_PAGA, `${NOMBRE_ESPERADO} le paga a una tienda`, /^Tienda a la que se le paga/, A_FAVOR],
   ])("«%s» → concepto «%s» elegido y fijo; la tienda, fija por su nombre", async (boton, concepto, campo, e) => {
     montar(e);
     fireEvent.click(screen.getByRole("button", { name: boton }));

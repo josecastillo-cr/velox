@@ -123,7 +123,7 @@ export async function listarCobrosRechazoTiendaAction(
 }
 
 /**
- * ⚠️ APRUEBA un cobro: escribe los DOS ingresos en la caja de Ordenex y sus DOS debitos espejo en
+ * ⚠️ APRUEBA un cobro: escribe los DOS ingresos en la caja de la empresa y sus DOS debitos espejo en
  * el libro de la tienda, con la clave y los importes que el cobro congelo, y deja el cobro
  * `aprobado` con quien y cuando. Todo en UNA transaccion.
  *

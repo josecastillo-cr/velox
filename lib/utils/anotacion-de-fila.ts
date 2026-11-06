@@ -6,7 +6,7 @@ import type { WalletMovimientoCategoria } from "@/lib/types/wallet";
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 // El nombre libre (`wallet_anotacion.contraparte_nombre`) se escribe en la fila ORIGINAL de un sueldo,
-// un gasto de Ordenex o una correccion. Su contra-asiento NO lleva anotacion propia:
+// un gasto de la empresa o una correccion. Su contra-asiento NO lleva anotacion propia:
 //   · el de un egreso (`EgresoCajaAnulacionService`, y el reverso viejo de `WalletEgresoService`):
 //     `ingreso_ajuste`, origen `gasto`, `origen_id` = id del egreso;
 //   · el de una correccion (`AjusteCajaService.anular`): la correccion opuesta (`ingreso_ajuste` /

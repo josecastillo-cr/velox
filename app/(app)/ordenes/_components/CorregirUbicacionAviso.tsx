@@ -30,7 +30,7 @@ import type {
 // (tienda, zona) no tiene tarifa configurada, `costosListadoOrden` devuelve `"0.00"` — y `"0.00"`
 // NO significa «gratis», significa «nadie configuro esa tarifa». Un `if (importe === "0.00")` aqui
 // pintaria un precio de cero donde tiene que decir «sin tarifa configurada», y nadie lo notaria
-// hasta que alguien se preguntara por que Ordenex no factura esa zona.
+// hasta que alguien se preguntara por que la empresa no factura esa zona.
 //
 // ⚠️ **NI UN `console`** (R26): este panel recibe la ubicacion y los importes de una orden real.
 // Lo vigila `tests/unit/guards/corregir-datos-sin-rastro.guardia.test.ts`, que censa este archivo.

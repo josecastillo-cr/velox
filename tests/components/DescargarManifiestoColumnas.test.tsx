@@ -227,7 +227,7 @@ describe("DescargarManifiestoButton + preferencia de columnas (feature 194)", ()
     await screen.findByText("Columnas del manifiesto");
     await user.click(casilla(OCULTA.header));
 
-    // R14: queda escrito en `ordenex:manifiesto-columnas:<flujo>` y en ninguna otra clave.
+    // R14: queda escrito en `app:manifiesto-columnas:<flujo>` y en ninguna otra clave.
     await waitFor(() => {
       const crudo = window.localStorage.getItem(claveColumnas("carga_masiva"));
       expect(crudo).not.toBeNull();

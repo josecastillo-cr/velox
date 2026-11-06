@@ -89,11 +89,15 @@ const RESUMEN: CajaResumenDTO = {
   ivaPorPagar: "0.00",
   signoIvaPorPagar: "cero",
   porcentajeIva: "0.00",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos",
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "2949.25", // ficha 488: antes "3519.00"
+  deEmpresa: "2949.25", // ficha 488: antes "3519.00"
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "12290.25",
   estado: "flujo",
@@ -356,7 +360,7 @@ describe("Ficha 339 — el nombre de cada control y sus estados (R24/R25/R26)", 
 
     const controles = screen.getAllByRole("button", { name: /^Ver los movimientos de / });
     // Las dieciséis filas del catálogo: 8 de ingreso + 7 de egreso + «Otros», que aquí se pinta.
-    // (Ficha 461, R27: + «Ordenex le cobra a una tienda» y + «Cobros a una tienda anulados».)
+    // (Ficha 461, R27: + «la empresa le cobra a una tienda» y + «Cobros a una tienda anulados».)
     // (Ficha 458-B: + las dos filas de la anulacion de un cobro por devolución a origen: 18.)
     // (Ficha 488, R19: − las tres filas de IVA de ingreso y − la anulación del IVA del flete por
     // devolución a origen: 18 → 14.)

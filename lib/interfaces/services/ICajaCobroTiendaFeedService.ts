@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 
 /**
- * FICHA 461 (design §5.2) — el PUERTO de la caja del cobro de Ordenex a una tienda. Molde exacto de
+ * FICHA 461 (design §5.2) — el PUERTO de la caja del cobro de la empresa a una tienda. Molde exacto de
  * `ICajaPagoPorCuentaFeedService`: el servicio que lo recibe no puede EXPRESAR una escritura en la
  * caja que no sea el CARGO del cobro o su REVERSO. El tipo, la categoria y el origen los fija la
  * implementacion, no quien la llama.

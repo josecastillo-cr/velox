@@ -38,6 +38,21 @@ import { quitarComentarios } from "@/tests/fixtures/sin-comentarios";
 const REPO_ROOT = path.join(__dirname, "..", "..", "..");
 const REPO_FILE = path.join(REPO_ROOT, "lib", "repositories", "CierresAdminRepository.ts");
 const repoSrc = fs.readFileSync(REPO_FILE, "utf8");
+// FICHA 498 (T3.4, design §11): los cinco escritores de dinero se MOVIERON a `asentarCierreDia`,
+// que la aprobacion llama SOLO en la rama `bodega_central`. Sus escrituras se buscan ahi (`deps.…`).
+const ASIENTO_FILE = path.join(REPO_ROOT, "lib", "repositories", "asentar-cierre-dia.ts");
+const asientoSrc = fs.readFileSync(ASIENTO_FILE, "utf8");
+
+/**
+ * FICHA 498 (T3.4) — ¿la aprobacion llama a `asentarCierreDia` DENTRO de la rama `bodega_central`
+ * del `switch` por destino, y NO en la de `bodega_satelite`? Se mira el codigo sin comentarios, entre
+ * cada `case` y el siguiente `case`/`default`.
+ */
+function ramaDelDestino(src: string, destino: "bodega_central" | "bodega_satelite"): string | null {
+  const codigo = quitarComentarios(src);
+  const m = new RegExp(`case "${destino}":([\\s\\S]*?)(?=case "|default:)`).exec(codigo);
+  return m === null ? null : m[1];
+}
 
 /**
  * Las suites que EJECUTAN la transaccion de aprobacion. Si una suite nueva la ejecuta, entra
@@ -218,17 +233,19 @@ const ESCRITURAS_SQL_DE_LA_APROBACION = [
 ] as const;
 
 /** Escrituras de la transaccion que salen por un REPOSITORIO inyectado, no por `tx.` directo. */
+// FICHA 498 (T3.4): las tres entradas se buscan ahora en `lib/repositories/asentar-cierre-dia.ts`
+// (`deps.…`), con sus mismas suites; mas la del asiento compartido.
 const ESCRITURAS_POR_REPO_INYECTADO = [
   {
-    escritura: "this.walletMovimientoRepo.crearMovimientos",
+    escritura: "deps.walletMovimientoRepo.crearMovimientos",
     cubiertaPor: ["tests/integration/db/wallet-idempotencia.test.ts"],
   },
   {
-    escritura: "this.walletTiendaMovimientoRepo.crearMovimientos",
+    escritura: "deps.walletTiendaMovimientoRepo.crearMovimientos",
     cubiertaPor: ["tests/unit/repositories/cierres-admin-repository.test.ts"],
   },
   {
-    escritura: "this.pagoMensajeroMovimientoRepo.crearMovimientos",
+    escritura: "deps.pagoMensajeroMovimientoRepo.crearMovimientos",
     cubiertaPor: ["tests/unit/repositories/cierres-admin-repository.test.ts"],
   },
 ] as const;
@@ -323,10 +340,34 @@ describe("239/R33 — el inventario de escrituras de la aprobacion esta CERRADO"
     );
   });
 
-  it("las escrituras por repositorio inyectado siguen invocandose en la transaccion", () => {
+  it("las escrituras por repositorio inyectado siguen invocandose en la transaccion (498: desde el asiento)", () => {
     for (const e of ESCRITURAS_POR_REPO_INYECTADO) {
-      expect(repoSrc, `${e.escritura} ya no aparece en el repositorio`).toContain(e.escritura);
+      expect(asientoSrc, `${e.escritura} ya no aparece en asentar-cierre-dia.ts`).toContain(e.escritura);
     }
+  });
+
+  it("⭑ 498/T3.4: la aprobacion llama a `asentarCierreDia` en la rama `bodega_central` y NO en la satelite", () => {
+    const central = ramaDelDestino(repoSrc, "bodega_central");
+    const satelite = ramaDelDestino(repoSrc, "bodega_satelite");
+    expect(central, "no hay rama `bodega_central` en el switch por destino").not.toBeNull();
+    expect(satelite, "no hay rama `bodega_satelite` en el switch por destino").not.toBeNull();
+    expect(central).toMatch(/asentarCierreDia\(\s*tx\s*,\s*cierreId\s*,\s*this\.depsAsiento\s*\)/);
+    expect(satelite).not.toMatch(/asentarCierreDia/);
+  });
+
+  it("⭑ 498/T3.4 AUTOCOMPROBACION: la guardia se pone roja si se borra la llamada de la rama central", () => {
+    const sinLlamada = repoSrc.replace(
+      /await asentarCierreDia\(tx, cierreId, this\.depsAsiento\);/,
+      "/* borrada */",
+    );
+    expect(sinLlamada).not.toBe(repoSrc); // la mutacion se aplico de verdad
+    expect(ramaDelDestino(sinLlamada, "bodega_central")).not.toMatch(/asentarCierreDia\(/);
+    // Y llamarla tambien en la satelite (mutacion 1) se veria:
+    const enSatelite = repoSrc.replace(
+      /case "bodega_satelite":/,
+      'case "bodega_satelite": await asentarCierreDia(tx, cierreId, this.depsAsiento);',
+    );
+    expect(ramaDelDestino(enSatelite, "bodega_satelite")).toMatch(/asentarCierreDia/);
   });
 
   it("la escritura de `gestion_aprobada` ya no existe (feature 239/T2.3)", () => {

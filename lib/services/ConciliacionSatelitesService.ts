@@ -1,6 +1,9 @@
 import { esAccesoTotal } from "@/lib/auth/acceso-total";
 import { descargaConfig } from "@/lib/config/descarga";
-import type { ICierresBodegaAdminRepository } from "@/lib/interfaces/repositories/ICierresBodegaAdminRepository";
+import type {
+  ICierresBodegaAdminRepository,
+  MarcaConciliacionResult,
+} from "@/lib/interfaces/repositories/ICierresBodegaAdminRepository";
 import type { ISaldosSatelitesRepository } from "@/lib/interfaces/repositories/ISaldosSatelitesRepository";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import type {
@@ -11,6 +14,7 @@ import type {
   ListarSaldosSatelitesServiceResult,
   MarcaConciliacionServiceResult,
   ResumenSatelitesServiceResult,
+  RevertirConciliacionServiceResult,
 } from "@/lib/interfaces/services/IConciliacionSatelitesService";
 import type {
   ListarConsolidacionesSateliteCompletoInput,
@@ -40,8 +44,11 @@ import { rangoDePagina } from "@/lib/utils/rango-pagina";
  * salido de la base aunque la respuesta fuera un error. Es el mismo orden de
  * `CierresBodegaAdminService` y por el mismo motivo.
  *
- * NO ESCRIBE EN NINGUN LIBRO DE DINERO (R14): ni `wallet_movimiento`, ni `wallet_tienda_movimiento`,
- * ni `pago_mensajero_movimiento`. La marca es SEGUIMIENTO, no contabilidad. Por eso es reversible.
+ * ⭑ FICHA 498 (decision del humano del 2026-11-02, que REVOCA el caracter informativo y reversible de
+ * las fichas 431 y 473): marcar recibida ASIENTA el dinero de los cierres satelite en la caja y en los
+ * libros, y escribe la diferencia; corregir escribe la diferencia por la variacion; revertir una
+ * consolidacion con asientos responde `con_asientos` sin cambiar nada. El guard de rol sigue PRIMERO
+ * tambien en esos caminos nuevos (R45).
  */
 export class ConciliacionSatelitesService implements IConciliacionSatelitesService {
   constructor(
@@ -135,25 +142,38 @@ export class ConciliacionSatelitesService implements IConciliacionSatelitesServi
       nota: input.nota ?? null,
       actorUsuarioId: actor.usuarioId,
     });
-    if (res === "updated") return { status: "ok", cierreBodegaId: input.cierreBodegaId };
-    if (res === "conflict") return { status: "conflict" }; // R11: ya estaba marcada
-    return { status: "no_encontrada" };
+    return aResultadoDeMarca(res, input.cierreBodegaId); // R11: `conflict` = ya estaba marcada
   }
 
   /** R12/R13 — REVERTIR. El monto que se borra queda documentado en el historial. */
   async revertirConciliacion(
     input: RevertirConciliacionInputBorde,
     actor: Actor,
-  ): Promise<MarcaConciliacionServiceResult> {
+  ): Promise<RevertirConciliacionServiceResult> {
     if (!esAccesoTotal(actor.rol)) return { status: "forbidden" }; // R27
 
     const res = await this.escrituras.revertirConciliacion({
       id: input.cierreBodegaId,
       actorUsuarioId: actor.usuarioId,
     });
-    if (res === "updated") return { status: "ok", cierreBodegaId: input.cierreBodegaId };
-    if (res === "conflict") return { status: "conflict" }; // ya estaba pendiente de conciliar
-    return { status: "no_encontrada" };
+    // `switch` exhaustivo: un desenlace nuevo del repositorio no compila sin decidir su traduccion
+    // (un `if` encadenado lo habria mandado en silencio a `no_encontrada`).
+    switch (res) {
+      case "updated":
+        return { status: "ok", cierreBodegaId: input.cierreBodegaId };
+      case "conflict":
+        return { status: "conflict" }; // ya estaba pendiente de conciliar
+      case "fuera_de_alcance":
+        return { status: "no_encontrada" };
+      case "con_asientos":
+        return { status: "con_asientos" }; // FICHA 498 (R20)
+      case "saldada_regla_anterior":
+        return { status: "saldada_regla_anterior" }; // FICHA 498 (revision m2)
+      default: {
+        const _n: never = res;
+        return _n;
+      }
+    }
   }
 
   /**
@@ -176,9 +196,8 @@ export class ConciliacionSatelitesService implements IConciliacionSatelitesServi
       nota: input.nota ?? null,
       actorUsuarioId: actor.usuarioId,
     });
-    if (res === "updated") return { status: "ok", cierreBodegaId: input.cierreBodegaId };
-    if (res === "conflict") return { status: "conflict" }; // R6/R8: ya no conciliada o monto movido
-    return { status: "no_encontrada" }; // R7
+    // R6/R8: `conflict` = ya no conciliada o monto movido; R7: `no_encontrada`.
+    return aResultadoDeMarca(res, input.cierreBodegaId);
   }
 
   /**
@@ -193,5 +212,27 @@ export class ConciliacionSatelitesService implements IConciliacionSatelitesServi
   async obtenerResumenSatelites(actor: Actor): Promise<ResumenSatelitesServiceResult> {
     if (!esAccesoTotal(actor.rol)) return { status: "forbidden" }; // R27
     return { status: "ok", resumen: await this.saldos.findResumen() };
+  }
+}
+
+/**
+ * FICHA 498 — la traduccion de los desenlaces de marcar y corregir, con `switch` exhaustivo: un
+ * desenlace nuevo del repositorio (como `recibido_cero_con_aporte`) no compila sin su traduccion, en
+ * vez de caer en silencio en `no_encontrada`.
+ */
+function aResultadoDeMarca(res: MarcaConciliacionResult, cierreBodegaId: string): MarcaConciliacionServiceResult {
+  switch (res) {
+    case "updated":
+      return { status: "ok", cierreBodegaId };
+    case "conflict":
+      return { status: "conflict" };
+    case "fuera_de_alcance":
+      return { status: "no_encontrada" };
+    case "recibido_cero_con_aporte":
+      return { status: "recibido_cero_con_aporte" }; // R15a
+    default: {
+      const _n: never = res;
+      return _n;
+    }
   }
 }

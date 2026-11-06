@@ -11,17 +11,17 @@ import type {
 } from "@/lib/interfaces/services/ICierreBodegaService";
 import type {
   CierreGrupos,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import {
   CASCADA_CENTRAL_TITULO,
   CASCADA_DUENO_TITULO,
   COBRADO_SOBRE_RECAUDADO_LABEL,
   EFECTIVO_NO_CUBRE_NOTA,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
   GANA_BODEGA_SATELITE_NOTA,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_CENTRAL_NEGATIVO_NOTA,
   PARA_LA_CENTRAL_NOTA,
@@ -39,7 +39,7 @@ import {
  * Feature 393 (F6) — EL DETALLE DEL CIERRE DE BODEGA: las dos cascadas, separadas y rotuladas.
  *
  * ── LAS DOS PREGUNTAS, Y POR QUÉ SON DOS
- * Una cascada dice **de quién es el dinero** (lo recaudado se reparte entre la tienda y Ordenex);
+ * Una cascada dice **de quién es el dinero** (lo recaudado se reparte entre la tienda y la empresa);
  * la otra dice **qué efectivo sale** (de lo recaudado, cuánto le entrega la satélite a la
  * central). Las dos terminan en cifras distintas y las dos son verdad. Mezcladas —que es como
  * estaban— no se lee ninguna.
@@ -141,7 +141,7 @@ function laCuentaCierra(sumandos: readonly string[], total: string, quien: strin
 // ---------------------------------------------------------------------------
 
 /**
- * Los totales del ingreso de Ordenex, completos. Sólo cuatro de los once campos se pintan (los
+ * Los totales del ingreso de la empresa, completos. Sólo cuatro de los once campos se pintan (los
  * AGRUPADOS con su IVA); los otros siete existen para poder auditar cuánto de cada agrupado es
  * IVA sin volver a recorrer las órdenes. Se rellenan coherentes con el agrupado —el IVA de este
  * país es el 13 %— para que un lector no encuentre un fixture que se contradice a sí mismo, pero
@@ -152,7 +152,7 @@ function totalesIngreso(over: {
   comisionConIva: string;
   fleteDevolucionConIva: string;
   total: string;
-}): TotalesIngresoOrdenex {
+}): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     flete: over.fleteConIva,
@@ -223,7 +223,7 @@ const DIA_ANA: CierreBodegaDetalleCierre = {
   ganancia: "9000.80",
   pagoTienda: "62499.75",
   cobradoSobreRecaudado: "17500.35",
-  netoOrdenex: "8750.55",
+  netoEmpresa: "8750.55",
   // Ficha 396 (D1) — el agregado que le faltaba a este nivel: 80.000,10 - 18.001,10. Difiere
   // de `pagoTienda` en exactamente su flete por devolución a origen (500,75), que es el dia CON rechazo.
   ganaLaTienda: "61999.00",
@@ -259,7 +259,7 @@ const DIA_BETO: CierreBodegaDetalleCierre = {
   ganancia: "4634.23",
   pagoTienda: "36454.59",
   cobradoSobreRecaudado: "9634.48",
-  netoOrdenex: "4634.23",
+  netoEmpresa: "4634.23",
   // Ficha 396 (D1): 46.089,07 - 9.634,48. Sin rechazos, COINCIDE con `pagoTienda`.
   ganaLaTienda: "36454.59",
   partesPorTienda: [],
@@ -282,12 +282,13 @@ const DETALLE_OK = {
   ganancia: "13635.03",
   pagoTienda: "98954.34",
   cobradoSobreRecaudado: "27134.83",
-  netoOrdenex: "13384.78",
+  netoEmpresa: "13384.78",
   // Ficha 396 (D1) — el agregado que le faltaba a este contrato: 126.089,17 - 27.635,58.
   ganaLaTienda: "98453.59",
   partesPorTienda: [],
   paraLaCentral: "111838.37",
   efectivoCubreDescuentos: true,
+  puedeDesmarcar: false, // ficha 500
   // FICHA 431: la marca de conciliacion, CUADRADA con el efectivo de este doble.
   ...marcaSinConciliar("40000.07"),
 };
@@ -356,7 +357,7 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
     expect(dueno().contains(central())).toBe(false);
 
     expect(within(central()).queryByText(PARA_LA_TIENDA_LABEL)).toBeNull();
-    expect(within(central()).queryByText(NETO_ORDENEX_LABEL)).toBeNull();
+    expect(within(central()).queryByText(NETO_EMPRESA_LABEL)).toBeNull();
     expect(within(central()).queryByText(COBRADO_SOBRE_RECAUDADO_LABEL)).toBeNull();
     expect(within(dueno()).queryByText(PARA_LA_CENTRAL_LABEL)).toBeNull();
   });
@@ -364,14 +365,14 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
   it(`«Para la tienda» y «Neto de ${NOMBRE_CORTO_ESPERADO}» están, y están DESTACADOS (R3)`, async () => {
     await abrirDetalle();
 
-    for (const rotulo of [PARA_LA_TIENDA_LABEL, NETO_ORDENEX_LABEL]) {
+    for (const rotulo of [PARA_LA_TIENDA_LABEL, NETO_EMPRESA_LABEL]) {
       const linea = within(dueno()).getByText(rotulo).closest("div");
       expect(linea?.className, `«${rotulo}» no se destaca de las líneas que lo componen`).toContain(
         "border-t",
       );
     }
     expect(importeTras(dueno(), PARA_LA_TIENDA_LABEL)).toBe(money("98954.34"));
-    expect(importeTras(dueno(), NETO_ORDENEX_LABEL)).toBe(money("13384.78"));
+    expect(importeTras(dueno(), NETO_EMPRESA_LABEL)).toBe(money("13384.78"));
   });
 
   it("«Para la central» está, DESTACADO y con la misma cifra que la tarjeta (R4/R23)", async () => {
@@ -416,14 +417,14 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
       "cascada A · para la tienda",
     );
 
-    // R8 — lo facturado − mensajeros − bodega = neto de Ordenex.
+    // R8 — lo facturado − mensajeros − bodega = neto de la empresa.
     laCuentaCierra(
       [
-        importeTras(dueno(), FACTURADO_ORDENEX_LABEL),
+        importeTras(dueno(), FACTURADO_EMPRESA_LABEL),
         importeTras(dueno(), PAGO_MENSAJERO_LABEL),
         importeTras(dueno(), GANA_BODEGA_SATELITE_LABEL),
       ],
-      importeTras(dueno(), NETO_ORDENEX_LABEL),
+      importeTras(dueno(), NETO_EMPRESA_LABEL),
       `cascada A · neto de ${NOMBRE_ESPERADO}`,
     );
 
@@ -446,7 +447,7 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
     // NO da: se queda corta por el flete por devolución a origen, que se factura pero no sale de lo
     // recaudado. Se mide, en vez de razonarse.
     const recaudado = centimos(importeTras(dueno(), TOTAL_GENERAL_LABEL));
-    const facturado = centimos(importeTras(dueno(), FACTURADO_ORDENEX_LABEL));
+    const facturado = centimos(importeTras(dueno(), FACTURADO_EMPRESA_LABEL));
     const tienda = centimos(importeTras(dueno(), PARA_LA_TIENDA_LABEL));
     const fleteRechazo = centimos(importeTras(dueno(), FLETE_DEV_CON_IVA_LABEL));
     expect(recaudado - facturado).not.toBe(tienda);
@@ -458,7 +459,7 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
         importeTras(dueno(), COBRADO_SOBRE_RECAUDADO_LABEL),
         importeTras(dueno(), FLETE_DEV_CON_IVA_LABEL),
       ],
-      importeTras(dueno(), FACTURADO_ORDENEX_LABEL),
+      importeTras(dueno(), FACTURADO_EMPRESA_LABEL),
       "cascada A · línea puente",
     );
   });
@@ -476,7 +477,7 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
     expect(importeTras(duenoBeto, FLETE_DEV_CON_IVA_LABEL)).toBe(`+${money("0.00")}`);
     // Y con cero, la línea puente y lo facturado coinciden: la cascada sigue cerrando.
     expect(importeTras(duenoBeto, COBRADO_SOBRE_RECAUDADO_LABEL)).toBe(money("9634.48"));
-    expect(importeTras(duenoBeto, FACTURADO_ORDENEX_LABEL)).toBe(money("9634.48"));
+    expect(importeTras(duenoBeto, FACTURADO_EMPRESA_LABEL)).toBe(money("9634.48"));
   });
 
   it("la nota de «Gana la bodega satélite» dice que NO es un movimiento de caja (R27)", async () => {
@@ -498,10 +499,10 @@ describe("393 · F6 — las dos cascadas del detalle", () => {
       // Mismos rótulos que el agregado…
       expect(within(suCentral).getByText(PARA_LA_CENTRAL_LABEL)).toBeInTheDocument();
       expect(within(suDueno).getByText(PARA_LA_TIENDA_LABEL)).toBeInTheDocument();
-      expect(within(suDueno).getByText(NETO_ORDENEX_LABEL)).toBeInTheDocument();
+      expect(within(suDueno).getByText(NETO_EMPRESA_LABEL)).toBeInTheDocument();
       // …y las cifras de SU propio nivel, no las del agregado (R15).
       expect(importeTras(suCentral, PARA_LA_CENTRAL_LABEL)).toBe(money(dia.paraLaCentral));
-      expect(importeTras(suDueno, NETO_ORDENEX_LABEL)).toBe(money(dia.netoOrdenex));
+      expect(importeTras(suDueno, NETO_EMPRESA_LABEL)).toBe(money(dia.netoEmpresa));
       laCuentaCierra(
         [
           importeTras(suCentral, TOTAL_GENERAL_LABEL),
@@ -610,7 +611,7 @@ describe("393 · F6 — el caso raro, dicho en la pantalla", () => {
     ganancia: "-1699.95",
     pagoTienda: "699.90",
     cobradoSobreRecaudado: "300.10",
-    netoOrdenex: "-1699.95",
+    netoEmpresa: "-1699.95",
     paraLaCentral: "-1000.05",
     efectivoCubreDescuentos: false,
     // FICHA 431: la marca de conciliacion, CUADRADA con el efectivo de este doble.
@@ -635,7 +636,7 @@ describe("393 · F6 — el caso raro, dicho en la pantalla", () => {
   it(`un «Neto de ${NOMBRE_CORTO_ESPERADO}» NEGATIVO se pinta con signo y marcado como deuda (R11)`, async () => {
     await abrirDetalle(EN_DEUDA);
 
-    const pintado = importeTras(dueno(), NETO_ORDENEX_LABEL);
+    const pintado = importeTras(dueno(), NETO_EMPRESA_LABEL);
     expect(pintado).toBe("-₡1.699,95");
     expect(within(dueno()).getByText(pintado).className).toContain("text-danger-strong");
   });

@@ -21,7 +21,7 @@ class YaAnuladoError extends Error {
 /**
  * R63/R65 — ¿es este movimiento un egreso ORIGINAL que se anula por esta via?
  *
- *  · origen `gasto`, tipo egreso: sueldo, gasto de Ordenex, gasto fijo cobrado (y el reservado
+ *  · origen `gasto`, tipo egreso: sueldo, gasto de la empresa, gasto fijo cobrado (y el reservado
  *    `egreso_gasto`). Es EXACTAMENTE el conjunto que `reversarEgreso` ya reversaba (feature 45).
  *  · `egreso_indemnizacion` con origen `orden_incidente` y su `origen_id` (el incidente, D8). La del
  *    cierre (origen `cierre_dia`) NO: lo que produce la aprobacion de un cierre no se anula (R65).

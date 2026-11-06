@@ -77,7 +77,7 @@ function construirServicio(now: () => Date): ConteoProductosService {
  * retiro al llegar el componente, que es justo lo que esa guardia exige —una excepcion que
  * sobrevive a su motivo es basura que crece hasta que nadie lee ninguna—.
  */
-export async function consultarConteoProductos(
+export async function consultarConteoProductosV2(
   raw: unknown,
   deps: ConteoProductosDeps = {},
 ): Promise<ResultadoConteoProductos> {

@@ -183,7 +183,7 @@ describe("R43 — la campana revalida cuando llega un push con la ventana visibl
     // El literal va A MANO: es el contrato con `public/sw.js`, que no puede importar del bundle.
     contenedor.dispatchEvent(
       new MessageEvent("message", {
-        data: { tipo: "ordenex:push-recibido", destino: "/cierre-dia" },
+        data: { tipo: "app:push-recibido", destino: "/cierre-dia" },
       }),
     );
 
@@ -203,7 +203,7 @@ describe("R43 — la campana revalida cuando llega un push con la ventana visibl
     await waitFor(() => expect(listarMock).toHaveBeenCalledTimes(1));
 
     contenedor.dispatchEvent(
-      new MessageEvent("message", { data: { tipo: "ordenex:relevo-ahora" } }),
+      new MessageEvent("message", { data: { tipo: "app:relevo-ahora" } }),
     );
 
     await new Promise((resolver) => setTimeout(resolver, 50));

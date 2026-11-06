@@ -35,7 +35,7 @@ const _tipoExhaustive: _EnsureTipoExhaustive = true;
 void _tipoExhaustive;
 
 export const PAGO_MENSAJERO_MOVIMIENTO_CATEGORIA_SEED = [
-  // devengo (Ordenex le debe al mensajero)
+  // devengo (la empresa le debe al mensajero)
   "pago_devengado",
   // pago (lo ya entregado, tomado del efectivo recaudado)
   "pago_efectivo",
@@ -104,7 +104,7 @@ export type PagoMensajeroMovimientoDTO = {
   cierreId: string | null;
 };
 
-// La cuenta por pagar nunca es negativa en el flujo normal (R16): positivo (Ordenex debe) o cero.
+// La cuenta por pagar nunca es negativa en el flujo normal (R16): positivo (la empresa debe) o cero.
 export type CuentaPorPagarSigno = "positivo" | "cero";
 
 // Cuenta por pagar de UN mensajero (R14/R16). `cuentaPorPagar` = devengado - pagado (>= 0).

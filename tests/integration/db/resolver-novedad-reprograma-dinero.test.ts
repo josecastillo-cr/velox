@@ -8,7 +8,7 @@ import { pagoPorResultado } from "@/lib/utils/pago-mensajero";
 import {
   agregarIngresosPorConcepto,
   derivarIngresoOrden,
-} from "@/lib/utils/ingreso-ordenex";
+} from "@/lib/utils/ingreso-empresa";
 import { conPagos } from "@/tests/fixtures/cierre-pagos";
 import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
@@ -23,7 +23,7 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // Tarifas realistas: si algun concepto de la reprogramada NO fuera 0.00, estos numeros lo delatarian.
 const TARIFA_MENSAJERO: PagoTarifa = { cobroEntregado: "1500.00", cobroRechazado: "800.00" };
-const TARIFA_ORDENEX: TarifaVigente = {
+const TARIFA_EMPRESA: TarifaVigente = {
   valorFlete: "1000.00",
   valorFleteGam: "1500.00",
   valorFleteDevuelto: "400.00",
@@ -100,12 +100,12 @@ describe("Feature 100 [💰] T5.3 — la gestion sintetica `reprogramada` aporta
     // derivarIngresoOrden devuelve {} para reprogramada (u otro en transito): ningun concepto.
     const derivado = derivarIngresoOrden(
       { resultado: "reprogramado", esCentral: false, esZonaEspecial: false, montoCobrar: "10000.00", cobraComision: true },
-      TARIFA_ORDENEX,
+      TARIFA_EMPRESA,
     );
     expect(derivado).toEqual({});
     // Y el agregado que emite los movimientos de wallet OMITE los conceptos 0.00 (R10): 0 movimientos.
     const movimientos = agregarIngresosPorConcepto([
-      { input: { resultado: "reprogramado", esCentral: false, esZonaEspecial: false, montoCobrar: "10000.00", cobraComision: true }, tarifa: TARIFA_ORDENEX },
+      { input: { resultado: "reprogramado", esCentral: false, esZonaEspecial: false, montoCobrar: "10000.00", cobraComision: true }, tarifa: TARIFA_EMPRESA },
     ]);
     expect(movimientos).toEqual([]);
   });
@@ -171,7 +171,7 @@ describe("Feature 100 [💰] T5.3 — cerrar un dia CON la reprogramada da los M
         montoCobrar: "10000.00",
         cobraComision: true,
       },
-      tarifa: TARIFA_ORDENEX,
+      tarifa: TARIFA_EMPRESA,
     });
     const sin = agregarIngresosPorConcepto(diaSinReprogramada.map(toInput));
     const con = agregarIngresosPorConcepto(diaConReprogramada.map(toInput));

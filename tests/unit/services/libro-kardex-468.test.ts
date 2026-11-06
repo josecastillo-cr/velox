@@ -219,7 +219,7 @@ function estado(tipo: "tienda" | "mensajero" | "bodega", filas: FilaEstadoCuenta
     cuenta: { tipo, id: `cuenta-${tipo}`, nombre: "X" },
     saldoActual: "100.00",
     signo: "positivo",
-    sentido: "ordenex_debe",
+    sentido: "empresa_debe",
     saldoInicial: "0.00",
     abonos: "100.00",
     cargos: "0.00",

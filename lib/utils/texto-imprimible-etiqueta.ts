@@ -73,7 +73,7 @@ export interface OpcionesTextoDeEtiqueta {
    * `false` = SOLO veredicto: el texto no se toca y cualquier caracter fuera de cobertura sale
    * como `irreparable` aunque tuviera arreglo.
    *
-   * Es lo que necesita `num_remision` (R12/A3): es el identificador que Ordenex COMPARTE con la
+   * Es lo que necesita `num_remision` (R12/A3): es el identificador que la empresa COMPARTE con la
    * tienda —el dedup y el round-trip del XLSX de errores se cruzan por el—, no prosa. Repararlo
    * dejaria a los dos sistemas con dos claves distintas para la misma orden, que es peor que
    * rechazar la fila. Por defecto `true`.

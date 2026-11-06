@@ -22,6 +22,11 @@ import type {
 import { estadoCuentaConfig } from "@/lib/config/estado-cuenta";
 import { NOMBRE_USUARIO_SELECT, nombreCompletoUsuario } from "@/lib/utils/nombre-usuario";
 import { escaparComodinesLike } from "@/lib/utils/escapar-like";
+import {
+  aporteCierreSql,
+  cuentaEnLaDeudaSql,
+  sinConsolidarSql,
+} from "@/lib/repositories/deuda-satelite-sql";
 
 type Cliente = Pick<
   PrismaClient,
@@ -99,7 +104,7 @@ function filtroDeChip(pares: ParDeChip[] | null, conPremio: boolean): Prisma.Sql
  * FICHA 463 (design §3.2, R24/R26/R27/R28) — el termino del buscador, en el `WHERE` EXTERIOR (despues de
  * la ventana, como el chip). `ILIKE` sin distinguir mayusculas; `%` y `_` escapados son texto (R28).
  * El nombre de quien registro (`NOMBRE_SQL`, del `LEFT JOIN usuario u`) solo entra en la oficina: en
- * `/mi-wallet` buscar a una persona de Ordenex no reduce ni amplia el resultado (R27). Mutacion «sin la
+ * `/mi-wallet` buscar a una persona de la empresa no reduce ni amplia el resultado (R27). Mutacion «sin la
  * rama del nombre» → roja en `estado-cuenta-busqueda-orden-463` (R26).
  */
 function terminoSql(v: Pick<VentanaDeLibro, "termino" | "conNombreRegistrador">): Prisma.Sql {
@@ -251,26 +256,16 @@ export class EstadoCuentaRepository implements IEstadoCuentaRepository, IMovimie
   }
 
   /**
-   * La bodega no tiene libro: se ARMA con una UNION sobre `cierre_bodega` de la zona (design §3.2).
-   * «Declarado» = el efectivo de la consolidacion, al solicitarla; «Recibido» = lo que llego, al
-   * marcarla. El corrido es el PENDIENTE acumulado (Σ declarado − Σ recibido): la misma resta que
-   * `saldoDe` aplica por consolidacion. Las rechazadas no cuentan (como en `/wallet/satelites`).
+   * La bodega no tiene libro: se ARMA con una UNION (design §3.2 de su ficha). El corrido es el
+   * PENDIENTE acumulado (Σ declarado − Σ recibido).
+   *
+   * ⭑ FICHA 498 (design §7, R29-R31): el «declarado» deja de ser el efectivo. Las tres ramas viven en
+   * `movimientosDeBodegaSql` y las comparten la pagina, los totales y el periodo.
    */
   async paginaDeBodega(zonaId: string, v: VentanaDeLibro): Promise<PaginaDeLibro> {
     const hasta = v.hastaUtc === undefined ? Prisma.empty : Prisma.sql` WHERE mv.fecha_movimiento < ${v.hastaUtc}`;
     const libro = Prisma.sql`
-      WITH mov AS (
-        SELECT cb.id, 'declarado'::text AS tipo, 'declarado'::text AS categoria, 'cierre_bodega'::text AS origen_tipo,
-               cb.id AS origen_id, NULL::text AS descripcion, cb.solicitado_por AS registrado_por,
-               cb.solicitado_at AS fecha_movimiento, cb.solicitado_at AS created_at, cb.total_efectivo AS monto, 0 AS orden
-        FROM cierre_bodega cb
-        WHERE cb.zona_id = ${zonaId} AND cb.estado::text <> 'rechazado'
-        UNION ALL
-        SELECT cb.id, 'recibido'::text, 'recibido'::text, 'cierre_bodega'::text,
-               cb.id, NULL::text, cb.conciliado_por,
-               cb.conciliado_at, cb.conciliado_at, cb.monto_recibido, 1
-        FROM cierre_bodega cb
-        WHERE cb.zona_id = ${zonaId} AND cb.estado::text <> 'rechazado' AND cb.conciliado_at IS NOT NULL
+      WITH mov AS (${movimientosDeBodegaSql(zonaId)}
       ), libro AS (
         SELECT mv.id, mv.tipo, mv.categoria, mv.origen_tipo, mv.origen_id, mv.descripcion, mv.registrado_por,
                mv.fecha_movimiento, mv.created_at, mv.monto, mv.orden, NULL::date AS premio_dia,
@@ -356,22 +351,21 @@ export class EstadoCuentaRepository implements IEstadoCuentaRepository, IMovimie
     return { devengado: sumaDe(grupos, "devengo"), pagado: sumaDe(grupos, "pago") };
   }
 
-  async totalesDeBodega(zonaId: string, antesDe?: Date): Promise<{ efectivo: string; recibido: string }> {
-    const noRechazadas = { zonaId, estado: { not: "rechazado" as const } };
-    const declarado = await this.prisma.cierreBodega.aggregate({
-      where: { ...noRechazadas, ...(antesDe === undefined ? {} : { solicitadoAt: { lt: antesDe } }) },
-      _sum: { totalEfectivo: true },
-    });
-    const recibido = await this.prisma.cierreBodega.aggregate({
-      where: {
-        ...noRechazadas,
-        conciliadoAt: antesDe === undefined ? { not: null } : { not: null, lt: antesDe },
-      },
-      _sum: { montoRecibido: true },
-    });
+  /**
+   * FICHA 498 (design §7, R29/R31): lo DECLARADO (aporte reconocido de cada consolidacion no
+   * rechazada + aporte de cada cierre sin consolidar) y lo RECIBIDO, con las MISMAS tres ramas que la
+   * pagina y el corte `antesDe` sobre la fecha de cada rama.
+   */
+  async totalesDeBodega(zonaId: string, antesDe?: Date): Promise<{ declarado: string; recibido: string }> {
+    const corte = antesDe === undefined ? Prisma.empty : Prisma.sql` WHERE mv.fecha_movimiento < ${antesDe}`;
+    const [fila] = await this.prisma.$queryRaw<{ declarado: string | null; recibido: string | null }[]>`
+      WITH mov AS (${movimientosDeBodegaSql(zonaId)})
+      SELECT (SUM(mv.monto) FILTER (WHERE mv.tipo = 'declarado'))::text AS declarado,
+             (SUM(mv.monto) FILTER (WHERE mv.tipo = 'recibido'))::text AS recibido
+        FROM mov mv${corte}`;
     return {
-      efectivo: new Prisma.Decimal(declarado._sum.totalEfectivo ?? 0).toFixed(2),
-      recibido: new Prisma.Decimal(recibido._sum.montoRecibido ?? 0).toFixed(2),
+      declarado: new Prisma.Decimal(fila?.declarado ?? 0).toFixed(2),
+      recibido: new Prisma.Decimal(fila?.recibido ?? 0).toFixed(2),
     };
   }
 
@@ -393,36 +387,25 @@ export class EstadoCuentaRepository implements IEstadoCuentaRepository, IMovimie
     return filas.map((f) => ({ ...f, monto: f.monto.toFixed(2) }));
   }
 
+  /** FICHA 498 (design §7): las MISMAS tres ramas, recortadas al periodo `[desdeUtc, hastaUtc)`. */
   async periodoDeBodega(zonaId: string, desdeUtc?: Date, hastaUtc?: Date): Promise<MovimientoDelPeriodoRow[]> {
-    const noRechazadas = { zonaId, estado: { not: "rechazado" as const } };
-    const declaradas = await this.prisma.cierreBodega.findMany({
-      where: { ...noRechazadas, solicitadoAt: rango(desdeUtc, hastaUtc) },
-      select: { id: true, totalEfectivo: true },
-    });
-    const recibidas = await this.prisma.cierreBodega.findMany({
-      where: { ...noRechazadas, conciliadoAt: { not: null, ...rango(desdeUtc, hastaUtc) } },
-      select: { id: true, montoRecibido: true },
-    });
-    return [
-      ...declaradas.map((d) => ({
-        id: d.id,
-        tipo: "declarado",
-        categoria: "declarado",
-        origenTipo: "cierre_bodega",
-        origenId: d.id,
-        premioDia: null,
-        monto: d.totalEfectivo.toFixed(2),
-      })),
-      ...recibidas.map((r) => ({
-        id: r.id,
-        tipo: "recibido",
-        categoria: "recibido",
-        origenTipo: "cierre_bodega",
-        origenId: r.id,
-        premioDia: null,
-        monto: new Prisma.Decimal(r.montoRecibido ?? 0).toFixed(2),
-      })),
-    ];
+    const desde = desdeUtc === undefined ? Prisma.empty : Prisma.sql` AND mv.fecha_movimiento >= ${desdeUtc}`;
+    const hasta = hastaUtc === undefined ? Prisma.empty : Prisma.sql` AND mv.fecha_movimiento < ${hastaUtc}`;
+    const filas = await this.prisma.$queryRaw<
+      { id: string; tipo: string; categoria: string; origen_tipo: string; origen_id: string; monto: string }[]
+    >`
+      WITH mov AS (${movimientosDeBodegaSql(zonaId)})
+      SELECT mv.id, mv.tipo, mv.categoria, mv.origen_tipo, mv.origen_id, mv.monto::text AS monto
+        FROM mov mv WHERE TRUE${desde}${hasta}`;
+    return filas.map((f) => ({
+      id: f.id,
+      tipo: f.tipo,
+      categoria: f.categoria,
+      origenTipo: f.origen_tipo,
+      origenId: f.origen_id,
+      premioDia: null,
+      monto: new Prisma.Decimal(f.monto).toFixed(2),
+    }));
   }
 
   // ── Anulaciones y comprobantes, en lote ───────────────────────────────────────────────────
@@ -564,4 +547,47 @@ function rango(desde?: Date, hasta?: Date): Prisma.DateTimeFilter {
 /** La Σ de un tipo en el `groupBy` por tipo (`0.00` si no hay filas). STRING escala 2. */
 function sumaDe(grupos: { tipo: string; _sum: { monto: Prisma.Decimal | null } }[], tipo: string): string {
   return (grupos.find((g) => g.tipo === tipo)?._sum.monto ?? new Prisma.Decimal(0)).toFixed(2);
+}
+
+/**
+ * ⭑ FICHA 498 (design §7, R29-R32) — LOS MOVIMIENTOS DEL EXTRACTO DE UNA BODEGA, en tres ramas. Lo
+ * comparten `paginaDeBodega`, `totalesDeBodega` y `periodoDeBodega`. Columnas: id, tipo, categoria,
+ * origen_tipo, origen_id, descripcion, registrado_por, fecha_movimiento, created_at, monto, orden.
+ *
+ *  1. DECLARADO por consolidacion no rechazada: su aporte RECONOCIDO —
+ *     `COALESCE(cb.esperado_regla_anterior, Σ aporte de sus cierres que cuentan en la deuda)`—, al
+ *     solicitarla. En una saldada con la regla anterior, declarado = recibido (R54c).
+ *  2. RECIBIDO: lo que llego, al marcarla (igual que antes de la ficha).
+ *  3. CIERRE SIN CONSOLIDAR: una fila por cierre que cuenta en la deuda y no esta en una consolidacion
+ *     no rechazada, con su aporte, desde su aprobacion (`resuelto_at`). `origen_tipo = 'cierre_dia'`.
+ *
+ * Un cierre esta UNA sola vez: en su consolidacion no rechazada o como fila suelta. Sin filtros, el
+ * pendiente final = la deuda de Saldos (R31). Las piezas SQL son las de `deuda-satelite-sql.ts` (R32).
+ */
+function movimientosDeBodegaSql(zonaId: string): Prisma.Sql {
+  return Prisma.sql`
+        SELECT cb.id, 'declarado'::text AS tipo, 'declarado'::text AS categoria, 'cierre_bodega'::text AS origen_tipo,
+               cb.id AS origen_id, NULL::text AS descripcion, cb.solicitado_por AS registrado_por,
+               cb.solicitado_at AS fecha_movimiento, cb.solicitado_at AS created_at,
+               COALESCE(cb.esperado_regla_anterior,
+                        (SELECT COALESCE(SUM(${aporteCierreSql("c")}), 0)
+                           FROM cierre_dia c
+                          WHERE c.cierre_bodega_id = cb.id AND ${cuentaEnLaDeudaSql("c")})) AS monto,
+               0 AS orden
+        FROM cierre_bodega cb
+        WHERE cb.zona_id = ${zonaId} AND cb.estado::text <> 'rechazado'
+        UNION ALL
+        SELECT cb.id, 'recibido'::text, 'recibido'::text, 'cierre_bodega'::text,
+               cb.id, NULL::text, cb.conciliado_por,
+               cb.conciliado_at, cb.conciliado_at, cb.monto_recibido, 1
+        FROM cierre_bodega cb
+        WHERE cb.zona_id = ${zonaId} AND cb.estado::text <> 'rechazado' AND cb.conciliado_at IS NOT NULL
+        UNION ALL
+        SELECT c.id, 'declarado'::text, 'declarado'::text, 'cierre_dia'::text,
+               c.id, NULL::text, c.resuelto_por,
+               COALESCE(c.resuelto_at, c.solicitado_at), COALESCE(c.resuelto_at, c.solicitado_at),
+               ${aporteCierreSql("c")}, 0
+        FROM cierre_dia c
+        LEFT JOIN cierre_bodega cbs ON cbs.id = c.cierre_bodega_id
+        WHERE c.destino_zona_id = ${zonaId} AND ${cuentaEnLaDeudaSql("c")} AND ${sinConsolidarSql("c", "cbs")}`;
 }

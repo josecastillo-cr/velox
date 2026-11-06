@@ -4,6 +4,10 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  MENSAJE_PAGINA_LISTA_LEGADO,
+  MENSAJE_RELEVO_AHORA_LEGADO,
+} from "@/lib/navegador/claves-legadas";
+import {
   MENSAJE_PAGINA_LISTA,
   MENSAJE_RELEVO_AHORA,
 } from "@/lib/pwa/actualizacion";
@@ -121,7 +125,7 @@ interface Ventana {
 }
 
 function ventana(id: string): Ventana {
-  return { id, url: `https://ordenex.app/${id}`, navigate: vi.fn() };
+  return { id, url: `https://ejemplo.test/${id}`, navigate: vi.fn() };
 }
 
 interface OpcionesArnes {
@@ -134,7 +138,7 @@ interface OpcionesArnes {
 
 function cargarSw(opciones: OpcionesArnes = {}) {
   const {
-    hostname = "ordenex.app",
+    hostname = "ejemplo.test",
     fuente = FUENTE,
     cachesIniciales = {},
     ventanas = [],
@@ -221,7 +225,7 @@ function cargarSw(opciones: OpcionesArnes = {}) {
   };
 }
 
-const CHUNK = (n: number) => ({ url: `https://ordenex.app/_next/static/chunks/${n}.js` });
+const CHUNK = (n: number) => ({ url: `https://ejemplo.test/_next/static/chunks/${n}.js` });
 
 /* -------------------------------------------------------------------------- */
 /* 0 · Autocomprobacion del arnes                                              */
@@ -302,6 +306,54 @@ describe("pwa · el relevo espera al usuario", () => {
     // lee, no se copia.
     expect(FUENTE).toContain(`"${MENSAJE_RELEVO_AHORA}"`);
     expect(FUENTE).toContain(`"${MENSAJE_PAGINA_LISTA}"`);
+    // Los alias también, contra el módulo donde viven los nombres viejos (design §5.5).
+    expect(FUENTE).toContain(`"${MENSAJE_RELEVO_AHORA_LEGADO}"`);
+    expect(FUENTE).toContain(`"${MENSAJE_PAGINA_LISTA_LEGADO}"`);
+  });
+
+  describe("494 (R21, design §5.5) — LA TRAMPA: página vieja, service worker nuevo en espera", () => {
+    // Los literales van a mano: son lo que manda la página de la versión anterior, la que ya está
+    // abierta en el teléfono de alguien el día del despliegue. Sin el alias, su botón «actualizar» no
+    // haría nada y este SW se quedaría en `waiting` para siempre, sin ningún error.
+    it("⭑ el mensaje de relevo VIEJO dispara `skipWaiting`", async () => {
+      const sw = cargarSw();
+      await sw.mensaje("ordenex:relevo-ahora");
+      expect(sw.yo.skipWaiting).toHaveBeenCalledTimes(1);
+    });
+
+    it("el mensaje de relevo NUEVO también, con su nombre a mano", async () => {
+      const sw = cargarSw();
+      await sw.mensaje("app:relevo-ahora");
+      expect(sw.yo.skipWaiting).toHaveBeenCalledTimes(1);
+    });
+
+    it("⭑ el alias es ese mensaje y no un prefijo: lo demás no hace nada", async () => {
+      const sw = cargarSw();
+      await sw.mensaje("ordenex:cualquier-otra-cosa");
+      await sw.mensaje("app:cualquier-otra-cosa");
+      await sw.mensaje("ordenex:relevo-ahora-no");
+      expect(sw.yo.skipWaiting).not.toHaveBeenCalled();
+    });
+
+    it.each(["ordenex:pagina-lista", "app:pagina-lista"])("%s reintenta la purga, con los dos nombres", async (tipo) => {
+      const sw = cargarSw({
+        ventanas: [ventana("pestaña-vieja")],
+        cachesIniciales: { "next-static-v1": ["a.js"] },
+      });
+      await sw.sembrar();
+      await sw.activar();
+      expect(await sw.nombresDeCache()).toContain("next-static-v1");
+
+      sw.ventanasVivas.splice(0, sw.ventanasVivas.length, ventana("pestaña-nueva"));
+      await sw.mensaje(tipo);
+      expect(await sw.nombresDeCache()).not.toContain("next-static-v1");
+    });
+
+    it("la página lista con el nombre viejo NO pide el relevo: los dos alias no se cruzan", async () => {
+      const sw = cargarSw();
+      await sw.mensaje("ordenex:pagina-lista");
+      expect(sw.yo.skipWaiting).not.toHaveBeenCalled();
+    });
   });
 
   it("la rama de produccion no renavega a nadie", async () => {
@@ -309,7 +361,7 @@ describe("pwa · el relevo espera al usuario", () => {
     const sw = cargarSw({ ventanas });
     await sw.instalar();
     await sw.activar();
-    await sw.pedir({ url: "https://ordenex.app/ordenes", mode: "navigate" });
+    await sw.pedir({ url: "https://ejemplo.test/ordenes", mode: "navigate" });
     for (const v of ventanas) expect(v.navigate).not.toHaveBeenCalled();
 
     // R5 es una PROHIBICION universal ("en ninguna circunstancia") y una prohibicion no se
@@ -475,14 +527,14 @@ describe("pwa · el tope de la cache de estaticos", () => {
 
   it("las paginas que no son 2xx tampoco se graban", async () => {
     const sw = cargarSw({ red: () => respuesta("500", 500) });
-    await sw.pedir({ url: "https://ordenex.app/ordenes", mode: "navigate" });
+    await sw.pedir({ url: "https://ejemplo.test/ordenes", mode: "navigate" });
     const cache = await sw.caches.open("pages-cache-v2");
     expect((await cache.keys()).length).toBe(0);
   });
 
   it("ni /api/ ni supabase pasan por el service worker", async () => {
     const sw = cargarSw();
-    const api = await sw.pedir({ url: "https://ordenex.app/api/ordenes" });
+    const api = await sw.pedir({ url: "https://ejemplo.test/api/ordenes" });
     const supabase = await sw.pedir({ url: "https://abc.supabase.co/rest/v1/orden" });
     expect(api.respondio).toBe(false);
     expect(supabase.respondio).toBe(false);
@@ -550,7 +602,7 @@ describe("pwa · los dos kill-switch", () => {
     const ventanas = [ventana("telefono-atascado")];
     const sw = cargarSw({
       fuente,
-      hostname: "ordenex.app",
+      hostname: "ejemplo.test",
       ventanas,
       cachesIniciales: {
         "next-static-v1": ["viejo.js"],

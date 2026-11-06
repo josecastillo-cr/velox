@@ -33,13 +33,13 @@ import {
   cobradoSobreRecaudado,
   efectivoCubreDescuentos,
   ganaLaTienda,
-  gananciaOrdenex,
-  netoOrdenex,
-  pagoTiendaOrdenex,
+  gananciaEmpresa,
+  netoEmpresa,
+  pagoTiendaEmpresa,
   paraLaCentral,
   partesPorTienda,
-  totalesIngresoOrdenex,
-} from "@/lib/utils/ingreso-ordenex";
+  totalesIngresoEmpresa,
+} from "@/lib/utils/ingreso-empresa";
 
 // Roles autorizados (R2): acceso total (maestro/admin, bodega central). El alcance es
 // "todos los cierres de bodega" (van a la central), sin filtro de zona.
@@ -297,7 +297,7 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
       for (const g of cd.gestiones) {
         grupos[g.resultado].push(toDetalleDTO(g, urlByPath));
       }
-      const totalesIngreso = totalesIngresoOrdenex(cd.gestiones);
+      const totalesIngreso = totalesIngresoEmpresa(cd.gestiones);
       return {
         cierreDiaId: cd.resumen.cierreDiaId,
         mensajeroId: cd.resumen.mensajeroId,
@@ -309,9 +309,9 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
         // Totales por concepto de ESTE cierre_dia, sumados desde el desglose por orden.
         totalesIngreso,
         // Ganancia del dia de ESE mensajero: su ingreso menos SU pago (snapshot, sin recomputar).
-        ganancia: gananciaOrdenex(totalesIngreso.total, cd.resumen.totalPagoMensajero),
+        ganancia: gananciaEmpresa(totalesIngreso.total, cd.resumen.totalPagoMensajero),
         // Pago a la tienda de ESTE cierre_dia: lo que recibio menos lo que se le facturo.
-        pagoTienda: pagoTiendaOrdenex(
+        pagoTienda: pagoTiendaEmpresa(
           cd.resumen.totales.general,
           totalesIngreso.fleteConIva,
           totalesIngreso.comisionConIva,
@@ -324,7 +324,7 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
           totalesIngreso.fleteConIva,
           totalesIngreso.comisionConIva,
         ),
-        netoOrdenex: netoOrdenex(
+        netoEmpresa: netoEmpresa(
           totalesIngreso.total,
           cd.resumen.totalPagoMensajero,
           cd.resumen.totalIngresoBodegaRechazos,
@@ -340,7 +340,7 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
         ganaLaTienda: ganaLaTienda(cd.resumen.totales.general, totalesIngreso.total),
         // 💰 FICHA 396 (R19) — DE QUIEN ES CADA PARTE, en el nivel del MENSAJERO.
         //
-        // MISMO argumento y MISMO sitio que `totalesIngresoOrdenex(cd.gestiones)` de arriba: las
+        // MISMO argumento y MISMO sitio que `totalesIngresoEmpresa(cd.gestiones)` de arriba: las
         // gestiones de ESTE cierre_dia y ninguna otra (R21). De ahi sale, sin `if` que lo diga,
         // que el umbral de presentacion de este nivel se evalue sobre las tiendas DE ESTE
         // MENSAJERO: la lista que llega aqui solo contiene las suyas. Derivarlo del agregado de la
@@ -371,11 +371,11 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
     // desglose por tienda. Dos expresiones iguales escritas dos veces son dos sitios donde
     // divergir; asi es literal que las dos cifras salen del MISMO conjunto de gestiones.
     const gestionesDeTodaLaBodega = found.cierresDia.flatMap((cd) => cd.gestiones);
-    const totalesIngreso = totalesIngresoOrdenex(gestionesDeTodaLaBodega);
+    const totalesIngreso = totalesIngresoEmpresa(gestionesDeTodaLaBodega);
     // El pago agregado sale del snapshot del cierre de bodega (R13), no de sumar los cierre_dia.
-    const ganancia = gananciaOrdenex(totalesIngreso.total, resumen.totalPagoMensajero);
+    const ganancia = gananciaEmpresa(totalesIngreso.total, resumen.totalPagoMensajero);
     // Pago a tiendas agregado: parte del total general recibido, no del bruto facturado.
-    const pagoTienda = pagoTiendaOrdenex(
+    const pagoTienda = pagoTiendaEmpresa(
       resumen.totales.general,
       totalesIngreso.fleteConIva,
       totalesIngreso.comisionConIva,
@@ -391,7 +391,7 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
       totalesIngreso.fleteConIva,
       totalesIngreso.comisionConIva,
     );
-    const netoOrdenexAgregado = netoOrdenex(
+    const netoEmpresaAgregado = netoEmpresa(
       totalesIngreso.total,
       resumen.totalPagoMensajero,
       resumen.totalIngresoBodegaRechazos,
@@ -411,7 +411,7 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
     // tienda, asi que Q8 —«no hay matriz tienda × mensajero»— se cumple por construccion y sin un
     // `if` que lo diga. El cruce ya existe un nivel mas abajo, en `cierres[].partesPorTienda`.
     //
-    // MISMO argumento que `totalesIngresoOrdenex` de arriba (R21): sale de las gestiones, nunca
+    // MISMO argumento que `totalesIngresoEmpresa` de arriba (R21): sale de las gestiones, nunca
     // de SUMAR el desglose de los mensajeros ni de repartir nada.
     //
     // ⚠️ Y AQUI ESTA LA ASIMETRIA HONESTA, que se deja escrita en vez de taparla: los agregados
@@ -434,13 +434,15 @@ export class CierresBodegaAdminService implements ICierresBodegaAdminService {
       ganancia,
       pagoTienda,
       cobradoSobreRecaudado: cobradoSobreRecaudadoAgregado,
-      netoOrdenex: netoOrdenexAgregado,
+      netoEmpresa: netoEmpresaAgregado,
       // Ficha 396: el agregado que le faltaba a este contrato y la particion de las dos cifras de
       // pago por tienda, ya ORDENADA por el servidor (por lo que se le paga, de mayor a menor).
       ganaLaTienda: ganaLaTiendaAgregado,
       partesPorTienda: partesDeLasTiendas,
       paraLaCentral: resumen.paraLaCentral,
       efectivoCubreDescuentos: resumen.efectivoCubreDescuentos,
+      // FICHA 500 (R3/R4): del repositorio, tal cual (el servicio no lo recalcula).
+      puedeDesmarcar: found.puedeDesmarcar,
     };
   }
 
@@ -518,6 +520,10 @@ function toResumen(row: CierreBodegaResumenRow): CierreBodegaResumen {
     conciliado: row.conciliado,
     montoRecibido: row.montoRecibido,
     faltaPorRecibir: row.faltaPorRecibir,
+    // FICHA 498 (R16/R41a): lo que debe, tal cual del mapper del repositorio (misma fuente).
+    debe: row.debe,
+    debePositivo: row.debePositivo,
+    saldadaReglaAnterior: row.saldadaReglaAnterior,
     conciliadoAt: row.conciliadoAt,
     conciliadoPorNombre: row.conciliadoPorNombre,
     conciliadoNota: row.conciliadoNota,

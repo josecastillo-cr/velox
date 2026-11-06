@@ -217,7 +217,7 @@ describe("237/D7 — el aviso del precio, que es lo que evita cobrar ₡1.000 si
     // mañana alguien vuelve a colar la frase del cobro —en el aviso, en la ayuda del motivo o en la
     // de las fotos—, se pone rojo igual. Verificado contra el código el 2026-08-28:
     // `pagoPorResultado` (pago-mensajero.ts:22) y `ingresoBodegaPorResultado` (ingreso-bodega.ts:23)
-    // devuelven "0.00" para `reprogramada`, y `derivarIngresoOrden` (ingreso-ordenex.ts:185-186) no
+    // devuelven "0.00" para `reprogramada`, y `derivarIngresoOrden` (ingreso-empresa.ts:185-186) no
     // le emite ningún concepto. Anunciar un cobro que no existe no es un texto feo: es la pantalla
     // disuadiendo de la acción BARATA y empujando hacia la que sí cuesta ₡2.600 más IVA.
     montar("reprogramar");

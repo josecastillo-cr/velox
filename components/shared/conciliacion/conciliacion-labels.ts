@@ -19,9 +19,13 @@ import { money } from "@/lib/config/moneda";
 export const CONCILIACION_ACCION = {
   /** Sobre una consolidación sin conciliar. */
   marcar: "Marcar recibido",
-  /** Sobre una que llegó incompleta: no se vuelve a marcar, se corrige el monto. */
+  /** Sobre una que llegó incompleta o de más (502/R7): no se vuelve a marcar, se corrige el monto. */
   corregir: "Corregir",
-  /** R12 — deshacer la marca. NO dice «Rechazar»: no rechaza nada, sólo borra la marca. */
+  /**
+   * R12 — deshacer la marca. NO dice «Rechazar»: no rechaza nada, sólo borra la marca. FICHA 498
+   * (R20/R22): solo prospera mientras la consolidación no tenga asientos; si ya entró a la caja, el
+   * servidor responde `con_asientos` y la pantalla lo dice (R21).
+   */
   desmarcar: "Desmarcar",
   cancelar: "Cancelar",
 } as const;
@@ -36,14 +40,33 @@ export const MARCAR_RECIBIDO_TEXTO = {
    */
   descripcion: (bodega: string, fecha: string) =>
     `Consolidación de ${bodega} del ${fecha}.`,
-  /** Lo que la bodega DECLARÓ que metió en el bulto. No se edita: es un dato, no una entrada. */
-  declarado: "Declarado por la bodega",
+  /**
+   * FICHA 498 (design §8.4, R16) — lo que DEBE la consolidación: su aporte reconocido, del servidor.
+   * Sustituye a «Declarado por la bodega» (el efectivo), que ya no es lo que se espera recibir.
+   */
+  debe: "Debe",
+  /** FICHA 498 (R16a) — lo recaudado por método, encima del campo. */
+  recaudado: "Recaudado",
+  metodo: {
+    efectivo: "Efectivo",
+    simpe: "SINPE",
+    transferencia: "Transferencia",
+  },
+  /** FICHA 498 (R16a) — texto LITERAL del requisito: lo recibido es un total (R16b). */
+  recibidoEsTotal:
+    "Escribe todo lo que recibió la central por esta consolidación: lo que entregó la satélite más " +
+    "el SINPE o la transferencia que llegó directo a la cuenta de la central.",
   montoRecibido: "Monto recibido",
   /**
-   * La pista del campo, palabra por palabra la del diseño aprobado. Dice las dos cosas que hay
-   * que saber: que el valor ya está puesto, y cuándo hay que tocarlo.
+   * La pista del campo. FICHA 498 (R16): el campo viene con lo que DEBE (o con 0 si no debe nada),
+   * ya no con el efectivo declarado.
    */
-  montoAyuda: "Viene con lo declarado. Cambialo solo si contaste una cantidad distinta.",
+  montoAyuda: "Viene con lo que debe. Cámbialo solo si la central recibió una cantidad distinta.",
+  /**
+   * FICHA 498 — la pista cuando quien monta el diálogo no tiene «lo que debe» del servidor (la cola
+   * de `/cierres-admin`, ver `progress/impl_498.md`): el campo arranca vacío y no promete nada.
+   */
+  montoAyudaSinDebe: "Escribe el total que recibió la central.",
   nota: "Nota",
   notaAyuda: "Opcional. Por ejemplo: «faltaron ₡15.000, entran el lunes».",
   confirmar: CONCILIACION_ACCION.marcar,
@@ -53,7 +76,8 @@ export const MARCAR_RECIBIDO_TEXTO = {
 
 /** Errores de campo que este formulario puede levantar por sí solo, antes de enviar. */
 export const MARCAR_RECIBIDO_ERROR = {
-  monto: "Escribí un monto válido, mayor que cero y con dos decimales como máximo.",
+  // FICHA 498 (Q5): el cero se admite en el borde (el servidor decide si la consolidación lo permite).
+  monto: "Escribe un monto válido: cero o más, con dos decimales como máximo.",
   notaLarga: (max: number) => `La nota no puede pasar de ${max} caracteres.`,
 } as const;
 
@@ -69,22 +93,28 @@ export const CONCILIACION_RESPUESTA = {
    */
   conflicto: "Esta consolidación ya cambió de estado. Actualizando la lista.",
   noEncontrada: "Esta consolidación ya no está disponible.",
-  forbidden: "No tenés permiso para conciliar consolidaciones de bodega.",
-  unauthenticated: "Tu sesión expiró. Iniciá sesión de nuevo.",
-  fallo: "No se pudo completar la operación. Intentá de nuevo.",
+  // FICHA 498 — en tuteo, como los textos literales de R16a, R21 y R43 que este mismo diálogo pinta.
+  forbidden: "No tienes permiso para conciliar consolidaciones de bodega.",
+  unauthenticated: "Tu sesión expiró. Inicia sesión de nuevo.",
+  fallo: "No se pudo completar la operación. Intenta de nuevo.",
+  /** FICHA 498 (Q5, design §4.4 bis, R15a) — recibido 0 con dinero por entregar: no cambió nada. */
+  reciboCeroConAporte: "Esta consolidación tiene dinero por entregar: el monto recibido no puede ser 0.",
+  /** FICHA 498 (R21) — revertir una consolidación que ya entró a la caja: no cambió nada. */
+  conAsientos: "Ya entró a la caja: corrige el monto en vez de revertir",
+  /** FICHA 498 (revisión m2) — revertir una consolidación saldada con la regla anterior: no cambió nada. */
+  saldadaReglaAnterior: "Esta consolidación está saldada con la regla anterior: no se puede revertir; si el monto no es el correcto, corrígelo.",
 } as const;
 
 /** Tope de la nota, el MISMO que el `.max(500)` del schema del borde. */
 export const CONCILIACION_NOTA_MAX = 500;
 
 /**
- * ⚠️ LA NOTA QUE IMPIDE QUE «DESMARCAR» SE LEA COMO UN MOVIMIENTO DE DINERO.
+ * FICHA 498 (R43) — LA NOTA DE LA CONCILIACIÓN, texto LITERAL del requisito.
  *
- * Va al pie del desglose, no escondida en un tooltip. Sin ella, «Desmarcar» junto a un importe
- * se lee como devolver plata, y quien lo piense no lo va a pulsar nunca — dejando una marca
- * equivocada viva para siempre, que es justo lo que D6 quiso evitar al hacerla reversible.
+ * Sustituye a la de la 431, que decía lo contrario: desde esta ficha marcar recibido ASIENTA el
+ * dinero de los cierres de la consolidación en la caja, y por eso la marca ya no se deshace —se
+ * corrige el monto—. Va al pie de la conciliación.
  */
-export const DESMARCAR_NO_MUEVE_DINERO_TITULO = "Desmarcar no mueve dinero.";
-export const DESMARCAR_NO_MUEVE_DINERO_NOTA =
-  "La marca es informativa: dice si el efectivo llegó, no lo contabiliza. Por eso se puede " +
-  "deshacer si alguien marcó por error — y queda registrado quién marcó y quién deshizo.";
+export const NOTA_CONCILIACION_ASIENTA =
+  "Marcar recibido asienta el dinero en la caja. Después no se puede desmarcar: si el monto no es " +
+  "el correcto, usa «Corregir»";

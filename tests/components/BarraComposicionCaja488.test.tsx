@@ -36,10 +36,14 @@ const BASE: CajaResumenDTO = {
   ivaPorPagar: "1500.00",
   signoIvaPorPagar: "positivo",
   porcentajeIva: "12.55",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos",
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "1500.00",
+  deEmpresa: "1500.00",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "9000.00",
   estado: "saldo",
@@ -70,15 +74,15 @@ describe("488 — la barra con IVA por pagar positivo (R14)", () => {
   const CASOS: Record<ModoComposicionCaja, { overrides: Partial<CajaResumenDTO>; forma: string[] }> = {
     dos_bolsillos: {
       overrides: { porcentajeTiendas: "75.25", porcentajeIva: "12.55" },
-      forma: ["tiendas:75.25%", "iva:12.55%", "ordenex:resto"],
+      forma: ["tiendas:75.25%", "iva:12.55%", "empresa:resto"],
     },
     solo_tiendas: {
       overrides: { porcentajeTiendas: "85.75", porcentajeIva: "14.25" },
       forma: ["tiendas:85.75%", "iva:resto"],
     },
-    solo_ordenex: {
+    solo_empresa: {
       overrides: { porcentajeTiendas: "0.00", porcentajeIva: "33.35" },
-      forma: ["iva:33.35%", "ordenex:resto"],
+      forma: ["iva:33.35%", "empresa:resto"],
     },
     sin_reparto: {
       overrides: { porcentajeTiendas: "0.00", porcentajeIva: "100.00" },
@@ -107,7 +111,7 @@ describe("488 — la barra con IVA por pagar positivo (R14)", () => {
       container.querySelector<HTMLElement>(`[data-segmento="${clave}"]`)?.className ?? "";
     expect(clases("iva")).toContain("bg-chart-13");
     expect(clases("tiendas")).toContain("bg-warning");
-    expect(clases("ordenex")).toContain("bg-muted-foreground");
+    expect(clases("empresa")).toContain("bg-muted-foreground");
   });
 
   it("la presencia de la porción la decide el SIGNO del servidor, no el importe", () => {
@@ -120,9 +124,9 @@ describe("488 — la barra con IVA por pagar positivo (R14)", () => {
 describe("488 — sin IVA por pagar, la barra de antes (R16)", () => {
   // La barra de la 231/459, escrita a mano: lo que pintaba antes de esta ficha.
   const ANTES: Record<ModoComposicionCaja, string[]> = {
-    dos_bolsillos: ["tiendas:75.25%", "ordenex:resto"],
+    dos_bolsillos: ["tiendas:75.25%", "empresa:resto"],
     solo_tiendas: ["tiendas:todo"],
-    solo_ordenex: ["ordenex:todo"],
+    solo_empresa: ["empresa:todo"],
     sin_reparto: [],
   };
 
@@ -136,6 +140,10 @@ describe("488 — sin IVA por pagar, la barra de antes (R16)", () => {
       signoIvaPorPagar: signo,
       ivaPorPagar: signo === "cero" ? "0.00" : "-250.00",
       porcentajeIva: "0.00",
+      // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+      porCobrarSatelites: "0.00",
+      signoPorCobrarSatelites: "cero" as const,
+      porcentajePorCobrar: "0.00",
     });
     expect(forma(container)).toEqual(ANTES[modo]);
     expect(container.querySelector('[data-segmento="iva"]')).toBeNull();
@@ -144,7 +152,7 @@ describe("488 — sin IVA por pagar, la barra de antes (R16)", () => {
 
 describe("488 — el nombre accesible enuncia los tres bolsillos (R15)", () => {
   it("con su rótulo y su importe", () => {
-    pintar({ deTerceros: "9000.00", deOrdenex: "1500.75", ivaPorPagar: "1499.25" });
+    pintar({ deTerceros: "9000.00", deEmpresa: "1500.75", ivaPorPagar: "1499.25" });
     expect(screen.getByRole("img").getAttribute("aria-label")).toBe(
       `Reparto del dinero en caja. De las tiendas: ₡9.000. De ${NOMBRE_CORTO_ESPERADO}: ₡1.500,75 (ganancia y aportes). IVA por pagar: ₡1.499,25.`,
     );

@@ -2,7 +2,7 @@ import type {
   CierreDetalleGestion,
   CierreGrupos,
   CierreResultado,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
   TarifaSnapshotDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
@@ -28,7 +28,7 @@ export function tarifa478(over: Partial<TarifaSnapshotDTO> = {}): TarifaSnapshot
   };
 }
 
-export function ingreso478(over: Partial<IngresoOrdenexDTO> = {}): IngresoOrdenexDTO {
+export function ingreso478(over: Partial<IngresoEmpresaDTO> = {}): IngresoEmpresaDTO {
   return {
     montoCobrar: null,
     cobraComision: true,
@@ -117,7 +117,7 @@ export const ENTREGA_478 = gestion478({
   ],
   pagoMensajero: "1200.40",
   evidenciaUrl: "https://signed.example/ent.jpg?token=e1", evidenciaUrls: ["https://signed.example/ent.jpg?token=e1"],
-  ingresoOrdenex: ingreso478({
+  ingresoEmpresa: ingreso478({
     montoCobrar: "8000.50",
     flete: "2000.00",
     ivaFlete: "260.00",

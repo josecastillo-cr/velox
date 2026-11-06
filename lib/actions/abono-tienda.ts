@@ -26,7 +26,7 @@ import {
 } from "@/lib/types/abono-tienda";
 import type { ArchivoComprobanteLike } from "@/lib/types/pago-por-cuenta-tienda";
 
-// FICHA 457 (design §7) — el BORDE del pago de una tienda a Ordenex. Archivo NUEVO a proposito:
+// FICHA 457 (design §7) — el BORDE del pago de una tienda a la empresa. Archivo NUEVO a proposito:
 // `wallet-tienda.ts` y `liquidacion.ts` tienen tests de lista exacta de exportaciones.
 //
 // Orden de cada action: sesion (`unauthenticated` antes de mirar la entrada, R3) → zod `.strict()`
@@ -99,10 +99,10 @@ async function leerComprobante(
 }
 
 /**
- * R1–R30 — registra un pago de una tienda a Ordenex. Entrada: `FormData` con `claveIdempotencia`,
+ * R1–R30 — registra un pago de una tienda a la empresa. Entrada: `FormData` con `claveIdempotencia`,
  * `tiendaId`, `monto`, `metodo`, `referencia?`, `motivo`, `fechaPago` y `comprobante?` (File).
- * Superficie: el concepto «Una tienda le paga a Ordenex» de `RegistrarMovimientoDialog` (458-C), que
- * también abre la acción «La tienda le paga a Ordenex» del estado de cuenta de la tienda (458-D,
+ * Superficie: el concepto «Una tienda le paga a la empresa» de `RegistrarMovimientoDialog` (458-C), que
+ * también abre la acción «La tienda le paga a la empresa» del estado de cuenta de la tienda (458-D,
  * `EstadoCuentaAcciones`).
  */
 export async function registrarAbonoTiendaAction(
@@ -121,7 +121,7 @@ export async function registrarAbonoTiendaAction(
 }
 
 /**
- * R31–R39 — anula un pago de una tienda a Ordenex. Sin monto: el del documento manda (R34).
+ * R31–R39 — anula un pago de una tienda a la empresa. Sin monto: el del documento manda (R34).
  */
 export async function anularAbonoTiendaAction(
   input: unknown,

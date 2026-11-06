@@ -64,11 +64,11 @@ describe("puerta única de la descarga detallada de cierres (R13/R36)", () => {
     // Ficha 470 (R24): la acción llega por la preparación de descargas (`descargarDatos("<clave>", f)`),
     // que la ejecuta a través del registro con la MISMA entrada; la clave es el nombre de la acción.
     const cierresDia = sinComentarios(fuente(PANTALLA_CIERRES_DIA));
-    expect(cierresDia).toMatch(/accion=\{\(f\) => descargarDatos\("listarGestionesCierresAdminCompleto", f\)\}/);
+    expect(cierresDia).toMatch(/accion=\{\(f\) => descargarDatos\("listarGestionesCierresAdminCompletoV2", f\)\}/);
     expect(cierresDia).not.toMatch(/listarGestionesCierresBodegaCompleto/);
 
     const bodega = sinComentarios(fuente(PANTALLA_BODEGA));
-    expect(bodega).toMatch(/accion=\{\(f\) => descargarDatos\("listarGestionesCierresBodegaCompleto", f\)\}/);
+    expect(bodega).toMatch(/accion=\{\(f\) => descargarDatos\("listarGestionesCierresBodegaCompletoV2", f\)\}/);
     expect(bodega).not.toMatch(/listarGestionesCierresAdminCompleto/);
   });
 

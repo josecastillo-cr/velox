@@ -10,12 +10,12 @@ import type {
 import type { CierreGestionPendienteRow } from "@/lib/interfaces/repositories/ICierreDiaRepository";
 import type { ISignedUrlProvider } from "@/lib/interfaces/external/ISignedUrlProvider";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
-import type { IngresoOrdenexDTO } from "@/lib/interfaces/services/ICierreDiaService";
+import type { IngresoEmpresaDTO } from "@/lib/interfaces/services/ICierreDiaService";
 import { conPagos } from "@/tests/fixtures/cierre-pagos";
 // Feature 393: el doble de la fila del repositorio deriva sus dos campos nuevos con las MISMAS
 // funciones puras que usa el mapper real, para que un caso que cambie los snapshots no deje el
 // doble diciendo un numero que el mapper nunca produciria.
-import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-ordenex";
+import { efectivoCubreDescuentos, paraLaCentral } from "@/lib/utils/ingreso-empresa";
 
 import { marcaPorEstado } from "@/tests/fixtures/marca-conciliacion";
 // Feature 40 — tests unit del CierresBodegaAdminService (lado maestro; dobles de
@@ -215,6 +215,7 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
       // lectura, el firmador se llamaría con esta ruta.
       const repo = fakeRepo({
         findCierreBodegaConDetalle: vi.fn(async () => ({
+          puedeDesmarcar: false, // ficha 500
           cierre: bodegaResumenRow(),
           cierresDia: [
             {
@@ -237,6 +238,7 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
     const repo = fakeRepo({
       findCierresBodega: vi.fn(async () => [bodegaResumenRow()]),
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [{ resumen: detalleCierreRow(), gestiones: [gestionRow()] }],
       })),
@@ -251,7 +253,47 @@ describe("CierresBodegaAdminService — autorizacion (R2)", () => {
   });
 });
 
+describe("FICHA 500 (R3/R4) — el detalle propaga `puedeDesmarcar` del repositorio tal cual", () => {
+  it.each([true, false])("repositorio dice %s -> el DTO dice lo mismo (el servicio no recalcula)", async (valor) => {
+    const repo = fakeRepo({
+      findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: valor,
+        cierre: bodegaResumenRow(),
+        cierresDia: [],
+      })),
+    });
+    const { service } = newService({ repo });
+    const r = await service.verCierreBodegaDetalle("cb1", MAESTRO);
+    expect(r.status).toBe("ok");
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    expect(r.puedeDesmarcar).toBe(valor);
+  });
+});
+
 // --- listar cola + historico (R15/R13/R23) ---
+
+describe("FICHA 498 (R16/R41a) — la cola de /cierres-admin lleva lo que debe, tal cual del repositorio", () => {
+  it("⭑ `debe`, `debePositivo` y `saldadaReglaAnterior` viajan sin recalcularse", async () => {
+    const repo = fakeRepo({
+      findCierresBodega: vi.fn(async () => [
+        { ...bodegaResumenRow({ cierreBodegaId: "a", estado: "solicitado" }), debe: "1234.56", debePositivo: true, saldadaReglaAnterior: false },
+        {
+          ...bodegaResumenRow({ cierreBodegaId: "b", estado: "aprobado", resueltoAt: "2026-07-12T12:00:00.000Z" }),
+          debe: "-20.00",
+          debePositivo: false,
+          saldadaReglaAnterior: true,
+        },
+      ]),
+    });
+    const { service } = newService({ repo });
+    const r = await service.listarCierresBodegaAdmin(MAESTRO);
+    if (r.status !== "ok") throw new Error("esperaba ok");
+    const [a] = r.pendientes;
+    const [b] = r.historico;
+    expect([a.debe, a.debePositivo, a.saldadaReglaAnterior]).toEqual(["1234.56", true, false]);
+    expect([b.debe, b.debePositivo, b.saldadaReglaAnterior]).toEqual(["-20.00", false, true]);
+  });
+});
 
 describe("CierresBodegaAdminService.listarCierresBodegaAdmin (R15/R13/R23)", () => {
   it("R15: parte pendientes (solicitado) del historico (aprobado/rechazado)", async () => {
@@ -302,7 +344,7 @@ describe("CierresBodegaAdminService.listarCierresBodegaAdmin (R15/R13/R23)", () 
 
 describe("CierresBodegaAdminService.verCierreBodegaDetalle — ingreso y ganancia", () => {
   /** Desglose por orden como lo emite el repo (ya derivado del snapshot). */
-  function conIngreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+  function conIngreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
     return {
       montoCobrar: null,
       cobraComision: false,
@@ -328,6 +370,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — ingreso y gananci
   it("deriva el ingreso y la ganancia por cierre_dia Y agregados de toda la bodega", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         // Snapshot agregado de la bodega: 1500 + 500 de pago a mensajeros.
         cierre: bodegaResumenRow({ totalPagoMensajero: "2000.00" }),
         cierresDia: [
@@ -337,7 +380,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — ingreso y gananci
               gestionRow({
                 gestionId: "g1",
                 resultado: "entregado",
-                ingresoOrdenex: conIngreso({
+                ingresoEmpresa: conIngreso({
                   flete: "2500.00",
                   ivaFlete: "325.00",
                   fleteConIva: "2825.00",
@@ -352,7 +395,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — ingreso y gananci
               gestionRow({
                 gestionId: "g2",
                 resultado: "devolucion_a_origen_por_rechazo",
-                ingresoOrdenex: conIngreso({
+                ingresoEmpresa: conIngreso({
                   fleteDevolucion: "1000.00",
                   ivaFleteDevolucion: "130.00",
                   fleteDevolucionConIva: "1130.00",
@@ -394,6 +437,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — ingreso y gananci
   it("la ganancia agregada es negativa si la bodega no factura pero igual paga", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ totalPagoMensajero: "2000.00" }),
         cierresDia: [
           {
@@ -418,6 +462,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R11/R13: detalle por cierre_dia con gestiones agrupadas por resultado + totales snapshot", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({
           totales: { efectivo: "20.00", simpe: "0.00", transferencia: "0.00", general: "20.00" },
         }),
@@ -468,6 +513,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R12: firma en LOTE las evidencias de todos los cierre_dia; expone SOLO URL firmada, no el path", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [
           {
@@ -501,6 +547,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("478/R13: firma la evidencia de una ENTREGADA, una REPROGRAMADA y una NOVEDAD, no solo de rechazos", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [
           {
@@ -546,6 +593,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R20: el detalle expone el pago al mensajero snapshoteado por cierre_dia, por gestion y el agregado", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ totalPagoMensajero: "12.00" }),
         cierresDia: [
           {
@@ -570,6 +618,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R19: el detalle expone el ingreso de bodega por devoluciones a origen por cierre_dia y el agregado (snapshot)", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ totalIngresoBodegaRechazos: "9.00" }),
         cierresDia: [
           {
@@ -603,6 +652,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle (R11/R12/R13/R14/R19/
   it("R23: ver detalle NO muta (nunca invoca resolverCierreBodega)", async () => {
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [{ resumen: detalleCierreRow(), gestiones: [gestionRow()] }],
       })),
@@ -686,7 +736,7 @@ describe("CierresBodegaAdminService — R11: aprobar bodega NO genera ingresos d
   it("R11: aprobar un CierreBodega solo transiciona su estado; NO invoca ningun feed de wallet", async () => {
     // El CierresBodegaAdminService NO tiene NINGUNA dependencia de wallet (constructor =
     // repo + signedUrls). Aprobar solo llama resolverCierreBodega (transicion de estado del
-    // agregado, feature 40). La fuente unica de ingresos de Ordenex es CierreDia (feature
+    // agregado, feature 40). La fuente unica de ingresos de la empresa es CierreDia (feature
     // 42/T8): la bodega agrega cierre_dia ya contados, por eso NO re-cuenta (F1.4-Q3).
     const resolver = vi.fn(async () => "updated" as const);
     const repo = fakeRepo({ resolverCierreBodega: resolver });
@@ -855,7 +905,7 @@ describe("Feature 238 (R39) — aprobar un CierreBodega NO pide confirmacion fis
  * seria una asercion contra su propia fuente y estaria siempre verde.
  */
 describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas (feature 393)", () => {
-  function conIngreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+  function conIngreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
     return {
       montoCobrar: null,
       cobraComision: false,
@@ -921,6 +971,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
   ) {
     return fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ ...AGREGADO, ...cierre }),
         cierresDia: [
           {
@@ -929,7 +980,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
               gestionRow({
                 gestionId: "g1",
                 resultado: "entregado",
-                ingresoOrdenex: conIngreso({
+                ingresoEmpresa: conIngreso({
                   flete: "2500.55",
                   ivaFlete: "325.07",
                   fleteConIva: "2825.62",
@@ -952,7 +1003,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
               gestionRow({
                 gestionId: "g2",
                 resultado: "entregado",
-                ingresoOrdenex: conIngreso({
+                ingresoEmpresa: conIngreso({
                   flete: "1800.35",
                   ivaFlete: "234.05",
                   fleteConIva: "2034.40",
@@ -965,7 +1016,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
               gestionRow({
                 gestionId: "g3",
                 resultado: "devolucion_a_origen_por_rechazo",
-                ingresoOrdenex: conIngreso({
+                ingresoEmpresa: conIngreso({
                   fleteDevolucion: "1200.45",
                   ivaFleteDevolucion: "156.06",
                   fleteDevolucionConIva: "1356.51",
@@ -999,20 +1050,20 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
       r.cierre.totales.general,
     );
 
-    // R7 — la linea puente mas el flete por devolución a origen = lo que Ordenex facturo.
+    // R7 — la linea puente mas el flete por devolución a origen = lo que la empresa facturo.
     expect(r.cobradoSobreRecaudado).toBe("7233.51");
     expect(suma(r.cobradoSobreRecaudado, r.totalesIngreso.fleteDevolucionConIva)).toBe(
       r.totalesIngreso.total,
     );
 
-    // R8 — lo facturado menos los dos pagos de Ordenex = neto. Sale NEGATIVO en este cierre, y
+    // R8 — lo facturado menos los dos pagos de la empresa = neto. Sale NEGATIVO en este cierre, y
     // se emite con su signo. NO es `ganancia`: la diferencia entre las dos es, al centimo, el
     // ingreso de bodega.
-    expect(r.netoOrdenex).toBe("-6661.43");
+    expect(r.netoEmpresa).toBe("-6661.43");
     expect(r.ganancia).toBe("-5410.98");
-    expect(suma(r.netoOrdenex, r.cierre.totalIngresoBodegaRechazos)).toBe(r.ganancia);
+    expect(suma(r.netoEmpresa, r.cierre.totalIngresoBodegaRechazos)).toBe(r.ganancia);
     expect(
-      suma(r.netoOrdenex, r.cierre.totalPagoMensajero, r.cierre.totalIngresoBodegaRechazos),
+      suma(r.netoEmpresa, r.cierre.totalPagoMensajero, r.cierre.totalIngresoBodegaRechazos),
     ).toBe(r.totalesIngreso.total);
 
     // R9 — lo recaudado menos los dos descuentos de la bodega = para la central.
@@ -1035,12 +1086,12 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
     // Cada dia, desde SUS PROPIOS snapshots.
     expect(cd1.cobradoSobreRecaudado).toBe("4181.99");
     expect(cd1.pagoTienda).toBe("60818.46");
-    expect(cd1.netoOrdenex).toBe("-3818.56");
+    expect(cd1.netoEmpresa).toBe("-3818.56");
     expect(cd1.paraLaCentral).toBe("56999.90");
 
     expect(cd2.cobradoSobreRecaudado).toBe("3051.52");
     expect(cd2.pagoTienda).toBe("38037.20");
-    expect(cd2.netoOrdenex).toBe("-2842.87");
+    expect(cd2.netoEmpresa).toBe("-2842.87");
     expect(cd2.paraLaCentral).toBe("33837.82");
 
     // Y la suma de los dos da el agregado, sin un centimo de deriva.
@@ -1048,7 +1099,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
       r.cobradoSobreRecaudado,
     );
     expect(suma(cd1.pagoTienda, cd2.pagoTienda)).toBe(r.pagoTienda);
-    expect(suma(cd1.netoOrdenex, cd2.netoOrdenex)).toBe(r.netoOrdenex);
+    expect(suma(cd1.netoEmpresa, cd2.netoEmpresa)).toBe(r.netoEmpresa);
     expect(suma(cd1.paraLaCentral, cd2.paraLaCentral)).toBe(r.paraLaCentral);
   });
 
@@ -1108,7 +1159,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
 
     // El agregado sale de SUS numeros: 999.99 - 111.11 - 22.22.
     expect(r.paraLaCentral).toBe("866.66");
-    expect(r.netoOrdenex).toBe("8456.69"); // 8590.02 - 111.11 - 22.22
+    expect(r.netoEmpresa).toBe("8456.69"); // 8590.02 - 111.11 - 22.22
 
     // Los dias NO se han tocado: siguen valiendo lo de su propio snapshot.
     expect(r.cierres[0].paraLaCentral).toBe("56999.90");
@@ -1116,7 +1167,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
 
     // Y nadie ha corregido a nadie para que cuadren: la suma de los dias NO da el agregado.
     expect(suma(r.cierres[0].paraLaCentral, r.cierres[1].paraLaCentral)).not.toBe(r.paraLaCentral);
-    expect(suma(r.cierres[0].netoOrdenex, r.cierres[1].netoOrdenex)).not.toBe(r.netoOrdenex);
+    expect(suma(r.cierres[0].netoEmpresa, r.cierres[1].netoEmpresa)).not.toBe(r.netoEmpresa);
   });
 
   it("5 · el aviso del efectivo mira el EFECTIVO agregado, no el general (R37)", async () => {
@@ -1207,7 +1258,7 @@ describe("CierresBodegaAdminService.verCierreBodegaDetalle — las dos cascadas 
  */
 describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en los DOS niveles", () => {
   /** Desglose por orden como lo emite el repositorio (ya derivado del snapshot congelado). */
-  function ingreso(over: Partial<IngresoOrdenexDTO>): IngresoOrdenexDTO {
+  function ingreso(over: Partial<IngresoEmpresaDTO>): IngresoEmpresaDTO {
     return {
       montoCobrar: null,
       cobraComision: false,
@@ -1240,7 +1291,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
       resultado: "entregado",
       montoRecibido: "100000.00",
       metodoPago: "efectivo",
-      ingresoOrdenex: ingreso({
+      ingresoEmpresa: ingreso({
         flete: "2500.00",
         ivaFlete: "325.00",
         fleteConIva: "2825.00",
@@ -1258,7 +1309,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
       resultado: "devolucion_a_origen_por_rechazo",
       montoRecibido: null,
       metodoPago: null,
-      ingresoOrdenex: ingreso({
+      ingresoEmpresa: ingreso({
         fleteDevolucion: "1500.00",
         ivaFleteDevolucion: "195.00",
         fleteDevolucionConIva: "1695.00",
@@ -1277,7 +1328,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
       resultado: "entregado",
       montoRecibido: "40000.00",
       metodoPago: "SINPE",
-      ingresoOrdenex: ingreso({
+      ingresoEmpresa: ingreso({
         flete: "2000.00",
         ivaFlete: "260.00",
         fleteConIva: "2260.00",
@@ -1295,7 +1346,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
       resultado: "entregado",
       montoRecibido: "25000.00",
       metodoPago: "efectivo",
-      ingresoOrdenex: ingreso({
+      ingresoEmpresa: ingreso({
         flete: "2000.00",
         ivaFlete: "260.00",
         fleteConIva: "2260.00",
@@ -1337,6 +1388,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
   function repoDeDosMensajeros(cierre: Partial<CierreBodegaResumenRow> = {}) {
     return fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({ ...SNAPSHOT_AGREGADO, ...cierre }),
         cierresDia: [
           {
@@ -1595,7 +1647,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
     expect(r.ganancia).toBe("5633.50"); // 14.633,50 − 9.000,00
     expect(r.pagoTienda).toBe("152061.50");
     expect(r.cobradoSobreRecaudado).toBe("12938.50"); // 7.345,00 + 5.593,50
-    expect(r.netoOrdenex).toBe("5133.50"); // 14.633,50 − 9.000,00 − 500,00
+    expect(r.netoEmpresa).toBe("5133.50"); // 14.633,50 − 9.000,00 − 500,00
     expect(r.paraLaCentral).toBe("155500.00"); // 165.000,00 − 9.000,00 − 500,00
     expect(r.efectivoCubreDescuentos).toBe(true);
 
@@ -1604,13 +1656,13 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
     expect(r.cierres[0].ganancia).toBe("2910.00"); // 7.910,00 − 5.000,00
     expect(r.cierres[0].pagoTienda).toBe("93785.00");
     expect(r.cierres[0].cobradoSobreRecaudado).toBe("6215.00"); // 2.825,00 + 3.390,00
-    expect(r.cierres[0].netoOrdenex).toBe("2410.00"); // 7.910,00 − 5.000,00 − 500,00
+    expect(r.cierres[0].netoEmpresa).toBe("2410.00"); // 7.910,00 − 5.000,00 − 500,00
     expect(r.cierres[0].paraLaCentral).toBe("94500.00"); // 100.000,00 − 5.000,00 − 500,00
     expect(r.cierres[1].totalesIngreso.total).toBe("6723.50");
     expect(r.cierres[1].ganancia).toBe("2723.50");
     expect(r.cierres[1].pagoTienda).toBe("58276.50");
     expect(r.cierres[1].cobradoSobreRecaudado).toBe("6723.50");
-    expect(r.cierres[1].netoOrdenex).toBe("2723.50");
+    expect(r.cierres[1].netoEmpresa).toBe("2723.50");
     expect(r.cierres[1].paraLaCentral).toBe("61000.00"); // 65.000,00 − 4.000,00 − 0,00
   });
 
@@ -1631,6 +1683,7 @@ describe("396/D1 — `verCierreBodegaDetalle` emite el desglose por tienda en lo
     // error que la 264 ya documentó.
     const repo = fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow({
           totales: {
             efectivo: "100000.00",
@@ -1678,6 +1731,7 @@ describe("486 · CierresBodegaAdminService.verCierreBodegaDetalle — todas las 
   function repoConVariasFotos() {
     return fakeRepo({
       findCierreBodegaConDetalle: vi.fn(async () => ({
+        puedeDesmarcar: false, // ficha 500
         cierre: bodegaResumenRow(),
         cierresDia: [
           {

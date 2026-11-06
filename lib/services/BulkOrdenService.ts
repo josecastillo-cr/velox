@@ -56,7 +56,7 @@ import {
   type GeoResult,
 } from "@/lib/services/geo-resolucion";
 import { parseCantonDistrito } from "@/lib/utils/canton-distrito";
-import { desgloseCargaApi, tieneFulfillment } from "@/lib/utils/ingreso-ordenex";
+import { desgloseCargaApi, tieneFulfillment } from "@/lib/utils/ingreso-empresa";
 import { nombreDeEstado } from "@/lib/types/order-status";
 
 // FEATURE 155/R19/R22: la constante `ESTATUS_INICIAL_API` (= `en_ruta_bodega_central`) se
@@ -794,7 +794,7 @@ export class BulkOrdenService implements IBulkOrdenService {
     const textoNormalizado: TextoNormalizado[] = [];
     const reparados: Partial<Record<(typeof CAMPOS_TEXTO_ETIQUETA)[number], string>> = {};
 
-    // R12/A3 — `num_remision` NO SE REPARA NUNCA, solo se juzga. Es el identificador que Ordenex
+    // R12/A3 — `num_remision` NO SE REPARA NUNCA, solo se juzga. Es el identificador que la empresa
     // COMPARTE con la tienda: por el se deduplica (R25/R26) y por el vuelve el XLSX de errores
     // (ficha 143). Repararlo crearia una orden con una remision distinta de la del archivo, y los
     // dos sistemas se quedarian con dos claves para la misma orden — peor que rechazar la fila.

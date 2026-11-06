@@ -21,7 +21,7 @@ import {
 /**
  * Feature 173 (design §1.1/§1.2) — la caja principal, partida en DOS cifras.
  *
- * El problema en una frase: mientras la caja solo contuviera dinero DE ORDENEX, «ingresos −
+ * El problema en una frase: mientras la caja solo contuviera dinero DE LA EMPRESA, «ingresos −
  * egresos» era la ganancia y podia llamarse «balance» sin mentir. En cuanto entra el
  * contra-entrega —dinero DE LAS TIENDAS que solo pasa por la caja— ese numero deja de
  * significar una sola cosa. Esta feature no consiste en meter dos categorias: consiste en
@@ -35,7 +35,7 @@ import {
  */
 
 /**
- * De quien es el dinero: de Ordenex, o de un tercero que lo tiene aparcado en la caja.
+ * De quien es el dinero: de la empresa, o de un tercero que lo tiene aparcado en la caja.
  *
  * Feature 231: la DECLARACION se muda a `lib/types/wallet.ts` —desde esta feature es tambien
  * el tipo de un campo de `WalletMovimientoDTO` (R31), y `lib/types/` no puede depender de
@@ -60,7 +60,7 @@ export type { NaturalezaMovimiento };
  * garantia no dependa de que alguien ejecute `tsc`.
  */
 export const NATURALEZA_POR_CATEGORIA: Record<WalletMovimientoCategoria, NaturalezaMovimiento> = {
-  // PROPIO: lo que Ordenex gana y lo que Ordenex gasta.
+  // PROPIO: lo que la empresa gana y lo que la empresa gasta.
   ingreso_flete: "propio",
   ingreso_flete_devolucion: "propio",
   ingreso_comision_cod: "propio",
@@ -81,42 +81,46 @@ export const NATURALEZA_POR_CATEGORIA: Record<WalletMovimientoCategoria, Natural
   // caja hacia un tercero (baja «De las tiendas», no la ganancia); su anulacion lo devuelve.
   egreso_pago_por_cuenta_tienda: "terceros",
   ingreso_reverso_pago_por_cuenta_tienda: "terceros",
-  // CAPITAL (P1): el saldo inicial o aporte, y su anulacion. Dinero de Ordenex que NO es ganancia.
+  // CAPITAL (P1): el saldo inicial o aporte, y su anulacion. Dinero de la empresa que NO es ganancia.
   ingreso_aporte_capital: "capital",
   egreso_reverso_aporte_capital: "capital",
-  // Ficha 461 (design §2.1, HD1): el cobro de Ordenex a una tienda ES ganancia de Ordenex (se toma
+  // Ficha 461 (design §2.1, HD1): el cobro de la empresa a una tienda ES ganancia de la empresa (se toma
   // del saldo que le guardaba a la tienda), y su anulacion la devuelve. Los dos PROPIOS.
   ingreso_cobro_tienda: "propio",
   egreso_reverso_cobro_tienda: "propio",
-  // Ficha 457 (design §4, DH1): el PAGO DE UNA TIENDA A ORDENEX es dinero DE LA TIENDA que entra a la
+  // Ficha 457 (design §4, DH1): el PAGO DE UNA TIENDA A LA EMPRESA es dinero DE LA TIENDA que entra a la
   // caja —los fletes que debia ya se contaron como ganancia al aprobar cada cierre; contarlos otra
   // vez al cobrarlos la duplicaria—. Sube «De las tiendas» (la deuda de la tienda baja); su anulacion
   // la devuelve. Los dos DE TERCEROS. La guardia `caja-clasificacion-459` pone rojo `propio` aqui.
   ingreso_abono_tienda: "terceros",
   egreso_reverso_abono_tienda: "terceros",
   // Ficha 458-B (design §2.3, D7): la anulacion de un cobro por rechazo aprobado. El reverso del
-  // flete es PROPIO —el flete era ganancia de Ordenex; anularlo la baja—, igual que el reverso del
+  // flete es PROPIO —el flete era ganancia de la empresa; anularlo la baja—, igual que el reverso del
   // cobro de la 461. El de su IVA, desde la 488, es `iva` (abajo).
   egreso_reverso_flete_devolucion: "propio",
-  // IVA (ficha 488, design §2.1, R1): el IVA cobrado a las tiendas NO es de Ordenex: se le debe a
+  // IVA (ficha 488, design §2.1, R1): el IVA cobrado a las tiendas NO es de la empresa: se le debe a
   // Hacienda. Los tres IVA del feed, la anulacion del IVA del flete por devolucion a origen (R10: netea
   // contra el IVA, no contra la ganancia), el Pago de IVA y su anulacion. Antes de la 488 los cuatro
-  // primeros eran `propio` y la ganancia, «De Ordenex» y la composicion contaban el IVA como ganancia.
+  // primeros eran `propio` y la ganancia, «De la empresa» y la composicion contaban el IVA como ganancia.
   ingreso_iva_flete: "iva",
   ingreso_iva_flete_devolucion: "iva",
   ingreso_iva_comision_cod: "iva",
   egreso_reverso_iva_flete_devolucion: "iva",
   egreso_pago_iva: "iva",
   ingreso_reverso_pago_iva: "iva",
+  // Ficha 498 (design §8.1, R33): la diferencia de la satelite al conciliar. Dueño propio: no es
+  // ganancia, ni de las tiendas, ni capital, ni IVA; es lo que las satelites deben (o se les debe).
+  egreso_diferencia_satelite: "por_cobrar_satelite",
+  ingreso_diferencia_satelite: "por_cobrar_satelite",
 };
 
 /**
  * Ficha 459 (design §2.2, R1/R9) — si un concepto de la caja es dinero que entro o salio DE
- * VERDAD (`efectivo`) o un CARGO A UNA TIENDA: la parte de Ordenex (flete, flete por rechazo,
+ * VERDAD (`efectivo`) o un CARGO A UNA TIENDA: la parte de la empresa (flete, flete por rechazo,
  * comision de contra-entrega y el impuesto de cada uno) que se DESCUENTA del saldo de la tienda.
  *
  * Un cargo no es una entrada de efectivo: es un traspaso de dinero que ya esta en la caja (el
- * contra-entrega, que es de la tienda) al bolsillo de Ordenex; o, si la orden no tuvo
+ * contra-entrega, que es de la tienda) al bolsillo de la empresa; o, si la orden no tuvo
  * contra-entrega, una deuda de la tienda que se cobra reduciendo su saldo. En los dos casos la
  * ganancia sube, «De las tiendas» baja lo mismo y el efectivo no cambia — exactamente lo que el
  * libro de las tiendas ya registra con su debito espejo (`MAPEO_CONCEPTO_TIENDA`).
@@ -124,11 +128,11 @@ export const NATURALEZA_POR_CATEGORIA: Record<WalletMovimientoCategoria, Natural
  * `Record` TOTAL por el mismo motivo que `NATURALEZA_POR_CATEGORIA`: un concepto nuevo de la caja
  * no compila hasta que alguien decide si es efectivo o un cargo. La guardia
  * `tests/unit/guards/caja-clasificacion-459.guardia.test.ts` afirma que el conjunto
- * `cargo_a_tienda` son los seis del feed MAS el cobro de Ordenex a una tienda y su reverso, todos
+ * `cargo_a_tienda` son los seis del feed MAS el cobro de la empresa a una tienda y su reverso, todos
  * propios, y que el signo de su efecto en «De las tiendas» lo da el prefijo.
  *
  * Ficha 461 (design §2.2, P1): la liquidez «cargo» vale TAMBIEN para egresos. Un egreso «cargo» es
- * el REVERSO de un cargo (la anulacion de un cobro de Ordenex a una tienda): no saca dinero de la
+ * el REVERSO de un cargo (la anulacion de un cobro de la empresa a una tienda): no saca dinero de la
  * caja —no suma a «Salio»—, baja la ganancia y SUBE «De las tiendas» (le devuelve el saldo).
  */
 export type LiquidezMovimiento = "efectivo" | "cargo_a_tienda";
@@ -141,7 +145,7 @@ export const LIQUIDEZ_POR_CATEGORIA: Record<WalletMovimientoCategoria, LiquidezM
   ingreso_iva_flete: "cargo_a_tienda",
   ingreso_iva_flete_devolucion: "cargo_a_tienda",
   ingreso_iva_comision_cod: "cargo_a_tienda",
-  // Ficha 461 (HD1): el cobro de Ordenex a una tienda es el SEPTIMO cargo —igual que un flete, se
+  // Ficha 461 (HD1): el cobro de la empresa a una tienda es el SEPTIMO cargo —igual que un flete, se
   // toma del saldo de la tienda y no entra dinero nuevo— y su anulacion es el REVERSO de un cargo.
   ingreso_cobro_tienda: "cargo_a_tienda",
   egreso_reverso_cobro_tienda: "cargo_a_tienda",
@@ -166,7 +170,7 @@ export const LIQUIDEZ_POR_CATEGORIA: Record<WalletMovimientoCategoria, LiquidezM
   ingreso_reverso_pago_por_cuenta_tienda: "efectivo",
   ingreso_aporte_capital: "efectivo",
   egreso_reverso_aporte_capital: "efectivo",
-  // Ficha 457 (design §4, R19/R24): el pago de una tienda a Ordenex entra DE VERDAD (suma a «Entro»)
+  // Ficha 457 (design §4, R19/R24): el pago de una tienda a la empresa entra DE VERDAD (suma a «Entro»)
   // y su anulacion sale de verdad (suma a «Salio»). Como `cargo_a_tienda` no subiria «Entro» aunque
   // el dinero entro: rompe R7/R8 en cuanto la tienda paga (A6 descartada).
   ingreso_abono_tienda: "efectivo",
@@ -176,14 +180,17 @@ export const LIQUIDEZ_POR_CATEGORIA: Record<WalletMovimientoCategoria, LiquidezM
   // principal y SUBIRIA «De las tiendas» sin que ninguna tienda cobrara nada (mutacion m4).
   egreso_pago_iva: "efectivo",
   ingreso_reverso_pago_iva: "efectivo",
+  // Ficha 498 (design §8.1, R33): dinero que entra o sale de verdad (o deja de entrar).
+  egreso_diferencia_satelite: "efectivo",
+  ingreso_diferencia_satelite: "efectivo",
 };
 
 /**
  * Las sumas que hacen falta, por cubeta. Ficha 459 (design §2.2): SOLO se suma; ninguna resta.
  *
  *  - `entradasEfectivo`: los ingresos que son dinero que entro de verdad (no los cargos).
- *  - `cargosATiendas`: los conceptos de la parte de Ordenex que se DESCUENTA del saldo de la
- *    tienda (los seis del feed y, desde la 461, el cobro de Ordenex a una tienda). Tambien suman a
+ *  - `cargosATiendas`: los conceptos de la parte de la empresa que se DESCUENTA del saldo de la
+ *    tienda (los seis del feed y, desde la 461, el cobro de la empresa a una tienda). Tambien suman a
  *    `ingresosPropios`: para la ganancia son ingresos (R4).
  *  - `reversosDeCargos` (ficha 461, design §2.2): los egresos con liquidez «cargo» —la anulacion de
  *    un cobro—. NO suman a `salidas` (no sale dinero, R22): le devuelven saldo a la tienda, asi que
@@ -210,6 +217,9 @@ type Acumulado = {
   egresosIva: Prisma.Decimal;
   cargosIva: Prisma.Decimal;
   reversosIvaCobrado: Prisma.Decimal;
+  // Ficha 498 (design §8.1): el dueño `por_cobrar_satelite` (las diferencias de la satelite).
+  ingresosPorCobrar: Prisma.Decimal;
+  egresosPorCobrar: Prisma.Decimal;
 };
 
 function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
@@ -228,6 +238,8 @@ function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
     egresosIva: new Prisma.Decimal(0),
     cargosIva: new Prisma.Decimal(0),
     reversosIvaCobrado: new Prisma.Decimal(0),
+    ingresosPorCobrar: new Prisma.Decimal(0),
+    egresosPorCobrar: new Prisma.Decimal(0),
   };
 
   for (const fila of filas) {
@@ -241,27 +253,58 @@ function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
     if (esIngreso) {
       if (esCargo) acc.cargosATiendas = acc.cargosATiendas.add(monto);
       else acc.entradasEfectivo = acc.entradasEfectivo.add(monto);
-      // Ficha 488: los cuatro dueños EXPLICITOS (antes, el `else` era capital y el IVA caia en propio).
-      if (dueno === "propio") acc.ingresosPropios = acc.ingresosPropios.add(monto);
-      else if (dueno === "terceros") acc.ingresosTerceros = acc.ingresosTerceros.add(monto);
-      else if (dueno === "capital") acc.ingresosCapital = acc.ingresosCapital.add(monto);
-      else if (dueno === "iva") {
-        acc.ingresosIva = acc.ingresosIva.add(monto);
-        // R5: solo el IVA COBRADO a una tienda (cargo); la anulacion de un Pago de IVA (efectivo) no.
-        if (esCargo) acc.cargosIva = acc.cargosIva.add(monto);
+      // Ficha 488: los dueños EXPLICITOS. Ficha 498 (R34): `switch` exhaustivo — un dueño nuevo no
+      // compila sin decidir su cubeta (con la cadena `if / else if` caia en silencio en ninguna).
+      switch (dueno) {
+        case "propio":
+          acc.ingresosPropios = acc.ingresosPropios.add(monto);
+          break;
+        case "terceros":
+          acc.ingresosTerceros = acc.ingresosTerceros.add(monto);
+          break;
+        case "capital":
+          acc.ingresosCapital = acc.ingresosCapital.add(monto);
+          break;
+        case "iva":
+          acc.ingresosIva = acc.ingresosIva.add(monto);
+          // R5: solo el IVA COBRADO a una tienda (cargo); la anulacion de un Pago de IVA (efectivo) no.
+          if (esCargo) acc.cargosIva = acc.cargosIva.add(monto);
+          break;
+        case "por_cobrar_satelite":
+          acc.ingresosPorCobrar = acc.ingresosPorCobrar.add(monto);
+          break;
+        default: {
+          const _n: never = dueno;
+          throw new Error(`dueño de caja sin cubeta: ${String(_n)}`);
+        }
       }
     } else {
       // Ficha 461 (R22): un egreso «cargo» es el reverso de un cargo: no es dinero que salga.
       if (esCargo) acc.reversosDeCargos = acc.reversosDeCargos.add(monto);
       else acc.salidas = acc.salidas.add(monto);
-      if (dueno === "propio") acc.egresosPropios = acc.egresosPropios.add(monto);
-      else if (dueno === "terceros") acc.egresosTerceros = acc.egresosTerceros.add(monto);
-      else if (dueno === "capital") acc.egresosCapital = acc.egresosCapital.add(monto);
-      else if (dueno === "iva") {
-        acc.egresosIva = acc.egresosIva.add(monto);
-        // R5/R10: la anulacion del IVA de un cobro (reverso de CARGO) netea el IVA cobrado; el Pago de
-        // IVA (efectivo) no lo toca.
-        if (esCargo) acc.reversosIvaCobrado = acc.reversosIvaCobrado.add(monto);
+      switch (dueno) {
+        case "propio":
+          acc.egresosPropios = acc.egresosPropios.add(monto);
+          break;
+        case "terceros":
+          acc.egresosTerceros = acc.egresosTerceros.add(monto);
+          break;
+        case "capital":
+          acc.egresosCapital = acc.egresosCapital.add(monto);
+          break;
+        case "iva":
+          acc.egresosIva = acc.egresosIva.add(monto);
+          // R5/R10: la anulacion del IVA de un cobro (reverso de CARGO) netea el IVA cobrado; el Pago
+          // de IVA (efectivo) no lo toca.
+          if (esCargo) acc.reversosIvaCobrado = acc.reversosIvaCobrado.add(monto);
+          break;
+        case "por_cobrar_satelite":
+          acc.egresosPorCobrar = acc.egresosPorCobrar.add(monto);
+          break;
+        default: {
+          const _n: never = dueno;
+          throw new Error(`dueño de caja sin cubeta: ${String(_n)}`);
+        }
       }
     }
   }
@@ -274,8 +317,9 @@ function acumular(filas: readonly AgregadoCajaRow[]): Acumulado {
 //
 // Todo lo que sigue son SUMAS POR CUBETA y UNA DIVISION sobre importes que `derivarBalance`
 // ya derivo. Ninguna resta con signo nueva: la guardia `caja-derivaciones.guardia.test.ts`
-// exige que este modulo llame a `derivarBalance` exactamente SEIS veces (ficha 459: cuatro; ficha
-// 488: + el IVA por pagar y el IVA cobrado) y que no declare por su cuenta ni el signo ni la resta.
+// exige que este modulo llame a `derivarBalance` exactamente SIETE veces (ficha 459: cuatro; ficha
+// 488: + el IVA por pagar y el IVA cobrado; ficha 498: + «Por cobrar a satelites») y que no declare
+// por su cuenta ni el signo ni la resta.
 // ═════════════════════════════════════════════════════════════════════════════════════════
 
 /** La porcion vacia de la barra, como STRING con la misma escala que el resto. */
@@ -297,9 +341,9 @@ function porcion(bolsillo: Prisma.Decimal, positivos: Prisma.Decimal): string {
  * La tabla se evalua EN ESTE ORDEN y es TOTAL: los nueve pares de signos posibles de (G, T)
  * caen en exactamente una rama.
  *
- *  1. `G < 0` y `T > 0`  -> `solo_tiendas`   (100.00): Ordenex pierde y el dinero de las
+ *  1. `G < 0` y `T > 0`  -> `solo_tiendas`   (100.00): la empresa pierde y el dinero de las
  *                                            tiendas esta cubriendo ese saldo.
- *  2. `T < 0` y `G > 0`  -> `solo_ordenex`   (  0.00): el espejo (D4).
+ *  2. `T < 0` y `G > 0`  -> `solo_empresa`   (  0.00): el espejo (D4).
  *  3. `T <= 0` y `G <= 0`-> `sin_reparto`    (  0.00): no hay nada que repartir.
  *  4. resto              -> `dos_bolsillos`  (T / enCaja x 100).
  *
@@ -307,31 +351,41 @@ function porcion(bolsillo: Prisma.Decimal, positivos: Prisma.Decimal): string {
  * `signo` del balance — que es la otra forma de acabar con dos definiciones de «cuando una cifra es
  * negativa».
  *
- * Ficha 488 (design §2.3): el MODO se sigue derivando igual, de los signos de G («De Ordenex») y T;
+ * Ficha 488 (design §2.3): el MODO se sigue derivando igual, de los signos de G («De la empresa») y T;
  * lo nuevo son las PORCIONES, sobre `S` = la suma de los bolsillos POSITIVOS entre G, T e I (el IVA por
  * pagar): `porcentajeTiendas` = T / S, `porcentajeIva` = I / S (cada una "0.00" si su bolsillo no es
  * positivo). Con I <= 0, S = G+ + T+ y `porcentajeTiendas` es IDENTICO al de antes en los cuatro modos
  * (R16): en `dos_bolsillos` era T / (G + T); en `solo_tiendas`, T / T = 100.00; en los otros, 0.00.
  */
 function derivarReparto(
-  // Ficha 459 (R11, P2): «De Ordenex» (ganancia + capital), no solo la ganancia. Las cuatro
+  // Ficha 459 (R11, P2): «De la empresa» (ganancia + capital), no solo la ganancia. Las cuatro
   // ramas no cambian; en la 4 sigue valiendo `enCaja = O + T > 0` (identidad R7).
   ganancia: Prisma.Decimal,
   deTerceros: Prisma.Decimal,
   // Ficha 488 (R14): el IVA por pagar, el tercer bolsillo.
   ivaPorPagar: Prisma.Decimal,
-): { porcentajeTiendas: string; porcentajeIva: string; modoComposicion: ModoComposicionCaja } {
+  // Ficha 498 (design §8.2, R38/R39): «Por cobrar a satelites», el cuarto. Entra en S solo si es
+  // positivo; con P <= 0, S y todas las porciones son IDENTICAS a las de antes (R39). El MODO se
+  // sigue derivando solo de G y T, y G no se descuenta (R38).
+  porCobrar: Prisma.Decimal,
+): {
+  porcentajeTiendas: string;
+  porcentajeIva: string;
+  porcentajePorCobrar: string;
+  modoComposicion: ModoComposicionCaja;
+} {
   // S: una SUMA por cubeta de los bolsillos positivos. Sin restas.
   let positivos = new Prisma.Decimal(0);
-  for (const bolsillo of [ganancia, deTerceros, ivaPorPagar]) {
+  for (const bolsillo of [ganancia, deTerceros, ivaPorPagar, porCobrar]) {
     if (bolsillo.gt(0)) positivos = positivos.add(bolsillo);
   }
   const porcentajes = {
     porcentajeTiendas: porcion(deTerceros, positivos),
     porcentajeIva: porcion(ivaPorPagar, positivos),
+    porcentajePorCobrar: porcion(porCobrar, positivos),
   };
   if (ganancia.lt(0) && deTerceros.gt(0)) return { ...porcentajes, modoComposicion: "solo_tiendas" };
-  if (deTerceros.lt(0) && ganancia.gt(0)) return { ...porcentajes, modoComposicion: "solo_ordenex" };
+  if (deTerceros.lt(0) && ganancia.gt(0)) return { ...porcentajes, modoComposicion: "solo_empresa" };
   if (!deTerceros.gt(0) && !ganancia.gt(0)) return { ...porcentajes, modoComposicion: "sin_reparto" };
   return { ...porcentajes, modoComposicion: "dos_bolsillos" };
 }
@@ -376,9 +430,9 @@ export function derivarCaja(
   //    reversos de cargos, que tampoco lo son: ficha 461, R22);
   //  · la ganancia, IDENTICA a la de antes: los cargos siguen siendo ingresos propios (R4);
   //  · «De las tiendas»: los cargos entran como SALIDA del bolsillo de las tiendas — es el
-  //    traspaso de su contra-entrega (o de su deuda) al de Ordenex (R5)— y los REVERSOS de cargos
+  //    traspaso de su contra-entrega (o de su deuda) al de la empresa (R5)— y los REVERSOS de cargos
   //    como ENTRADA en ese bolsillo: la anulacion de un cobro le devuelve el saldo (461, R23);
-  //  · el capital de Ordenex (R6).
+  //  · el capital de la empresa (R6).
   // Identidad R7, por construccion (461, design §2.2; ficha 488, design §2.2): G + T + C + I
   //   = (ingP − egP) + (ingT + rev − egT − cargos) + (ingC − egC) + (ingI − egI)
   //   = (ingP + ingT + ingC + ingI − cargos) − (egP + egT + egC + egI − rev) = Entro − Salio,
@@ -394,12 +448,23 @@ export function derivarCaja(
   const iva = derivarBalance(acc.ingresosIva, acc.egresosIva);
   // Ficha 488 (R5, P2): el IVA cobrado (los cargos de IVA), neto SOLO de las anulaciones del IVA de un cobro.
   const ivaCobrado = derivarBalance(acc.cargosIva, acc.reversosIvaCobrado);
+  // Ficha 498 (design §8.1, R33/R35): «Por cobrar a satelites». Los argumentos van INVERTIDOS a
+  // proposito: el bolsillo SUBE con el egreso de diferencia (llego menos) y BAJA con el ingreso (pago,
+  // o llego de mas). Identidad R35, por construccion: las cinco particiones por dueño cubren todas las
+  // categorias y las diferencias son efectivo, asi que
+  //   Entro − Salio = (G + C) + T + I + (ingP − egP) = deEmpresa + T + I − P.
+  const porCobrar = derivarBalance(acc.egresosPorCobrar, acc.ingresosPorCobrar);
 
-  // «De Ordenex» (R11, P2) = ganancia + capital. Una SUMA, no una resta.
-  const deOrdenex = new Prisma.Decimal(propio.balance).add(new Prisma.Decimal(capital.balance));
+  // «De la empresa» (R11, P2) = ganancia + capital. Una SUMA, no una resta.
+  const deEmpresa = new Prisma.Decimal(propio.balance).add(new Prisma.Decimal(capital.balance));
   const deTerceros = new Prisma.Decimal(terceros.balance);
 
-  const reparto = derivarReparto(deOrdenex, deTerceros, new Prisma.Decimal(iva.balance));
+  const reparto = derivarReparto(
+    deEmpresa,
+    deTerceros,
+    new Prisma.Decimal(iva.balance),
+    new Prisma.Decimal(porCobrar.balance),
+  );
 
   return {
     entradas: caja.ingresos,
@@ -416,7 +481,7 @@ export function derivarCaja(
     modoComposicion: reparto.modoComposicion,
     capital: capital.balance,
     signoCapital: capital.signo,
-    deOrdenex: montoEscala2(deOrdenex),
+    deEmpresa: montoEscala2(deEmpresa),
     signoDeTerceros: terceros.signo,
     deTercerosAbsoluto: montoEscala2(deTerceros.abs()),
     estado: opciones.haySaldoInicialVigente === true ? "saldo" : "flujo",
@@ -425,6 +490,9 @@ export function derivarCaja(
     ivaPorPagar: iva.balance,
     signoIvaPorPagar: iva.signo,
     porcentajeIva: reparto.porcentajeIva,
+    porCobrarSatelites: porCobrar.balance,
+    signoPorCobrarSatelites: porCobrar.signo,
+    porcentajePorCobrar: reparto.porcentajePorCobrar,
   };
 }
 
@@ -509,7 +577,7 @@ export function categoriasDeFilaComposicion(
 }
 
 /**
- * Feature 231 (R23/R26, design §2.2) — la ganancia de Ordenex, concepto por concepto.
+ * Feature 231 (R23/R26, design §2.2) — la ganancia de la empresa, concepto por concepto.
  *
  * Funcion PURA y con la MISMA entrada que `derivarCaja`: el servicio la llama sobre el MISMO
  * array de filas (design §3.2), y eso es lo que garantiza R24 —la tarjeta de la ganancia y la

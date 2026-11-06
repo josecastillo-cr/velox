@@ -16,7 +16,7 @@ import {
   FLETE_RECHAZO_NO_DEDUCIBLE_NOTA,
   GANA_BODEGA_SATELITE_NOTA,
   MOTIVO_RECHAZO_AUTOMATICO_COLA,
-  NETO_ORDENEX_NOTA,
+  NETO_EMPRESA_NOTA,
   ESTADO_LABEL,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
 import {
@@ -61,7 +61,7 @@ describe("466 · R1 — conceptos de dinero en la wallet (C5-C14, C16-C24)", () 
     expect(EGRESO_NOMBRADO_LABEL.egreso_reverso_flete_devolucion).toBe(
       "Fletes por devolución a origen cobrados a una tienda anulados",
     );
-    // Ficha 488 (R19): la anulación del IVA del flete por devolución ya no es egreso de Ordenex y
+    // Ficha 488 (R19): la anulación del IVA del flete por devolución ya no es egreso de la empresa y
     // pierde su fila (antes: `toBe("IVA de fletes por devolución a origen cobrados a una tienda
     // anulados")`). Su nombre en el libro de la caja sigue en `CATEGORIA_LABEL`.
     expect(Object.keys(EGRESO_NOMBRADO_LABEL)).not.toContain("egreso_reverso_iva_flete_devolucion");
@@ -144,7 +144,7 @@ describe("466 · R4, R5 — cierres y tarifas (C29-C35, E8-E10)", () => {
     expect(FLETE_RECHAZO_NO_DEDUCIBLE_NOTA).toBe(
       "Se le factura a la tienda, pero no sale de lo recaudado: una devolución a origen no cobra contra entrega.",
     );
-    expect(NETO_ORDENEX_NOTA).toBe(
+    expect(NETO_EMPRESA_NOTA).toBe(
       `Lo que ${NOMBRE_ESPERADO} facturó menos el pago al mensajero y menos el ingreso de bodega por devoluciones a origen.`,
     );
   });

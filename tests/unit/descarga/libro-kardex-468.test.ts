@@ -280,6 +280,7 @@ describe("468 R17/R18/R20/R21 — Concepto, Detalle, A quién, Es dinero de", ()
       terceros: "Tienda",
       capital: `${NOMBRE_CORTO_ESPERADO} (capital)`,
       iva: "IVA por pagar",
+      por_cobrar_satelite: "Satélite", // ficha 498 (design §8.3, R40)
     });
     expect(f.aQuien).toBe(f.registro);
     expect(String(f.aQuien)).not.toMatch(UUID);

@@ -262,6 +262,7 @@ describe("CierreBodegaRepository.findCierresBodegaByZona (F1.4-h)", () => {
         montoRecibido: new Prisma.Decimal("10"),
         conciliadoAt: new Date("2026-07-12T12:00:00.000Z"),
         conciliadoNota: null,
+        esperadoReglaAnterior: null, // ficha 498 (fixture): no saldada con la regla anterior
         zona: { nombre: "Cartago" },
         solicitadoPorUsuario: { nombre: "Sara Satelite" },
         conciliadoPorUsuario: { nombre: "Ana", primerApellido: "Rojas", segundoApellido: null },
@@ -292,13 +293,19 @@ describe("CierreBodegaRepository.findCierresBodegaByZona (F1.4-h)", () => {
       // el efectivo (10.00) NO cubre los dos descuentos (14.00), asi que el aviso se enciende.
       paraLaCentral: "1.50",
       efectivoCubreDescuentos: false,
-      // ⭑ FICHA 431 (R26/R28): el MISMO mapper deriva tambien la marca. La fila cruda esta
-      // marcada por 10.00 sobre un efectivo de 10.00, asi que NO falta nada: "0.00". Los
-      // valores van ESCRITOS A MANO y no derivados de la fila: comparar `faltaPorRecibir`
-      // contra la resta que lo produce seria una asercion contra su propia fuente.
+      // ⭑ FICHA 431 (R26/R28): el MISMO mapper deriva tambien la marca. Los valores van ESCRITOS A
+      // MANO y no derivados de la fila: comparar `faltaPorRecibir` contra la resta que lo produce
+      // seria una asercion contra su propia fuente.
+      // ⭑ FICHA 498 (R26, decision del humano del 2026-11-02): «Falta por recibir» se mide contra
+      // «Para la central» (1.50), no contra el efectivo (10.00): 1.50 − 10.00 = −8.50 (llego de
+      // mas). Antes de la ficha este literal era "0.00" (efectivo − recibido).
       conciliado: true,
       montoRecibido: "10.00",
-      faltaPorRecibir: "0.00",
+      faltaPorRecibir: "-8.50",
+      // FICHA 498 (R16/R41a): lo que debe = «Para la central» 1.50 (no saldada), y es positivo.
+      debe: "1.50",
+      debePositivo: true,
+      saldadaReglaAnterior: false,
       conciliadoAt: "2026-07-12T12:00:00.000Z",
       conciliadoPorNombre: "Ana Rojas",
       conciliadoNota: null,
@@ -342,6 +349,7 @@ describe("feature 393 — el mapper deriva «Para la central» para TODAS las le
       montoRecibido: null,
       conciliadoAt: null,
       conciliadoNota: null,
+      esperadoReglaAnterior: null, // ficha 498 (fixture): no saldada con la regla anterior
       zona: { nombre: "Cartago" },
       solicitadoPorUsuario: { nombre: "Sara Satelite" },
       conciliadoPorUsuario: null,
@@ -375,6 +383,11 @@ describe("feature 393 — el mapper deriva «Para la central» para TODAS las le
       cierreDia: { findMany: vi.fn().mockResolvedValue([]) },
       gestionOrden: { findMany: vi.fn().mockResolvedValue([]) },
       cierreDetail: { findMany: vi.fn().mockResolvedValue([]) },
+      // FICHA 500: lo que lee `consolidacionesConDinero` (sin dinero en este doble).
+      conciliacionBodegaAjuste: { findMany: vi.fn().mockResolvedValue([]) },
+      walletMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+      walletTiendaMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+      pagoMensajeroMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
       $transaction: vi.fn(),
       historialAccion: { createMany: vi.fn() },
       usuario: { findUnique: vi.fn() },

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { CierresAdminRepository } from "@/lib/repositories/CierresAdminRepository";
-import { partesPorTienda } from "@/lib/utils/ingreso-ordenex";
+import { partesPorTienda } from "@/lib/utils/ingreso-empresa";
 import type { Alcance } from "@/lib/interfaces/repositories/ICierresAdminRepository";
 
 import {
@@ -160,7 +160,7 @@ describeSiHayBase("396/B3 — el desglose por tienda agrupa por lo CONGELADO, co
                 // El nombre VIVO también es el mismo en las dos: nada en el corpus permite
                 // distinguirlas por texto.
                 nombre: NOMBRE_COMPARTIDO,
-                email: `tienda-${clave}-${SUFIJO}@ordenex.test`,
+                email: `tienda-${clave}-${SUFIJO}@ejemplo.test`,
                 telefono: "88880000",
                 passwordHash: plantilla.passwordHash,
                 cedula: `C-${clave}-${SUFIJO}`,

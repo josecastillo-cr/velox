@@ -85,6 +85,8 @@ const CASOS_CAJA: Record<WalletOrigenTipo, { fila: FilaConOrigenTecnico; texto: 
     fila: fila("abono_tienda"),
     texto: `Pago de una tienda a ${NOMBRE_ESPERADO} · Tania Tienda · 2026-09-11 · Transferencia`,
   },
+  // Ficha 498: la diferencia de la satelite se nombra por su rotulo.
+  conciliacion_bodega_ajuste: { fila: fila("conciliacion_bodega_ajuste"), texto: "Conciliación de satélite" },
 };
 
 describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta", () => {
@@ -107,7 +109,7 @@ describe("458-A R5/R6 — el origen de cada movimiento dice su entidad concreta"
       ],
       MAESTRO,
     );
-    // FICHA 458 (O1 del recorrido final): el gasto fijo decía «Gasto fijo de Ordenex · Alquiler —
+    // FICHA 458 (O1 del recorrido final): el gasto fijo decía «Gasto fijo de la empresa · Alquiler —
     // sep 2026» y la pantalla le pegaba DESPUÉS la misma descripción («… · Alquiler — sep 2026 ·
     // Alquiler — sep 2026»). La plantilla y su periodo siguen a la vista: los trae la descripción,
     // que toda superficie pinta junto al origen.

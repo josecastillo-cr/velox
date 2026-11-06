@@ -9,8 +9,8 @@ import type { VerComprobanteResult } from "@/lib/types/wallet-comprobante-latera
 import type { WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda";
 
 // FICHA 458-D (T D.5; R35, R77, R78, H3) — la tienda VE en `/mi-wallet` el comprobante que subió
-// Ordenex, en las filas de SU libro que pueden llevarlo: el pago de Ordenex a la tienda, el pago de un
-// gasto por ella, el cobro de Ordenex y su propio pago a Ordenex.
+// la empresa, en las filas de SU libro que pueden llevarlo: el pago de la empresa a la tienda, el pago de un
+// gasto por ella, el cobro de la empresa y su propio pago a la empresa.
 //
 // Solo mirar (R35): ni adjuntar ni reemplazar. El enlace es temporal y lo genera el SERVIDOR tras
 // comprobar que la fila es de la tienda de la sesión (`verComprobanteAction`, alcance de la 458-B): una

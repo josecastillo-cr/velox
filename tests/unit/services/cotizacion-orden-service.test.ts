@@ -15,7 +15,7 @@ import type { RawRow } from "@/lib/parsers/spreadsheet";
 import { MSG_FILA_SIN_TARIFA } from "@/lib/services/mensajes-tarifa";
 import type { CostosCotizacion, CotizacionResumen } from "@/lib/types/cotizacion";
 import { clavePar, type ParTarifa } from "@/lib/utils/cascada-tarifa";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import { codigoSinComentarios } from "../../fixtures/sin-comentarios";
 
 /**
@@ -29,8 +29,8 @@ import { codigoSinComentarios } from "../../fixtures/sin-comentarios";
  * existe para dos cosas que no se ven en la salida: que la derivacion se invoca EXACTAMENTE
  * dos veces por fila cubierta (R24) y que nunca se le pasa una tarifa `null` (R15).
  */
-vi.mock("@/lib/utils/ingreso-ordenex", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils/ingreso-ordenex")>();
+vi.mock("@/lib/utils/ingreso-empresa", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/utils/ingreso-empresa")>();
   return { ...actual, derivarIngresoOrden: vi.fn(actual.derivarIngresoOrden) };
 });
 

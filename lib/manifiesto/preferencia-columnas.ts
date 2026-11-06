@@ -6,17 +6,18 @@
  * dos accesores de su catálogo. El razonamiento de por qué se guardan las columnas OCULTAS y
  * no las visibles vive ahora en la cabecera de aquel módulo, y sigue rigiendo íntegro.
  *
- * LA CLAVE NO SE TOCA, y no es un detalle de estilo (design 314 §0/D3). El manifiesto es
- * superficie viva en producción: mover el prefijo huerfanaría en silencio todas las
- * preferencias guardadas hoy en el navegador de la gente. No fallaría nada — simplemente
- * volverían todas las columnas. Un fallo mudo.
+ * MOVER EL PREFIJO SIN MIGRAR ES UN FALLO MUDO (design 314 §0/D3). El manifiesto es superficie
+ * viva en producción: la preferencia guardada se quedaría huérfana en el navegador de la gente.
+ * No fallaría nada — simplemente volverían todas las columnas. Por eso, cuando el prefijo cambió
+ * (feature 494), `leerCrudo` pasó a leer también el anterior y a trasladarlo a la clave nueva
+ * (`lib/navegador/claves-legadas.ts`). Otro cambio de prefijo tiene que pasar por ese módulo.
  */
 import { etiquetaColumna } from "@/lib/manifiesto/etiquetas-columnas";
 import type { ManifiestoFlujo } from "@/lib/types/manifiesto";
 import type { XlsxColumn } from "@/lib/utils/xlsx-template";
 
-/** Prefijo de la clave de almacenamiento. `ordenex:` sigue el precedente de `CLAVE_SONIDO`. */
-const PREFIJO_CLAVE = "ordenex:manifiesto-columnas:";
+/** Prefijo de la clave de almacenamiento. `app:` sigue el precedente de `CLAVE_SONIDO`. */
+const PREFIJO_CLAVE = "app:manifiesto-columnas:";
 
 /** Clave propia de cada flujo (194/R14). Un flujo NUNCA lee ni escribe la clave de otro (R10). */
 export function claveColumnas(flujo: ManifiestoFlujo): string {

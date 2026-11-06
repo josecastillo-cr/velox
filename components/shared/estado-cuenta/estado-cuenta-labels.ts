@@ -72,7 +72,7 @@ export function fraseDelSaldo(tipo: TipoDeCuenta, sentido: SentidoDelSaldo, nomb
     if (sentido === "en_cero") return `${nombre} no tiene nada por entregar`;
     return `${nombre} entregó ${monto} de más`;
   }
-  if (sentido === "ordenex_debe") return `${MARCA.nombre} le debe ${monto} a ${nombre}`;
+  if (sentido === "empresa_debe") return `${MARCA.nombre} le debe ${monto} a ${nombre}`;
   if (sentido === "cuenta_debe") return `${nombre} le debe ${monto} a ${MARCA.nombre}`;
   return `${MARCA.nombre} y ${nombre} no se deben nada`;
 }
@@ -82,7 +82,7 @@ export function fraseDelSaldo(tipo: TipoDeCuenta, sentido: SentidoDelSaldo, nomb
  * (como el resto de esa pantalla). `monto` llega ya pintado y sin signo, igual que arriba.
  */
 export function fraseDelSaldoParaLaTienda(sentido: SentidoDelSaldo, monto: string): string {
-  if (sentido === "ordenex_debe") return `${MARCA.nombre} te debe ${monto}`;
+  if (sentido === "empresa_debe") return `${MARCA.nombre} te debe ${monto}`;
   if (sentido === "cuenta_debe") return `Le debés ${monto} a ${MARCA.nombre}`;
   return `${MARCA.nombre} y vos no se deben nada`;
 }
@@ -168,7 +168,7 @@ export const ESTADO_CUENTA_TEXTO = {
   /**
    * FICHA 463 (R23/R26/R27) — el placeholder del buscador del extracto. En la oficina alcanza la
    * descripción y quién registró; en `/mi-wallet` SOLO la descripción (la tienda no ve los nombres de
-   * la gente de Ordenex, R27), así que no la nombra.
+   * la gente de la empresa, R27), así que no la nombra.
    *
    * FICHA 469 (R24, R36) — la oficina (tienda y mensajero) y `/mi-wallet` nombran además la guía y la
    * remisión (búsqueda por guía). La bodega satélite NO: su buscador sigue siendo solo de texto, y por eso

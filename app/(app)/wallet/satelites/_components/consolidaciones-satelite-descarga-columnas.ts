@@ -27,24 +27,29 @@ import { fechaDiaMovimientoCR } from "@/lib/utils/fecha-dia-iso";
  */
 export const COLUMNAS_DESCARGA_CONSOLIDACIONES_SATELITE: DescargaColumna[] = [
   { clave: "consolidada", encabezado: "Consolidada" },
-  { clave: "declarado", encabezado: "Declarado" },
+  // FICHA 498 (R41): «Debe» (el aporte reconocido) sustituye a «Declarado» (el efectivo).
+  { clave: "debe", encabezado: "Debe" },
   { clave: "recibido", encabezado: "Recibido" },
   { clave: "faltaPorRecibir", encabezado: "Falta por recibir" },
   { clave: "estado", encabezado: "Estado" },
   { clave: "conciliadoPor", encabezado: "Conciliado por" },
   { clave: "conciliadoEl", encabezado: "Conciliado el" },
   { clave: "totalGeneral", encabezado: "Total consolidado" },
+  { clave: "efectivo", encabezado: "Efectivo" },
   { clave: "simpe", encabezado: "SINPE" },
   { clave: "transferencia", encabezado: "Transferencia" },
+  { clave: "pagoMensajeros", encabezado: "Pago a sus mensajeros" },
+  { clave: "rechazos", encabezado: "Su ganancia por rechazos" },
+  { clave: "saldadaReglaAnterior", encabezado: "Saldada con la regla anterior" },
   { clave: "cierres", encabezado: "Cierres del día consolidados" },
 ];
 
 export function filaDescargaConsolidacionSatelite(c: ConsolidacionSateliteDTO): DescargaFila {
   return {
     consolidada: fechaDiaMovimientoCR(c.solicitadoAt),
-    // «Declarado» es el EFECTIVO: es lo que viaja en el bulto y contra lo que se cuenta al
-    // recibir. El general va más a la derecha, como contexto (decisión Q2).
-    declarado: c.totales.efectivo,
+    // FICHA 498 (R41): lo que DEBE, el aporte reconocido del servidor. Ya no es el efectivo
+    // (la decisión Q2 de la 431 la revocó el humano el 2026-11-02).
+    debe: c.debe,
     // Sin marcar la celda va VACÍA, no en cero: «nadie lo ha mirado» no es «llegaron ₡0».
     recibido: c.montoRecibido ?? "",
     faltaPorRecibir: c.faltaPorRecibir,
@@ -52,8 +57,12 @@ export function filaDescargaConsolidacionSatelite(c: ConsolidacionSateliteDTO): 
     conciliadoPor: c.conciliadoPorNombre ?? "",
     conciliadoEl: c.conciliadoAt === null ? "" : fechaDiaMovimientoCR(c.conciliadoAt),
     totalGeneral: c.totales.general,
+    efectivo: c.totales.efectivo,
     simpe: c.totales.simpe,
     transferencia: c.totales.transferencia,
+    pagoMensajeros: c.totalPagoMensajero,
+    rechazos: c.totalIngresoBodegaRechazos,
+    saldadaReglaAnterior: c.saldadaReglaAnterior ? "Sí" : "",
     cierres: c.cantidadCierres,
   };
 }

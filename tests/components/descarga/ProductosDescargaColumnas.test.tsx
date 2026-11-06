@@ -46,8 +46,13 @@ import {
   AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO,
   COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS,
   COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS_DINERO,
+  MARCA_NO_SUMABLE_ARCHIVO,
 } from "@/app/(app)/analitica/_components/entregas/analitica-productos-descarga-columnas";
-import { consultarConteoProductos } from "@/lib/actions/conteo-productos";
+import { consultarConteoProductosV2 } from "@/lib/actions/conteo-productos";
+import {
+  CLAVE_DESCARGA_DINERO_RETIRADA_494,
+  COLUMNA_DINERO_RETIRADA_494,
+} from "@/tests/fixtures/marca-retirada-nombre-493";
 import type {
   ConteoProductosDTO,
   DineroProductoDTO,
@@ -55,14 +60,14 @@ import type {
 } from "@/lib/types/conteo-productos";
 
 vi.mock("@/lib/actions/conteo-productos", () => ({
-  consultarConteoProductos: vi.fn(),
+  consultarConteoProductosV2: vi.fn(),
 }));
-const consultarMock = vi.mocked(consultarConteoProductos);
+const consultarMock = vi.mocked(consultarConteoProductosV2);
 
 // El detalle por fila no se abre en este archivo, pero su acción es un módulo de servidor: se
 // aísla igual que en `ProductosTablaDinero.test.tsx`.
 vi.mock("@/lib/actions/detalle-dinero-producto", () => ({
-  consultarDetalleDineroProducto: vi.fn(),
+  consultarDetalleDineroProductoV2: vi.fn(),
 }));
 
 vi.mock("@/components/shared/descargar-blob", () => ({ descargarBlob: vi.fn() }));
@@ -82,11 +87,11 @@ const EN_CURSO = "en_reparto";
 /** Cifras ya cuadradas: `6215 + 28785 = 35000` y `35000 + 10000 = 45000`. */
 const DINERO: DineroProductoDTO = {
   recaudado: "45000.00",
-  liquidado: { recaudado: "35000.00", ordenex: "6215.00", tienda: "28785.00", ordenes: 4 },
+  liquidado: { recaudado: "35000.00", empresa: "6215.00", tienda: "28785.00", ordenes: 4 },
   pendiente: { recaudado: "10000.00", ordenes: 1 },
   retorno: "2260.00",
   // FICHA 449 — el servicio de bodega de sus 4 ordenes liquidadas (4 x 696). Cifra PROPIA: NO
-  // esta dentro de `liquidado.ordenex`, y por eso el cuadre de arriba no la menciona.
+  // esta dentro de `liquidado.empresa`, y por eso el cuadre de arriba no la menciona.
   fulfillment: "2784.00",
 };
 
@@ -118,8 +123,8 @@ function dto(concedido: boolean): ConteoProductosDTO {
 }
 
 /** Las claves de `localStorage` de los dos ámbitos, tal y como las arma el control común. */
-const CLAVE_SIN_DINERO = `ordenex:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS}`;
-const CLAVE_CON_DINERO = `ordenex:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO}`;
+const CLAVE_SIN_DINERO = `app:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS}`;
+const CLAVE_CON_DINERO = `app:descarga-columnas:${AMBITO_DESCARGA_ANALITICA_PRODUCTOS_DINERO}`;
 
 /** Todos los encabezados de cada juego, DERIVADOS. Nunca una lista escrita a mano. */
 const ENCABEZADOS_BASE = COLUMNAS_DESCARGA_ANALITICA_PRODUCTOS.map((c) => c.encabezado);
@@ -308,7 +313,7 @@ describe("FICHA 388 · la descarga de productos deja elegir columnas", () => {
       CLAVE_SIN_DINERO,
       JSON.stringify({
         ocultas: [],
-        orden: [RECAUDADO.clave, "ordenex", BASE_PRESENTE.clave],
+        orden: [RECAUDADO.clave, "empresa", BASE_PRESENTE.clave],
       }),
     );
 
@@ -321,6 +326,32 @@ describe("FICHA 388 · la descarga de productos deja elegir columnas", () => {
     // Ni una columna de dinero, y el archivo se generó igual: una preferencia con claves que ya
     // no se publican no puede añadir columnas ni impedir la descarga.
     expect(encabezadosDelArchivo()).toEqual(ENCABEZADOS_BASE);
+    expect(descargarBlobMock).toHaveBeenCalledTimes(1);
+  });
+
+  // FEATURE 494 (R16, design §5.3) — quien ocultó la columna antes del renombrado. Las dos formas en las
+  // que puede estar en su navegador, y lo que se afirma es el ARCHIVO, no lo guardado: sin traducir,
+  // `clavesUtiles` tira el nombre viejo y la columna vuelve a salir, sin ningún error.
+  it.each([
+    ["la clave vieja", CLAVE_DESCARGA_DINERO_RETIRADA_494],
+    ["lo ya guardado bajo `app:`", CLAVE_CON_DINERO],
+  ])("R16 · con %s, la columna oculta no vuelve al archivo y el orden elegido se conserva", async (_camino, sembrada) => {
+    window.localStorage.setItem(
+      sembrada,
+      JSON.stringify({ ocultas: [COLUMNA_DINERO_RETIRADA_494], orden: [RECAUDADO.clave, BASE_PRESENTE.clave] }),
+    );
+
+    const user = userEvent.setup();
+    montar(true);
+    await screen.findByText("Spray Protector");
+    await descargar(user, 1);
+
+    const cabecera = encabezadosDelArchivo();
+    expect(cabecera).not.toContain(`Cobró Velox ${MARCA_NO_SUMABLE_ARCHIVO}`);
+    expect(cabecera).toHaveLength(ENCABEZADOS_DINERO.length - 1);
+    // El catálogo pone esta base delante de `recaudado`: que salga detrás solo puede venir de lo guardado.
+    expect(ENCABEZADOS_DINERO.indexOf(BASE_PRESENTE.encabezado)).toBeLessThan(ENCABEZADOS_DINERO.indexOf(RECAUDADO.encabezado));
+    expect(cabecera.indexOf(RECAUDADO.encabezado)).toBeLessThan(cabecera.indexOf(BASE_PRESENTE.encabezado));
     expect(descargarBlobMock).toHaveBeenCalledTimes(1);
   });
 

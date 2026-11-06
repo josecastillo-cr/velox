@@ -119,10 +119,10 @@ describe("QrScanner", () => {
     await user.click(screen.getByRole("button", { name: "Escanear con cámara" }));
     await vi.waitFor(() => expect(decodeCallback.current).not.toBeNull());
 
-    await decodificar("https://ordenex.app/paquete/ord-1");
+    await decodificar("https://ejemplo.test/paquete/ord-1");
 
     await vi.waitFor(() =>
-      expect(onDecoded).toHaveBeenCalledWith("https://ordenex.app/paquete/ord-1"),
+      expect(onDecoded).toHaveBeenCalledWith("https://ejemplo.test/paquete/ord-1"),
     );
     expect(
       screen.getByRole("button", { name: "Escanear con cámara" }),
@@ -174,9 +174,9 @@ describe("QrScanner", () => {
     await user.click(screen.getByRole("button", { name: "Escanear con cámara" }));
     await vi.waitFor(() => expect(decodeCallback.current).not.toBeNull());
 
-    await decodificar("https://ordenex.app/paquete/ord-1");
-    await decodificar("https://ordenex.app/paquete/ord-1");
-    await decodificar("https://ordenex.app/paquete/ord-1");
+    await decodificar("https://ejemplo.test/paquete/ord-1");
+    await decodificar("https://ejemplo.test/paquete/ord-1");
+    await decodificar("https://ejemplo.test/paquete/ord-1");
 
     expect(onDecoded).toHaveBeenCalledTimes(1);
   });

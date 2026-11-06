@@ -9,7 +9,7 @@ import { resolve } from "node:path";
 // fallo no es un error de compilacion sino un dato mal clasificado. Si alguien "restaurara"
 // el UNIQUE global, la tienda B volveria a ver `duplicada` una remision que solo existe en la
 // tienda A — y nada en el build se pondria rojo. Ademas se ancla lo que NO cambia: `num_guia`
-// sigue siendo unico GLOBAL, porque ese numero lo genera Ordenex y lo lee la bodega sin saber
+// sigue siendo unico GLOBAL, porque ese numero lo genera la empresa y lo lee la bodega sin saber
 // de que tienda viene.
 const MIGRATION_DIR = resolve(
   __dirname,

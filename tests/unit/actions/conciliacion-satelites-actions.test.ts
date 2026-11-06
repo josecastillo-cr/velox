@@ -97,7 +97,8 @@ describe("431/T8 (R10) — el monto muere en el borde, y no se escribe nada", ()
     ["ausente", {}],
     ["cadena vacia", { montoRecibido: "" }],
     ["negativo", { montoRecibido: "-1.00" }],
-    ["cero", { montoRecibido: "0" }],
+    // Ficha 498 (Q5): el cero literal YA NO muere en el borde (lo decide el repositorio con el aporte).
+    ["cero con TRES decimales", { montoRecibido: "0.001" }],
     ["con TRES decimales", { montoRecibido: "485.123" }],
     ["no numerico", { montoRecibido: "mucho" }],
     ["un number y no un string", { montoRecibido: 485 }],
@@ -113,17 +114,20 @@ describe("431/T8 (R10) — el monto muere en el borde, y no se escribe nada", ()
     expect(service.marcarRecibida).not.toHaveBeenCalled();
   });
 
-  it("⭑ el CERO se rechaza a proposito: «recibi ₡0» no es una marca, es no marcar", async () => {
-    // Se reusa `montoPositivoSchema` TAL CUAL (> 0) en vez de relajarlo aqui. Si el humano quiere
-    // admitir el 0, se cambia la pieza COMPARTIDA y se enteran sus otros consumidores — que es el
-    // punto. Reescribir «cuanto dinero es valido» en esta ficha seria la segunda definicion que un
-    // dia diverge (leccion de la ficha 381).
-    const service = fakeService();
-    const r = await marcarConsolidacionRecibidaAction(
-      { cierreBodegaId: CB, montoRecibido: "0.00" },
-      { service, ...conActor(MAESTRO) },
-    );
-    expect(r.status).toBe("validation_error");
+  it("⭑ FICHA 498 (Q5, R15b) — el CERO literal pasa el borde y llega al servicio, que decide con el dato", async () => {
+    // SUSTITUYE al caso de la 431 «el CERO se rechaza a proposito»: el humano admitio el 0 el
+    // 2026-11-02, SOLO en la conciliacion y SOLO con aporte <= 0. Esa es una regla de DATO: el borde
+    // admite el cero literal y el repositorio responde `recibido_cero_con_aporte` si hay dinero por
+    // entregar. `montoPositivoSchema` no se toca (lo mide la suite del schema).
+    for (const cero of ["0", "0.0", "0.00"]) {
+      const service = fakeService();
+      const r = await marcarConsolidacionRecibidaAction(
+        { cierreBodegaId: CB, montoRecibido: cero },
+        { service, ...conActor(MAESTRO) },
+      );
+      expect(r.status, cero).toBe("ok");
+      expect(service.marcarRecibida).toHaveBeenCalledTimes(1);
+    }
   });
 
   it("un monto VALIDO pasa, con y sin nota", async () => {
@@ -238,7 +242,7 @@ describe("473/T4 — corregirConsolidacionRecibidaAction", () => {
 
   it.each([
     ["monto ausente", {}],
-    ["monto 0", { montoRecibido: "0" }],
+    // Ficha 498 (Q5): «monto 0» sale de esta lista; el cero literal llega al servicio (R15b).
     ["monto negativo", { montoRecibido: "-5.00" }],
     ["monto con tres decimales", { montoRecibido: "200800.001" }],
     ["monto no numerico", { montoRecibido: "doscientos" }],

@@ -63,7 +63,7 @@
 // censada `con_descarga`). Tercera vez que este censo baja, y por el mismo motivo que las dos
 // anteriores: el registro no puede citar un archivo borrado. A diferencia de `OrdenesApartado`
 // y `ZonasModule`, aquí SÍ se pierde la capacidad: el mensajero no tiene otra pantalla donde
-// ver lo que Ordenex le debe, y así lo decidió el humano con el dato delante. Los totales
+// ver lo que la empresa le debe, y así lo decidió el humano con el dato delante. Los totales
 // VIGENTES los declara `cobertura-tablas.guardia.test.ts`, que los MIDE contra el árbol; aquí
 // no se copian para que no puedan divergir.
 
@@ -206,7 +206,7 @@ export const CENSO_DATATABLE: ArchivoCensado[] = [
     // El motivo NO es que sea un recorte de otro archivo —no lo es: ninguna descarga del repo
     // enseña que ORDENES componen el dinero de un producto—. Es que hoy **no existe la puerta
     // para servirlo entero**. Este panel pagina en el SERVIDOR, y el borde de la ficha
-    // (`consultarDetalleDineroProducto`) solo tiene modo paginado: no hay un modo COMPLETO
+    // (`consultarDetalleDineroProductoV2`) solo tiene modo paginado: no hay un modo COMPLETO
     // como el que la 344 le dio a su hermano (`verDetalleDeMovimientoCompletoAction`). Con lo
     // que hay, un archivo saldria o bien truncado a una pagina —lo que R76 y la doctrina de
     // `filasDesdeResultado` prohiben, «o van todas las filas o no hay archivo»— o bien

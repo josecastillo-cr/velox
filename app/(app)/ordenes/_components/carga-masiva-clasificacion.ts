@@ -40,7 +40,7 @@ export interface OrdenMontoAjustado {
  * aportar varias (el backend emite un aviso por campo).
  *
  * Por qué tiene que verse: la etiqueta no puede imprimir el carácter que traía el archivo, así
- * que Ordenex guarda un nombre que la tienda NO escribió. Repararlo en silencio es el mismo
+ * que la empresa guarda un nombre que la tienda NO escribió. Repararlo en silencio es el mismo
  * género de fallo mudo que las fichas 282/294/299 vinieron a matar.
  */
 export interface OrdenTextoNormalizado {

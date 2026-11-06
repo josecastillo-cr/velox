@@ -108,7 +108,7 @@ const PARA_LA_CENTRAL_COLUMNA = {
  * Uno por tabla, igual que los catálogos: las cuatro publican juegos distintos, así que una
  * clave compartida haría que ocultar «Motivo» en los resueltos moviera la preferencia de los
  * solicitados. Cada identificador es la mitad de una clave de `localStorage`
- * (`ordenex:descarga-columnas:<ámbito>`), y `ambito-columnas.guardia` vigila que no se repita.
+ * (`app:descarga-columnas:<ámbito>`), y `ambito-columnas.guardia` vigila que no se repita.
  */
 export const AMBITO_DESCARGA_BODEGA_PENDIENTES = "cierres-bodega-pendientes";
 export const AMBITO_DESCARGA_BODEGA_RESUELTOS = "cierres-bodega-resueltos";

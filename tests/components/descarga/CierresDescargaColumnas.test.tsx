@@ -27,7 +27,7 @@ import type {
   CierrePasadoDTO,
   CierreResultado,
   CierreTotales,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
 // ---------------------------------------------------------------------------
@@ -249,7 +249,7 @@ function consolidable(i: number): CierreBodegaResumenLite {
   };
 }
 
-function ingreso(): IngresoOrdenexDTO {
+function ingreso(): IngresoEmpresaDTO {
   return {
     montoCobrar: "1000.10",
     cobraComision: true,
@@ -323,7 +323,7 @@ function gruposCompletos(): CierreGrupos {
         montoRecibido: "1000.10",
         metodoPago: "SINPE",
         pagos: [{ metodo: "SINPE", monto: "1000.10" }],
-        ingresoOrdenex: ingreso(),
+        ingresoEmpresa: ingreso(),
       }),
     ],
     reprogramado: [
@@ -332,7 +332,7 @@ function gruposCompletos(): CierreGrupos {
         resultado: "reprogramado",
         fechaReprogramacion: "2026-07-20",
         motivo: "El cliente pidió otro día",
-        ingresoOrdenex: ingreso(),
+        ingresoEmpresa: ingreso(),
       }),
     ],
     novedad: [
@@ -340,7 +340,7 @@ function gruposCompletos(): CierreGrupos {
         gestionId: "g3",
         resultado: "novedad",
         motivo: "Dirección inexistente",
-        ingresoOrdenex: ingreso(),
+        ingresoEmpresa: ingreso(),
       }),
     ],
     devolucion_a_origen_por_rechazo: [
@@ -350,7 +350,7 @@ function gruposCompletos(): CierreGrupos {
         motivo: "Cliente ausente",
         esRechazoSla: true,
         ingresoBodegaRechazo: "5.00",
-        ingresoOrdenex: ingreso(),
+        ingresoEmpresa: ingreso(),
       }),
     ],
     incidente: [
@@ -360,7 +360,7 @@ function gruposCompletos(): CierreGrupos {
         causaIncidente: "robado",
         motivo: "Robo en la parada",
         indemnizacion: "2500.00",
-        ingresoOrdenex: ingreso(),
+        ingresoEmpresa: ingreso(),
       }),
     ],
   };
@@ -697,7 +697,7 @@ const SUPERFICIES: readonly Superficie[] = [
 
 /** La clave del ámbito, tal y como la arma el control común (`DescargarDatasetButton`). */
 function claveDe(ambito: string): string {
-  return `ordenex:descarga-columnas:${ambito}`;
+  return `app:descarga-columnas:${ambito}`;
 }
 
 const DISPARADOR_SELECTOR = "Elegir columnas de la descarga";

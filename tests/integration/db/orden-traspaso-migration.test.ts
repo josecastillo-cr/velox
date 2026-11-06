@@ -163,7 +163,7 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       // Ficha 462 (2026-09-25): los dos valores de enum del aviso «reprogramadas de hoy que esperan la
       // aprobacion de un cierre». Sola, aditiva, `down.sql` dinamico; no toca `orden_traspaso_mensajero`.
       "20260925130000_notificacion_evento_reprogramadas_esperan_cierre",
-      // Ficha 461 (2026-09-25): los enums del cobro de Ordenex a una tienda; la tabla de su anulacion
+      // Ficha 461 (2026-09-25): los enums del cobro de la empresa a una tienda; la tabla de su anulacion
       // con los dos CHECK ampliados; la linea de caja de los cobros previos (solo INSERT en
       // `wallet_movimiento`); el enum de la anulacion de una correccion; las claves de idempotencia y
       // `ajuste_caja_anulacion`; y el backfill +6 h de los asientos de pago (solo UPDATE de
@@ -175,7 +175,7 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       "20260926120300_wallet_461_enum_anulacion_correccion",
       "20260926120400_wallet_461_idempotencia_y_anulacion_correccion",
       "20260926120500_wallet_461_fechas_cr_pagos",
-      // Ficha 457 (2026-09-25): los ocho valores de enum del pago de una tienda a Ordenex (down dinamico)
+      // Ficha 457 (2026-09-25): los ocho valores de enum del pago de una tienda a la empresa (down dinamico)
       // y sus dos tablas con los dos CHECK de los libros ampliados. Ninguna toca `orden_traspaso_mensajero`.
       "20260927120000_abono_tienda_457_enums",
       "20260927120100_abono_tienda_457_tablas_y_checks",
@@ -208,6 +208,15 @@ describe("427/T2 — el UP y el DOWN, leidos del archivo", () => {
       // Ficha 497 (2026-11-02): la marca `confirmada_fisica_at` de las barridas en
       // `cierre_sin_gestion`. No toca `orden_traspaso_mensajero`.
       "20261102170000_cierre_sin_gestion_confirmacion_fisica",
+      // Ficha 498 (2026-11-03): el dinero de satelite al conciliar — enums de la caja, la tabla
+      // `conciliacion_bodega_ajuste` y el CHECK de la caja, el retiro de los asientos del conjunto S
+      // (con respaldo) y la regularizacion de lo conciliado antes. Ninguna toca `orden_traspaso_mensajero`.
+      "20261103120000_satelite_498_enums",
+      "20261103120100_satelite_498_ajuste",
+      "20261103120200_satelite_498_retirar_asientos",
+      "20261103120300_satelite_498_regularizar",
+      // Ficha 500: un valor de `historial_accion_tipo`; no toca `orden_traspaso_mensajero`.
+      "20261104120000_historial_accion_zona_distrito_500",
     ]);
   });
 });

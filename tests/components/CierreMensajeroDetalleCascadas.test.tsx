@@ -11,16 +11,16 @@ import type {
 } from "@/lib/interfaces/services/ICierresAdminService";
 import type {
   CierreGrupos,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreEstado } from "@/lib/types/cierre";
 import {
   CASCADA_DUENO_TITULO,
   CASCADA_FACTURA_TIENDA_TITULO,
-  CASCADA_NETO_ORDENEX_TITULO,
+  CASCADA_NETO_EMPRESA_TITULO,
   COBRADO_SOBRE_RECAUDADO_LABEL,
   COBRADO_SOBRE_RECAUDADO_NOTA,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   FLETE_DEV_CON_IVA_LABEL,
   FLETE_RECHAZO_AUN_NO_COBRADO_NOTA,
   FLETE_RECHAZO_NO_DEDUCIBLE_NOTA,
@@ -29,8 +29,8 @@ import {
   GANA_LA_TIENDA_LABEL,
   GANA_LA_TIENDA_NEGATIVO_NOTA,
   GANA_LA_TIENDA_NOTA,
-  NETO_ORDENEX_LABEL,
-  NETO_ORDENEX_NEGATIVO_NOTA,
+  NETO_EMPRESA_LABEL,
+  NETO_EMPRESA_NEGATIVO_NOTA,
   PAGO_TIENDA_HOY_NOTA,
 } from "@/app/(app)/cierres-admin/_components/cierre-labels";
 // Los cuatro rótulos que ESTA ficha reusa sin tocarlos siguen viviendo donde nacieron, en el
@@ -47,7 +47,7 @@ import {
  * 💰 FICHA 395 — EL DETALLE DEL CIERRE DE MENSAJERO DICE QUÉ PLATA ES PARA QUIÉN.
  *
  * ── EL DEFECTO QUE MATA ESTE ARCHIVO
- * La pantalla enseñaba «Pago a tienda ₡225.176,33» y «Total Ordenex ₡70.946,67» sueltos e
+ * La pantalla enseñaba «Pago a tienda ₡225.176,33» y «Total Velox ₡70.946,67» sueltos e
  * invitaba a restarlos. **Esa resta no da.** El humano se confundió con su propia pantalla y lo
  * dijo así: «si yo me confundo, no quiero imaginar los operarios».
  *
@@ -185,7 +185,7 @@ const GRUPOS_VACIOS: CierreGrupos = {
 };
 
 /**
- * Los once campos del ingreso de Ordenex. Sólo se pintan los AGRUPADOS (cada concepto con su
+ * Los once campos del ingreso de la empresa. Sólo se pintan los AGRUPADOS (cada concepto con su
  * IVA); los otros se rellenan coherentes para que la fixtura no se contradiga a sí misma, pero
  * ninguna aserción de este archivo los mira.
  */
@@ -194,7 +194,7 @@ function totalesIngreso(over: {
   comisionConIva: string;
   fleteDevolucionConIva: string;
   total: string;
-}): TotalesIngresoOrdenex {
+}): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     flete: over.fleteConIva,
@@ -235,7 +235,7 @@ function resumen(over: Partial<CierreAdminResumen> = {}): CierreAdminResumen {
 type DetalleOk = Extract<CierreDetalleAdminServiceResult, { status: "ok" }>;
 
 /**
- * EL CIERRE DE LA CAPTURA: recaudó 285.275,00, Ordenex le facturó 70.946,67 (60.098,67 sobre lo
+ * EL CIERRE DE LA CAPTURA: recaudó 285.275,00, la empresa le facturó 70.946,67 (60.098,67 sobre lo
  * recaudado + 10.848,00 de flete por devolución a origen), hoy se le pagan 225.176,33 y en total gana
  * 214.328,33. Estado `vencido`, que es el de la captura: el cargo del flete por devolución a origen TODAVÍA
  * no se ha hecho.
@@ -254,7 +254,7 @@ const CON_RECHAZO: DetalleOk = {
   ganancia: "25946.12",
   pagoTienda: "225176.33",
   cobradoSobreRecaudado: "60098.67",
-  netoOrdenex: "24745.87",
+  netoEmpresa: "24745.87",
   ganaLaTienda: "214328.33",
   fleteRechazoYaCobradoATienda: false,
   // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola
@@ -294,7 +294,7 @@ const SIN_RECHAZO: DetalleOk = {
   ganancia: "15000.30",
   pagoTienda: "136000.00",
   cobradoSobreRecaudado: "24000.40",
-  netoOrdenex: "15000.30",
+  netoEmpresa: "15000.30",
   ganaLaTienda: "136000.00",
   fleteRechazoYaCobradoATienda: false,
   partesPorTienda: [],
@@ -304,8 +304,8 @@ const SIN_RECHAZO: DetalleOk = {
 };
 
 /**
- * PUROS RECHAZOS: no se recaudó nada y aun así Ordenex facturó el flete por devolución a origen. La tienda
- * GANA un negativo y el neto de Ordenex también lo es. Ninguno de los dos se recorta a cero: un
+ * PUROS RECHAZOS: no se recaudó nada y aun así la empresa facturó el flete por devolución a origen. La tienda
+ * GANA un negativo y el neto de la empresa también lo es. Ninguno de los dos se recorta a cero: un
  * cero diría algo falso.
  */
 const NEGATIVOS: DetalleOk = {
@@ -329,7 +329,7 @@ const NEGATIVOS: DetalleOk = {
   ganancia: "-1599.45",
   pagoTienda: "0.00",
   cobradoSobreRecaudado: "0.00",
-  netoOrdenex: "-2499.75",
+  netoEmpresa: "-2499.75",
   ganaLaTienda: "-3400.75",
   fleteRechazoYaCobradoATienda: true,
   partesPorTienda: [],
@@ -344,7 +344,7 @@ const particion = () =>
 const factura = () =>
   screen.getByRole("region", { name: `${CASCADA_FACTURA_TIENDA_TITULO} · ${DE}` });
 const neto = () =>
-  screen.getByRole("region", { name: `${CASCADA_NETO_ORDENEX_TITULO} · ${DE}` });
+  screen.getByRole("region", { name: `${CASCADA_NETO_EMPRESA_TITULO} · ${DE}` });
 
 /** Monta la pantalla, abre el detalle del cierre pendiente y espera a la partición. */
 async function abrirDetalle(detalle: DetalleOk = CON_RECHAZO) {
@@ -436,7 +436,7 @@ describe("395 — PRIMERO la partición: el orden es el arreglo", () => {
     const region = particion();
 
     const recaudado = importeTras(region, TOTAL_GENERAL_LABEL);
-    const facturado = importeTras(region, FACTURADO_ORDENEX_LABEL);
+    const facturado = importeTras(region, FACTURADO_EMPRESA_LABEL);
     const gana = importeTras(region, GANA_LA_TIENDA_LABEL);
 
     expect(recaudado).toBe("₡285.275");
@@ -479,7 +479,7 @@ describe(`395 — el desglose de lo que ${NOMBRE_ESPERADO} factura, y por qué h
 
     const [puenteSumando] = importesTras(region, COBRADO_SOBRE_RECAUDADO_LABEL);
     const flete = importesTras(region, FLETE_DEV_CON_IVA_LABEL)[0];
-    const facturado = importeTras(region, FACTURADO_ORDENEX_LABEL);
+    const facturado = importeTras(region, FACTURADO_EMPRESA_LABEL);
 
     expect(puenteSumando).toBe("₡60.098,67");
     laCuentaCierra([puenteSumando, flete], facturado, `lo que ${NOMBRE_ESPERADO} facturó`);
@@ -510,7 +510,7 @@ describe(`395 — el desglose de lo que ${NOMBRE_ESPERADO} factura, y por qué h
 
     laCuentaCierra(
       [puente[0], importesTras(region, FLETE_DEV_CON_IVA_LABEL)[0]],
-      importeTras(region, FACTURADO_ORDENEX_LABEL),
+      importeTras(region, FACTURADO_EMPRESA_LABEL),
       `sin rechazos, lo que ${NOMBRE_ESPERADO} facturó`,
     );
     laCuentaCierra(
@@ -533,10 +533,10 @@ describe(`395 — lo que le queda a ${NOMBRE_ESPERADO}`, () => {
     await abrirDetalle();
     const region = neto();
 
-    const facturado = importeTras(region, FACTURADO_ORDENEX_LABEL);
+    const facturado = importeTras(region, FACTURADO_EMPRESA_LABEL);
     const mensajero = importeTras(region, PAGO_MENSAJERO_LABEL);
     const bodega = importeTras(region, INGRESO_BODEGA_RECHAZOS_LABEL);
-    const resultado = importeTras(region, NETO_ORDENEX_LABEL);
+    const resultado = importeTras(region, NETO_EMPRESA_LABEL);
 
     expect(facturado).toBe("₡70.946,67");
     expect(mensajero).toBe("-₡45.000,55");
@@ -557,7 +557,7 @@ describe("395 — los negativos salen CON SU SIGNO, nunca recortados", () => {
     expect(gana).not.toBe("₡0");
     expect(gana).not.toBe("₡3.400,75");
     laCuentaCierra(
-      [importeTras(region, TOTAL_GENERAL_LABEL), importeTras(region, FACTURADO_ORDENEX_LABEL)],
+      [importeTras(region, TOTAL_GENERAL_LABEL), importeTras(region, FACTURADO_EMPRESA_LABEL)],
       gana,
       "la partición con la tienda en negativo",
     );
@@ -571,18 +571,18 @@ describe("395 — los negativos salen CON SU SIGNO, nunca recortados", () => {
     await abrirDetalle(NEGATIVOS);
     const region = neto();
 
-    const resultado = importeTras(region, NETO_ORDENEX_LABEL);
+    const resultado = importeTras(region, NETO_EMPRESA_LABEL);
     expect(resultado).toBe("-₡2.499,75");
     laCuentaCierra(
       [
-        importeTras(region, FACTURADO_ORDENEX_LABEL),
+        importeTras(region, FACTURADO_EMPRESA_LABEL),
         importeTras(region, PAGO_MENSAJERO_LABEL),
         importeTras(region, INGRESO_BODEGA_RECHAZOS_LABEL),
       ],
       resultado,
       `el neto de ${NOMBRE_ESPERADO} en negativo`,
     );
-    expect(within(region).getByText(NETO_ORDENEX_NEGATIVO_NOTA)).toBeInTheDocument();
+    expect(within(region).getByText(NETO_EMPRESA_NEGATIVO_NOTA)).toBeInTheDocument();
   });
 
   it("el resultado negativo va en el tono de atención que ya usan los cierres de bodega", async () => {
@@ -683,7 +683,7 @@ describe("395 — los rótulos NO se confunden entre sí", () => {
     ["GANA_LA_TIENDA_LABEL", GANA_LA_TIENDA_LABEL, "Gana la tienda"],
     ["PAGO_TIENDA_LABEL", PAGO_TIENDA_LABEL, "Pago a tienda"],
     ["CASCADA_FACTURA_TIENDA_TITULO", CASCADA_FACTURA_TIENDA_TITULO, `Lo que ${NOMBRE_ESPERADO} le factura a la tienda`],
-    ["CASCADA_NETO_ORDENEX_TITULO", CASCADA_NETO_ORDENEX_TITULO, `Lo que le queda a ${NOMBRE_ESPERADO}`],
+    ["CASCADA_NETO_EMPRESA_TITULO", CASCADA_NETO_EMPRESA_TITULO, `Lo que le queda a ${NOMBRE_ESPERADO}`],
   ])("%s dice exactamente lo aprobado", (_nombre, constante, literal) => {
     // A MANO, nunca derivado de la constante: comparar un rótulo con la función que lo genera
     // está siempre verde, y un renombrado silencioso de «Gana la tienda» a «Pago a tienda»

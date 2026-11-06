@@ -3,7 +3,7 @@ import type { AnularEgresoCajaInput, AnularEgresoCajaResult } from "@/lib/types/
 
 /**
  * FICHA 458-B (D13, R63–R67, R72) — contrato del servicio que ANULA CON MOTIVO un egreso de la caja
- * sin documento propio: sueldo, gasto de Ordenex, gasto fijo cobrado (origen `gasto`) o
+ * sin documento propio: sueldo, gasto de la empresa, gasto fijo cobrado (origen `gasto`) o
  * indemnizacion por incidente (origen `orden_incidente`).
  *
  * Hasta hoy los tres primeros solo se «reversaban» sin motivo (`WalletEgresoService.reversarEgreso`)

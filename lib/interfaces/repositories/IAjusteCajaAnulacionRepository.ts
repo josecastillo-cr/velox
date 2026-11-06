@@ -30,7 +30,7 @@ export type AnularAjusteCajaRepoResult = { status: "anulado" } | { status: "ya_a
 
 /**
  * FICHA 458-B (D13, R63/R64) — la constancia de la anulacion con motivo de un EGRESO de caja sin
- * documento propio: sueldo, gasto de Ordenex, gasto fijo cobrado o indemnizacion por incidente.
+ * documento propio: sueldo, gasto de la empresa, gasto fijo cobrado o indemnizacion por incidente.
  * `movimientoId` es el del egreso ORIGINAL. Misma tabla que la correccion (la 461 la dejo con FK a
  * `wallet_movimiento(id)` y `UNIQUE(movimiento_id)`), metodo y tipo de historial PROPIOS.
  */

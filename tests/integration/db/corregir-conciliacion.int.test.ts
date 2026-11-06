@@ -301,7 +301,12 @@ describeSiHayBase("473/T2 — corregir la recepcion de una satelite (Postgres re
     expect(r.filas).toBe(0);
   });
 
-  it("⭑ R12: corregir no escribe en wallet_movimiento, wallet_tienda_movimiento ni pago_mensajero_movimiento", async () => {
+  // ⭑ FICHA 498 (T3.7, design §11) — SUSTITUYE al caso de la 473 «R12: corregir no escribe en
+  // wallet_movimiento, wallet_tienda_movimiento ni pago_mensajero_movimiento». Ese contrato lo REVOCO
+  // el humano el 2026-11-02 («se revoca el caracter informativo y reversible de la conciliacion»):
+  // desde la 498, corregir escribe la DIFERENCIA solo por la variacion —una fila de ajuste
+  // `correccion` y UN movimiento de caja— y NINGUN asiento de cierre (ni tienda ni mensajero).
+  it("⭑ 498/R17: corregir escribe UN movimiento de caja (la variacion) y nada en el libro por tienda ni en el del mensajero", async () => {
     const r = await enTransaccionRevertida(prisma, async (tx) => {
       // REPEATABLE READ (antes de cualquier otra sentencia): los conteos son de TABLA ENTERA y otro
       // archivo de test puede commitear un movimiento en paralelo. Medido en el gate de esta ficha:
@@ -329,7 +334,7 @@ describeSiHayBase("473/T2 — corregir la recepcion de una satelite (Postgres re
     });
 
     expect(r.res).toBe("updated");
-    expect(r.despues).toEqual(r.antes);
+    expect(r.despues).toEqual({ ...r.antes, caja: r.antes.caja + 1 });
   });
 
   it("⭑ R13: corregida a lo declarado: SaldosSatelitesRepository devuelve faltaPorRecibir 0.00 y conciliado", async () => {

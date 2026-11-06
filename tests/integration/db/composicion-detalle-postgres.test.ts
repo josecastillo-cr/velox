@@ -47,7 +47,7 @@ type Tx = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
 const MAESTRO: Actor = { usuarioId: "u-maestro-339", rol: "maestro" };
 
 /**
- * La ventana desierta. Es un mes de 1999 a proposito: la caja de Ordenex nacio en 2026, asi que
+ * La ventana desierta. Es un mes de 1999 a proposito: la caja de la empresa nacio en 2026, asi que
  * ningun dato real ni sembrado cae ahi. Todas las consultas de esta suite la llevan puesta.
  */
 const DESDE = new Date("1999-11-01T06:00:00.000Z");
@@ -452,6 +452,6 @@ const SIN_DOCUMENTOS_459 = {
   pagosPorCuenta: { estadoDeDocumentos: async () => [] },
   aportes: { estadoDeDocumentos: async () => [] },
   cobros: { estadoDeDocumentos: async () => [] }, ajustes: { estadoDeDocumentos: async () => [] }, // ficha 461: lo exige `LectoresDocumentosCaja`
-  abonos: { estadoDeDocumentos: async () => [] }, // ficha 457: lo exige `LectoresDocumentosCaja`; esta suite no lee pagos de una tienda a Ordenex
+  abonos: { estadoDeDocumentos: async () => [] }, // ficha 457: lo exige `LectoresDocumentosCaja`; esta suite no lee pagos de una tienda a la empresa
   egresos: { estadoDeDocumentos: async () => [] }, indemnizaciones: { estadoDeDocumentos: async () => [] }, rechazos: { estadoDeDocumentos: async () => [] }, pagosATienda: { estadoDeDocumentos: async () => [] }, premios: { estadoDeDocumentos: async () => [] }, // ficha 458-B: lo exige `LectoresDocumentosCaja`
 };

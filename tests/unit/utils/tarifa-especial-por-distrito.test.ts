@@ -7,7 +7,7 @@ import {
   resolverFlete,
   costoEnvioDeTarifa,
   costosListadoOrden,
-} from "@/lib/utils/ingreso-ordenex";
+} from "@/lib/utils/ingreso-empresa";
 import { TarifaVigenteRepository } from "@/lib/repositories/TarifaVigenteRepository";
 import { OrdenRepository } from "@/lib/repositories/OrdenRepository";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";

@@ -19,14 +19,14 @@ import type {
   CierreRechazoDeTienda,
   CierreResultado,
   CierreTotales,
-  IngresoOrdenexDTO,
-  TotalesIngresoOrdenex,
+  IngresoEmpresaDTO,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 // Ficha 396 — la parte de UNA tienda se DECLARA junto a la funcion que la produce
 // (`partesPorTienda`), donde viven las identidades que particiona, y se importa aqui como TIPO.
 // Mismo camino que `OrigenFlete`, que ya viaja asi desde ese mismo modulo: un `import type` se
 // borra al compilar, asi que esto no arrastra ni un byte de `lib/utils/` al bundle.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 
 // Feature 38 — contrato del servicio "Cierres del dia" del admin (maestro /
 // adminSatelite). Logica de negocio pura (sin HTTP ni Prisma); el borde (Server
@@ -226,7 +226,7 @@ export interface CierreGestionDescargaDTO {
   diaReparto: string | null;
   /**
    * FICHA 385 (2026-09-07) — dia calendario de COSTA RICA (`YYYY-MM-DD`) de `orden.created_at`:
-   * CUANDO NACIO LA ORDEN en Ordenex. Es la CUARTA fecha de la fila y la mas antigua de las
+   * CUANDO NACIO LA ORDEN en la empresa. Es la CUARTA fecha de la fila y la mas antigua de las
    * cuatro: creacion -> reparto -> gestion -> cierre.
    *
    * Mismo tratamiento que `fechaGestion` y por el mismo motivo: `orden.created_at` es un
@@ -326,7 +326,7 @@ export interface CierreGestionDescargaDTO {
   pagoMensajero: string | null;
   ingresoBodegaRechazo: string | null;
   /** `null` = la orden no tenia tarifa vigente al solicitar (gap conocido de la feature 69). */
-  ingresoOrdenex: IngresoOrdenexDTO | null;
+  ingresoEmpresa: IngresoEmpresaDTO | null;
 }
 
 /**
@@ -359,8 +359,8 @@ export type CierreDetalleAdminServiceResult =
       status: "ok";
       cierre: CierreAdminResumen;
       grupos: CierreGrupos; // por resultado (reuso 37)
-      // Totales por concepto del ingreso de Ordenex del cierre, derivados del snapshot.
-      totalesIngreso: TotalesIngresoOrdenex;
+      // Totales por concepto del ingreso de la empresa del cierre, derivados del snapshot.
+      totalesIngreso: TotalesIngresoEmpresa;
       // Feature 102/R4-R8/R10: desglose money-safe (STRING escala 2) del ingreso de bodega por
       // rechazos, particionado por origen. `sla` = escalados del cron SLA (99); `manual` =
       // rechazos del mensajero; `total` = el SNAPSHOT `cierre.totalIngresoBodegaRechazos` (leido,
@@ -368,7 +368,7 @@ export type CierreDetalleAdminServiceResult =
       // (Q4); llega igual al alcance satelite por el mismo camino (R10).
       desgloseIngresoBodegaRechazos: { sla: string; manual: string; total: string };
       // DERIVADO: `totalesIngreso.total` - `cierre.totalPagoMensajero` (STRING money-safe).
-      // Lo que le queda a Ordenex del cierre. Puede ser NEGATIVO.
+      // Lo que le queda a la empresa del cierre. Puede ser NEGATIVO.
       ganancia: string;
       // DERIVADO: `cierre.totales.general` - `fleteConIva` - `comisionConIva` (STRING
       // money-safe). Lo que se le paga a la tienda. Puede ser NEGATIVO.
@@ -394,7 +394,7 @@ export type CierreDetalleAdminServiceResult =
        * rechazos vale "0.00" y divergen en cuanto hay un rechazo. Puede ser NEGATIVO y se emite
        * CON SU SIGNO, nunca recortado a "0.00".
        */
-      netoOrdenex: string;
+      netoEmpresa: string;
       /**
        * Feature 395 — DERIVADO: `cierre.totales.general` − `totalesIngreso.total`. LO QUE LA
        * TIENDA GANA EN TOTAL con este cierre.

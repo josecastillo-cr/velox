@@ -36,7 +36,7 @@ import type { CierreAdminResumen } from "@/lib/interfaces/services/ICierresAdmin
 import type {
   CierreGrupos,
   CierreTotales,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreEstado } from "@/lib/types/cierre";
 import type { PagoRegistradoDTO, RegistrarPagoResult } from "@/lib/types/liquidacion";
@@ -154,7 +154,7 @@ function emptyGrupos(): CierreGrupos {
   return { entregado: [], reprogramado: [], novedad: [], devolucion_a_origen_por_rechazo: [], incidente: [] };
 }
 
-function zeroIngreso(): TotalesIngresoOrdenex {
+function zeroIngreso(): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     fleteConIva: "0.00",
@@ -184,7 +184,7 @@ function conDetalleDe(cierre: CierreAdminResumen) {
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     fleteRechazoYaCobradoATienda: false,
     // Ficha 396: el desglose por tienda viaja SIEMPRE en el DTO, tambien con una sola
@@ -622,7 +622,7 @@ describe("T E.2/R19 — el detalle de un cierre APROBADO ofrece registrar el pag
       ganancia: "0.00",
       pagoTienda: "0.00",
       cobradoSobreRecaudado: "0.00",
-      netoOrdenex: "0.00",
+      netoEmpresa: "0.00",
       ganaLaTienda: "0.00",
       fleteRechazoYaCobradoATienda: false,
       partesPorTienda: [],

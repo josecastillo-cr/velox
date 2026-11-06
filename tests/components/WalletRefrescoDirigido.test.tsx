@@ -64,7 +64,7 @@ function tania() {
     saldoActual: saldoTania,
     saldoFinal: saldoTania,
     signo: signo(saldoTania),
-    sentido: saldoTania.startsWith("-") ? "cuenta_debe" : "ordenex_debe",
+    sentido: saldoTania.startsWith("-") ? "cuenta_debe" : "empresa_debe",
     filas: [],
     total: 0,
   });

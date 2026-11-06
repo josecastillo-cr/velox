@@ -16,7 +16,7 @@ import {
   CASCADA_CENTRAL_TITULO,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_TIENDA_LABEL,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   GANA_BODEGA_SATELITE_LABEL,
   PARA_LA_CENTRAL_NOTA,
   PARA_LA_CENTRAL_NEGATIVO_NOTA,
@@ -40,7 +40,7 @@ import { PAGO_MENSAJERO_LABEL } from "@/app/(app)/cierres-admin/_components/cier
  * lo MISMO (R38), que las otras tres superficies del mismo comprobante no cambian (R21), que el
  * resultado llega ya derivado y no se calcula aquí (R20), que el negativo se pinta con su signo y
  * su nota (R36), que el aviso del efectivo aparece cuando toca (R37) y que la cascada del margen
- * de Ordenex NO se cuela en la tarjeta (R39).
+ * de la empresa NO se cuela en la tarjeta (R39).
  *
  * Los importes llevan CÉNTIMOS a propósito.
  */
@@ -317,7 +317,7 @@ describe("393 · F4 — la tarjeta del cierre de bodega cuenta la cascada B", ()
 
     const texto = document.body.textContent ?? "";
     expect(texto).not.toContain(PARA_LA_TIENDA_LABEL);
-    expect(texto).not.toContain(NETO_ORDENEX_LABEL);
+    expect(texto).not.toContain(NETO_EMPRESA_LABEL);
     expect(texto).not.toContain("Ingreso bruto");
     expect(texto).not.toContain("Ganancia");
   });

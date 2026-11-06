@@ -31,7 +31,7 @@ import { escaparComodinesLike } from "@/lib/utils/escapar-like";
 //   cobro_manual_reclasificado
 //   abono_tienda                                 la tienda que pago             abono_tienda
 //   gasto / manual                               el nombre libre anotado        wallet_anotacion
-//   aporte_capital                               «Ordenex»: no es una cuenta ni un nombre (no se filtra)
+//   aporte_capital                               «la empresa»: no es una cuenta ni un nombre (no se filtra)
 //
 // POR QUE SQL Y NO UN `IN` DE IDS. `origen_id` es polimorfico (no hay relacion de Prisma que cruzar),
 // y resolver antes los ids de la cuenta para mandarlos en un `IN` crece con la historia de esa cuenta
@@ -111,7 +111,7 @@ const ABONO: RamaDeCuenta = {
  * `Record` TOTAL sobre los origenes: el dia que la caja gane un origen, esto deja de compilar hasta
  * que alguien decida a quien se le paga ese dinero (y lo mismo tendra que decidir «A quién»).
  */
-const A_QUIEN_POR_ORIGEN: Record<WalletOrigenTipo, readonly RamaDeCuenta[] | "anotacion" | "ordenex"> = {
+const A_QUIEN_POR_ORIGEN: Record<WalletOrigenTipo, readonly RamaDeCuenta[] | "anotacion" | "empresa"> = {
   cierre_dia: [CIERRE],
   gestion_orden: [RECHAZO],
   manual: "anotacion",
@@ -121,11 +121,14 @@ const A_QUIEN_POR_ORIGEN: Record<WalletOrigenTipo, readonly RamaDeCuenta[] | "an
   orden_incidente: [INCIDENTE],
   ranking_snapshot_fila: [PODIO],
   pago_por_cuenta_tienda: [PAGO_POR_CUENTA],
-  aporte_capital: "ordenex",
+  aporte_capital: "empresa",
   cobro_manual_reclasificado: [DEBITO_DE_TIENDA],
   cobro_tienda: [DEBITO_DE_TIENDA],
   cobro_tienda_completado: [DEBITO_DE_TIENDA],
   abono_tienda: [ABONO],
+  // Ficha 498: la diferencia de la satelite al conciliar. La satelite no es una cuenta de tienda ni de
+  // mensajero, asi que no hay rama: la fila no aparece al filtrar por una cuenta.
+  conciliacion_bodega_ajuste: [],
 };
 
 const ORIGENES = Object.keys(A_QUIEN_POR_ORIGEN) as WalletOrigenTipo[];

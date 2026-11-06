@@ -1,10 +1,10 @@
 "use client";
 
 // FICHA 396 — el tipo del desglose se pide DONDE VIVE la identidad que particiona
-// (`lib/utils/ingreso-ordenex.ts`), igual que hacen los dos contratos de servicio. Es un
+// (`lib/utils/ingreso-empresa.ts`), igual que hacen los dos contratos de servicio. Es un
 // `import type`: se borra al compilar y no arrastra ni `Prisma` ni una línea de servidor al
 // navegador.
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 
 import { CascadaDinero, type LineaCascada } from "./CascadaDinero";
 // Los rótulos se piden al módulo PURO directamente, y NO por el re-export de
@@ -53,7 +53,7 @@ import {
  *
  * ── POR QUÉ LA CASCADA DE UNA TIENDA NO LLEVA OPERADORES
  * Las otras cascadas del detalle cierran una cuenta; ésta enseña TRES lecturas de la misma
- * tienda. Para pintarla como resta haría falta una cuarta cifra —lo que Ordenex le factura a ESA
+ * tienda. Para pintarla como resta haría falta una cuarta cifra —lo que la empresa le factura a ESA
  * tienda— y R5 la prohíbe: tres cifras por tienda y ni una más. Inventar una resta que no se
  * puede completar sería justo el defecto que la ficha 395 arregló un nivel más arriba.
  */

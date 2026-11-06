@@ -46,7 +46,10 @@ export type ResolverCierreBodegaResult = "updated" | "conflict" | "fuera_de_alca
  */
 export interface MarcarConciliadoInput {
   id: string;
-  /** STRING de escala 2, ya validado en el borde (`montoPositivoSchema`, > 0). */
+  /**
+   * STRING de escala 2, ya validado en el borde (`marcarConsolidacionRecibidaSchema`: > 0, o el cero
+   * literal desde la ficha 498). Si es 0, el repositorio decide con el dato (R15a/R15b).
+   */
   montoRecibido: string;
   nota: string | null;
   /** Quien marca (`esAccesoTotal`). Va a `conciliado_por` Y al espejo `resuelto_por` (§4.1). */
@@ -66,7 +69,7 @@ export interface RevertirConciliacionInput {
  */
 export interface CorregirConciliacionInput {
   id: string;
-  /** STRING de escala 2, ya validado en el borde (`montoPositivoSchema`, > 0). */
+  /** STRING de escala 2, ya validado en el borde (> 0, o el cero literal desde la ficha 498). */
   montoRecibido: string;
   nota: string | null;
   /** Quien corrige (`esAccesoTotal`). Va a `conciliado_por` Y al espejo `resuelto_por`. */
@@ -78,7 +81,25 @@ export interface CorregirConciliacionInput {
  * guarda por estado vive en el `WHERE` y `count !== 1` distingue «ya estaba asi» (R11) de «no
  * existe». Es un alias con nombre propio porque describe OTRA transicion, no la misma.
  */
-export type MarcaConciliacionResult = "updated" | "conflict" | "fuera_de_alcance";
+export type MarcaConciliacionResult =
+  | "updated"
+  | "conflict"
+  | "fuera_de_alcance"
+  // FICHA 498 (Q5, design §4.4 bis, R15a): recibido 0 con aporte reconocido POSITIVO. Sin cambios.
+  | "recibido_cero_con_aporte";
+
+/**
+ * FICHA 498 (design §4.6, R20): revertir gana un desenlace propio. `con_asientos` = la consolidacion
+ * ya entro a la caja (filas de sus cierres en los libros o filas de ajuste): no se revierte nada.
+ */
+export type RevertirConciliacionResult =
+  | "updated"
+  | "conflict"
+  | "fuera_de_alcance"
+  | "con_asientos"
+  // FICHA 498 (revision m2): saldada con la regla anterior (Q4). No se revierte: su marca de
+  // regularizacion exige `conciliado_at` (CHECK de M4) y el humano la dio por saldada. Se corrige.
+  | "saldada_regla_anterior";
 
 export interface ICierresBodegaAdminRepository {
   /**
@@ -148,6 +169,8 @@ export interface ICierresBodegaAdminRepository {
       resumen: CierreBodegaDetalleCierreRow;
       gestiones: CierreGestionPendienteRow[];
     }[];
+    /** FICHA 500 (R3/R4): conciliada, sin dinero (`consolidacionesConDinero`) y no saldada con la regla anterior. */
+    puedeDesmarcar: boolean;
   } | null>;
   /**
    * Feature 230 — Tanda 7 (T7.1, R11/R24/R26/R41): TODAS las gestiones de los cierres del dia YA
@@ -187,9 +210,11 @@ export interface ICierresBodegaAdminRepository {
    * aprobados POR `resuelto_at` dentro del rango. Si la marca no los rellenara, los cierres de
    * bodega desaparecerian de la analitica financiera sin que nada se pusiera rojo.
    *
-   * NO escribe en NINGUN libro de dinero (R14): ni `wallet_movimiento`, ni
-   * `wallet_tienda_movimiento`, ni `pago_mensajero_movimiento`. La marca es seguimiento, no
-   * contabilidad.
+   * ⭑ FICHA 498 (R8-R15) — MARCAR ASIENTA EL DINERO. En la MISMA transaccion: asienta cada cierre
+   * satelite aprobado de la consolidacion en los tres libros (`asentarCierreDia`) y, si el recibido
+   * no es el esperado, escribe UNA fila de ajuste y UN movimiento de caja de «diferencia de la
+   * satelite». Ya no es reversible: despues se corrige. Recibido 0 con aporte positivo →
+   * `recibido_cero_con_aporte` sin escribir nada (R15a).
    */
   marcarConciliado(input: MarcarConciliadoInput): Promise<MarcaConciliacionResult>;
   /**
@@ -207,7 +232,11 @@ export interface ICierresBodegaAdminRepository {
    * El `monto` de la fila de historial es EL QUE SE BORRA: tras esto, ningun sitio de
    * `cierre_bodega` recuerda cuanto se habia dado por recibido.
    */
-  revertirConciliacion(input: RevertirConciliacionInput): Promise<MarcaConciliacionResult>;
+  /**
+   * ⭑ FICHA 498 (R20/R22): si la consolidacion tiene asientos (filas de sus cierres en los libros o
+   * filas de ajuste) responde `con_asientos` sin cambiar NADA. Sin asientos, revierte como antes.
+   */
+  revertirConciliacion(input: RevertirConciliacionInput): Promise<RevertirConciliacionResult>;
   /**
    * ⭑ FICHA 473 (R1-R8) — CORRIGE el monto recibido de una consolidacion que SIGUE conciliada, en una
    * sola transaccion y sin pasar por «Pendiente de conciliar».
@@ -218,7 +247,11 @@ export interface ICierresBodegaAdminRepository {
    *
    * ⚠️ METODO PROPIO Y NO UN BOOLEANO EN `marcarConciliado` (la guardia del censo mide POR METODO).
    * Reusa el tipo `cierre_bodega_conciliado` (D1); su fila se distingue de una marca porque lleva
-   * `valor_anterior`/`valor_nuevo`. La nota NO entra al historial. NO escribe en libros de dinero.
+   * `valor_anterior`/`valor_nuevo`. La nota NO entra al historial.
+   *
+   * ⭑ FICHA 498 (R17-R19): escribe la DIFERENCIA solo por la variacion (fila de ajuste `correccion`
+   * + un movimiento de caja), contra el aporte reconocido; no vuelve a asentar los cierres y no
+   * modifica ni borra nada anterior. Recibido 0 con aporte positivo → `recibido_cero_con_aporte`.
    */
   corregirConciliacion(input: CorregirConciliacionInput): Promise<MarcaConciliacionResult>;
 }

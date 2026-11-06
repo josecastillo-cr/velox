@@ -11,16 +11,16 @@ import type {
 } from "@/lib/types/wallet-tienda";
 
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
-// FICHA 381 → 461 — contrato del servicio con el que ORDENEX LE COBRA A UNA TIENDA.
+// FICHA 381 → 461 — contrato del servicio con el que LA EMPRESA LE COBRA A UNA TIENDA.
 // ═══════════════════════════════════════════════════════════════════════════════════════════════
 //
 // LO QUE HACE, en una frase (461, HD1, firmada por el humano el 2026-09-25): un cobro se DESCUENTA
-// del saldo a favor de la tienda y pasa a ser GANANCIA de Ordenex. Escribe el debito en el libro de
+// del saldo a favor de la tienda y pasa a ser GANANCIA de la empresa. Escribe el debito en el libro de
 // esa tienda, UNA linea en la caja de naturaleza propia y liquidez «cargo» por el mismo monto, y la
 // fila del historial — las tres en una transaccion (R1). No es dinero que entra: se toma del que
-// Ordenex ya le guardaba a la tienda, asi que la ganancia sube, «De las tiendas» baja y «Entro» no
+// la empresa ya le guardaba a la tienda, asi que la ganancia sube, «De las tiendas» baja y «Entro» no
 // cambia (R4). Con la 381 el cobro era «una fila de debito en el libro de esa tienda, y ninguna en
-// la caja de Ordenex»; esa frase queda SUPERADA por HD1.
+// la caja de la empresa»; esa frase queda SUPERADA por HD1.
 //
 // Resultados de DOMINIO, sin acoplar a HTTP: `unauthenticated` lo decide la Server Action antes de
 // instanciar nada, y `validation_error` de FORMA lo decide zod en el borde. Money-safe: los importes
@@ -65,7 +65,7 @@ export type AnularCobroTiendaServiceResult = Exclude<
 
 export interface ICobroTiendaService {
   /**
-   * R1–R9 — registra UN cobro de Ordenex a UNA tienda: el debito, la linea de caja y el historial, en
+   * R1–R9 — registra UN cobro de la empresa a UNA tienda: el debito, la linea de caja y el historial, en
    * una transaccion; el saldo resultante con su signo (puede ser negativo, R5).
    */
   registrarCobro(

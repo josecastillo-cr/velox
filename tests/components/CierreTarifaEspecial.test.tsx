@@ -17,7 +17,7 @@ import userEvent from "@testing-library/user-event";
 
 import { GestionesPorResultado } from "@/app/(app)/cierres-admin/_components/cierre-factura";
 import {
-  DesgloseIngresoOrdenex,
+  DesgloseIngresoEmpresa,
   ESPECIAL_BADGE_LABEL,
   ESPECIAL_BADGE_NOTA,
   ESPECIAL_SIN_PACTO_BADGE_LABEL,
@@ -33,7 +33,7 @@ import {
 import { money } from "@/lib/config/moneda";
 import type {
   CierreDetalleGestion,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
   TarifaSnapshotDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
@@ -54,7 +54,7 @@ function tarifa(over: Partial<TarifaSnapshotDTO> = {}): TarifaSnapshotDTO {
   };
 }
 
-function ingreso(over: Partial<IngresoOrdenexDTO> = {}): IngresoOrdenexDTO {
+function ingreso(over: Partial<IngresoEmpresaDTO> = {}): IngresoEmpresaDTO {
   return {
     montoCobrar: "10000.00",
     cobraComision: true,
@@ -77,7 +77,7 @@ function ingreso(over: Partial<IngresoOrdenexDTO> = {}): IngresoOrdenexDTO {
   };
 }
 
-function gestion(ing: IngresoOrdenexDTO): CierreDetalleGestion {
+function gestion(ing: IngresoEmpresaDTO): CierreDetalleGestion {
   return {
     gestionId: "g1",
     ordenId: "o1",
@@ -106,7 +106,7 @@ function gestion(ing: IngresoOrdenexDTO): CierreDetalleGestion {
     desdeAyudaTienda: false,
     causaIncidente: null,
     indemnizacion: null,
-    ingresoOrdenex: ing,
+    ingresoEmpresa: ing,
   };
 }
 
@@ -120,7 +120,7 @@ function gestion(ing: IngresoOrdenexDTO): CierreDetalleGestion {
  * que se mira ahora. Se acota al RENGLÓN y no a la fila entera porque, desplegada, la fila monta
  * también el desglose de ingreso, que repite la marca en su encabezado.
  */
-async function celdaFlete(ing: IngresoOrdenexDTO): Promise<HTMLElement> {
+async function celdaFlete(ing: IngresoEmpresaDTO): Promise<HTMLElement> {
   const user = userEvent.setup();
   render(
     <GestionesPorResultado
@@ -190,7 +190,7 @@ describe("Marca del origen del flete en la fila del detalle", () => {
 describe("Desglose auditable de una orden con tarifa especial", () => {
   it("el flete dice que salió del pacto, y no de la columna GAM / no GAM", () => {
     render(
-      <DesgloseIngresoOrdenex
+      <DesgloseIngresoEmpresa
         g={gestion(
           ingreso({
             esZonaEspecial: true,
@@ -209,7 +209,7 @@ describe("Desglose auditable de una orden con tarifa especial", () => {
 
   it("el pacto lleva el importe cobrado, y la columna normal se queda en cero", () => {
     render(
-      <DesgloseIngresoOrdenex
+      <DesgloseIngresoEmpresa
         g={gestion(
           ingreso({
             esZonaEspecial: true,
@@ -238,14 +238,14 @@ describe("Desglose auditable de una orden con tarifa especial", () => {
   });
 
   it("sin pacto congelado, esas filas NO se pintan (un '—' se leería como pacto de cero)", () => {
-    render(<DesgloseIngresoOrdenex g={gestion(ingreso())} />);
+    render(<DesgloseIngresoEmpresa g={gestion(ingreso())} />);
     expect(screen.queryByText(TARIFA_ESPECIAL_LABEL)).toBeNull();
     expect(screen.queryByText(TARIFA_ESPECIAL_DEV_LABEL)).toBeNull();
   });
 
   it("un distrito especial sin pacto deja la nota del hueco de configuración", () => {
     render(
-      <DesgloseIngresoOrdenex
+      <DesgloseIngresoEmpresa
         g={gestion(ingreso({ esZonaEspecial: true, fleteOrigen: "especial_sin_pacto" }))}
       />,
     );

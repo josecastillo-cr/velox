@@ -8,8 +8,8 @@ import { composicionCajaNombreAccesible } from "./wallet-labels";
 // Feature 231 (T4.2, design §4.2) — la barra de composicion de la caja.
 //
 // Que es: la cifra grande de «Dinero en caja» partida en las DOS porciones que la componen,
-// la de las TIENDAS y la de ORDENEX. No hay una tercera porcion ni un residuo escondido: la
-// identidad `enCaja = deTerceros + deOrdenex` (ficha 459: «De Ordenex» = ganancia + capital) la
+// la de las TIENDAS y la de LA EMPRESA. No hay una tercera porcion ni un residuo escondido: la
+// identidad `enCaja = deTerceros + deEmpresa` (ficha 459: «De la empresa» = ganancia + capital) la
 // deriva el servidor y esta comprobada en `lib/utils/caja-tesoreria.ts`.
 //
 // Ficha 459 (R22): la tarjeta SOLO la monta en estado «saldo». Sin un saldo inicial vigente la
@@ -31,7 +31,7 @@ import { composicionCajaNombreAccesible } from "./wallet-labels";
 // desbordarla (design §6.5).
 //
 // Ficha 488 (decision 1a, design §2.3/§6.2, R14–R16) — un TERCER bolsillo, «IVA por pagar». El IVA
-// cobrado a las tiendas sale de «De Ordenex» y se pinta aparte. El navegador sigue sin comparar
+// cobrado a las tiendas sale de «De la empresa» y se pinta aparte. El navegador sigue sin comparar
 // importes: si hay porcion de IVA lo dice el SERVIDOR (`signoIvaPorPagar`), y su ancho es otro
 // STRING del DTO (`porcentajeIva`). Con el IVA en cero o negativo la barra es EXACTAMENTE la de antes
 // de la ficha (R16): mismos segmentos, mismas medidas, mismo orden.
@@ -40,10 +40,23 @@ import { composicionCajaNombreAccesible } from "./wallet-labels";
  * Ficha 488 — color del IVA por pagar. `bg-chart-13` y no `bg-info`: los semanticos base son hexes
  * FIJOS y `bg-info` se funde con la pista `bg-muted` en tema oscuro (2.34:1, medido en
  * `TableroDiaComposicion.test.tsx`); `chart-13` gira con el tema y supera el 3:1 en los dos. Distinto
- * tambien de `bg-warning` (tiendas), de `bg-muted-foreground` (Ordenex) y del `bg-info` del capital
+ * tambien de `bg-warning` (tiendas), de `bg-muted-foreground` (la empresa) y del `bg-info` del capital
  * en el libro. El libro lo reutiliza para su punto de dueño `iva`: es el mismo bolsillo.
  */
 export const COLOR_IVA_POR_PAGAR = "bg-chart-13";
+
+/**
+ * Ficha 498 (design §8.2, R38) — color de «Por cobrar a satélites», el CUARTO bolsillo. Token
+ * propio de `chart-*` que GIRA con el tema (molde `COLOR_IVA_POR_PAGAR`), distinto de los que ya
+ * pinta la barra (`bg-warning` tiendas, `bg-muted-foreground` la empresa, `bg-chart-13` IVA) y del
+ * `bg-info` del capital en el libro. Violeta: no se lee como alarma (rojo/ámbar) ni como ganancia.
+ *
+ * MEDIDO con `tests/fixtures/contraste` contra la pista `--muted` (WCAG 1.4.11 pide 3:1):
+ *   bg-chart-16  →  6.45 claro · 7.84 oscuro
+ * Lo fija `tests/components/BarraComposicionCaja498.test.tsx`. El libro lo reutiliza para su
+ * punto de dueño `por_cobrar_satelite`: es el mismo bolsillo.
+ */
+export const COLOR_POR_COBRAR_SATELITES = "bg-chart-16";
 
 /** Alto de la barra. Una banda fina: acompaña a la cifra, no compite con ella. */
 const PISTA = "flex h-2 w-full overflow-hidden rounded-full bg-muted";
@@ -59,12 +72,12 @@ const PISTA = "flex h-2 w-full overflow-hidden rounded-full bg-muted";
 type Medida = "porcentaje" | "resto" | "todo";
 
 interface Segmento {
-  clave: "tiendas" | "ordenex" | "iva";
+  clave: "tiendas" | "empresa" | "iva" | "por_cobrar";
   /** Color por TOKEN (R39). Ni un hex, ni una utilidad de paleta ad-hoc. */
   color: string;
   medida: Medida;
   /** Solo con `medida: "porcentaje"`: QUE campo STRING del DTO da el ancho. */
-  campo?: "porcentajeTiendas" | "porcentajeIva";
+  campo?: "porcentajeTiendas" | "porcentajeIva" | "porcentajePorCobrar";
 }
 
 const ANCHO: Record<Medida, string> = {
@@ -78,46 +91,112 @@ const ANCHO: Record<Medida, string> = {
  * build de esta pantalla en vez de caer en un `default` que pintaria cualquier cosa.
  *
  *  - `dos_bolsillos` — los dos segmentos. Tiendas en `warning` (es dinero que hay que
- *    entregar, no una alarma) y Ordenex en superficie NEUTRA: `DESIGN.md` reserva el acento
+ *    entregar, no una alarma) y la empresa en superficie NEUTRA: `DESIGN.md` reserva el acento
  *    para accion y estado, y la ganancia normal no es ninguna de las dos cosas (R5).
- *  - `solo_tiendas` — la barra ENTERA en `warning` (R16): Ordenex esta en perdida y lo que
+ *  - `solo_tiendas` — la barra ENTERA en `warning` (R16): la empresa esta en perdida y lo que
  *    queda en la caja es dinero de las tiendas.
- *  - `solo_ordenex` — el espejo (R17, D4): no queda nada de las tiendas.
+ *  - `solo_empresa` — el espejo (R17, D4): no queda nada de las tiendas.
  *  - `sin_reparto` — CERO segmentos (R18/R20): la pista neutra vacia, sin porcentaje alguno.
  */
 const SEGMENTOS_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[]> = {
   dos_bolsillos: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   solo_tiendas: [{ clave: "tiendas", color: "bg-warning", medida: "todo" }],
-  solo_ordenex: [{ clave: "ordenex", color: "bg-muted-foreground", medida: "todo" }],
+  solo_empresa: [{ clave: "empresa", color: "bg-muted-foreground", medida: "todo" }],
   sin_reparto: [],
 };
 
 /**
  * Ficha 488 (design §2.3) — los segmentos cuando el IVA por pagar es POSITIVO. Mismo `Record` total
- * sobre los cuatro modos (el modo se sigue derivando de «De Ordenex» y «De las tiendas»). El ultimo
+ * sobre los cuatro modos (el modo se sigue derivando de «De la empresa» y «De las tiendas»). El ultimo
  * segmento de cada lista ocupa el resto, asi que un redondeo no abre hueco.
  */
 const SEGMENTOS_CON_IVA_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[]> = {
   dos_bolsillos: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   solo_tiendas: [
     { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "resto" },
   ],
-  solo_ordenex: [
+  solo_empresa: [
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
-    { clave: "ordenex", color: "bg-muted-foreground", medida: "resto" },
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
   ],
   sin_reparto: [
     { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
   ],
 };
+
+/**
+ * Ficha 498 (design §8.2, R38) — los segmentos cuando «Por cobrar a satélites» es POSITIVO. Es la
+ * lista que correspondería SIN el bolsillo, con el segmento `por_cobrar` (porcentaje) insertado
+ * ANTES DEL ÚLTIMO, y el último ocupando el resto. Si la lista era un único segmento `todo`, pasa a
+ * `[por_cobrar, ese segmento(resto)]`; sin nada que repartir y sin IVA, el bolsillo es la barra
+ * entera. `Record` totales por modo, como los dos de arriba: un modo nuevo no compila sin decidir
+ * su forma. El tramo de la empresa NO se descuenta: su ancho sigue siendo el resto.
+ */
+const POR_COBRAR: Segmento = {
+  clave: "por_cobrar",
+  color: COLOR_POR_COBRAR_SATELITES,
+  medida: "porcentaje",
+  campo: "porcentajePorCobrar",
+};
+
+const SEGMENTOS_CON_POR_COBRAR_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[]> = {
+  dos_bolsillos: [
+    { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
+    POR_COBRAR,
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
+  ],
+  solo_tiendas: [POR_COBRAR, { clave: "tiendas", color: "bg-warning", medida: "resto" }],
+  solo_empresa: [POR_COBRAR, { clave: "empresa", color: "bg-muted-foreground", medida: "resto" }],
+  sin_reparto: [{ clave: "por_cobrar", color: COLOR_POR_COBRAR_SATELITES, medida: "todo" }],
+};
+
+/**
+ * Ficha 498 — con IVA por pagar Y «Por cobrar a satélites» positivos. En `sin_reparto` la lista con
+ * IVA era `[iva(porcentaje)]`: el IVA pasa a ocupar el resto, para que un redondeo no abra hueco.
+ */
+const SEGMENTOS_CON_IVA_Y_POR_COBRAR_POR_MODO: Record<ModoComposicionCaja, readonly Segmento[]> = {
+  dos_bolsillos: [
+    { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
+    { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
+    POR_COBRAR,
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
+  ],
+  solo_tiendas: [
+    { clave: "tiendas", color: "bg-warning", medida: "porcentaje", campo: "porcentajeTiendas" },
+    POR_COBRAR,
+    { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "resto" },
+  ],
+  solo_empresa: [
+    { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "porcentaje", campo: "porcentajeIva" },
+    POR_COBRAR,
+    { clave: "empresa", color: "bg-muted-foreground", medida: "resto" },
+  ],
+  sin_reparto: [POR_COBRAR, { clave: "iva", color: COLOR_IVA_POR_PAGAR, medida: "resto" }],
+};
+
+/**
+ * Qué lista toca, por los DOS signos del servidor. Con «Por cobrar» en cero o negativo devuelve
+ * exactamente las listas de antes de la ficha 498 (R39).
+ */
+function segmentosDe(resumen: CajaResumenDTO): readonly Segmento[] {
+  const conIva = resumen.signoIvaPorPagar === "positivo";
+  if (resumen.signoPorCobrarSatelites === "positivo") {
+    return conIva
+      ? SEGMENTOS_CON_IVA_Y_POR_COBRAR_POR_MODO[resumen.modoComposicion]
+      : SEGMENTOS_CON_POR_COBRAR_POR_MODO[resumen.modoComposicion];
+  }
+  return conIva
+    ? SEGMENTOS_CON_IVA_POR_MODO[resumen.modoComposicion]
+    : SEGMENTOS_POR_MODO[resumen.modoComposicion];
+}
 
 export interface BarraComposicionCajaProps {
   /** El resumen ENTERO, ya derivado en el servidor: modo, porcentaje y los dos importes. */
@@ -126,11 +205,9 @@ export interface BarraComposicionCajaProps {
 }
 
 export function BarraComposicionCaja({ resumen, className }: BarraComposicionCajaProps) {
-  // R16: sin IVA por pagar positivo (lo dice el signo del SERVIDOR), la barra de siempre.
-  const segmentos =
-    resumen.signoIvaPorPagar === "positivo"
-      ? SEGMENTOS_CON_IVA_POR_MODO[resumen.modoComposicion]
-      : SEGMENTOS_POR_MODO[resumen.modoComposicion];
+  // R16 (488) y R39 (498): sin IVA ni «Por cobrar» positivos (lo dicen los signos del SERVIDOR),
+  // la barra de siempre.
+  const segmentos = segmentosDe(resumen);
 
   return (
     <div

@@ -119,7 +119,7 @@ describe("descargas por registro · auto-prueba del detector", () => {
 
   it("lee el mapa del registro con las claves que NO son el nombre del símbolo", () => {
     expect(MAPA.get("listarPlantillasGastoFijoCompleto")).toBe("listarPlantillasCompletoAction");
-    expect(MAPA.get("libroCajaKardexConDetalle")).toBe("libroCajaKardexConDetalleAction");
+    expect(MAPA.get("libroCajaKardexConDetalleV2")).toBe("libroCajaKardexConDetalleAction");
     expect(MAPA.get("listarCoberturaDistritos")).toBe("listarCoberturaDistritos");
     expect(MAPA.get("listarOrdenesCompleto")).toBe("listarOrdenesCompleto");
   });

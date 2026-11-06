@@ -18,7 +18,7 @@ import type {
   CierreDetalleGestion,
   CierreGrupos,
   CierreResultado,
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 
 // Feature 158 (T2.3 — R18/R17/R34/R19) — el grupo "Incidente" en el detalle de ADMIN. Lo que
@@ -47,7 +47,7 @@ import type {
 // pintó las columnas (el caso del hueco se puso rojo y se INVIRTIÓ también). Ninguno de los
 // dos se borró: los dos siguen protegiendo el invariante, ahora en su sentido correcto.
 
-function ingreso(over: Partial<IngresoOrdenexDTO> = {}): IngresoOrdenexDTO {
+function ingreso(over: Partial<IngresoEmpresaDTO> = {}): IngresoEmpresaDTO {
   return {
     montoCobrar: "150.00",
     cobraComision: true,
@@ -102,7 +102,7 @@ function makeGestion(
     // sobreescriben.
     causaIncidente: null,
     indemnizacion: null,
-    ingresoOrdenex: ingreso(),
+    ingresoEmpresa: ingreso(),
     ...over,
   };
 }

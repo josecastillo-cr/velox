@@ -373,7 +373,7 @@ const CENSO: EntradaCenso[] = [
     mutacion: /tx\.aporteCapitalAnulacion\.create\(/,
   },
   {
-    // ⭑ FICHA 461 (R10/R55) — la ANULACION de un cobro de Ordenex a una tienda. Forma `recibe_tx`
+    // ⭑ FICHA 461 (R10/R55) — la ANULACION de un cobro de la empresa a una tienda. Forma `recibe_tx`
     // (el servicio abre la transaccion; el repositorio escribe la constancia y su historial en
     // ella). Metodo PROPIO: la guardia mide por metodo. La mutacion exigida es la escritura de la
     // CONSTANCIA de la anulacion, que es lo que la fila documenta.
@@ -383,7 +383,7 @@ const CENSO: EntradaCenso[] = [
     forma: "recibe_tx",
     mutacion: /tx\.cobroTiendaAnulacion\.create\(/,
   },
-  // ⭑ FICHA 457 (R61/R62) — el PAGO DE UNA TIENDA A ORDENEX. UN TIPO POR METODO, forma `recibe_tx`
+  // ⭑ FICHA 457 (R61/R62) — el PAGO DE UNA TIENDA A LA EMPRESA. UN TIPO POR METODO, forma `recibe_tx`
   // (el servicio abre la transaccion y el repositorio escribe el documento y su historial en ella,
   // molde de las de la 459). La mutacion exigida es la escritura DEL DOCUMENTO (y de la CONSTANCIA).
   {
@@ -420,6 +420,18 @@ const CENSO: EntradaCenso[] = [
     metodo: "anularEgreso",
     forma: "recibe_tx",
     mutacion: /tx\.ajusteCajaAnulacion\.createMany\(/,
+  },
+  {
+    // ⭑ FICHA 500 (bloque 6 de H5) — los DISTRITOS de una zona. Vive en `update`, que ya escribe
+    // otros tres tipos: esta guardia mide POR METODO y quitar SOLO el bloque nuevo la dejaria verde
+    // (memoria «La guardia mide por metodo»). Lo que de verdad lo vigila es
+    // `tests/integration/db/zona-distrito-rastro-500.test.ts` (mutacion T6.6). Sin entrada para
+    // `create` ni `hardDelete`: no lo escriben (R19). La mutacion exigida es el reemplazo de la N:M.
+    tipos: ["zona_distrito_cambiado"],
+    archivo: "lib/repositories/ZonaRepository.ts",
+    metodo: "update",
+    forma: "abre_tx",
+    mutacion: /tx\.zonaDistrito\.deleteMany\(/,
   },
   {
     // ⭑ FICHA 458-B (D7, R64) — la ANULACION de un cobro por devolución a origen aprobado. `recibe_tx`; los
@@ -983,7 +995,8 @@ describe("362/R16 — cada tipo del catalogo tiene al menos un punto de escritur
     // de `AbonoTiendaRepository`).
     // 65 desde la ficha 458-B (`cobro_rechazo_tienda_anulado` y `egreso_caja_anulado`, cada uno con
     // su metodo propio).
-    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(65);
+    // 66 desde la ficha 500 (`zona_distrito_cambiado`, productor `ZonaRepository.update`).
+    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(66);
   });
 });
 

@@ -2,7 +2,7 @@ import type { MetodoLiquidacion } from "@/lib/types/liquidacion";
 import { descripcionDePago } from "@/lib/utils/descripcion-pago";
 
 // Ficha 459 (design §6.1, R43) — las lineas del libro de un PAGO POR CUENTA de una tienda: dinero
-// que Ordenex saca de la caja para pagarle a un tercero (su proveedor, su publicidad, su personal)
+// que la empresa saca de la caja para pagarle a un tercero (su proveedor, su publicidad, su personal)
 // en nombre de la tienda. Funciones PURAS: sin Prisma, sin HTTP.
 //
 // NINGUNA lleva un identificador interno (R43/R100): el enlace al documento lo dan

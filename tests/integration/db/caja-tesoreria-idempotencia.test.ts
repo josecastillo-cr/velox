@@ -60,7 +60,7 @@ describeSiHayBase("173/T B.4 — idempotencia del contra-entrega contra Postgres
       const repo = new WalletMovimientoRepository(tx as unknown as PrismaClient);
 
       // El LEDGER de ese cierre, como lo dejaria la 43: dos tiendas con contra-entrega, un
-      // DEBITO (flete: lo que Ordenex se queda, y que ya entro en la caja por su concepto de
+      // DEBITO (flete: lo que la empresa se queda, y que ya entro en la caja por su concepto de
       // la 42) y un CREDITO de otra categoria (un ajuste manual a favor de la tienda). Los
       // cuatro comparten tabla y origen a proposito: si al WHERE del feed le faltara
       // `categoria` o `tipo`, alguno se colaria en la caja y el contra-entrega diria de mas.
@@ -348,9 +348,11 @@ describe("173/T B.4 — R48: la idempotencia no es un `if` (estructural)", () =>
   });
 
   it("el enganche de la aprobacion no pregunta si el contra-entrega ya existe", () => {
-    const codigo = codigoDe("lib/repositories/CierresAdminRepository.ts");
+    // FICHA 498: el enganche se MOVIO, literal, a `asentarCierreDia` (lo comparten la aprobacion y la
+    // conciliacion); `CAJA_COD_FEED` pasa como `deps.cajaCodFeed`. Se mira ahi.
+    const codigo = codigoDe("lib/repositories/asentar-cierre-dia.ts");
     const bloque = codigo.slice(
-      codigo.indexOf("CAJA_COD_FEED.construirIngresoCod"),
+      codigo.indexOf("deps.cajaCodFeed.construirIngresoCod"),
       codigo.indexOf("construirMovimientosDePago"),
     );
 

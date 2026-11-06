@@ -125,11 +125,15 @@ const RESUMEN_OK = {
     ivaPorPagar: "0.00",
     signoIvaPorPagar: "cero" as const,
     porcentajeIva: "0.00",
+    // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+    porCobrarSatelites: "0.00",
+    signoPorCobrarSatelites: "cero" as const,
+    porcentajePorCobrar: "0.00",
     modoComposicion: "sin_reparto" as const,
     // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
     capital: "0.00",
     signoCapital: "cero" as const,
-    deOrdenex: "0.00",
+    deEmpresa: "0.00",
     signoDeTerceros: "cero" as const,
     deTercerosAbsoluto: "0.00",
     estado: "flujo" as const,

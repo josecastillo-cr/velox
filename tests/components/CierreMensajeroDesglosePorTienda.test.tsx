@@ -11,13 +11,13 @@ import type {
 } from "@/lib/interfaces/services/ICierresAdminService";
 import type {
   CierreGrupos,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
-import type { ParteDeTienda } from "@/lib/utils/ingreso-ordenex";
+import type { ParteDeTienda } from "@/lib/utils/ingreso-empresa";
 import {
   CASCADA_DUENO_TITULO,
   CASCADA_FACTURA_TIENDA_TITULO,
-  CASCADA_NETO_ORDENEX_TITULO,
+  CASCADA_NETO_EMPRESA_TITULO,
   DESGLOSE_NO_REPARTIDO_NOTA,
   DESGLOSE_POR_TIENDA_NOTA,
   DESGLOSE_POR_TIENDA_TITULO,
@@ -186,7 +186,7 @@ function totalesIngreso(over: {
   comisionConIva: string;
   fleteDevolucionConIva: string;
   total: string;
-}): TotalesIngresoOrdenex {
+}): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     flete: over.fleteConIva,
@@ -266,7 +266,7 @@ const DOS_TIENDAS: DetalleOk = {
   ganancia: "25946.12",
   pagoTienda: "225176.33",
   cobradoSobreRecaudado: "60098.67",
-  netoOrdenex: "24745.87",
+  netoEmpresa: "24745.87",
   ganaLaTienda: "214328.33",
   fleteRechazoYaCobradoATienda: false,
   // Ya ORDENADO por el servidor: por lo que se le paga, de mayor a menor (R8).
@@ -294,7 +294,7 @@ const UNA_TIENDA: DetalleOk = {
 };
 
 /**
- * LA TIENDA QUE SÓLO TRAJO RECHAZOS (R9): no recaudó nada y aun así Ordenex le facturó el flete
+ * LA TIENDA QUE SÓLO TRAJO RECHAZOS (R9): no recaudó nada y aun así la empresa le facturó el flete
  * por rechazo, así que GANA un negativo. Entra en el desglose y CUENTA para el umbral — es justo
  * el caso donde el desglose informa de algo que el agregado tapaba.
  *
@@ -336,7 +336,7 @@ const DE = "cierre de Ana Mensajera";
 const particion = () => screen.getByRole("region", { name: `${CASCADA_DUENO_TITULO} · ${DE}` });
 const factura = () =>
   screen.getByRole("region", { name: `${CASCADA_FACTURA_TIENDA_TITULO} · ${DE}` });
-const neto = () => screen.getByRole("region", { name: `${CASCADA_NETO_ORDENEX_TITULO} · ${DE}` });
+const neto = () => screen.getByRole("region", { name: `${CASCADA_NETO_EMPRESA_TITULO} · ${DE}` });
 const desglose = () =>
   screen.getByRole("region", { name: `${DESGLOSE_POR_TIENDA_TITULO} · ${DE}` });
 /**

@@ -63,11 +63,11 @@ export function hrefEstadoCuenta(cuenta: NonNullable<AQuienDTO["cuenta"]>): stri
 
 /**
  * R56 — el texto de «A quién» de una fila: la MISMA composición que el panel «Ver» (458-C), para que
- * la columna y el detalle digan lo mismo. «Ordenex» en el aporte; «—» en una fila anterior sin
+ * la columna y el detalle digan lo mismo. «la empresa» en el aporte; «—» en una fila anterior sin
  * anotación; «Tania · a Facebook» en el pago de un gasto de una tienda.
  */
 export function textoAQuien(a: AQuienDTO): string {
-  if (a.esOrdenex) return PANEL_TEXTO.esOrdenex;
+  if (a.esEmpresa) return PANEL_TEXTO.esEmpresa;
   if (a.nombre === null) return PANEL_TEXTO.sinDato;
   return a.beneficiario === null ? a.nombre : `${a.nombre} · ${PANEL_TEXTO.aTercero(a.beneficiario)}`;
 }

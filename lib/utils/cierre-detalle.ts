@@ -9,7 +9,7 @@ import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigente
  * entradas congeladas: si un dia divergieran, la caja y el ledger de la tienda liquidarian
  * distinto el mismo cierre y el descuadre seria invisible.
  *
- * Es solo lectura + proyeccion: la FORMULA sigue viviendo en `ingreso-ordenex.ts` (R21, sin
+ * Es solo lectura + proyeccion: la FORMULA sigue viviendo en `ingreso-empresa.ts` (R21, sin
  * cambios). Aqui no se calcula dinero, se recuerda.
  */
 
@@ -87,7 +87,7 @@ export class CierreDetalleFaltanteError extends Error {
  * Reconstruye la `TarifaVigente` (los 7 campos que consume la formula) desde la fila
  * congelada. `null` si `tarifa_id IS NULL`: la tienda no tenia tarifa vigente al SOLICITAR
  * (gap R9, decision (c)) -> `derivarIngresoOrden` ya lo maneja devolviendo conceptos 0.00 sin
- * lanzar (`ingreso-ordenex.ts:58`). El gap se PRESERVA tal cual: la 69 no lo abre ni lo cierra.
+ * lanzar (`ingreso-empresa.ts:58`). El gap se PRESERVA tal cual: la 69 no lo abre ni lo cierra.
  * Money-safe: Decimal -> STRING escala 2, nunca number/parseFloat (R11).
  */
 export function tarifaDe(d: TarifaCongeladaRow): TarifaVigente | null {

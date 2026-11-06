@@ -267,7 +267,8 @@ function makeDb() {
       findUnique: async (args: Args) => {
         const { id } = args.where as { id: string };
         const c = cierres.find((row) => row.id === id);
-        return c ? { mensajeroId: c.mensajeroId } : null;
+        // Ficha 498 (fixture): + el destino, que la aprobacion lee para decidir si asienta (R4).
+        return c ? { mensajeroId: c.mensajeroId, destinoTipo: c.destinoTipo } : null;
       },
       count: async (args: Args) => {
         const where = args.where as { id: string; destinoTipo?: string };

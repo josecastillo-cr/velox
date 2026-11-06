@@ -42,7 +42,7 @@ export type VerComprobanteInput = z.infer<typeof verComprobanteSchema>;
 
 /**
  * Por que un destino no admite un comprobante LATERAL: lo que produce un cierre y los contra-asientos
- * no llevan comprobante; el pago de un gasto, el aporte y el pago de una tienda a Ordenex lo llevan
+ * no llevan comprobante; el pago de un gasto, el aporte y el pago de una tienda a la empresa lo llevan
  * en SU documento y se adjunta al registrarlos (459/457).
  */
 export type MotivoSinComprobanteLateral =

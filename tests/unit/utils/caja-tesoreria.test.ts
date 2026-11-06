@@ -47,7 +47,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
     for (const categoria of WALLET_MOVIMIENTO_CATEGORIA_SEED) {
       expect(NATURALEZA_POR_CATEGORIA[categoria], `categoria ${categoria}`).toBeDefined();
       // Ficha 488: + `iva`, el cuarto dueño.
-      expect(["propio", "terceros", "capital", "iva"]).toContain(NATURALEZA_POR_CATEGORIA[categoria]);
+      expect(["propio", "terceros", "capital", "iva", "por_cobrar_satelite"]).toContain(NATURALEZA_POR_CATEGORIA[categoria]);
     }
     expect(Object.keys(NATURALEZA_POR_CATEGORIA).sort()).toEqual(
       [...WALLET_MOVIMIENTO_CATEGORIA_SEED].sort(),
@@ -58,7 +58,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
     for (const categoria of WALLET_MOVIMIENTO_CATEGORIA_SEED) {
       const naturaleza: NaturalezaMovimiento = NATURALEZA_POR_CATEGORIA[categoria];
       expect(typeof naturaleza).toBe("string");
-      expect(["propio", "terceros", "capital", "iva"]).toContain(naturaleza); // ficha 459: tres; 488: cuatro
+      expect(["propio", "terceros", "capital", "iva", "por_cobrar_satelite"]).toContain(naturaleza); // ficha 459: tres; 488: cuatro; 498: cinco
     }
   });
 
@@ -69,7 +69,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
       (c) => NATURALEZA_POR_CATEGORIA[c] === "terceros",
     );
     // Ficha 459 (design §5): + el pago por cuenta de una tienda y su anulacion.
-    // Ficha 457 (design §4, DH1): + el pago de una tienda a Ordenex y su anulacion.
+    // Ficha 457 (design §4, DH1): + el pago de una tienda a la empresa y su anulacion.
     expect([...terceros].sort()).toEqual([
       "egreso_pago_por_cuenta_tienda",
       "egreso_pago_tienda",
@@ -92,7 +92,7 @@ describe("NATURALEZA_POR_CATEGORIA — clasificacion exhaustiva (R2/R3)", () => 
     expect(NATURALEZA_POR_CATEGORIA.ingreso_ajuste).toBe("propio");
     expect(NATURALEZA_POR_CATEGORIA.ingreso_reverso_pago_tienda).toBe("terceros");
     // La trampa que la feature evita: si el reverso se emitiera como `ingreso_ajuste`, anular
-    // un pago a una tienda SUBIRIA la ganancia de Ordenex por el monto anulado.
+    // un pago a una tienda SUBIRIA la ganancia de la empresa por el monto anulado.
     const conReversoCorrecto = derivarCaja([fila("ingreso_reverso_pago_tienda", "4000.00")]);
     const conAjuste = derivarCaja([fila("ingreso_ajuste", "4000.00")]);
     expect(conReversoCorrecto.ganancia).toBe("0.00");
@@ -143,7 +143,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
     expect(r.enCaja).toBe("3500.00");
     expect(r.ganancia).toBe("500.00");
     // Y la diferencia entre ambas es, exactamente, lo que se les debe a las tiendas.
-    // Ficha 459 (R5, reescrito): 10000 cobrado − 6000 ya entregado − 1000 de flete que Ordenex se
+    // Ficha 459 (R5, reescrito): 10000 cobrado − 6000 ya entregado − 1000 de flete que la empresa se
     // queda de ese contra-entrega = 3000.
     expect(r.deTerceros).toBe("3000.00");
     expect(new Prisma.Decimal(r.ganancia).add(r.deTerceros).toFixed(2)).toBe(r.enCaja);
@@ -225,11 +225,11 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
       // enuncia porcentaje alguno. El caso vacio cae en la tercera fila de la tabla.
       porcentajeTiendas: "0.00",
       modoComposicion: "sin_reparto",
-      // Ficha 459 (§2.6): capital en cero, «De Ordenex» en cero, estado «flujo» y, con el libro
+      // Ficha 459 (§2.6): capital en cero, «De la empresa» en cero, estado «flujo» y, con el libro
       // vacio, sin dia de arranque.
       capital: "0.00",
       signoCapital: "cero",
-      deOrdenex: "0.00",
+      deEmpresa: "0.00",
       signoDeTerceros: "cero",
       deTercerosAbsoluto: "0.00",
       estado: "flujo",
@@ -239,6 +239,10 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
       ivaPorPagar: "0.00",
       signoIvaPorPagar: "cero",
       porcentajeIva: "0.00",
+      // Ficha 498 (§8.1): sin diferencias de la satelite, el bolsillo en cero y sin porcion.
+      porCobrarSatelites: "0.00",
+      signoPorCobrarSatelites: "cero",
+      porcentajePorCobrar: "0.00",
     });
   });
 
@@ -258,7 +262,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
     // 488: ingresosPropios 489,00 y ganancia 239,00.
     expect(r.entradas).toBe("5000.00"); // solo el contra-entrega es efectivo
     expect(r.salidas).toBe("1250.00"); // 200 + 50 + 1000
-    expect(r.ingresosPropios).toBe("450.00"); // 300 + 150 (el IVA de 39 no es de Ordenex)
+    expect(r.ingresosPropios).toBe("450.00"); // 300 + 150 (el IVA de 39 no es de la empresa)
     expect(r.egresosPropios).toBe("250.00"); // 200 + 50 (el pago a tienda es de terceros)
     expect(r.enCaja).toBe("3750.00"); // 5000 − 1250
     expect(r.ganancia).toBe("200.00");
@@ -280,7 +284,7 @@ describe("derivarCaja — las dos cifras (R1/R4/R5)", () => {
     expect(r.ganancia).toBe("430.26");
     expect(r.deTerceros).toBe("3549.63");
     expect(r.capital).toBe("0.00");
-    expect(r.deOrdenex).toBe("430.26");
+    expect(r.deEmpresa).toBe("430.26");
   });
 });
 
@@ -365,7 +369,7 @@ describe("derivarCaja — money-safe y frontera (R7/R10)", () => {
     expect(r.enCaja).toBe("5.00");
     expect(r.ganancia).toBe("1.50");
     expect(r.deTerceros).toBe("3.50");
-    for (const clave of ["capital", "deOrdenex", "deTercerosAbsoluto"] as const) {
+    for (const clave of ["capital", "deEmpresa", "deTercerosAbsoluto"] as const) {
       expect(r[clave], clave).toMatch(/^-?\d+\.\d{2}$/);
     }
   });
@@ -508,7 +512,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
       ingresosPropios: r.ingresosPropios,
       egresosPropios: r.egresosPropios,
       ganancia: r.ganancia,
-      deOrdenex: r.deOrdenex,
+      deEmpresa: r.deEmpresa,
       ivaCobrado: r.ivaCobrado,
       ivaPorPagar: r.ivaPorPagar,
       signoIvaPorPagar: r.signoIvaPorPagar,
@@ -518,7 +522,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
       ingresosPropios: "1100.00",
       egresosPropios: "0.00",
       ganancia: "1100.00",
-      deOrdenex: "1100.00",
+      deEmpresa: "1100.00",
       ivaCobrado: "143.00",
       ivaPorPagar: "143.00",
       signoIvaPorPagar: "positivo",
@@ -624,9 +628,10 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
     );
     for (const conjunto of [filas, filas.slice(0, 11), filas.slice(9), filas.filter((_, i) => i % 3 === 0)]) {
       const r = derivarCaja(conjunto);
-      expect(suma(r.deOrdenex, r.deTerceros, r.ivaPorPagar)).toBe(r.enCaja);
-      // y «De Ordenex» sigue siendo ganancia + capital.
-      expect(suma(r.ganancia, r.capital)).toBe(r.deOrdenex);
+      // Ficha 498 (R35): el catalogo trae las diferencias de la satelite → − «Por cobrar a satelites».
+      expect(suma(r.deEmpresa, r.deTerceros, r.ivaPorPagar, `${new Prisma.Decimal(r.porCobrarSatelites).neg().toFixed(2)}`)).toBe(r.enCaja);
+      // y «De la empresa» sigue siendo ganancia + capital.
+      expect(suma(r.ganancia, r.capital)).toBe(r.deEmpresa);
     }
   });
 
@@ -646,7 +651,7 @@ describe("ficha 488 — derivarCaja con IVA (R2–R7, R10, R22, R34)", () => {
 
 describe("ficha 488 — la barra con tres bolsillos (R14/R16, design §2.3)", () => {
   // Cada caso: (filas, modo, porcentajeTiendas, porcentajeIva). A mano: S = suma de los bolsillos
-  // POSITIVOS entre O («De Ordenex»), T («De las tiendas») e I (IVA por pagar).
+  // POSITIVOS entre O («De la empresa»), T («De las tiendas») e I (IVA por pagar).
   const IVA_100 = fila("ingreso_reverso_pago_iva", "100.00"); // I = +100, efectivo
   const IVA_MENOS_50 = fila("egreso_pago_iva", "50.00"); // I = −50
   const O600_T300 = [fila("ingreso_ajuste", "600.00"), fila("ingreso_cod_recaudado", "300.00")];
@@ -664,9 +669,9 @@ describe("ficha 488 — la barra con tres bolsillos (R14/R16, design §2.3)", ()
     { nombre: "solo_tiendas con I = 0", filas: OM200_T300, modo: "solo_tiendas", tiendas: "100.00", iva: "0.00" },
     { nombre: "solo_tiendas con I < 0", filas: [...OM200_T300, IVA_MENOS_50], modo: "solo_tiendas", tiendas: "100.00", iva: "0.00" },
     // O = 500, T = −500 (un flete sin contra-entrega). Con I = 100: S = 600 → 0,00 / 16,67.
-    { nombre: "solo_ordenex con I > 0", filas: [...O500_TM500, IVA_100], modo: "solo_ordenex", tiendas: "0.00", iva: "16.67" },
-    { nombre: "solo_ordenex con I = 0", filas: O500_TM500, modo: "solo_ordenex", tiendas: "0.00", iva: "0.00" },
-    { nombre: "solo_ordenex con I < 0", filas: [...O500_TM500, IVA_MENOS_50], modo: "solo_ordenex", tiendas: "0.00", iva: "0.00" },
+    { nombre: "solo_empresa con I > 0", filas: [...O500_TM500, IVA_100], modo: "solo_empresa", tiendas: "0.00", iva: "16.67" },
+    { nombre: "solo_empresa con I = 0", filas: O500_TM500, modo: "solo_empresa", tiendas: "0.00", iva: "0.00" },
+    { nombre: "solo_empresa con I < 0", filas: [...O500_TM500, IVA_MENOS_50], modo: "solo_empresa", tiendas: "0.00", iva: "0.00" },
     // O = −100, T = 0. Con I = 100: S = 100 → la barra es TODA IVA (100,00). Sin IVA: nada.
     { nombre: "sin_reparto con I > 0", filas: [...OM100_T0, IVA_100], modo: "sin_reparto", tiendas: "0.00", iva: "100.00" },
     { nombre: "sin_reparto con I = 0", filas: OM100_T0, modo: "sin_reparto", tiendas: "0.00", iva: "0.00" },
@@ -715,10 +720,105 @@ describe("ficha 488 (T B.5) — la composicion de la ganancia sin IVA (R19)", ()
     }
     expect(c.totalIngresos).toBe(r.ingresosPropios);
     expect(c.totalEgresos).toBe(r.egresosPropios);
-    // Y el Pago de IVA no cae en «Otros gastos de Ordenex»: no es un egreso de Ordenex.
+    // Y el Pago de IVA no cae en «Otros gastos de la empresa»: no es un egreso de la empresa.
     const soloPago = derivarComposicionGanancia([fila("egreso_pago_iva", "500.00")]);
     expect(soloPago.otrosEgresos).toBe("0.00");
     expect(soloPago.totalEgresos).toBe("0.00");
     expect(soloPago.hayOtrosEgresos).toBe(false);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+// FICHA 498 (T5.1; R33-R36, R38, R39) — «Por cobrar a satelites».
+// ═════════════════════════════════════════════════════════════════════════════════════════════
+
+describe("ficha 498 — la diferencia de la satelite en la caja (R33-R36, R38, R39)", () => {
+  it("⭑ R33: las dos categorias son del dueño `por_cobrar_satelite` y de liquidez efectivo", () => {
+    for (const c of ["egreso_diferencia_satelite", "ingreso_diferencia_satelite"] as const) {
+      expect(NATURALEZA_POR_CATEGORIA[c], c).toBe("por_cobrar_satelite");
+      expect(LIQUIDEZ_POR_CATEGORIA[c], c).toBe("efectivo");
+    }
+  });
+
+  it("R34: un dueño fuera del vocabulario no compila", () => {
+    // @ts-expect-error — `NaturalezaMovimiento` es cerrado: un valor ficticio no se puede asignar.
+    const ficticio: NaturalezaMovimiento = "satelite_ficticio";
+    expect(ficticio).toBe("satelite_ficticio");
+  });
+
+  // Base: un flete de 1 000 (cargo, propio) y un contra-entrega de 4 000 (terceros, efectivo).
+  const BASE = [fila("ingreso_flete", "1000.00"), fila("ingreso_cod_recaudado", "4000.00")];
+  const CASOS: [string, AgregadoCajaRow[], string][] = [
+    ["diferencia POSITIVA (faltaron 500)", [...BASE, fila("egreso_diferencia_satelite", "500.00")], "500.00"],
+    ["diferencia NEGATIVA (sobraron 200)", [...BASE, fila("ingreso_diferencia_satelite", "200.00")], "-200.00"],
+    ["SIN diferencia", BASE, "0.00"],
+  ];
+
+  it.each(CASOS)("⭑ R35/R33: %s — Entro − Salio = ganancia + IVA + capital + De las tiendas − Por cobrar", (_n, filas, porCobrar) => {
+    const r = derivarCaja(filas);
+    expect(r.porCobrarSatelites).toBe(porCobrar);
+    const lado = new Prisma.Decimal(r.ganancia)
+      .add(r.ivaPorPagar)
+      .add(r.capital)
+      .add(r.deTerceros)
+      .sub(r.porCobrarSatelites);
+    expect(lado.toFixed(2)).toBe(r.enCaja);
+  });
+
+  it.each(CASOS)("⭑ R36: %s — «De las tiendas» y la ganancia no cambian con la diferencia", (_n, filas) => {
+    const sin = derivarCaja(BASE);
+    const con = derivarCaja(filas);
+    expect(con.deTerceros).toBe(sin.deTerceros);
+    expect(con.ganancia).toBe(sin.ganancia);
+  });
+
+  it("R33: los signos del bolsillo — positivo, negativo y cero", () => {
+    expect(CASOS.map(([, filas]) => derivarCaja(filas).signoPorCobrarSatelites)).toEqual(["positivo", "negativo", "cero"]);
+  });
+
+  it("⭑ R39: con P <= 0 las porciones y el modo son EXACTAMENTE los de antes (literal)", () => {
+    const antes = { porcentajeTiendas: "75.00", porcentajeIva: "0.00", modoComposicion: "dos_bolsillos" };
+    for (const filas of [BASE, [...BASE, fila("ingreso_diferencia_satelite", "200.00")]]) {
+      const r = derivarCaja(filas);
+      expect({ porcentajeTiendas: r.porcentajeTiendas, porcentajeIva: r.porcentajeIva, modoComposicion: r.modoComposicion }).toEqual(antes);
+      expect(r.porcentajePorCobrar).toBe("0.00");
+    }
+  });
+
+  it("⭑ R38: con P > 0 el bolsillo tiene porcion propia y la empresa NO se descuenta (G 1000, T 3000, P 1000)", () => {
+    const r = derivarCaja([...BASE, fila("egreso_diferencia_satelite", "1000.00")]);
+    expect(r.porcentajeTiendas).toBe("60.00");
+    expect(r.porcentajePorCobrar).toBe("20.00");
+    expect(r.porcentajeIva).toBe("0.00");
+    expect(r.deEmpresa).toBe("1000.00"); // la empresa no cambia
+    expect(r.modoComposicion).toBe("dos_bolsillos"); // el modo sale solo de G y T
+  });
+
+  it("R38: limites — P > 0 con G, T e I en cero → 100.00 (S = P), sin division por cero", () => {
+    const r = derivarCaja([fila("egreso_diferencia_satelite", "500.00")]);
+    expect(r.porcentajePorCobrar).toBe("100.00");
+    expect(r.porcentajeTiendas).toBe("0.00");
+    expect(r.modoComposicion).toBe("sin_reparto");
+    // Y la caja vacia sigue sin dividir.
+    expect(derivarCaja([]).porcentajePorCobrar).toBe("0.00");
+  });
+
+  it("R38: en todos los conjuntos al azar, cada porcion queda en [0, 100] y las visibles suman como mucho 100", () => {
+    let semilla = 498;
+    const azar = () => {
+      semilla = (semilla * 48271) % 2147483647;
+      return semilla / 2147483647;
+    };
+    for (let n = 0; n < 300; n += 1) {
+      const filas = WALLET_MOVIMIENTO_CATEGORIA_SEED.filter(() => azar() < 0.5).map((c) =>
+        fila(c, new Prisma.Decimal(Math.floor(azar() * 10_000_000)).div(100).toFixed(2)),
+      );
+      const r = derivarCaja(filas);
+      const ps = [r.porcentajeTiendas, r.porcentajeIva, r.porcentajePorCobrar].map((p) => new Prisma.Decimal(p));
+      for (const p of ps) {
+        expect(p.gte(0) && p.lte(100), `conjunto ${n}`).toBe(true);
+      }
+      expect(ps.reduce((s, p) => s.add(p), new Prisma.Decimal(0)).lte(100.02), `conjunto ${n}`).toBe(true);
+    }
   });
 });

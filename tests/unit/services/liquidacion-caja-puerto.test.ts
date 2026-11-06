@@ -195,7 +195,7 @@ describe("R23 — el puerto NO puede escribir `egreso_pago_mensajero`", () => {
     expect(nombradas.sort()).toEqual(["egreso_pago_tienda", "ingreso_reverso_pago_tienda"]);
     expect(codigo).not.toContain("egreso_pago_mensajero");
     // Y las dos que puede emitir son de naturaleza TERCEROS: por construccion, nada de lo que
-    // este puerto escriba puede mover la ganancia de Ordenex (R18/R26).
+    // este puerto escriba puede mover la ganancia de la empresa (R18/R26).
     for (const categoria of nombradas) {
       expect(
         NATURALEZA_POR_CATEGORIA[categoria as keyof typeof NATURALEZA_POR_CATEGORIA],

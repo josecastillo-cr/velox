@@ -271,6 +271,14 @@ export function prepararConsultaProductos(
 export const TAG_CONTEO_PRODUCTOS = "conteo-productos";
 
 /**
+ * Feature 494 (R9) — la primera pieza de la clave, distinta del tag desde que `liquidado` cambió de
+ * forma. Una entrada escrita con la forma anterior daría `liquidado.empresa === undefined`: cifras
+ * vacías y ningún error. Con otro prefijo nunca se lee, caduca sola por su TTL y sigue bajo el mismo
+ * tag, así que «refrescar» la alcanza igual. Si la forma del DTO vuelve a cambiar, se sube la versión.
+ */
+const PREFIJO_CLAVE_CONTEO_PRODUCTOS = `${TAG_CONTEO_PRODUCTOS}:v2`;
+
+/**
  * La clave de cache del analisis de productos.
  *
  * Comparte cuerpo con las otras seis (`claveConPrefijo`), y por tanto lleva DENTRO el alcance
@@ -291,7 +299,7 @@ export const TAG_CONTEO_PRODUCTOS = "conteo-productos";
  * ficha (M5: quitar el sufijo) tiene que poner rojo `productos-dinero-alcance.test.ts`.
  */
 export function claveDeConteoProductos(consulta: ConsultaProductos): string {
-  return [claveConPrefijo(TAG_CONTEO_PRODUCTOS, consulta), `$=${consulta.dinero}`].join(SEP);
+  return [claveConPrefijo(PREFIJO_CLAVE_CONTEO_PRODUCTOS, consulta), `$=${consulta.dinero}`].join(SEP);
 }
 
 /**

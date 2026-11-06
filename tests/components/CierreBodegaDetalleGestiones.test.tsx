@@ -11,7 +11,7 @@ import type {
 import type {
   CierreDetalleGestion,
   CierreGrupos,
-  TotalesIngresoOrdenex,
+  TotalesIngresoEmpresa,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import {
   ENTREGA_478,
@@ -103,7 +103,7 @@ const RECHAZO = gestion478({
   ingresoBodegaRechazo: "250.25",
   pagoMensajero: "600.10",
   evidenciaUrl: "https://signed.example/rch.jpg?token=d1", evidenciaUrls: ["https://signed.example/rch.jpg?token=d1"],
-  ingresoOrdenex: ingreso478({
+  ingresoEmpresa: ingreso478({
     montoCobrar: "4000.00",
     fleteDevolucion: "1200.00",
     ivaFleteDevolucion: "156.00",
@@ -161,7 +161,7 @@ const CABECERA: CierreBodegaResumen = {
   ...marcaSinConciliar("6000.25"),
 };
 
-function totalesIngreso(): TotalesIngresoOrdenex {
+function totalesIngreso(): TotalesIngresoEmpresa {
   return {
     montoCobrar: "0.00",
     flete: "0.00",
@@ -194,7 +194,7 @@ function dia(
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     partesPorTienda: [],
     paraLaCentral: "0.00",
@@ -223,11 +223,12 @@ function detalle(gruposAna: CierreGrupos = GRUPOS_ANA) {
     ganancia: "0.00",
     pagoTienda: "0.00",
     cobradoSobreRecaudado: "0.00",
-    netoOrdenex: "0.00",
+    netoEmpresa: "0.00",
     ganaLaTienda: "0.00",
     partesPorTienda: [],
     paraLaCentral: "6949.75",
     efectivoCubreDescuentos: true,
+    puedeDesmarcar: false, // ficha 500
     ...marcaSinConciliar("6000.25"),
   };
 }

@@ -45,7 +45,7 @@ const TEXTOS_RETIRADOS: readonly string[] = [
   "Todo lo que entró menos todo lo que salió, incluido el dinero de las tiendas",
   // El rótulo viejo de «De las tiendas»: el contra-entrega BRUTO.
   "Contra-entrega cobrado y aún no entregado a las tiendas",
-  // Ficha 461 (HD1/HD2, R50): el cobro de Ordenex a una tienda SÍ pasa por la caja desde esa ficha
+  // Ficha 461 (HD1/HD2, R50): el cobro de la empresa a una tienda SÍ pasa por la caja desde esa ficha
   // (es un cargo que sube la ganancia y baja «De las tiendas»). La frase de la 459 que decía lo
   // contrario en `CAJA_RESUMEN_AVISO_TERCEROS` queda retirada.
   "bajan su saldo sin pasar por la caja",
@@ -136,10 +136,14 @@ const BASE: CajaResumenDTO = {
   ivaPorPagar: "0.00",
   signoIvaPorPagar: "cero",
   porcentajeIva: "0.00",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "sin_reparto",
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "-4405636.53",
+  deEmpresa: "-4405636.53",
   signoDeTerceros: "negativo",
   deTercerosAbsoluto: "4780583.97",
   estado: "flujo",
@@ -158,7 +162,7 @@ describe("guardia 459 — R16: en «flujo» la tarjeta nunca dice «Dinero en ca
   it("en ninguna combinación de signo, modo y filtro", () => {
     let combinaciones = 0;
     for (const signoEnCaja of ["positivo", "negativo", "cero"] as const) {
-      for (const modoComposicion of ["dos_bolsillos", "solo_tiendas", "solo_ordenex", "sin_reparto"] as const) {
+      for (const modoComposicion of ["dos_bolsillos", "solo_tiendas", "solo_empresa", "sin_reparto"] as const) {
         for (const periodoFiltrado of [false, true]) {
           const { container } = render(
             createElement(CajaResumenCard, {

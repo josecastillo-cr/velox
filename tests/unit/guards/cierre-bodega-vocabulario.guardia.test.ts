@@ -10,11 +10,11 @@ import {
   CASCADA_DUENO_TITULO,
   COBRADO_SOBRE_RECAUDADO_LABEL,
   EFECTIVO_NO_CUBRE_NOTA,
-  FACTURADO_ORDENEX_LABEL,
+  FACTURADO_EMPRESA_LABEL,
   FLETE_RECHAZO_NO_DEDUCIBLE_NOTA,
   GANA_BODEGA_SATELITE_LABEL,
   GANA_BODEGA_SATELITE_NOTA,
-  NETO_ORDENEX_LABEL,
+  NETO_EMPRESA_LABEL,
   PARA_LA_CENTRAL_LABEL,
   PARA_LA_CENTRAL_NEGATIVO_NOTA,
   PARA_LA_CENTRAL_NOTA,
@@ -387,7 +387,7 @@ describe("393 — autocomprobación del censo (una guardia estática rota no fal
     expect(lineasQueCasan(quitarComentarios(enBloque), AJUSTES)).toEqual([]);
     // Y los otros dos detectores, con su canario y su contraprueba.
     expect(lineasQueCasan('label={GANANCIA_LABEL}', CIFRA_SUELTA)).toEqual([1]);
-    expect(lineasQueCasan('label={NETO_ORDENEX_LABEL}', CIFRA_SUELTA)).toEqual([]);
+    expect(lineasQueCasan('label={NETO_EMPRESA_LABEL}', CIFRA_SUELTA)).toEqual([]);
     expect(lineasQueCasan('<CentralDebeTotal value={x} />', CENTRAL_DEBE)).toEqual([1]);
     expect(lineasQueCasan('<CascadaDinero titulo={x} />', CENTRAL_DEBE)).toEqual([]);
 
@@ -514,9 +514,9 @@ describe("393 — el VALOR de los rótulos y las notas, escrito a mano (R19/R23/
     ["CASCADA_CENTRAL_TITULO", CASCADA_CENTRAL_TITULO, "Lo que va a la central"],
     ["PARA_LA_TIENDA_LABEL", PARA_LA_TIENDA_LABEL, "Para la tienda"],
     ["PARA_LA_CENTRAL_LABEL", PARA_LA_CENTRAL_LABEL, "Para la central"],
-    ["NETO_ORDENEX_LABEL", NETO_ORDENEX_LABEL, `Neto de ${NOMBRE_CORTO_ESPERADO}`],
+    ["NETO_EMPRESA_LABEL", NETO_EMPRESA_LABEL, `Neto de ${NOMBRE_CORTO_ESPERADO}`],
     ["COBRADO_SOBRE_RECAUDADO_LABEL", COBRADO_SOBRE_RECAUDADO_LABEL, "Cobrado sobre lo recaudado"],
-    ["FACTURADO_ORDENEX_LABEL", FACTURADO_ORDENEX_LABEL, `Lo que ${NOMBRE_ESPERADO} facturó`],
+    ["FACTURADO_EMPRESA_LABEL", FACTURADO_EMPRESA_LABEL, `Lo que ${NOMBRE_ESPERADO} facturó`],
     ["GANA_BODEGA_SATELITE_LABEL", GANA_BODEGA_SATELITE_LABEL, "Gana la bodega satélite"],
   ])("%s dice exactamente lo aprobado", (_nombre, constante, literal) => {
     expect(constante).toBe(literal);

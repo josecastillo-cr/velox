@@ -59,7 +59,9 @@ export function AvisoVersionNueva({
         <RefreshCw aria-hidden="true" />
         <AlertTitle>{titulo}</AlertTitle>
         <AlertDescription>{descripcion}</AlertDescription>
-        <div className="mt-2 flex justify-end gap-2">
+        {/* `col-span-2` porque `Alert` es un grid `auto 1fr` cuando lleva icono: sin esto la fila de
+            botones cae en la columna `auto` del icono, la ensancha y empuja el texto a la derecha. */}
+        <div className="col-span-2 mt-2 flex justify-end gap-2">
           <Button
             type="button"
             size="sm"

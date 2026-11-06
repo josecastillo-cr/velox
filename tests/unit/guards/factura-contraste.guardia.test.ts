@@ -108,7 +108,7 @@ function cuantas(texto: string, patron: RegExp): number {
  *
  * EXCEPCIÓN DECLARADA: `brand`. `--color-brand` es fijo y no tiene variante por tema, pero sus
  * tres usos en las hojas no son texto que haya que leer sobre un fondo:
- *   · el wordmark «Ordenex» — texto de una MARCA, exento por WCAG 1.4.3;
+ *   · el wordmark con el nombre de la marca — texto de una MARCA, exento por WCAG 1.4.3;
  *   · la franja de marca del detalle — `aria-hidden`, decorativa, sin texto;
  *   · el borde superior de la hoja compacta — decorativo, sin texto.
  * Va escrita aquí, con su motivo, y no como un agujero silencioso en la expresión regular: los
@@ -646,7 +646,7 @@ const INVENTARIO: Par[] = [
     fondo: { clase: "opaco", token: CARD },
     umbral: "ajeno",
     motivo:
-      "PREEXISTENTE Y AJENO A ESTA FICHA (R17). Lo pinta `DesgloseIngresoOrdenex` en " +
+      "PREEXISTENTE Y AJENO A ESTA FICHA (R17). Lo pinta `DesgloseIngresoEmpresa` en " +
       "`cierre-detalle-shared.tsx:651`, un componente COMPARTIDO con las tablas del detalle: " +
       "`--destructive` no tiene variante `-strong` y mide 3.76 sobre el papel claro. Arreglarlo " +
       "con una clase local de la factura dejaría el mismo aviso roto en las otras vistas que " +

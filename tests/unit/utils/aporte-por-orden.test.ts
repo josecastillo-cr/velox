@@ -4,7 +4,7 @@ import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigente
 import {
   agregarIngresosPorConcepto,
   type OrdenIngresoInput,
-} from "@/lib/utils/ingreso-ordenex";
+} from "@/lib/utils/ingreso-empresa";
 import {
   CRITERIO_INDEMNIZACION,
   CRITERIO_PAGO_MENSAJERO,
@@ -155,7 +155,7 @@ function entradasDelFeed(): Array<{ input: OrdenIngresoInput; tarifa: TarifaVige
 
 /** Σ de los aportes por ORDEN de un concepto, como lo hace el detalle. */
 function sumaPorOrden(concepto: WalletIngresoConcepto): string {
-  const fuente = { tipo: "concepto_ordenex", concepto } as const;
+  const fuente = { tipo: "concepto_empresa", concepto } as const;
   return CONJUNTO.reduce(
     (acc, o) => acc.plus(aporteDeOrden(fuente, o.orden, o.gestiones) ?? 0),
     new Prisma.Decimal(0),
@@ -179,7 +179,7 @@ describe("ficha 344 — el aporte por orden (R22/R46/R49)", () => {
 
   it("una orden con dos gestiones aporta la SUMA de las dos, sin perder ni inventar un centimo", () => {
     const dosGestiones = CONJUNTO[2];
-    const fuente = { tipo: "concepto_ordenex", concepto: "ingreso_comision_cod" } as const;
+    const fuente = { tipo: "concepto_empresa", concepto: "ingreso_comision_cod" } as const;
     const juntas = aporteDeOrden(fuente, dosGestiones.orden, dosGestiones.gestiones);
     const primera = aporteDeOrden(fuente, dosGestiones.orden, [dosGestiones.gestiones[0]]);
     const segunda = aporteDeOrden(fuente, dosGestiones.orden, [dosGestiones.gestiones[1]]);
@@ -195,7 +195,7 @@ describe("ficha 344 — el aporte por orden (R22/R46/R49)", () => {
     const sinTarifa = CONJUNTO[4];
     for (const concepto of WALLET_INGRESO_CONCEPTO_SEED) {
       expect(
-        aporteDeOrden({ tipo: "concepto_ordenex", concepto }, sinTarifa.orden, sinTarifa.gestiones),
+        aporteDeOrden({ tipo: "concepto_empresa", concepto }, sinTarifa.orden, sinTarifa.gestiones),
         `la orden sin tarifa aporto a ${concepto}`,
       ).toBeUndefined();
     }
@@ -207,7 +207,7 @@ describe("ficha 344 — el aporte por orden (R22/R46/R49)", () => {
 
   it("el aporte se deriva del snapshot congelado, no de datos vivos (R22)", () => {
     const orden = CONJUNTO[0];
-    const fuente = { tipo: "concepto_ordenex", concepto: "ingreso_flete" } as const;
+    const fuente = { tipo: "concepto_empresa", concepto: "ingreso_flete" } as const;
     // Con la tarifa CONGELADA (la que guardo `cierre_detail`) el flete es el de entonces...
     expect(aporteDeOrden(fuente, orden.orden, orden.gestiones)?.toFixed(2)).toBe("1000.00");
     // ...y con la que estaria vigente HOY seria otro numero. La funcion no tiene forma de leer
@@ -257,7 +257,7 @@ describe("ficha 344 — el aporte por orden (R22/R46/R49)", () => {
     // acabar apuntando al concepto del IVA y la tienda veria las ordenes de otro numero.
     for (const concepto of WALLET_INGRESO_CONCEPTO_SEED) {
       expect(FUENTE_TIENDA[conceptoIngresoADebitoTienda(concepto)]).toEqual({
-        tipo: "concepto_ordenex",
+        tipo: "concepto_empresa",
         concepto,
       });
     }
@@ -275,7 +275,7 @@ describe("ficha 344 — el aporte por orden (R22/R46/R49)", () => {
     // Y los seis conceptos del feed SI se reparten: sin esto, un catalogo entero en
     // `sin_reparto` pasaria los tres `toEqual` de arriba.
     for (const concepto of WALLET_INGRESO_CONCEPTO_SEED) {
-      expect(FUENTE_CAJA[concepto]).toEqual({ tipo: "concepto_ordenex", concepto });
+      expect(FUENTE_CAJA[concepto]).toEqual({ tipo: "concepto_empresa", concepto });
     }
   });
 
@@ -288,7 +288,7 @@ describe("ficha 344 — el aporte por orden (R22/R46/R49)", () => {
     });
     // Discriminador: los seis debitos del feed SI se reparten. Sin esto, un catalogo entero en
     // `sin_reparto` pasaria el `toEqual` de arriba.
-    expect(FUENTE_TIENDA.flete).toEqual({ tipo: "concepto_ordenex", concepto: "ingreso_flete" });
+    expect(FUENTE_TIENDA.flete).toEqual({ tipo: "concepto_empresa", concepto: "ingreso_flete" });
   });
 
   it("una fuente sin reparto no deriva ningun aporte", () => {

@@ -30,7 +30,7 @@ import {
 import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 
 // ═════════════════════════════════════════════════════════════════════════════════════════════
-// FICHA 457 / T5.1 — el pago de una tienda a Ordenex, POR LA ACTION, contra Postgres.
+// FICHA 457 / T5.1 — el pago de una tienda a la empresa, POR LA ACTION, contra Postgres.
 // ═════════════════════════════════════════════════════════════════════════════════════════════
 //
 // Se entra por `registrarAbonoTiendaAction` / `anularAbonoTiendaAction` / `obtenerComprobanteAbonoAction`

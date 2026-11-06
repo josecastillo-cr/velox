@@ -96,6 +96,7 @@ const LECTURA_POR_ORIGEN: Record<WalletOrigenTipo, keyof Entidades | null> = {
   cobro_tienda: "movimientosTienda",
   cobro_tienda_completado: "movimientosTienda",
   abono_tienda: "abonos",
+  conciliacion_bodega_ajuste: null, // ficha 498: se nombra por el rotulo
 };
 
 function unir(...partes: (string | null | undefined)[]): string {
@@ -125,7 +126,7 @@ function textoDeGasto(fila: FilaConOrigenTecnico): string | null {
     case "egreso_sueldo":
       return ORIGEN_ENTIDAD_LABEL.sueldo;
     case "egreso_gasto_variable":
-      return ORIGEN_ENTIDAD_LABEL.gastoDeOrdenex;
+      return ORIGEN_ENTIDAD_LABEL.gastoDeEmpresa;
     case "egreso_gasto_fijo":
       return unir(ORIGEN_ENTIDAD_LABEL.gastoFijo, fila.descripcion);
     // FICHA 488 (revision m3): el Pago de IVA y su contra-asiento de anulacion tienen su propio
@@ -149,7 +150,7 @@ function normalizarParte(parte: string): string {
  * sus paneles; la columna «Motivo» al lado de «Origen» en el estado de cuenta y en las descargas).
  * Desde la 461 la descripcion de un cobro a una tienda empieza por su nombre, y la de un gasto fijo
  * ES la plantilla con su periodo, asi que se leia «… · Tania Tienda · Tania Tienda · Cobro …» y
- * «Gasto fijo de Ordenex · Alquiler — 2026-09 · Alquiler — 2026-09». Aqui se quita del origen toda
+ * «Gasto fijo de la empresa · Alquiler — 2026-09 · Alquiler — 2026-09». Aqui se quita del origen toda
  * parte que la descripcion ya trae como segmento propio (sin distinguir mayusculas: «a Facebook» y
  * «A Facebook»). El ROTULO (la primera parte) no se quita nunca: el origen siempre dice de donde sale.
  */
@@ -248,6 +249,8 @@ export function componerOrigen(
       return solo(textoDeGasto(fila));
     case "manual":
     case "aporte_capital":
+    // Ficha 498: la diferencia de la satelite se nombra por su rotulo («Conciliación de satélite»).
+    case "conciliacion_bodega_ajuste":
       return solo(null);
   }
 }

@@ -31,6 +31,9 @@ const SALDO: SaldoSateliteDTO = {
   zonaId: "11111111-1111-4111-8111-111111111111",
   zonaNombre: "FGAM Puntarenas",
   saldoSinConciliar: "115000.00",
+  // Ficha 498 (R42): lo aprobado sin consolidar, distinto de todo lo demás a propósito.
+  sinConsolidar: "42350.75",
+  cierresSinConsolidar: 2,
   totalEfectivo: "1090000.00",
   totalConsolidado: "1250000.50",
   totalRecibido: "975000.00",
@@ -56,12 +59,21 @@ const CONSOLIDACION: ConsolidacionSateliteDTO = {
     general: "620000.25",
   },
   montoRecibido: "485000.00",
-  faltaPorRecibir: "15000.00",
+  // Ficha 498 (R26): falta = debe − recibido = 620000.25 − 485000.00 (lo deriva el servidor).
+  faltaPorRecibir: "135000.25",
   conciliado: true,
   conciliadoAt: "2026-09-15T17:40:00.000Z",
   conciliadoPorNombre: "Ana Rojas",
   nota: "faltaron ₡15.000, entran el lunes",
   cantidadCierres: 3,
+  // Ficha 498 (R41): sin pago a mensajeros ni rechazos, lo que debe es el GENERAL (efectivo + SINPE).
+  totalPagoMensajero: "0.00",
+  totalIngresoBodegaRechazos: "0.00",
+  paraLaCentral: "620000.25",
+  debe: "620000.25",
+  debePositivo: true,
+  saldadaReglaAnterior: false,
+  puedeDesmarcar: false, // ficha 500
 };
 
 describe("orden de las columnas de descarga de los saldos de bodegas satélite", () => {
@@ -69,6 +81,8 @@ describe("orden de las columnas de descarga de los saldos de bodegas satélite",
     expect(COLUMNAS_DESCARGA_SALDOS_SATELITES.map((c) => c.clave)).toEqual([
       "bodega",
       "pendiente",
+      "sinConsolidar",
+      "cierresSinConsolidar",
       "efectivoConsolidado",
       "totalConsolidado",
       "recibido",
@@ -80,6 +94,8 @@ describe("orden de las columnas de descarga de los saldos de bodegas satélite",
     expect(COLUMNAS_DESCARGA_SALDOS_SATELITES.map((c) => c.encabezado)).toEqual([
       "Bodega",
       "Pendiente",
+      "Sin consolidar",
+      "Cierres sin consolidar",
       "Efectivo consolidado",
       "Total consolidado",
       "Recibido",
@@ -122,10 +138,17 @@ describe("orden de las columnas de descarga de los saldos de bodegas satélite",
       "totalConsolidado",
       "recibido",
       "ultimaRecibidaMonto",
+      "sinConsolidar",
     ]) {
       expect(String(fila[clave]), clave).not.toContain("₡");
       expect(String(fila[clave]), clave).toMatch(/^-?\d+\.\d{2}$/);
     }
+  });
+
+  it("ficha 498 (R42) — «Sin consolidar» y su conteo salen del servidor, tal cual", () => {
+    const fila = filaDescargaSaldoSatelite(SALDO);
+    expect(fila.sinConsolidar).toBe("42350.75");
+    expect(fila.cierresSinConsolidar).toBe(2);
   });
 
   it("los DÍAS no salen al archivo; la FECHA sí, y es la que no caduca", () => {
@@ -155,48 +178,72 @@ describe("orden de las columnas de descarga del desglose de una bodega satélite
   it("declara sus columnas en el orden de la pantalla (R29)", () => {
     expect(COLUMNAS_DESCARGA_CONSOLIDACIONES_SATELITE.map((c) => c.clave)).toEqual([
       "consolidada",
-      "declarado",
+      "debe",
       "recibido",
       "faltaPorRecibir",
       "estado",
       "conciliadoPor",
       "conciliadoEl",
       "totalGeneral",
+      "efectivo",
       "simpe",
       "transferencia",
+      "pagoMensajeros",
+      "rechazos",
+      "saldadaReglaAnterior",
       "cierres",
     ]);
     expect(COLUMNAS_DESCARGA_CONSOLIDACIONES_SATELITE.map((c) => c.encabezado)).toEqual([
       "Consolidada",
-      "Declarado",
+      "Debe",
       "Recibido",
       "Falta por recibir",
       "Estado",
       "Conciliado por",
       "Conciliado el",
       "Total consolidado",
+      "Efectivo",
       "SINPE",
       "Transferencia",
+      "Pago a sus mensajeros",
+      "Su ganancia por rechazos",
+      "Saldada con la regla anterior",
       "Cierres del día consolidados",
     ]);
   });
 
-  it("⭑ «Declarado» es el EFECTIVO y no el general (decisión Q2, medida)", () => {
-    // El SINPE —26,3 % del consolidado en producción— entra directo a una cuenta y NO viaja en
-    // el bulto. Si «Declarado» fuera el general, la columna de al lado («Recibido») se leería
-    // como un faltante que nadie va a entregar en mano jamás. El general va más a la derecha,
-    // como contexto, y el doble tiene los dos valores distintos a propósito.
+  it("⭑ ficha 498 (R41) — «Debe» es el aporte reconocido del servidor, NO el efectivo", () => {
+    // [S] Sustituido por su inverso: la decisión Q2 de la 431 («Declarado» = efectivo) la revocó el
+    // humano el 2026-11-02. Lo recibido es el TOTAL que llegó a la central (también el SINPE
+    // consignado directo a ella), así que lo que se debe cuenta todos los métodos. El efectivo
+    // sigue saliendo, en su propia columna, y el doble tiene los valores distintos a propósito.
     const fila = filaDescargaConsolidacionSatelite(CONSOLIDACION);
-    expect(fila.declarado).toBe("500000.00");
-    expect(fila.totalGeneral).toBe("620000.25");
-    expect(fila.declarado).not.toBe(fila.totalGeneral);
+    expect(fila.debe).toBe("620000.25");
+    expect(fila.efectivo).toBe("500000.00");
+    expect(fila.debe).not.toBe(fila.efectivo);
+    expect(fila).not.toHaveProperty("declarado");
+  });
+
+  it("ficha 498 (R41/R41a) — lo de la satélite y el rótulo de la saldada salen al archivo", () => {
+    const conSatelite: ConsolidacionSateliteDTO = {
+      ...CONSOLIDACION,
+      totalPagoMensajero: "3200.00",
+      totalIngresoBodegaRechazos: "450.50",
+    };
+    const fila = filaDescargaConsolidacionSatelite(conSatelite);
+    expect(fila.pagoMensajeros).toBe("3200.00");
+    expect(fila.rechazos).toBe("450.50");
+    expect(fila.saldadaReglaAnterior).toBe("");
+    expect(
+      filaDescargaConsolidacionSatelite({ ...CONSOLIDACION, saldadaReglaAnterior: true }).saldadaReglaAnterior,
+    ).toBe("Sí");
   });
 
   it("el ESTADO sale como su etiqueta legible, nunca como el valor del enum (R28)", () => {
     expect(filaDescargaConsolidacionSatelite(CONSOLIDACION).estado).toBe("Recibido incompleto");
     const completa: ConsolidacionSateliteDTO = {
       ...CONSOLIDACION,
-      montoRecibido: "500000.00",
+      montoRecibido: "620000.25",
       faltaPorRecibir: "0.00",
     };
     expect(filaDescargaConsolidacionSatelite(completa).estado).toBe("Recibido");
@@ -206,7 +253,7 @@ describe("orden de las columnas de descarga del desglose de una bodega satélite
       montoRecibido: null,
       conciliadoAt: null,
       conciliadoPorNombre: null,
-      faltaPorRecibir: "500000.00",
+      faltaPorRecibir: "620000.25",
     };
     expect(filaDescargaConsolidacionSatelite(pendiente).estado).toBe("Pendiente de conciliar");
     // Y ninguno es el del enum.
@@ -216,11 +263,11 @@ describe("orden de las columnas de descarga del desglose de una bodega satélite
   });
 
   it("`faltaPorRecibir` LLEGA del servidor y no se resta aquí (R20)", () => {
-    // El canario: un faltante que NO es `declarado − recibido`. Si la proyección lo calculara,
-    // saldría "15000.00" en vez de "9999.99".
+    // El canario: un faltante que NO es `debe − recibido`. Si la proyección lo calculara,
+    // saldría "135000.25" en vez de "9999.99".
     const canario: ConsolidacionSateliteDTO = { ...CONSOLIDACION, faltaPorRecibir: "9999.99" };
     expect(filaDescargaConsolidacionSatelite(canario).faltaPorRecibir).toBe("9999.99");
-    expect(filaDescargaConsolidacionSatelite(canario).faltaPorRecibir).not.toBe("15000.00");
+    expect(filaDescargaConsolidacionSatelite(canario).faltaPorRecibir).not.toBe("135000.25");
   });
 
   it("sin marcar, «Recibido» y «Conciliado el» van VACÍOS y no en cero", () => {
@@ -230,7 +277,7 @@ describe("orden de las columnas de descarga del desglose de una bodega satélite
       montoRecibido: null,
       conciliadoAt: null,
       conciliadoPorNombre: null,
-      faltaPorRecibir: "500000.00",
+      faltaPorRecibir: "620000.25",
     };
     const fila = filaDescargaConsolidacionSatelite(pendiente);
     expect(fila.recibido).toBe("");

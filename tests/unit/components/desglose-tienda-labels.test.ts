@@ -30,12 +30,12 @@ import { NOMBRE_CORTO_ESPERADO, NOMBRE_ESPERADO } from "@/tests/fixtures/marca-e
 // mismos textos hoy son dos mapas que mañana divergen en cuanto alguien renombre uno de los dos.
 //
 // ⭑ FICHA 461 (T C.2, design §7.4, HD3, P4) — el CONCEPTO deja de ser el mismo objeto a propósito:
-// el libro se lee desde dos lados. Aquí vive el nombre DESDE ORDENEX («Ordenex le cobra a la
+// el libro se lee desde dos lados. Aquí vive el nombre DESDE LA EMPRESA («la empresa le cobra a la
 // tienda»), que es el que ve la oficina y el que el diálogo promete (R43/R46); `/mi-wallet` lee
-// desde la tienda («Ordenex te cobró», R44). Los literales van escritos a mano.
+// desde la tienda («la empresa te cobró», R44). Los literales van escritos a mano.
 
-/** design §7.4 — el libro de la tienda, desde Ordenex, los 14 conceptos. */
-const DESDE_ORDENEX: Record<WalletTiendaMovimientoCategoria, string> = {
+/** design §7.4 — el libro de la tienda, desde la empresa, los 14 conceptos. */
+const DESDE_EMPRESA: Record<WalletTiendaMovimientoCategoria, string> = {
   cod_recaudado: "Contra-entrega cobrado a los clientes de la tienda",
   flete: "Flete cobrado a la tienda",
   flete_devolucion: "Flete por devolución a origen cobrado a la tienda",
@@ -51,7 +51,7 @@ const DESDE_ORDENEX: Record<WalletTiendaMovimientoCategoria, string> = {
   // Ficha 457 (design §2, D10): el nombre reservado por la 461 y el patron de «… de la tienda anulado».
   abono_tienda: `La tienda le paga a ${NOMBRE_ESPERADO}`,
   abono_tienda_anulado: `Pago de la tienda a ${NOMBRE_ESPERADO} anulado`,
-  // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, desde Ordenex.
+  // Ficha 458-B (design 458 §2.3): la anulacion de un cobro por devolución a origen, desde la empresa.
   flete_devolucion_anulado: "Cobro por devolución a origen anulado",
   iva_flete_devolucion_anulado: "IVA del cobro por devolución a origen anulado",
   ajuste_credito: "Corrección a favor de la tienda",
@@ -76,9 +76,9 @@ describe("etiquetas del desglose por tienda — R20: tipo, origen y moneda son l
 
 describe(`⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde ${NOMBRE_ESPERADO} (R43, design §7.4)`, () => {
   it("dice exactamente los 14 textos aprobados, y el seed es exactamente esas 14 claves", () => {
-    expect(CATEGORIA_TIENDA_LABEL).toEqual(DESDE_ORDENEX);
+    expect(CATEGORIA_TIENDA_LABEL).toEqual(DESDE_EMPRESA);
     expect([...WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED].sort()).toEqual(
-      Object.keys(DESDE_ORDENEX).sort(),
+      Object.keys(DESDE_EMPRESA).sort(),
     );
   });
 
@@ -121,20 +121,20 @@ describe(`⭑ FICHA 461 — CATEGORIA_TIENDA_LABEL: el libro de la tienda, desde
 
   it(`458-A (R13): las opciones son los conceptos con movimientos, con su número y el nombre desde ${NOMBRE_ESPERADO} (R43)`, () => {
     // Reescrito en la 458-A (TA.3): ya no salen del SEED (R95). Se le pasan todos los conceptos del
-    // catálogo como «con movimientos» y cada uno sale con su nombre desde Ordenex y su cuenta.
+    // catálogo como «con movimientos» y cada uno sale con su nombre desde la empresa y su cuenta.
     const lista = opcionesDeConceptos(
       WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED.map((categoria) => ({ categoria, movimientos: 3 })),
       CATEGORIA_TIENDA_LABEL,
       "",
       // 458-D: el filtro de concepto del desglose se retiró (el estado de cuenta filtra por chips);
-      // lo que este caso mide es el DICCIONARIO desde Ordenex, con la opción «todos» escrita aquí.
+      // lo que este caso mide es el DICCIONARIO desde la empresa, con la opción «todos» escrita aquí.
       { value: "", label: "Todos los conceptos" },
     );
     const valores = lista.map((o) => o.value);
     expect(lista[0]).toEqual({ value: "", label: "Todos los conceptos" });
     expect(valores.slice(1)).toEqual([...WALLET_TIENDA_MOVIMIENTO_CATEGORIA_SEED]);
     const opciones = new Map(lista.slice(1).map((o) => [o.value, o.label]));
-    for (const [clave, texto] of Object.entries(DESDE_ORDENEX)) {
+    for (const [clave, texto] of Object.entries(DESDE_EMPRESA)) {
       expect(opciones.get(clave), clave).toBe(`${texto} (3)`);
     }
   });
@@ -178,7 +178,7 @@ describe("textos propios del desglose por tienda (R7, P1; 461 R45)", () => {
       `Fletes, comisión, IVA, los cobros de ${NOMBRE_ESPERADO} a la tienda y sus pagos a ${NOMBRE_ESPERADO} anulados`,
     );
     expect(DESGLOSE_TIENDA_LABEL.pagadoHint).toBe(`Lo que ${NOMBRE_ESPERADO} le pagó a la tienda o pagó por ella`);
-    // «cobros de Ordenex a la tienda» ↔ la fila «Ordenex le cobra a la tienda» / «Cobro de Ordenex a la tienda anulado».
+    // «cobros de la empresa a la tienda» ↔ la fila «la empresa le cobra a la tienda» / «Cobro de la empresa a la tienda anulado».
     expect(DESGLOSE_TIENDA_LABEL.cargosHint).toMatch(new RegExp(`cobros de ${NOMBRE_ESPERADO} a la tienda`));
     expect(CATEGORIA_TIENDA_LABEL.cobro_tienda_anulado).toMatch(new RegExp(`^Cobro de ${NOMBRE_ESPERADO} a la tienda`));
     for (const texto of Object.values(DESGLOSE_TIENDA_LABEL)) expect(texto).not.toMatch(/\bCOD\b/);

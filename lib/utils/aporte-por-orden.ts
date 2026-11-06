@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import type { GestionResultado } from "@prisma/client";
 import type { TarifaVigente } from "@/lib/interfaces/repositories/ITarifaVigenteRepository";
-import { derivarIngresoOrden } from "@/lib/utils/ingreso-ordenex";
+import { derivarIngresoOrden } from "@/lib/utils/ingreso-empresa";
 import type { WalletIngresoConcepto, WalletMovimientoCategoria } from "@/lib/types/wallet";
 import type { WalletTiendaMovimientoCategoria } from "@/lib/types/wallet-tienda";
 import type { PagoMensajeroMovimientoCategoria } from "@/lib/types/wallet-mensajero";
@@ -17,7 +17,7 @@ import type { MotivoSinReparto } from "@/lib/types/detalle-movimiento";
  * NO HAY NI UNA FORMULA DE DINERO NUEVA (R46). El aporte de una orden a un concepto se
  * RE-DERIVA con `derivarIngresoOrden` —la misma funcion que produjo el importe del movimiento—
  * sobre las ENTRADAS que `cierre_detail` congelo. Es el camino de auditoria que el propio
- * esquema declara y que `CierresAdminRepository.toIngresoOrdenex` ya recorre.
+ * esquema declara y que `CierresAdminRepository.toIngresoEmpresa` ya recorre.
  *
  * CORRECCION DE PREMISA, escrita para que nadie la busque en vano: `cierre_detail` congela las
  * ENTRADAS de la formula (tarifa, `monto_cobrar`, `cobra_comision`, `es_central`,
@@ -32,7 +32,7 @@ import type { MotivoSinReparto } from "@/lib/types/detalle-movimiento";
  * se abra igual y diga de donde sale su importe en vez de callar (R48).
  */
 export type FuenteDeAporte =
-  | { tipo: "concepto_ordenex"; concepto: WalletIngresoConcepto }
+  | { tipo: "concepto_empresa"; concepto: WalletIngresoConcepto }
   | { tipo: "cod_recaudado" }
   // FICHA 468 (design §2.1, R27) — un SNAPSHOT por gestion que el cierre ya guardo y cuya suma ES el
   // importe del movimiento (medido en produccion el 2026-10-02: 100 % cuadra, `progress/medicion_468.md`).
@@ -60,15 +60,15 @@ export type CampoDeSnapshot = "pago_mensajero" | "indemnizacion";
  * `ingreso_reverso_pago_tienda`) no nace de un cierre: no hay ordenes que ensenar.
  */
 export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
-  ingreso_flete: { tipo: "concepto_ordenex", concepto: "ingreso_flete" },
-  ingreso_flete_devolucion: { tipo: "concepto_ordenex", concepto: "ingreso_flete_devolucion" },
-  ingreso_comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_comision_cod" },
-  ingreso_iva_flete: { tipo: "concepto_ordenex", concepto: "ingreso_iva_flete" },
+  ingreso_flete: { tipo: "concepto_empresa", concepto: "ingreso_flete" },
+  ingreso_flete_devolucion: { tipo: "concepto_empresa", concepto: "ingreso_flete_devolucion" },
+  ingreso_comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_comision_cod" },
+  ingreso_iva_flete: { tipo: "concepto_empresa", concepto: "ingreso_iva_flete" },
   ingreso_iva_flete_devolucion: {
-    tipo: "concepto_ordenex",
+    tipo: "concepto_empresa",
     concepto: "ingreso_iva_flete_devolucion",
   },
-  ingreso_iva_comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_iva_comision_cod" },
+  ingreso_iva_comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_iva_comision_cod" },
   egreso_pago_mensajero: { tipo: "snapshot_gestion", campo: "pago_mensajero" },
   ingreso_cod_recaudado: { tipo: "cod_recaudado" },
   egreso_indemnizacion: { tipo: "snapshot_gestion", campo: "indemnizacion" },
@@ -85,10 +85,10 @@ export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
   ingreso_reverso_pago_por_cuenta_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   ingreso_aporte_capital: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   egreso_reverso_aporte_capital: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 461 (design §4): el cobro de Ordenex a una tienda y su anulacion los decide una persona.
+  // FICHA 461 (design §4): el cobro de la empresa a una tienda y su anulacion los decide una persona.
   ingreso_cobro_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   egreso_reverso_cobro_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 457 (design §4, R51): el pago de una tienda a Ordenex y su anulacion los decide una persona.
+  // FICHA 457 (design §4, R51): el pago de una tienda a la empresa y su anulacion los decide una persona.
   ingreso_abono_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   egreso_reverso_abono_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   // FICHA 458-B (design §2.3): la anulacion de un cobro por rechazo la decide una persona.
@@ -97,6 +97,9 @@ export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
   // FICHA 488 (design §4.4): el Pago de IVA y su anulacion los decide una persona.
   egreso_pago_iva: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   ingreso_reverso_pago_iva: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
+  // Ficha 498: la diferencia de la satelite nace de la CONSOLIDACION, no de un cierre: sin reparto.
+  egreso_diferencia_satelite: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
+  ingreso_diferencia_satelite: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
 };
 
 /**
@@ -116,12 +119,12 @@ export const FUENTE_CAJA: Record<WalletMovimientoCategoria, FuenteDeAporte> = {
  * aqui seria anadir una condicion que no gobierna dinero.
  */
 export const FUENTE_TIENDA: Record<WalletTiendaMovimientoCategoria, FuenteDeAporte> = {
-  flete: { tipo: "concepto_ordenex", concepto: "ingreso_flete" },
-  flete_devolucion: { tipo: "concepto_ordenex", concepto: "ingreso_flete_devolucion" },
-  comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_comision_cod" },
-  iva_flete: { tipo: "concepto_ordenex", concepto: "ingreso_iva_flete" },
-  iva_flete_devolucion: { tipo: "concepto_ordenex", concepto: "ingreso_iva_flete_devolucion" },
-  iva_comision_cod: { tipo: "concepto_ordenex", concepto: "ingreso_iva_comision_cod" },
+  flete: { tipo: "concepto_empresa", concepto: "ingreso_flete" },
+  flete_devolucion: { tipo: "concepto_empresa", concepto: "ingreso_flete_devolucion" },
+  comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_comision_cod" },
+  iva_flete: { tipo: "concepto_empresa", concepto: "ingreso_iva_flete" },
+  iva_flete_devolucion: { tipo: "concepto_empresa", concepto: "ingreso_iva_flete_devolucion" },
+  iva_comision_cod: { tipo: "concepto_empresa", concepto: "ingreso_iva_comision_cod" },
   cod_recaudado: { tipo: "cod_recaudado" },
   pago_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   ajuste_credito: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
@@ -132,9 +135,9 @@ export const FUENTE_TIENDA: Record<WalletTiendaMovimientoCategoria, FuenteDeApor
   // FICHA 459 (design §5): el pago por cuenta y su anulacion los decide una persona.
   pago_por_cuenta: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   pago_por_cuenta_anulado: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 461 (design §4): la anulacion de un cobro de Ordenex la decide una persona.
+  // FICHA 461 (design §4): la anulacion de un cobro de la empresa la decide una persona.
   cobro_tienda_anulado: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
-  // FICHA 457 (design §4, R51): el pago de la tienda a Ordenex y su anulacion no nacen de un cierre.
+  // FICHA 457 (design §4, R51): el pago de la tienda a la empresa y su anulacion no nacen de un cierre.
   abono_tienda: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   abono_tienda_anulado: { tipo: "sin_reparto", motivo: "no_nace_de_un_cierre" },
   // FICHA 458-B (design §2.3): los creditos espejo de la anulacion de un cobro por rechazo.
@@ -384,7 +387,7 @@ export function satisfaceCriterio(criterio: CriterioDeAporte, hechos: HechosDeAp
 
 /** El criterio que le toca a una fuente. `sin_reparto` no tiene: esa fila no lista ordenes. */
 export function criterioDeFuente(fuente: FuenteDeAporte): CriterioDeAporte | null {
-  if (fuente.tipo === "concepto_ordenex") return CRITERIO_DE_APORTE[fuente.concepto];
+  if (fuente.tipo === "concepto_empresa") return CRITERIO_DE_APORTE[fuente.concepto];
   if (fuente.tipo === "cod_recaudado") return CRITERIO_COD_RECAUDADO;
   if (fuente.tipo === "snapshot_gestion") return CRITERIO_DE_SNAPSHOT[fuente.campo];
   return null;
@@ -468,7 +471,7 @@ function acumularCampo(gestiones: readonly GestionDelCierre[], campo: ImporteDeG
 /**
  * Cuanto aporta UNA ORDEN al importe de UN movimiento, o `undefined` si no aporta nada.
  *
- * `concepto_ordenex` — se llama a `derivarIngresoOrden` por CADA gestion de esa orden en ese
+ * `concepto_empresa` — se llama a `derivarIngresoOrden` por CADA gestion de esa orden en ese
  * cierre y se acumulan los aportes PRESENTES. Un concepto AUSENTE significa «esta gestion no
  * aporta a ese concepto» (no es un 0,00), asi que si ninguna lo trae, la orden no aporta.
  *

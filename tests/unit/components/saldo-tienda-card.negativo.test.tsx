@@ -19,8 +19,8 @@ import { NOMBRE_ESPERADO } from "@/tests/fixtures/marca-esperada";
 // (`TarjetasEstadoCuenta`, vista «tienda»). Los mismos casos sobre ella: el negativo entero y con sus
 // céntimos, sin alerta; los TRES signos se distinguen con PALABRAS (la frase de quién le debe a quién,
 // R18, en lugar de la insignia «A favor / En contra / En cero» de la tarjeta retirada); money-safe.
-// La pista «Cargos de Ordenex» (381/R37) se fue con la tarjeta: el cobro se nombra en SU fila
-// («Ordenex te cobró», `desglose-tienda-ledger.test.tsx`) y se filtra con el chip «Cobros».
+// La pista «Cargos de la empresa» (381/R37) se fue con la tarjeta: el cobro se nombra en SU fila
+// («la empresa te cobró», `desglose-tienda-ledger.test.tsx`) y se filtra con el chip «Cobros».
 
 const FUENTE = "components/shared/estado-cuenta/TarjetasEstadoCuenta.tsx";
 
@@ -76,7 +76,7 @@ describe("/mi-wallet — el saldo NEGATIVO se ve entero (381/R29 → 458-D)", ()
 describe("/mi-wallet — los TRES signos se distinguen con palabras (381/R30 → 458 R18)", () => {
   it.each([
     ["negativo", "cuenta_debe", "-15000.00", `Le debés ₡15.000 a ${NOMBRE_ESPERADO}`, "-₡15.000"],
-    ["positivo", "ordenex_debe", "9000.00", `${NOMBRE_ESPERADO} te debe ₡9.000`, "₡9.000"],
+    ["positivo", "empresa_debe", "9000.00", `${NOMBRE_ESPERADO} te debe ₡9.000`, "₡9.000"],
     ["cero", "en_cero", "0.00", `${NOMBRE_ESPERADO} y vos no se deben nada`, "₡0"],
   ] as const)("signo `%s` → «%s»", (signo, sentido, importe, frase, pintado) => {
     render(<TarjetasEstadoCuenta estado={estado({ saldoActual: importe, signo, sentido })} vista="tienda" />);
@@ -88,7 +88,7 @@ describe("/mi-wallet — los TRES signos se distinguen con palabras (381/R30 →
     const vistas = new Set<string>();
     for (const [signo, sentido, importe] of [
       ["negativo", "cuenta_debe", "-15000.00"],
-      ["positivo", "ordenex_debe", "9000.00"],
+      ["positivo", "empresa_debe", "9000.00"],
       ["cero", "en_cero", "0.00"],
     ] as const) {
       cleanup();

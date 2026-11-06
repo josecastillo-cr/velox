@@ -58,7 +58,7 @@ export interface VentanaDeLibro {
   sortDir: DireccionOrden;
   /**
    * FICHA 463 (R27) — ¿el termino casa tambien con el nombre de quien registro? `false` en
-   * `/mi-wallet`: la tienda no ve los nombres de la gente de Ordenex, y buscarlos no debe ni reducir
+   * `/mi-wallet`: la tienda no ve los nombres de la gente de la empresa, y buscarlos no debe ni reducir
    * ni ampliar su resultado.
    */
   conNombreRegistrador: boolean;
@@ -146,7 +146,7 @@ export interface IEstadoCuentaRepository {
   /**
    * Los DOS totales de la cuenta con los movimientos ANTERIORES a `antesDe` (o de todos, sin
    * `antesDe`). La RESTA la hace el servicio con la MISMA funcion que hoy deriva cada saldo
-   * (`derivarSaldoTienda`, `derivarCuentaPorPagar`, `saldoDe`): R22 compara contra ellas.
+   * (`derivarSaldoTienda`, `derivarCuentaPorPagar`, `deudaDeZona`): R22 compara contra ellas.
    */
   totalesDeTienda(tiendaId: string, antesDe?: Date): Promise<{ creditos: string; debitos: string }>;
   /**
@@ -157,8 +157,11 @@ export interface IEstadoCuentaRepository {
    */
   desgloseDeTienda(tiendaId: string): Promise<DesgloseTiendaAgregadoRow[]>;
   totalesDeMensajero(mensajeroId: string, antesDe?: Date): Promise<{ devengado: string; pagado: string }>;
-  /** Bodega: el efectivo declarado y lo recibido, sin las consolidaciones rechazadas. */
-  totalesDeBodega(zonaId: string, antesDe?: Date): Promise<{ efectivo: string; recibido: string }>;
+  /**
+   * Bodega: lo DECLARADO y lo recibido, sin las consolidaciones rechazadas. FICHA 498 (R29/R30):
+   * declarado = aporte reconocido de cada consolidacion + aporte de cada cierre sin consolidar.
+   */
+  totalesDeBodega(zonaId: string, antesDe?: Date): Promise<{ declarado: string; recibido: string }>;
 
   /** Los movimientos del periodo `[desdeUtc, hastaUtc)` (para los totales netos, D3). */
   periodoDeTienda(tiendaId: string, desdeUtc?: Date, hastaUtc?: Date): Promise<MovimientoDelPeriodoRow[]>;

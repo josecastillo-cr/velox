@@ -19,7 +19,7 @@ import {
   COLUMNAS_DESCARGA_GESTIONES_FUNDIDA,
   filaDescargaGestionFundida,
 } from "@/app/(app)/cierres-admin/_components/cierres-gestiones-fundida-descarga-columnas";
-import type { IngresoOrdenexDTO } from "@/lib/interfaces/services/ICierreDiaService";
+import type { IngresoEmpresaDTO } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreGestionDescargaDTO } from "@/lib/interfaces/services/ICierresAdminService";
 
 const RAIZ = path.resolve(__dirname, "../../..");
@@ -30,7 +30,7 @@ function fuente(relativa: string): string {
   return texto;
 }
 
-function ingreso(over: Partial<IngresoOrdenexDTO> = {}): IngresoOrdenexDTO {
+function ingreso(over: Partial<IngresoEmpresaDTO> = {}): IngresoEmpresaDTO {
   return {
     montoCobrar: "1000.10",
     cobraComision: true,
@@ -96,7 +96,7 @@ function gestion(over: Partial<CierreGestionDescargaDTO> = {}): CierreGestionDes
     indemnizacion: null,
     pagoMensajero: "100.10",
     ingresoBodegaRechazo: null,
-    ingresoOrdenex: ingreso(),
+    ingresoEmpresa: ingreso(),
     ...over,
   };
 }
@@ -150,10 +150,10 @@ describe("paridad de los dos caminos de la descarga detallada (R26)", () => {
     // `cierres-admin` (design §2.6). Dos gestiones idénticas salvo por `esCentral` producen
     // exactamente la MISMA fila — si la hoja distinguiera la central, aquí habría diferencia.
     const central = filaDescargaGestionFundida(
-      gestion({ ingresoOrdenex: ingreso({ esCentral: true }) }),
+      gestion({ ingresoEmpresa: ingreso({ esCentral: true }) }),
     );
     const satelite = filaDescargaGestionFundida(
-      gestion({ ingresoOrdenex: ingreso({ esCentral: false }) }),
+      gestion({ ingresoEmpresa: ingreso({ esCentral: false }) }),
     );
     expect(central).toEqual(satelite);
     // Y `esCentral` no es ninguna de las 31 columnas: es un dato de tarifa, no de la gestión.

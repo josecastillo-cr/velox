@@ -6,10 +6,10 @@
 // direcciones».
 //
 // EL FALLO, medido en campo el 2026-09-08: `public/manifest.json` declara
-// `"display": "standalone"`, así que una Ordenex abierta desde el ícono de la pantalla de
+// `"display": "standalone"`, así que una app abierta desde el ícono de la pantalla de
 // inicio NO TIENE barra de direcciones NI candado. El aviso mandaba a una mensajera a tocar
 // algo que en su pantalla no existe, y se quedó parada en la calle sin poder registrar la
-// entrega. En Android ese permiso vive en Ajustes → Aplicaciones → Ordenex → Permisos →
+// entrega. En Android ese permiso vive en Ajustes → Aplicaciones → la empresa → Permisos →
 // Ubicación, con «Usar ubicación precisa» activado, y de eso el mensaje no decía nada.
 //
 // DOS SEÑALES, y las dos son estándar (aquí no se husmea el user agent):
@@ -69,7 +69,7 @@ const PASO_PRECISA =
   "Elegí «Permitir solo mientras usás la app» y dejá activado «Usar ubicación precisa».";
 
 /**
- * Ordenex abierta desde su ícono: no hay barra de direcciones ni candado, y el permiso es el
+ * La empresa abierta desde su ícono: no hay barra de direcciones ni candado, y el permiso es el
  * de la aplicación. Se evita nombrar el candado incluso para negarlo: mandar la vista a
  * buscar algo que no está es exactamente lo que dejó parada a la mensajera.
  */

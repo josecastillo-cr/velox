@@ -40,7 +40,7 @@ function mov(): WalletMovimientoDTO {
     descripcion: null,
     registradoPor: null,
     fechaMovimiento: "2026-07-12T10:00:00.000Z",
-    // Feature 231 (R31): el flete es dinero de Ordenex.
+    // Feature 231 (R31): el flete es dinero de la empresa.
     dueno: "propio",
     documento: null, // ficha 459 (design §7.3): fila sin documento
   };
@@ -68,7 +68,7 @@ const RESUMEN: CajaResumenDTO = {
   // Ficha 459 (T A.1): los campos nuevos del contrato; capital 0, sin saldo inicial.
   capital: "0.00",
   signoCapital: "cero",
-  deOrdenex: "700.00",
+  deEmpresa: "700.00",
   signoDeTerceros: "positivo",
   deTercerosAbsoluto: "5000.00",
   estado: "flujo",
@@ -78,6 +78,10 @@ const RESUMEN: CajaResumenDTO = {
   ivaPorPagar: "0.00",
   signoIvaPorPagar: "cero",
   porcentajeIva: "0.00",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
 };
 
 /**

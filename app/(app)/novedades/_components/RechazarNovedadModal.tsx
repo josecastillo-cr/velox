@@ -41,7 +41,7 @@ import { NOMBRE_ESTADO } from "@/lib/types/order-status";
 // POR QUE `RECHAZO_AVISO` SIGUE SIN REESCRIBIRSE, y ahora con más razón: dice QUÉ se cobra y que es
 // irreversible, y las dos siguen siendo ciertas. Lo único que cambió otra vez es por qué documento
 // sale. Lo que el aviso NO dice —ni debe— es que un administrador puede descartar el cobro: eso es
-// una decisión interna de Ordenex y prometerle a la tienda que «quizá no se le cobre» sería peor
+// una decisión interna de la empresa y prometerle a la tienda que «quizá no se le cobre» sería peor
 // que no nombrarlo. Si el humano quiere matizar la copia, es una decisión de producto.
 //
 // ⚠️ **EL AVISO NOMBRA EL FLETE DE DEVOLUCIÓN, NO EL «cobro por rechazo».** Son dos importes con
@@ -101,7 +101,7 @@ export const RECHAZO_TITULO = "Rechazar la orden";
  *
  * ⏳ FICHA 338 (2026-08-31): el concepto se llamaba aquí «flete de devolución», y ese nombre
  * decía justo el caso que NO cobra. Sólo un RECHAZO cobra este flete; una devolución no cobra
- * nada (`lib/utils/ingreso-ordenex.ts`, ficha 301). El nombre en toda la app es «flete por
+ * nada (`lib/utils/ingreso-empresa.ts`, ficha 301). El nombre en toda la app es «flete por
  * rechazo», y en esta ventana además cierra el círculo: el botón que se está pulsando es
  * «Rechazar».
  */

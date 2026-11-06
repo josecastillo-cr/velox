@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-import { MENSAJE_PUSH_RECIBIDO } from "@/lib/pwa/actualizacion";
+import { esMensajePushRecibido } from "@/lib/pwa/actualizacion";
 
 /**
  * FICHA 410 (tanda 5, T5.4 — R43) — UN HECHO, UN SONIDO.
@@ -67,7 +67,7 @@ export function usePushEnVentana(alRecibirPush: () => void): UsePushEnVentanaRes
       if (
         typeof datos !== "object" ||
         datos === null ||
-        (datos as { tipo?: unknown }).tipo !== MENSAJE_PUSH_RECIBIDO
+        !esMensajePushRecibido((datos as { tipo?: unknown }).tipo)
       ) {
         return;
       }

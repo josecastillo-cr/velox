@@ -236,7 +236,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
       // las dos cifras que `derivarCaja` produce se publica como `neto`, y eso entra como
       // selector explicito en vez de como un `if` por id dentro del manejador.
       dinero_en_caja: (c) => this.deTesoreria(c, (r) => r.enCaja),
-      ganancia_ordenex: (c) => this.deTesoreria(c, (r) => r.ganancia),
+      ganancia_empresa: (c) => this.deTesoreria(c, (r) => r.ganancia),
       cod_recaudado: (c) => this.deRecaudo(c),
       cuenta_por_pagar_tienda: (c) => this.deSaldoDeTiendas(c),
       cuenta_por_pagar_mensajero: (c) => this.deCuentaDeMensajeros(c),
@@ -379,7 +379,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
   }
 
   /* ------------------------------------------------------------------ */
-  /* F.3 (173) — la caja en TESORERIA: `dinero_en_caja` y `ganancia_ordenex` */
+  /* F.3 (173) — la caja en TESORERIA: `dinero_en_caja` y `ganancia_empresa` */
   /* ------------------------------------------------------------------ */
 
   /**
@@ -426,7 +426,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
           id: consulta.metrica.id,
           grano: "fecha",
           fuente: "wallet_movimiento",
-          // `[]` como todas: `dinero_en_caja` y `ganancia_ordenex` NO se suman entre si (la
+          // `[]` como todas: `dinero_en_caja` y `ganancia_empresa` NO se suman entre si (la
           // primera contiene dinero de terceros que la segunda excluye a proposito), ni con
           // `egresos`, que es un subconjunto de las dos.
           sumableCon: [],
@@ -633,7 +633,7 @@ export class AnaliticaFinancieraService implements IAnaliticaFinancieraService {
    * es el COD que el mensajero entrego, y su contrapartida en el libro es el CREDITO que
    * `wallet_tienda_movimiento` registra con origen en ese cierre. Los debitos del mismo origen
    * (flete, comision, IVA) miden otra cosa, y los otros dos libros tambien —la caja recibe el
-   * ingreso de Ordenex; el de mensajeros, el devengo—. Por eso se compara un lado concreto y no
+   * ingreso de la empresa; el de mensajeros, el devengo—. Por eso se compara un lado concreto y no
    * la Σ de los tres: comparar todo contra todo declararia un descuadre permanente, y un aviso
    * que suena siempre es un aviso que se apaga.
    */

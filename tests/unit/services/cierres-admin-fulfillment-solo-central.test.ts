@@ -10,14 +10,14 @@ import type { IOrdenRepository } from "@/lib/interfaces/repositories/IOrdenRepos
 import type { ISignedUrlProvider } from "@/lib/interfaces/external/ISignedUrlProvider";
 import type { Actor } from "@/lib/interfaces/services/IOrdenService";
 import type {
-  IngresoOrdenexDTO,
+  IngresoEmpresaDTO,
   TarifaSnapshotDTO,
 } from "@/lib/interfaces/services/ICierreDiaService";
 import type { CierreGestionDescargaDTO } from "@/lib/interfaces/services/ICierresAdminService";
 
 /**
  * FICHA 481 (2026-10-15, «solo lo debe ver la central») — el fulfillment congelado de la fila
- * (`ingresoOrdenex.tarifa.fulfillment`) no sale del servidor hacia la adminSatelite, en los DOS
+ * (`ingresoEmpresa.tarifa.fulfillment`) no sale del servidor hacia la adminSatelite, en los DOS
  * caminos que se lo daban: el detalle del cierre de mensajero (`verCierreDetalle`) y el conjunto
  * de la hoja «Detalle» del Excel (`listarGestionesCierresAdminCompleto`).
  *
@@ -44,7 +44,7 @@ const TARIFA: TarifaSnapshotDTO = {
   tarifaEspecialDevuelta: null,
 };
 
-const INGRESO: IngresoOrdenexDTO = {
+const INGRESO: IngresoEmpresaDTO = {
   montoCobrar: "10000.00",
   cobraComision: false,
   esCentral: false,
@@ -65,12 +65,12 @@ const INGRESO: IngresoOrdenexDTO = {
 };
 
 /** Lo que el repositorio entrega: SIEMPRE con fulfillment. Copia fresca por llamada. */
-function ingreso(): IngresoOrdenexDTO {
+function ingreso(): IngresoEmpresaDTO {
   return { ...INGRESO, tarifa: { ...TARIFA } };
 }
 
 /** Lo que la satelite tiene que recibir: lo mismo, con el fulfillment anulado y nada mas. */
-const INGRESO_SATELITE: IngresoOrdenexDTO = {
+const INGRESO_SATELITE: IngresoEmpresaDTO = {
   ...INGRESO,
   tarifa: { ...TARIFA, fulfillment: null },
 };
@@ -104,7 +104,7 @@ function gestionRow(): CierreGestionPendienteRow {
       desdeAyudaTienda: false,
       causaIncidente: null,
       indemnizacion: null,
-      ingresoOrdenex: ingreso(),
+      ingresoEmpresa: ingreso(),
     },
     undefined,
   );
@@ -139,7 +139,7 @@ function filaDescarga(): CierreGestionDescargaDTO {
     indemnizacion: null,
     pagoMensajero: "0.00",
     ingresoBodegaRechazo: null,
-    ingresoOrdenex: ingreso(),
+    ingresoEmpresa: ingreso(),
   };
 }
 
@@ -199,7 +199,7 @@ function newService() {
 async function ingresoDelDetalle(actor: Actor) {
   const r = await newService().verCierreDetalle("c1", actor);
   if (r.status !== "ok") throw new Error(`esperaba ok, llego ${r.status}`);
-  return r.grupos.entregado[0].ingresoOrdenex;
+  return r.grupos.entregado[0].ingresoEmpresa;
 }
 
 async function ingresoDeLaDescarga(actor: Actor) {
@@ -207,7 +207,7 @@ async function ingresoDeLaDescarga(actor: Actor) {
     mensajeroIds: ["m1"],
   });
   if (r.status !== "ok") throw new Error(`esperaba ok, llego ${r.status}`);
-  return r.items[0].ingresoOrdenex;
+  return r.items[0].ingresoEmpresa;
 }
 
 describe("ficha 481 — el fulfillment de la fila solo llega a la central", () => {

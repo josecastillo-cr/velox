@@ -132,7 +132,7 @@ describeSiHayBase("458-B/TB.7 — «A quien» y «Registro» del libro de la caj
 
   it("R56: el cierre → su MENSAJERO (con enlace); R57: automatico, «aprobacion del cierre» por quien lo aprobo", () => {
     for (const f of m().porOrigen.cierre_dia) {
-      expect(f.aQuien).toEqual({ nombre: m().nombres.mensajero, beneficiario: null, cuenta: { tipo: "mensajero", id: m().ids.mensajero }, esOrdenex: false });
+      expect(f.aQuien).toEqual({ nombre: m().nombres.mensajero, beneficiario: null, cuenta: { tipo: "mensajero", id: m().ids.mensajero }, esEmpresa: false });
       expect(f.registro).toEqual({ nombre: null, automatico: { accion: "aprobacion_cierre", por: m().nombres.adminSat } });
     }
   });
@@ -152,7 +152,7 @@ describeSiHayBase("458-B/TB.7 — «A quien» y «Registro» del libro de la caj
     expect(m().porOrigen.pago_por_cuenta_tienda.map((f) => [f.aQuien.nombre, f.aQuien.beneficiario])).toEqual([
       [m().nombres.tiendaA, "Imprenta Ruiz"],
     ]);
-    expect(m().porOrigen.aporte_capital.map((f) => f.aQuien.esOrdenex)).toEqual([true]);
+    expect(m().porOrigen.aporte_capital.map((f) => f.aQuien.esEmpresa)).toEqual([true]);
   });
 
   it("R42/R56: el gasto con anotacion dice A QUIEN; el sueldo anterior sin anotacion, «—» (`null`)", () => {

@@ -31,7 +31,7 @@ describe("UP — enums + tabla wallet_movimiento", () => {
     expect(upSql).toMatch(/CREATE TYPE "wallet_movimiento_tipo" AS ENUM \('ingreso', 'egreso'\);/);
     expect(upSql).toMatch(/CREATE TYPE "wallet_movimiento_categoria" AS ENUM/);
     expect(upSql).toMatch(/CREATE TYPE "wallet_origen_tipo" AS ENUM/);
-    // los 6 conceptos de ingreso de Ordenex + ajuste manual.
+    // los 6 conceptos de ingreso de la empresa + ajuste manual.
     for (const cat of [
       "ingreso_flete",
       "ingreso_flete_devolucion",

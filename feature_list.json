@@ -5913,13 +5913,13 @@
       "title": "Marca Velox Courier: identificadores internos",
       "description": "Sustituir \"ordenex\" en identificadores de código, valores guardados o de contrato, claves del navegador, dominios, package.json y nombres de plantillas de WhatsApp.",
       "zone": "fullstack",
-      "status": "pending",
+      "status": "done",
       "sdd": true,
       "complexity": "large",
       "depends_on": 493,
-      "spec_path": "specs/494-marca-velox-identificadores",
+      "spec_path": "specs/494-marca-identificadores-internos",
       "branch": "feat/494-marca-velox-identificadores",
-      "status_note": "Registrada el 2026-11-02 a pedido del humano; arranca tras mergear la 493 (mismos archivos). Medido en la rama de la 493: 554 archivos (324 de test); db/schema.prisma solo en comentarios, sin migración de esquema. El spec mide si ganancia_ordenex, solo_ordenex, concepto_ordenex, gasto_ordenex, tienda_paga_a_ordenex u ordenex_debe están en filas de prod (backfill medido) y qué dominios ordenex.* son configuración viva. ganancia_ordenex rompe la API de métricas (0 consumidores: CHANGELOG sin transición). ordenex_tema y demás claves del navegador migran leyendo la vieja. Plantillas alerta_transito_ordenex y picking_bodega_ordenex: crear nuevas en Meta, esperar aprobación y cambiar plantilla_mensaje.nombre en prod, al final. Fuera: db/migrations, specs/progress/docs históricos, carpeta local."
+      "status_note": "MERGEADA en dev el 2026-11-05 (PR #887-#893, merge 16f4deed); aún no en prod. Sin migración. Pendiente tras la release: PWA instalada y R22 en dispositivo real; T9 plantillas de Meta (humano); T10 ficha de retirada, índice y portar. Detalle en progress/impl_494.md."
     },
     {
       "id": 495,
@@ -5965,13 +5965,13 @@
       "title": "Dinero de satélite entra a la caja al conciliar",
       "description": "Aprobar un cierre del día satélite no escribe en los libros; marcar recibido asienta los cierres y la diferencia en un bolsillo «Por cobrar a satélites»; deuda con paraLaCentral sobre todos los métodos; conciliación con dinero no se revierte.",
       "zone": "fullstack",
-      "status": "spec_ready",
+      "status": "done",
       "sdd": true,
       "complexity": "large",
       "depends_on": 497,
       "spec_path": "specs/498-satelite-dinero-al-conciliar",
       "branch": "fix/498-satelite-dinero-al-conciliar",
-      "status_note": "Spec APROBADO el 2026-11-02 (64 requisitos; SINPE/transferencia confirmados en la conciliación, regla anterior por migración, recibido 0 solo con aporte ≤ 0). Espera a la 497 mergeada. Registrada el 2026-11-02: H3 de progress/prompt-hotfix-portable.md. El humano REVOCA la Q2 del 2026-09-16 (deuda solo efectivo) y el carácter informativo/reversible de la conciliación (431, 473): reescribir ayuda y textos. Va tras la 497 (misma transacción de aprobación). Sin multiempresa; esquema respaldo nuevo (sin garantía de inaccesible para la app); premios = premio_ranking + premio_dia (no hay incentivos). Medido en prod: conjunto S pequeño, guardas en 0. Abierto para el spec: ¿algún camino vivo aprueba una consolidación sin conciliarla (resolverCierreBodega)?"
+      "status_note": "MERGEADA en dev el 2026-11-03 (PR #883, 2f5e38e9); revisión APROBADA en 2.ª vuelta (progress/review_498.md), gate --rapido verde (integration/db 4391, 0 skipped), mutaciones 16/16, build Vercel verde. Migraciones 20261103120000-120300 (M1-M4). Antes de prod: T8.4 (medición SQL solo lectura en prod con puerta, progress/impl_498.md) y no conciliar durante el despliegue. Menores abiertos: m3 (R2 indirecto), m4 (test «R34» no prueba R34), m5 (ayuda en voseo, conciliación en tuteo). Etiquetas «Diferencia de la satélite (faltó)/(sobró o pagó)» confirmadas por el humano."
     },
     {
       "id": 499,
@@ -5991,26 +5991,77 @@
       "title": "Deuda de satélites al conciliar y de zonas",
       "description": "Bloques 2-4 y 6-9 de H5: Desmarcar solo sin dinero, revertir rechaza con ajuste, una sola fórmula del esperado, rastro de distritos en el histórico, textos definitivos y retiro de respaldos con puerta propia.",
       "zone": "fullstack",
-      "status": "pending",
+      "status": "done",
       "sdd": true,
       "complexity": "medium",
       "depends_on": 498,
       "spec_path": "specs/500-deuda-satelites-zonas",
       "branch": "fix/500-deuda-satelites-zonas",
-      "status_note": "Registrada el 2026-11-02: H5 de progress/prompt-hotfix-portable.md salvo bloque 1 (ficha 495) y bloque 5 (descartado: no hay multiempresa). Depende también de la 499 (bloque 6). El bloque 8 (retirar respaldos) es irreversible y pide autorización escrita del humano."
+      "status_note": "MERGEADA en dev el 2026-11-03 (PR #884, 6af0749e): R1-R23; revisión APROBADA en 2.ª vuelta (progress/review_500.md), gate --rapido verde, build Vercel verde, app vista. Migración 20261104120000_historial_accion_zona_distrito_500. Bloque 8 (R24-R30, retirar respaldos) NO hecho: puerta propia (498 en prod y verificada + medición + autorización escrita). Menores m1/m4/m5 pasan a la ficha 502."
     },
     {
       "id": 501,
       "title": "Fechas de Pagos registrados en hora de Costa Rica",
       "description": "«Registrado el» y «Anulado el» de Pagos registrados (tabla y descarga) usan el día calendario de Costa Rica en vez de recortar el ISO en UTC.",
       "zone": "frontend",
-      "status": "pending",
+      "status": "done",
       "sdd": true,
       "complexity": "small",
       "depends_on": 495,
-      "spec_path": "specs/501-pagos-registrados-fecha-cr",
+      "spec_path": "specs/501-fechas-pagos-registrados-cr",
       "branch": "fix/501-pagos-registrados-fecha-cr",
-      "status_note": "Registrada el 2026-11-02 a pedido del humano (para el día siguiente). Hallazgo m2 de la revisión de la 495, confirmado por el leader: components/shared/liquidacion/PagosRegistradosTabla.tsx:65 y pagos-registrados-descarga-columnas.ts:71,74 pasan registradoAt/anuladoAt (createdAt.toISOString(), instantes) por fechaDiaISO; tras las 18:00 CR salen con el día siguiente. fechaPago es @db.Date y está bien. Reusar fechaDiaInstanteCR de la 495 y ampliar su guardia a esas rutas."
+      "status_note": "Mergeada en dev (PR #885) el 2026-11-04, sin desplegar. R1-R10 con test. Vista en /cierres-admin, pantalla y xlsx; /wallet/tiendas no se vio (sin pagos de tienda en local). Menores m1-m3 en progress/review_501.md.",
+      "merged_pr": 885
+    },
+    {
+      "id": 502,
+      "title": "Conciliación satélite: menores de la 500",
+      "description": "Quitar la nota «después no se puede desmarcar» del diálogo de Desmarcar, decidir qué acción tiene una consolidación recibida de más con dinero, y un test que distinga tx de this.prisma en el rastro de distritos.",
+      "zone": "fullstack",
+      "status": "done",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 500,
+      "spec_path": "specs/502-menores-conciliacion-satelite",
+      "branch": "fix/502-conciliacion-satelite-menores-500",
+      "status_note": "Mergeada en dev (PR #886) el 2026-11-04, sin desplegar. Q1 = se ofrece Corregir en recibida de más; Q2 = no ampliar. Vista en las dos pantallas. Deuda: la ayuda promete Corregir en las saldadas (wallet-satelites.md:129-130).",
+      "merged_pr": 886
+    },
+    {
+      "id": 503,
+      "title": "Ayuda de Wallet · Satélites: la frase de las saldadas",
+      "description": "La ayuda dice que una consolidación saldada con la regla anterior se arregla con «Corregir», pero esa fila no ofrece el botón. Alinear la ayuda con lo que hace la pantalla.",
+      "zone": "frontend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 502,
+      "branch": null,
+      "status_note": "Deuda de la 502 (Q2 = no ampliar). Frase en docs/ayuda/oficina/wallet-satelites.md:129-130. El servidor sí admite la corrección (498-conciliar-asienta-sql-real.test.ts:549). Registrada el 2026-11-04 con OK del humano. No bloquea la release."
+    },
+    {
+      "id": 504,
+      "title": "Frase del saldo: «no se deben nada» solo con saldo en cero",
+      "description": "Las frases del saldo de estado de cuenta afirman «no se deben nada» por descarte: cualquier sentido desconocido cae ahí. Decirla solo con el saldo en cero comprobado.",
+      "zone": "frontend",
+      "status": "pending",
+      "sdd": true,
+      "complexity": "small",
+      "depends_on": 494,
+      "branch": null,
+      "status_note": "Hallazgo m6 de progress/review_494_t3.md. fraseDelSaldo y fraseDelSaldoParaLaTienda en components/shared/estado-cuenta/estado-cuenta-labels.ts. Se vio con el cruce de versiones de la 494, pero el defecto es anterior. Se empieza con la tanda 3 de la 494 mergeada: renombra esos valores. Registrada el 2026-11-04 con OK del humano. No bloquea la release."
+    },
+    {
+      "id": 505,
+      "title": "Aviso de versión nueva: tarjeta descompuesta",
+      "description": "Los botones «Ahora no» y «Actualizar ahora» caen en la columna del icono y descomponen la tarjeta. Colocarlos a lo ancho y comprobarlo en el navegador.",
+      "zone": "frontend",
+      "status": "done",
+      "sdd": false,
+      "complexity": "small",
+      "depends_on": null,
+      "branch": "fix/505-aviso-version-tarjeta",
+      "status_note": "MERGEADA en dev el 2026-11-05 (PR #894, merge d99faa18); aún no en prod. Vista en navegador en ruta temporal; sin ver dentro del portal ni con service worker real."
     }
   ]
 }

@@ -12,7 +12,11 @@ import { zonaUnicaDeDistrito } from "@/lib/repositories/_shared/zona-colapso";
 import { ESTADOS_PAQUETE_EN_ESTANTE } from "@/lib/utils/estados-bodega-satelite";
 import { normalizeName } from "@/lib/utils/normalize";
 import { appendAccion, resolverActorCongelado } from "@/lib/repositories/registrar-accion";
-import { etiquetaDeEntidad } from "@/lib/types/historial-accion-etiquetas";
+import {
+  ETIQUETA_DESCONOCIDA,
+  etiquetaDeEntidad,
+  valorDeCatalogo,
+} from "@/lib/types/historial-accion-etiquetas";
 import type { ImpactoZonaCentralDTO, TarifaZonaMensajeroDTO, ZonaDTO } from "@/lib/types/zona";
 import type {
   ConflictoDistritoZona,
@@ -99,6 +103,74 @@ function filasDeCambioDeMarca(
   return [
     ...(centralPrevia === null ? [] : [entrada(centralPrevia, true)]),
     entrada(zonaQueLaGana, false),
+  ];
+}
+
+/** FICHA 500 (R12/R17): los distritos que entran y salen de una zona en un guardado. */
+export interface CambioDeDistritos {
+  anadidos: string[];
+  quitados: string[];
+}
+
+/**
+ * ⭑ FICHA 500 (R17) — diferencia por CONJUNTOS: ni el orden ni los repetidos cuentan. Salida
+ * ordenada por id para que sea determinista.
+ */
+export function diferenciaDeDistritos(
+  previos: readonly string[],
+  nuevos: readonly string[],
+): CambioDeDistritos {
+  const antes = new Set(previos);
+  const despues = new Set(nuevos);
+  return {
+    anadidos: [...despues].filter((d) => !antes.has(d)).sort(),
+    quitados: [...antes].filter((d) => !despues.has(d)).sort(),
+  };
+}
+
+/** Un distrito con su canton, tal como sale del catalogo (DTA). */
+export interface DistritoConCanton {
+  id: string;
+  nombre: string;
+  canton: { nombre: string };
+}
+
+/**
+ * ⭑ FICHA 500 (R12-R16) — UNA FILA `zona_distrito_cambiado` POR DISTRITO, colgada de la zona.
+ *
+ *  · añadido → `valorAnterior` null, `valorNuevo` = texto (R14); quitado → al reves;
+ *  · texto = `<distrito> (<canton>)` SIN comillas (Q2), recortado a 60 por `valorDeCatalogo` (R15);
+ *  · sin `monto` (R16): lo que se mueve no es un importe;
+ *  · un id que no salga en `nombres` usa `ETIQUETA_DESCONOCIDA`, nunca el uuid;
+ *  · orden determinista: añadidos y luego quitados, cada grupo por texto y luego por id.
+ */
+export function filasDeCambioDeDistritos(
+  zona: ZonaConNombre,
+  cambio: CambioDeDistritos,
+  nombres: readonly DistritoConCanton[],
+  actor: { actorUsuarioId: string | null; actorNombre: string | null; actorRol: RolValue | null },
+) {
+  const porId = new Map(nombres.map((d) => [d.id, d]));
+  const texto = (id: string) => {
+    const d = porId.get(id);
+    return d === undefined ? ETIQUETA_DESCONOCIDA : valorDeCatalogo(`${d.nombre} (${d.canton.nombre})`);
+  };
+  const grupo = (ids: readonly string[]) =>
+    ids
+      .map((id) => ({ id, texto: texto(id) }))
+      .sort((a, b) => a.texto.localeCompare(b.texto, "es") || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const fila = (valorAnterior: string | null, valorNuevo: string | null) => ({
+    accion: "zona_distrito_cambiado" as const,
+    entidadTipo: "zona" as const,
+    entidadId: zona.id,
+    entidadEtiqueta: etiquetaDeEntidad("zona", { nombre: zona.nombre }),
+    valorAnterior,
+    valorNuevo,
+    ...actor,
+  });
+  return [
+    ...grupo(cambio.anadidos).map((d) => fila(null, d.texto)),
+    ...grupo(cambio.quitados).map((d) => fila(d.texto, null)),
   ];
 }
 
@@ -584,7 +656,7 @@ export class ZonaRepository implements IZonaRepository {
 
               // 362/R9 + 366/R10: una fila POR ORDEN ALCANZADA (no por orden candidata) y en la
               // MISMA transaccion. La etiqueta es la guia —o la remision si no hay guia—, que es
-              // un identificador de envio de Ordenex; `valorAnterior`/`valorNuevo`/`monto` van
+              // un identificador de envio de la empresa; `valorAnterior`/`valorNuevo`/`monto` van
               // NULL a proposito: ahi irian la zona vieja y la nueva, que R10 deja fuera.
               await appendAccion(
                 tx,
@@ -681,6 +753,32 @@ export class ZonaRepository implements IZonaRepository {
                 ...actorDelPago,
               },
             ],
+            randomUUID(),
+          );
+        }
+
+        // ⭑ FICHA 500 (R12-R17): el rastro de los DISTRITOS. Lote PROPIO (R13), el cuarto de este
+        // guardado. Los previos se leyeron ANTES del reemplazo de la N:M (`distritosPrevios`). Va
+        // con `tx`: si algo falla despues, la transaccion entera se revierte con estas filas (R18).
+        // `create` y `hardDelete` NO lo escriben (R19).
+        const cambioDeDistritos = diferenciaDeDistritos(
+          distritosPrevios.map((d) => d.distritoId),
+          data.distritoIds,
+        );
+        if (cambioDeDistritos.anadidos.length + cambioDeDistritos.quitados.length > 0) {
+          const nombresDeDistritos = await tx.distrito.findMany({
+            where: { id: { in: [...cambioDeDistritos.anadidos, ...cambioDeDistritos.quitados] } },
+            select: { id: true, nombre: true, canton: { select: { nombre: true } } },
+          });
+          const actorDeDistritos = await resolverActorCongelado(tx, actorUsuarioId);
+          await appendAccion(
+            tx,
+            filasDeCambioDeDistritos(
+              { id, nombre: zona.nombre },
+              cambioDeDistritos,
+              nombresDeDistritos,
+              actorDeDistritos,
+            ),
             randomUUID(),
           );
         }

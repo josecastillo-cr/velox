@@ -163,7 +163,7 @@ const MENSAJERO_ID = uuid();
 /** La autoría que el SERVIDOR resolvería para cada fila (design §3.4). */
 const AUTORIA: Record<string, Omit<AutoriaDeFilaDTO, "movimientoId">> = {
   [SUELDO.id]: {
-    aQuien: { nombre: "Juan Pérez", beneficiario: null, cuenta: null, esOrdenex: false },
+    aQuien: { nombre: "Juan Pérez", beneficiario: null, cuenta: null, esEmpresa: false },
     registro: { nombre: "Ana Maestra", automatico: null },
     // Revisión B1 (R58): tecleado el 26, con fecha del movimiento del 20.
     registradoEl: { fecha: "2026-09-26", hora: "21:30" },
@@ -171,35 +171,35 @@ const AUTORIA: Record<string, Omit<AutoriaDeFilaDTO, "movimientoId">> = {
     anulacion: null,
   },
   [COBRO.id]: {
-    aQuien: { nombre: "Tania Tienda", beneficiario: null, cuenta: { tipo: "tienda", id: TIENDA_ID }, esOrdenex: false },
+    aQuien: { nombre: "Tania Tienda", beneficiario: null, cuenta: { tipo: "tienda", id: TIENDA_ID }, esEmpresa: false },
     registro: { nombre: "Ana Maestra", automatico: null },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
     anulacion: null,
   },
   [DEL_CIERRE.id]: {
-    aQuien: { nombre: "Mario Mensajero", beneficiario: null, cuenta: { tipo: "mensajero", id: MENSAJERO_ID }, esOrdenex: false },
+    aQuien: { nombre: "Mario Mensajero", beneficiario: null, cuenta: { tipo: "mensajero", id: MENSAJERO_ID }, esEmpresa: false },
     registro: { nombre: null, automatico: { accion: "aprobacion_cierre", por: "Ana Maestra" } },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
     anulacion: null,
   },
   [APORTE.id]: {
-    aQuien: { nombre: null, beneficiario: null, cuenta: null, esOrdenex: true },
+    aQuien: { nombre: null, beneficiario: null, cuenta: null, esEmpresa: true },
     registro: { nombre: "Ana Maestra", automatico: null },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
     anulacion: null,
   },
   [ANULADO.id]: {
-    aQuien: { nombre: null, beneficiario: null, cuenta: null, esOrdenex: false },
+    aQuien: { nombre: null, beneficiario: null, cuenta: null, esEmpresa: false },
     registro: { nombre: null, automatico: { accion: "plantilla_gasto_fijo", por: null } },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
     anulacion: null,
   },
   [ANULADO_SIN_MOTIVO.id]: {
-    aQuien: { nombre: "Proveedor Uno", beneficiario: null, cuenta: null, esOrdenex: false },
+    aQuien: { nombre: "Proveedor Uno", beneficiario: null, cuenta: null, esEmpresa: false },
     registro: { nombre: "Ana Maestra", automatico: null },
     registradoEl: { fecha: "2026-09-20", hora: "09:15" },
     como: null,
@@ -231,10 +231,14 @@ const RESUMEN = {
   ivaPorPagar: "0.00",
   signoIvaPorPagar: "cero" as const,
   porcentajeIva: "0.00",
+  // Ficha 498: «Por cobrar a satelites» en cero (la barra y la tarjeta, como antes).
+  porCobrarSatelites: "0.00",
+  signoPorCobrarSatelites: "cero" as const,
+  porcentajePorCobrar: "0.00",
   modoComposicion: "dos_bolsillos" as const,
   capital: "3000.00",
   signoCapital: "positivo" as const,
-  deOrdenex: "-17000.00",
+  deEmpresa: "-17000.00",
   signoDeTerceros: "positivo" as const,
   deTercerosAbsoluto: "10000.00",
   estado: "flujo" as const,

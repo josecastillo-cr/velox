@@ -3,7 +3,8 @@ import path from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { MENSAJE_PUSH_RECIBIDO } from "@/lib/pwa/actualizacion";
+import { MENSAJE_PUSH_RECIBIDO_LEGADO } from "@/lib/navegador/claves-legadas";
+import { esMensajePushRecibido, MENSAJE_PUSH_RECIBIDO } from "@/lib/pwa/actualizacion";
 
 // FICHA 410 (T4.1-T4.4) — GUARDIA DEL PUSH EN EL SERVICE WORKER.
 //
@@ -49,7 +50,7 @@ interface VentanaFalsa {
   postMessage: ReturnType<typeof vi.fn>;
 }
 
-function ventana(id: string, visibilityState = "hidden", url = "https://ordenex.co/ordenes"): VentanaFalsa {
+function ventana(id: string, visibilityState = "hidden", url = "https://ejemplo.test/ordenes"): VentanaFalsa {
   return {
     id,
     url,
@@ -91,7 +92,7 @@ const cachesFalsas = {
 };
 
 function cargarSw(opciones: { hostname?: string; ventanas?: VentanaFalsa[] } = {}) {
-  const { hostname = "ordenex.co", ventanas = [] } = opciones;
+  const { hostname = "ejemplo.test", ventanas = [] } = opciones;
   const manejadores: Record<string, ((evento: unknown) => void)[]> = {};
   const mostradas: NotificacionMostrada[] = [];
   const abiertas: string[] = [];
@@ -204,14 +205,14 @@ describe("410/R37 · un push bueno se muestra con su titulo, su cuerpo y su icon
   it("⭑ R41: la etiqueta se deriva del evento y `renotify` es false (reemplaza, no apila)", async () => {
     const sw = cargarSw();
     await sw.push(CARGA_BUENA);
-    expect(sw.mostradas[0].opciones.tag).toBe("ordenex:novedades_sin_gestionar");
+    expect(sw.mostradas[0].opciones.tag).toBe("app:novedades_sin_gestionar");
     expect(sw.mostradas[0].opciones.renotify).toBe(false);
 
     // Dos push del MISMO tipo comparten etiqueta; uno de otro tipo, no.
     await sw.push({ ...CARGA_BUENA, evento: "cierre_dia_vencido" });
     expect(sw.mostradas.map((m) => m.opciones.tag)).toEqual([
-      "ordenex:novedades_sin_gestionar",
-      "ordenex:cierre_dia_vencido",
+      "app:novedades_sin_gestionar",
+      "app:cierre_dia_vencido",
     ]);
   });
 });
@@ -342,8 +343,18 @@ describe("410/R43 · con una ventana VISIBLE se avisa a la pagina para que no su
   it("⭑ el literal del mensaje NO diverge entre el bundle y el service worker", () => {
     // El SW no puede importar del bundle, asi que el texto esta duplicado a mano. La fuente de
     // verdad es `lib/pwa/actualizacion.ts` y aqui se LEE el fuente del SW, no se copia. Mismo
-    // precedente que `ordenex:relevo-ahora`.
+    // precedente que `app:relevo-ahora`.
     expect(FUENTE).toContain(`"${MENSAJE_PUSH_RECIBIDO}"`);
+  });
+
+  it("494/R22: este SW manda el mensaje NUEVO; el viejo solo lo acepta la página (`esMensajePushRecibido`)", () => {
+    // El SW no lleva el push viejo a propósito: mandar los dos haría revalidar dos veces a la página
+    // nueva. Lo acepta la página, porque es el SW ANTERIOR quien lo envía durante el relevo.
+    expect(FUENTE).not.toContain(MENSAJE_PUSH_RECIBIDO_LEGADO);
+    expect(esMensajePushRecibido(MENSAJE_PUSH_RECIBIDO_LEGADO)).toBe(true);
+    expect(esMensajePushRecibido(MENSAJE_PUSH_RECIBIDO)).toBe(true);
+    expect(esMensajePushRecibido("otra-cosa")).toBe(false);
+    expect(esMensajePushRecibido(undefined)).toBe(false);
   });
 });
 

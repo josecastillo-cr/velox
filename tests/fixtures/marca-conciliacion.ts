@@ -13,11 +13,17 @@
 // una aserción contra su propia fuente, y estaría siempre verde. Aquí la resta se escribe como
 // dato de entrada del test, que es lo que un doble tiene que ser.
 
-/** Los seis campos de la marca, tal como viajan en la cabecera. */
+import { Prisma } from "@prisma/client";
+
+/** Los campos de la marca, tal como viajan en la cabecera. */
 export interface MarcaConciliacionDoble {
   conciliado: boolean;
   montoRecibido: string | null;
   faltaPorRecibir: string;
+  // FICHA 498 (R16/R41a): lo que debe la consolidacion, decidido por el servidor.
+  debe: string;
+  debePositivo: boolean;
+  saldadaReglaAnterior: boolean;
   conciliadoAt: string | null;
   conciliadoPorNombre: string | null;
   conciliadoNota: string | null;
@@ -33,6 +39,10 @@ export function marcaSinConciliar(totalEfectivo: string): MarcaConciliacionDoble
     conciliado: false,
     montoRecibido: null,
     faltaPorRecibir: totalEfectivo,
+    // FICHA 498: sin marcar, lo que debe es lo que falta (el dato de entrada del doble).
+    debe: totalEfectivo,
+    debePositivo: new Prisma.Decimal(totalEfectivo).greaterThan(0),
+    saldadaReglaAnterior: false,
     conciliadoAt: null,
     conciliadoPorNombre: null,
     conciliadoNota: null,
@@ -72,6 +82,10 @@ export function marcaRecibida(
     conciliado: true,
     montoRecibido,
     faltaPorRecibir,
+    // FICHA 498: debe = recibido + falta (los dos son datos de entrada del doble).
+    debe: new Prisma.Decimal(montoRecibido).plus(faltaPorRecibir).toFixed(2),
+    debePositivo: new Prisma.Decimal(montoRecibido).plus(faltaPorRecibir).greaterThan(0),
+    saldadaReglaAnterior: false,
     conciliadoAt: extra.conciliadoAt ?? "2026-09-15T17:40:00.000Z",
     conciliadoPorNombre: extra.conciliadoPorNombre ?? "Ana Rojas",
     conciliadoNota: extra.conciliadoNota ?? null,

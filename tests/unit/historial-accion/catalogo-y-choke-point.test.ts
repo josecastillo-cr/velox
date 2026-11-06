@@ -71,7 +71,7 @@ function filas(tx: ReturnType<typeof txDoble>, n = 0): Record<string, unknown>[]
 
 describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhaustivos", () => {
   it("son 61 tipos, 23 entidades y 3 categorias, sin repetidos", () => {
-    // 60 desde la ficha 461: `cobro_tienda_anulado` (la anulacion de un cobro de Ordenex a una
+    // 60 desde la ficha 461: `cobro_tienda_anulado` (la anulacion de un cobro de la empresa a una
     // tienda; entidad `wallet_tienda_movimiento`, sin entidad nueva).
     // 59 desde la ficha 459: los CUATRO del pago por cuenta de una tienda y del saldo inicial o
     // aporte (registrado y anulado de cada uno; uno por metodo, la guardia del censo mide POR
@@ -93,8 +93,9 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     // 63 desde la ficha 457: `abono_tienda_registrado` y `abono_tienda_anulado` (un tipo por metodo); y
     // 24 entidades: `abono_tienda`, la TERCERA ampliacion del enum (1:1 con su tabla).
     // 65 desde la ficha 458-B: `cobro_rechazo_tienda_anulado` y `egreso_caja_anulado` (un tipo por metodo).
-    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(65);
-    expect(new Set(HISTORIAL_ACCION_TIPOS).size).toBe(65);
+    // 66 desde la ficha 500: `zona_distrito_cambiado` (el rastro de los distritos de una zona).
+    expect(HISTORIAL_ACCION_TIPOS).toHaveLength(66);
+    expect(new Set(HISTORIAL_ACCION_TIPOS).size).toBe(66);
     expect(HISTORIAL_ACCION_ENTIDADES).toHaveLength(24); // 24 desde la ficha 457
     expect(new Set(HISTORIAL_ACCION_ENTIDADES).size).toBe(24);
     expect(CATEGORIAS_ACCION).toHaveLength(3);
@@ -363,7 +364,7 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     expect(CATEGORIA_POR_ACCION.cobro_tienda_registrado).toBe("mueve_dinero");
     // Literal a proposito: el texto ES el contrato de la pantalla `/historial-de-acciones`.
     // FICHA 461 (R51, design §7.7): «Cobró un costo a una tienda» → «Le cobró a una tienda», desde
-    // Ordenex y diciendo quien le cobra a quien (HD3). Reescrito a conciencia, no relajado.
+    // la empresa y diciendo quien le cobra a quien (HD3). Reescrito a conciencia, no relajado.
     expect(ACCION_LABELS.cobro_tienda_registrado).toBe("Le cobró a una tienda");
     // ⚠️ TIPO PROPIO Y NO `wallet_movimiento_manual_registrado` (design §9-G): la etiqueta de aquel
     // dice «un movimiento manual de CAJA» y un cobro no es un movimiento manual de caja: es un cargo
@@ -392,7 +393,7 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     expect(ENTIDAD_LABELS.wallet_tienda_movimiento).not.toBe(ENTIDAD_LABELS.wallet_movimiento);
     // ⭑ D3, FIRMADA POR EL HUMANO EL 2026-09-07, y REABIERTA POR EL HUMANO EL 2026-09-24 (ficha 457):
     // el credito manual SIN dinero detras sigue prohibido; lo que entra es el PAGO DE UNA TIENDA A
-    // ORDENEX, dinero REAL con documento, tope en la deuda y su entrada en la caja en la misma
+    // LA EMPRESA, dinero REAL con documento, tope en la deuda y su entrada en la caja en la misma
     // transaccion. Lo que D3 protegia lo vigila `abono-tienda-alcance.guardia.test.ts` (R65/R67).
     expect(HISTORIAL_ACCION_TIPOS).toContain("abono_tienda_registrado");
   });
@@ -450,9 +451,16 @@ describe("362/T0.1 (R14/R17) — el catalogo es cerrado y sus mapas son exhausti
     // ganancia. 39 con `wallet_movimiento_manual_anulado` (auditoria D3): el contra-asiento de una
     // correccion de caja deshace su efecto en la ganancia.
     // 43 desde la ficha 458-B: anular un cobro por devolución a origen y anular un egreso de caja mueven dinero.
-    expect(accionesDeCategoria("mueve_dinero")).toHaveLength(43);
+    // 44 desde la ficha 500: `zona_distrito_cambiado` (el distrito decide la zona y la zona la tarifa).
+    expect(accionesDeCategoria("mueve_dinero")).toHaveLength(44);
     expect(accionesDeCategoria("hace_desaparecer")).toHaveLength(10);
     expect(accionesDeCategoria("cambia_permisos")).toHaveLength(12);
+  });
+
+  it("FICHA 500 (R20): `zona_distrito_cambiado` es «mueve dinero» y se rotula «Cambió los distritos de una zona»", () => {
+    expect(CATEGORIA_POR_ACCION.zona_distrito_cambiado).toBe("mueve_dinero");
+    expect(ACCION_LABELS.zona_distrito_cambiado).toBe("Cambió los distritos de una zona");
+    expect(accionesDeCategoria("mueve_dinero")).toContain("zona_distrito_cambiado");
   });
 
   it("⭑ FICHA 461 (R51/R55): `cobro_tienda_anulado` es DINERO, con los textos de design §7.7 y sin entidad nueva", () => {

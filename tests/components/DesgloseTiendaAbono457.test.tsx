@@ -6,15 +6,15 @@ import { SWRConfig } from "swr";
 import { ToastProvider } from "@/providers/ToastProvider";
 
 // =================================================================================================
-// FICHA 457 (T6.1; R46, R47, R48, R50, R51) — EL PAGO DE LA TIENDA A ORDENEX EN LOS DOS LIBROS DE LA
-// TIENDA: `/wallet/tiendas` (desde Ordenex) y `/mi-wallet` (desde la tienda)
+// FICHA 457 (T6.1; R46, R47, R48, R50, R51) — EL PAGO DE LA TIENDA A LA EMPRESA EN LOS DOS LIBROS DE LA
+// TIENDA: `/wallet/tiendas` (desde la empresa) y `/mi-wallet` (desde la tienda)
 // =================================================================================================
 //
 // R46: el ESTADO DE CUENTA de la tienda en la oficina (458-D: sustituye al desglose de
-// `/wallet/tiendas`) dice «La tienda le paga a Ordenex» / «Pago de la tienda a Ordenex anulado», con
-// origen «Pago de una tienda a Ordenex», en tabla, chip y descarga. R47:
-// `/mi-wallet` dice «Le pagaste a Ordenex» / «Ordenex anuló el pago que le hiciste» —DISTINTAS de las de
-// Ordenex—. R48: ni un valor técnico ni un uuid. R50: las pistas de la cabecera nombran el pago y su
+// `/wallet/tiendas`) dice «La tienda le paga a la empresa» / «Pago de la tienda a la empresa anulado», con
+// origen «Pago de una tienda a la empresa», en tabla, chip y descarga. R47:
+// `/mi-wallet` dice «Le pagaste a la empresa» / «la empresa anuló el pago que le hiciste» —DISTINTAS de las de
+// la empresa—. R48: ni un valor técnico ni un uuid. R50: las pistas de la cabecera nombran el pago y su
 // anulación con la palabra de su fila (solo queda la cabecera de `/mi-wallet`: la del desglose de la
 // oficina se retiró con él, 458-D). R51: las filas del pago no ofrecen desplegar órdenes.
 //
@@ -131,7 +131,7 @@ describe(`457/R46/R48/R49/R51 — \`/wallet/tiendas/[tiendaId]\`: el estado de c
 });
 
 // FICHA 458-D (T D.5): `/mi-wallet` es el ESTADO DE CUENTA de la tienda (`MiEstadoCuenta`), leído desde
-// su lado. Las mismas dos filas, en la vista de la tienda (sin nombres de Ordenex).
+// su lado. Las mismas dos filas, en la vista de la tienda (sin nombres de la empresa).
 const MI_ABONO = { ...FILA_ABONO, registro: { nombre: null, automatico: null }, anulacion: null };
 const MI_ANULADO = { ...FILA_ANULADO, registro: { nombre: null, automatico: null } };
 
@@ -158,7 +158,7 @@ describe("457/R47/R48/R51 — `/mi-wallet`: la tienda lo lee desde su lado", () 
       const botones = within(f).queryAllByRole("button").map((b) => b.textContent);
       expect(botones.filter((b) => b !== "Ver comprobante")).toEqual([]);
     }
-    // Los nombres desde Ordenex NO se asoman en la pantalla de la tienda (R47).
+    // Los nombres desde la empresa NO se asoman en la pantalla de la tienda (R47).
     const texto = document.body.textContent ?? "";
     expect(texto).not.toContain(`La tienda le paga a ${NOMBRE_ESPERADO}`);
     expect(texto).not.toContain(`Pago de la tienda a ${NOMBRE_ESPERADO} anulado`);

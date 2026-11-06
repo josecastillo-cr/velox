@@ -65,7 +65,7 @@ export interface CrearMovimientoInput {
   fechaMovimiento?: Date;
   /**
    * Ficha 461 (R66/R67/R68, auditoria D2) — la clave de idempotencia del CLIENTE, SOLO en los tres
-   * movimientos que una persona decide (correccion de caja, sueldo, gasto de Ordenex). Va a la
+   * movimientos que una persona decide (correccion de caja, sueldo, gasto de la empresa). Va a la
    * columna UNIQUE `clave_idempotencia`; con `skipDuplicates` un choque deja `count = 0` y el
    * servicio relee por la clave (`obtenerPorClave`) para responder `ya_registrado`.
    *

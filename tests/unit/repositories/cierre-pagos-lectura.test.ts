@@ -323,6 +323,7 @@ describe("R23 — camino 3 (bodega): `CierresBodegaAdminRepository.findCierreBod
           montoRecibido: null,
           conciliadoAt: null,
           conciliadoNota: null,
+          esperadoReglaAnterior: null, // ficha 498 (fixture): no saldada con la regla anterior
           conciliadoPorUsuario: null,
           zona: { nombre: "Cartago" },
           solicitadoPorUsuario: { nombre: "Sara" },
@@ -349,6 +350,11 @@ describe("R23 — camino 3 (bodega): `CierresBodegaAdminRepository.findCierreBod
       },
       gestionOrden: { findMany: vi.fn().mockResolvedValue([filaAdmin()]) },
       cierreDetail: { findMany: vi.fn().mockResolvedValue([filaSnapshot()]) },
+      // FICHA 500: lo que lee `consolidacionesConDinero` (sin dinero en este doble).
+      conciliacionBodegaAjuste: { findMany: vi.fn().mockResolvedValue([]) },
+      walletMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+      walletTiendaMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
+      pagoMensajeroMovimiento: { findMany: vi.fn().mockResolvedValue([]) },
     };
   }
 

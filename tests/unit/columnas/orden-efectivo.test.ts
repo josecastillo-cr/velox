@@ -37,7 +37,7 @@ const CATALOGO = ["a", "b", "c", "d"];
 const CATALOGO_3 = ["uno", "dos", "tres"];
 const CATALOGO_5 = ["uno", "dos", "tres", "cuatro", "cinco"];
 
-const CLAVE = "ordenex:descarga-columnas:sintetico";
+const CLAVE = "app:descarga-columnas:sintetico";
 
 function crudoCon(preferencia: {
   ocultas?: string[];
@@ -289,17 +289,17 @@ describe("formato guardado: aditivo y compatible en las DOS direcciones (R30)", 
   });
 
   it("guardar SOLO toca su clave: dos ámbitos jamás se pisan (R10)", () => {
-    guardar("ordenex:descarga-columnas:ordenes", { ocultas: ["a"], orden: [] });
-    guardar("ordenex:manifiesto-columnas:carga_masiva", {
+    guardar("app:descarga-columnas:ordenes", { ocultas: ["a"], orden: [] });
+    guardar("app:manifiesto-columnas:carga_masiva", {
       ocultas: ["b"],
       orden: ["b", "a"],
     });
 
     expect(
-      window.localStorage.getItem("ordenex:descarga-columnas:ordenes"),
+      window.localStorage.getItem("app:descarga-columnas:ordenes"),
     ).toBe('{"ocultas":["a"]}');
     expect(
-      window.localStorage.getItem("ordenex:manifiesto-columnas:carga_masiva"),
+      window.localStorage.getItem("app:manifiesto-columnas:carga_masiva"),
     ).toBe('{"ocultas":["b"],"orden":["b","a"]}');
   });
 });

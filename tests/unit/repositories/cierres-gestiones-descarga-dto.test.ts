@@ -391,10 +391,10 @@ describe("DTO de la hoja fundida (feature 230, T2.1/T7.1)", () => {
     expect(fila.montoRecibido).toBe("15000.50");
     expect(fila.pagoMensajero).toBe("1200.00");
     expect(fila.pagos).toEqual([{ metodo: "efectivo", monto: "15000.50" }]);
-    expect(fila.ingresoOrdenex?.montoCobrar).toBe("15000.50");
+    expect(fila.ingresoEmpresa?.montoCobrar).toBe("15000.50");
 
     // Ni un `number` en un campo de dinero: es lo que distingue «money-safe» de «hoy coincide».
-    for (const v of [fila.montoRecibido, fila.pagoMensajero, fila.ingresoOrdenex?.total]) {
+    for (const v of [fila.montoRecibido, fila.pagoMensajero, fila.ingresoEmpresa?.total]) {
       expect(typeof v).toBe("string");
       expect(v).not.toMatch(/[₡$,]/);
     }
@@ -438,7 +438,7 @@ describe("DTO de la hoja fundida (feature 230, T2.1/T7.1)", () => {
     ).findGestionesPorAlcanceCompleto(ALCANCE, FILTROS);
 
     expect(filas.map((f) => f.numRemision)).toEqual(["REM-A", "REM-B"]);
-    expect(filas.map((f) => f.ingresoOrdenex?.montoCobrar)).toEqual(["100.00", "200.00"]);
+    expect(filas.map((f) => f.ingresoEmpresa?.montoCobrar)).toEqual(["100.00", "200.00"]);
   });
 
   it("una gestión sin su fila congelada revienta duro, sin fallback a datos vivos", async () => {
@@ -491,6 +491,6 @@ describe("DTO de la hoja fundida (feature 230, T2.1/T7.1)", () => {
     const fila = await filaAdmin([gestionEntregada()], [detalle({ esCentral: true })]);
 
     expect(fila.numRemision).toBe("REM-4021");
-    expect(fila.ingresoOrdenex?.esCentral).toBe(true);
+    expect(fila.ingresoEmpresa?.esCentral).toBe(true);
   });
 });

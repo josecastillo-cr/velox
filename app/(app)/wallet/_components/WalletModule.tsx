@@ -137,7 +137,7 @@ export interface WalletModuleProps {
    *
    * PROP PROPIA y NO la de arriba, aunque hoy las dos las cumpla el maestro: los predicados son
    * distintos a proposito. `puedeDecidirCobros` es `maestro` y nadie mas (autoriza dinero que SALE
-   * de Ordenex, ficha 333); este es ACCESO TOTAL -- maestro y admin-- porque cobrarle a una tienda
+   * de la empresa, ficha 333); este es ACCESO TOTAL -- maestro y admin-- porque cobrarle a una tienda
    * por un retorno ya prestado es operacion diaria. Reusar una sola prop ataria las dos reglas y
    * el dia que una cambie, cambiaria la otra sin que nadie lo decida.
    *
@@ -225,11 +225,11 @@ async function descargaLibroCaja(input: Record<string, unknown>, conDetalle: boo
   const entrada = { ...input, sortBy: "fecha", sortDir: "asc" };
   const desde = typeof input.desde === "string" ? input.desde : null;
   if (conDetalle) {
-    const res = await descargarDatos("libroCajaKardexConDetalle", entrada);
+    const res = await descargarDatos("libroCajaKardexConDetalleV2", entrada);
     if (res.status !== "ok") return errorDeDescargaCaja(res);
     return colocarLibroCaja(res.items, res.kardex, res.porGuia, desde);
   }
-  const res = await descargarDatos("libroCajaKardex", entrada);
+  const res = await descargarDatos("libroCajaKardexV2", entrada);
   if (res.status !== "ok") return errorDeDescargaCaja(res);
   return colocarLibroCaja(res.items, res.kardex, undefined, desde);
 }
@@ -677,7 +677,7 @@ export function WalletModule({
           ingresos en la caja, asi que las cifras de arriba cambian de verdad.
 
           ⚠️ QUIEN DECIDE NO ES EL MISMO PREDICADO que el de la cola de arriba, y por eso NO se
-          reusa `puedeDecidirCobros`: aquel es `maestro` y solo el (dinero que SALE de Ordenex);
+          reusa `puedeDecidirCobros`: aquel es `maestro` y solo el (dinero que SALE de la empresa);
           este es ACCESO TOTAL (cobrar por un servicio prestado, operacion diaria). */}
       {cobrosRechazoTienda.total > 0 ? (
         <CobrosRechazoTiendaPendientesPanel

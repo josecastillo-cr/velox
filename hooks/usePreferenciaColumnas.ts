@@ -43,11 +43,10 @@ import {
  * UN SOLO NOMBRE PARA TODOS LOS ÁMBITOS (design §5). Un cambio en órdenes despierta también al
  * hook del manifiesto, que relee SU clave, obtiene el mismo string y `useSyncExternalStore` no
  * re-renderiza (compara strings por valor). Es un despertar barato, y evita un registro de
- * eventos por ámbito. El nombre viejo (`ordenex:manifiesto-columnas-cambio`) no persistía en
- * ningún sitio —es un evento en memoria, no un dato guardado—, así que renombrarlo no rompe
- * nada de lo que hay escrito en el navegador de nadie.
+ * eventos por ámbito. El nombre no persiste en ningún sitio —es un evento en memoria, no un dato
+ * guardado—, así que renombrarlo no rompe nada de lo que hay escrito en el navegador de nadie.
  */
-export const EVENTO_COLUMNAS_CAMBIO = "ordenex:columnas-cambio";
+export const EVENTO_COLUMNAS_CAMBIO = "app:columnas-cambio";
 
 /** En servidor no hay preferencia que leer. `null` = sin preferencia, sin discrepancia. */
 function instantaneaServidor(): null {

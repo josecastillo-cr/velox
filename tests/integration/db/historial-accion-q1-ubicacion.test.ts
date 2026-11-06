@@ -202,7 +202,7 @@ describeSiHayBase("362/Q1 — la correccion de la UBICACION deja rastro, y SOLO 
     // aplicara. Q3 quedo cerrada en «no se versiona».
     expect(r[0].monto).toBeNull();
     // La etiqueta es el identificador del ENVIO: la orden sembrada no tiene guia, asi que cae a
-    // la remision. `num_guia` es un identificador de Ordenex, no un dato personal.
+    // la remision. `num_guia` es un identificador de la empresa, no un dato personal.
     expect(r[0].entidadEtiqueta).toContain(SUFIJO);
   });
 

@@ -14,7 +14,7 @@ import { plantillaCodigoPorProposito } from "@/lib/services/email/plantillas";
  * unicamente metadata (destinatario, proposito y expiracion), nunca el codigo.
  *
  * Feature 489: la plantilla la decide el proposito y la marca llega por
- * constructor (SMTP_FROM_NAME o "Ordenex"). El log va DESPUES de enviar: si el
+ * constructor (SMTP_FROM_NAME o `MARCA.nombre`). El log va DESPUES de enviar: si el
  * transporte lanza, no hay linea y el error se propaga. El prefijo
  * `[auth] OTP enviado` es literal: lo mide el procedimiento de encendido en los
  * logs de Vercel (R10).

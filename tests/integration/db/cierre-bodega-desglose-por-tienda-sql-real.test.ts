@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { CierresBodegaAdminRepository } from "@/lib/repositories/CierresBodegaAdminRepository";
-import { partesPorTienda } from "@/lib/utils/ingreso-ordenex";
+import { partesPorTienda } from "@/lib/utils/ingreso-empresa";
 
 import {
   HAY_BASE_DE_DATOS,
@@ -167,7 +167,7 @@ describeSiHayBase(
               await tx.usuario.create({
                 data: {
                   nombre,
-                  email: `u-${clave}-${SUFIJO}@ordenex.test`,
+                  email: `u-${clave}-${SUFIJO}@ejemplo.test`,
                   telefono: "88880000",
                   passwordHash: plantilla.passwordHash,
                   cedula: `C-${clave}-${SUFIJO}`,

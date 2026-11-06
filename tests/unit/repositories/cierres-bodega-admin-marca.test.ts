@@ -63,6 +63,8 @@ interface OpcionesDoble {
 
 function buildPrisma(opciones: OpcionesDoble = {}) {
   const updateMany = vi.fn(async (_args: ArgsUpdateMany) => ({ count: opciones.count ?? 1 }));
+  // FICHA 498 (fixture): `esperadoReglaAnterior: null` = no saldada con la regla anterior. Revertir lo
+  // lee (revision m2); una fila de la base siempre trae la columna.
   const findUnique = vi.fn(async () =>
     opciones.fila === undefined
       ? {
@@ -70,8 +72,11 @@ function buildPrisma(opciones: OpcionesDoble = {}) {
           montoRecibido: new Prisma.Decimal("485.00"),
           solicitadoAt: new Date("2026-09-10T12:00:00.000Z"),
           zona: { nombre: "Cartago" },
+          esperadoReglaAnterior: null,
         }
-      : opciones.fila,
+      : opciones.fila === null
+        ? null
+        : { esperadoReglaAnterior: null, ...opciones.fila },
   );
   const count = vi.fn(async () => opciones.existe ?? 1);
   const createMany = vi.fn(async (_args: { data: FilaHistorial[] }) => ({ count: 1 }));
@@ -81,10 +86,33 @@ function buildPrisma(opciones: OpcionesDoble = {}) {
     rol: { value: "maestro" },
   }));
 
+  // FICHA 498 (fixture): lo que marcar/corregir/revertir leen y escriben ademas desde la ficha —los
+  // cierres de la consolidacion (ninguno aqui), la tabla de ajustes y los tres libros—. El snapshot
+  // del aporte (600) solo lo lee `escribirDiferencia`; las aserciones de esta suite no cambian.
+  const findUniqueOrThrow = vi.fn(async () => ({
+    totalGeneral: new Prisma.Decimal("600.00"),
+    totalPagoMensajero: new Prisma.Decimal("0.00"),
+    totalIngresoBodegaRechazos: new Prisma.Decimal("0.00"),
+    esperadoReglaAnterior: null,
+  }));
   const tx = {
-    cierreBodega: { updateMany, findUnique, count },
+    cierreBodega: { updateMany, findUnique, findUniqueOrThrow, count },
     historialAccion: { createMany },
     usuario: { findUnique: usuarioFindUnique },
+    cierreDia: { findMany: vi.fn(async () => []) },
+    conciliacionBodegaAjuste: {
+      aggregate: vi.fn(async () => ({ _sum: { diferencia: null } })),
+      count: vi.fn(async () => 0),
+      create: vi.fn(async () => ({ id: "ajuste-1" })),
+      findMany: vi.fn(async () => []), // FICHA 500: `consolidacionesConDinero`
+    },
+    walletMovimiento: {
+      createMany: vi.fn(async () => ({ count: 1 })),
+      count: vi.fn(async () => 0),
+      findMany: vi.fn(async () => []),
+    },
+    walletTiendaMovimiento: { count: vi.fn(async () => 0), findMany: vi.fn(async () => []) },
+    pagoMensajeroMovimiento: { count: vi.fn(async () => 0), findMany: vi.fn(async () => []) },
   };
   const prisma = {
     ...tx,

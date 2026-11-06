@@ -11,8 +11,8 @@ import type { WalletMovimientoDTO } from "@/lib/types/wallet";
 // R20: «Anular…» (con motivo obligatorio) en la línea ORIGINAL de cada cobro vigente —propia o
 // completada por la migración de datos (R37)—; «Anulado» en las ya anuladas; NADA en el reverso, en
 // la salida de un cobro reclasificado ni en las líneas del cierre. R21: tras anular, el módulo relee.
-// R17: `no_anulable` se dice con su motivo. R42: los rótulos son los nombres desde Ordenex, en la
-// tabla y en la descarga, con dueño «Ordenex». R52: ningún identificador interno en pantalla ni en el
+// R17: `no_anulable` se dice con su motivo. R42: los rótulos son los nombres desde la empresa, en la
+// tabla y en la descarga, con dueño «la empresa». R52: ningún identificador interno en pantalla ni en el
 // archivo.
 //
 // Quién decide qué fila tiene documento es el SERVIDOR (`WalletMovimientoDTO.documento`, resuelto en

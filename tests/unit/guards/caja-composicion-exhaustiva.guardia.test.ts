@@ -71,7 +71,7 @@ function tipoDe(categoria: string): AgregadoCajaRow["tipo"] {
  * que nadie ha decidido como se llama». La suma de la columna deja de ser «4 conceptos + otros»
  * y pasa a ser «4 conceptos + 2 nombrados + otros»; el TOTAL no se mueve un centimo.
  */
-const OTROS_EGRESOS_DE_ORDENEX = ["egreso_gasto"];
+const OTROS_EGRESOS_DE_EMPRESA = ["egreso_gasto"];
 
 /**
  * EL DETECTOR. Dada una lista de categorias, devuelve las de naturaleza `propio` que la
@@ -79,7 +79,7 @@ const OTROS_EGRESOS_DE_ORDENEX = ["egreso_gasto"];
  *
  *  - un INGRESO propio esta cubierto si es una fila del desglose (`WALLET_INGRESO_PROPIO_SEED`);
  *  - un EGRESO propio esta cubierto si es uno de los cuatro conceptos de `DesgloseEgresosDTO`
- *    (`WALLET_EGRESO_DESGLOSADO_SEED`) o si cae en «otros gastos de Ordenex», que es el
+ *    (`WALLET_EGRESO_DESGLOSADO_SEED`) o si cae en «otros gastos de la empresa», que es el
  *    COMPLEMENTO — y por eso los egresos no pueden quedarse fuera por construccion.
  *
  * El dinero de TERCEROS no entra en la ganancia y no tiene que estar cubierto por nadie: es
@@ -91,7 +91,7 @@ function categoriasSinCubrir(categorias: readonly string[]): string[] {
     // Ficha 339: el conjunto CON FILA (los cuatro del desglose + los dos nombrados) mas lo
     // que sigue cayendo en el complemento.
     ...WALLET_EGRESO_CON_FILA_SEED,
-    ...OTROS_EGRESOS_DE_ORDENEX,
+    ...OTROS_EGRESOS_DE_EMPRESA,
   ]);
   const naturaleza = NATURALEZA_POR_CATEGORIA as Readonly<Record<string, string | undefined>>;
 
@@ -116,10 +116,10 @@ const LIBRO_COMPLETO: AgregadoCajaRow[] = WALLET_MOVIMIENTO_CATEGORIA_SEED.map((
 }));
 
 describe("R32 — la clasificacion por naturaleza cubre el SEED entero (runtime)", () => {
-  it("CONTROL DE NO-VACUIDAD: el catalogo tiene categorias, y de las CUATRO naturalezas (459: tres; 488: + iva)", () => {
+  it("CONTROL DE NO-VACUIDAD: el catalogo tiene categorias, y de las CINCO naturalezas (459: tres; 488: + iva; 498: + por_cobrar_satelite)", () => {
     expect(WALLET_MOVIMIENTO_CATEGORIA_SEED.length).toBeGreaterThan(10);
     const naturalezas = WALLET_MOVIMIENTO_CATEGORIA_SEED.map((c) => NATURALEZA_POR_CATEGORIA[c]);
-    expect(new Set(naturalezas)).toEqual(new Set(["propio", "terceros", "capital", "iva"]));
+    expect(new Set(naturalezas)).toEqual(new Set(["propio", "terceros", "capital", "iva", "por_cobrar_satelite"]));
   });
 
   it("R32: toda categoria del catalogo tiene una naturaleza declarada, sin huecos", () => {
@@ -179,7 +179,7 @@ describe("R23/R26 — la particion de la ganancia cubre TODAS las categorias pro
         !(WALLET_EGRESO_CON_FILA_SEED as readonly string[]).includes(c),
     );
 
-    expect([...derivadas].sort()).toEqual([...OTROS_EGRESOS_DE_ORDENEX].sort());
+    expect([...derivadas].sort()).toEqual([...OTROS_EGRESOS_DE_EMPRESA].sort());
     // Control de no-vacuidad del `toEqual`: la lista NO esta vacia — sigue habiendo un hueco,
     // y es exactamente `egreso_gasto` (ficha 343, T2.3).
     expect(derivadas.length).toBe(1);
@@ -213,7 +213,7 @@ describe("R23/R26 — la particion de la ganancia cubre TODAS las categorias pro
       (c) => NATURALEZA_POR_CATEGORIA[c] === "propio" && tipoDe(c) === "ingreso",
     );
     expect([...WALLET_INGRESO_PROPIO_SEED].sort()).toEqual([...derivados].sort());
-    // D5: los seis del feed MAS el ajuste; ficha 461 (R27): MAS el cobro de Ordenex a una tienda.
+    // D5: los seis del feed MAS el ajuste; ficha 461 (R27): MAS el cobro de la empresa a una tienda.
     // Ficha 488 (design §2.4, R19): MENOS los tres IVA del feed (dueño `iva`): de 8 a CINCO. El
     // literal de abajo es el contrato; la igualdad de arriba con la clasificacion sigue intacta.
     expect(derivados.length).toBe(5);
@@ -232,7 +232,7 @@ describe("R23/R26 — la particion de la ganancia cubre TODAS las categorias pro
       "egreso_reverso_flete_devolucion", // ficha 458-B
     ]);
     expect(NATURALEZA_POR_CATEGORIA.egreso_reverso_cobro_tienda).toBe("propio");
-    expect(OTROS_EGRESOS_DE_ORDENEX).toEqual(["egreso_gasto"]);
+    expect(OTROS_EGRESOS_DE_EMPRESA).toEqual(["egreso_gasto"]);
   });
 });
 
@@ -293,7 +293,7 @@ describe("R23/R26 — MEDIDO sobre el catalogo entero: las dos columnas cuadran"
     }
 
     // Y la consecuencia FIRMADA en D2, medida: los cuatro conceptos SOLOS no llegan. Si esta
-    // asercion cayera, «Otros gastos de Ordenex» habria dejado de hacer falta… o de sumar.
+    // asercion cayera, «Otros gastos de la empresa» habria dejado de hacer falta… o de sumar.
     const soloLosCuatro = [
       desglose.gastoFijo,
       desglose.gastoVariable,
@@ -335,7 +335,7 @@ describe("R23/R26 — MEDIDO sobre el catalogo entero: las dos columnas cuadran"
         );
       }
       const otrosEsperado =
-        (OTROS_EGRESOS_DE_ORDENEX as readonly string[]).includes(categoria)
+        (OTROS_EGRESOS_DE_EMPRESA as readonly string[]).includes(categoria)
           ? new Prisma.Decimal(completo.otrosEgresos).minus(importe).toFixed(2)
           : completo.otrosEgresos;
       expect(sinElla.otrosEgresos, `${categoria} movio «otros»`).toBe(otrosEsperado);

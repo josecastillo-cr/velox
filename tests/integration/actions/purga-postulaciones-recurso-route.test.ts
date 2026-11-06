@@ -29,7 +29,7 @@ function serviceDoble(
 }
 
 function peticion(authorization?: string): Request {
-  return new Request("https://ordenex.app/api/cron/purga-postulaciones-recurso", {
+  return new Request("https://ejemplo.test/api/cron/purga-postulaciones-recurso", {
     headers: authorization === undefined ? {} : { authorization },
   });
 }
