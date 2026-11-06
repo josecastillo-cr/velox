@@ -104,7 +104,7 @@ function cabecera(over: Partial<CierreBodegaResumen> = {}): CierreBodegaResumen 
  * Monta la cola con `cab` y abre su detalle. `puedeDesmarcar` viaja en el resultado de
  * `verCierreBodegaDetalle` (ficha 500), no en la cabecera del listado.
  */
-async function abrirDetalle(cab: CierreBodegaResumen, puedeDesmarcar = false) {
+async function abrirDetalle(cab: CierreBodegaResumen, puedeDesmarcar = false, puedeConciliar = true) {
   vi.mocked(listarPendientesCierresBodegaPaginado).mockResolvedValue({
     status: "ok",
     page: 1,
@@ -146,14 +146,20 @@ async function abrirDetalle(cab: CierreBodegaResumen, puedeDesmarcar = false) {
       <CierresBodegaAdminModule
         pendientes={paginaInicial([cab])}
         historico={paginaInicial([])}
-        puedeConciliar
+        puedeConciliar={puedeConciliar}
       />
     </SWRConfig>,
   );
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: "Ver / decidir el cierre de bodega de Limón" }));
-  return { user, seccion: await screen.findByRole("region", { name: "Conciliación del cierre de bodega" }) };
+  // FICHA 506 (R9): la región de conciliación ya no sale siempre, así que la premisa de «el detalle cargó» es otra: el
+  // diálogo con sus totales. Sin ella, una región ausente no probaría nada.
+  const dialogo = await screen.findByRole("dialog", { name: "Detalle del cierre de bodega" });
+  await within(dialogo).findByText("Totales del cierre de bodega");
+  return { user, dialogo };
 }
+
+const REGION_CONCILIACION = { name: "Conciliación del cierre de bodega" };
 
 async function abrirDialogo(cab: CierreBodegaResumen) {
   const { user } = await abrirDetalle(cab);
@@ -199,19 +205,22 @@ describe("500 (R3) — /cierres-admin: «Desmarcar» sale del `puedeDesmarcar` d
   });
 
   it("el detalle dice que se puede → hay «Desmarcar»", async () => {
-    const { seccion } = await abrirDetalle(conciliada, true);
+    const { dialogo } = await abrirDetalle(conciliada, true);
+    const seccion = within(dialogo).getByRole("region", REGION_CONCILIACION);
     expect(within(seccion).getByRole("button", { name: /Desmarcar la consolidación de Limón/ })).toBeInTheDocument();
   });
 
   it("el detalle dice que no (movió dinero) → no hay «Desmarcar»", async () => {
-    const { seccion } = await abrirDetalle(conciliada, false);
-    expect(within(seccion).queryByRole("button", { name: /Desmarcar/ })).toBeNull();
+    // [S] Adaptado (ficha 506/R9): esta recibida exacta ya no monta la región, así que la ausencia de «Desmarcar» se mide en
+    // todo el diálogo. El contrato de 500/R3 no cambia.
+    const { dialogo } = await abrirDetalle(conciliada, false);
+    expect(within(dialogo).queryByRole("button", { name: /Desmarcar/ })).toBeNull();
   });
 });
 
 describe("502 (R7) — /cierres-admin: una recibida de más ofrece «Corregir»", () => {
   it("con dinero (no se puede desmarcar) → «Corregir» sí, «Desmarcar» no", async () => {
-    const { seccion } = await abrirDetalle(
+    const { dialogo } = await abrirDetalle(
       cabecera({
         estado: "aprobado",
         conciliado: true,
@@ -222,9 +231,50 @@ describe("502 (R7) — /cierres-admin: una recibida de más ofrece «Corregir»"
       }),
       false,
     );
+    const seccion = within(dialogo).getByRole("region", REGION_CONCILIACION);
     expect(
       within(seccion).getByRole("button", { name: /Corregir el monto recibido de Limón/ }),
     ).toBeInTheDocument();
     expect(within(seccion).queryByRole("button", { name: /Desmarcar/ })).toBeNull();
+  });
+});
+
+describe("506 — /cierres-admin: la región de conciliación sale solo si hay una acción dentro", () => {
+  const marcada = (faltaPorRecibir: string, over: Partial<CierreBodegaResumen> = {}) =>
+    cabecera({
+      estado: "aprobado",
+      conciliado: true,
+      montoRecibido: "88000.75",
+      faltaPorRecibir,
+      conciliadoAt: "2026-10-21T15:00:00.000Z",
+      conciliadoPorNombre: "Ana Rojas",
+      ...over,
+    });
+
+  // `abrirDetalle` ya esperó el diálogo con sus totales: esa es la premisa de los casos que afirman la ausencia.
+  it.each([
+    ["saldada sin corregir", marcada("0.00", { saldadaReglaAnterior: true })],
+    ["recibida exacta con dinero, no saldada", marcada("0.00")],
+  ])("R9 — %s: el detalle no monta la región", async (_caso, cab) => {
+    const { dialogo } = await abrirDetalle(cab, false);
+    expect(within(dialogo).queryByRole("region", REGION_CONCILIACION)).toBeNull();
+    expect(within(dialogo).queryByRole("button", { name: /Marcar recibido|Corregir|Desmarcar/ })).toBeNull();
+  });
+
+  it.each([
+    ["sin marcar", cabecera(), false, /Marcar recibido la consolidación de Limón/],
+    ["incompleta", marcada("5000.00"), false, /Corregir el monto recibido de Limón/],
+    ["de más", marcada("-90.00"), false, /Corregir el monto recibido de Limón/],
+    ["exacta que se puede desmarcar", marcada("0.00"), true, /Desmarcar la consolidación de Limón/],
+    ["saldada con falta", marcada("5000.00", { saldadaReglaAnterior: true }), false, /Corregir el monto recibido de Limón/],
+  ] as const)("R10 — %s: la región se monta con su acción dentro", async (_caso, cab, puedeDesmarcar, boton) => {
+    const { dialogo } = await abrirDetalle(cab, puedeDesmarcar);
+    const seccion = within(dialogo).getByRole("region", REGION_CONCILIACION);
+    expect(within(seccion).getByRole("button", { name: boton })).toBeInTheDocument();
+  });
+
+  it("R11 — sin permiso para conciliar, el detalle no monta la región aunque esté sin marcar", async () => {
+    const { dialogo } = await abrirDetalle(cabecera(), false, false);
+    expect(within(dialogo).queryByRole("region", REGION_CONCILIACION)).toBeNull();
   });
 });

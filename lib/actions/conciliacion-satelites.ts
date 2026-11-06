@@ -103,7 +103,7 @@ export type MarcaConciliacionActionResult =
 
 /**
  * FICHA 498 (R20/R21) — revertir gana `con_asientos`: la consolidacion ya entro a la caja y no se
- * revirtio nada. La pantalla muestra «Ya entró a la caja: corrige el monto en vez de revertir».
+ * revirtio nada. La pantalla muestra «Ya entró a la caja: no se puede revertir.».
  */
 export type RevertirConciliacionActionResult =
   | RevertirConciliacionServiceResult
