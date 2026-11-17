@@ -6098,24 +6098,24 @@
       "title": "Pie de la landing: teléfono y dirección reales",
       "description": "El pie muestra el teléfono de relleno +506 2000-0000 y solo «San José, Costa Rica». Mostrar el teléfono y el domicilio de la razón social, leídos de datos-legales.ts, para la verificación de empresa de Meta.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "small",
       "depends_on": 490,
       "branch": "fix/508-pie-landing-contacto-real",
-      "status_note": "Registrada el 2026-11-17. Meta rechazó la verificación sin motivo; el sitio mostraba un teléfono falso que no coincide con el del documento (+506 7075 9997)."
+      "status_note": "EN PROD el 2026-11-17 (PR #900, release #902, 234a33e9). Pie y /privacidad con +506 7075 9997 y domicilio de datos-legales.ts; comprobado con curl en velox-courier.company. Para la verificación de empresa de Meta."
     },
     {
       "id": 509,
       "title": "Rastreo público: UTC sale como +00:00 con ICU 78",
       "description": "Con Node 24.15 / ICU 78, longOffset da GMT+00:00 para UTC y la hora sale con +00:00 en vez de Z; el test R19 de rastreo-publico-service queda rojo. Normalizar a Z.",
       "zone": "backend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "small",
       "depends_on": null,
       "branch": "fix/509-rastreo-utc-z",
-      "status_note": "Registrada el 2026-11-17. Rojo determinista del gate completo previo a la release de la 508; el código no cambió, cambió el ICU de Node."
+      "status_note": "EN PROD el 2026-11-17 (PR #901, release #902). desfaseIso normaliza GMT/+00:00/-00:00 a Z; tests con literales independientes del ICU."
     }
   ]
 }
