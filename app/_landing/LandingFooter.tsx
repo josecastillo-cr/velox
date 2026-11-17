@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { Logo } from "@/components/shared/Logo";
 
-import { DatoLegal } from "../_legal/DatoLegal";
+import { DatoLegal, TelefonoLegal } from "../_legal/DatoLegal";
 import { DATOS_LEGALES } from "../_legal/datos-legales";
 
 const CLASE_ENLACE =
@@ -15,7 +15,8 @@ const CLASE_ENLACE =
  * Los destinos que hoy no tienen ruta en la app (términos, acuerdo COD,
  * dirección y WhatsApp) se pintan como texto, no como enlaces: un `href="#"`
  * muerto es peor que un elemento honesto que no promete navegación. El teléfono
- * sí es un enlace `tel:` real. Feature 490: «Política de Privacidad» y
+ * sí es un enlace `tel:` real; teléfono y domicilio (feature 508) salen de
+ * `datos-legales.ts`, como en el documento fiscal. Feature 490: «Política de Privacidad» y
  * «Eliminación de datos» ya tienen ruta pública (`/privacidad`,
  * `/eliminacion-datos`) y son enlaces, y la línea de copyright lee marca y razón
  * social de `app/_legal/datos-legales.ts` (la fuente única) en vez de un literal
@@ -92,10 +93,16 @@ export function LandingFooter({ marca }: Readonly<{ marca?: ReactNode }> = {}) {
           <Link href="/postulacion" className={CLASE_ENLACE}>
             Formulario de contacto
           </Link>
-          <a href="tel:+50620000000" className={CLASE_ENLACE}>
-            +506 2000-0000
-          </a>
-          <span className={CLASE_ENLACE}>San José, Costa Rica</span>
+          {DATOS_LEGALES.telefono === null ? (
+            <span className={CLASE_ENLACE}>
+              <TelefonoLegal telefono={null} />
+            </span>
+          ) : (
+            <TelefonoLegal telefono={DATOS_LEGALES.telefono} className={CLASE_ENLACE} />
+          )}
+          <span className={CLASE_ENLACE}>
+            <DatoLegal valor={DATOS_LEGALES.domicilio} />
+          </span>
           <span className={CLASE_ENLACE}>WhatsApp Business</span>
         </div>
       </div>

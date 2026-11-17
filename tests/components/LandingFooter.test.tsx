@@ -51,6 +51,45 @@ describe("LandingFooter — enlaces legales (R22)", () => {
   });
 });
 
+/**
+ * Feature 508 — la columna «Contacto» publica el telefono y el domicilio del documento fiscal (Meta
+ * los compara en la verificacion de empresa). Literales del contrato a proposito, no contra
+ * `DATOS_LEGALES`: una asercion contra su propia fuente siempre esta verde.
+ */
+describe("LandingFooter — contacto real (508)", () => {
+  function columnaContacto(container: HTMLElement) {
+    const titulo = [...container.querySelectorAll("p")].find((p) => p.textContent === "Contacto");
+    expect(titulo).toBeDefined();
+    return titulo!.parentElement!;
+  }
+
+  it("el telefono es el del documento fiscal, como enlace tel: sin espacios", () => {
+    const { container } = render(<LandingFooter />);
+    const tel = columnaContacto(container).querySelectorAll('a[href^="tel:"]');
+
+    expect(tel).toHaveLength(1);
+    expect(tel[0].getAttribute("href")).toBe("tel:+50670759997");
+    expect(tel[0].textContent).toBe("+506 7075 9997");
+  });
+
+  it("el domicilio es el inscrito, sin marcador de pendiente", () => {
+    const { container } = render(<LandingFooter />);
+    const columna = columnaContacto(container);
+
+    expect(columna.textContent).toContain(
+      "San José, Aserrí, Barrio Corazón de Jesús, 200 metros al norte de la Clínica de Salud, casa a mano derecha con rótulo Tiendas Battos",
+    );
+    expect(columna.querySelector("[data-pendiente]")).toBeNull();
+  });
+
+  it("no queda el telefono de relleno", () => {
+    const { container } = render(<LandingFooter />);
+
+    expect(container.textContent).not.toContain("2000-0000");
+    expect(container.querySelector('a[href="tel:+50620000000"]')).toBeNull();
+  });
+});
+
 describe("LandingFooter — marca del pie (revision 490, e)", () => {
   it("sin `marca` (la landing) pinta el logo compartido, como siempre", () => {
     // Feature 492 (R15): el logo es la imagen de Velox Courier sobre fondo oscuro.
