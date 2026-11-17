@@ -9,7 +9,7 @@ import type {
   OrdenRastreoFila,
   TransicionRastreoFila,
 } from "@/lib/interfaces/repositories/IRastreoPublicoRepository";
-import { RastreoPublicoService } from "@/lib/services/RastreoPublicoService";
+import { RastreoPublicoService, desfaseIso } from "@/lib/services/RastreoPublicoService";
 
 // Feature 229 — T2.4: la proyeccion publica del envio.
 //
@@ -426,5 +426,20 @@ describe("R22 — el DTO es la lista blanca cerrada, construida campo a campo", 
     const serializado = JSON.stringify(resultado);
     expect(serializado).not.toContain("orden-1"); // el id interno se queda en el service
     expect(serializado).not.toContain("8888"); // ni un digito del telefono del destinatario
+  });
+});
+
+// FICHA 509 — el desfase cero es `Z` con cualquier ICU. Literales a mano: no depende del ICU
+// instalado (ICU 78 / Node 24.15 da "GMT+00:00"; los anteriores daban "GMT").
+describe("desfaseIso (ficha 509)", () => {
+  it("el desfase cero sale como Z, lo escriba el ICU como lo escriba", () => {
+    expect(desfaseIso("GMT")).toBe("Z");
+    expect(desfaseIso("GMT+00:00")).toBe("Z");
+    expect(desfaseIso("GMT-00:00")).toBe("Z");
+  });
+
+  it("los demas desfases no cambian", () => {
+    expect(desfaseIso("GMT-06:00")).toBe("-06:00");
+    expect(desfaseIso("GMT+05:30")).toBe("+05:30");
   });
 });
