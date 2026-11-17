@@ -6092,6 +6092,18 @@
       "depends_on": 494,
       "branch": null,
       "status_note": "Origen: design §5.6 de la 494, desplegada el 2026-11-05. Al retirar, quitar también la excepción E5 de la guardia de marca y sus tests. La cookie dura 1 año: medir antes qué pierde quien aún la tenga."
+    },
+    {
+      "id": 508,
+      "title": "Pie de la landing: teléfono y dirección reales",
+      "description": "El pie muestra el teléfono de relleno +506 2000-0000 y solo «San José, Costa Rica». Mostrar el teléfono y el domicilio de la razón social, leídos de datos-legales.ts, para la verificación de empresa de Meta.",
+      "zone": "frontend",
+      "status": "in_progress",
+      "sdd": false,
+      "complexity": "small",
+      "depends_on": 490,
+      "branch": "fix/508-pie-landing-contacto-real",
+      "status_note": "Registrada el 2026-11-17. Meta rechazó la verificación sin motivo; el sitio mostraba un teléfono falso que no coincide con el del documento (+506 7075 9997)."
     }
   ]
 }
