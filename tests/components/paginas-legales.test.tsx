@@ -24,6 +24,7 @@ const SIN_DATOS: DatosLegales = {
   razonSocial: null,
   cedulaJuridica: null,
   domicilio: null,
+  telefono: null,
   correoPrivacidad: null,
   ultimaActualizacion: null,
   plazoRespuesta: null,
@@ -34,6 +35,7 @@ const DATOS_FICTICIOS: DatosLegales = {
   razonSocial: "RAZON-PRUEBA",
   cedulaJuridica: "CEDULA-PRUEBA",
   domicilio: "DOMICILIO-PRUEBA",
+  telefono: "TELEFONO PRUEBA",
   correoPrivacidad: "correo-prueba@ejemplo.test",
   ultimaActualizacion: "FECHA-PRUEBA",
   plazoRespuesta: "PLAZO-PRUEBA",
@@ -270,6 +272,7 @@ describe("PoliticaPrivacidad — datos legales (R13, R19, R20) y enlace (R14)", 
       "RAZON-PRUEBA",
       "CEDULA-PRUEBA",
       "DOMICILIO-PRUEBA",
+      "TELEFONO PRUEBA",
       "correo-prueba@ejemplo.test",
       "FECHA-PRUEBA",
       "PLAZO-PRUEBA",
@@ -289,6 +292,7 @@ describe("PoliticaPrivacidad — datos legales (R13, R19, R20) y enlace (R14)", 
       "Razón social",
       "Cédula jurídica",
       "Domicilio",
+      "Teléfono",
       "Correo de contacto de privacidad",
       "Última actualización",
     ]);
@@ -298,7 +302,7 @@ describe("PoliticaPrivacidad — datos legales (R13, R19, R20) y enlace (R14)", 
     const d = doc(<PoliticaPrivacidad datos={SIN_DATOS} />);
     const dd = [...d.querySelectorAll("main dd")];
 
-    expect(dd).toHaveLength(6);
+    expect(dd).toHaveLength(7);
     for (const celda of dd) {
       expect(celda.textContent).toBe(MARCADOR);
       expect(celda.querySelector("[data-pendiente]")).not.toBeNull();
@@ -311,6 +315,18 @@ describe("PoliticaPrivacidad — datos legales (R13, R19, R20) y enlace (R14)", 
   it("R14: enlaza a la pagina de eliminacion", () => {
     const d = doc(<PoliticaPrivacidad datos={SIN_DATOS} />);
     expect(d.querySelector('main a[href="/eliminacion-datos"]')).not.toBeNull();
+  });
+
+  it("508: el telefono definido es un enlace tel: sin espacios; sin telefono no hay tel:", () => {
+    const con = doc(<PoliticaPrivacidad datos={DATOS_FICTICIOS} />).querySelector(
+      'main a[href^="tel:"]',
+    );
+    expect(con?.getAttribute("href")).toBe("tel:TELEFONOPRUEBA");
+    expect(con?.textContent).toBe("TELEFONO PRUEBA");
+
+    // Solo `main`: el pie (LandingFooter) trae su propio telefono de `DATOS_LEGALES`.
+    const sin = doc(<PoliticaPrivacidad datos={SIN_DATOS} />);
+    expect(sin.querySelector('main a[href^="tel:"]')).toBeNull();
   });
 });
 
