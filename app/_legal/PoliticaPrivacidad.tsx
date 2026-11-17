@@ -1,5 +1,5 @@
 import { ConservacionLegal } from "./ConservacionLegal";
-import { CorreoLegal, DatoLegal } from "./DatoLegal";
+import { CorreoLegal, DatoLegal, TelefonoLegal } from "./DatoLegal";
 import type { DatosLegales } from "./datos-legales";
 import {
   EnlaceLegal,
@@ -41,6 +41,7 @@ export function PoliticaPrivacidad({ datos }: Readonly<{ datos: DatosLegales }>)
             { etiqueta: "Razón social", valor: <DatoLegal valor={datos.razonSocial} /> },
             { etiqueta: "Cédula jurídica", valor: <DatoLegal valor={datos.cedulaJuridica} /> },
             { etiqueta: "Domicilio", valor: <DatoLegal valor={datos.domicilio} /> },
+            { etiqueta: "Teléfono", valor: <TelefonoLegal telefono={datos.telefono} /> },
             {
               etiqueta: "Correo de contacto de privacidad",
               valor: <CorreoLegal correo={datos.correoPrivacidad} />,

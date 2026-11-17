@@ -20,6 +20,12 @@ export interface DatosLegales {
   cedulaJuridica: string | null;
   /** Domicilio social que se publica. */
   domicilio: string | null;
+  /**
+   * Telefono de contacto que se publica, legible: "+506 7075 9997". El enlace `tel:` se deriva
+   * quitando los espacios. Feature 508: debe coincidir con el del documento fiscal (Meta lo compara
+   * en la verificacion de empresa).
+   */
+  telefono: string | null;
   /** Correo de contacto de privacidad, destino de las solicitudes de eliminacion. */
   correoPrivacidad: string | null;
   /** Fecha de ultima actualizacion, ya legible: "30 de octubre de 2026". */
@@ -34,6 +40,7 @@ export const DATOS_LEGALES: DatosLegales = {
   cedulaJuridica: "3-102-965944",
   domicilio:
     "San José, Aserrí, Barrio Corazón de Jesús, 200 metros al norte de la Clínica de Salud, casa a mano derecha con rótulo Tiendas Battos",
+  telefono: "+506 7075 9997",
   correoPrivacidad: "battos.sa@gmail.com",
   ultimaActualizacion: "30 de octubre de 2026",
   plazoRespuesta: "30 días naturales",

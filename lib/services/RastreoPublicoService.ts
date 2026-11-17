@@ -86,8 +86,17 @@ function formatearEnZona(instante: Date, zonaHoraria: string): string {
   const valor = (tipo: Intl.DateTimeFormatPartTypes): string =>
     partes.find((parte) => parte.type === tipo)?.value ?? "";
 
-  const desfase = valor("timeZoneName").replace("GMT", "");
-  return `${valor("year")}-${valor("month")}-${valor("day")}T${valor("hour")}:${valor("minute")}${desfase === "" ? "Z" : desfase}`;
+  return `${valor("year")}-${valor("month")}-${valor("day")}T${valor("hour")}:${valor("minute")}${desfaseIso(valor("timeZoneName"))}`;
+}
+
+/**
+ * FICHA 509 — traduce el `timeZoneName` de `longOffset` al sufijo ISO-8601. El desfase cero sale
+ * SIEMPRE como `Z`, sea cual sea el ICU: los anteriores daban `"GMT"`, pero ICU 78 (Node 24.15)
+ * da `"GMT+00:00"`, y sin normalizar el rastreo publicaba `+00:00`. Los demas desfases pasan tal cual.
+ */
+export function desfaseIso(nombreZona: string): string {
+  const desfase = nombreZona.replace("GMT", "");
+  return desfase === "" || desfase === "+00:00" || desfase === "-00:00" ? "Z" : desfase;
 }
 
 /**
