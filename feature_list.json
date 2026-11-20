@@ -6122,12 +6122,12 @@
       "title": "Cierres de bodega: Resueltos y Solicitados ignoran los filtros",
       "description": "La tabla de Resueltos (central) y la de Solicitados (satélite) no aplican los filtros de bodega/fecha; la descarga sí.",
       "zone": "frontend",
-      "status": "in_progress",
+      "status": "done",
       "sdd": false,
       "complexity": "small",
       "depends_on": null,
       "branch": "fix/510-filtros-cierres-bodega",
-      "status_note": "CierresBodegaResueltosLista y CierresBodegaSolicitadosLista llaman a su action paginada sin filtros; los módulos no se los pasan."
+      "status_note": "EN PROD el 2026-11-20 (PR #903, release #904). Resueltos y Solicitados pasan filtros a su action y SWR; refrescarListas revalida tambien Resueltos. Backend ya filtraba."
     }
   ]
 }
