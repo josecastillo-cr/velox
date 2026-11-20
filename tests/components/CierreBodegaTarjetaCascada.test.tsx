@@ -227,14 +227,14 @@ describe("393 · F4 — la tarjeta del cierre de bodega cuenta la cascada B", ()
 
     const pagina = { items: [fila], total: 1, pageSize: 10 };
 
-    const satelite = envolver(<CierresBodegaSolicitadosLista initialData={pagina} />);
+    const satelite = envolver(<CierresBodegaSolicitadosLista initialData={pagina} filtros={{}} />);
     const cascadaSatelite = await desplegar();
     const rotuloSatelite = PARA_LA_CENTRAL_LABEL;
     const valorSatelite = importeTras(cascadaSatelite, PARA_LA_CENTRAL_LABEL);
     satelite.unmount();
 
     envolver(
-      <CierresBodegaResueltosLista initialData={pagina} onAbrir={() => {}} />,
+      <CierresBodegaResueltosLista initialData={pagina} onAbrir={() => {}} filtros={{}} />,
     );
     const cascadaMaestro = await desplegar();
     const valorMaestro = importeTras(cascadaMaestro, PARA_LA_CENTRAL_LABEL);

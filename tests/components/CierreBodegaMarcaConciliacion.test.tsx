@@ -253,6 +253,7 @@ describe("⭑ 431/R26 — lo que ve la BODEGA SATÉLITE en su pestaña", () => {
     return envolver(
       <CierresBodegaSolicitadosLista
         initialData={{ items, total: items.length, pageSize: 10 }}
+        filtros={{}}
       />,
     );
   }
