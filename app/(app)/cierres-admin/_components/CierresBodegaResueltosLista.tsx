@@ -50,6 +50,16 @@ export interface CierresBodegaResueltosListaProps {
   initialData: CierresBodegaResueltosPagina;
   /** Abre el detalle agregado del cierre de bodega (el modal vive en el módulo padre). */
   onAbrir: (cierreBodegaId: string) => void;
+  /**
+   * Ficha 510: los filtros de la barra del módulo (bodega, fechas). Obligatorios a propósito:
+   * olvidarlos fue el bug —la pestaña Pendientes recortaba y ésta seguía enseñando todas—.
+   */
+  filtros: FiltrosCierresBodega;
+}
+
+/** Sin ningún filtro puesto: el único caso en que la página del Server Component vale. */
+function sinFiltrosBodega(filtros: FiltrosCierresBodega): boolean {
+  return Object.values(filtros).every((v) => v === undefined);
 }
 
 /** Nombre visible del listado: hoja, base del archivo y nombre del control (R12/R13). */
@@ -67,8 +77,9 @@ const PAGE_SIZE_OPTIONS = [10, 25, 50].filter(
 async function leerPagina(
   page: number,
   pageSize: number,
+  filtros: FiltrosCierresBodega,
 ): Promise<CierresBodegaResueltosPagina> {
-  const res = await listarHistoricoCierresBodegaPaginado({ page, pageSize });
+  const res = await listarHistoricoCierresBodegaPaginado({ page, pageSize, filtros });
   if (res.status !== "ok") throw new Error(res.status);
   return { items: res.items, total: res.total, pageSize: res.pageSize };
 }
@@ -104,16 +115,32 @@ export function descargaBodegaResueltos(
 export function CierresBodegaResueltosLista({
   initialData,
   onAbrir,
+  filtros,
 }: Readonly<CierresBodegaResueltosListaProps>) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialData.pageSize);
 
+  // Ficha 510: filtrar devuelve el listado a su página 1, como `aplicarFiltros` hace con la cola
+  // de Pendientes — pedir la 7 de un conjunto recién recortado da vacío. Se ajusta en el render
+  // (patrón de React para «estado que depende de una prop»), no en un efecto: así la petición de
+  // la página vieja con los filtros nuevos no llega a salir.
+  const [filtrosVistos, setFiltrosVistos] = useState(filtros);
+  if (filtrosVistos !== filtros) {
+    setFiltrosVistos(filtros);
+    setPage(1);
+  }
+
   const { data, error } = useSWR(
-    ["cierres-bodega:resueltos", page, pageSize],
-    () => leerPagina(page, pageSize),
+    ["cierres-bodega:resueltos", page, pageSize, filtros],
+    () => leerPagina(page, pageSize, filtros),
     {
+      // El `fallbackData` del Server Component solo vale SIN filtros: con un filtro puesto, la
+      // página 1 pre-cargada es la del conjunto sin filtrar, y servirla sería enseñar cierres
+      // que el filtro excluye.
       fallbackData:
-        page === 1 && pageSize === initialData.pageSize ? initialData : undefined,
+        page === 1 && pageSize === initialData.pageSize && sinFiltrosBodega(filtros)
+          ? initialData
+          : undefined,
     },
   );
 

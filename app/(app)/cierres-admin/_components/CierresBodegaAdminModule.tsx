@@ -505,10 +505,16 @@ export function CierresBodegaAdminModule({
    * `fallbackData`: SWR ya tiene datos y no la vuelve a mirar, así que el cierre resuelto
    * seguía en la lista. Se revalidan todas las páginas/filtros de la cola, no sólo la
    * visible: la fila resuelta puede estar en cualquiera de ellas.
+   *
+   * Ficha 510: y también las de «Resueltos». Las dos pestañas siguen montadas (`PanelConmutado`
+   * solo las oculta), así que cambiar de pestaña no revalida: la fila que sale de la cola no
+   * aparecía en Resueltos hasta que la ventana recuperaba el foco.
    */
   function refrescarListas() {
     void mutate(
-      (clave) => Array.isArray(clave) && clave[0] === "cierres-bodega:pendientes",
+      (clave) =>
+        Array.isArray(clave) &&
+        (clave[0] === "cierres-bodega:pendientes" || clave[0] === "cierres-bodega:resueltos"),
     );
     router.refresh();
   }
@@ -669,7 +675,11 @@ export function CierresBodegaAdminModule({
         {/* ---------- Histórico (solo lectura, R15) ----------
             Feature 170 — FASE 2 (T I.2): el listado, su control de paginación y su descarga
             viven en su propio componente (ver la cabecera de `CierresBodegaResueltosLista`). */}
-        <CierresBodegaResueltosLista initialData={historico} onAbrir={abrirDetalle} />
+        <CierresBodegaResueltosLista
+          initialData={historico}
+          onAbrir={abrirDetalle}
+          filtros={filtros}
+        />
       </PanelConmutado>
 
       {/* ---------- Detalle agregado del cierre de bodega (R11-R13) ---------- */}

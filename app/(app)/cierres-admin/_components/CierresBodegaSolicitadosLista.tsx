@@ -51,6 +51,17 @@ export interface CierresBodegaSolicitadosPagina {
 export interface CierresBodegaSolicitadosListaProps {
   /** Página 1 resuelta server-side; alimenta el `fallbackData` de SWR. */
   initialData: CierresBodegaSolicitadosPagina;
+  /**
+   * Ficha 510: los filtros de la barra del módulo (bodega, fechas). Obligatorios a propósito:
+   * olvidarlos fue el bug —«A consolidar» recortaba y ésta seguía enseñando todos—. El filtro
+   * RECORTA dentro de la zona del actor; el alcance lo sigue poniendo el servidor (R44).
+   */
+  filtros: FiltrosCierresBodega;
+}
+
+/** Sin ningún filtro puesto: el único caso en que la página del Server Component vale. */
+function sinFiltrosBodega(filtros: FiltrosCierresBodega): boolean {
+  return Object.values(filtros).every((v) => v === undefined);
 }
 
 /** Nombre visible del listado: hoja, base del archivo y nombre del control (R12/R13). */
@@ -68,8 +79,9 @@ const PAGE_SIZE_OPTIONS = [10, 25, 50].filter(
 async function leerPagina(
   page: number,
   pageSize: number,
+  filtros: FiltrosCierresBodega,
 ): Promise<CierresBodegaSolicitadosPagina> {
-  const res = await listarCierresBodegaSolicitadosPaginado({ page, pageSize });
+  const res = await listarCierresBodegaSolicitadosPaginado({ page, pageSize, filtros });
   if (res.status !== "ok") throw new Error(res.status);
   return { items: res.items, total: res.total, pageSize: res.pageSize };
 }
@@ -102,16 +114,30 @@ export function descargaBodegaSolicitados(filtros: FiltrosCierresBodega): DataTa
 
 export function CierresBodegaSolicitadosLista({
   initialData,
+  filtros,
 }: Readonly<CierresBodegaSolicitadosListaProps>) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialData.pageSize);
 
+  // Ficha 510: filtrar devuelve el listado a su página 1, como `aplicarFiltros` hace con
+  // «A consolidar». Se ajusta en el render (patrón de React para «estado que depende de una
+  // prop»), no en un efecto: la petición de la página vieja con los filtros nuevos no sale.
+  const [filtrosVistos, setFiltrosVistos] = useState(filtros);
+  if (filtrosVistos !== filtros) {
+    setFiltrosVistos(filtros);
+    setPage(1);
+  }
+
   const { data, error } = useSWR(
-    ["cierres-bodega:solicitados", page, pageSize],
-    () => leerPagina(page, pageSize),
+    ["cierres-bodega:solicitados", page, pageSize, filtros],
+    () => leerPagina(page, pageSize, filtros),
     {
+      // El `fallbackData` del Server Component solo vale SIN filtros: con uno puesto, la página 1
+      // pre-cargada es la del conjunto sin filtrar.
       fallbackData:
-        page === 1 && pageSize === initialData.pageSize ? initialData : undefined,
+        page === 1 && pageSize === initialData.pageSize && sinFiltrosBodega(filtros)
+          ? initialData
+          : undefined,
     },
   );
 

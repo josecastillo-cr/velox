@@ -239,6 +239,14 @@ Resultado del encendido (E.2), HECHO el 2026-10-31:
 
 ---
 
+## Release del 2026-11-17 — pie con teléfono y domicilio reales (508) y hora UTC del rastreo (509)
+
+PR #902, merge `234a33e93`, Vercel `success`. Comprobado con curl: `/` y `/privacidad` muestran
++506 7075 9997 y el domicilio de Aserrí; `2000-0000` ya no aparece. Gate completo sobre `ca02404d2`:
+1 rojo (`notificacion-evento-webhook-suscripcion-migration`, deadlock `40P01`), 3/3 verde aislado,
+intermitente. La 509 nació en esta misma release: el primer gate completo salió rojo porque Node
+24.15 / ICU 78 escribe UTC como `GMT+00:00`; el humano eligió arreglarlo antes de desplegar.
+
 ## Release del 2026-11-06 — textos de conciliación y saldo (503, 504, 506)
 
 - **PR #899** (`dev` → `prod`, merge commit), `prod` = `997055b1`, build `dpl_7QtvpTm7coFYVdZ95xb9NvVnf6tC` READY en 1 min 42 s (alias `velox-courier.company`, `aliasError` null). `prod` devuelta a `dev` por fast-forward.
