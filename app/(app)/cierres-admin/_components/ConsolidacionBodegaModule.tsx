@@ -439,7 +439,7 @@ export function ConsolidacionBodegaModule({
             {/* ---------- Histórico de cierres de bodega (solo lectura, F1.4-h) ----------
                 Feature 170 — FASE 2 (T I.2): el listado, su control de paginación y su descarga
                 viven en su propio componente (ver `CierresBodegaSolicitadosLista`). */}
-            <CierresBodegaSolicitadosLista initialData={cierresBodegaPasados} />
+            <CierresBodegaSolicitadosLista initialData={cierresBodegaPasados} filtros={filtros} />
           </PanelConmutado>
         </>
       )}
@@ -447,7 +447,7 @@ export function ConsolidacionBodegaModule({
       {/* SIN ZONA (R4) el histórico se sigue enseñando fuera de las pestañas: es lo único que
           este actor puede mirar, y esconderlo tras un conmutador que no puede usar dejaría la
           pantalla en blanco detrás de un aviso. */}
-      {sinZona ? <CierresBodegaSolicitadosLista initialData={cierresBodegaPasados} /> : null}
+      {sinZona ? <CierresBodegaSolicitadosLista initialData={cierresBodegaPasados} filtros={filtros} /> : null}
 
       {/* Confirmación de "Solicitar cierre de bodega". */}
       <Modal

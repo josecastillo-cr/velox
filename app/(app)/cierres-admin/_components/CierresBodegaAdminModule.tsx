@@ -669,7 +669,11 @@ export function CierresBodegaAdminModule({
         {/* ---------- Histórico (solo lectura, R15) ----------
             Feature 170 — FASE 2 (T I.2): el listado, su control de paginación y su descarga
             viven en su propio componente (ver la cabecera de `CierresBodegaResueltosLista`). */}
-        <CierresBodegaResueltosLista initialData={historico} onAbrir={abrirDetalle} />
+        <CierresBodegaResueltosLista
+          initialData={historico}
+          onAbrir={abrirDetalle}
+          filtros={filtros}
+        />
       </PanelConmutado>
 
       {/* ---------- Detalle agregado del cierre de bodega (R11-R13) ---------- */}
