@@ -239,6 +239,13 @@ Resultado del encendido (E.2), HECHO el 2026-10-31:
 
 ---
 
+## Release del 2026-11-20 — filtros de cierres de bodega (510)
+
+- **PR #904** (`dev` → `prod`, merge commit), `prod` = `587df1341`, build `dpl_GKHgt66mrPjitj3afShP4kiRpkGP` READY. Orden del humano: «llevalos a prod».
+- **Gate completo sobre `1e2d340b9` (= `origin/dev`):** `INIT_EXIT=0`, 35.257 verdes, 26 skipped preexistentes, 0 rojos.
+- **Sin migraciones ni variables de entorno.**
+- **Después:** `get_runtime_errors` 30 min: un solo grupo, `/analitica` «descuadre de conciliacion_cierres» (diferencia 466.800), del deploy ANTERIOR y sin relación con la 510; queda abierto aparte. `prod` devuelta a `dev` por fast-forward.
+
 ## Release del 2026-11-17 — pie con teléfono y domicilio reales (508) y hora UTC del rastreo (509)
 
 PR #902, merge `234a33e93`, Vercel `success`. Comprobado con curl: `/` y `/privacidad` muestran
