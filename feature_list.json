@@ -6116,6 +6116,18 @@
       "depends_on": null,
       "branch": "fix/509-rastreo-utc-z",
       "status_note": "EN PROD el 2026-11-17 (PR #901, release #902). desfaseIso normaliza GMT/+00:00/-00:00 a Z; tests con literales independientes del ICU."
+    },
+    {
+      "id": 510,
+      "title": "Cierres de bodega: Resueltos y Solicitados ignoran los filtros",
+      "description": "La tabla de Resueltos (central) y la de Solicitados (satélite) no aplican los filtros de bodega/fecha; la descarga sí.",
+      "zone": "frontend",
+      "status": "in_progress",
+      "sdd": false,
+      "complexity": "small",
+      "depends_on": null,
+      "branch": "fix/510-filtros-cierres-bodega",
+      "status_note": "CierresBodegaResueltosLista y CierresBodegaSolicitadosLista llaman a su action paginada sin filtros; los módulos no se los pasan."
     }
   ]
 }
